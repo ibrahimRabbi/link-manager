@@ -1,0 +1,31 @@
+.tableRow {
+    height: 60px;
+}
+
+.tableCell {
+    border-left: 1px solid lightgray;
+}
+
+.tableCellName {
+    color: rgb(0, 8, 255);
+    cursor: pointer;
+}
+
+.actionContainer {
+    display: flex;
+    flex-direction: column;
+    width: 150px;
+    padding: 10px;
+}
+
+.actionMenu {
+    width: 100px;
+}
+
+.menuItem {
+    height: 25px;
+}
+
+.pagination {
+    background-color: #f4f4f4;
+}

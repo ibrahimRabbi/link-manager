@@ -1,0 +1,68 @@
+.tablePaginationContainer {
+    border-top: 1px solid #ddd;
+    padding: 5px 20px;
+    display: flex;
+    box-shadow: 0px 1px 2px lightgray;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.tablePaginationRight {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tablePagination {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pageItemContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.5vw;
+    width: 250px;
+}
+
+.select {
+    flex: 1;
+}
+
+.tablePagination button {
+    font-size: 28px;
+    height: 35px;
+    width: 35px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #555;
+    transition: 0.3s;
+}
+
+.tablePaginationContainer p {
+    font-size: 14px;
+}
+
+.paginationIndex {
+    width: 60px;
+}
+
+.disabledBtn {
+    color: #bbb !important;
+    pointer-events: none;
+}
+
+.tablePaginationRight select {
+    border: 1px solid #ddd;
+    padding: 5px 10px;
+    border-radius: 2px;
+    color: #333;
+    font-size: 14px;
+}

@@ -1,0 +1,100 @@
+.title {
+    text-align: center;
+    color: gray;
+    font-weight: bold;
+    margin: 2vw 0;
+}
+
+.sourceContainer {
+    box-shadow: 1px 1px 3px 1px lightgray;
+    padding: 10px 1vw;
+    margin-bottom: 15px;
+}
+
+.sourceList {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.sourceProp {
+    width: 110px;
+    color: gray;
+}
+
+.linkTypeContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 1px 1px 3px 1px lightgray;
+    padding: 10px 1vw;
+    margin-bottom: 15px;
+}
+
+.targetContainer {
+    box-shadow: 1px 1px 3px 1px lightgray;
+    padding: 10px 1vw;
+    min-height: 50vh;
+}
+
+.projectContainer {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.resourceTypeContainer {
+    display: flex;
+    align-items: center;
+}
+
+.dropDownLabel {
+    width: 120px
+}
+
+.targetSearchContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.searchContainer {
+    display: flex;
+    align-items: center;
+    height: 40px;
+}
+
+.inputContainer {
+    padding: 9.5px;
+    border-radius: 5px 0 0 5px;
+    box-shadow: 0 0.8px 1px gray;
+    background-color: #f4f4f4;
+    min-width: 240px;
+}
+
+.searchInput {
+    border: none;
+    min-width: 200px;
+    font-size: 15px;
+    background-color: #f4f4f4;
+    padding-left: 5px;
+}
+
+.searchInput:focus {
+    outline: none;
+}
+
+.searchIcon {
+    margin-bottom: -5px;
+    font-size: 20px;
+}
+
+.searchBtn {
+    border-radius: 0px 5px 5px 0;
+    padding: 0 20px;
+    background-color: #2196f3;
+}
+
+.searchBtn:hover {
+    background-color: #1389e9;
+}
