@@ -1,14 +1,15 @@
-.tableRow {
-    height: 60px;
-}
-
 .tableCell {
     border-left: 1px solid lightgray;
+    width: 200px;
 }
 
 .tableCellName {
     color: rgb(0, 8, 255);
     cursor: pointer;
+}
+
+.targetCell {
+    width: 300px;
 }
 
 .actionContainer {
@@ -19,7 +20,7 @@
 }
 
 .actionMenu {
-    width: 100px;
+    width: 150px;
 }
 
 .menuItem {
@@ -28,4 +29,21 @@
 
 .pagination {
     background-color: #f4f4f4;
+}
+
+.statusIcon {
+    font-size: 18px;
+    margin: 0 5px -4px 0;
+}
+
+.validIcon {
+    color: #1ca55e;
+}
+
+.invalidIcon {
+    color: red;
+}
+
+.noStatusIcon {
+    color: lightgray;
 }

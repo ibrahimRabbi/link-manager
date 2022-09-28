@@ -12,11 +12,17 @@ const projectsData = [
     {
         status: 'No status',
         sourceId: 'requirements.txt',
+        linkType: 'implementedBy',
+        target: 'US-193 Document the process for...',
+    },
+    {
+        status: 'valid',
+        sourceId: 'requirements.txt',
         linkType: 'constrainedBy',
         target: 'dDOC-106 Document - Example 106',
     },
     {
-        status: 'No status',
+        status: 'invalid',
         sourceId: 'requirements.txt',
         linkType: 'affectedBy',
         target: 'US-193 Document the process for...',
@@ -24,8 +30,6 @@ const projectsData = [
 ];
 
 const dropdownItem = [
-    // { text: 'Item 1' },
-    // { text: 'Item 2' },
     'Item 1', 'Item 2'
 ];
 

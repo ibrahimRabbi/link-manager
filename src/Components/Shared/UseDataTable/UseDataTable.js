@@ -1,81 +1,81 @@
-import { OverflowMenu, OverflowMenuItem, Popover, PopoverContent, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow } from '@carbon/react';
+import { Checkbox, OverflowMenu, OverflowMenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow } from '@carbon/react';
 import React, { useEffect, useState } from 'react';
 import Pagination from '../Pagination/Pagination';
 import style from './UseDataTable.module.css';
 import { FiSettings } from 'react-icons/fi';
+import { RiCheckboxBlankFill } from 'react-icons/ri';
+import { AiFillCheckCircle } from 'react-icons/ai';
+import { BsExclamationTriangleFill } from 'react-icons/bs';
+import { useNavigate } from 'react-router-dom';
 
-const UseDataTable = ({ tableData, headers, editData, deleteData, isPagination = false, isHeader = true, isEdit = true, isDelete = true }) => {
-    const [isActionBtn, setIsActionBtn] = useState(false);
-    const [rowValue, setRowValue] = useState([]);
-    const [open, setOpen] = useState(false);
+const rowStyle = { height: '35px' };
 
+const UseDataTable = ({ tableData, headers, isCheckBox = false, selectedData, isChecked, setIsChecked }) => {
     // pagination control
     const [currPage, setCurrPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const totalPage = Math.ceil(tableData?.length / pageSize);
-    const currTableData = isPagination ? tableData?.slice((currPage - 1) * pageSize, currPage * pageSize) : tableData;
+    const currTableData = tableData?.slice((currPage - 1) * pageSize, currPage * pageSize);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (pageSize * currPage > tableData?.length) {
             setCurrPage(totalPage);
         }
     }, [pageSize]);
-    const paginationProps = { currPage, setCurrPage, totalPage, setPageSize, pageSize, totalItem: tableData?.length };
-    // pagination control end
 
-    useEffect(() => {
-        setIsActionBtn(false);
-        for (let header of headers) {
-            if (header.key === 'actions') setIsActionBtn(true);
-        }
-        setRowValue(headers?.filter(data => data.key !== 'actions'));
-    }, [headers]);
+    const paginationProps = { currPage, setCurrPage, totalPage, setPageSize, pageSize, totalItem: tableData?.length };
 
     return (
-        <TableContainer title='' onClick={() => setOpen(false)} >
+        <TableContainer title=''>
             <Table >
-                {isHeader && <TableHead>
+                <TableHead>
                     <TableRow className={style.tableRow}>
                         {headers?.map((header, i) => (
-                            <TableHeader key={i}>
-                                {header?.header}
-                            </TableHeader>
+                            <TableHeader key={i}>{header?.header}</TableHeader>
                         ))}
                     </TableRow>
-                </TableHead>}
-
+                </TableHead>
                 <TableBody>
                     {
-                        tableData[0] && currTableData?.map((row, i) => (
-                            <TableRow key={i} className={style.tableRow} >
-                                {rowValue?.map(value => <TableCell key={value.key} className={style.tableCell}>{row[value.key]}</TableCell>)}
-
-                                {isActionBtn && <TableCell className={`${style.tableCell} ${'cds--table-column-menu'}`}>
-                                    <OverflowMenu menuOptionsClass={style.actionMenu}
-                                        renderIcon={() => <FiSettings />}
-                                        size='md' ariaLabel=''>
-                                        <OverflowMenuItem wrapperClassName={style.menuItem} hasDivider itemText='Details' />
-                                        <OverflowMenuItem wrapperClassName={style.menuItem} hasDivider itemText='Edit' />
-                                        <OverflowMenuItem wrapperClassName={style.menuItem} hasDivider itemText='Set status' onClick={() => setOpen(true)} />
-                                        <OverflowMenuItem wrapperClassName={style.menuItem} hasDivider itemText="Remove" />
-                                    </OverflowMenu>
-                                </TableCell>}
-                            </TableRow>))
+                        // --- New link Table --- 
+                        (isCheckBox && tableData[0]) && currTableData?.map((row) => <TableRow key={row?.identifier} style={rowStyle}>
+                            <TableCell className={style.tableCell}>{row?.identifier}</TableCell>
+                            <TableCell className={style.tableCell}>{row?.name}</TableCell>
+                            <TableCell className={style.tableCell}>{row?.description}</TableCell>
+                            <TableCell className={style.tableCell}><Checkbox onClick={(e) => {
+                                setIsChecked(e.target.id)
+                                selectedData(row)
+                            }} labelText='' checked={isChecked === row?.identifier ? true : false} id={row?.identifier} /></TableCell>
+                        </TableRow>)
                     }
-                    {/* <Popover open={open}>
-                        <PopoverContent>
-                            <OverflowMenuItem wrapperClassName={style.menuItem} hasDivider itemText='Details' />
-                            <OverflowMenuItem wrapperClassName={style.menuItem} hasDivider itemText='Edit' />
-                        </PopoverContent>
-                    </Popover> */}
+                    {
+                        // Link Manager Table
+                        (!isCheckBox && tableData[0]) && currTableData?.map((row, i) => <TableRow key={i} style={rowStyle}>
+                            <TableCell className={style.tableCell}>{row?.status === 'valid' ? <AiFillCheckCircle className={`${style.statusIcon} ${style.validIcon}`} /> : row?.status === 'invalid' ? <BsExclamationTriangleFill className={`${style.statusIcon} ${style.invalidIcon}`} /> : <RiCheckboxBlankFill className={`${style.statusIcon} ${style.noStatusIcon}`} />}{row?.status}</TableCell>
+                            <TableCell className={style.tableCell}>{row?.sourceId}</TableCell>
+                            <TableCell className={style.tableCell}>{row?.linkType}</TableCell>
+                            <TableCell className={`${style.tableCell} ${style.targetCell}`}>{row?.target}</TableCell>
+
+                            <TableCell className={`${style.tableCell} ${'cds--table-column-menu'}`}>
+                                <OverflowMenu menuOptionsClass={style.actionMenu}
+                                    renderIcon={() => <FiSettings />}
+                                    size='md' ariaLabel=''>
+                                    <OverflowMenuItem wrapperClassName={style.menuItem} hasDivider itemText='Details' onClick={() => navigate('/link-details')} />
+                                    <OverflowMenuItem wrapperClassName={style.menuItem} hasDivider itemText='Edit' />
+                                    <OverflowMenuItem wrapperClassName={style.menuItem} hasDivider itemText='Set status - Valid' />
+                                    <OverflowMenuItem wrapperClassName={style.menuItem} hasDivider itemText='Set status - Invalid' />
+                                    <OverflowMenuItem wrapperClassName={style.menuItem} hasDivider itemText="Remove" />
+                                </OverflowMenu>
+                            </TableCell>
+                        </TableRow>)
+                    }
                 </TableBody>
             </Table>
-
             {/* --- Pagination --- */}
-            {isPagination && <div className={style.pagination}>
+            <div className={style.pagination}>
                 <Pagination props={paginationProps} />
             </div>
-            }
         </TableContainer>
     );
 };
