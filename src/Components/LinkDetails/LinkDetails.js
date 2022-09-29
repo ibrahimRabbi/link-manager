@@ -4,82 +4,87 @@ import { TbArrowNarrowRight } from 'react-icons/tb';
 import { Button } from '@carbon/react';
 import { useNavigate } from 'react-router-dom';
 
-const sourceList = [
-    { key: 'Project', value: 'Jet Engine Design (GLIDE)' },
-    { key: 'Type', value: 'Gitlab - File' },
-    { key: 'Component', value: 'Gitlab component 1' },
-    { key: 'Stream', value: 'development' },
-    { key: 'Baseline', value: '78zabc' },
-];
-const targetList = [
-    { key: 'Project', value: 'Jet Engine Design (GLIDE)' },
-    { key: 'Type', value: 'Glide document' },
-    { key: 'Component', value: 'Glide component 1' },
-    { key: 'Stream', value: 'development' },
-    { key: 'Baseline', value: 'xyzabc' },
-];
+const { title, sourceContainer, sourceList, sourceProp, sourceTitle2, targetTitle2, circlesContainer, circle, linkTypeCenter, circleBorder, arrowIcon, backBtn } = style;
+
+const sourceListItems = { Source: 'requirements.txt', Project: 'Jet Engine Design (GLIDE)', Type: 'Gitlab - File', Component: 'Gitlab component 1', Stream: 'development', Baseline: '78zabc' };
+
+const targetListItems = { Source: 'Doc-106 Document - Example 106', Project: 'Jet Engine Design (GLIDE)', Type: 'Glide document', Component: 'Glide component 1', Stream: 'development', Baseline: 'xyzabc' };
 
 const LinkDetails = () => {
     const navigate = useNavigate();
-
     return (
         <div className='mainContainer'>
-            <h2 className={style.title}>OSLC Link manager</h2>
-
-            <div className={style.sourceContainer}>
-                <div className={style.sourceList}>
+            <h2 className={title}>OSLC Link manager</h2>
+            <div className={sourceContainer}>
+                <div className={sourceList}>
                     <h3>Link details</h3>
                 </div>
             </div>
 
-            <div className={style.sourceContainer}>
-                <div className={style.sourceList}>
-                    <h5>Source</h5>
-                    <h5 className={style.sourceTitle2}>requirements.txt</h5>
+            <div className={sourceContainer}>
+                <div className={sourceList}>
+                    <h5>Source</h5><h5 className={sourceTitle2}>{targetListItems?.Source}</h5>
                 </div>
-                {
-                    sourceList?.map((item, i) => <div key={i} className={style.sourceList}>
-                        <p className={style.sourceProp}>{item.key}:</p>
-                        <p>{item.value}</p>
-                    </div>)
-                }
+                <div className={sourceList}>
+                    <p className={sourceProp}>Project:</p><p>{targetListItems?.Project}</p>
+                </div>
+                <div className={sourceList}>
+                    <p className={sourceProp}>Type:</p><p>{targetListItems?.Type}</p>
+                </div>
+                <div className={sourceList}>
+                    <p className={sourceProp}>Component:</p><p>{targetListItems?.Component}</p>
+                </div>
+                <div className={sourceList}>
+                    <p className={sourceProp}>Stream:</p><p>{targetListItems?.Stream}</p>
+                </div>
+                <div className={sourceList}>
+                    <p className={sourceProp}>Baseline:</p><p>{targetListItems?.Baseline}</p>
+                </div>
             </div>
 
-            <div className={style.sourceContainer}>
-                <div className={style.sourceList}>
+            <div className={sourceContainer}>
+                <div className={sourceList}>
                     <h4>Link type</h4>
                     <h4>ConstrainedBy</h4>
                 </div>
             </div>
 
-            <div className={style.sourceContainer}>
-                <div className={style.sourceList}>
-                    <h5>Target</h5>
-                    <h5 className={style.targetTitle2}>Doc-106 Document - Example 106</h5>
+            <div className={sourceContainer}>
+                <div className={sourceList}>
+                    <h5>Source</h5><h5 className={targetTitle2}>{sourceListItems?.Source}</h5>
                 </div>
-                {
-                    targetList?.map((item, i) => <div key={i} className={style.sourceList}>
-                        <p className={style.sourceProp}>{item.key}:</p>
-                        <p>{item.value}</p>
-                    </div>)
-                }
+                <div className={sourceList}>
+                    <p className={sourceProp}>Project:</p><p>{sourceListItems?.Project}</p>
+                </div>
+                <div className={sourceList}>
+                    <p className={sourceProp}>Type:</p><p>{sourceListItems?.Type}</p>
+                </div>
+                <div className={sourceList}>
+                    <p className={sourceProp}>Component:</p><p>{sourceListItems?.Component}</p>
+                </div>
+                <div className={sourceList}>
+                    <p className={sourceProp}>Stream:</p><p>{sourceListItems?.Stream}</p>
+                </div>
+                <div className={sourceList}>
+                    <p className={sourceProp}>Baseline:</p><p>{sourceListItems?.Baseline}</p>
+                </div>
             </div>
 
-            <div className={style.circlesContainer}>
-                <div className={style.circle}>
+            <div className={circlesContainer}>
+                <div className={circle}>
                     <p>requirements.txt</p>
                 </div>
 
-                <p className={style.linkTypeCenter}>constrainedBy</p>
+                <p className={linkTypeCenter}>constrainedBy</p>
 
-                <p className={style.circleBorder} /><TbArrowNarrowRight className={style.arrowIcon} />
+                <p className={circleBorder} /><TbArrowNarrowRight className={arrowIcon} />
 
-                <div className={style.circle}>
+                <div className={circle}>
                     <p>Doc-106 Document - Example 106</p>
                 </div>
             </div>
 
-            <Button onClick={() => navigate('/')} size='lg' className={style.backBtn}>Back</Button>
+            <Button onClick={() => navigate('/')} size='lg' className={backBtn}>Back</Button>
 
         </div>
     );
