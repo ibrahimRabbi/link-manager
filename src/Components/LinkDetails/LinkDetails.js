@@ -1,16 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import style from './LinkDetails.module.css';
 import { TbArrowNarrowRight } from 'react-icons/tb';
 import { Button } from '@carbon/react';
 import { useNavigate } from 'react-router-dom';
 
-const { title, sourceContainer, sourceList, sourceProp, sourceTitle2, targetTitle2, circlesContainer, circle, linkTypeCenter, circleBorder, arrowIcon, backBtn } = style;
-
-const sourceListItems = { Source: 'requirements.txt', Project: 'Jet Engine Design (GLIDE)', Type: 'Gitlab - File', Component: 'Gitlab component 1', Stream: 'development', Baseline: '78zabc' };
-
-const targetListItems = { Source: 'Doc-106 Document - Example 106', Project: 'Jet Engine Design (GLIDE)', Type: 'Glide document', Component: 'Glide component 1', Stream: 'development', Baseline: 'xyzabc' };
+const { title, sourceContainer, sourceList, sourceProp, sourceTitle1, sourceTitle2, targetTitle1, targetTitle2, circlesContainer, circle, linkTypeCenter, circleBorder, arrowIcon, backBtn, linkTitle2 } = style;
 
 const LinkDetails = () => {
+    const [sourceItems, setSourceItems] = useState([]);
+    const [targetItems, setTargetItems] = useState([]);
+    useEffect(() => {
+        fetch('./sourceList.json')
+            .then(res => res.json())
+            .then(data => setSourceItems(data))
+
+        fetch('./targetList.json')
+            .then(res => res.json())
+            .then(data => setTargetItems(data))
+    }, [])
+
     const navigate = useNavigate();
     return (
         <div className='mainContainer'>
@@ -23,56 +31,56 @@ const LinkDetails = () => {
 
             <div className={sourceContainer}>
                 <div className={sourceList}>
-                    <h5>Source</h5><h5 className={sourceTitle2}>{targetListItems?.Source}</h5>
+                    <h5 className={sourceTitle1}>Source</h5><h5 className={sourceTitle2}>{sourceItems[0]?.Source}</h5>
                 </div>
                 <div className={sourceList}>
-                    <p className={sourceProp}>Project:</p><p>{targetListItems?.Project}</p>
+                    <p className={sourceProp}>Project:</p><p>{sourceItems[1]?.Project}</p>
                 </div>
                 <div className={sourceList}>
-                    <p className={sourceProp}>Type:</p><p>{targetListItems?.Type}</p>
+                    <p className={sourceProp}>Type:</p><p>{sourceItems[2]?.Type}</p>
                 </div>
                 <div className={sourceList}>
-                    <p className={sourceProp}>Component:</p><p>{targetListItems?.Component}</p>
+                    <p className={sourceProp}>Component:</p><p>{sourceItems[3]?.Component}</p>
                 </div>
                 <div className={sourceList}>
-                    <p className={sourceProp}>Stream:</p><p>{targetListItems?.Stream}</p>
+                    <p className={sourceProp}>Stream:</p><p>{sourceItems[4]?.Stream}</p>
                 </div>
                 <div className={sourceList}>
-                    <p className={sourceProp}>Baseline:</p><p>{targetListItems?.Baseline}</p>
-                </div>
-            </div>
-
-            <div className={sourceContainer}>
-                <div className={sourceList}>
-                    <h4>Link type</h4>
-                    <h4>ConstrainedBy</h4>
+                    <p className={sourceProp}>Baseline:</p><p>{sourceItems[5]?.Baseline}</p>
                 </div>
             </div>
 
             <div className={sourceContainer}>
                 <div className={sourceList}>
-                    <h5>Source</h5><h5 className={targetTitle2}>{sourceListItems?.Source}</h5>
+                    <h5>Link type</h5>
+                    <h5 className={linkTitle2}>ConstrainedBy</h5>
+                </div>
+            </div>
+
+            <div className={sourceContainer}>
+                <div className={sourceList}>
+                    <h5 className={targetTitle1}>Source</h5><h5 className={targetTitle2}>{targetItems[0]?.Target}</h5>
                 </div>
                 <div className={sourceList}>
-                    <p className={sourceProp}>Project:</p><p>{sourceListItems?.Project}</p>
+                    <p className={sourceProp}>Project:</p><p>{targetItems[1]?.Project}</p>
                 </div>
                 <div className={sourceList}>
-                    <p className={sourceProp}>Type:</p><p>{sourceListItems?.Type}</p>
+                    <p className={sourceProp}>Type:</p><p>{targetItems[2]?.Type}</p>
                 </div>
                 <div className={sourceList}>
-                    <p className={sourceProp}>Component:</p><p>{sourceListItems?.Component}</p>
+                    <p className={sourceProp}>Component:</p><p>{targetItems[3]?.Component}</p>
                 </div>
                 <div className={sourceList}>
-                    <p className={sourceProp}>Stream:</p><p>{sourceListItems?.Stream}</p>
+                    <p className={sourceProp}>Stream:</p><p>{targetItems[4]?.Stream}</p>
                 </div>
                 <div className={sourceList}>
-                    <p className={sourceProp}>Baseline:</p><p>{sourceListItems?.Baseline}</p>
+                    <p className={sourceProp}>Baseline:</p><p>{targetItems[5]?.Baseline}</p>
                 </div>
             </div>
 
             <div className={circlesContainer}>
                 <div className={circle}>
-                    <p>requirements.txt</p>
+                    <p>{sourceItems[0]?.Source}</p>
                 </div>
 
                 <p className={linkTypeCenter}>constrainedBy</p>

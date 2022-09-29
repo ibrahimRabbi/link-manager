@@ -1,0 +1,20 @@
+[
+    {
+        "Source": "requirements.txt"
+    },
+    {
+        "Project": "Gitlab OSLC API"
+    },
+    {
+        "Type": "Gitlab - File"
+    },
+    {
+        "Component": "Gitlab component 1"
+    },
+    {
+        "Stream": "development"
+    },
+    {
+        "Baseline": "78zabc"
+    }
+]

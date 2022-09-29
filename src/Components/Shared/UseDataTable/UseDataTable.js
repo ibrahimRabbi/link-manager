@@ -7,13 +7,14 @@ import { AiFillCheckCircle } from 'react-icons/ai';
 import { BsExclamationTriangleFill } from 'react-icons/bs';
 import { useNavigate } from 'react-router-dom';
 
+// Css styles 
+const { tableRow, tableCell, targetCell, actionMenu, menuItem, statusIcon, invalidIcon, validIcon, noStatusIcon, pagination } = style;
 const rowStyle = { height: '35px' };
 
 const UseDataTable = ({ tableData, headers, isCheckBox = false, selectedData, isChecked, setIsChecked }) => {
-    const navigate = useNavigate();
-    // pagination control
     const [currPage, setCurrPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const navigate = useNavigate();
 
     const handlePagination = (values) => {
         setPageSize(values.pageSize)
@@ -21,11 +22,12 @@ const UseDataTable = ({ tableData, headers, isCheckBox = false, selectedData, is
     };
 
     const currTableData = tableData?.slice((currPage - 1) * pageSize, currPage * pageSize);
+
     return (
         <TableContainer title=''>
             <Table >
                 <TableHead>
-                    <TableRow className={style.tableRow}>
+                    <TableRow className={tableRow}>
                         {headers?.map((header, i) => (
                             <TableHeader key={i}>{header?.header}</TableHeader>
                         ))}
@@ -35,10 +37,10 @@ const UseDataTable = ({ tableData, headers, isCheckBox = false, selectedData, is
                     {
                         // --- New link Table --- 
                         (isCheckBox && tableData?.length > 0) && currTableData?.map((row) => <TableRow key={row?.identifier} style={rowStyle}>
-                            <TableCell className={style.tableCell}>{row?.identifier}</TableCell>
-                            <TableCell className={style.tableCell}>{row?.name}</TableCell>
-                            <TableCell className={style.tableCell}>{row?.description}</TableCell>
-                            <TableCell className={style.tableCell}><Checkbox onClick={(e) => {
+                            <TableCell className={tableCell}>{row?.identifier}</TableCell>
+                            <TableCell className={tableCell}>{row?.name}</TableCell>
+                            <TableCell className={tableCell}>{row?.description}</TableCell>
+                            <TableCell className={tableCell}><Checkbox onClick={(e) => {
                                 setIsChecked(e.target.id)
                                 selectedData(row)
                             }} labelText='' checked={isChecked === row?.identifier ? true : false} id={row?.identifier} /></TableCell>
@@ -46,33 +48,29 @@ const UseDataTable = ({ tableData, headers, isCheckBox = false, selectedData, is
                     }
                     {
                         // Link Manager Table
-                        !isCheckBox && <>
-                            {
-                                (tableData[0] && currTableData)?.map((row, i) => <TableRow key={i} style={rowStyle}>
-                                    <TableCell className={style.tableCell}>{row?.status === 'valid' ? <AiFillCheckCircle className={`${style.statusIcon} ${style.validIcon}`} /> : row?.status === 'invalid' ? <BsExclamationTriangleFill className={`${style.statusIcon} ${style.invalidIcon}`} /> : <RiCheckboxBlankFill className={`${style.statusIcon} ${style.noStatusIcon}`} />}{row?.status}</TableCell>
-                                    <TableCell className={style.tableCell}>{row?.sourceId}</TableCell>
-                                    <TableCell className={style.tableCell}>{row?.linkType}</TableCell>
-                                    <TableCell className={`${style.tableCell} ${style.targetCell}`}>{row?.target}</TableCell>
+                        (!isCheckBox && tableData[0]) && currTableData?.map((row, i) => <TableRow key={i} style={rowStyle}>
+                            <TableCell className={tableCell}>{row?.status === 'valid' ? <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> : row?.status === 'invalid' ? <BsExclamationTriangleFill className={`${statusIcon} ${invalidIcon}`} /> : <RiCheckboxBlankFill className={`${statusIcon} ${noStatusIcon}`} />}{row?.status}</TableCell>
+                            <TableCell className={tableCell}>{row?.sourceId}</TableCell>
+                            <TableCell className={tableCell}>{row?.linkType}</TableCell>
+                            <TableCell className={`${tableCell} ${targetCell}`}>{row?.target}</TableCell>
 
-                                    <TableCell className={`${style.tableCell} ${'cds--table-column-menu'}`}>
-                                        <OverflowMenu menuOptionsClass={style.actionMenu}
-                                            renderIcon={() => <FiSettings />}
-                                            size='md' ariaLabel=''>
-                                            <OverflowMenuItem wrapperClassName={style.menuItem} hasDivider itemText='Details' onClick={() => navigate('/link-details')} />
-                                            <OverflowMenuItem wrapperClassName={style.menuItem} hasDivider itemText='Edit' />
-                                            <OverflowMenuItem wrapperClassName={style.menuItem} hasDivider itemText='Set status - Valid' />
-                                            <OverflowMenuItem wrapperClassName={style.menuItem} hasDivider itemText='Set status - Invalid' />
-                                            <OverflowMenuItem wrapperClassName={style.menuItem} hasDivider itemText="Remove" />
-                                        </OverflowMenu>
-                                    </TableCell>
-                                </TableRow>)
-                            }
-                        </>
+                            <TableCell className={`${tableCell} ${'cds--table-column-menu'}`}>
+                                <OverflowMenu menuOptionsClass={actionMenu}
+                                    renderIcon={() => <FiSettings />}
+                                    size='md' ariaLabel=''>
+                                    <OverflowMenuItem wrapperClassName={menuItem} hasDivider itemText='Details' onClick={() => navigate('/link-details')} />
+                                    <OverflowMenuItem wrapperClassName={menuItem} hasDivider itemText='Edit' />
+                                    <OverflowMenuItem wrapperClassName={menuItem} hasDivider itemText='Set status - Valid' />
+                                    <OverflowMenuItem wrapperClassName={menuItem} hasDivider itemText='Set status - Invalid' />
+                                    <OverflowMenuItem wrapperClassName={menuItem} hasDivider itemText="Remove" />
+                                </OverflowMenu>
+                            </TableCell>
+                        </TableRow>)
                     }
                 </TableBody>
             </Table>
             {/* --- Pagination --- */}
-            <div className={style.pagination}>
+            <div className={pagination}>
                 <Pagination
                     backwardText="Previous page"
                     forwardText="Next page"

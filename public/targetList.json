@@ -1,0 +1,20 @@
+[
+    {
+        "Target": "Doc-106 Document - Example 106"
+    },
+    {
+        "Project": "Jet Engine Design (GLIDE)"
+    },
+    {
+        "Type": "Glide document"
+    },
+    {
+        "Component": "Glide component 1"
+    },
+    {
+        "Stream": "development"
+    },
+    {
+        "Baseline": "xyzabc"
+    }
+]

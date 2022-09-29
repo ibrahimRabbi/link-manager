@@ -19,9 +19,10 @@ const LinkManager = () => {
     const [projectsData, setProjectsData] = useState([]);
 
     useEffect(() => {
-        fetch('./links.json')
+        fetch('./linksData.json')
             .then(res => res.json())
             .then(data => setProjectsData(data))
+            .catch(err => console.log(err))
     }, [])
 
     const handleShowItem = (value) => {

@@ -27,12 +27,9 @@
     margin-left: 5px;
 }
 
-.sourceList p:first-child {
-    font-size: 17px;
-    color: black;
-}
-
 .sourceList h5:first-child {
+    font-size: 18px;
+    color: black;
     width: 120px;
 }
 
@@ -43,16 +40,7 @@
     min-width: 40%;
 }
 
-.sourceList h4 {
-    font-size: 20px;
-    color: black;
-}
-
-.sourceList h4:first-child {
-    width: 120px;
-}
-
-.sourceList h4:last-child {
+.linkTitle2 {
     background-color: #f0ecec;
     border-radius: 5px;
     padding: 0 5px;
