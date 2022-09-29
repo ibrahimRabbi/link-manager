@@ -1,0 +1,119 @@
+.title {
+    text-align: center;
+    color: gray;
+    font-weight: bold;
+    margin: 2vw 0;
+}
+
+.sourceContainer {
+    box-shadow: 1px 1px 3px 1px lightgray;
+    padding: 10px 1vw;
+    margin-bottom: 15px;
+}
+
+.sourceList {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.sourceList h3 {
+    font-weight: 500;
+    font-size: 24px;
+}
+
+.sourceList p {
+    font-size: 15px;
+    margin-left: 5px;
+}
+
+.sourceList h5:first-child {
+    font-size: 18px;
+    color: black;
+    width: 120px;
+}
+
+.sourceTitle2 {
+    background-color: #fabbb7;
+    border-radius: 5px;
+    padding: 0 5px;
+    min-width: 40%;
+}
+
+.linkTitle2 {
+    background-color: #f0ecec;
+    border-radius: 5px;
+    padding: 0 5px;
+    min-width: 40%;
+}
+
+.targetTitle2 {
+    background-color: #acd0ff;
+    border-radius: 5px;
+    padding: 0 5px;
+    min-width: 40%;
+}
+
+.sourceProp {
+    width: 110px;
+    color: gray;
+}
+
+.circlesContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 55%;
+    margin: 0 auto;
+}
+
+.circle {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    padding: 3%;
+    background-color: #ff5a51;
+}
+
+.circle:last-child {
+    background-color: #197cff;
+}
+
+.linkTypeCenter {
+    position: absolute;
+    top: 25%;
+    left: 35%;
+    right: 40%;
+    color: black;
+    font-weight: 500;
+}
+
+.circleBorder {
+    flex: 1;
+    border-bottom: 5px solid black;
+}
+
+.arrowIcon {
+    font-size: 50px;
+    color: black;
+    margin: 0 -8px -0.5px -15px;
+}
+
+.circle p {
+    text-align: center;
+    color: white;
+    font-weight: 500;
+    font-size: 14px;
+    word-wrap: break-word;
+}
+
+.backBtn {
+    display: block;
+    background-color: #2196f3;
+    margin: 10px 0 10px auto;
+    border-radius: 5px;
+}
+
+.backBtn:hover {
+    background-color: #1389e9;
+}
