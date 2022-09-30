@@ -1,9 +1,10 @@
-import { Route, Routes } from "react-router-dom";
+import React from 'react';
+import { Route, Routes } from 'react-router-dom';
 import './Styles/GlobalStyle.css';
-import NotFound from "./Pages/404";
-import Home from "./Pages/Home";
-import NewLink from "./Components/NewLink/NewLink";
-import LinkDetails from "./Components/LinkDetails/LinkDetails";
+import NotFound from './Pages/404';
+import Home from './Pages/Home';
+import NewLink from './Components/NewLink/NewLink';
+import LinkDetails from './Components/LinkDetails/LinkDetails';
 
 function App() {
   return (
