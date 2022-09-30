@@ -38,7 +38,7 @@ const LinkManager = () => {
 
     const handleOpenTargetLink = () => {
         Swal.fire({
-            title: 'Opening Jira!!!',
+            title: 'Opening Jira Application',
             timer: 2000,
             didOpen: () => {
                 Swal.showLoading()
