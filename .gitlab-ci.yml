@@ -22,12 +22,17 @@ stages:          # List of stages for jobs, and their order of execution
   - test
   - deploy
 
+default:
+  image: node:18.10.0-alpine
+  before_script:
+    - yarn install
+
 lint-job:
   stage: lint
   script:
     - echo "Linting the src"
     - yarn run lint src/
-    - - echo "Compile complete."
+    - echo "Compile complete."
 
 .build-job:       # This job runs in the build stage, which runs first.
   stage: build
