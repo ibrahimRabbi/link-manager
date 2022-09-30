@@ -11,9 +11,15 @@ import Swal from 'sweetalert2';
 const { title, linkFileContainer, fileName, newLinkBtn, tableContainer, searchBox, searchContainer, inputContainer, searchInput, searchBtn, searchIcon } = style;
 
 
-const headers = [{ key: 'status', header: 'Status' }, { key: 'sourceId', header: 'Source ID' }, { key: 'linkType', header: 'Link type' }, { key: 'target', header: 'Target' }, { key: 'actions', header: 'Actions' }];
+const headers = [
+    { key: 'status', header: 'Status' },
+    { key: 'sourceId', header: 'Source ID' },
+    { key: 'linkType', header: 'Link type' },
+    { key: 'target', header: 'Target' },
+    { key: 'actions', header: 'Actions' }
+];
 
-const dropdownItem = ['Item 1', 'Item 2'];
+const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 
 const LinkManager = () => {
     const navigate = useNavigate();
@@ -33,7 +39,7 @@ const LinkManager = () => {
     const handleOpenTargetLink = () => {
         Swal.fire({
             title: 'Opening Jira!!!',
-            timer: 3000,
+            timer: 2000,
             didOpen: () => {
                 Swal.showLoading()
             },
@@ -46,12 +52,12 @@ const LinkManager = () => {
 
             <div className={linkFileContainer}>
                 <h5>Links for file: <span className={fileName}>requirements.txt</span></h5>
-                <h5 className={newLinkBtn} onClick={() => navigate('/new-link')}>New link</h5>
+                <Button onClick={() => navigate('/new-link')} className={newLinkBtn} size='sm' kind='ghost--tertiary'>New link</Button>
             </div>
 
             <div className={tableContainer}>
                 <div className={searchBox}>
-                    <UseDropdown onChange={handleShowItem} items={dropdownItem} id={'linkManager_showAll'} label='Show all' style={{ width: '150px', borderRadius: '5px' }} />
+                    <UseDropdown onChange={handleShowItem} items={dropdownItem} id={'linkManager_showAll'} label='Show all' style={{ width: '20%' }} />
 
                     <div className={searchContainer}>
                         <div className={inputContainer}>
