@@ -51,18 +51,26 @@ build-job:       # This job runs in the build stage, which runs first.
     - sleep 60
     - echo "Code coverage is 90%"
 
-.lint-test-job:   # This job also runs in the test stage.
-  stage: test    # It can run at the same time as unit-test-job (in parallel).
-  script:
-    - echo "Linting code... This will take about 10 seconds."
-    - sleep 10
-    - echo "No lint issues found."
-
 .deploy-job-development:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
   environment: development
+  before_script:
+    - echo "Detecting ssh-agent..."
+    - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y  )"
+    - echo "Updating ssh-agent..."
+    - "which rsync || ( apt-get update -y && apt-get install rsync -y )"
+    - echo "Evaluating ssh-agent..."
+    - eval $(ssh-agent -s)
+    - echo "Injecting key..."
+    - mkdir -p ~/.ssh
+    - echo -e "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-add ~/.ssh/id_rsa
+    - echo "Scanning server..."
+    - ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts
   script:
     - echo "Deploying application..."
+    - scp -r build/* $SERVER_USER@$SERVER_IP:/var/www/lm-dev
     - echo "Application successfully deployed."
 
 
