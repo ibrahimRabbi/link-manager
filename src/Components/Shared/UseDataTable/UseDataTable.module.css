@@ -9,7 +9,11 @@
 }
 
 .targetCell {
-    width: 300px;
+    width: 35%;
+}
+
+.targetCell>span {
+    cursor: pointer;
 }
 
 .actionContainer {
@@ -46,4 +50,36 @@
 
 .noStatusIcon {
     color: lightgray;
+}
+
+.modalHeadContainer {
+    display: flex;
+    border-bottom: 2px solid lightgray;
+    padding: 10px;
+}
+
+.modalTitle {
+    cursor: pointer;
+    font-weight: bold;
+    color: #3805c8;
+    font-size: 18px;
+    border-bottom: 2px solid #3805c8;
+}
+
+.modalBody {
+    margin: 0;
+    padding: 10px;
+    background-color: white;
+    border-radius: 10px;
+}
+
+.sourceList {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.sourceProp {
+    width: 100px;
+    color: gray;
 }
