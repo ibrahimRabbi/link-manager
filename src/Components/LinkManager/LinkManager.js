@@ -5,6 +5,7 @@ import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import style from './LinkManager.module.css';
 import { GoSearch } from 'react-icons/go';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 // Css style destructure
 const { title, linkFileContainer, fileName, newLinkBtn, tableContainer, searchBox, searchContainer, inputContainer, searchInput, searchBtn, searchIcon } = style;
@@ -29,6 +30,16 @@ const LinkManager = () => {
         console.log(value)
     };
 
+    const handleOpenTargetLink = () => {
+        Swal.fire({
+            title: 'Opening Jira!!!',
+            timer: 3000,
+            didOpen: () => {
+                Swal.showLoading()
+            },
+        })
+    };
+
     return (
         <div>
             <h2 className={title}>OSLC Link manager</h2>
@@ -50,7 +61,7 @@ const LinkManager = () => {
                         <Button size='md' className={searchBtn}>Search</Button>
                     </div>
                 </div>
-                <UseDataTable headers={headers} tableData={projectsData} isPagination={true} />
+                <UseDataTable headers={headers} tableData={projectsData} openTargetLink={handleOpenTargetLink} />
             </div>
         </div>
     );

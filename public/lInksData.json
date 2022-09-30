@@ -3,13 +3,13 @@
         "status": "No status",
         "sourceId": "requirements.txt",
         "linkType": "implementedBy",
-        "target": "US-193 Document the process for..."
+        "target": "US-193 Document the process"
     },
     {
         "status": "valid",
         "sourceId": "requirements.txt",
         "linkType": "constrainedBy",
-        "target": "dDOC-106 Document - Example 106"
+        "target": "DOC-106 Document - Example 106"
     },
     {
         "status": "invalid",
