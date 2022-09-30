@@ -22,6 +22,13 @@ stages:          # List of stages for jobs, and their order of execution
   - test
   - deploy
 
+lint-job:
+  stage: lint
+  script:
+    - echo "Linting the src"
+    - yarn run lint src/
+    - - echo "Compile complete."
+
 .build-job:       # This job runs in the build stage, which runs first.
   stage: build
   script:
@@ -42,7 +49,7 @@ stages:          # List of stages for jobs, and their order of execution
     - sleep 10
     - echo "No lint issues found."
 
-deploy-job-development:      # This job runs in the deploy stage.
+.deploy-job-development:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
   environment: development
   script:
@@ -50,14 +57,14 @@ deploy-job-development:      # This job runs in the deploy stage.
     - echo "Application successfully deployed."
 
 
-deploy-job-staging:      # This job runs in the deploy stage.
+.deploy-job-staging:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
   environment: staging
   script:
     - echo "Deploying application..."
     - echo "Application successfully deployed."
 
-deploy-job-production:      # This job runs in the deploy stage.
+.deploy-job-production:      # This job runs in the deploy stage.
   stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
   environment: production
   when: manual
