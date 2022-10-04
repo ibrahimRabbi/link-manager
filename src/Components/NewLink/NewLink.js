@@ -47,7 +47,6 @@ const NewLink = () => {
   const [sourceItems, setSourceItems] = useState([]);
   const navigate = useNavigate();
   const dispatch=useDispatch();
-  console.log(linkType, projectType, resourceType,targetData);
 
   useEffect(() => {
     setDisplayTableData([]);
@@ -85,6 +84,7 @@ const NewLink = () => {
   const handleTargetResource = ({selectedItem}) => {
     dispatch(handleResourceType(selectedItem));
   };
+  
   // Selected target data
   const handleSelectedData = (data) => {
     dispatch(handleTargetData(data));

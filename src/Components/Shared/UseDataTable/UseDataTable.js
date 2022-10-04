@@ -4,7 +4,9 @@ import { AiFillCheckCircle } from 'react-icons/ai';
 import { BsExclamationTriangleFill } from 'react-icons/bs';
 import { FiSettings } from 'react-icons/fi';
 import { RiCheckboxBlankFill } from 'react-icons/ri';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { handleDeleteLink, handleSetStatus } from '../../../Redux/slices/linksSlice';
 import style from './UseDataTable.module.css';
 
 // Css styles 
@@ -15,6 +17,7 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false, 
   const [isOpen, setIsOpen] = useState(null);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const dispatch=useDispatch();
   const navigate = useNavigate();
   
   const handlePagination = (values) => {
@@ -50,10 +53,9 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false, 
           {
             // Link Manager Table
             (!isCheckBox && tableData[0]) && currTableData?.map((row, i) => <TableRow key={i} style={rowStyle}>
-              <TableCell className={tableCell}>{row?.status === 'valid' ? <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> : row?.status === 'invalid' ? <BsExclamationTriangleFill className={`${statusIcon} ${invalidIcon}`} /> : <RiCheckboxBlankFill className={`${statusIcon} ${noStatusIcon}`} />}{row?.status}</TableCell>
+              <TableCell className={tableCell}>{row?.status === 'Valid' ? <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> : row?.status === 'Invalid' ? <BsExclamationTriangleFill className={`${statusIcon} ${invalidIcon}`} /> : <RiCheckboxBlankFill className={`${statusIcon} ${noStatusIcon}`} />}{row?.status}</TableCell>
               <TableCell className={tableCell}>{'requirements.txt'}</TableCell>
               <TableCell className={tableCell}>{row?.linkType}</TableCell>
-              {console.log(row)}
               {/* --- Table data with modal ---  */}
               <TableCell className={`${tableCell} ${targetCell}`}><span onClick={() => setIsOpen({ id: row?.identifier, value: true })}>{row?.identifier} {row?.description}</span>
                 <ComposedModal
@@ -91,9 +93,9 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false, 
                   size='md' ariaLabel=''>
                   <OverflowMenuItem wrapperClassName={menuItem} hasDivider itemText='Details' onClick={() => navigate('/link-details')} />
                   <OverflowMenuItem wrapperClassName={menuItem} hasDivider itemText='Edit' />
-                  <OverflowMenuItem wrapperClassName={menuItem} hasDivider itemText='Set status - Valid' />
-                  <OverflowMenuItem wrapperClassName={menuItem} hasDivider itemText='Set status - Invalid' />
-                  <OverflowMenuItem wrapperClassName={menuItem} hasDivider itemText='Remove' />
+                  <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>dispatch(handleSetStatus({row, status:'Valid'}))} hasDivider itemText='Set status - Valid' />
+                  <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>dispatch(handleSetStatus({row, status:'Invalid'}))} hasDivider itemText='Set status - Invalid' />
+                  <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>dispatch(handleDeleteLink(row))} hasDivider itemText='Remove' />
                 </OverflowMenu>
               </TableCell>
             </TableRow>)

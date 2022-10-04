@@ -44,7 +44,7 @@ const LinkManager = () =>{
   const handleShowItem = (value) => {
     console.log(value);
   };
-
+  
   const handleOpenTargetLink = () => {
     Swal.fire({
       title: 'Opening Jira Application',
