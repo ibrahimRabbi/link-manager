@@ -1,15 +1,32 @@
 import { Button } from '@carbon/react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { GoSearch } from 'react-icons/go';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import style from './LinkManager.module.css';
-import { GoSearch } from 'react-icons/go';
-import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
+
 
 // Css style destructure
 const { title, linkFileContainer, fileName, newLinkBtn, tableContainer, searchBox, searchContainer, inputContainer, searchInput, searchBtn, searchIcon } = style;
 
+const btnStyle={
+  searchBtn:{
+    borderRadius: '0px 5px 5px 0',
+    padding: '0 20px',
+    backgroundColor: '#2196f3'},
+  newLinkBtn:{
+    marginRight: '10px',
+    cursor: 'pointer',
+    borderRadius: '5px',
+    fontSize: '15px',
+    fontWeight: '600',
+    color: '#1389e9',
+    backgroundColor: '#f0f0f0'
+  }
+};
 
 const headers = [
   { key: 'status', header: 'Status' },
@@ -21,17 +38,9 @@ const headers = [
 
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 
-const LinkManager = () => {
+const LinkManager = () =>{
+  const {allLinks}=useSelector(state=>state.links);
   const navigate = useNavigate();
-  const [projectsData, setProjectsData] = useState([]);
-
-  useEffect(() => {
-    fetch('./linksData.json')
-      .then(res => res.json())
-      .then(data => setProjectsData(data))
-      .catch(err => console.log(err));
-  }, []);
-
   const handleShowItem = (value) => {
     console.log(value);
   };
@@ -52,7 +61,7 @@ const LinkManager = () => {
 
       <div className={linkFileContainer}>
         <h5>Links for file: <span className={fileName}>requirements.txt</span></h5>
-        <Button onClick={() => navigate('/new-link')} className={newLinkBtn} size='sm' kind='ghost--tertiary'>New link</Button>
+        <Button onClick={() => navigate('/new-link')} style={btnStyle.newLinkBtn} className={newLinkBtn} size='sm' kind='ghost'>New link</Button>
       </div>
 
       <div className={tableContainer}>
@@ -64,13 +73,12 @@ const LinkManager = () => {
               <GoSearch className={searchIcon} />
               <input className={searchInput} type="text" placeholder='Search by identifier or name' />
             </div>
-            <Button size='md' className={searchBtn}>Search</Button>
+            <Button size='md' style={btnStyle.searchBtn} className={searchBtn}>Search</Button>
           </div>
         </div>
-        <UseDataTable headers={headers} tableData={projectsData} openTargetLink={handleOpenTargetLink} />
+        <UseDataTable headers={headers} tableData={allLinks} openTargetLink={handleOpenTargetLink} />
       </div>
     </div>
   );
 };
-
 export default LinkManager;

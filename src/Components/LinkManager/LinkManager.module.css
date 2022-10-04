@@ -35,6 +35,7 @@
     font-size: 15px;
     font-weight: 600;
     color: #1389e9;
+    background-color: #f0f0f0;
 }
 
 .tableContainer {
@@ -64,6 +65,7 @@
     border-radius: 5px 0 0 5px;
     box-shadow: 0 0.8px 1px gray;
     background-color: #f4f4f4;
+    min-width: 240px;
 }
 
 .searchInput {

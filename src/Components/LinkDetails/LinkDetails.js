@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import style from './LinkDetails.module.css';
-import { TbArrowNarrowRight } from 'react-icons/tb';
 import { Button } from '@carbon/react';
+import React, { useEffect, useState } from 'react';
+import { TbArrowNarrowRight } from 'react-icons/tb';
 import { useNavigate } from 'react-router-dom';
+import style from './LinkDetails.module.css';
 
 const { title, sourceContainer, sourceList, sourceProp, sourceTitle1, sourceTitle2, targetTitle1, targetTitle2, circlesContainer, circle, linkTypeCenter, circleBorder, arrowIcon, backBtn, linkTitle2 } = style;
 
 const LinkDetails = () => {
   const [sourceItems, setSourceItems] = useState([]);
   const [targetItems, setTargetItems] = useState([]);
+  
   useEffect(() => {
     fetch('./sourceList.json')
       .then(res => res.json())

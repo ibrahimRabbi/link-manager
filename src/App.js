@@ -1,10 +1,10 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import './Styles/GlobalStyle.css';
+import LinkDetails from './Components/LinkDetails/LinkDetails';
+import NewLink from './Components/NewLink/NewLink';
 import NotFound from './Pages/404';
 import Home from './Pages/Home';
-import NewLink from './Components/NewLink/NewLink';
-import LinkDetails from './Components/LinkDetails/LinkDetails';
+import './Styles/GlobalStyle.css';
 
 function App() {
   return (
@@ -13,11 +13,9 @@ function App() {
         <Route path='/' element={<Home />} />
         <Route path='/new-link' element={<NewLink />} />
         <Route path='/link-details' element={<LinkDetails />} />
-
         <Route path='*' element={<NotFound />} />
       </Routes>
     </div>
   );
 }
-
 export default App;

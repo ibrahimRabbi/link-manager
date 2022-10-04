@@ -3,6 +3,14 @@
     width: 200px;
 }
 
+.newLinkCell1 {
+    width: 15%;
+}
+
+.newLinkCell2 {
+    width: 35%;
+}
+
 .tableCellName {
     color: rgb(0, 8, 255);
     cursor: pointer;
@@ -82,4 +90,22 @@
 .sourceProp {
     width: 100px;
     color: gray;
+}
+
+.targetItemStyle {
+    width: 100%;
+    text-align: start;
+}
+
+.targetItem {
+    width: 300px;
+}
+
+.targetItem:focus {
+    outline: none;
+    border: none;
+}
+
+.targetPopover {
+    min-width: 300px;
 }

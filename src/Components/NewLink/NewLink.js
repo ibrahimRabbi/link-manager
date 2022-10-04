@@ -2,14 +2,27 @@ import { Button, Checkbox } from '@carbon/react';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { GoSearch } from 'react-icons/go';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import { handleCreateLink, handleLinkType, handleProjectType, handleResourceType, handleTargetData } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import style from './NewLink.module.css';
-import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
+
 
 // Css styles
 const { title, sourceContainer, sourceList, sourceProp, linkTypeContainer, targetContainer, projectContainer, dropDownLabel, targetSearchContainer, resourceTypeContainer, searchContainer, inputContainer, searchIcon, searchInput, searchBtn, newLinkTable, emptySearchWarning, saveBtn } = style;
+
+const btnStyle={
+  saveBtn:{display: 'block',
+    backgroundColor:'#2196f3',
+    margin: '10px 0 10px auto',
+    borderRadius: '5px'},
+  searchBtn:{borderRadius: '0px 5px 5px 0',
+    padding: '0 20px',
+    backgroundColor: '#2196f3'}
+};
 
 // dropdown items
 const linkTypeItems = ['affectedBy', 'implementedBy', 'trackedBy', 'constrainedBy', 'decomposedBy', 'elaboratedBy', 'satisfiedBy'];
@@ -25,14 +38,16 @@ const headers = [
 ];
 
 const NewLink = () => {
-  const [linkType, setLinkType] = useState('');
+  const {targetData, linkType, projectType, resourceType}=useSelector(state=>state.links);
+  
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [isChecked, setIsChecked] = useState(null);
-  const [selectedTargetData, setSelectedTargetData] = useState(null);
   const [displayTableData, setDisplayTableData] = useState([]);
   const [sourceItems, setSourceItems] = useState([]);
   const navigate = useNavigate();
+  const dispatch=useDispatch();
+  console.log(linkType, projectType, resourceType,targetData);
 
   useEffect(() => {
     setDisplayTableData([]);
@@ -50,39 +65,49 @@ const NewLink = () => {
 
   const handleSearchData = data => {
     setIsChecked(null);
-    setSelectedTargetData(null);
+    dispatch(handleTargetData({}));
     setSearchText(data?.searchText);
   };
 
-  const handleLinkTypeChange = (value) => {
-    console.log(value);
-    setLinkType(value?.selectedItem);
+  const handleLinkTypeChange = ({selectedItem}) => {
+    dispatch(handleProjectType(null));
+    dispatch(handleResourceType(null));
+    dispatch(handleLinkType(selectedItem));
   };
 
-  const targetProjectItems = linkType === 'constrainedBy' ? ['Gilda OSLC API 1'] : projectItems;
+  const targetProjectItems = linkType === 'constrainedBy' ? ['Jet Engine Design (GLIDE)'] : projectItems;
   const targetResourceItems = linkType === 'constrainedBy' ? ['Document (PLM)', 'Part (PLM)'] : resourceItems;
 
-  const handleTargetProject = (value) => {
-    console.log(value);
+  const handleTargetProject = ({selectedItem}) => {
+    dispatch(handleProjectType(selectedItem));
   };
 
-  const handleTargetResource = (value) => {
-    console.log(value);
+  const handleTargetResource = ({selectedItem}) => {
+    dispatch(handleResourceType(selectedItem));
   };
-    // Selected target data
+  // Selected target data
   const handleSelectedData = (data) => {
-    console.log(data);
-    setSelectedTargetData(data);
+    dispatch(handleTargetData(data));
   };
 
   // Create new link 
   const handleSaveLink = () => {
-    Swal.fire({
-      icon: 'success',
-      title: 'Link successfully created!',
-      timer: 3000
-    });
-    navigate('/');
+    if(linkType&&projectType&&resourceType){
+      dispatch(handleCreateLink());
+      Swal.fire({
+        icon: 'success',
+        title: 'Link successfully created!',
+        timer: 3000
+      });
+      navigate('/');
+    }
+    else{
+      Swal.fire({
+        icon: 'error',
+        title: 'Link create failed!!! Please fill all the options',
+        timer: 3000
+      });
+    }
   };
 
   return (
@@ -115,41 +140,41 @@ const NewLink = () => {
 
       {/* --- After selected link type ---  */}
       {linkType &&
-                <div className={targetContainer}>
-                  <h5>Target</h5>
+        <div className={targetContainer}>
+          <h5>Target</h5>
 
-                  <div className={projectContainer}>
-                    <p className={dropDownLabel}>Project:</p>
-                    <UseDropdown items={targetProjectItems} onChange={handleTargetProject} label={'Select project'} id='project-dropdown' style={{ minWidth: '300px' }} />
-                  </div>
+          <div className={projectContainer}>
+            <p className={dropDownLabel}>Project:</p>
+            <UseDropdown items={targetProjectItems} onChange={handleTargetProject} label={'Select project'} id='project-dropdown' style={{ minWidth: '250px' }} />
+          </div>
 
-                  <div className={targetSearchContainer}>
-                    <div className={resourceTypeContainer}>
-                      <p className={dropDownLabel}>Resource type:</p>
-                      <UseDropdown items={targetResourceItems} onChange={handleTargetResource} label={'Select resource type'} id='resourceType-dropdown' style={{ minWidth: '300px' }} />
-                    </div>
+          <div className={targetSearchContainer}>
+            <div className={resourceTypeContainer}>
+              <p className={dropDownLabel}>Resource type:</p>
+              <UseDropdown items={targetResourceItems} onChange={handleTargetResource} label={'Select resource type'} id='resourceType-dropdown' style={{ minWidth: '250px' }} />
+            </div>
 
-                    <form onSubmit={handleSubmit(handleSearchData)} className={searchContainer}>
-                      <div className={inputContainer}>
-                        <GoSearch className={searchIcon} />
-                        <input className={searchInput} type="text" placeholder='Search by identifier or name' {...register('searchText')} />
-                      </div>
-                      <Button size='md' type='submit' className={searchBtn}>Search</Button>
-                    </form>
-                  </div>
+            <form onSubmit={handleSubmit(handleSearchData)} className={searchContainer}>
+              <div className={inputContainer}>
+                <GoSearch className={searchIcon} />
+                <input className={searchInput} type='text' placeholder='Search by identifier or name' {...register('searchText')} />
+              </div>
+              <Button size='md' type='submit' style={btnStyle.searchBtn} className={searchBtn}>Search</Button>
+            </form>
+          </div>
 
-                  {
-                    (searchText && displayTableData[0]) &&
-                        <div className={newLinkTable}>
-                          <UseDataTable headers={headers} tableData={displayTableData} isCheckBox={true} isPagination={displayTableData[0] ? true : false} selectedData={handleSelectedData} isChecked={isChecked} setIsChecked={setIsChecked} />
-                        </div>
-                  }
-                  {(searchText && !displayTableData[0]) &&
-                        <h2 className={emptySearchWarning}>Please search by valid identifier or name</h2>
-                  }
-                </div>
+          {
+            (searchText && displayTableData[0]) &&
+            <div className={newLinkTable}>
+              <UseDataTable headers={headers} tableData={displayTableData} isCheckBox={true} isPagination={displayTableData[0] ? true : false} selectedData={handleSelectedData} isChecked={isChecked} setIsChecked={setIsChecked} />
+            </div>
+          }
+          {(searchText && !displayTableData[0]) &&
+            <h2 className={emptySearchWarning}>Please search by valid identifier or name</h2>
+          }
+        </div>
       }
-      {selectedTargetData?.identifier && <Button onClick={handleSaveLink} size='lg' className={saveBtn}>Save</Button>}
+      {targetData?.identifier && <Button onClick={handleSaveLink} size='md' style={btnStyle.saveBtn} className={saveBtn}>Save</Button>}
     </div>
   );
 };

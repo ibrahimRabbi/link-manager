@@ -1,14 +1,14 @@
 import { Checkbox, ComposedModal, ModalBody, ModalHeader, OverflowMenu, OverflowMenuItem, Pagination, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow } from '@carbon/react';
 import React, { useState } from 'react';
-import style from './UseDataTable.module.css';
-import { FiSettings } from 'react-icons/fi';
-import { RiCheckboxBlankFill } from 'react-icons/ri';
 import { AiFillCheckCircle } from 'react-icons/ai';
 import { BsExclamationTriangleFill } from 'react-icons/bs';
+import { FiSettings } from 'react-icons/fi';
+import { RiCheckboxBlankFill } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
+import style from './UseDataTable.module.css';
 
 // Css styles 
-const { tableRow, tableCell, targetCell, actionMenu, menuItem, statusIcon, invalidIcon, validIcon, noStatusIcon, pagination, modalHeadContainer, modalTitle, modalBody, sourceList, sourceProp } = style;
+const { tableRow, tableCell, targetCell, actionMenu, menuItem, statusIcon, invalidIcon, validIcon, noStatusIcon, pagination, modalHeadContainer,modalTitle, modalBody,sourceList, sourceProp,newLinkCell1,newLinkCell2} = style;
 const rowStyle = { height: '35px' };
 
 const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false, selectedData, isChecked, setIsChecked }) => {
@@ -16,7 +16,7 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false, 
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const navigate = useNavigate();
-
+  
   const handlePagination = (values) => {
     setPageSize(values.pageSize);
     setCurrPage(values.page);
@@ -38,8 +38,8 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false, 
           {
             // --- New link Table --- 
             (isCheckBox && tableData?.length > 0) && currTableData?.map((row) => <TableRow key={row?.identifier} style={rowStyle}>
-              <TableCell className={tableCell}>{row?.identifier}</TableCell>
-              <TableCell className={tableCell}>{row?.name}</TableCell>
+              <TableCell className={`${tableCell} ${newLinkCell1}`}>{row?.identifier}</TableCell>
+              <TableCell className={`${tableCell} ${newLinkCell2}`}>{row?.name}</TableCell>
               <TableCell className={tableCell}>{row?.description}</TableCell>
               <TableCell className={tableCell}><Checkbox onClick={(e) => {
                 setIsChecked(e.target.id);
@@ -51,21 +51,21 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false, 
             // Link Manager Table
             (!isCheckBox && tableData[0]) && currTableData?.map((row, i) => <TableRow key={i} style={rowStyle}>
               <TableCell className={tableCell}>{row?.status === 'valid' ? <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> : row?.status === 'invalid' ? <BsExclamationTriangleFill className={`${statusIcon} ${invalidIcon}`} /> : <RiCheckboxBlankFill className={`${statusIcon} ${noStatusIcon}`} />}{row?.status}</TableCell>
-              <TableCell className={tableCell}>{row?.sourceId}</TableCell>
+              <TableCell className={tableCell}>{'requirements.txt'}</TableCell>
               <TableCell className={tableCell}>{row?.linkType}</TableCell>
-
+              {console.log(row)}
               {/* --- Table data with modal ---  */}
-              <TableCell className={`${tableCell} ${targetCell}`}><span onClick={() => setIsOpen({ id: row?.target, value: true })}>{row?.target}</span>
+              <TableCell className={`${tableCell} ${targetCell}`}><span onClick={() => setIsOpen({ id: row?.identifier, value: true })}>{row?.identifier} {row?.description}</span>
                 <ComposedModal
-                  open={isOpen?.id === row?.target ? isOpen?.value : false}
+                  open={isOpen?.id === row?.identifier ? isOpen?.value : false}
                   onClose={(e) => e.target.id === isOpen?.id ? setIsOpen({ id: null, value: false }) : null}
-                  id={row?.target}
+                  id={row?.identifier}
                   size='sm'
                 >
                   <div className={modalHeadContainer}>
                     <h4
                       onClick={() => { setIsOpen({ id: null, value: false }); openTargetLink(row); }}
-                      className={modalTitle}>{row?.target?.split(' ')[0]}</h4>
+                      className={modalTitle}>{row?.identifier}</h4>
                     <ModalHeader onClick={() => setIsOpen({ id: null, value: false })} />
                   </div>
                   <ModalBody className={modalBody}>

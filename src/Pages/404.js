@@ -18,8 +18,8 @@ const NotFound = () => {
         <div>
           <h2 style={style.title}>Something is not right...</h2>
           <p style={style.para}>
-                        Page you are trying to open does not exist. You may have mistyped the address, or the
-                        page has been moved to another URL. If you think this is an error contact support.
+            Page you are trying to open does not exist. You may have mistyped the address, or the
+            page has been moved to another URL. If you think this is an error contact support.
           </p>
           <Link style={style.link} to='/'> <Button kind='danger' style={style.btn}> Get back to home page </Button></Link>
         </div>
