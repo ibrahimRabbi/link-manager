@@ -5,7 +5,7 @@ import { GoSearch } from 'react-icons/go';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleCreateLink, handleLinkType, handleProjectType, handleResourceType, handleTargetData } from '../../Redux/slices/linksSlice';
+import { handleCreateLink, handleLinkType, handleProjectType, handleResourceType, handleTargetData, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import style from './NewLink.module.css';
@@ -38,8 +38,7 @@ const headers = [
 ];
 
 const NewLink = () => {
-  const {targetData, linkType, projectType, resourceType}=useSelector(state=>state.links);
-  
+  const {isLinkEdit,targetData, linkType, projectType, resourceType}=useSelector(state=>state.links);
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [isChecked, setIsChecked] = useState(null);
@@ -62,12 +61,14 @@ const NewLink = () => {
       .catch(err => console.log(err));
   }, [searchText]);
 
+  // search data or document 
   const handleSearchData = data => {
     setIsChecked(null);
     dispatch(handleTargetData({}));
     setSearchText(data?.searchText);
   };
 
+  // Link type dropdown
   const handleLinkTypeChange = ({selectedItem}) => {
     dispatch(handleProjectType(null));
     dispatch(handleResourceType(null));
@@ -77,10 +78,12 @@ const NewLink = () => {
   const targetProjectItems = linkType === 'constrainedBy' ? ['Jet Engine Design (GLIDE)'] : projectItems;
   const targetResourceItems = linkType === 'constrainedBy' ? ['Document (PLM)', 'Part (PLM)'] : resourceItems;
 
+  // Project type dropdown
   const handleTargetProject = ({selectedItem}) => {
     dispatch(handleProjectType(selectedItem));
   };
 
+  // Resource type dropdown
   const handleTargetResource = ({selectedItem}) => {
     dispatch(handleResourceType(selectedItem));
   };
@@ -88,6 +91,17 @@ const NewLink = () => {
   // Selected target data
   const handleSelectedData = (data) => {
     dispatch(handleTargetData(data));
+  };
+
+  // Edit created link
+  const handleLinkUpdate=()=>{
+    dispatch(handleUpdateCreatedLink());
+    Swal.fire({
+      icon: 'success',
+      title: 'Link Updated success!',
+      timer: 3000
+    });
+    navigate('/');
   };
 
   // Create new link 
@@ -174,7 +188,7 @@ const NewLink = () => {
           }
         </div>
       }
-      {targetData?.identifier && <Button onClick={handleSaveLink} size='md' style={btnStyle.saveBtn} className={saveBtn}>Save</Button>}
+      {targetData?.identifier && <Button onClick={isLinkEdit?handleLinkUpdate:handleSaveLink} size='md' style={btnStyle.saveBtn} className={saveBtn}>Save</Button>}
     </div>
   );
 };

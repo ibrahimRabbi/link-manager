@@ -3,6 +3,8 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   allLinks: [],
   targetData:{},
+  editLinkData:{},
+  isLinkEdit:false,
   linkType:null,
   projectType:null,
   resourceType:null,
@@ -15,12 +17,35 @@ export const linksSlice = createSlice({
   reducers: {
     handleCreateLink: (state) => {
       state.allLinks.push({...state.targetData,linkType:state.linkType, project:state.projectType, resource:state.resourceType,status:'No status',});
+      state.linkType =null;
+      state.projectType =null;
+      state.resourceType =null;
+      state.targetData={};
+      state.isLinkEdit=false;
+    },
 
+    handleEditLinkData: (state, {payload}) => {
+      state.linkType =null;
+      state.projectType =null;
+      state.resourceType =null;
+      state.targetData={};
+      state.isLinkEdit=payload?.value;
+      state.editLinkData=payload?.row;
+    },
+
+    handleUpdateCreatedLink: (state) => {
+      const index=state.allLinks.findIndex(item=>item?.identifier===state.editLinkData?.identifier);
+      state.allLinks[index]={
+        ...state.allLinks[index],
+        ...{...state.targetData,linkType:state.linkType, project:state.projectType, resource:state.resourceType,}
+      };
+      state.isLinkEdit=false;
       state.linkType =null;
       state.projectType =null;
       state.resourceType =null;
       state.targetData={};
     },
+
     handleLinkType: (state, {payload}) => {
       state.linkType=payload;
     },
@@ -50,6 +75,6 @@ export const linksSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { handleCreateLink,handleTargetData,handleLinkType, handleProjectType, handleResourceType, handleSetStatus,handleDeleteLink} = linksSlice.actions;
+export const { handleCreateLink, handleEditLinkData, handleUpdateCreatedLink, handleTargetData, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink } = linksSlice.actions;
 
 export default linksSlice.reducer;

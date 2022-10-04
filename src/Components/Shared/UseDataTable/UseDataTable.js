@@ -6,7 +6,8 @@ import { FiSettings } from 'react-icons/fi';
 import { RiCheckboxBlankFill } from 'react-icons/ri';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { handleDeleteLink, handleSetStatus } from '../../../Redux/slices/linksSlice';
+import Swal from 'sweetalert2';
+import { handleDeleteLink, handleEditLinkData, handleSetStatus } from '../../../Redux/slices/linksSlice';
 import style from './UseDataTable.module.css';
 
 // Css styles 
@@ -19,13 +20,31 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false, 
   const [pageSize, setPageSize] = useState(10);
   const dispatch=useDispatch();
   const navigate = useNavigate();
-  
+
+  // Pagination
   const handlePagination = (values) => {
     setPageSize(values.pageSize);
     setCurrPage(values.page);
   };
-
   const currTableData = tableData?.slice((currPage - 1) * pageSize, currPage * pageSize);
+
+  // Delete link
+  const handleDeleteCreatedLink=(data)=>{
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You wont be able to delete this!',
+      icon: 'warning',
+      cancelButtonColor: '#d33',
+      confirmButtonColor: '#3085d6',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(handleDeleteLink(data));
+        Swal.fire( 'Deleted!','Your file has been deleted.','success');
+      }
+    });
+  };
 
   return (
     <TableContainer title=''>
@@ -92,10 +111,10 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false, 
                   renderIcon={() => <FiSettings />}
                   size='md' ariaLabel=''>
                   <OverflowMenuItem wrapperClassName={menuItem} hasDivider itemText='Details' onClick={() => navigate('/link-details')} />
-                  <OverflowMenuItem wrapperClassName={menuItem} hasDivider itemText='Edit' />
+                  <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>{dispatch(handleEditLinkData({row, value:true})); navigate('/new-link');}} hasDivider itemText='Edit' />
                   <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>dispatch(handleSetStatus({row, status:'Valid'}))} hasDivider itemText='Set status - Valid' />
                   <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>dispatch(handleSetStatus({row, status:'Invalid'}))} hasDivider itemText='Set status - Invalid' />
-                  <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>dispatch(handleDeleteLink(row))} hasDivider itemText='Remove' />
+                  <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>handleDeleteCreatedLink(row)} hasDivider itemText='Remove' />
                 </OverflowMenu>
               </TableCell>
             </TableRow>)

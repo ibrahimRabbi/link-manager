@@ -1,9 +1,10 @@
 import { Button } from '@carbon/react';
 import React from 'react';
 import { GoSearch } from 'react-icons/go';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { handleEditLinkData } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import style from './LinkManager.module.css';
@@ -41,6 +42,7 @@ const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 const LinkManager = () =>{
   const {allLinks}=useSelector(state=>state.links);
   const navigate = useNavigate();
+  const dispatch=useDispatch();
   const handleShowItem = (value) => {
     console.log(value);
   };
@@ -61,7 +63,7 @@ const LinkManager = () =>{
 
       <div className={linkFileContainer}>
         <h5>Links for file: <span className={fileName}>requirements.txt</span></h5>
-        <Button onClick={() => navigate('/new-link')} style={btnStyle.newLinkBtn} className={newLinkBtn} size='sm' kind='ghost'>New link</Button>
+        <Button onClick={() => {navigate('/new-link');dispatch(handleEditLinkData());}} style={btnStyle.newLinkBtn} className={newLinkBtn} size='sm' kind='ghost'>New link</Button>
       </div>
 
       <div className={tableContainer}>
