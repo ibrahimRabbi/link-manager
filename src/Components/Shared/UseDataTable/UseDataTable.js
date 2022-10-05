@@ -73,8 +73,6 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
             </TableRow>)
           }
 
-          {/* ------------------------- */}
-          
           {
             // Link Manager Table
             (!isCheckBox && tableData[0]) && currTableData?.map((row, i) => <TableRow key={i} style={rowStyle}>
@@ -82,11 +80,11 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
               <TableCell className={tableCell}>{'requirements.txt'}</TableCell>
               <TableCell className={tableCell}>{row?.linkType}</TableCell>
               {/* --- Table data with modal ---  */}
-              <TableCell className={`${tableCell} ${targetCell}`}><span onClick={() => setIsOpen({ id: row?.targetData[0]?.identifier, value: true })}>{row?.targetData[0]?.identifier} {row?.targetData[0]?.description}</span>
+              <TableCell className={`${tableCell} ${targetCell}`}><span onMouseOver={() => setIsOpen({ id: row?.id, value: true })}>{row?.targetData[0]?.identifier} {row?.targetData[0]?.description}</span>
                 <ComposedModal
-                  open={isOpen?.id === row?.targetData[0]?.identifier ? isOpen?.value : false}
+                  open={isOpen?.id === row?.id ? isOpen?.value : false}
                   onClose={(e) => e.target.id === isOpen?.id ? setIsOpen({ id: null, value: false }) : null}
-                  id={row?.identifier}
+                  id={row?.id}
                   size='sm'
                 >
                   <div className={modalHeadContainer}>
