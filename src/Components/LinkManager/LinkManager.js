@@ -46,6 +46,8 @@ const LinkManager = () =>{
   const handleShowItem = (value) => {
     console.log(value);
   };
+
+  console.log(allLinks);
   
   const handleOpenTargetLink = () => {
     Swal.fire({

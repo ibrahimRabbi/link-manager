@@ -2,13 +2,20 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   allLinks: [],
-  targetData:{},
+  targetDataArr:[],
   editLinkData:{},
-  isLinkEdit:false,
   linkType:null,
   projectType:null,
   resourceType:null,
 };
+
+// UID generator 
+function uuid(mask = 'xxyx4xxyxxxyxx') {
+  return `${mask}`.replace(/[xy]/g, function(c) {
+    let r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+    return v.toString(16);
+  });
+}
 
 export const linksSlice = createSlice({
   name: 'links',
@@ -16,11 +23,11 @@ export const linksSlice = createSlice({
 
   reducers: {
     handleCreateLink: (state) => {
-      state.allLinks.push({...state.targetData,linkType:state.linkType, project:state.projectType, resource:state.resourceType,status:'No status',});
+      state.allLinks.push({id:uuid(),targetData:state.targetDataArr,linkType:state.linkType, project:state.projectType, resource:state.resourceType,status:'No status',});
       state.linkType =null;
       state.projectType =null;
       state.resourceType =null;
-      state.targetData={};
+      state.targetDataArr=[];
       state.isLinkEdit=false;
     },
 
@@ -28,30 +35,40 @@ export const linksSlice = createSlice({
       state.linkType =null;
       state.projectType =null;
       state.resourceType =null;
-      state.targetData={};
-      state.isLinkEdit=payload?.value;
-      state.editLinkData=payload?.row;
+      state.targetDataArr=payload?.targetData;
+      state.editLinkData=payload;
     },
 
     handleUpdateCreatedLink: (state) => {
-      const index=state.allLinks.findIndex(item=>item?.identifier===state.editLinkData?.identifier);
+      const index=state.allLinks.findIndex(item=>item?.id===state.editLinkData?.id);
       state.allLinks[index]={
         ...state.allLinks[index],
-        ...{...state.targetData,linkType:state.linkType, project:state.projectType, resource:state.resourceType,}
+        ...{targetData:state.targetDataArr,linkType:state.linkType?state?.linkType:state.editLinkData?.linkType, project:state.projectType?state.projectType:state.editLinkData?.project, resource:state.resourceType? state.resourceType:state.editLinkData?.resource,}
       };
       state.isLinkEdit=false;
       state.linkType =null;
       state.projectType =null;
       state.resourceType =null;
-      state.targetData={};
+      state.targetDataArr=[];
+    },
+
+    handleTargetDataArr: (state, {payload}) => {
+      if(payload){
+        const {data, value}=payload;
+        if(value?.isChecked){
+          state.targetDataArr.push(data);
+        }
+        else{
+          state.targetDataArr=state.targetDataArr.filter(item=>item?.identifier !==value.id);
+        }
+      }
+      else{
+        state.targetDataArr=[];
+      }
     },
 
     handleLinkType: (state, {payload}) => {
       state.linkType=payload;
-    },
-
-    handleTargetData: (state, {payload}) => {
-      state.targetData=payload;
     },
 
     handleProjectType: (state, {payload}) => {
@@ -63,18 +80,18 @@ export const linksSlice = createSlice({
     },
 
     handleSetStatus: (state, {payload}) => {
-      const link=state.allLinks.find(data=>data?.identifier=== payload.row?.identifier);
+      const link=state.allLinks.find(data=>data?.id=== payload.row?.id);
       link.status=payload.status;
     },
 
     handleDeleteLink: (state, {payload}) => {
-      state.allLinks= state.allLinks.filter(data=>data.identifier !== payload.identifier);
+      state.allLinks= state.allLinks.filter(data=>data?.id !== payload?.id);
     },
 
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { handleCreateLink, handleEditLinkData, handleUpdateCreatedLink, handleTargetData, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink } = linksSlice.actions;
+export const { handleCreateLink, handleEditLinkData, handleTargetDataArr, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink } = linksSlice.actions;
 
 export default linksSlice.reducer;

@@ -14,7 +14,7 @@ import style from './UseDataTable.module.css';
 const { tableRow, tableCell, targetCell, actionMenu, menuItem, statusIcon, invalidIcon, validIcon, noStatusIcon, pagination, modalHeadContainer,modalTitle, modalBody,sourceList, sourceProp,newLinkCell1,newLinkCell2} = style;
 const rowStyle = { height: '35px' };
 
-const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false, selectedData, isChecked, setIsChecked }) => {
+const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,isChecked, selectedData }) => {
   const [isOpen, setIsOpen] = useState(null);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -46,6 +46,8 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false, 
     });
   };
 
+  // console.log(isChecked);
+  //defaultChecked={isChecked}
   return (
     <TableContainer title=''>
       <Table >
@@ -58,17 +60,21 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false, 
         </TableHead>
         <TableBody >
           {
-            // --- New link Table --- 
+            // --- New link Table and edit link --- 
             (isCheckBox && tableData?.length > 0) && currTableData?.map((row) => <TableRow key={row?.identifier} style={rowStyle}>
               <TableCell className={`${tableCell} ${newLinkCell1}`}>{row?.identifier}</TableCell>
               <TableCell className={`${tableCell} ${newLinkCell2}`}>{row?.name}</TableCell>
               <TableCell className={tableCell}>{row?.description}</TableCell>
-              <TableCell className={tableCell}><Checkbox onClick={(e) => {
-                setIsChecked(e.target.id);
-                selectedData(row);
-              }} labelText='' checked={isChecked === row?.identifier ? true : false} id={row?.identifier} /></TableCell>
+              <TableCell className={tableCell}><Checkbox 
+                defaultChecked={isChecked?.reduce((acc,curr)=>{
+                  if(row?.identifier === curr) acc=true;
+                  return acc;
+                },false)} onClick={(e) => selectedData(row, {isChecked:e.target.checked, id:e.target.id})} labelText=''  id={row?.identifier} /></TableCell>
             </TableRow>)
           }
+
+          {/* ------------------------- */}
+          
           {
             // Link Manager Table
             (!isCheckBox && tableData[0]) && currTableData?.map((row, i) => <TableRow key={i} style={rowStyle}>
@@ -76,9 +82,9 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false, 
               <TableCell className={tableCell}>{'requirements.txt'}</TableCell>
               <TableCell className={tableCell}>{row?.linkType}</TableCell>
               {/* --- Table data with modal ---  */}
-              <TableCell className={`${tableCell} ${targetCell}`}><span onClick={() => setIsOpen({ id: row?.identifier, value: true })}>{row?.identifier} {row?.description}</span>
+              <TableCell className={`${tableCell} ${targetCell}`}><span onClick={() => setIsOpen({ id: row?.targetData[0]?.identifier, value: true })}>{row?.targetData[0]?.identifier} {row?.targetData[0]?.description}</span>
                 <ComposedModal
-                  open={isOpen?.id === row?.identifier ? isOpen?.value : false}
+                  open={isOpen?.id === row?.targetData[0]?.identifier ? isOpen?.value : false}
                   onClose={(e) => e.target.id === isOpen?.id ? setIsOpen({ id: null, value: false }) : null}
                   id={row?.identifier}
                   size='sm'
@@ -86,7 +92,7 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false, 
                   <div className={modalHeadContainer}>
                     <h4
                       onClick={() => { setIsOpen({ id: null, value: false }); openTargetLink(row); }}
-                      className={modalTitle}>{row?.identifier}</h4>
+                      className={modalTitle}>{row?.targetData[0]?.identifier}</h4>
                     <ModalHeader onClick={() => setIsOpen({ id: null, value: false })} />
                   </div>
                   <ModalBody className={modalBody}>
@@ -111,7 +117,7 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false, 
                   renderIcon={() => <FiSettings />}
                   size='md' ariaLabel=''>
                   <OverflowMenuItem wrapperClassName={menuItem} hasDivider itemText='Details' onClick={() => navigate('/link-details')} />
-                  <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>{dispatch(handleEditLinkData({row, value:true})); navigate('/new-link');}} hasDivider itemText='Edit' />
+                  <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>{dispatch(handleEditLinkData(row)); navigate(`/edit-link/${row?.id}`);}} hasDivider itemText='Edit' />
                   <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>dispatch(handleSetStatus({row, status:'Valid'}))} hasDivider itemText='Set status - Valid' />
                   <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>dispatch(handleSetStatus({row, status:'Invalid'}))} hasDivider itemText='Set status - Invalid' />
                   <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>handleDeleteCreatedLink(row)} hasDivider itemText='Remove' />
