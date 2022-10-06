@@ -1,6 +1,16 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+const sources=[
+  {Source: 'requirements.txt'},
+  {Project: 'Gitlab OSLC API'},
+  {Type: 'Gitlab - File'},
+  {Component: 'Gitlab component 1'},
+  { Stream: 'development'},
+  { BaseLine: '78zabc'}
+];
+
 const initialState = {
+  sourceDataList:[...sources],
   allLinks: [],
   editTargetData:{},
   targetDataArr:[],

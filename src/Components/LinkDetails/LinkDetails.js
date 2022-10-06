@@ -1,38 +1,26 @@
 import { Button } from '@carbon/react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { TbArrowNarrowRight } from 'react-icons/tb';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import style from './LinkDetails.module.css';
 
-const { title, sourceContainer, sourceList, sourceProp, sourceTitle1, sourceTitle2, targetTitle1, targetTitle2, circlesContainer, circle, linkTypeCenter, circleBorder, arrowIcon, backBtn, linkTitle2 } = style;
+const { title, sourceContainer, sourceList, sourceProp, sourceTitle1, targetTitle1,targetTitle2, linkTitle2, sourceTitle2, circlesContainer, circle, linkTypeCenter, circleBorder, arrowIcon, backBtn,  } = style;
 
 const btnStyle={
   backBtn:{
     display: 'block',
     backgroundColor: '#2196f3',
-    margin: '10px 0 10px auto',
+    margin: '10px 0 20px auto',
     borderRadius: '5px',
   }
 };
 
 const LinkDetails = () => {
-  const {linkedData}=useSelector(state=>state.links);
-  const [sourceItems, setSourceItems] = useState([]);
-  const [targetItems, setTargetItems] = useState([]);
+  const {linkedData, sourceDataList}=useSelector(state=>state.links);
   const {linkType, project, resource, targetData}=linkedData;
-
-  useEffect(() => {
-    fetch('../sourceList.json')
-      .then(res => res.json())
-      .then(data => setSourceItems(data));
-
-    fetch('../targetList.json')
-      .then(res => res.json())
-      .then(data => setTargetItems(data));
-  }, []);
-
   const navigate = useNavigate();
+  
   return (
     <div className='mainContainer'>
       <h2 className={title}>OSLC Link manager</h2>
@@ -44,23 +32,12 @@ const LinkDetails = () => {
 
       <div className={sourceContainer}>
         <div className={sourceList}>
-          <h5 className={sourceTitle1}>Source</h5><h5 className={sourceTitle2}>{sourceItems[0]?.Source}</h5>
+          <h5 className={sourceTitle1}>Source</h5><h5 className={sourceTitle2}>{sourceDataList[0]?.Source}</h5>
         </div>
-        <div className={sourceList}>
-          <p className={sourceProp}>Project:</p><p>{sourceItems[1]?.Project}</p>
-        </div>
-        <div className={sourceList}>
-          <p className={sourceProp}>Type:</p><p>{sourceItems[2]?.Type}</p>
-        </div>
-        <div className={sourceList}>
-          <p className={sourceProp}>Component:</p><p>{sourceItems[3]?.Component}</p>
-        </div>
-        <div className={sourceList}>
-          <p className={sourceProp}>Stream:</p><p>{sourceItems[4]?.Stream}</p>
-        </div>
-        <div className={sourceList}>
-          <p className={sourceProp}>Baseline:</p><p>{sourceItems[5]?.Baseline}</p>
-        </div>
+        {sourceDataList?.slice(1, 8)?.map((item, i)=><div key={i}
+          className={sourceList}>
+          <p className={sourceProp}>{Object.keys(item)}</p><p>{Object.values(item)}</p>
+        </div>)}
       </div>
 
       <div className={sourceContainer}>
@@ -81,23 +58,23 @@ const LinkDetails = () => {
           <p className={sourceProp}>Type:</p><p>{resource}</p>
         </div>
         <div className={sourceList}>
-          <p className={sourceProp}>Component:</p><p>{targetItems[3]?.Component}</p>
+          <p className={sourceProp}>Component:</p><p>{'Glide component 1'}</p>
         </div>
         <div className={sourceList}>
-          <p className={sourceProp}>Stream:</p><p>{targetItems[4]?.Stream}</p>
+          <p className={sourceProp}>Stream:</p><p>{'development'}</p>
         </div>
         <div className={sourceList}>
-          <p className={sourceProp}>Baseline:</p><p>{targetItems[5]?.Baseline}</p>
+          <p className={sourceProp}>Baseline:</p><p>{'xyzabc'}</p>
         </div>
       </div>
 
+      {/* ----- Graph data view -----  */}
       <div className={circlesContainer}>
         <div className={circle}>
-          <p>{sourceItems[0]?.Source}</p>
+          <p>{sourceDataList[0]?.Source}</p>
         </div>
 
-        <p className={linkTypeCenter}>{linkType}</p>
-
+        <p className={linkTypeCenter}>{linkedData?.linkType}</p>
         <p className={circleBorder} /><TbArrowNarrowRight className={arrowIcon} />
 
         <div className={circle}>
@@ -105,7 +82,7 @@ const LinkDetails = () => {
         </div>
       </div>
 
-      <Button onClick={() => navigate('/')} size='lg' style={btnStyle.backBtn} className={backBtn}>Back</Button>
+      <Button onClick={() => navigate('/')} size='md' style={btnStyle.backBtn} className={backBtn}>Back</Button>
     </div>
   );
 };

@@ -36,7 +36,7 @@ const headers = [
 ];
 
 const NewLink = ({props}) => {
-  const {linkType, targetDataArr, projectType, resourceType, editLinkData, editTargetData}=useSelector(state=>state.links);
+  const {sourceDataList,linkType, targetDataArr, projectType, resourceType, editLinkData, editTargetData}=useSelector(state=>state.links);
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [displayTableData, setDisplayTableData] = useState([]);
@@ -128,27 +128,18 @@ const NewLink = ({props}) => {
     navigate('/');
   };
 
+  console.log(sourceDataList);
+
   return (
     <div className={`${'mainContainer'} ${mainContain}`}>
       <h2 className={title}>{props?.pageTitle?props?.pageTitle:'New Link'}</h2>
 
       <div className={sourceContainer}>
         <h5>Source</h5>
-        <div className={sourceList}>
-          <p className={sourceProp}>Name:</p><p>{'requirements.txt'}</p>
-        </div>
-        <div className={sourceList}>
-          <p className={sourceProp}>Type:</p><p>{'Gitlab - File'}</p>
-        </div>
-        <div className={sourceList}>
-          <p className={sourceProp}>Component:</p><p>{'Gitlab component 1'}</p>
-        </div>
-        <div className={sourceList}>
-          <p className={sourceProp}>Stream:</p><p>{'development'}</p>
-        </div>
-        <div className={sourceList}>
-          <p className={sourceProp}>Baseline:</p><p>{'78zabc'}</p>
-        </div>
+        {sourceDataList?.map((item, i)=><div key={i}
+          className={sourceList}>
+          <p className={sourceProp}>{Object.keys(item)}</p><p>{Object.values(item)}</p>
+        </div>)}
       </div>
 
       <div className={linkTypeContainer}>
