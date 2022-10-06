@@ -2,7 +2,9 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   allLinks: [],
+  editTargetData:{},
   targetDataArr:[],
+  linkedData:{},
   editLinkData:{},
   linkType:null,
   projectType:null,
@@ -22,8 +24,14 @@ export const linksSlice = createSlice({
   initialState,
 
   reducers: {
+    handleViewLinkDetails: (state, {payload}) => {
+      state.linkedData=payload;
+    },
+
     handleCreateLink: (state) => {
-      state.allLinks.push({id:uuid(),targetData:state.targetDataArr,linkType:state.linkType, project:state.projectType, resource:state.resourceType,status:'No status',});
+      state.targetDataArr?.forEach((item)=>{
+        state.allLinks.push({id:uuid(),targetData:item,linkType:state.linkType, project:state.projectType, resource:state.resourceType,status:'No status'});
+      });
       state.linkType =null;
       state.projectType =null;
       state.resourceType =null;
@@ -35,7 +43,7 @@ export const linksSlice = createSlice({
       state.linkType =null;
       state.projectType =null;
       state.resourceType =null;
-      state.targetDataArr=payload?.targetData;
+      state.editTargetData=payload?.targetData;
       state.editLinkData=payload;
     },
 
@@ -43,13 +51,23 @@ export const linksSlice = createSlice({
       const index=state.allLinks.findIndex(item=>item?.id===state.editLinkData?.id);
       state.allLinks[index]={
         ...state.allLinks[index],
-        ...{targetData:state.targetDataArr,linkType:state.linkType?state?.linkType:state.editLinkData?.linkType, project:state.projectType?state.projectType:state.editLinkData?.project, resource:state.resourceType? state.resourceType:state.editLinkData?.resource,}
+        ...{targetData:state.editTargetData,linkType:state.linkType?state?.linkType:state.editLinkData?.linkType, project:state.projectType?state.projectType:state.editLinkData?.project, resource:state.resourceType? state.resourceType:state.editLinkData?.resource,}
       };
-      state.isLinkEdit=false;
       state.linkType =null;
       state.projectType =null;
       state.resourceType =null;
+      state.editTargetData={};
       state.targetDataArr=[];
+    },
+
+    handleEditTargetData:(state, {payload})=>{
+      const {row, value}=payload;
+      if(value?.isChecked){
+        state.editTargetData =row;
+      }
+      else{
+        state.editLinkData={};
+      }
     },
 
     handleTargetDataArr: (state, {payload}) => {
@@ -79,6 +97,15 @@ export const linksSlice = createSlice({
       state.resourceType=payload;
     },
 
+    // new link and edit link cancel btn
+    handleCancelLink: (state) => {
+      state.linkType =null;
+      state.projectType =null;
+      state.resourceType =null;
+      state.editTargetData={};
+      state.targetDataArr=[];
+    },
+
     handleSetStatus: (state, {payload}) => {
       const link=state.allLinks.find(data=>data?.id=== payload.row?.id);
       link.status=payload.status;
@@ -92,6 +119,6 @@ export const linksSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { handleCreateLink, handleEditLinkData, handleTargetDataArr, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink } = linksSlice.actions;
+export const { handleViewLinkDetails, handleCreateLink, handleEditLinkData, handleTargetDataArr,handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
 
 export default linksSlice.reducer;

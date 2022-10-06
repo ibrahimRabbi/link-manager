@@ -5,20 +5,18 @@ import { GoSearch } from 'react-icons/go';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleCreateLink, handleLinkType, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
+import { handleCancelLink, handleCreateLink, handleLinkType, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import style from './NewLink.module.css';
 
 
 // Css styles
-const { title, sourceContainer, sourceList, sourceProp, linkTypeContainer, targetContainer, projectContainer, dropDownLabel, targetSearchContainer, resourceTypeContainer, searchContainer, inputContainer, searchIcon, searchInput, searchBtn, newLinkTable, emptySearchWarning, saveBtn } = style;
+const { title,mainContain, sourceContainer, sourceList, sourceProp, linkTypeContainer, targetContainer, projectContainer, dropDownLabel, targetSearchContainer, resourceTypeContainer, searchContainer, inputContainer, searchIcon, searchInput, searchBtn, newLinkTable, emptySearchWarning,btnContainer, saveBtn } = style;
 
 const btnStyle={
-  saveBtn:{display: 'block',
-    backgroundColor:'#2196f3',
-    margin: '10px 0 10px auto',
-    borderRadius: '5px'},
+  saveBtn:{ borderRadius:'5px', backgroundColor:'#2196f3'},
+  cancelBtn:{ borderRadius:'5px', backgroundColor:'rgb(50, 50, 55)'},
   searchBtn:{borderRadius: '0px 5px 5px 0',
     padding: '0 20px',
     backgroundColor: '#2196f3'}
@@ -38,7 +36,7 @@ const headers = [
 ];
 
 const NewLink = ({props}) => {
-  const {linkType,targetDataArr, projectType, resourceType}=useSelector(state=>state.links);
+  const {linkType, targetDataArr, projectType, resourceType, editLinkData, editTargetData}=useSelector(state=>state.links);
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [displayTableData, setDisplayTableData] = useState([]);
@@ -47,9 +45,9 @@ const NewLink = ({props}) => {
 
   // Edit link options start
   useEffect(()=>{
-    if(props?.pageTitle && props?.targetData?.length){
-      const string=props?.targetData[0]?.description?.split(' ')[0];
-      setSearchText(string==='Document'?'document':string==='User'?'data':null);
+    if(editTargetData?.identifier){
+      const string=editTargetData?.description?.split(' ')[0]?.toLowerCase();
+      setSearchText(string==='document'?'document':string==='user'?'data':null);
     }
   },[props]);
   // Edit link options end
@@ -57,7 +55,7 @@ const NewLink = ({props}) => {
   // search data or document 
   useEffect(() => {
     setDisplayTableData([]);
-    const URL = props?.pageTitle?`../${searchText}.json`:`./${searchText}.json`;
+    const URL =editTargetData?.identifier?`../${searchText}.json`:`./${searchText}.json`;
     fetch(URL)
       .then(res => res.json())
       .then(data => setDisplayTableData(data))
@@ -125,8 +123,13 @@ const NewLink = ({props}) => {
     }
   };
 
+  const handleCancelOpenedLink=()=>{
+    dispatch(handleCancelLink());
+    navigate('/');
+  };
+
   return (
-    <div className='mainContainer'>
+    <div className={`${'mainContainer'} ${mainContain}`}>
       <h2 className={title}>{props?.pageTitle?props?.pageTitle:'New Link'}</h2>
 
       <div className={sourceContainer}>
@@ -150,7 +153,7 @@ const NewLink = ({props}) => {
 
       <div className={linkTypeContainer}>
         <h5>Link type</h5>
-        <UseDropdown onChange={handleLinkTypeChange} items={linkTypeItems} selectedValue={props?.linkType?props?.linkType:''} label={'Select link type'} id='newLink_linkTypes' style={{ width: '180px', borderRadius: '10px' }} />
+        <UseDropdown onChange={handleLinkTypeChange} items={linkTypeItems} selectedValue={props?.linkType} label={'Select link type'} id='newLink_linkTypes' style={{ width: '180px', borderRadius: '10px' }} />
       </div>
 
       {/* --- After selected link type ---  */}
@@ -160,13 +163,13 @@ const NewLink = ({props}) => {
 
           <div className={projectContainer}>
             <p className={dropDownLabel}>Project:</p>
-            <UseDropdown items={targetProjectItems} onChange={handleTargetProject} selectedValue={props?.project?props?.project:''} label={'Select project'} id='project-dropdown' style={{ minWidth: '250px' }} />
+            <UseDropdown items={targetProjectItems} onChange={handleTargetProject} selectedValue={props?.project} label={'Select project'} id='project-dropdown' style={{ minWidth: '250px' }} />
           </div>
 
           <div className={targetSearchContainer}>
             <div className={resourceTypeContainer}>
               <p className={dropDownLabel}>Resource type:</p>
-              <UseDropdown items={targetResourceItems} onChange={handleTargetResource} selectedValue={props?.resource?props?.resource:''} label={'Select resource type'} id='resourceType-dropdown' style={{ minWidth: '250px' }} />
+              <UseDropdown items={targetResourceItems} onChange={handleTargetResource} selectedValue={props?.resource} label={'Select resource type'} id='resourceType-dropdown' style={{ minWidth: '250px' }} />
             </div>
 
             <form onSubmit={handleSubmit(handleSearchData)} className={searchContainer}>
@@ -181,7 +184,7 @@ const NewLink = ({props}) => {
           {
             (searchText && displayTableData[0] || props?.pageTitle) &&
             <div className={newLinkTable}>
-              <UseDataTable headers={headers} tableData={displayTableData} isCheckBox={true} isChecked={props?.targetData?.map(v=>v.identifier)} isPagination={displayTableData[0] ? true : false} selectedData={handleSelectedData} />
+              <UseDataTable headers={headers} tableData={displayTableData} isCheckBox={true} isChecked={props?.targetData?.identifier} editTargetData={editTargetData} isPagination={displayTableData[0] ? true : false} selectedData={handleSelectedData} />
             </div>
           }
           {(searchText && !displayTableData[0]) &&
@@ -189,10 +192,18 @@ const NewLink = ({props}) => {
           }
         </div>
       }
+
       {/* new link btn  */}
-      {(projectType&& resourceType &&targetDataArr?.length &&!props?.pageTitle) &&<Button onClick={handleSaveLink} size='md' style={btnStyle.saveBtn} className={saveBtn}>Save</Button>}
+      {(projectType&& resourceType &&targetDataArr[0] &&!props?.pageTitle) && <div className={btnContainer}>
+        <Button onClick={handleCancelOpenedLink} size='md' style={btnStyle.cancelBtn} >Cancel</Button>
+        <Button onClick={handleSaveLink} size='md' style={btnStyle.saveBtn} className={saveBtn}>Save</Button>
+      </div>}
+
       {/* edit link btn  */}
-      {(props?.pageTitle && targetDataArr[0]) &&<Button onClick={handleLinkUpdate} size='md' style={btnStyle.saveBtn} className={saveBtn}>Save</Button>}
+      {(props?.pageTitle && editLinkData?.id) &&<div className={btnContainer}>
+        <Button onClick={handleCancelOpenedLink} size='md' style={btnStyle.cancelBtn} >Cancel</Button>
+        <Button onClick={handleLinkUpdate} size='md' style={btnStyle.saveBtn}>Save</Button>
+      </div>}
     </div>
   );
 };

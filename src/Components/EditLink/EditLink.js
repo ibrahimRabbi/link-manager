@@ -5,12 +5,9 @@ import NewLink from '../NewLink/NewLink';
 
 const EditLink = () => {
   const navigate=useNavigate();
-  const {editLinkData, targetDataArr}=useSelector(state=>state.links);
-  console.log(targetDataArr);
+  const {editLinkData}=useSelector(state=>state.links);
+  if(!editLinkData?.id)  navigate('/');
   
-  if(!editLinkData?.id) {
-    navigate('/');
-  }
   return (
     <NewLink props={{...editLinkData, pageTitle:'Edit link'}}/>
   );

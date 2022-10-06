@@ -1,21 +1,33 @@
 import { Button } from '@carbon/react';
 import React, { useEffect, useState } from 'react';
 import { TbArrowNarrowRight } from 'react-icons/tb';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import style from './LinkDetails.module.css';
 
 const { title, sourceContainer, sourceList, sourceProp, sourceTitle1, sourceTitle2, targetTitle1, targetTitle2, circlesContainer, circle, linkTypeCenter, circleBorder, arrowIcon, backBtn, linkTitle2 } = style;
 
+const btnStyle={
+  backBtn:{
+    display: 'block',
+    backgroundColor: '#2196f3',
+    margin: '10px 0 10px auto',
+    borderRadius: '5px',
+  }
+};
+
 const LinkDetails = () => {
+  const {linkedData}=useSelector(state=>state.links);
   const [sourceItems, setSourceItems] = useState([]);
   const [targetItems, setTargetItems] = useState([]);
-  
+  const {linkType, project, resource, targetData}=linkedData;
+
   useEffect(() => {
-    fetch('./sourceList.json')
+    fetch('../sourceList.json')
       .then(res => res.json())
       .then(data => setSourceItems(data));
 
-    fetch('./targetList.json')
+    fetch('../targetList.json')
       .then(res => res.json())
       .then(data => setTargetItems(data));
   }, []);
@@ -54,19 +66,19 @@ const LinkDetails = () => {
       <div className={sourceContainer}>
         <div className={sourceList}>
           <h5>Link type</h5>
-          <h5 className={linkTitle2}>ConstrainedBy</h5>
+          <h5 className={linkTitle2}>{linkType}</h5>
         </div>
       </div>
 
       <div className={sourceContainer}>
         <div className={sourceList}>
-          <h5 className={targetTitle1}>Source</h5><h5 className={targetTitle2}>{targetItems[0]?.Target}</h5>
+          <h5 className={targetTitle1}>Target</h5><h5 className={targetTitle2}>{targetData?.identifier} {targetData?.description}</h5>
         </div>
         <div className={sourceList}>
-          <p className={sourceProp}>Project:</p><p>{targetItems[1]?.Project}</p>
+          <p className={sourceProp}>Project:</p><p>{project}</p>
         </div>
         <div className={sourceList}>
-          <p className={sourceProp}>Type:</p><p>{targetItems[2]?.Type}</p>
+          <p className={sourceProp}>Type:</p><p>{resource}</p>
         </div>
         <div className={sourceList}>
           <p className={sourceProp}>Component:</p><p>{targetItems[3]?.Component}</p>
@@ -84,17 +96,16 @@ const LinkDetails = () => {
           <p>{sourceItems[0]?.Source}</p>
         </div>
 
-        <p className={linkTypeCenter}>constrainedBy</p>
+        <p className={linkTypeCenter}>{linkType}</p>
 
         <p className={circleBorder} /><TbArrowNarrowRight className={arrowIcon} />
 
         <div className={circle}>
-          <p>Doc-106 Document - Example 106</p>
+          <p>{targetData?.description}</p>
         </div>
       </div>
 
-      <Button onClick={() => navigate('/')} size='lg' className={backBtn}>Back</Button>
-
+      <Button onClick={() => navigate('/')} size='lg' style={btnStyle.backBtn} className={backBtn}>Back</Button>
     </div>
   );
 };
