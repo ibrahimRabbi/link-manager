@@ -71,13 +71,7 @@ export const linksSlice = createSlice({
     },
 
     handleEditTargetData:(state, {payload})=>{
-      const {row, value}=payload;
-      if(value?.isChecked){
-        state.editTargetData =row;
-      }
-      else{
-        state.editLinkData={};
-      }
+      state.editTargetData=payload;
     },
 
     handleTargetDataArr: (state, {payload}) => {

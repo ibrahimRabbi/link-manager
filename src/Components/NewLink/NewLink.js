@@ -35,7 +35,7 @@ const headers = [
   { key: 'checkbox', header: <Checkbox labelText='' id='' /> }
 ];
 
-const NewLink = ({props}) => {
+const NewLink = ({pageTitle}) => {
   const {sourceDataList,linkType, targetDataArr, projectType, resourceType, editLinkData, editTargetData}=useSelector(state=>state.links);
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
@@ -49,7 +49,7 @@ const NewLink = ({props}) => {
       const string=editTargetData?.description?.split(' ')[0]?.toLowerCase();
       setSearchText(string==='document'?'document':string==='user'?'data':null);
     }
-  },[props]);
+  },[pageTitle]);
   // Edit link options end
   
   // search data or document 
@@ -128,11 +128,9 @@ const NewLink = ({props}) => {
     navigate('/');
   };
 
-  console.log(sourceDataList);
-
   return (
     <div className={`${'mainContainer'} ${mainContain}`}>
-      <h2 className={title}>{props?.pageTitle?props?.pageTitle:'New Link'}</h2>
+      <h2 className={title}>{pageTitle?pageTitle:'New Link'}</h2>
 
       <div className={sourceContainer}>
         <h5>Source</h5>
@@ -144,23 +142,23 @@ const NewLink = ({props}) => {
 
       <div className={linkTypeContainer}>
         <h5>Link type</h5>
-        <UseDropdown onChange={handleLinkTypeChange} items={linkTypeItems} selectedValue={props?.linkType} label={'Select link type'} id='newLink_linkTypes' style={{ width: '180px', borderRadius: '10px' }} />
+        <UseDropdown onChange={handleLinkTypeChange} items={linkTypeItems} selectedValue={editLinkData?.linkType} label={'Select link type'} id='newLink_linkTypes' style={{ width: '180px', borderRadius: '10px' }} />
       </div>
 
       {/* --- After selected link type ---  */}
-      {(linkType || props?.pageTitle) &&
+      {(linkType || pageTitle) &&
         <div className={targetContainer}>
           <h5>Target</h5>
 
           <div className={projectContainer}>
             <p className={dropDownLabel}>Project:</p>
-            <UseDropdown items={targetProjectItems} onChange={handleTargetProject} selectedValue={props?.project} label={'Select project'} id='project-dropdown' style={{ minWidth: '250px' }} />
+            <UseDropdown items={targetProjectItems} onChange={handleTargetProject} selectedValue={editLinkData?.project} label={'Select project'} id='project-dropdown' style={{ minWidth: '250px' }} />
           </div>
 
           <div className={targetSearchContainer}>
             <div className={resourceTypeContainer}>
               <p className={dropDownLabel}>Resource type:</p>
-              <UseDropdown items={targetResourceItems} onChange={handleTargetResource} selectedValue={props?.resource} label={'Select resource type'} id='resourceType-dropdown' style={{ minWidth: '250px' }} />
+              <UseDropdown items={targetResourceItems} onChange={handleTargetResource} selectedValue={editLinkData?.resource} label={'Select resource type'} id='resourceType-dropdown' style={{ minWidth: '250px' }} />
             </div>
 
             <form onSubmit={handleSubmit(handleSearchData)} className={searchContainer}>
@@ -173,9 +171,9 @@ const NewLink = ({props}) => {
           </div>
 
           {
-            (searchText && displayTableData[0] || props?.pageTitle) &&
+            (searchText && displayTableData[0] || pageTitle) &&
             <div className={newLinkTable}>
-              <UseDataTable headers={headers} tableData={displayTableData} isCheckBox={true} isChecked={props?.targetData?.identifier} editTargetData={editTargetData} isPagination={displayTableData[0] ? true : false} selectedData={handleSelectedData} />
+              <UseDataTable headers={headers} tableData={displayTableData} isCheckBox={true} isChecked={editLinkData?.targetData?.identifier} editTargetData={editTargetData} isPagination={displayTableData[0] ? true : false} selectedData={handleSelectedData} />
             </div>
           }
           {(searchText && !displayTableData[0]) &&
@@ -185,13 +183,13 @@ const NewLink = ({props}) => {
       }
 
       {/* new link btn  */}
-      {(projectType&& resourceType &&targetDataArr[0] &&!props?.pageTitle) && <div className={btnContainer}>
+      {(projectType&& resourceType &&targetDataArr[0] &&!pageTitle) && <div className={btnContainer}>
         <Button onClick={handleCancelOpenedLink} size='md' style={btnStyle.cancelBtn} >Cancel</Button>
         <Button onClick={handleSaveLink} size='md' style={btnStyle.saveBtn} className={saveBtn}>Save</Button>
       </div>}
 
       {/* edit link btn  */}
-      {(props?.pageTitle && editLinkData?.id) &&<div className={btnContainer}>
+      {(pageTitle && editLinkData?.id) &&<div className={btnContainer}>
         <Button onClick={handleCancelOpenedLink} size='md' style={btnStyle.cancelBtn} >Cancel</Button>
         <Button onClick={handleLinkUpdate} size='md' style={btnStyle.saveBtn}>Save</Button>
       </div>}

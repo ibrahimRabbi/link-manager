@@ -9,7 +9,7 @@ const EditLink = () => {
   if(!editLinkData?.id)  navigate('/');
   
   return (
-    <NewLink props={{...editLinkData, pageTitle:'Edit link'}}/>
+    <NewLink pageTitle='Edit link'/>
   );
 };
 

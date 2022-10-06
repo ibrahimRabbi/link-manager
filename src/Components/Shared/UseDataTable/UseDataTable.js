@@ -65,10 +65,7 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
               <TableCell className={tableCell}>{row?.description}</TableCell>
               
               {/* edit link checkbox  */}
-              {isChecked &&<TableCell className={tableCell}><Checkbox checked={row?.identifier=== editTargetData?.identifier} onClick={(e) => {
-
-                dispatch(handleEditTargetData({row, value:{isChecked:e.target.checked, id:e.target.id}}));
-              }} labelText='' id={row?.identifier} /></TableCell>}
+              {isChecked &&<TableCell className={tableCell}><Checkbox checked={row?.identifier=== editTargetData?.identifier} onClick={() =>dispatch(handleEditTargetData(row))} labelText='' id={row?.identifier} /></TableCell>}
 
               {/* new link checkbox  */}
               {!isChecked &&<TableCell className={tableCell}><Checkbox onClick={(e) => dispatch(handleTargetDataArr({data:row, value:{isChecked:e.target.checked, id:e.target.id}}))} labelText='' id={row?.identifier} /></TableCell>}
