@@ -106,14 +106,3 @@
     font-size: 14px;
     word-wrap: break-word;
 }
-
-.backBtn {
-    display: block;
-    background-color: #2196f3;
-    margin: 10px 0 10px auto;
-    border-radius: 5px;
-}
-
-.backBtn:hover {
-    background-color: #1389e9;
-}

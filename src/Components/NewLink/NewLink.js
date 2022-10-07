@@ -12,7 +12,7 @@ import style from './NewLink.module.css';
 
 
 // Css styles
-const { title,mainContain, sourceContainer, sourceList, sourceProp, linkTypeContainer, targetContainer, projectContainer, dropDownLabel, targetSearchContainer, resourceTypeContainer, searchContainer, inputContainer, searchIcon, searchInput, searchBtn, newLinkTable, emptySearchWarning,btnContainer, saveBtn } = style;
+const { title,mainContain, sourceContainer, sourceList, sourceProp, linkTypeContainer, targetContainer, projectContainer, dropDownLabel, targetSearchContainer, resourceTypeContainer, searchContainer, inputContainer, searchIcon, searchInput, newLinkTable, emptySearchWarning,btnContainer } = style;
 
 const btnStyle={
   saveBtn:{ borderRadius:'5px', backgroundColor:'#2196f3'},
@@ -59,7 +59,7 @@ const NewLink = ({pageTitle}) => {
     fetch(URL)
       .then(res => res.json())
       .then(data => setDisplayTableData(data))
-      .catch(err => console.log(err));
+      .catch(() => {});
   }, [searchText]);
 
   const handleSearchData = data => {
@@ -107,19 +107,11 @@ const NewLink = ({pageTitle}) => {
   const handleSaveLink = () => {
     if(linkType&&projectType&&resourceType){
       dispatch(handleCreateLink());
-      Swal.fire({
-        icon: 'success',
-        title: 'Link successfully created!',
-        timer: 3000
-      });
+      Swal.fire({icon: 'success', title: 'Link successfully created!', timer: 3000});
       navigate('/');
-    }
+    } 
     else{
-      Swal.fire({
-        icon: 'error',
-        title: 'Link create failed!!! Please fill all the options',
-        timer: 3000
-      });
+      Swal.fire({icon: 'error', title: 'Link create failed!!! Please fill all the options', timer: 3000});
     }
   };
 
@@ -166,7 +158,7 @@ const NewLink = ({pageTitle}) => {
                 <GoSearch className={searchIcon} />
                 <input className={searchInput} type='text' placeholder='Search by identifier or name' {...register('searchText')} />
               </div>
-              <Button size='md' type='submit' style={btnStyle.searchBtn} className={searchBtn}>Search</Button>
+              <Button size='md' type='submit' style={btnStyle.searchBtn}>Search</Button>
             </form>
           </div>
 
@@ -185,7 +177,7 @@ const NewLink = ({pageTitle}) => {
       {/* new link btn  */}
       {(projectType&& resourceType &&targetDataArr[0] &&!pageTitle) && <div className={btnContainer}>
         <Button onClick={handleCancelOpenedLink} size='md' style={btnStyle.cancelBtn} >Cancel</Button>
-        <Button onClick={handleSaveLink} size='md' style={btnStyle.saveBtn} className={saveBtn}>Save</Button>
+        <Button onClick={handleSaveLink} size='md' style={btnStyle.saveBtn}>Save</Button>
       </div>}
 
       {/* edit link btn  */}

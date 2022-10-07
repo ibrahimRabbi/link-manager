@@ -118,7 +118,6 @@ export const linksSlice = createSlice({
     handleDeleteLink: (state, {payload}) => {
       state.allLinks= state.allLinks.filter(data=>data?.id !== payload?.id);
     },
-
   },
 });
 

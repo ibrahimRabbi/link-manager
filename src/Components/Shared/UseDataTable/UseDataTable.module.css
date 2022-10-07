@@ -91,21 +91,3 @@
     width: 100px;
     color: gray;
 }
-
-.targetItemStyle {
-    width: 100%;
-    text-align: start;
-}
-
-.targetItem {
-    width: 300px;
-}
-
-.targetItem:focus {
-    outline: none;
-    border: none;
-}
-
-.targetPopover {
-    min-width: 300px;
-}

@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import style from './LinkDetails.module.css';
 
-const { title, sourceContainer, sourceList, sourceProp, sourceTitle1, targetTitle1,targetTitle2, linkTitle2, sourceTitle2, circlesContainer, circle, linkTypeCenter, circleBorder, arrowIcon, backBtn,  } = style;
+const { title, sourceContainer, sourceList, sourceProp, sourceTitle1, targetTitle1,targetTitle2, linkTitle2, sourceTitle2, circlesContainer, circle, linkTypeCenter, circleBorder, arrowIcon } = style;
 
 const btnStyle={
   backBtn:{
@@ -82,7 +82,7 @@ const LinkDetails = () => {
         </div>
       </div>
 
-      <Button onClick={() => navigate('/')} size='md' style={btnStyle.backBtn} className={backBtn}>Back</Button>
+      <Button onClick={() => navigate('/')} size='md' style={btnStyle.backBtn}>Back</Button>
     </div>
   );
 };
