@@ -9,9 +9,8 @@ import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import style from './LinkManager.module.css';
 
-
 // Css style destructure
-const { title, linkFileContainer, fileName, newLinkBtn, tableContainer, searchBox, searchContainer, inputContainer, searchInput, searchBtn, searchIcon } = style;
+const { title, linkFileContainer, fileName, tableContainer, searchBox, searchContainer, inputContainer, searchInput, searchIcon } = style;
 
 const btnStyle={
   searchBtn:{
@@ -43,9 +42,8 @@ const LinkManager = () =>{
   const {allLinks}=useSelector(state=>state.links);
   const navigate = useNavigate();
   const dispatch=useDispatch();
-  const handleShowItem = (value) => {
-    console.log(value);
-  };
+
+  const handleShowItem = () => {};
   
   const handleOpenTargetLink = () => {
     Swal.fire({
@@ -63,7 +61,7 @@ const LinkManager = () =>{
 
       <div className={linkFileContainer}>
         <h5>Links for file: <span className={fileName}>requirements.txt</span></h5>
-        <Button onClick={() => {navigate('/new-link');dispatch(handleEditLinkData());}} style={btnStyle.newLinkBtn} className={newLinkBtn} size='sm' kind='ghost'>New link</Button>
+        <Button onClick={() => {navigate('/new-link');dispatch(handleEditLinkData());}} style={btnStyle.newLinkBtn} size='sm' kind='ghost'>New link</Button>
       </div>
 
       <div className={tableContainer}>
@@ -75,7 +73,7 @@ const LinkManager = () =>{
               <GoSearch className={searchIcon} />
               <input className={searchInput} type="text" placeholder='Search by identifier or name' />
             </div>
-            <Button size='md' style={btnStyle.searchBtn} className={searchBtn}>Search</Button>
+            <Button size='md' style={btnStyle.searchBtn}>Search</Button>
           </div>
         </div>
         <UseDataTable headers={headers} tableData={allLinks} openTargetLink={handleOpenTargetLink} />

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
+import EditLink from './Components/EditLink/EditLink';
 import LinkDetails from './Components/LinkDetails/LinkDetails';
 import NewLink from './Components/NewLink/NewLink';
 import NotFound from './Pages/404';
@@ -12,7 +13,8 @@ function App() {
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/new-link' element={<NewLink />} />
-        <Route path='/link-details' element={<LinkDetails />} />
+        <Route path='/edit-link/:id' element={<EditLink />} />
+        <Route path='/details/:id' element={<LinkDetails />} />
         <Route path='*' element={<NotFound />} />
       </Routes>
     </div>

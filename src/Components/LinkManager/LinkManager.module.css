@@ -28,16 +28,6 @@
     border-radius: 5px;
 }
 
-.newLinkBtn {
-    margin-right: 10px;
-    cursor: pointer;
-    border-radius: 5px;
-    font-size: 15px;
-    font-weight: 600;
-    color: #1389e9;
-    background-color: #f0f0f0;
-}
-
 .tableContainer {
     position: relative;
     box-shadow: 1px 1px 3px 1px lightgray;
@@ -83,14 +73,4 @@
 .searchIcon {
     margin-bottom: -5px;
     font-size: 20px;
-}
-
-.searchBtn {
-    border-radius: 0px 5px 5px 0;
-    padding: 0 20px;
-    background-color: #32a3ff;
-}
-
-.searchBtn:hover {
-    background-color: #1389e9;
 }
