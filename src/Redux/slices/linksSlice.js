@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import UniqueID from '../../Components/Shared/UniqueID/UniqueID';
 
 const sources=[
   {Source: 'requirements.txt'},
@@ -21,14 +22,6 @@ const initialState = {
   resourceType:null,
 };
 
-// UID generator 
-function uuid(mask = 'xxyx4xxyxxxyxx') {
-  return `${mask}`.replace(/[xy]/g, function(c) {
-    let r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-    return v.toString(16);
-  });
-}
-
 export const linksSlice = createSlice({
   name: 'links',
   initialState,
@@ -40,7 +33,7 @@ export const linksSlice = createSlice({
 
     handleCreateLink: (state) => {
       state.targetDataArr?.forEach((item)=>{
-        state.allLinks.push({id:uuid(),targetData:item,linkType:state.linkType, project:state.projectType, resource:state.resourceType,status:'No status'});
+        state.allLinks.push({id:UniqueID(),targetData:item,linkType:state.linkType, project:state.projectType, resource:state.resourceType,status:'No status'});
       });
       state.linkType =null;
       state.projectType =null;
