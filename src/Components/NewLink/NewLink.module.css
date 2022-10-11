@@ -101,7 +101,7 @@
 .btnContainer {
     display: flex;
     align-items: center;
-    justify-content: end;
+    justify-content: flex-end;
     gap: 20px;
     margin: 20px 0 0 auto;
 }
