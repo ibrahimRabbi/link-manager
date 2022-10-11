@@ -59,7 +59,7 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
         <TableBody >
           {
             // --- New link Table and edit link --- 
-            (isCheckBox && tableData?.length > 0) && currTableData?.map((row) => <TableRow key={row?.identifier} style={rowStyle}>
+            (isCheckBox && tableData[0]) && currTableData?.map((row) => <TableRow key={row?.identifier} style={rowStyle}>
               <TableCell className={`${tableCell} ${newLinkCell1}`}>{row?.identifier}</TableCell>
               <TableCell className={`${tableCell} ${newLinkCell2}`}>{row?.name}</TableCell>
               <TableCell className={tableCell}>{row?.description}</TableCell>
