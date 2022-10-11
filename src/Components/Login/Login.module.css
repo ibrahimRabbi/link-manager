@@ -18,21 +18,21 @@
     font-weight: bold
 }
 
-.submitBtn {
-    display: block;
-    margin: 2vw 0 0 auto;
+.btnContainer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btnContainer button {
     border-radius: 5px;
     background-color: #2196f3;
 }
 
-.submitBtn:hover {
-    background-color: #0b84e6;
+.btnContainer button:hover {
+    background-color: #0c79d2;
 }
 
 .errText {
-    color: red
-}
-
-.input {
-    margin-bottom: 20px
+    color: red;
+    margin-bottom: 20px;
 }

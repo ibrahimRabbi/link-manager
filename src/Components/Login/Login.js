@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import style from './Login.module.css';
 
-const {container, title, formContainer, input, submitBtn, titleSpan, errText}=style;
+const {container, title, formContainer, btnContainer, titleSpan, errText}=style;
 
 const Login = () => {
   const {handleSubmit, register, formState:{errors}}=useForm();
@@ -22,7 +22,7 @@ const Login = () => {
         </h3>
 
         <form onSubmit={handleSubmit(onSubmit)} className={formContainer}>
-          <TextInput className={input}
+          <TextInput
             type='email'
             id='email'
             labelText='Email'
@@ -40,7 +40,9 @@ const Login = () => {
           />
           <p className={errText}>{errors.password && 'Password should include at least 6 characters'}</p>
 
-          <Button size='md' className={submitBtn} kind='primary' type='submit'>Sign in</Button>
+          <div className={btnContainer}>
+            <Button size='md' kind='primary' type='submit'>Sign in</Button>
+          </div>
         </form>
       </div>
     </div>
