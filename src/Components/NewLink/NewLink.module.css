@@ -94,6 +94,12 @@
     font-size: 20px;
 }
 
+.searchBtn {
+    border-radius: 0px 5px 5px 0;
+    padding: 0 20px;
+    background-color: #2196f3;
+}
+
 .newLinkTable {
     margin: 15px 0;
 }
@@ -101,9 +107,19 @@
 .btnContainer {
     display: flex;
     align-items: center;
-    justify-content: end;
+    justify-content: flex-end;
     gap: 20px;
     margin: 20px 0 0 auto;
+}
+
+.saveBtn {
+    border-radius: 5px;
+    background-color: #2196f3;
+}
+
+.cancelBtn {
+    border-radius: 5px;
+    background-color: rgb(50, 50, 55);
 }
 
 .emptySearchWarning {

@@ -12,15 +12,7 @@ import style from './NewLink.module.css';
 
 
 // Css styles
-const { title,mainContain, sourceContainer, sourceList, sourceProp, linkTypeContainer, targetContainer, projectContainer, dropDownLabel, targetSearchContainer, resourceTypeContainer, searchContainer, inputContainer, searchIcon, searchInput, newLinkTable, emptySearchWarning,btnContainer } = style;
-
-const btnStyle={
-  saveBtn:{ borderRadius:'5px', backgroundColor:'#2196f3'},
-  cancelBtn:{ borderRadius:'5px', backgroundColor:'rgb(50, 50, 55)'},
-  searchBtn:{borderRadius: '0px 5px 5px 0',
-    padding: '0 20px',
-    backgroundColor: '#2196f3'}
-};
+const { title,mainContain, sourceContainer, sourceList, sourceProp, linkTypeContainer, targetContainer, projectContainer, dropDownLabel, targetSearchContainer, resourceTypeContainer, searchContainer, inputContainer, searchIcon, searchInput, newLinkTable, emptySearchWarning,btnContainer,searchBtn, saveBtn, cancelBtn } = style;
 
 // dropdown items
 const linkTypeItems = ['affectedBy', 'implementedBy', 'trackedBy', 'constrainedBy', 'decomposedBy', 'elaboratedBy', 'satisfiedBy'];
@@ -158,7 +150,7 @@ const NewLink = ({pageTitle}) => {
                 <GoSearch className={searchIcon} />
                 <input className={searchInput} type='text' placeholder='Search by identifier or name' {...register('searchText')} />
               </div>
-              <Button size='md' type='submit' style={btnStyle.searchBtn}>Search</Button>
+              <Button size='md' type='submit' className={searchBtn}>Search</Button>
             </form>
           </div>
 
@@ -176,14 +168,14 @@ const NewLink = ({pageTitle}) => {
 
       {/* new link btn  */}
       {(projectType&& resourceType &&targetDataArr[0] &&!pageTitle) && <div className={btnContainer}>
-        <Button onClick={handleCancelOpenedLink} size='md' style={btnStyle.cancelBtn} >Cancel</Button>
-        <Button onClick={handleSaveLink} size='md' style={btnStyle.saveBtn}>Save</Button>
+        <Button onClick={handleCancelOpenedLink} size='md' className={cancelBtn} >Cancel</Button>
+        <Button onClick={handleSaveLink} size='md' className={saveBtn}>Save</Button>
       </div>}
 
       {/* edit link btn  */}
       {(pageTitle && editLinkData?.id) &&<div className={btnContainer}>
-        <Button onClick={handleCancelOpenedLink} size='md' style={btnStyle.cancelBtn} >Cancel</Button>
-        <Button onClick={handleLinkUpdate} size='md' style={btnStyle.saveBtn}>Save</Button>
+        <Button onClick={handleCancelOpenedLink} size='md' className={cancelBtn} >Cancel</Button>
+        <Button onClick={handleLinkUpdate} size='md' className={saveBtn}>Save</Button>
       </div>}
     </div>
   );

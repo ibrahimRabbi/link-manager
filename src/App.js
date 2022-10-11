@@ -5,13 +5,15 @@ import LinkDetails from './Components/LinkDetails/LinkDetails';
 import NewLink from './Components/NewLink/NewLink';
 import NotFound from './Pages/404';
 import Home from './Pages/Home';
+import Login from './Pages/Login';
 import './Styles/GlobalStyle.css';
 
 function App() {
   return (
     <div className="App">
       <Routes>
-        <Route path='/' element={<Home />} />
+        <Route path='/' element={<Login />} />
+        <Route path='/link-manager' element={<Home />} />
         <Route path='/new-link' element={<NewLink />} />
         <Route path='/edit-link/:id' element={<EditLink />} />
         <Route path='/details/:id' element={<LinkDetails />} />

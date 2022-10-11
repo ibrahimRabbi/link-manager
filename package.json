@@ -5,7 +5,7 @@
   "dependencies": {
     "@carbon/icons-react": "^11.8.0",
     "@carbon/react": "^1.13.0",
-    "@reduxjs/toolkit": "1.8.2",
+    "@reduxjs/toolkit": "^1.8.6",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -14,12 +14,12 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.36.1",
     "react-icons": "^4.4.0",
-    "react-redux": "8.0.2",
+    "react-redux": "^8.0.4",
     "react-router-dom": "^6.4.1",
     "react-scripts": "5.0.1",
     "sass": "1.51.0",
     "sweetalert2": "^11.4.34",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^3.0.3"
   },
   "scripts": {
     "start": "react-scripts start",
