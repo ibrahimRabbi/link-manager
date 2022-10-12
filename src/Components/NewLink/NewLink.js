@@ -92,7 +92,7 @@ const NewLink = ({pageTitle}) => {
       title: 'Link Updated success!',
       timer: 3000
     });
-    navigate('/');
+    navigate('/link-manager');
   };
 
   // Create new link 
