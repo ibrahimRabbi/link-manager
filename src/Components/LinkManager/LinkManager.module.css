@@ -75,7 +75,7 @@
     font-size: 20px;
 }
 
-.newLinkBtn {
+.linkFileContainer button {
     margin-right: 10px;
     cursor: pointer;
     border-radius: 5px;
@@ -85,8 +85,12 @@
     background-color: #f0f0f0;
 }
 
-.searchBtn {
+.searchContainer button {
     border-radius: 0px 5px 5px 0;
     padding: 0 20px;
     background-color: #2196f3;
+}
+
+.searchContainer button:hover {
+    background-color: #1481da;
 }

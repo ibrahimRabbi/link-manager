@@ -12,7 +12,7 @@ import style from './NewLink.module.css';
 
 
 // Css styles
-const { title,mainContain, sourceContainer, sourceList, sourceProp, linkTypeContainer, targetContainer, projectContainer, dropDownLabel, targetSearchContainer, resourceTypeContainer, searchContainer, inputContainer, searchIcon, searchInput, newLinkTable, emptySearchWarning,btnContainer,searchBtn, saveBtn, cancelBtn } = style;
+const { title, sourceContainer, sourceList, sourceProp, linkTypeContainer, targetContainer, projectContainer, dropDownLabel, targetSearchContainer, resourceTypeContainer, searchContainer, inputContainer, searchIcon, searchInput, newLinkTable, emptySearchWarning,btnContainer} = style;
 
 // dropdown items
 const linkTypeItems = ['affectedBy', 'implementedBy', 'trackedBy', 'constrainedBy', 'decomposedBy', 'elaboratedBy', 'satisfiedBy'];
@@ -100,7 +100,7 @@ const NewLink = ({pageTitle}) => {
     if(linkType&&projectType&&resourceType){
       dispatch(handleCreateLink());
       Swal.fire({icon: 'success', title: 'Link successfully created!', timer: 3000});
-      navigate('/');
+      navigate('/link-manager');
     } 
     else{
       Swal.fire({icon: 'error', title: 'Link create failed!!! Please fill all the options', timer: 3000});
@@ -109,13 +109,12 @@ const NewLink = ({pageTitle}) => {
 
   const handleCancelOpenedLink=()=>{
     dispatch(handleCancelLink());
-    navigate('/');
+    navigate('/link-manager');
   };
 
   return (
-    <div className={`${'mainContainer'} ${mainContain}`}>
+    <div className='mainContainer'>
       <h2 className={title}>{pageTitle?pageTitle:'New Link'}</h2>
-
       <div className={sourceContainer}>
         <h5>Source</h5>
         {sourceDataList?.map((item, i)=><div key={i}
@@ -150,7 +149,7 @@ const NewLink = ({pageTitle}) => {
                 <GoSearch className={searchIcon} />
                 <input className={searchInput} type='text' placeholder='Search by identifier or name' {...register('searchText')} />
               </div>
-              <Button size='md' type='submit' className={searchBtn}>Search</Button>
+              <Button size='md' type='submit'>Search</Button>
             </form>
           </div>
 
@@ -168,14 +167,14 @@ const NewLink = ({pageTitle}) => {
 
       {/* new link btn  */}
       {(projectType&& resourceType &&targetDataArr[0] &&!pageTitle) && <div className={btnContainer}>
-        <Button onClick={handleCancelOpenedLink} size='md' className={cancelBtn} >Cancel</Button>
-        <Button onClick={handleSaveLink} size='md' className={saveBtn}>Save</Button>
+        <Button onClick={handleCancelOpenedLink} size='md'>Cancel</Button>
+        <Button onClick={handleSaveLink} size='md'>Save</Button>
       </div>}
 
       {/* edit link btn  */}
       {(pageTitle && editLinkData?.id) &&<div className={btnContainer}>
-        <Button onClick={handleCancelOpenedLink} size='md' className={cancelBtn} >Cancel</Button>
-        <Button onClick={handleLinkUpdate} size='md' className={saveBtn}>Save</Button>
+        <Button onClick={handleCancelOpenedLink} size='md'>Cancel</Button>
+        <Button onClick={handleLinkUpdate} size='md'>Save</Button>
       </div>}
     </div>
   );

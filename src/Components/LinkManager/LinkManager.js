@@ -10,7 +10,7 @@ import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import style from './LinkManager.module.css';
 
 // Css style destructure
-const { title, linkFileContainer, fileName, tableContainer, searchBox, searchContainer, inputContainer, searchInput, searchIcon,  newLinkBtn } = style;
+const { title, linkFileContainer, fileName, tableContainer, searchBox, searchContainer, inputContainer, searchInput, searchIcon, } = style;
 
 const headers = [
   { key: 'status', header: 'Status' },
@@ -45,7 +45,7 @@ const LinkManager = () =>{
 
       <div className={linkFileContainer}>
         <h5>Links for file: <span className={fileName}>requirements.txt</span></h5>
-        <Button onClick={() => {navigate('/new-link');dispatch(handleEditLinkData());}} className={newLinkBtn} size='sm' kind='ghost'>New link</Button>
+        <Button onClick={() => {navigate('/new-link');dispatch(handleEditLinkData());}}size='sm' kind='ghost'>New link</Button>
       </div>
 
       <div className={tableContainer}>
@@ -57,7 +57,7 @@ const LinkManager = () =>{
               <GoSearch className={searchIcon} />
               <input className={searchInput} type="text" placeholder='Search by identifier or name' />
             </div>
-            <Button size='md' className='searchButton'>Search</Button>
+            <Button size='md'>Search</Button>
           </div>
         </div>
         <UseDataTable headers={headers} tableData={allLinks} openTargetLink={handleOpenTargetLink} />
