@@ -1,4 +1,5 @@
 build
+dist
 node_module
 yarn.lock
 .vscode
