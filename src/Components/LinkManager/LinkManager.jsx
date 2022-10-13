@@ -22,13 +22,13 @@ const headers = [
 
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 
-const LinkManager = () =>{
-  const {allLinks}=useSelector(state=>state.links);
+const LinkManager = () => {
+  const { allLinks } = useSelector(state => state.links);
   const navigate = useNavigate();
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
 
-  const handleShowItem = () => {};
-  
+  const handleShowItem = () => { };
+
   const handleOpenTargetLink = () => {
     Swal.fire({
       title: 'Opening Jira Application',
@@ -45,7 +45,7 @@ const LinkManager = () =>{
 
       <div className={linkFileContainer}>
         <h5>Links for file: <span className={fileName}>requirements.txt</span></h5>
-        <Button onClick={() => {navigate('/new-link');dispatch(handleEditLinkData());}}size='sm' kind='ghost'>New link</Button>
+        <Button onClick={() => { navigate('/new-link'); dispatch(handleEditLinkData()); }} size='sm' kind='ghost'>New link</Button>
       </div>
 
       <div className={tableContainer}>

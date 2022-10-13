@@ -3,16 +3,16 @@ import { Route, Routes } from 'react-router-dom';
 import EditLink from './Components/EditLink/EditLink';
 import LinkDetails from './Components/LinkDetails/LinkDetails';
 import NewLink from './Components/NewLink/NewLink';
+import './GlobalStyle.css';
 import NotFound from './Pages/404';
 import Home from './Pages/Home';
 import Login from './Pages/Login';
-import './Styles/GlobalStyle.css';
 
 function App() {
+
   return (
-    <div className="App">
-      <Routes>
-        <Route path='/' element={<Login />} />
+    <div className='App'>
+      <Routes><Route path='/' element={<Login />} />
         <Route path='/link-manager' element={<Home />} />
         <Route path='/new-link' element={<NewLink />} />
         <Route path='/edit-link/:id' element={<EditLink />} />
@@ -22,4 +22,5 @@ function App() {
     </div>
   );
 }
+
 export default App;
