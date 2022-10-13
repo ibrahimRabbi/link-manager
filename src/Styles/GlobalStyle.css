@@ -3,13 +3,3 @@
     margin: 0 auto;
     padding: 0 2vw;
 }
-
-.dropdown {
-    border-radius: 10px;
-}
-
-.searchButton {
-    border-radius: 0px 5px 5px 0;
-    padding: 0 20px;
-    background-color: #2196f3;
-}
