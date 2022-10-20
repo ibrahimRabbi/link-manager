@@ -1,18 +1,13 @@
-import { Button, Checkbox } from '@carbon/react';
+import { Button, Checkbox, Search } from '@carbon/react';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { GoSearch } from 'react-icons/go';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleCancelLink, handleCreateLink, handleLinkType, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
+import { handleCancelLink, handleCreateLink, handleCurrPageTitle, handleLinkType, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
-import style from './NewLink.module.css';
-
-
-// Css styles
-const { title, sourceContainer, sourceList, sourceProp, linkTypeContainer, targetContainer, projectContainer, dropDownLabel, targetSearchContainer, resourceTypeContainer, searchContainer, inputContainer, searchIcon, searchInput, newLinkTable, emptySearchWarning, btnContainer } = style;
+import { btnContainer, dropDownLabel, dropdownStyle, emptySearchWarning, inputContainer, linkTypeContainer, newLinkTable, projectContainer, resourceTypeContainer, searchContainer, searchInput, sourceContainer, sourceList, sourceProp, targetContainer, targetSearchContainer } from './NewLink.module.scss';
 
 // dropdown items
 const linkTypeItems = ['affectedBy', 'implementedBy', 'trackedBy', 'constrainedBy', 'decomposedBy', 'elaboratedBy', 'satisfiedBy'];
@@ -35,6 +30,10 @@ const NewLink = ({ pageTitle }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  useEffect(()=>{
+    dispatch(handleCurrPageTitle(pageTitle?pageTitle:'New Link'));
+  },[]);
+
   // Edit link options start
   useEffect(() => {
     if (editTargetData?.identifier) {
@@ -47,7 +46,7 @@ const NewLink = ({ pageTitle }) => {
   // search data or document 
   useEffect(() => {
     setDisplayTableData([]);
-    const URL = editTargetData?.identifier ? `../${searchText}.json` : `./${searchText}.json`;
+    const URL = editTargetData?.identifier ? `../../${searchText}.json` : `./../${searchText}.json`;
     fetch(URL)
       .then(res => res.json())
       .then(data => setDisplayTableData(data))
@@ -113,8 +112,7 @@ const NewLink = ({ pageTitle }) => {
   };
 
   return (
-    <div className='mainContainer'>
-      <h2 className={title}>{pageTitle ? pageTitle : 'New Link'}</h2>
+    <div className='container'>
       <div className={sourceContainer}>
         <h5>Source</h5>
         {sourceDataList?.map((item, i) => <div key={i}
@@ -125,7 +123,7 @@ const NewLink = ({ pageTitle }) => {
 
       <div className={linkTypeContainer}>
         <h5>Link type</h5>
-        <UseDropdown onChange={handleLinkTypeChange} items={linkTypeItems} selectedValue={editLinkData?.linkType} label={'Select link type'} id='newLink_linkTypes' style={{ width: '180px', borderRadius: '10px' }} />
+        <UseDropdown onChange={handleLinkTypeChange} items={linkTypeItems} selectedValue={editLinkData?.linkType} label={'Select link type'} id='newLink_linkTypes' className={dropdownStyle}/>
       </div>
 
       {/* --- After selected link type ---  */}
@@ -135,21 +133,28 @@ const NewLink = ({ pageTitle }) => {
 
           <div className={projectContainer}>
             <p className={dropDownLabel}>Project:</p>
-            <UseDropdown items={targetProjectItems} onChange={handleTargetProject} selectedValue={editLinkData?.project} label={'Select project'} id='project-dropdown' style={{ minWidth: '250px' }} />
+            <UseDropdown items={targetProjectItems} onChange={handleTargetProject} selectedValue={editLinkData?.project} label={'Select project'} id='project-dropdown' className={dropdownStyle}/>
+          </div>
+
+          <div className={resourceTypeContainer}>
+            <p className={dropDownLabel}>Resource type:</p>
+            <UseDropdown items={targetResourceItems} onChange={handleTargetResource} selectedValue={editLinkData?.resource} label={'Select resource type'} id='resourceType-dropdown' className={dropdownStyle}/>
           </div>
 
           <div className={targetSearchContainer}>
-            <div className={resourceTypeContainer}>
-              <p className={dropDownLabel}>Resource type:</p>
-              <UseDropdown items={targetResourceItems} onChange={handleTargetResource} selectedValue={editLinkData?.resource} label={'Select resource type'} id='resourceType-dropdown' style={{ minWidth: '250px' }} />
-            </div>
-
             <form onSubmit={handleSubmit(handleSearchData)} className={searchContainer}>
               <div className={inputContainer}>
-                <GoSearch className={searchIcon} />
-                <input className={searchInput} type='text' placeholder='Search by identifier or name' {...register('searchText')} />
+                <Search
+                  id=''
+                  labelText=''
+                  className={searchInput} 
+                  type='text' 
+                  placeholder='Search by identifier or name' 
+                  {...register('searchText')}
+                  size='md'
+                />
               </div>
-              <Button size='md' type='submit'>Search</Button>
+              <Button kind='primary' size='md' type='submit'>Search</Button>
             </form>
           </div>
 
@@ -162,20 +167,20 @@ const NewLink = ({ pageTitle }) => {
           {(searchText && !displayTableData[0]) &&
             <h2 className={emptySearchWarning}>Please search by valid identifier or name</h2>
           }
+
+          {/* new link btn  */}
+          {(projectType && resourceType && targetDataArr[0] && !pageTitle) && <div className={btnContainer}>
+            <Button kind='secondary' onClick={handleCancelOpenedLink} size='md'>Cancel</Button>
+            <Button kind='primary' onClick={handleSaveLink} size='md'>Save</Button>
+          </div>}
+
+          {/* edit link btn  */}
+          {(pageTitle && editLinkData?.id) && <div className={btnContainer}>
+            <Button kind='secondary' onClick={handleCancelOpenedLink} size='md'>Cancel</Button>
+            <Button kind='primary' onClick={handleLinkUpdate} size='md'>Save</Button>
+          </div>}
         </div>
       }
-
-      {/* new link btn  */}
-      {(projectType && resourceType && targetDataArr[0] && !pageTitle) && <div className={btnContainer}>
-        <Button onClick={handleCancelOpenedLink} size='md'>Cancel</Button>
-        <Button onClick={handleSaveLink} size='md'>Save</Button>
-      </div>}
-
-      {/* edit link btn  */}
-      {(pageTitle && editLinkData?.id) && <div className={btnContainer}>
-        <Button onClick={handleCancelOpenedLink} size='md'>Cancel</Button>
-        <Button onClick={handleLinkUpdate} size='md'>Save</Button>
-      </div>}
     </div>
   );
 };

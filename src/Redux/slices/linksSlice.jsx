@@ -12,6 +12,7 @@ const sources=[
 
 const initialState = {
   sourceDataList:[...sources],
+  currPageTitle:'',
   allLinks: [],
   editTargetData:{},
   targetDataArr:[],
@@ -29,6 +30,10 @@ export const linksSlice = createSlice({
   reducers: {
     handleViewLinkDetails: (state, {payload}) => {
       state.linkedData=payload;
+    },
+
+    handleCurrPageTitle: (state, {payload}) => {
+      state.currPageTitle=payload;
     },
 
     handleCreateLink: (state) => {
@@ -115,6 +120,6 @@ export const linksSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { handleViewLinkDetails, handleCreateLink, handleEditLinkData, handleTargetDataArr,handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
+export const {handleCurrPageTitle, handleViewLinkDetails, handleCreateLink, handleEditLinkData, handleTargetDataArr,handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
 
 export default linksSlice.reducer;

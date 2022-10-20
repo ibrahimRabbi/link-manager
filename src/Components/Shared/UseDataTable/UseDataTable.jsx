@@ -8,11 +8,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { handleDeleteLink, handleEditLinkData, handleEditTargetData, handleSetStatus, handleTargetDataArr, handleViewLinkDetails } from '../../../Redux/slices/linksSlice';
-import style from './UseDataTable.module.css';
-
-// Css styles 
-const { tableRow, tableCell, targetCell, actionMenu, menuItem, statusIcon, invalidIcon, validIcon, noStatusIcon, pagination, modalHeadContainer,modalTitle, modalBody,sourceList, sourceProp,newLinkCell1,newLinkCell2} = style;
-const rowStyle = { height: '35px' };
+import { actionMenu, boxCell, invalidIcon, menuItem, modalBody, modalHeadContainer, modalTitle, newLinkCell1, newLinkCell2, noStatusIcon, sourceList, sourceProp, statusIcon, tableCell, targetCell, validIcon } from './UseDataTable.module.scss';
 
 const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,isChecked,editTargetData }) => {
   const [isOpen, setIsOpen] = useState(null);
@@ -48,9 +44,9 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
 
   return (
     <TableContainer title=''>
-      <Table >
+      <Table size='md'>
         <TableHead>
-          <TableRow className={tableRow}>
+          <TableRow>
             {headers?.map((header, i) => (
               <TableHeader key={i}>{header?.header}</TableHeader>
             ))}
@@ -59,24 +55,24 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
         <TableBody >
           {
             // --- New link Table and edit link --- 
-            (isCheckBox && tableData[0]) && currTableData?.map((row) => <TableRow key={row?.identifier} style={rowStyle}>
+            (isCheckBox && tableData[0]) && currTableData?.map((row) => <TableRow key={row?.identifier}>
               <TableCell className={`${tableCell} ${newLinkCell1}`}>{row?.identifier}</TableCell>
-              <TableCell className={`${tableCell} ${newLinkCell2}`}>{row?.name}</TableCell>
-              <TableCell className={tableCell}>{row?.description}</TableCell>
+              <TableCell className={`${tableCell} ${newLinkCell2}`}><span>{row?.name}</span></TableCell>
+              <TableCell className={tableCell}><span>{row?.description}</span></TableCell>
               
               {/* edit link checkbox  */}
-              {isChecked &&<TableCell className={tableCell}><Checkbox checked={row?.identifier=== editTargetData?.identifier} onClick={() =>dispatch(handleEditTargetData(row))} labelText='' id={row?.identifier} /></TableCell>}
+              {isChecked &&<TableCell className={`${tableCell} ${boxCell}`}><Checkbox checked={row?.identifier=== editTargetData?.identifier} onClick={() =>dispatch(handleEditTargetData(row))} labelText='' id={row?.identifier} /></TableCell>}
 
               {/* new link checkbox  */}
-              {!isChecked &&<TableCell className={tableCell}><Checkbox onClick={(e) => dispatch(handleTargetDataArr({data:row, value:{isChecked:e.target.checked, id:e.target.id}}))} labelText='' id={row?.identifier} /></TableCell>}
+              {!isChecked &&<TableCell className={`${tableCell} ${boxCell}`}><Checkbox onClick={(e) => dispatch(handleTargetDataArr({data:row, value:{isChecked:e.target.checked, id:e.target.id}}))} labelText='' id={row?.identifier} /></TableCell>}
             </TableRow>)
           }
 
           {
             // Link Manager Table
-            (!isCheckBox && tableData[0]) && currTableData?.map((row, i) => <TableRow key={i} style={rowStyle}>
+            (!isCheckBox && tableData[0]) && currTableData?.map((row, i) => <TableRow key={i}>
               <TableCell className={tableCell}>{row?.status === 'Valid' ? <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> : row?.status === 'Invalid' ? <BsExclamationTriangleFill className={`${statusIcon} ${invalidIcon}`} /> : <RiCheckboxBlankFill className={`${statusIcon} ${noStatusIcon}`} />}{row?.status}</TableCell>
-              <TableCell className={tableCell}>{'requirements.txt'}</TableCell>
+              <TableCell className={tableCell}><p>{'requirements.txt'}</p></TableCell>
               <TableCell className={tableCell}>{row?.linkType}</TableCell>
 
               {/* --- Table data with modal ---  */}
@@ -111,11 +107,11 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
               </TableCell>
 
               <TableCell className={`${tableCell} ${'cds--table-column-menu'}`}>
-                <OverflowMenu menuOptionsClass={actionMenu}
+                <OverflowMenu menuOptionsClass={actionMenu} menuOffset={{left:-55}}
                   renderIcon={() => <FiSettings />}
                   size='md' ariaLabel=''>
-                  <OverflowMenuItem wrapperClassName={menuItem} onClick={() => {dispatch(handleViewLinkDetails(row));navigate(`/details/${row?.id}`);}} hasDivider itemText='Details'/>
-                  <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>{dispatch(handleEditLinkData(row)); navigate(`/edit-link/${row?.id}`);}} hasDivider itemText='Edit' />
+                  <OverflowMenuItem wrapperClassName={menuItem} onClick={() => {dispatch(handleViewLinkDetails(row));navigate(`/link-manager/details/${row?.id}`);}} hasDivider itemText='Details'/>
+                  <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>{dispatch(handleEditLinkData(row)); navigate(`/link-manager/edit-link/${row?.id}`);}} hasDivider itemText='Edit' />
                   <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>dispatch(handleSetStatus({row, status:'Valid'}))} hasDivider itemText='Set status - Valid' />
                   <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>dispatch(handleSetStatus({row, status:'Invalid'}))} hasDivider itemText='Set status - Invalid' />
                   <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>handleDeleteCreatedLink(row)} hasDivider itemText='Remove' />
@@ -125,22 +121,20 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
           }
         </TableBody>
       </Table>
-      
       {/* --- Pagination --- */}
-      <div className={pagination}>
-        <Pagination
-          backwardText='Previous page'
-          forwardText='Next page'
-          itemsPerPageText='Items per page:'
-          onChange={handlePagination}
-          page={currPage}
-          pageSize={pageSize}
-          pageSizes={[10, 20, 30, 40, 50]}
-          size='lg'
-          totalItems={tableData?.length}
-        />
-      </div>
+      <Pagination
+        backwardText='Previous page'
+        forwardText='Next page'
+        itemsPerPageText='Items per page:'
+        onChange={handlePagination}
+        page={currPage}
+        pageSize={pageSize}
+        pageSizes={[10, 20, 30, 40, 50]}
+        size='lg'
+        totalItems={tableData?.length}
+      />
     </TableContainer>
+      
   );
 };
 

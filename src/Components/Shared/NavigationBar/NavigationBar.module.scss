@@ -1,0 +1,48 @@
+@use '@carbon/colors';
+
+.main {
+    padding-top: 60px;
+}
+
+.projectTitle {
+    min-width: 150px !important;
+}
+
+.headerContainer {
+    display: flex;
+    width: 100%;
+}
+
+.pageTitle {
+    width: 100%;
+    text-align: center;
+    margin-top: 15px;
+}
+
+#profile {
+    color: colors.$gray-30;
+    margin-right: 1%;
+}
+
+.overMenu {
+    width: 200px;
+}
+
+.menuItem {
+    height: 30px;
+    background-color: colors.$gray-90;
+}
+
+#lgNav {
+    width: 200px;
+}
+
+#smNav {
+    width: 180px;
+}
+
+.searchContainer {
+    width: 40%;
+    display: flex;
+    justify-content: flex-end;
+}

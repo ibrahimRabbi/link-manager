@@ -1,14 +1,11 @@
-.title {
-    text-align: center;
-    color: gray;
-    font-weight: bold;
-    margin: 2vw 0;
-}
+@use '@carbon/colors';
+@use '@carbon/type';
 
 .sourceContainer {
-    box-shadow: 1px 1px 3px 1px lightgray;
     padding: 10px 1vw;
     margin-bottom: 15px;
+    background-color: colors.$white;
+    border: 1px solid colors.$gray-30;
 }
 
 .sourceList {
@@ -17,38 +14,31 @@
     margin-left: 10px;
 }
 
-.sourceList h3 {
-    font-weight: 500;
-    font-size: 24px;
-}
-
 .sourceList p {
-    font-size: 15px;
     margin-left: 5px;
 }
 
 .sourceList h5:first-child {
-    font-size: 18px;
-    color: black;
+    color: colors.$black;
     width: 120px;
 }
 
 .sourceTitle2 {
-    background-color: #fabbb7;
+    background-color: colors.$red-30;
     border-radius: 5px;
     padding: 0 5px;
     min-width: 40%;
 }
 
 .linkTitle2 {
-    background-color: #f0ecec;
+    background-color: colors.$gray-30;
     border-radius: 5px;
     padding: 0 5px;
     min-width: 40%;
 }
 
 .targetTitle2 {
-    background-color: #acd0ff;
+    background-color: colors.$blue-30;
     border-radius: 5px;
     padding: 0 5px;
     min-width: 40%;
@@ -56,7 +46,7 @@
 
 .sourceProp {
     width: 110px;
-    color: gray;
+    color: colors.$gray-50;
 }
 
 .circlesContainer {
@@ -72,11 +62,11 @@
     height: 120px;
     border-radius: 50%;
     padding: 20px;
-    background-color: #ff5a51;
+    background-color: colors.$red-50;
 }
 
 .circle:last-child {
-    background-color: #197cff;
+    background-color: colors.$blue-50;
 }
 
 .linkTypeCenter {
@@ -84,25 +74,34 @@
     top: 25%;
     left: 35%;
     right: 40%;
-    color: black;
+    color: colors.$black;
     font-weight: 500;
 }
 
 .circleBorder {
     flex: 1;
-    border-bottom: 5px solid black;
+    border-bottom: 5px solid colors.$black;
 }
 
 .arrowIcon {
     font-size: 50px;
-    color: black;
+    color: colors.$black;
     margin: 0 -8px -0.5px -15px;
 }
 
 .circle p {
     text-align: center;
-    color: white;
+    color: colors.$white;
     font-weight: 500;
-    font-size: 14px;
     word-wrap: break-word;
+}
+
+.btnContainer {
+    display: flex;
+    justify-content: flex-end;
+    margin: 30px 0;
+}
+
+.btnContainer button {
+    width: 50%;
 }

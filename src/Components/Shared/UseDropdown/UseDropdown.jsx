@@ -1,9 +1,9 @@
 import { Dropdown } from '@carbon/react';
 import React from 'react';
 
-const UseDropdown = ({ items, style, label, id, onChange, selectedValue}) => {
+const UseDropdown = ({ items, className, label, id, onChange, selectedValue}) => {
   return (
-    <Dropdown style={style}
+    <Dropdown className={className}
       items={items}
       label={label}
       id={id}

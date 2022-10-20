@@ -6,7 +6,7 @@ import NewLink from '../NewLink/NewLink';
 const EditLink = () => {
   const navigate=useNavigate();
   const {editLinkData}=useSelector(state=>state.links);
-  if(!editLinkData?.id)  navigate('/');
+  if(!editLinkData?.id)  navigate('/link-manager');
   
   return (
     <NewLink pageTitle='Edit link'/>
