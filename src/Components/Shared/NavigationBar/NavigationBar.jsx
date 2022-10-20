@@ -1,15 +1,37 @@
-import { HybridNetworkingAlt, UserAvatarFilledAlt } from '@carbon/icons-react';
-import { Header, HeaderContainer, HeaderMenuButton, HeaderName, OverflowMenu, OverflowMenuItem, SideNav, SideNavItems, SideNavLink, Theme } from '@carbon/react';
+import { HybridNetworkingAlt, Logout, UserAvatarFilledAlt } from '@carbon/icons-react';
+import { Button, Header, HeaderContainer, HeaderMenuButton, HeaderName, IconButton, Popover, PopoverContent, SideNav, SideNavItems, SideNavLink, Theme } from '@carbon/react';
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import { handleIsProfileOpen, handleLoggedInUser } from '../../../Redux/slices/linksSlice';
 import mediaQuery from '../MediaQueryHook/MediaQuery';
-import { headerContainer, lgNav, main, menuItem, pageTitle, profile, projectTitle, smNav } from './NavigationBar.module.scss';
+import { headerContainer, lgNav, main, pageTitle, popoverContent, profile, projectTitle, smNav } from './NavigationBar.module.scss';
 
 const NavigationBar = () => {
-  const {currPageTitle}=useSelector(state=>state.links);
+  const {currPageTitle, loggedInUser, isProfileOpen}=useSelector(state=>state.links);
   const isDeskTop=mediaQuery('(min-width: 1055px)');
   const navigate=useNavigate();
+  const dispatch=useDispatch();
+  const handleLogout=()=>{
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You wont to logout!',
+      icon: 'warning',
+      cancelButtonColor: '#d33',
+      confirmButtonColor: '#3085d6',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, !'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(handleLoggedInUser(null));
+        dispatch(handleIsProfileOpen(!isProfileOpen));
+        Swal.fire({title:'Logged out successful',icon:'success', timer:1500});
+        navigate('/');
+      }
+    });
+  };
+
   return (
     <div className={`${'container'} ${main}`}>
       <HeaderContainer
@@ -27,12 +49,20 @@ const NavigationBar = () => {
                 
                 <div className={headerContainer}>
                   <h5 className={pageTitle}>{currPageTitle}</h5>
-                  <OverflowMenu id={profile} label='' menuOffset={{left:-60}}
-                    renderIcon={() => <UserAvatarFilledAlt size='25'/>}
-                    size='md' ariaLabel=''>
-                    <OverflowMenuItem wrapperClassName={menuItem} itemText='admin@example.com'/>
-                    <OverflowMenuItem wrapperClassName={menuItem} itemText='Logout' />
-                  </OverflowMenu>
+                  
+                  <Popover open={isProfileOpen}
+                    autoAlign dropShadow
+                    className={profile}>
+                    <IconButton kind='ghost' label='' onClick={() => dispatch(handleIsProfileOpen(!isProfileOpen))}>
+                      <UserAvatarFilledAlt size='25'/>
+                    </IconButton>
+                    <PopoverContent className={popoverContent}>
+                      <img src='https://i.ibb.co/ScbTKWS/admin.png' alt='Profile'/>
+                      <h5>Admin</h5>
+                      <h5>{loggedInUser?.email}</h5>
+                      <Button onClick={handleLogout} renderIcon={Logout} size='sm' kind='danger--tertiary'>Logout</Button>
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
                 {/* --------- Side nav ---------   */}

@@ -10,7 +10,7 @@ import Dashboard from './Pages/Dashboard';
 import LoginPage from './Pages/Login';
 
 function App() {
-
+  
   return (
     <div className='App'>
       <Routes>

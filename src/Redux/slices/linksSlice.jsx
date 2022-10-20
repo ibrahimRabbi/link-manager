@@ -13,6 +13,8 @@ const sources=[
 const initialState = {
   sourceDataList:[...sources],
   currPageTitle:'',
+  loggedInUser:null,
+  isProfileOpen:false,
   allLinks: [],
   editTargetData:{},
   targetDataArr:[],
@@ -32,6 +34,12 @@ export const linksSlice = createSlice({
       state.linkedData=payload;
     },
 
+    handleLoggedInUser: (state, {payload}) => {
+      state.loggedInUser=payload;
+    },
+    handleIsProfileOpen: (state, {payload}) => {
+      state.isProfileOpen=payload;
+    },
     handleCurrPageTitle: (state, {payload}) => {
       state.currPageTitle=payload;
     },
@@ -120,6 +128,6 @@ export const linksSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const {handleCurrPageTitle, handleViewLinkDetails, handleCreateLink, handleEditLinkData, handleTargetDataArr,handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
+export const {handleLoggedInUser, handleCurrPageTitle, handleIsProfileOpen, handleViewLinkDetails, handleCreateLink, handleEditLinkData, handleTargetDataArr,handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
 
 export default linksSlice.reducer;

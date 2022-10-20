@@ -2,7 +2,9 @@ import { ArrowRight } from '@carbon/icons-react';
 import { Button, TextInput } from '@carbon/react';
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { handleLoggedInUser } from '../../Redux/slices/linksSlice';
 import style from './Login.module.scss';
 
 const {main,container, title, formContainer, btnContainer, titleSpan, errText}=style;
@@ -10,8 +12,10 @@ const {main,container, title, formContainer, btnContainer, titleSpan, errText}=s
 const Login = () => {
   const {handleSubmit, register, formState:{errors}}=useForm();
   const navigate=useNavigate();
+  const dispatch=useDispatch();
 
-  const onSubmit=()=>{
+  const onSubmit=(data)=>{
+    dispatch(handleLoggedInUser({email:data.email}));
     navigate('/link-manager');
   };
 
