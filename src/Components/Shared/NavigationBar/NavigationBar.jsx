@@ -14,6 +14,7 @@ const NavigationBar = () => {
   const navigate=useNavigate();
   const dispatch=useDispatch();
   const handleLogout=()=>{
+    dispatch(handleIsProfileOpen(!isProfileOpen));
     Swal.fire({
       title: 'Are you sure?',
       text: 'You wont to logout!',
@@ -25,7 +26,6 @@ const NavigationBar = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         dispatch(handleLoggedInUser(null));
-        dispatch(handleIsProfileOpen(!isProfileOpen));
         Swal.fire({title:'Logged out successful',icon:'success', timer:1500});
         navigate('/');
       }
