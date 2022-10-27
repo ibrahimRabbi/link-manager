@@ -5,10 +5,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { handleIsProfileOpen, handleIsSidebarOpen, handleLoggedInUser } from '../../../Redux/slices/linksSlice';
-import { header, headerContainer, main, pageTitle, popoverContent, profile, projectTitle, sidebar, sidebarLink } from './NavigationBar.module.scss';
+import { content, header, headerContainer, main, pageTitle, popoverContent, profile, projectTitle, sidebar, sidebarLink, userContainer } from './NavigationBar.module.scss';
 
 const NavigationBar = () => {
-  const {currPageTitle, loggedInUser, isSidebarOpen, isProfileOpen}=useSelector(state=>state.links);
+  const {currPageTitle, isSidebarOpen, isProfileOpen}=useSelector(state=>state.links);
   const navigate=useNavigate();
   const dispatch=useDispatch();
   const handleLogout=()=>{
@@ -30,41 +30,47 @@ const NavigationBar = () => {
     });
   };
 
-  console.log(isSidebarOpen);
-
   return (
     <div className={`${'container'} ${main}`}>
       <Theme theme='g100'>
-        <Header aria-label='' className={header}>
-                
+        <Header aria-label='' id={header}>
           <div className={headerContainer}>
 
             <IconButton kind='ghost' label=''
               onClick={()=>dispatch(handleIsSidebarOpen(!isSidebarOpen))}
             >
-              {isSidebarOpen?<Close size={25}/>:<Menu size={25} />}
+              {isSidebarOpen?<Close size={30}/>:<Menu size={30} />}
             </IconButton>
 
             <h5 className={projectTitle}>Link manager</h5>
-                  
             <h5 className={pageTitle}>{currPageTitle}</h5>
                   
+
+            {/* --- User popover --- */}
             <Popover open={isProfileOpen}
-              autoAlign dropShadow
+              highContrast={false} dropShadow caret={false}
+              align='bottom-right'
               className={profile}>
               <IconButton kind='ghost' label='' onClick={() => dispatch(handleIsProfileOpen(!isProfileOpen))}>
-                <UserAvatarFilledAlt size='25'/>
+                <UserAvatarFilledAlt size={30}/>
               </IconButton>
               <PopoverContent className={popoverContent}>
-                <img src='https://i.ibb.co/ScbTKWS/admin.png' alt='Profile'/>
-                <h5>Admin</h5>
-                <h5>{loggedInUser?.email}</h5>
-                <Button onClick={handleLogout} renderIcon={Logout} size='sm' kind='danger--tertiary'>Logout</Button>
+                <div className={content}>
+                  <div className={userContainer}>
+                    <h5>Mario Jimenez</h5>
+                    <span><UserAvatarFilledAlt size={25}/></span>
+                  </div>
+
+                  <p>Option 1</p>
+                  <p>Option 2</p>
+                  <p>Option 3</p>
+                </div>
+                <Button onClick={handleLogout} renderIcon={Logout} kind='secondary'>Logout</Button>
               </PopoverContent>
             </Popover>
           </div>
-
         </Header>
+        
         {/* --------- Side nav ---------   */}
 
         {
@@ -82,7 +88,6 @@ const NavigationBar = () => {
         }
 
       </Theme>
-
     </div>
   );
 };
