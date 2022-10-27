@@ -1,22 +1,29 @@
 @use '@carbon/colors';
+@use '@carbon/type';
 
 .main {
     padding-top: 60px;
 }
 
+.header {
+    height: 70px;
+}
+
 .projectTitle {
-    min-width: 150px !important;
+    margin-left: 5px;
+    min-width: 150px;
 }
 
 .headerContainer {
     display: flex;
     width: 100%;
+    align-items: center;
 }
 
 .pageTitle {
     width: 100%;
     text-align: center;
-    margin-top: 15px;
+    font-size: 30px;
 }
 
 .profile {
@@ -46,16 +53,17 @@
     }
 }
 
-#lgNav {
+#sidebar {
     width: 200px;
-}
-
-#smNav {
-    width: 180px;
 }
 
 .searchContainer {
     width: 40%;
     display: flex;
     justify-content: flex-end;
+}
+
+.sidebarLink {
+    cursor: pointer;
+    color: colors.$gray-10;
 }
