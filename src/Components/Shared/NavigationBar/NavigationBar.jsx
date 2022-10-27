@@ -1,15 +1,16 @@
-import { Close, HybridNetworkingAlt, Logout, Menu, UserAvatarFilledAlt } from '@carbon/icons-react';
-import { Button, Header, IconButton, Popover, PopoverContent, SideNav, SideNavItems, SideNavLink, Theme } from '@carbon/react';
+import { Close, Logout, Menu, UserAvatarFilledAlt } from '@carbon/icons-react';
+import { Button, Header, IconButton, Popover, PopoverContent, SideNav, SideNavItems, SideNavMenuItem, Theme } from '@carbon/react';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { handleIsProfileOpen, handleIsSidebarOpen, handleLoggedInUser } from '../../../Redux/slices/linksSlice';
-import { content, header, headerContainer, main, pageTitle, popoverContent, profile, projectTitle, sidebar, sidebarLink, userContainer } from './NavigationBar.module.scss';
+import { content, header, headerContainer, main, menuBtn, pageTitle, popoverContent, profile, projectTitle, sidebar, userContainer } from './NavigationBar.module.scss';
 
 const NavigationBar = () => {
   const {currPageTitle, isSidebarOpen, isProfileOpen}=useSelector(state=>state.links);
   const navigate=useNavigate();
+  const {pathname}=useLocation();
   const dispatch=useDispatch();
   const handleLogout=()=>{
     dispatch(handleIsProfileOpen(!isProfileOpen));
@@ -36,7 +37,7 @@ const NavigationBar = () => {
         <Header aria-label='' id={header}>
           <div className={headerContainer}>
 
-            <IconButton kind='ghost' label=''
+            <IconButton id={isSidebarOpen && menuBtn} kind='ghost' label=''
               onClick={()=>dispatch(handleIsSidebarOpen(!isSidebarOpen))}
             >
               {isSidebarOpen?<Close size={30}/>:<Menu size={30} />}
@@ -57,13 +58,11 @@ const NavigationBar = () => {
               <PopoverContent className={popoverContent}>
                 <div className={content}>
                   <div className={userContainer}>
-                    <h5>Mario Jimenez</h5>
+                    <h5>User Name</h5>
                     <span><UserAvatarFilledAlt size={25}/></span>
                   </div>
-
-                  <p>Option 1</p>
-                  <p>Option 2</p>
-                  <p>Option 3</p>
+                  <p>Item option 1</p>
+                  <p>Item option 2</p>
                 </div>
                 <Button onClick={handleLogout} renderIcon={Logout} kind='secondary'>Logout</Button>
               </PopoverContent>
@@ -80,9 +79,9 @@ const NavigationBar = () => {
             isChildOfHeader={false}
           >
             <SideNavItems>
-              <SideNavLink  className={sidebarLink} renderIcon={HybridNetworkingAlt} onClick={()=>navigate('/link-manager')}>All Links</SideNavLink>
-              <SideNavLink  className={sidebarLink} renderIcon={HybridNetworkingAlt} >View Graph</SideNavLink>
-              <SideNavLink  className={sidebarLink} renderIcon={HybridNetworkingAlt} >View Details</SideNavLink>
+              <hr/>
+              <SideNavMenuItem onClick={()=>navigate('/link-manager')} isActive={pathname==='/link-manager'}>All links</SideNavMenuItem>
+              <SideNavMenuItem onClick={()=>navigate('/link-manager/graph-view')} isActive={pathname=== '/link-manager/graph-view'}>Graph view</SideNavMenuItem>
             </SideNavItems>
           </SideNav>
         }

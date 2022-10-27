@@ -1,6 +1,7 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import EditLink from './Components/EditLink/EditLink';
+import GraphView from './Components/GraphView/GraphView';
 import LinkDetails from './Components/LinkDetails/LinkDetails';
 import LinkManager from './Components/LinkManager/LinkManager';
 import NewLink from './Components/NewLink/NewLink';
@@ -20,6 +21,7 @@ function App() {
           <Route path='/link-manager/new-link' element={<NewLink />} />
           <Route path='/link-manager/edit-link/:id' element={<EditLink />} />
           <Route path='/link-manager/details/:id' element={<LinkDetails />} />
+          <Route path='/link-manager/graph-view' element={<GraphView />} />
           <Route path='/link-manager' element={<LinkManager />} />
         </Route>
 

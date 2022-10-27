@@ -2,7 +2,7 @@ import { Button, Checkbox, Search } from '@carbon/react';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { handleCancelLink, handleCreateLink, handleCurrPageTitle, handleLinkType, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
@@ -28,11 +28,16 @@ const NewLink = ({ pageTitle }) => {
   const [searchText, setSearchText] = useState(null);
   const [displayTableData, setDisplayTableData] = useState([]);
   const navigate = useNavigate();
+  const {pathname}=useLocation();
   const dispatch = useDispatch();
 
   useEffect(()=>{
     dispatch(handleCurrPageTitle(pageTitle?pageTitle:'New Link'));
   },[]);
+
+  useEffect(()=>{
+    dispatch(handleCancelLink());
+  },[pathname]);
 
   // Edit link options start
   useEffect(() => {

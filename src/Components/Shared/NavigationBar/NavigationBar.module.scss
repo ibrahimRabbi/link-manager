@@ -20,6 +20,10 @@
     align-items: center;
 }
 
+#menuBtn {
+    background-color: colors.$gray-80;
+}
+
 .pageTitle {
     width: 100%;
     text-align: center;
@@ -36,14 +40,16 @@
     max-width: 300px;
 
     .content {
-        min-height: 15vh;
-        padding: 10px;
+        min-height: 10vh;
+        padding: 5px 0;
         background-color: colors.$gray-90;
 
         .userContainer {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 0 15px;
 
             span {
                 background-color: colors.$gray-70;
@@ -55,6 +61,12 @@
         p {
             color: colors.$blue-40;
             font-weight: 500;
+            padding: 2px 15px;
+            cursor: pointer;
+        }
+
+        p:hover {
+            background-color: colors.$gray-80;
         }
     }
 
@@ -65,6 +77,11 @@
 
 #sidebar {
     width: 200px;
+
+    hr {
+        border-color: colors.$gray-50;
+        border-bottom: 1.5px solid colors.$gray-50;
+    }
 }
 
 .searchContainer {
@@ -75,5 +92,4 @@
 
 .sidebarLink {
     cursor: pointer;
-    color: colors.$gray-10;
 }
