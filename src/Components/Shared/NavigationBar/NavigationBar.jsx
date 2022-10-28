@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { handleIsProfileOpen, handleIsSidebarOpen, handleLoggedInUser } from '../../../Redux/slices/linksSlice';
-import { content, header, headerContainer, main, menuBtn, pageTitle, popoverContent, profile, projectTitle, sidebar, sidebarLink, userContainer } from './NavigationBar.module.scss';
+import { content, header, headerContainer, main, pageTitle, popoverContent, profile, projectTitle, sidebar, sidebarLink, userContainer } from './NavigationBar.module.scss';
 
 const NavigationBar = () => {
   const {currPageTitle, isSidebarOpen, isProfileOpen}=useSelector(state=>state.links);
@@ -37,7 +37,7 @@ const NavigationBar = () => {
         <Header aria-label='' id={header}>
           <div className={headerContainer}>
 
-            <IconButton id={isSidebarOpen && menuBtn} kind='ghost' label=''
+            <IconButton kind='ghost' label=''
               onClick={()=>dispatch(handleIsSidebarOpen(!isSidebarOpen))}
             >
               {isSidebarOpen?<Close size={30}/>:<Menu size={30} />}
@@ -75,7 +75,7 @@ const NavigationBar = () => {
         {
           isSidebarOpen && <SideNav id={sidebar}
             aria-label=''
-            isPersistent
+            isPersistent={true}
             isChildOfHeader={false}
           >
             <SideNavItems>
