@@ -12,15 +12,7 @@ import style from './NewLink.module.css';
 
 
 // Css styles
-const { title,mainContain, sourceContainer, sourceList, sourceProp, linkTypeContainer, targetContainer, projectContainer, dropDownLabel, targetSearchContainer, resourceTypeContainer, searchContainer, inputContainer, searchIcon, searchInput, newLinkTable, emptySearchWarning,btnContainer } = style;
-
-const btnStyle={
-  saveBtn:{ borderRadius:'5px', backgroundColor:'#2196f3'},
-  cancelBtn:{ borderRadius:'5px', backgroundColor:'rgb(50, 50, 55)'},
-  searchBtn:{borderRadius: '0px 5px 5px 0',
-    padding: '0 20px',
-    backgroundColor: '#2196f3'}
-};
+const { title, sourceContainer, sourceList, sourceProp, linkTypeContainer, targetContainer, projectContainer, dropDownLabel, targetSearchContainer, resourceTypeContainer, searchContainer, inputContainer, searchIcon, searchInput, newLinkTable, emptySearchWarning, btnContainer } = style;
 
 // dropdown items
 const linkTypeItems = ['affectedBy', 'implementedBy', 'trackedBy', 'constrainedBy', 'decomposedBy', 'elaboratedBy', 'satisfiedBy'];
@@ -35,31 +27,31 @@ const headers = [
   { key: 'checkbox', header: <Checkbox labelText='' id='' /> }
 ];
 
-const NewLink = ({pageTitle}) => {
-  const {sourceDataList,linkType, targetDataArr, projectType, resourceType, editLinkData, editTargetData}=useSelector(state=>state.links);
+const NewLink = ({ pageTitle }) => {
+  const { sourceDataList, linkType, targetDataArr, projectType, resourceType, editLinkData, editTargetData } = useSelector(state => state.links);
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [displayTableData, setDisplayTableData] = useState([]);
   const navigate = useNavigate();
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
 
   // Edit link options start
-  useEffect(()=>{
-    if(editTargetData?.identifier){
-      const string=editTargetData?.description?.split(' ')[0]?.toLowerCase();
-      setSearchText(string==='document'?'document':string==='user'?'data':null);
+  useEffect(() => {
+    if (editTargetData?.identifier) {
+      const string = editTargetData?.description?.split(' ')[0]?.toLowerCase();
+      setSearchText(string === 'document' ? 'document' : string === 'user' ? 'data' : null);
     }
-  },[pageTitle]);
+  }, [pageTitle]);
   // Edit link options end
-  
+
   // search data or document 
   useEffect(() => {
     setDisplayTableData([]);
-    const URL =editTargetData?.identifier?`../${searchText}.json`:`./${searchText}.json`;
+    const URL = editTargetData?.identifier ? `../${searchText}.json` : `./${searchText}.json`;
     fetch(URL)
       .then(res => res.json())
       .then(data => setDisplayTableData(data))
-      .catch(() => {});
+      .catch(() => { });
   }, [searchText]);
 
   const handleSearchData = data => {
@@ -68,7 +60,7 @@ const NewLink = ({pageTitle}) => {
   };
 
   // Link type dropdown
-  const handleLinkTypeChange = ({selectedItem}) => {
+  const handleLinkTypeChange = ({ selectedItem }) => {
     dispatch(handleProjectType(null));
     dispatch(handleResourceType(null));
     dispatch(handleLinkType(selectedItem));
@@ -78,55 +70,54 @@ const NewLink = ({pageTitle}) => {
   const targetResourceItems = linkType === 'constrainedBy' ? ['Document (PLM)', 'Part (PLM)'] : resourceItems;
 
   // Project type dropdown
-  const handleTargetProject = ({selectedItem}) => {
+  const handleTargetProject = ({ selectedItem }) => {
     dispatch(handleProjectType(selectedItem));
   };
 
   // Resource type dropdown
-  const handleTargetResource = ({selectedItem}) => {
+  const handleTargetResource = ({ selectedItem }) => {
     dispatch(handleResourceType(selectedItem));
   };
-  
+
   // Selected target data
-  const handleSelectedData = (data,value ) => {
-    dispatch(handleTargetDataArr({data, value}));
+  const handleSelectedData = (data, value) => {
+    dispatch(handleTargetDataArr({ data, value }));
   };
 
   // Edit created link
-  const handleLinkUpdate=()=>{
+  const handleLinkUpdate = () => {
     dispatch(handleUpdateCreatedLink());
     Swal.fire({
       icon: 'success',
       title: 'Link Updated success!',
       timer: 3000
     });
-    navigate('/');
+    navigate('/link-manager');
   };
 
   // Create new link 
   const handleSaveLink = () => {
-    if(linkType&&projectType&&resourceType){
+    if (linkType && projectType && resourceType) {
       dispatch(handleCreateLink());
-      Swal.fire({icon: 'success', title: 'Link successfully created!', timer: 3000});
-      navigate('/');
-    } 
-    else{
-      Swal.fire({icon: 'error', title: 'Link create failed!!! Please fill all the options', timer: 3000});
+      Swal.fire({ icon: 'success', title: 'Link successfully created!', timer: 3000 });
+      navigate('/link-manager');
+    }
+    else {
+      Swal.fire({ icon: 'error', title: 'Link create failed!!! Please fill all the options', timer: 3000 });
     }
   };
 
-  const handleCancelOpenedLink=()=>{
+  const handleCancelOpenedLink = () => {
     dispatch(handleCancelLink());
-    navigate('/');
+    navigate('/link-manager');
   };
 
   return (
-    <div className={`${'mainContainer'} ${mainContain}`}>
-      <h2 className={title}>{pageTitle?pageTitle:'New Link'}</h2>
-
+    <div className='mainContainer'>
+      <h2 className={title}>{pageTitle ? pageTitle : 'New Link'}</h2>
       <div className={sourceContainer}>
         <h5>Source</h5>
-        {sourceDataList?.map((item, i)=><div key={i}
+        {sourceDataList?.map((item, i) => <div key={i}
           className={sourceList}>
           <p className={sourceProp}>{Object.keys(item)}</p><p>{Object.values(item)}</p>
         </div>)}
@@ -158,7 +149,7 @@ const NewLink = ({pageTitle}) => {
                 <GoSearch className={searchIcon} />
                 <input className={searchInput} type='text' placeholder='Search by identifier or name' {...register('searchText')} />
               </div>
-              <Button size='md' type='submit' style={btnStyle.searchBtn}>Search</Button>
+              <Button size='md' type='submit'>Search</Button>
             </form>
           </div>
 
@@ -175,15 +166,15 @@ const NewLink = ({pageTitle}) => {
       }
 
       {/* new link btn  */}
-      {(projectType&& resourceType &&targetDataArr[0] &&!pageTitle) && <div className={btnContainer}>
-        <Button onClick={handleCancelOpenedLink} size='md' style={btnStyle.cancelBtn} >Cancel</Button>
-        <Button onClick={handleSaveLink} size='md' style={btnStyle.saveBtn}>Save</Button>
+      {(projectType && resourceType && targetDataArr[0] && !pageTitle) && <div className={btnContainer}>
+        <Button onClick={handleCancelOpenedLink} size='md'>Cancel</Button>
+        <Button onClick={handleSaveLink} size='md'>Save</Button>
       </div>}
 
       {/* edit link btn  */}
-      {(pageTitle && editLinkData?.id) &&<div className={btnContainer}>
-        <Button onClick={handleCancelOpenedLink} size='md' style={btnStyle.cancelBtn} >Cancel</Button>
-        <Button onClick={handleLinkUpdate} size='md' style={btnStyle.saveBtn}>Save</Button>
+      {(pageTitle && editLinkData?.id) && <div className={btnContainer}>
+        <Button onClick={handleCancelOpenedLink} size='md'>Cancel</Button>
+        <Button onClick={handleLinkUpdate} size='md'>Save</Button>
       </div>}
     </div>
   );

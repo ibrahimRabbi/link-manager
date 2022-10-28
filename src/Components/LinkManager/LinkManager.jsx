@@ -10,23 +10,7 @@ import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import style from './LinkManager.module.css';
 
 // Css style destructure
-const { title, linkFileContainer, fileName, tableContainer, searchBox, searchContainer, inputContainer, searchInput, searchIcon } = style;
-
-const btnStyle={
-  searchBtn:{
-    borderRadius: '0px 5px 5px 0',
-    padding: '0 20px',
-    backgroundColor: '#2196f3'},
-  newLinkBtn:{
-    marginRight: '10px',
-    cursor: 'pointer',
-    borderRadius: '5px',
-    fontSize: '15px',
-    fontWeight: '600',
-    color: '#1389e9',
-    backgroundColor: '#f0f0f0'
-  }
-};
+const { title, linkFileContainer, fileName, tableContainer, searchBox, searchContainer, inputContainer, searchInput, searchIcon, } = style;
 
 const headers = [
   { key: 'status', header: 'Status' },
@@ -38,13 +22,13 @@ const headers = [
 
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 
-const LinkManager = () =>{
-  const {allLinks}=useSelector(state=>state.links);
+const LinkManager = () => {
+  const { allLinks } = useSelector(state => state.links);
   const navigate = useNavigate();
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
 
-  const handleShowItem = () => {};
-  
+  const handleShowItem = () => { };
+
   const handleOpenTargetLink = () => {
     Swal.fire({
       title: 'Opening Jira Application',
@@ -61,7 +45,7 @@ const LinkManager = () =>{
 
       <div className={linkFileContainer}>
         <h5>Links for file: <span className={fileName}>requirements.txt</span></h5>
-        <Button onClick={() => {navigate('/new-link');dispatch(handleEditLinkData());}} style={btnStyle.newLinkBtn} size='sm' kind='ghost'>New link</Button>
+        <Button onClick={() => { navigate('/new-link'); dispatch(handleEditLinkData()); }} size='sm' kind='ghost'>New link</Button>
       </div>
 
       <div className={tableContainer}>
@@ -73,7 +57,7 @@ const LinkManager = () =>{
               <GoSearch className={searchIcon} />
               <input className={searchInput} type="text" placeholder='Search by identifier or name' />
             </div>
-            <Button size='md' style={btnStyle.searchBtn}>Search</Button>
+            <Button size='md'>Search</Button>
           </div>
         </div>
         <UseDataTable headers={headers} tableData={allLinks} openTargetLink={handleOpenTargetLink} />
