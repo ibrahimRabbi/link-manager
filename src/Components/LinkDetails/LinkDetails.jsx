@@ -72,7 +72,7 @@ const LinkDetails = () => {
       </div>
     
       <div className={btnContainer}>
-        <Button renderIcon={ArrowLeft} onClick={() => navigate('/link-manager')} kind='primary' size='md'>Back to home</Button>
+        <Button renderIcon={ArrowLeft} onClick={() => navigate('/')} kind='primary' size='md'>Back to home</Button>
       </div>
       
     </div>

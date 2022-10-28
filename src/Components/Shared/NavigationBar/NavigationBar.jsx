@@ -8,7 +8,7 @@ import { handleIsProfileOpen, handleIsSidebarOpen, handleLoggedInUser } from '..
 import { content, header, headerContainer, main, pageTitle, popoverContent, profile, projectTitle, sidebar, sidebarLink, userContainer } from './NavigationBar.module.scss';
 
 const NavigationBar = () => {
-  const {currPageTitle, isSidebarOpen, isProfileOpen}=useSelector(state=>state.links);
+  const {currPageTitle, sourceCommit, isSidebarOpen, isProfileOpen}=useSelector(state=>state.links);
   const navigate=useNavigate();
   const {pathname}=useLocation();
   const dispatch=useDispatch();
@@ -26,7 +26,6 @@ const NavigationBar = () => {
       if (result.isConfirmed) {
         dispatch(handleLoggedInUser(null));
         Swal.fire({title:'Logged out successful',icon:'success', timer:1500});
-        navigate('/');
       }
     });
   };
@@ -80,8 +79,8 @@ const NavigationBar = () => {
           >
             <SideNavItems>
               <hr/>
-              <SideNavMenuItem className={sidebarLink} onClick={()=>navigate('/link-manager')} isActive={pathname==='/link-manager'}>All links</SideNavMenuItem>
-              <SideNavMenuItem className={sidebarLink} onClick={()=>navigate('/link-manager/graph-view')} isActive={pathname=== '/link-manager/graph-view'}>Graph view</SideNavMenuItem>
+              <SideNavMenuItem className={sidebarLink} onClick={()=>navigate('/')} isActive={pathname==='/'|| pathname=== `/${sourceCommit}`}>All links</SideNavMenuItem>
+              <SideNavMenuItem className={sidebarLink} onClick={()=>navigate('/graph-view')} isActive={pathname=== '/graph-view'}>Graph view</SideNavMenuItem>
             </SideNavItems>
           </SideNav>
         }

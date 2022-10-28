@@ -2,16 +2,17 @@ import { createSlice } from '@reduxjs/toolkit';
 import UniqueID from '../../Components/Shared/UniqueID/UniqueID';
 
 const sources=[
-  {Source: 'requirements.txt'},
-  {Project: 'Gitlab OSLC API'},
-  {Type: 'Gitlab - File'},
-  {Component: 'Gitlab component 1'},
+  { Source: 'requirements.txt'},
+  { Project: 'Gitlab OSLC API'},
+  { Type: 'Gitlab - File'},
+  { Component: 'Gitlab component 1'},
   { Stream: 'development'},
   { BaseLine: '78zabc'}
 ];
 
 const initialState = {
   sourceDataList:[...sources],
+  sourceCommit: '',
   isSidebarOpen:false,
   currPageTitle:'',
   loggedInUser:null,
@@ -31,6 +32,11 @@ export const linksSlice = createSlice({
   initialState,
 
   reducers: {
+    handleGetCommit: (state, {payload}) => {
+      state.sourceCommit=payload;
+      state.sourceDataList[0].Source=payload;
+    },
+
     handleIsSidebarOpen: (state, {payload}) => {
       state.isSidebarOpen=payload;
     },
@@ -133,6 +139,6 @@ export const linksSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { handleIsSidebarOpen, handleLoggedInUser, handleCurrPageTitle, handleIsProfileOpen, handleViewLinkDetails, handleCreateLink, handleEditLinkData, handleTargetDataArr,handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
+export const {handleGetCommit, handleIsSidebarOpen, handleLoggedInUser, handleCurrPageTitle, handleIsProfileOpen, handleViewLinkDetails, handleCreateLink, handleEditLinkData, handleTargetDataArr,handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
 
 export default linksSlice.reducer;

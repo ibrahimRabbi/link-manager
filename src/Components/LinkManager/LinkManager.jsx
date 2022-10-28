@@ -1,9 +1,9 @@
 import { Button, Search } from '@carbon/react';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleCurrPageTitle, handleEditLinkData } from '../../Redux/slices/linksSlice';
+import { handleCurrPageTitle, handleEditLinkData, handleGetCommit } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import { dropdownStyle, fileName, inputContainer, linkFileContainer, searchBox, searchContainer, searchInput, tableContainer } from './LinkManager.module.scss';
@@ -19,12 +19,14 @@ const headers = [
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 
 const LinkManager = () => {
-  const { allLinks } = useSelector(state => state.links);
+  const { allLinks, sourceCommit } = useSelector(state => state.links);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const {id}=useParams();
   
   useEffect(()=>{
     dispatch(handleCurrPageTitle('OSLC Link Manager'));
+    if(id)dispatch(handleGetCommit(id));
   },[]);
 
   const handleShowItem = () => { };
@@ -42,8 +44,8 @@ const LinkManager = () => {
   return (
     <div className='container'>
       <div className={linkFileContainer}>
-        <h5>Links for file: <span className={fileName}>requirements.txt</span></h5>
-        <Button onClick={() => { navigate('/link-manager/new-link'); dispatch(handleEditLinkData()); }} size='sm' kind='ghost'>New link</Button>
+        <h5>Links for file: <span className={fileName}>{sourceCommit}</span></h5>
+        <Button onClick={() => { navigate('/new-link'); dispatch(handleEditLinkData()); }} size='sm' kind='ghost'>New link</Button>
       </div>
       <div className={tableContainer}>
         <div className={searchBox}>

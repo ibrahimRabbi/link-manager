@@ -96,7 +96,7 @@ const NewLink = ({ pageTitle }) => {
       title: 'Link Updated success!',
       timer: 3000
     });
-    navigate('/link-manager');
+    navigate('/');
   };
 
   // Create new link 
@@ -104,7 +104,7 @@ const NewLink = ({ pageTitle }) => {
     if (linkType && projectType && resourceType) {
       dispatch(handleCreateLink());
       Swal.fire({ icon: 'success', title: 'Link successfully created!', timer: 3000 });
-      navigate('/link-manager');
+      navigate('/');
     }
     else {
       Swal.fire({ icon: 'error', title: 'Link create failed!!! Please fill all the options', timer: 3000 });
@@ -114,7 +114,7 @@ const NewLink = ({ pageTitle }) => {
   // cancel create link
   const handleCancelOpenedLink = () => {
     dispatch(handleCancelLink());
-    navigate('/link-manager');
+    navigate('/');
   };
 
   return (

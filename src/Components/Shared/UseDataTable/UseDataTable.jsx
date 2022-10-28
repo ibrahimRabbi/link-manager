@@ -110,8 +110,8 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
                 <OverflowMenu menuOptionsClass={actionMenu} menuOffset={{left:-55}}
                   renderIcon={() => <FiSettings />}
                   size='md' ariaLabel=''>
-                  <OverflowMenuItem wrapperClassName={menuItem} onClick={() => {dispatch(handleViewLinkDetails(row));navigate(`/link-manager/details/${row?.id}`);}} hasDivider itemText='Details'/>
-                  <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>{dispatch(handleEditLinkData(row)); navigate(`/link-manager/edit-link/${row?.id}`);}} hasDivider itemText='Edit' />
+                  <OverflowMenuItem wrapperClassName={menuItem} onClick={() => {dispatch(handleViewLinkDetails(row));navigate(`/details/${row?.id}`);}} hasDivider itemText='Details'/>
+                  <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>{dispatch(handleEditLinkData(row)); navigate(`/edit-link/${row?.id}`);}} hasDivider itemText='Edit' />
                   <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>dispatch(handleSetStatus({row, status:'Valid'}))} hasDivider itemText='Set status - Valid' />
                   <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>dispatch(handleSetStatus({row, status:'Invalid'}))} hasDivider itemText='Set status - Invalid' />
                   <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>handleDeleteCreatedLink(row)} hasDivider itemText='Remove' />
