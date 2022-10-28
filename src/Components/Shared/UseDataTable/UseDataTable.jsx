@@ -4,13 +4,14 @@ import { AiFillCheckCircle } from 'react-icons/ai';
 import { BsExclamationTriangleFill } from 'react-icons/bs';
 import { FiSettings } from 'react-icons/fi';
 import { RiCheckboxBlankFill } from 'react-icons/ri';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { handleDeleteLink, handleEditLinkData, handleEditTargetData, handleSetStatus, handleTargetDataArr, handleViewLinkDetails } from '../../../Redux/slices/linksSlice';
 import { actionMenu, boxCell, invalidIcon, menuItem, modalBody, modalHeadContainer, modalTitle, newLinkCell1, newLinkCell2, noStatusIcon, sourceList, sourceProp, statusIcon, tableCell, targetCell, validIcon } from './UseDataTable.module.scss';
 
 const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,isChecked,editTargetData }) => {
+  const {sourceDataList}=useSelector(state=>state.links);
   const [isOpen, setIsOpen] = useState(null);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -72,7 +73,7 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
             // Link Manager Table
             (!isCheckBox && tableData[0]) && currTableData?.map((row, i) => <TableRow key={i}>
               <TableCell className={tableCell}>{row?.status === 'Valid' ? <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> : row?.status === 'Invalid' ? <BsExclamationTriangleFill className={`${statusIcon} ${invalidIcon}`} /> : <RiCheckboxBlankFill className={`${statusIcon} ${noStatusIcon}`} />}{row?.status}</TableCell>
-              <TableCell className={tableCell}><p>{'requirements.txt'}</p></TableCell>
+              <TableCell className={tableCell}><p>{sourceDataList[0].Source}</p></TableCell>
               <TableCell className={tableCell}>{row?.linkType}</TableCell>
 
               {/* --- Table data with modal ---  */}

@@ -19,7 +19,7 @@ const headers = [
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 
 const LinkManager = () => {
-  const { allLinks, sourceCommit } = useSelector(state => state.links);
+  const { allLinks, sourceDataList } = useSelector(state => state.links);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const {id}=useParams();
@@ -44,7 +44,7 @@ const LinkManager = () => {
   return (
     <div className='container'>
       <div className={linkFileContainer}>
-        <h5>Links for file: <span className={fileName}>{sourceCommit}</span></h5>
+        <h5>Links for file: <span className={fileName}>{sourceDataList[0].Source}</span></h5>
         <Button onClick={() => { navigate('/new-link'); dispatch(handleEditLinkData()); }} size='sm' kind='ghost'>New link</Button>
       </div>
       <div className={tableContainer}>
