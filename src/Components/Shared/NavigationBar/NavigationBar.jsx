@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { handleIsProfileOpen, handleIsSidebarOpen, handleLoggedInUser } from '../../../Redux/slices/linksSlice';
-import { content, header, headerContainer, main, menuBtn, pageTitle, popoverContent, profile, projectTitle, sidebar, userContainer } from './NavigationBar.module.scss';
+import { content, header, headerContainer, main, menuBtn, pageTitle, popoverContent, profile, projectTitle, sidebar, sidebarLink, userContainer } from './NavigationBar.module.scss';
 
 const NavigationBar = () => {
   const {currPageTitle, isSidebarOpen, isProfileOpen}=useSelector(state=>state.links);
@@ -80,8 +80,8 @@ const NavigationBar = () => {
           >
             <SideNavItems>
               <hr/>
-              <SideNavMenuItem onClick={()=>navigate('/link-manager')} isActive={pathname==='/link-manager'}>All links</SideNavMenuItem>
-              <SideNavMenuItem onClick={()=>navigate('/link-manager/graph-view')} isActive={pathname=== '/link-manager/graph-view'}>Graph view</SideNavMenuItem>
+              <SideNavMenuItem className={sidebarLink} onClick={()=>navigate('/link-manager')} isActive={pathname==='/link-manager'}>All links</SideNavMenuItem>
+              <SideNavMenuItem className={sidebarLink} onClick={()=>navigate('/link-manager/graph-view')} isActive={pathname=== '/link-manager/graph-view'}>Graph view</SideNavMenuItem>
             </SideNavItems>
           </SideNav>
         }
