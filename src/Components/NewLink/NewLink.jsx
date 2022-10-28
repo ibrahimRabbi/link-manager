@@ -36,7 +36,7 @@ const NewLink = ({ pageTitle }) => {
   },[]);
 
   useEffect(()=>{
-    dispatch(handleCancelLink());
+    pageTitle?null:dispatch(handleCancelLink());
   },[pathname]);
 
   // Edit link options start
@@ -51,7 +51,7 @@ const NewLink = ({ pageTitle }) => {
   // search data or document 
   useEffect(() => {
     setDisplayTableData([]);
-    const URL = editTargetData?.identifier ? `../../${searchText}.json` : `./../${searchText}.json`;
+    const URL = editTargetData?.identifier ? `../../${searchText}.json` : `../../${searchText}.json`;
     fetch(URL)
       .then(res => res.json())
       .then(data => setDisplayTableData(data))
