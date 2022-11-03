@@ -8,7 +8,7 @@ import { handleIsProfileOpen, handleIsSidebarOpen, handleLoggedInUser } from '..
 import { content, header, headerContainer, main, pageTitle, popoverContent, profile, projectTitle, sidebar, sidebarLink, userContainer } from './NavigationBar.module.scss';
 
 const NavigationBar = () => {
-  const {currPageTitle, sourceCommit, isSidebarOpen, isProfileOpen}=useSelector(state=>state.links);
+  const {currPageTitle, isSidebarOpen, isProfileOpen}=useSelector(state=>state.links);
   const navigate=useNavigate();
   const {pathname}=useLocation();
   const dispatch=useDispatch();
@@ -79,7 +79,7 @@ const NavigationBar = () => {
           >
             <SideNavItems>
               <hr/>
-              <SideNavMenuItem className={sidebarLink} onClick={()=>navigate('/')} isActive={pathname==='/'|| pathname=== `/${sourceCommit}`}>All links</SideNavMenuItem>
+              <SideNavMenuItem className={sidebarLink} onClick={()=>navigate('/')} isActive={pathname==='/'}>All links</SideNavMenuItem>
               <SideNavMenuItem className={sidebarLink} onClick={()=>navigate('/graph-view')} isActive={pathname=== '/graph-view'}>Graph view</SideNavMenuItem>
             </SideNavItems>
           </SideNav>

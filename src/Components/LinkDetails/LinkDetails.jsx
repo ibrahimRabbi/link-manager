@@ -8,7 +8,7 @@ import { handleCurrPageTitle } from '../../Redux/slices/linksSlice';
 import { arrowIcon, btnContainer, circle, circleBorder, circlesContainer, linkTitle2, linkTypeCenter, sourceContainer, sourceList, sourceProp, sourceTitle2, targetTitle2 } from './LinkDetails.module.scss';
 
 const LinkDetails = () => {
-  const {linkedData, sourceDataList}=useSelector(state=>state.links);
+  const {isWbe, linkedData, sourceDataList}=useSelector(state=>state.links);
   const {linkType, project, resource, targetData}=linkedData;
   const navigate = useNavigate();
   const dispatch=useDispatch();
@@ -21,12 +21,23 @@ const LinkDetails = () => {
     <div className='container'>
       <div className={sourceContainer}>
         <div className={sourceList}>
-          <h5>Source</h5><h5 className={sourceTitle2}>{sourceDataList[0]?.Source}</h5>
+          <h5>Source</h5><h5 className={sourceTitle2}>{sourceDataList?.source}</h5>
         </div>
-        {sourceDataList?.slice(1, 8)?.map((item, i)=><div key={i}
-          className={sourceList}>
-          <p className={sourceProp}>{Object.keys(item)}</p><p>{Object.values(item)}</p>
-        </div>)}
+        <div className={sourceList}>
+          <p className={sourceProp}>Project</p><p>{sourceDataList?.project}</p>
+        </div>
+        <div className={sourceList}>
+          <p className={sourceProp}>Type</p><p>{sourceDataList?.type}</p>
+        </div>
+        <div className={sourceList}>
+          <p className={sourceProp}>Component</p><p>{sourceDataList?.component}</p>
+        </div>
+        <div className={sourceList}>
+          <p className={sourceProp}>Stream</p><p>{sourceDataList?.stream}</p>
+        </div>
+        <div className={sourceList}>
+          <p className={sourceProp}>Baseline</p><p>{sourceDataList?.baseline}</p>
+        </div>
       </div>
 
       <div className={sourceContainer}>
@@ -72,7 +83,7 @@ const LinkDetails = () => {
       </div>
     
       <div className={btnContainer}>
-        <Button renderIcon={ArrowLeft} onClick={() => navigate('/')} kind='primary' size='md'>Back to home</Button>
+        <Button renderIcon={ArrowLeft} onClick={() => isWbe ? navigate('/wbe') : navigate('/')} kind='primary' size='md'>Back to home</Button>
       </div>
       
     </div>

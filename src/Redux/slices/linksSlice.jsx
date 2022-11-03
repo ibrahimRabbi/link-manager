@@ -1,17 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit';
 import UniqueID from '../../Components/Shared/UniqueID/UniqueID';
 
-const sources=[
-  { Source: 'requirements.txt'},
-  { Project: 'Gitlab OSLC API'},
-  { Type: 'Gitlab - File'},
-  { Component: 'Gitlab component 1'},
-  { Stream: 'development'},
-  { BaseLine: '78zabc'}
-];
+// const sources=[
+//   { Source: 'requirements.txt'},
+//   { Project: 'Gitlab OSLC API'},
+//   { Type: 'Gitlab - File'},
+//   { Component: 'Gitlab component 1'},
+//   { Stream: 'development'},
+//   { BaseLine: '78zabc'}
+// ];
 
 const initialState = {
-  sourceDataList:[...sources],
+  sourceDataList:{},
+  isWbe:false,
   sourceCommit: '',
   isSidebarOpen:false,
   currPageTitle:'',
@@ -32,9 +33,17 @@ export const linksSlice = createSlice({
   initialState,
 
   reducers: {
-    handleGetCommit: (state, {payload}) => {
-      state.sourceCommit=payload;
-      state.sourceDataList[0].Source=payload;
+    handleIsWbe: (state, {payload}) => {
+      state.isWbe=payload;
+    },
+
+    // get sources in wbe
+    handleGetSources: (state, {payload}) => {
+      state.sourceDataList.source=payload.source;
+      state.sourceDataList.project=payload.project;
+      state.sourceDataList.component=payload.repository;
+      state.sourceDataList.stream=payload.branch;
+      state.sourceDataList.baseline=payload.commit;
     },
 
     handleIsSidebarOpen: (state, {payload}) => {
@@ -48,13 +57,16 @@ export const linksSlice = createSlice({
     handleLoggedInUser: (state, {payload}) => {
       state.loggedInUser=payload;
     },
+
     handleIsProfileOpen: (state, {payload}) => {
       state.isProfileOpen=payload;
     },
+    
     handleCurrPageTitle: (state, {payload}) => {
       state.currPageTitle=payload;
     },
 
+    // create link
     handleCreateLink: (state) => {
       state.targetDataArr?.forEach((item)=>{
         state.allLinks.push({id:UniqueID(),targetData:item,linkType:state.linkType, project:state.projectType, resource:state.resourceType,status:'No status'});
@@ -66,6 +78,7 @@ export const linksSlice = createSlice({
       state.isLinkEdit=false;
     },
 
+    // edit link first step get data
     handleEditLinkData: (state, {payload}) => {
       state.linkType =null;
       state.projectType =null;
@@ -74,6 +87,7 @@ export const linksSlice = createSlice({
       state.editLinkData=payload;
     },
 
+    // edit link
     handleUpdateCreatedLink: (state) => {
       const index=state.allLinks.findIndex(item=>item?.id===state.editLinkData?.id);
       state.allLinks[index]={
@@ -87,10 +101,12 @@ export const linksSlice = createSlice({
       state.targetDataArr=[];
     },
 
+    // edit target data
     handleEditTargetData:(state, {payload})=>{
       state.editTargetData=payload;
     },
 
+    // get multiple target data
     handleTargetDataArr: (state, {payload}) => {
       if(payload){
         const {data, value}=payload;
@@ -127,11 +143,13 @@ export const linksSlice = createSlice({
       state.targetDataArr=[];
     },
 
+    // status update 
     handleSetStatus: (state, {payload}) => {
       const link=state.allLinks.find(data=>data?.id=== payload.row?.id);
       link.status=payload.status;
     },
 
+    // delete link
     handleDeleteLink: (state, {payload}) => {
       state.allLinks= state.allLinks.filter(data=>data?.id !== payload?.id);
     },
@@ -139,6 +157,6 @@ export const linksSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const {handleGetCommit, handleIsSidebarOpen, handleLoggedInUser, handleCurrPageTitle, handleIsProfileOpen, handleViewLinkDetails, handleCreateLink, handleEditLinkData, handleTargetDataArr,handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
+export const {handleIsWbe, handleGetSources, handleIsSidebarOpen, handleLoggedInUser, handleCurrPageTitle, handleIsProfileOpen, handleViewLinkDetails, handleCreateLink, handleEditLinkData, handleTargetDataArr,handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
 
 export default linksSlice.reducer;

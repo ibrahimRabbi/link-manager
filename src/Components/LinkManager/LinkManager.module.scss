@@ -36,6 +36,17 @@
     background-color: colors.$white;
 }
 
+.sourceList {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.sourceProp {
+    width: 110px;
+    color: colors.$gray-50;
+}
+
 .searchBox {
     display: flex;
     align-items: center;

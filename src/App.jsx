@@ -10,15 +10,25 @@ import './GlobalStyle.scss';
 import NotFound from './Pages/404';
 import Dashboard from './Pages/Dashboard';
 import LoginPage from './Pages/Login';
+import WbeDashboard from './Pages/WbeDashboard';
 
 function App() {
   
   return (
     <div className='App'>
       <Routes>
-        <Route path='/new-link' element={<NewLink />} />
+        {/* Web browser extension path start */}
+        <Route path='/wbe' element={<ProtectedRoute><WbeDashboard/></ProtectedRoute>}>
+          <Route path='/wbe/:id' element={<LinkManager />} />
+          <Route path='/wbe/new-link' element={<NewLink />} />
+          <Route path='/wbe/edit-link/:id' element={<EditLink />} />
+          <Route path='/wbe/details/:id' element={<LinkDetails />} />
+          <Route path='/wbe' element={<LinkManager />} />
+        </Route>
+        {/* Web browser extension path end */}
+
+
         <Route path='/' element={<ProtectedRoute><Dashboard/></ProtectedRoute>}>
-          <Route path='/:id' element={<LinkManager />} />
           <Route path='/new-link' element={<NewLink />} />
           <Route path='/edit-link/:id' element={<EditLink />} />
           <Route path='/details/:id' element={<LinkDetails />} />

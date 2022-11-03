@@ -7,7 +7,7 @@ import Swal from 'sweetalert2';
 import { handleCancelLink, handleCreateLink, handleCurrPageTitle, handleLinkType, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
-import { btnContainer, dropdownStyle, emptySearchWarning, inputContainer, linkTypeContainer, newLinkTable, searchContainer, searchInput, sourceContainer, sourceList, sourceProp, targetContainer, targetSearchContainer } from './NewLink.module.scss';
+import { btnContainer, dropdownStyle, emptySearchWarning, inputContainer, linkTypeContainer, newLinkTable, searchContainer, searchInput, sourceContainer, sourceList, sourceProp, targetContainer, targetIframe, targetSearchContainer } from './NewLink.module.scss';
 
 // dropdown items
 const linkTypeItems = ['affectedBy', 'implementedBy', 'trackedBy', 'constrainedBy', 'decomposedBy', 'elaboratedBy', 'satisfiedBy'];
@@ -23,7 +23,7 @@ const headers = [
 ];
 
 const NewLink = ({ pageTitle }) => {
-  const { sourceDataList, linkType, targetDataArr, projectType, resourceType, editLinkData, editTargetData } = useSelector(state => state.links);
+  const {isWbe, sourceDataList, linkType, targetDataArr, projectType, resourceType, editLinkData, editTargetData } = useSelector(state => state.links);
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [displayTableData, setDisplayTableData] = useState([]);
@@ -96,7 +96,7 @@ const NewLink = ({ pageTitle }) => {
       title: 'Link Updated success!',
       timer: 3000
     });
-    navigate('/');
+    isWbe ? navigate('/wbe') : navigate('/');
   };
 
   // Create new link 
@@ -104,7 +104,7 @@ const NewLink = ({ pageTitle }) => {
     if (linkType && projectType && resourceType) {
       dispatch(handleCreateLink());
       Swal.fire({ icon: 'success', title: 'Link successfully created!', timer: 3000 });
-      navigate('/');
+      isWbe ? navigate('/wbe') : navigate('/');
     }
     else {
       Swal.fire({ icon: 'error', title: 'Link create failed!!! Please fill all the options', timer: 3000 });
@@ -114,17 +114,31 @@ const NewLink = ({ pageTitle }) => {
   // cancel create link
   const handleCancelOpenedLink = () => {
     dispatch(handleCancelLink());
-    navigate('/');
+    isWbe ? navigate('/wbe') : navigate('/');
   };
 
   return (
     <div className='container'>
       <div className={sourceContainer}>
         <h5>Source</h5>
-        {sourceDataList?.map((item, i) => <div key={i}
-          className={sourceList}>
-          <p className={sourceProp}>{Object.keys(item)}</p><p>{Object.values(item)}</p>
-        </div>)}
+        <div className={sourceList}>
+          <p className={sourceProp}>Source</p><p>{sourceDataList?.source}</p>
+        </div>
+        <div className={sourceList}>
+          <p className={sourceProp}>Project</p><p>{sourceDataList?.project}</p>
+        </div>
+        <div className={sourceList}>
+          <p className={sourceProp}>Type</p><p>{sourceDataList?.type}</p>
+        </div>
+        <div className={sourceList}>
+          <p className={sourceProp}>Component</p><p>{sourceDataList?.component}</p>
+        </div>
+        <div className={sourceList}>
+          <p className={sourceProp}>Stream</p><p>{sourceDataList?.stream}</p>
+        </div>
+        <div className={sourceList}>
+          <p className={sourceProp}>Baseline</p><p>{sourceDataList?.baseline}</p>
+        </div>
       </div>
 
       <div className={linkTypeContainer}>
@@ -144,6 +158,10 @@ const NewLink = ({ pageTitle }) => {
       {(linkType || pageTitle) &&
         <div className={targetContainer}>
           <h5>Target</h5>
+
+          <div className={targetIframe}>
+            <iframe src='https://192.241.220.34:9443/rm/pickers/com.ibm.rdm.web.RRCPicker?projectURL=https://192.241.220.34:9443/rm/rm-projects/_VhNr0IEzEeqnsvH-FkjSvQ#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
+          </div>
 
           <div className={targetSearchContainer}>
             <form onSubmit={handleSubmit(handleSearchData)} className={searchContainer}>

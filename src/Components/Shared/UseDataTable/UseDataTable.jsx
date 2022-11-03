@@ -11,7 +11,7 @@ import { handleDeleteLink, handleEditLinkData, handleEditTargetData, handleSetSt
 import { actionMenu, boxCell, invalidIcon, menuItem, modalBody, modalHeadContainer, modalTitle, newLinkCell1, newLinkCell2, noStatusIcon, sourceList, sourceProp, statusIcon, tableCell, targetCell, validIcon } from './UseDataTable.module.scss';
 
 const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,isChecked,editTargetData }) => {
-  const {sourceDataList}=useSelector(state=>state.links);
+  const {sourceDataList, isWbe}=useSelector(state=>state.links);
   const [isOpen, setIsOpen] = useState(null);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -73,7 +73,7 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
             // Link Manager Table
             (!isCheckBox && tableData[0]) && currTableData?.map((row, i) => <TableRow key={i}>
               <TableCell className={tableCell}>{row?.status === 'Valid' ? <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> : row?.status === 'Invalid' ? <BsExclamationTriangleFill className={`${statusIcon} ${invalidIcon}`} /> : <RiCheckboxBlankFill className={`${statusIcon} ${noStatusIcon}`} />}{row?.status}</TableCell>
-              <TableCell className={tableCell}><p>{sourceDataList[0].Source}</p></TableCell>
+              <TableCell className={tableCell}><p>{sourceDataList?.baseline}</p></TableCell>
               <TableCell className={tableCell}>{row?.linkType}</TableCell>
 
               {/* --- Table data with modal ---  */}
@@ -111,8 +111,16 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
                 <OverflowMenu menuOptionsClass={actionMenu} menuOffset={{left:-55}}
                   renderIcon={() => <FiSettings />}
                   size='md' ariaLabel=''>
-                  <OverflowMenuItem wrapperClassName={menuItem} onClick={() => {dispatch(handleViewLinkDetails(row));navigate(`/details/${row?.id}`);}} hasDivider itemText='Details'/>
-                  <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>{dispatch(handleEditLinkData(row)); navigate(`/edit-link/${row?.id}`);}} hasDivider itemText='Edit' />
+                  <OverflowMenuItem wrapperClassName={menuItem} onClick={() => {
+                    dispatch(handleViewLinkDetails(row));
+                    isWbe ? navigate(`/wbe/details/${row?.id}`) : navigate(`/details/${row?.id}`);
+                  }} hasDivider itemText='Details'/>
+
+                  <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>{
+                    dispatch(handleEditLinkData(row)); 
+                    isWbe ? navigate(`/wbe/edit-link/${row?.id}`) : navigate(`/edit-link/${row?.id}`);
+                  }} hasDivider itemText='Edit' />
+
                   <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>dispatch(handleSetStatus({row, status:'Valid'}))} hasDivider itemText='Set status - Valid' />
                   <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>dispatch(handleSetStatus({row, status:'Invalid'}))} hasDivider itemText='Set status - Invalid' />
                   <OverflowMenuItem wrapperClassName={menuItem} onClick={()=>handleDeleteCreatedLink(row)} hasDivider itemText='Remove' />

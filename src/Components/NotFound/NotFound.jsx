@@ -1,9 +1,16 @@
 import { Button } from '@carbon/react';
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { gridContainer, image, link, title } from './NotFound.module.scss';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { gridContainer, image, title } from './NotFound.module.scss';
 
 const NotFound = () => {
+  const {isWbe}=useSelector(state=>state.links);
+  const navigate =useNavigate();
+
+  const handleBackToHome=()=>{
+    isWbe ? navigate('/wbe') : navigate('/');
+  };
   return (
     <div className='mainContainer' >
       <div className={gridContainer}>
@@ -14,7 +21,7 @@ const NotFound = () => {
             Page you are trying to open does not exist. You may have mistyped the address, or the
             page has been moved to another URL. If you think this is an error contact support.
           </p>
-          <Link className={link} to='/link-manager'> <Button size='md' kind='primary'> Get back to home page </Button></Link>
+          <Button size='md' kind='primary' onClick={handleBackToHome}> Get back to home page </Button>
         </div>
       </div>
     </div>
