@@ -1,21 +1,32 @@
+import { ArrowRight } from '@carbon/icons-react';
 import { Button, TextInput } from '@carbon/react';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import style from './Login.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { handleLoggedInUser } from '../../Redux/slices/linksSlice';
+import style from './Login.module.scss';
 
-const {container, title, formContainer, btnContainer, titleSpan, errText}=style;
+const {main,container, title, formContainer, btnContainer, titleSpan, errText}=style;
 
 const Login = () => {
   const {handleSubmit, register, formState:{errors}}=useForm();
+  const {loggedInUser}=useSelector(state=>state.links);
   const navigate=useNavigate();
-
-  const onSubmit=()=>{
-    navigate('/link-manager');
+  const dispatch=useDispatch();
+  const {state}=useLocation();
+  useEffect(()=>{
+    if(loggedInUser?.email) {
+      navigate(state?.from?.pathname);
+    }
+    
+  },[loggedInUser]);
+  const onSubmit=(data)=>{
+    dispatch(handleLoggedInUser({email:data.email}));
   };
 
   return (
-    <div className='mainContainer'>
+    <div className={main}>
       <div className={container}>
         <h3 className={title}>Link Manager Application<br />
           <span className={titleSpan}>Please Login</span>
@@ -26,22 +37,24 @@ const Login = () => {
             type='email'
             id='email'
             labelText='Email'
-            placeholder='example@gmail.com'
+            placeholder='Enter your email'
             {...register('email', { required: true })}
           />
           <p className={errText}>{errors.email && 'Invalid email'}</p>
 
-          <TextInput
+          <TextInput.PasswordInput
             type='password'
             id='pass'
             labelText='Password'
-            placeholder='Your password'
+            placeholder='Enter your password'
             {...register('password', { required: true, minLength: 6 })}
           />
           <p className={errText}>{errors.password && 'Password should include at least 6 characters'}</p>
 
           <div className={btnContainer}>
-            <Button size='md' kind='primary' type='submit'>Sign in</Button>
+            <Button
+              renderIcon={ArrowRight}
+              size='lg' kind='primary' type='submit'>Sign in</Button>
           </div>
         </form>
       </div>

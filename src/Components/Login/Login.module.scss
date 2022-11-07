@@ -1,0 +1,44 @@
+@use '@carbon/colors';
+@use '@carbon/type';
+
+.main {
+    background-image: url('./dark_bg.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    min-height: 100vh;
+    color: colors.$gray-20;
+    padding: 15vh 5vh;
+}
+
+.container {
+    background-color: colors.$gray-90;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 5vh 1vw 2vh;
+    border-radius: 5px;
+}
+
+.formContainer label {
+    color: colors.$gray-30;
+    font-size: type.type-scale(2);
+}
+
+.title {
+    text-align: center;
+}
+
+.titleSpan {
+    font-weight: bold
+}
+
+.btnContainer button {
+    margin: 30px 0 0 auto;
+    display: flex;
+    width: 50%;
+}
+
+.errText {
+    color: colors.$red-60;
+    margin-bottom: 20px;
+}

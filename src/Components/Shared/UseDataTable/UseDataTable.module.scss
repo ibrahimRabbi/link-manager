@@ -1,6 +1,26 @@
+@use '@carbon/colors';
+
 .tableCell {
-    border-left: 1px solid lightgray;
+    border-left: 1px solid colors.$gray-30;
     width: 200px;
+
+    span {
+        width: 250px;
+        overflow: hidden;
+        display: inline-block;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+}
+
+.tableCell:first-child {
+    border-left: 0;
+}
+
+.boxCell {
+    border-left: 1px solid colors.$gray-30;
+    width: 100px;
 }
 
 .newLinkCell1 {
@@ -12,16 +32,12 @@
 }
 
 .tableCellName {
-    color: rgb(0, 8, 255);
+    color: colors.$blue-50;
     cursor: pointer;
 }
 
 .targetCell {
     width: 35%;
-}
-
-.targetCell>span {
-    cursor: pointer;
 }
 
 .actionContainer {
@@ -32,15 +48,11 @@
 }
 
 .actionMenu {
-    width: 150px;
+    width: 160px;
 }
 
 .menuItem {
-    height: 25px;
-}
-
-.pagination {
-    background-color: #f4f4f4;
+    height: 30px;
 }
 
 .statusIcon {
@@ -49,35 +61,35 @@
 }
 
 .validIcon {
-    color: #1ca55e;
+    color: colors.$green-50;
 }
 
 .invalidIcon {
-    color: red;
+    color: colors.$red-60;
 }
 
 .noStatusIcon {
-    color: lightgray;
+    color: colors.$gray-30;
 }
 
 .modalHeadContainer {
     display: flex;
-    border-bottom: 2px solid lightgray;
+    border-bottom: 1px solid colors.$gray-30;
     padding: 10px;
 }
 
 .modalTitle {
     cursor: pointer;
     font-weight: bold;
-    color: #3805c8;
+    color: colors.$blue-70;
     font-size: 18px;
-    border-bottom: 2px solid #3805c8;
+    border-bottom: 2px solid colors.$blue-70;
 }
 
 .modalBody {
     margin: 0;
     padding: 10px;
-    background-color: white;
+    background-color: colors.$white;
     border-radius: 10px;
 }
 
@@ -89,5 +101,5 @@
 
 .sourceProp {
     width: 100px;
-    color: gray;
+    color: colors.$gray-60;
 }

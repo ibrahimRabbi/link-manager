@@ -1,0 +1,53 @@
+@use '@carbon/colors';
+@use '@carbon/type';
+
+.App {
+    background-color: colors.$gray-10;
+    min-height: 100vh;
+
+    h1 {
+        font-size: type.type-scale(12);
+    }
+
+    h2 {
+        font-size: type.type-scale(10);
+    }
+
+    h3 {
+        font-size: type.type-scale(8);
+    }
+
+    h4 {
+        font-size: type.type-scale(6);
+    }
+
+    h5 {
+        font-size: type.type-scale(4);
+    }
+
+    h6 {
+        font-size: type.type-scale(3);
+    }
+
+    p {
+        font-size: type.type-scale(2);
+    }
+}
+
+.mainContainer {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1vw;
+}
+
+.container {
+    padding-bottom: 30px;
+}
+
+.show_nav {
+    margin-left: 200px;
+}
+
+.wbeDashboardContainer {
+    padding-top: 50px;
+}
