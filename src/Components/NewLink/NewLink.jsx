@@ -23,6 +23,7 @@ const headers = [
 ];
 
 const NewLink = ({ pageTitle }) => {
+  console.log('getting into wbe NewLink');
   const {isWbe, sourceDataList, linkType, targetDataArr, projectType, resourceType, editLinkData, editTargetData } = useSelector(state => state.links);
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
