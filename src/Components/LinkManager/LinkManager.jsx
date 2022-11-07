@@ -61,7 +61,7 @@ const LinkManager = () => {
   return (
     <div className='container'>
       <div className={linkFileContainer}>
-        <h5>Links for file: {sourceDataList}</h5>
+        <h5>Links for file: {sourceDataList?.baseline}</h5>
 
         <Button onClick={() => { 
           isWbe ? navigate('/wbe/new-link') : navigate('/new-link'); 
