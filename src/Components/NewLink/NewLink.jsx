@@ -157,7 +157,7 @@ const NewLink = ({ pageTitle }) => {
       {/* --- After selected link type ---  */}
       {(linkType || pageTitle) &&
         <div className={targetContainer}>
-          <h5>Target RM</h5>
+          <h5>Target</h5>
 
           <div className={targetIframe}>
             <iframe src='https://192.241.220.34:9443/rm/pickers/com.ibm.rdm.web.RRCPicker?projectURL=https://192.241.220.34:9443/rm/rm-projects/_VhNr0IEzEeqnsvH-FkjSvQ#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
