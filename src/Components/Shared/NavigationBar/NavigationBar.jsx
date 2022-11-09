@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { handleIsProfileOpen, handleIsSidebarOpen, handleLoggedInUser } from '../../../Redux/slices/linksSlice';
+import koneksysLogo from './koneksys_logo.png';
 import { content, header, headerContainer, main, pageTitle, popoverContent, profile, projectTitle, sidebar, sidebarLink, userContainer } from './NavigationBar.module.scss';
 
 const NavigationBar = () => {
@@ -41,7 +42,7 @@ const NavigationBar = () => {
             >
               {isSidebarOpen?<Close size={30}/>:<Menu size={30} />}
             </IconButton>
-
+            <img src={koneksysLogo} height='40px' alt='logo' />
             <h5 className={projectTitle}>Link manager</h5>
             <h5 className={pageTitle}>{currPageTitle}</h5>
                   

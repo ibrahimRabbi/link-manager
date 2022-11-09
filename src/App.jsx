@@ -13,11 +13,10 @@ import LoginPage from './Pages/Login';
 import WbeDashboard from './Pages/WbeDashboard';
 
 function App() {
-  
+    
   return (
     <div className='App'>
       <Routes>
-        {/* Web browser extension path start */}
         <Route path='/wbe' element={<ProtectedRoute><WbeDashboard/></ProtectedRoute>}>
           <Route path='/wbe/:id' element={<LinkManager />} />
           <Route path='/wbe/new-link' element={<NewLink />} />
@@ -25,7 +24,6 @@ function App() {
           <Route path='/wbe/details/:id' element={<LinkDetails />} />
           <Route path='/wbe' element={<LinkManager />} />
         </Route>
-        {/* Web browser extension path end */}
 
 
         <Route path='/' element={<ProtectedRoute><Dashboard/></ProtectedRoute>}>

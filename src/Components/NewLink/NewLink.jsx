@@ -30,7 +30,7 @@ const NewLink = ({ pageTitle }) => {
   const navigate = useNavigate();
   const {pathname}=useLocation();
   const dispatch = useDispatch();
-
+  
   useEffect(()=>{
     dispatch(handleCurrPageTitle(pageTitle?pageTitle:'New Link'));
   },[]);
@@ -52,10 +52,12 @@ const NewLink = ({ pageTitle }) => {
   useEffect(() => {
     setDisplayTableData([]);
     const URL = editTargetData?.identifier ? `../../${searchText}.json` : `../../${searchText}.json`;
-    fetch(URL)
-      .then(res => res.json())
-      .then(data => setDisplayTableData(data))
-      .catch(() => { });
+    if(searchText){
+      fetch(URL)
+        .then(res => res.json())
+        .then(data => setDisplayTableData(data))
+        .catch(() => { });
+    }
   }, [searchText]);
 
   const handleSearchData = data => {
