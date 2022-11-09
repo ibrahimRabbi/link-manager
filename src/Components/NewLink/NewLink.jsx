@@ -1,15 +1,11 @@
-import { Button, Checkbox, Search } from '@carbon/react';
-import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Button } from '@carbon/react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleCancelLink, handleCreateLink, handleCurrPageTitle, handleLinkType, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
-import UseDataTable from '../Shared/UseDataTable/UseDataTable';
+import { handleCancelLink, handleCreateLink, handleCurrPageTitle, handleLinkType, handleProjectType, handleResourceType, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
-import { btnContainer, dropdownStyle, emptySearchWarning, inputContainer, linkTypeContainer, newLinkTable, searchContainer, searchInput, sourceContainer, sourceList, sourceProp, targetContainer, targetIframe, targetSearchContainer } from './NewLink.module.scss';
-
-
+import { btnContainer, dropdownStyle, linkTypeContainer, sourceContainer, sourceList, sourceProp, targetContainer, targetIframe } from './NewLink.module.scss';
 
 // dropdown items
 const linkTypeItems = ['affectedBy', 'implementedBy', 'trackedBy', 'constrainedBy', 'decomposedBy', 'elaboratedBy', 'satisfiedBy'];
@@ -17,18 +13,18 @@ const projectItems = ['GCM System - Backend (JIRA)', 'GCM UI - Frontend (JIRA)',
 const resourceItems = ['User story', 'Task', 'Epic', 'Bug', 'Improvement'];
 
 // Table header 
-const headers = [
-  { key: 'identifier', header: 'Identifier' },
-  { key: 'name', header: 'Name' },
-  { key: 'description', header: 'Description' },
-  { key: 'checkbox', header: <Checkbox labelText='' id='' /> }
-];
+// const headers = [
+//   { key: 'identifier', header: 'Identifier' },
+//   { key: 'name', header: 'Name' },
+//   { key: 'description', header: 'Description' },
+//   { key: 'checkbox', header: <Checkbox labelText='' id='' /> }
+// ];
 
 const NewLink = ({ pageTitle }) => {
-  const {isWbe, sourceDataList, linkType, targetDataArr, projectType, resourceType, editLinkData, editTargetData } = useSelector(state => state.links);
-  const { register, handleSubmit } = useForm();
-  const [searchText, setSearchText] = useState(null);
-  const [displayTableData, setDisplayTableData] = useState([]);
+  const {isWbe, sourceDataList, linkType, projectType, resourceType, editLinkData } = useSelector(state => state.links);
+  // const { register, handleSubmit } = useForm();
+  // const [searchText, setSearchText] = useState(null);
+  // const [displayTableData, setDisplayTableData] = useState([]);
   const navigate = useNavigate();
   const {pathname}=useLocation();
   const dispatch = useDispatch();
@@ -42,30 +38,30 @@ const NewLink = ({ pageTitle }) => {
   },[pathname]);
 
   // Edit link options start
-  useEffect(() => {
-    if (editTargetData?.identifier) {
-      const string = editTargetData?.description?.split(' ')[0]?.toLowerCase();
-      setSearchText(string === 'document' ? 'document' : string === 'user' ? 'data' : null);
-    }
-  }, [pageTitle]);
+  // useEffect(() => {
+  //   if (editTargetData?.identifier) {
+  //     const string = editTargetData?.description?.split(' ')[0]?.toLowerCase();
+  //     setSearchText(string === 'document' ? 'document' : string === 'user' ? 'data' : null);
+  //   }
+  // }, [pageTitle]);
   // Edit link options end
 
   // search data or document 
-  useEffect(() => {
-    setDisplayTableData([]);
-    const URL = editTargetData?.identifier ? `../../${searchText}.json` : `../../${searchText}.json`;
-    if(searchText){
-      fetch(URL)
-        .then(res => res.json())
-        .then(data => setDisplayTableData(data))
-        .catch(() => { });
-    }
-  }, [searchText]);
+  // useEffect(() => {
+  //   setDisplayTableData([]);
+  //   const URL = editTargetData?.identifier ? `../../${searchText}.json` : `../../${searchText}.json`;
+  //   if(searchText){
+  //     fetch(URL)
+  //       .then(res => res.json())
+  //       .then(data => setDisplayTableData(data))
+  //       .catch(() => { });
+  //   }
+  // }, [searchText]);
 
-  const handleSearchData = data => {
-    dispatch(handleTargetDataArr(null));
-    setSearchText(data?.searchText);
-  };
+  // const handleSearchData = data => {
+  //   dispatch(handleTargetDataArr(null));
+  //   setSearchText(data?.searchText);
+  // };
 
   // Link type dropdown
   const handleLinkTypeChange = ({ selectedItem }) => {
@@ -88,9 +84,9 @@ const NewLink = ({ pageTitle }) => {
   };
 
   // Selected target data
-  const handleSelectedData = (data, value) => {
-    dispatch(handleTargetDataArr({ data, value }));
-  };
+  // const handleSelectedData = (data, value) => {
+  //   dispatch(handleTargetDataArr({ data, value }));
+  // };
 
   // Edit created link
   const handleLinkUpdate = () => {
@@ -165,7 +161,7 @@ const NewLink = ({ pageTitle }) => {
             <iframe src='https://192.241.220.34:9443/rm/pickers/com.ibm.rdm.web.RRCPicker?projectURL=https://192.241.220.34:9443/rm/rm-projects/_VhNr0IEzEeqnsvH-FkjSvQ#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
           </div>
 
-          <div className={targetSearchContainer}>
+          {/* <div className={targetSearchContainer}>
             <form onSubmit={handleSubmit(handleSearchData)} className={searchContainer}>
               <div className={inputContainer}>
                 <Search
@@ -190,10 +186,10 @@ const NewLink = ({ pageTitle }) => {
           }
           {(searchText && !displayTableData[0]) &&
             <h2 className={emptySearchWarning}>Please search by valid identifier or name</h2>
-          }
+          } */}
 
           {/* new link btn  */}
-          {(projectType && resourceType && targetDataArr[0] && !pageTitle) && <div className={btnContainer}>
+          {(projectType && resourceType && !pageTitle) && <div className={btnContainer}>
             <Button kind='secondary' onClick={handleCancelOpenedLink} size='md'>Cancel</Button>
             <Button kind='primary' onClick={handleSaveLink} size='md'>Save</Button>
           </div>}
