@@ -159,6 +159,8 @@ const NewLink = ({ pageTitle }) => {
 
           <div className={targetIframe}>
             <iframe src='https://192.241.220.34:9443/rm/pickers/com.ibm.rdm.web.RRCPicker?projectURL=https://192.241.220.34:9443/rm/rm-projects/_VhNr0IEzEeqnsvH-FkjSvQ#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
+            {/*<iframe src='http://localhost:5001/oslc/provider/selector' height='550px' width='800px'></iframe>*/}
+            {/*you will receive the information coming from the Selection Dialog*/}
           </div>
 
           {/* <div className={targetSearchContainer}>
