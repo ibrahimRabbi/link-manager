@@ -9,6 +9,8 @@ import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import { btnContainer, dropdownStyle, emptySearchWarning, inputContainer, linkTypeContainer, newLinkTable, searchContainer, searchInput, sourceContainer, sourceList, sourceProp, targetContainer, targetIframe, targetSearchContainer } from './NewLink.module.scss';
 
+
+
 // dropdown items
 const linkTypeItems = ['affectedBy', 'implementedBy', 'trackedBy', 'constrainedBy', 'decomposedBy', 'elaboratedBy', 'satisfiedBy'];
 const projectItems = ['GCM System - Backend (JIRA)', 'GCM UI - Frontend (JIRA)', 'LIM Link Manager (JIRA)', 'Delivery System (GLIDE)', 'Jet Engine Design (GLIDE)'];
@@ -146,18 +148,16 @@ const NewLink = ({ pageTitle }) => {
       <div className={linkTypeContainer}>
         <UseDropdown onChange={handleLinkTypeChange} items={linkTypeItems} title='Link type' selectedValue={editLinkData?.linkType} label={'Select link type'} id='newLink_linkTypes' className={dropdownStyle}/>
 
+        <UseDropdown items={targetProjectItems} onChange={handleTargetProject} title='Project' selectedValue={editLinkData?.project} label={'Select project'} id='project-dropdown' className={dropdownStyle}/>
+        
         {
-          (linkType || pageTitle) && 
-          <>
-            <UseDropdown items={targetProjectItems} onChange={handleTargetProject} title='Project' selectedValue={editLinkData?.project} label={'Select project'} id='project-dropdown' className={dropdownStyle}/>
-
+          (linkType && projectType || pageTitle) && 
             <UseDropdown items={targetResourceItems} onChange={handleTargetResource}  title='Resource type' selectedValue={editLinkData?.resource} label={'Select resource type'} id='resourceType-dropdown' className={dropdownStyle}/>
-          </>
         }
       </div>
 
       {/* --- After selected link type ---  */}
-      {(linkType || pageTitle) &&
+      {(linkType && projectType || pageTitle) &&
         <div className={targetContainer}>
           <h5>Target</h5>
 

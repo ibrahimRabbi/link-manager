@@ -34,10 +34,8 @@ const LinkManager = () => {
     }
     
     if(id){
-      console.log(id);
       const sources=id.split('__');
       dispatch(handleGetSources({project: sources[0], repository:sources[1], branch:sources[2], commit:sources[3], source:sources[4]}));
-      console.log(sources);
     }
   },[]);
 
