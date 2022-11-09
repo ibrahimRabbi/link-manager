@@ -1,14 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import UniqueID from '../../Components/Shared/UniqueID/UniqueID';
-
-// const sources=[
-//   { Source: 'requirements.txt'},
-//   { Project: 'Gitlab OSLC API'},
-//   { Type: 'Gitlab - File'},
-//   { Component: 'Gitlab component 1'},
-//   { Stream: 'development'},
-//   { BaseLine: '78zabc'}
-// ];
+import useSessionStorage from '../../Components/Shared/UseSessionStorage/UseSessionStorage';
 
 const initialState = {
   sourceDataList:{},
@@ -16,7 +8,8 @@ const initialState = {
   sourceCommit: '',
   isSidebarOpen:false,
   currPageTitle:'',
-  loggedInUser:null,
+  isLoading:false,
+  loggedInUser: {},
   isProfileOpen:false,
   allLinks: [],
   editTargetData:{},
@@ -36,6 +29,9 @@ export const linksSlice = createSlice({
     handleIsWbe: (state, {payload}) => {
       state.isWbe=payload;
     },
+    handleIsLoading: (state, {payload}) => {
+      state.isLoading=payload;
+    },
 
     // get sources in wbe
     handleGetSources: (state, {payload}) => {
@@ -54,8 +50,13 @@ export const linksSlice = createSlice({
       state.linkedData=payload;
     },
 
-    handleLoggedInUser: (state, {payload}) => {
+    handleLoggedInUser: (state, {payload}) => {      
       state.loggedInUser=payload;
+      
+      if(!payload) {
+        useSessionStorage('remove', 'userName');
+        useSessionStorage('remove', 'password');
+      }
     },
 
     handleIsProfileOpen: (state, {payload}) => {
@@ -157,6 +158,6 @@ export const linksSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const {handleIsWbe, handleGetSources, handleIsSidebarOpen, handleLoggedInUser, handleCurrPageTitle, handleIsProfileOpen, handleViewLinkDetails, handleCreateLink, handleEditLinkData, handleTargetDataArr,handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
+export const {handleIsWbe, handleIsLoading, handleGetSources, handleIsSidebarOpen, handleLoggedInUser, handleCurrPageTitle, handleIsProfileOpen, handleViewLinkDetails, handleCreateLink, handleEditLinkData, handleTargetDataArr,handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
 
 export default linksSlice.reducer;

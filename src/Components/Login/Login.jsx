@@ -1,29 +1,42 @@
 import { ArrowRight } from '@carbon/icons-react';
-import { Button, TextInput } from '@carbon/react';
+import { Button, PasswordInput, TextInput } from '@carbon/react';
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { handleLoggedInUser } from '../../Redux/slices/linksSlice';
+import useSessionStorage from '../Shared/UseSessionStorage/UseSessionStorage';
 import style from './Login.module.scss';
 
 const {main,container, title, formContainer, btnContainer, titleSpan, errText}=style;
 
 const Login = () => {
-  const {handleSubmit, register, formState:{errors}}=useForm();
   const {loggedInUser}=useSelector(state=>state.links);
+  const {handleSubmit, register, formState:{errors}}=useForm();
+  const {state}=useLocation();
   const navigate=useNavigate();
   const dispatch=useDispatch();
-  const {state}=useLocation();
+
+  // redirect management
   useEffect(()=>{
-    if(loggedInUser?.email) {
-      navigate(state?.from?.pathname);
-    }
-    
-  },[loggedInUser]);
+    const userName =useSessionStorage('get', 'userName');
+    if(userName && state?.from?.pathname) navigate(state?.from?.pathname);
+    else if(userName) navigate('/');
+  }, [loggedInUser]);
+
+  // handle form submit
   const onSubmit=(data)=>{
-    dispatch(handleLoggedInUser({email:data.email}));
+    useSessionStorage('set', 'userName', data.email);
+    useSessionStorage('set', 'password', data.password);
+
+    const userName =useSessionStorage('get', 'userName');
+    const password =useSessionStorage('get', 'password');
+
+    dispatch(handleLoggedInUser({userName, password}));
+    if(userName && state?.from?.pathname) navigate(state?.from?.pathname);
+    else if(userName) navigate('/');
   };
+
 
   return (
     <div className={main}>
@@ -42,7 +55,7 @@ const Login = () => {
           />
           <p className={errText}>{errors.email && 'Invalid email'}</p>
 
-          <TextInput.PasswordInput
+          <PasswordInput
             type='password'
             id='pass'
             labelText='Password'

@@ -3,10 +3,11 @@ import { useSelector } from 'react-redux';
 import { Navigate, useLocation } from 'react-router-dom';
 
 const ProtectedRoute = ({ children }) => {
-  let { loggedInUser } = useSelector(state=>state.links);
+  let { loggedInUser, isLoading } = useSelector(state=>state.links);
   let location = useLocation();
+  if(isLoading) return <h1 className='text-center'>Loading...</h1>;
 
-  if (loggedInUser?.email) {
+  if (loggedInUser?.userName) {
     return children;
   }
 
