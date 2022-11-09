@@ -23,7 +23,6 @@ const headers = [
 ];
 
 const NewLink = ({ pageTitle }) => {
-  console.log('getting into wbe NewLink');
   const {isWbe, sourceDataList, linkType, targetDataArr, projectType, resourceType, editLinkData, editTargetData } = useSelector(state => state.links);
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
@@ -31,7 +30,7 @@ const NewLink = ({ pageTitle }) => {
   const navigate = useNavigate();
   const {pathname}=useLocation();
   const dispatch = useDispatch();
-
+  
   useEffect(()=>{
     dispatch(handleCurrPageTitle(pageTitle?pageTitle:'New Link'));
   },[]);
@@ -53,10 +52,12 @@ const NewLink = ({ pageTitle }) => {
   useEffect(() => {
     setDisplayTableData([]);
     const URL = editTargetData?.identifier ? `../../${searchText}.json` : `../../${searchText}.json`;
-    fetch(URL)
-      .then(res => res.json())
-      .then(data => setDisplayTableData(data))
-      .catch(() => { });
+    if(searchText){
+      fetch(URL)
+        .then(res => res.json())
+        .then(data => setDisplayTableData(data))
+        .catch(() => { });
+    }
   }, [searchText]);
 
   const handleSearchData = data => {
