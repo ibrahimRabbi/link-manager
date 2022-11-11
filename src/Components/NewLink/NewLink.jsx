@@ -1,11 +1,11 @@
-import { Button } from '@carbon/react';
+import { Button, StructuredListBody, StructuredListCell, StructuredListRow, StructuredListWrapper } from '@carbon/react';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { handleCancelLink, handleCreateLink, handleCurrPageTitle, handleLinkType, handleProjectType, handleResourceType, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
-import { btnContainer, dropdownStyle, linkTypeContainer, sourceContainer, sourceList, sourceProp, targetContainer, targetIframe } from './NewLink.module.scss';
+import { btnContainer, dropdownStyle, linkTypeContainer, sourceContainer, sourceProp, sourceValue, targetContainer, targetIframe } from './NewLink.module.scss';
 
 // dropdown items
 const linkTypeItems = ['affectedBy', 'implementedBy', 'trackedBy', 'constrainedBy', 'decomposedBy', 'elaboratedBy', 'satisfiedBy'];
@@ -121,34 +121,26 @@ const NewLink = ({ pageTitle }) => {
     <div className='container'>
       <div className={sourceContainer}>
         <h5>Source</h5>
-        <div className={sourceList}>
-          <p className={sourceProp}>Source</p><p>{sourceDataList?.source}</p>
-        </div>
-        <div className={sourceList}>
-          <p className={sourceProp}>Project</p><p>{sourceDataList?.project}</p>
-        </div>
-        <div className={sourceList}>
-          <p className={sourceProp}>Type</p><p>{sourceDataList?.type}</p>
-        </div>
-        <div className={sourceList}>
-          <p className={sourceProp}>Component</p><p>{sourceDataList?.component}</p>
-        </div>
-        <div className={sourceList}>
-          <p className={sourceProp}>Stream</p><p>{sourceDataList?.stream}</p>
-        </div>
-        <div className={sourceList}>
-          <p className={sourceProp}>Baseline</p><p>{sourceDataList?.baseline}</p>
-        </div>
+        <StructuredListWrapper ariaLabel="Structured list">
+          <StructuredListBody>
+            {
+              ['OSLC Project', 'OSLC Stream', 'OSLC Baseline' ].map((properties, index)=><StructuredListRow key={properties}>
+                <StructuredListCell id={sourceProp}>{properties}</StructuredListCell>
+                <StructuredListCell id={sourceValue}>{Object.values(sourceDataList)[index]}</StructuredListCell>
+              </StructuredListRow>)
+            }
+          </StructuredListBody>
+        </StructuredListWrapper>
       </div>
 
       <div className={linkTypeContainer}>
         <UseDropdown onChange={handleLinkTypeChange} items={linkTypeItems} title='Link type' selectedValue={editLinkData?.linkType} label={'Select link type'} id='newLink_linkTypes' className={dropdownStyle}/>
 
-        <UseDropdown items={targetProjectItems} onChange={handleTargetProject} title='Project' selectedValue={editLinkData?.project} label={'Select project'} id='project-dropdown' className={dropdownStyle}/>
+        <UseDropdown items={targetProjectItems} onChange={handleTargetProject} title='Target project' selectedValue={editLinkData?.project} label={'Select target project'} id='project-dropdown' className={dropdownStyle}/>
         
         {
           (linkType && projectType || pageTitle) && 
-            <UseDropdown items={targetResourceItems} onChange={handleTargetResource}  title='Resource type' selectedValue={editLinkData?.resource} label={'Select resource type'} id='resourceType-dropdown' className={dropdownStyle}/>
+            <UseDropdown items={targetResourceItems} onChange={handleTargetResource}  title='Target resource type' selectedValue={editLinkData?.resource} label={'Select target resource type'} id='resourceType-dropdown' className={dropdownStyle}/>
         }
       </div>
 

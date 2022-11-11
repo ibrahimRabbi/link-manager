@@ -35,11 +35,7 @@ export const linksSlice = createSlice({
 
     // get sources in wbe
     handleGetSources: (state, {payload}) => {
-      state.sourceDataList.source=payload.source;
-      state.sourceDataList.project=payload.project;
-      state.sourceDataList.component=payload.repository;
-      state.sourceDataList.stream=payload.branch;
-      state.sourceDataList.baseline=payload.commit;
+      state.sourceDataList =payload;
     },
 
     handleIsSidebarOpen: (state, {payload}) => {

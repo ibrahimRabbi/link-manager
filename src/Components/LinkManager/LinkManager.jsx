@@ -35,7 +35,7 @@ const LinkManager = () => {
     
     if(id){
       const sources=id.split('__');
-      dispatch(handleGetSources({project: sources[0], repository:sources[1], branch:sources[2], commit:sources[3], source:sources[4]}));
+      dispatch(handleGetSources({projectName: sources[0], stream:sources[1], baseline:sources[2]}));
     }
   },[]);
 
