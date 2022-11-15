@@ -29,11 +29,10 @@ function App() {
     <div className='App'>
       <Routes>
         <Route path='/wbe' element={<ProtectedRoute><WbeDashboard/></ProtectedRoute>}>
-          <Route path='/wbe/:id' element={<LinkManager />} />
+          <Route path='/wbe' element={<LinkManager />} />
           <Route path='/wbe/new-link' element={<NewLink />} />
           <Route path='/wbe/edit-link/:id' element={<EditLink />} />
           <Route path='/wbe/details/:id' element={<LinkDetails />} />
-          <Route path='/wbe' element={<LinkManager />} />
         </Route>
 
 

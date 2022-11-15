@@ -1,7 +1,7 @@
 import { Button, Search } from '@carbon/react';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { handleCurrPageTitle, handleEditLinkData, handleGetSources, handleIsWbe } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
@@ -23,23 +23,27 @@ const LinkManager = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location=useLocation();
-  const {id}=useParams();
+  const [searchParams] = useSearchParams();
   
   useEffect(()=>{
     dispatch(handleCurrPageTitle('OSLC Link Manager'));
     
+    // Checking if this application is being used from WBE
     if(location.pathname){
       const currPath =location.pathname.split('/');
       dispatch(handleIsWbe(currPath[1] === 'wbe' ? true : false));
     }
-    
-    if(id){
-      const sources=id.split('__');
-      dispatch(handleGetSources({projectName: sources[0], stream:sources[1], baseline:sources[2]}));
-    }
+
+    // Receive Gitlab values and display source section
+    const projectName =searchParams.get('project');
+    const stream= searchParams.get('branch');
+    const baseline= searchParams.get('commit');
+    if(projectName && stream && baseline) dispatch(handleGetSources({projectName, stream, baseline}));
+
   },[]);
 
   useEffect(()=>{
+    // When this application is used from WBE if no link is created then the user is sent to the New Link page.
     if(isWbe){
       if(!allLinks?.length) return navigate('/wbe/new-link');
     }
@@ -56,6 +60,7 @@ const LinkManager = () => {
       },
     });
   };
+  
   return (
     <div className='container'>
       <div className={linkFileContainer}>
