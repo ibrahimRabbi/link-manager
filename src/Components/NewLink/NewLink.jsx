@@ -82,8 +82,7 @@ const NewLink = ({ pageTitle }) => {
 
   const handleSearchData = data => {
     dispatch(handleTargetDataArr(null));
-
-    fetch('https://192.241.220.34:9443/rm/views?oslc.query=true&amp;projectURL=https://192.241.220.34:9443/rm/process/project-areas/_VhNr0IEzEeqnsvH-FkjSvQ')
+    fetch('https://192.241.220.34:9443/jts/j_security_check?j_username=koneksys&j_password=koneksys')
       .then(res =>  console.log(res))
       .catch(() => { });
         
@@ -180,7 +179,7 @@ const NewLink = ({ pageTitle }) => {
           { // Show the selection dialogs
             isJiraApp && <div className={targetIframe}>
               { isBackJiraApp ?
-                <iframe src='http://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=AOE' height='550px' width='800px'></iframe>
+                <iframe src='https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=AOE' height='550px' width='800px'></iframe>
                 :
                 <iframe src='https://192.241.220.34:9443/rm/pickers/com.ibm.rdm.web.RRCPicker?projectURL=https://192.241.220.34:9443/rm/rm-projects/_VhNr0IEzEeqnsvH-FkjSvQ#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
               }
