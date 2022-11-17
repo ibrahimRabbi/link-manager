@@ -1,5 +1,6 @@
 import { Button, Checkbox, Search, StructuredListBody, StructuredListCell, StructuredListRow, StructuredListWrapper } from '@carbon/react';
 import React, { useEffect, useState } from 'react';
+import { useCookies } from 'react-cookie';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -27,7 +28,9 @@ const NewLink = ({ pageTitle }) => {
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [isJiraApp, setIsJiraApp] = useState(false);
+  const [isBackJiraApp, setIsBackJiraApp] = useState(false);
   const [displayTableData, setDisplayTableData] = useState([]);
+  const [cookies, setCookie] = useCookies(['LtpaToken2']);
   const navigate = useNavigate();
   const {pathname}=useLocation();
   const dispatch = useDispatch();
@@ -37,12 +40,23 @@ const NewLink = ({ pageTitle }) => {
   },[]);
 
   useEffect(()=>{
+    if(cookies?.LtpaToken2){
+      setCookie('LtpaToken2', {secure:true, sameSite:'none'});
+    }
+
+  },[]);
+
+  useEffect(()=>{
     pageTitle?null: dispatch(handleCancelLink());
   },[pathname]);
 
   
   useEffect(()=>{
-    if(projectType) setIsJiraApp(projectType?.includes('JIRA'));
+    if(projectType) {
+      setIsBackJiraApp(projectType?.includes('Backend (JIRA)'));
+      setIsJiraApp(projectType?.includes('JIRA'));
+    }
+
   },[projectType]);
 
   // Edit link options start
@@ -57,17 +71,22 @@ const NewLink = ({ pageTitle }) => {
   // search data or document 
   useEffect(() => {
     setDisplayTableData([]);
-    const URL = editTargetData?.identifier ? `../../${searchText}.json` : `../../${searchText}.json`;
-    if(searchText){
-      fetch(URL)
-        .then(res => res.json())
-        .then(data => setDisplayTableData(data))
-        .catch(() => { });
-    }
+    // const URL = editTargetData?.identifier ? `../../${searchText}.json` : `../../${searchText}.json`;
+    // if(searchText){
+    //   fetch(URL)
+    //     .then(res => res.json())
+    //     .then(data => setDisplayTableData(data))
+    //     .catch(() => { });
+    // }
   }, [searchText]);
 
   const handleSearchData = data => {
     dispatch(handleTargetDataArr(null));
+
+    fetch('https://192.241.220.34:9443/rm/views?oslc.query=true&amp;projectURL=https://192.241.220.34:9443/rm/process/project-areas/_VhNr0IEzEeqnsvH-FkjSvQ')
+      .then(res =>  console.log(res))
+      .catch(() => { });
+        
     setSearchText(data?.searchText);
   };
 
@@ -157,10 +176,14 @@ const NewLink = ({ pageTitle }) => {
         <div className={targetContainer}>
           <h5>Target</h5>
 
-          {
+
+          { // Show the selection dialogs
             isJiraApp && <div className={targetIframe}>
-              <iframe src='https://192.241.220.34:9443/rm/pickers/com.ibm.rdm.web.RRCPicker?projectURL=https://192.241.220.34:9443/rm/rm-projects/_VhNr0IEzEeqnsvH-FkjSvQ#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
-              {/*<iframe src='http://localhost:5001/oslc/provider/selector' height='550px' width='800px'></iframe>*/}
+              { isBackJiraApp ?
+                <iframe src='http://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=AOE' height='550px' width='800px'></iframe>
+                :
+                <iframe src='https://192.241.220.34:9443/rm/pickers/com.ibm.rdm.web.RRCPicker?projectURL=https://192.241.220.34:9443/rm/rm-projects/_VhNr0IEzEeqnsvH-FkjSvQ#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
+              }
               {/*you will receive the information coming from the Selection Dialog*/}
             </div>
           }
@@ -187,14 +210,11 @@ const NewLink = ({ pageTitle }) => {
 
               {
                 (searchText && displayTableData[0] || pageTitle) &&
-            <div className={newLinkTable}>
-              <UseDataTable headers={headers} tableData={displayTableData} isCheckBox={true} isChecked={editLinkData?.targetData?.identifier} editTargetData={editTargetData} isPagination={displayTableData[0] ? true : false} selectedData={handleSelectedData} />
-            </div>
+                 <div className={newLinkTable}>
+                   <UseDataTable headers={headers} tableData={displayTableData} isCheckBox={true} isChecked={editLinkData?.targetData?.identifier} editTargetData={editTargetData} isPagination={displayTableData[0] ? true : false} selectedData={handleSelectedData} />
+                 </div>
               }
-              {(searchText && !displayTableData[0]) &&
-            <h2 className={emptySearchWarning}>Please search by valid identifier or name</h2>
-              }
-              
+              { (searchText && !displayTableData[0]) && <h2 className={emptySearchWarning}>Please search by valid identifier or name</h2> }
             </>
           }
           
