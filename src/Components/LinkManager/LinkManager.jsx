@@ -19,7 +19,7 @@ const headers = [
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 
 const LinkManager = () => {
-  const { allLinks, sourceDataList, isWbe } = useSelector(state => state.links);
+  const { allLinks, targetDataArr, sourceDataList, isWbe } = useSelector(state => state.links);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location=useLocation();
@@ -40,7 +40,7 @@ const LinkManager = () => {
     const baseline= searchParams.get('commit');
     if(projectName && stream && baseline) dispatch(handleGetSources({projectName, stream, baseline}));
 
-  },[]);
+  },[searchParams]);
 
   useEffect(()=>{
     // When this application is used from WBE if no link is created then the user is sent to the New Link page.
@@ -60,7 +60,8 @@ const LinkManager = () => {
       },
     });
   };
-  
+  console.log(allLinks);
+  console.log(targetDataArr);
   return (
     <div className='container'>
       <div className={linkFileContainer}>

@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleCancelLink, handleCreateLink, handleCurrPageTitle, handleLinkType, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
+import { handleCancelLink, handleCreateLink, handleCurrPageTitle, handleLinkType, handleOslcResponse, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import { btnContainer, dropdownStyle, emptySearchWarning, inputContainer, linkTypeContainer, newLinkTable, searchContainer, searchInput, sourceContainer, sourceProp, sourceValue, targetContainer, targetIframe, targetSearchContainer } from './NewLink.module.scss';
@@ -23,8 +23,8 @@ const headers = [
   { key: 'checkbox', header: <Checkbox labelText='' id='' /> }
 ];
 
-const NewLink = ({ pageTitle }) => {
-  const {isWbe, sourceDataList, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);
+const NewLink = ({ pageTitle: isEditLinkPage }) => {
+  const {isWbe, oslcResponse, sourceDataList, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [isJiraApp, setIsJiraApp] = useState(false);
@@ -32,23 +32,22 @@ const NewLink = ({ pageTitle }) => {
   const [displayTableData, setDisplayTableData] = useState([]);
   const [cookies, setCookie] = useCookies(['LtpaToken2']);
   const navigate = useNavigate();
-  const {pathname}=useLocation();
+  const location = useLocation();
   const dispatch = useDispatch();
-  
+
   useEffect(()=>{
-    dispatch(handleCurrPageTitle(pageTitle?pageTitle:'New Link'));
+    dispatch(handleCurrPageTitle(isEditLinkPage ? isEditLinkPage : 'New Link'));
   },[]);
 
   useEffect(()=>{
     if(cookies?.LtpaToken2){
       setCookie('LtpaToken2', {secure:true, sameSite:'none'});
     }
-
   },[]);
 
   useEffect(()=>{
-    pageTitle?null: dispatch(handleCancelLink());
-  },[pathname]);
+    isEditLinkPage?null: dispatch(handleCancelLink());
+  },[location?.pathname]);
 
   
   useEffect(()=>{
@@ -65,7 +64,7 @@ const NewLink = ({ pageTitle }) => {
       const string = editTargetData?.description?.split(' ')[0]?.toLowerCase();
       setSearchText(string === 'document' ? 'document' : string === 'user' ? 'data' : null);
     }
-  }, [pageTitle]);
+  }, [isEditLinkPage]);
   // Edit link options end
 
   // search data or document 
@@ -84,11 +83,31 @@ const NewLink = ({ pageTitle }) => {
     dispatch(handleTargetDataArr(null));
     fetch('https://192.241.220.34:9443/jts/j_security_check?j_username=koneksys&j_password=koneksys')
       .then(res =>  console.log(res))
-      .catch(() => { });
+      .catch((err) => console.log(err));
         
     setSearchText(data?.searchText);
   };
 
+  //// Get Selection response data
+  window.addEventListener('message', function (event) {
+    let message = event.data;
+    if(!message.source && !oslcResponse) {
+      const response = JSON.parse(message?.substr('oslc-response:'.length));
+      const results = response['oslc:results'];
+      const targetArray =[];
+      for (let i = 0; i < results.length; i++) {
+        const label = results[i]['oslc:label'];
+        const uri = results[i]['rdf:resource'];
+        targetArray.push({uri, label});
+        dispatch(handleOslcResponse({uri, label}));
+      }
+      dispatch(handleTargetDataArr([...targetArray]));
+    }
+  }, false);
+
+  useEffect(()=>{
+    if(oslcResponse) handleSaveLink();
+  },[oslcResponse]);
   // Link type dropdown
   const handleLinkTypeChange = ({ selectedItem }) => {
     dispatch(handleProjectType(null));
@@ -129,10 +148,9 @@ const NewLink = ({ pageTitle }) => {
   const handleSaveLink = () => {
     if (linkType && projectType && resourceType) {
       dispatch(handleCreateLink());
-      Swal.fire({ icon: 'success', title: 'Link successfully created!', timer: 3000 });
       isWbe ? navigate('/wbe') : navigate('/');
     }
-    else {
+    else if(linkType && projectType && !resourceType) {
       Swal.fire({ icon: 'error', title: 'Link create failed!!! Please fill all the options', timer: 3000 });
     }
   };
@@ -165,13 +183,13 @@ const NewLink = ({ pageTitle }) => {
         <UseDropdown items={targetProjectItems} onChange={handleTargetProject} title='Target project' selectedValue={editLinkData?.project} label={'Select target project'} id='project-dropdown' className={dropdownStyle}/>
         
         {
-          (linkType && projectType || pageTitle) && 
+          (linkType && projectType || isEditLinkPage) && 
             <UseDropdown items={targetResourceItems} onChange={handleTargetResource}  title='Target resource type' selectedValue={editLinkData?.resource} label={'Select target resource type'} id='resourceType-dropdown' className={dropdownStyle}/>
         }
       </div>
 
       {/* --- After selected link type ---  */}
-      {(linkType && projectType || pageTitle) &&
+      {(linkType && projectType || isEditLinkPage) &&
         <div className={targetContainer}>
           <h5>Target</h5>
 
@@ -179,9 +197,13 @@ const NewLink = ({ pageTitle }) => {
           { // Show the selection dialogs
             isJiraApp && <div className={targetIframe}>
               { isBackJiraApp ?
-                <iframe src='https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=KGCM#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
+                <div>
+                  <iframe src='https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=KGCM#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
+                </div>
                 :
-                <iframe src='https://192.241.220.34:9443/rm/pickers/com.ibm.rdm.web.RRCPicker?projectURL=https://192.241.220.34:9443/rm/rm-projects/_VhNr0IEzEeqnsvH-FkjSvQ#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
+                <div>
+                  <iframe src='https://192.241.220.34:9443/rm/pickers/com.ibm.rdm.web.RRCPicker?projectURL=https://192.241.220.34:9443/rm/rm-projects/_VhNr0IEzEeqnsvH-FkjSvQ#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
+                </div>
               }
               {/*you will receive the information coming from the Selection Dialog*/}
             </div>
@@ -208,7 +230,7 @@ const NewLink = ({ pageTitle }) => {
               </div>
 
               {
-                (searchText && displayTableData[0] || pageTitle) &&
+                (searchText && displayTableData[0] || isEditLinkPage) &&
                  <div className={newLinkTable}>
                    <UseDataTable headers={headers} tableData={displayTableData} isCheckBox={true} isChecked={editLinkData?.targetData?.identifier} editTargetData={editTargetData} isPagination={displayTableData[0] ? true : false} selectedData={handleSelectedData} />
                  </div>
@@ -220,13 +242,13 @@ const NewLink = ({ pageTitle }) => {
           { !isJiraApp &&
             <>
               {/* new link btn  */}
-              {(projectType && resourceType &&  targetDataArr[0] &&!pageTitle) && <div className={btnContainer}>
+              {(projectType && resourceType &&  targetDataArr[0] &&!isEditLinkPage) && <div className={btnContainer}>
                 <Button kind='secondary' onClick={handleCancelOpenedLink} size='md'>Cancel</Button>
                 <Button kind='primary' onClick={handleSaveLink} size='md'>Save</Button>
               </div>}
 
               {/* edit link btn  */}
-              {(pageTitle && editLinkData?.id) && <div className={btnContainer}>
+              {(isEditLinkPage && editLinkData?.id) && <div className={btnContainer}>
                 <Button kind='secondary' onClick={handleCancelOpenedLink} size='md'>Cancel</Button>
                 <Button kind='primary' onClick={handleLinkUpdate} size='md'>Save</Button>
               </div>}

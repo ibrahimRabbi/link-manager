@@ -9,7 +9,7 @@ const EditLink = () => {
   if(!editLinkData?.id)  navigate('/link-manager');
   
   return (
-    <NewLink pageTitle='Edit link'/>
+    <NewLink isEditLinkPage='Edit link'/>
   );
 };
 

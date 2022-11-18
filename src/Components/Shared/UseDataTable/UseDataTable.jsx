@@ -1,4 +1,4 @@
-import { Checkbox, ComposedModal, ModalBody, ModalHeader, OverflowMenu, OverflowMenuItem, Pagination, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow } from '@carbon/react';
+import { Checkbox, ComposedModal, ModalBody, ModalHeader, OverflowMenu, OverflowMenuItem, Pagination, StructuredListBody, StructuredListCell, StructuredListRow, StructuredListWrapper, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow } from '@carbon/react';
 import React, { useState } from 'react';
 import { AiFillCheckCircle } from 'react-icons/ai';
 import { BsExclamationTriangleFill } from 'react-icons/bs';
@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { handleDeleteLink, handleEditLinkData, handleEditTargetData, handleSetStatus, handleTargetDataArr, handleViewLinkDetails } from '../../../Redux/slices/linksSlice';
-import { actionMenu, boxCell, invalidIcon, menuItem, modalBody, modalHeadContainer, modalTitle, newLinkCell1, newLinkCell2, noStatusIcon, sourceList, sourceProp, statusIcon, tableCell, targetCell, validIcon } from './UseDataTable.module.scss';
+import { actionMenu, boxCell, invalidIcon, menuItem, modalBody, modalHeadContainer, modalTitle, newLinkCell1, newLinkCell2, noStatusIcon, sourceProp, sourceValue, statusIcon, tableCell, targetCell, validIcon } from './UseDataTable.module.scss';
 
 const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,isChecked,editTargetData }) => {
   const {sourceDataList, isWbe}=useSelector(state=>state.links);
@@ -77,7 +77,7 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
               <TableCell className={tableCell}>{row?.linkType}</TableCell>
 
               {/* --- Table data with modal ---  */}
-              <TableCell className={`${tableCell} ${targetCell}`}><span onMouseOver={() => setIsOpen({ id: row?.id, value: true })}>{row?.targetData?.identifier} {row?.targetData?.description}</span>
+              <TableCell className={`${tableCell} ${targetCell}`}><span onMouseOver={() => setIsOpen({ id: row?.id, value: true })}>{row?.targetData?.label}</span>
                 <ComposedModal
                   open={isOpen?.id === row?.id ? isOpen?.value : false}
                   onClose={(e) => e.target.id === isOpen?.id ? setIsOpen({ id: null, value: false }) : null}
@@ -91,18 +91,16 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
                     <ModalHeader onClick={() => setIsOpen({ id: null, value: false })} />
                   </div>
                   <ModalBody className={modalBody}>
-                    <div className={sourceList}>
-                      <p className={sourceProp}>Name:</p><p>{row?.targetData?.name}</p>
-                    </div>
-                    <div className={sourceList}>
-                      <p className={sourceProp}>Resource type:</p><p>{row?.resource}</p>
-                    </div>
-                    <div className={sourceList}>
-                      <p className={sourceProp}>Project:</p><p>{row?.project}</p>
-                    </div>
-                    <div className={sourceList}>
-                      <p className={sourceProp}>Component:</p><p>Component 1</p>
-                    </div>
+                    <StructuredListWrapper ariaLabel="Structured list">
+                      <StructuredListBody>
+                        {
+                          ['OSLC Project', 'OSLC Stream', 'OSLC Baseline' ].map((properties, index)=><StructuredListRow key={properties}>
+                            <StructuredListCell id={sourceProp}>{properties}</StructuredListCell>
+                            <StructuredListCell id={sourceValue}>{Object.values(sourceDataList)[index]}</StructuredListCell>
+                          </StructuredListRow>)
+                        }
+                      </StructuredListBody>
+                    </StructuredListWrapper>
                   </ModalBody>
                 </ComposedModal>
               </TableCell>

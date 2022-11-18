@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/koneksys_logo.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="Content-Security-Policy" content="frame-src *; child-src *;" >
+  <meta http-equiv="Content-Security-Policy" content="frame-src *; child-src *;">
 
   <title>Link Manager</title>
 </head>
@@ -13,44 +13,6 @@
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
-  <script>
-    window.addEventListener("message", function(event) {
-      // Make sure the message originated from the same origin as the dialog.
-      //if (event.origin !== "http://example.com") {
-      //  return;
-      //}
-
-      // Make sure the message starts with oslc-response:
-      var message = event.data;
-      if (message.indexOf("oslc-response:") !== 0) {
-        return;
-      }
-
-
-
-
-      // Handle each result.
-      var response = JSON.parse(message.substr("oslc-response:".length));
-      var results = response["oslc:results"];
-      let res = "";
-      for (var i = 0; i < results.length; i++) {
-        var label = results[i]["oslc:label"];
-        var uri = results[i]["rdf:resource"];
-        // Handle resource...
-        console.log("This data was received from the Selection Dialog and should be stored")
-        console.log("label: " + label);
-        console.log("uri:" + uri);
-        res = "<div>"+ label + " : " + uri +"</div>";
-      }
-
-      // Remove the dialog from the page.
-      var dialogContainer = document.getElementsByTagName('iframe');
-      let iframe = dialogContainer[0]
-      let target = iframe.parentNode
-      target.removeChild(iframe);
-      target.innerHTML = res;
-    }, false);
-  </script>
 </body>
 
 </html>
