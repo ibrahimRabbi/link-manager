@@ -13,6 +13,33 @@
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
+  <script>
+    window.addEventListener("message", function(event) {
+      // Make sure the message originated from the same origin as the dialog.
+      //if (event.origin !== "http://example.com") {
+      //  return;
+      //}
+
+      // Make sure the message starts with oslc-response:
+      var message = event.data;
+      if (message.indexOf("oslc-response:") !== 0) {
+        return;
+      }
+
+      // Handle each result.
+      var response = JSON.parse(message.substr("oslc-response:".length));
+      var results = response["oslc:results"];
+      for (var i = 0; i < results.length; i++) {
+        var label = results[i]["oslc:label"];
+        var uri = results[i]["rdf:resource"];
+        // Handle resource...
+      }
+
+      // Remove the dialog from the page.
+      var dialogContainer = document.getElementById('dialogContainer');
+      dialogContainer.removeChild(dialogContainer.firstChild);
+    }, false);
+  </script>
 </body>
 
 </html>
