@@ -26,14 +26,13 @@
         return;
       }
 
-      var dialogContainer = document.getElementsByTagName('iframe');
-      let iframe = dialogContainer[0]
-      let target = iframe.parentNode
+
 
 
       // Handle each result.
       var response = JSON.parse(message.substr("oslc-response:".length));
       var results = response["oslc:results"];
+      let res = "";
       for (var i = 0; i < results.length; i++) {
         var label = results[i]["oslc:label"];
         var uri = results[i]["rdf:resource"];
@@ -41,16 +40,15 @@
         console.log("This data was received from the Selection Dialog and should be stored")
         console.log("label: " + label);
         console.log("uri:" + uri);
-        target.innerHTML = "<div>"+ label + " : " + uri +"</div>";
+        res = "<div>"+ label + " : " + uri +"</div>";
       }
 
       // Remove the dialog from the page.
-      // var dialogContainer = document.getElementsByTagName('iframe');
-      // let iframe = dialogContainer[0]
-      // let target = iframe.parent
+      var dialogContainer = document.getElementsByTagName('iframe');
+      let iframe = dialogContainer[0]
+      let target = iframe.parentNode
       target.removeChild(iframe);
-
-
+      target.innerHTML = res;
     }, false);
   </script>
 </body>
