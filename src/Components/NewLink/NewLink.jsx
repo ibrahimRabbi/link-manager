@@ -179,7 +179,7 @@ const NewLink = ({ pageTitle }) => {
           { // Show the selection dialogs
             isJiraApp && <div className={targetIframe}>
               { isBackJiraApp ?
-                <iframe src='https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=AOE' height='550px' width='800px'></iframe>
+                <iframe src='https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=KGCM#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
                 :
                 <iframe src='https://192.241.220.34:9443/rm/pickers/com.ibm.rdm.web.RRCPicker?projectURL=https://192.241.220.34:9443/rm/rm-projects/_VhNr0IEzEeqnsvH-FkjSvQ#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
               }
