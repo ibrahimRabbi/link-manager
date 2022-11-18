@@ -33,10 +33,13 @@
         var label = results[i]["oslc:label"];
         var uri = results[i]["rdf:resource"];
         // Handle resource...
+        console.log("This data was received from the Selection Dialog and should be stored")
+        console.log("label: " + label);
+        console.log("uri:" + uri);
       }
 
       // Remove the dialog from the page.
-      var dialogContainer = document.getElementById('dialogContainer');
+      var dialogContainer = document.getElementsByTagName('iframe');
       dialogContainer.removeChild(dialogContainer.firstChild);
     }, false);
   </script>
