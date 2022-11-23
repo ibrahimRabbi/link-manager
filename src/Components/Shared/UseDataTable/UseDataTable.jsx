@@ -18,6 +18,15 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
   const dispatch=useDispatch();
   const navigate = useNavigate();
 
+  (()=>{
+    if(isWbe){
+      if (tableData?.length <1) {
+        console.log(tableData.length);
+        navigate('/wbe/new-link');
+      }
+    }
+  })();
+
   // Pagination
   const handlePagination = (values) => {
     setPageSize(values.pageSize);
@@ -73,7 +82,7 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
             // Link Manager Table
             (!isCheckBox && tableData[0]) && currTableData?.map((row, i) => <TableRow key={i}>
               <TableCell className={tableCell}>{row?.status === 'Valid' ? <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> : row?.status === 'Invalid' ? <BsExclamationTriangleFill className={`${statusIcon} ${invalidIcon}`} /> : <RiCheckboxBlankFill className={`${statusIcon} ${noStatusIcon}`} />}{row?.status}</TableCell>
-              <TableCell className={tableCell}><p>{sourceDataList?.baseline}</p></TableCell>
+              <TableCell className={tableCell}><p>{row.sources?.baseline}</p></TableCell>
               <TableCell className={tableCell}>{row?.linkType}</TableCell>
 
               {/* --- Table data with modal ---  */}

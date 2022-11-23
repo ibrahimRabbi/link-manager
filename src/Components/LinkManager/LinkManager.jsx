@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleCurrPageTitle, handleEditLinkData, handleGetSources, handleIsWbe } from '../../Redux/slices/linksSlice';
+import { handleCurrPageTitle, handleDisplayLinks, handleEditLinkData, handleGetSources, handleIsWbe } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import { dropdownStyle, inputContainer, linkFileContainer, searchBox, searchContainer, searchInput, tableContainer } from './LinkManager.module.scss';
@@ -19,10 +19,11 @@ const headers = [
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 
 const LinkManager = () => {
-  const { allLinks, targetDataArr, sourceDataList, isWbe } = useSelector(state => state.links);
+  const { allLinks, sourceDataList, isWbe } = useSelector(state => state.links);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location=useLocation();
+  // const [displayLinks, setDisplayLinks]=useState([]);
   const [searchParams] = useSearchParams();
   
   useEffect(()=>{
@@ -40,14 +41,21 @@ const LinkManager = () => {
     const baseline= searchParams.get('commit');
     if(projectName && stream && baseline) dispatch(handleGetSources({projectName, stream, baseline}));
 
-  },[searchParams]);
+  },[searchParams, location]);
 
+  // Get links in localStorage
   useEffect(()=>{
-    // When this application is used from WBE if no link is created then the user is sent to the New Link page.
-    if(isWbe){
-      if(!allLinks?.length) return navigate('/wbe/new-link');
+    let values = [],
+      keys = Object.keys(localStorage),
+      i = keys.length;
+    while ( i-- ) {
+      values.push( JSON.parse(localStorage.getItem(keys[i])) );
     }
-  },[isWbe]);
+
+    const filteredLinksByCommit= values?.filter(id=>id.sources?.baseline === sourceDataList?.baseline);
+    isWbe ? dispatch(handleDisplayLinks(filteredLinksByCommit)) : dispatch(handleDisplayLinks(values));
+    console.log('Get from Local storage: ',values);
+  },[isWbe, localStorage]);
 
   const handleShowItem = () => { };
 
@@ -60,8 +68,7 @@ const LinkManager = () => {
       },
     });
   };
-  console.log(allLinks);
-  console.log(targetDataArr);
+
   return (
     <div className='container'>
       <div className={linkFileContainer}>

@@ -25,7 +25,7 @@ function App() {
     const password =useSessionStorage('get', 'password');
     dispatch(handleLoggedInUser({userName, password}));
     dispatch(handleIsLoading(false));
-  },[]);
+  },[sessionStorage]);
 
   return (
     <div className='App'>

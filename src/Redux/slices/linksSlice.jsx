@@ -69,11 +69,13 @@ export const linksSlice = createSlice({
       state.currPageTitle=payload;
     },
 
-    // create link
+    // create links and store data in the local storage
     handleCreateLink: (state) => {
       if(state.linkType && state.projectType && state.resourceType){
         state.targetDataArr?.forEach((item)=>{
-          state.allLinks.push({id:UniqueID(),sources:state.sourceDataList, linkType:state.linkType, targetProject:state.projectType, targetResource:state.resourceType, targetData: item, status:'No status'});
+          const linkId= UniqueID();
+          const newLinkData ={id:linkId,sources:state.sourceDataList, linkType:state.linkType, targetProject:state.projectType, targetResource:state.resourceType, targetData: item, status:'No status'};
+          localStorage.setItem(String(linkId), JSON.stringify(newLinkData));
         });
         
         Swal.fire({ icon: 'success', title: 'Link successfully created!', timer: 3000 });
@@ -84,6 +86,11 @@ export const linksSlice = createSlice({
         state.targetDataArr=[];
         state.isLinkEdit=false;
       }
+    },
+
+    // created links state update
+    handleDisplayLinks: (state, {payload}) => {
+      state.allLinks=payload;
     },
 
     // edit link first step get data
@@ -156,18 +163,21 @@ export const linksSlice = createSlice({
 
     // status update 
     handleSetStatus: (state, {payload}) => {
-      const link=state.allLinks.find(data=>data?.id=== payload.row?.id);
+      const id=payload.row?.id;
+      localStorage.setItem(id, JSON.stringify({...payload.row, status:payload.status}));
+      const link=state.allLinks.find(data=>data?.id=== id);
       link.status=payload.status;
     },
 
     // delete link
     handleDeleteLink: (state, {payload}) => {
+      localStorage.removeItem(payload.id);
       state.allLinks= state.allLinks.filter(data=>data?.id !== payload?.id);
     },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const {handleIsWbe, handleIsLoading, handleGetSources, handleOslcResponse, handleIsSidebarOpen, handleLoggedInUser, handleCurrPageTitle, handleIsProfileOpen, handleViewLinkDetails, handleCreateLink, handleEditLinkData, handleTargetDataArr, handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
+export const {handleIsWbe, handleIsLoading, handleGetSources, handleOslcResponse, handleIsSidebarOpen, handleLoggedInUser, handleCurrPageTitle, handleIsProfileOpen, handleViewLinkDetails, handleCreateLink, handleDisplayLinks, handleEditLinkData, handleTargetDataArr, handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
 
 export default linksSlice.reducer;

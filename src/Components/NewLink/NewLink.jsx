@@ -1,6 +1,5 @@
 import { Button, Checkbox, Search, StructuredListBody, StructuredListCell, StructuredListRow, StructuredListWrapper } from '@carbon/react';
 import React, { useEffect, useState } from 'react';
-import { useCookies } from 'react-cookie';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -24,25 +23,18 @@ const headers = [
 ];
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
-  const {isWbe, oslcResponse, sourceDataList, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);
+  const {isWbe, oslcResponse, sourceDataList,allLinks, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [isJiraApp, setIsJiraApp] = useState(false);
   const [isBackJiraApp, setIsBackJiraApp] = useState(false);
   const [displayTableData, setDisplayTableData] = useState([]);
-  const [cookies, setCookie] = useCookies(['LtpaToken2']);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
 
   useEffect(()=>{
     dispatch(handleCurrPageTitle(isEditLinkPage ? isEditLinkPage : 'New Link'));
-  },[]);
-
-  useEffect(()=>{
-    if(cookies?.LtpaToken2){
-      setCookie('LtpaToken2', {secure:true, sameSite:'none'});
-    }
   },[]);
 
   useEffect(()=>{
@@ -55,7 +47,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       setIsBackJiraApp(projectType?.includes('Backend (JIRA)'));
       setIsJiraApp(projectType?.includes('JIRA'));
     }
-
   },[projectType]);
 
   // Edit link options start
@@ -79,16 +70,15 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     // }
   }, [searchText]);
 
-  const handleSearchData = data => {
+  const handleSearchData = (data) => {
     dispatch(handleTargetDataArr(null));
     fetch('https://192.241.220.34:9443/jts/j_security_check?j_username=koneksys&j_password=koneksys')
       .then(res =>  console.log(res))
       .catch((err) => console.log(err));
-        
     setSearchText(data?.searchText);
   };
 
-  //// Get Selection response data
+  //// Get Selection dialog response data
   window.addEventListener('message', function (event) {
     let message = event.data;
     if(!message.source && !oslcResponse) {
@@ -106,8 +96,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   }, false);
 
   useEffect(()=>{
-    if(oslcResponse) handleSaveLink();
+    if(oslcResponse) {
+      handleSaveLink();
+    }
   },[oslcResponse]);
+  
   // Link type dropdown
   const handleLinkTypeChange = ({ selectedItem }) => {
     dispatch(handleProjectType(null));
@@ -255,8 +248,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             </>
           }
 
+
         </div>
       }
+      {(allLinks[0] && isWbe) && <div className={'see-btn'}>
+        <Button kind='primary' onClick={()=>isWbe ? navigate('/wbe'): navigate('/')} size='md'>See created links</Button>
+      </div>}
     </div>
   );
 };
