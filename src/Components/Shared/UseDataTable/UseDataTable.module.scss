@@ -93,13 +93,12 @@
     border-radius: 10px;
 }
 
-.sourceList {
-    display: flex;
-    align-items: center;
-    margin-left: 10px;
+#sourceProp {
+    border-right: 1px solid lightgray;
+    padding: 8px;
+    width: 30%;
 }
 
-.sourceProp {
-    width: 100px;
-    color: colors.$gray-60;
+#sourceValue {
+    padding: 8px;
 }

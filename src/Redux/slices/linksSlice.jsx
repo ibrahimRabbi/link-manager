@@ -1,11 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit';
+import Swal from 'sweetalert2';
 import UniqueID from '../../Components/Shared/UniqueID/UniqueID';
 import useSessionStorage from '../../Components/Shared/UseSessionStorage/UseSessionStorage';
 
 const initialState = {
   sourceDataList:{},
   isWbe:false,
-  sourceCommit: '',
+  isLinkCreate:false,
+  oslcResponse: null,
   isSidebarOpen:false,
   currPageTitle:'',
   isLoading:false,
@@ -35,11 +37,7 @@ export const linksSlice = createSlice({
 
     // get sources in wbe
     handleGetSources: (state, {payload}) => {
-      state.sourceDataList.source=payload.source;
-      state.sourceDataList.project=payload.project;
-      state.sourceDataList.component=payload.repository;
-      state.sourceDataList.stream=payload.branch;
-      state.sourceDataList.baseline=payload.commit;
+      state.sourceDataList =payload;
     },
 
     handleIsSidebarOpen: (state, {payload}) => {
@@ -48,6 +46,10 @@ export const linksSlice = createSlice({
 
     handleViewLinkDetails: (state, {payload}) => {
       state.linkedData=payload;
+    },
+
+    handleOslcResponse: (state, {payload}) => {
+      state.oslcResponse=payload;
     },
 
     handleLoggedInUser: (state, {payload}) => {      
@@ -67,16 +69,28 @@ export const linksSlice = createSlice({
       state.currPageTitle=payload;
     },
 
-    // create link
+    // create links and store data in the local storage
     handleCreateLink: (state) => {
-      state.targetDataArr?.forEach((item)=>{
-        state.allLinks.push({id:UniqueID(),targetData:item,linkType:state.linkType, project:state.projectType, resource:state.resourceType,status:'No status'});
-      });
-      state.linkType =null;
-      state.projectType =null;
-      state.resourceType =null;
-      state.targetDataArr=[];
-      state.isLinkEdit=false;
+      if(state.linkType && state.projectType && state.resourceType){
+        state.targetDataArr?.forEach((item)=>{
+          const linkId= UniqueID();
+          const newLinkData ={id:linkId,sources:state.sourceDataList, linkType:state.linkType, targetProject:state.projectType, targetResource:state.resourceType, targetData: item, status:'No status'};
+          localStorage.setItem(String(linkId), JSON.stringify(newLinkData));
+        });
+        
+        Swal.fire({ icon: 'success', title: 'Link successfully created!', timer: 3000 });
+        state.linkType =null;
+        state.projectType =null;
+        state.resourceType =null;
+        state.oslcResponse = null;
+        state.targetDataArr=[];
+        state.isLinkEdit=false;
+      }
+    },
+
+    // created links state update
+    handleDisplayLinks: (state, {payload}) => {
+      state.allLinks=payload;
     },
 
     // edit link first step get data
@@ -84,6 +98,7 @@ export const linksSlice = createSlice({
       state.linkType =null;
       state.projectType =null;
       state.resourceType =null;
+      state.oslcResponse =null;
       state.editTargetData=payload?.targetData;
       state.editLinkData=payload;
     },
@@ -109,18 +124,19 @@ export const linksSlice = createSlice({
 
     // get multiple target data
     handleTargetDataArr: (state, {payload}) => {
-      if(payload){
-        const {data, value}=payload;
-        if(value?.isChecked){
-          state.targetDataArr.push(data);
-        }
-        else{
-          state.targetDataArr=state.targetDataArr.filter(item=>item?.identifier !==value.id);
-        }
-      }
-      else{
-        state.targetDataArr=[];
-      }
+      // if(payload){
+      //   const {data, value}=payload;
+      //   if(value?.isChecked){
+      //     state.targetDataArr.push(data);
+      //   }
+      //   else{
+      //     state.targetDataArr=state.targetDataArr.filter(item=>item?.identifier !==value.id);
+      //   }
+      // }
+      // else{
+      //   state.targetDataArr=[];
+      // }
+      state.targetDataArr = payload;
     },
 
     handleLinkType: (state, {payload}) => {
@@ -142,22 +158,26 @@ export const linksSlice = createSlice({
       state.resourceType =null;
       state.editTargetData={};
       state.targetDataArr=[];
+      state.oslcResponse = null;
     },
 
     // status update 
     handleSetStatus: (state, {payload}) => {
-      const link=state.allLinks.find(data=>data?.id=== payload.row?.id);
+      const id=payload.row?.id;
+      localStorage.setItem(id, JSON.stringify({...payload.row, status:payload.status}));
+      const link=state.allLinks.find(data=>data?.id=== id);
       link.status=payload.status;
     },
 
     // delete link
     handleDeleteLink: (state, {payload}) => {
+      localStorage.removeItem(payload.id);
       state.allLinks= state.allLinks.filter(data=>data?.id !== payload?.id);
     },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const {handleIsWbe, handleIsLoading, handleGetSources, handleIsSidebarOpen, handleLoggedInUser, handleCurrPageTitle, handleIsProfileOpen, handleViewLinkDetails, handleCreateLink, handleEditLinkData, handleTargetDataArr,handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
+export const {handleIsWbe, handleIsLoading, handleGetSources, handleOslcResponse, handleIsSidebarOpen, handleLoggedInUser, handleCurrPageTitle, handleIsProfileOpen, handleViewLinkDetails, handleCreateLink, handleDisplayLinks, handleEditLinkData, handleTargetDataArr, handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
 
 export default linksSlice.reducer;

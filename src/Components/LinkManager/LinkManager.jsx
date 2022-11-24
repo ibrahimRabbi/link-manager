@@ -1,9 +1,9 @@
 import { Button, Search } from '@carbon/react';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleCurrPageTitle, handleEditLinkData, handleGetSources, handleIsWbe } from '../../Redux/slices/linksSlice';
+import { handleCurrPageTitle, handleDisplayLinks, handleEditLinkData, handleGetSources, handleIsWbe } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import { dropdownStyle, inputContainer, linkFileContainer, searchBox, searchContainer, searchInput, tableContainer } from './LinkManager.module.scss';
@@ -23,27 +23,44 @@ const LinkManager = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location=useLocation();
-  const {id}=useParams();
+  const [searchParams] = useSearchParams();
   
   useEffect(()=>{
     dispatch(handleCurrPageTitle('OSLC Link Manager'));
     
+    // Checking if this application is being used from WBE
     if(location.pathname){
       const currPath =location.pathname.split('/');
       dispatch(handleIsWbe(currPath[1] === 'wbe' ? true : false));
     }
-    
-    if(id){
-      const sources=id.split('__');
-      dispatch(handleGetSources({project: sources[0], repository:sources[1], branch:sources[2], commit:sources[3], source:sources[4]}));
-    }
-  },[]);
 
+    // Receive Gitlab values and display source section
+    const projectName =searchParams.get('project');
+    const stream= searchParams.get('branch');
+    const baseline= searchParams.get('commit');
+    if(projectName && stream && baseline) dispatch(handleGetSources({projectName, stream, baseline}));
+
+  },[searchParams, location]);
+
+  // Get links in localStorage
   useEffect(()=>{
-    if(isWbe){
-      if(!allLinks?.length) return navigate('/wbe/new-link');
+    let values = [],
+      keys = Object.keys(localStorage),
+      i = keys.length;
+    while ( i-- ) {
+      values.push( JSON.parse(localStorage.getItem(keys[i])) );
     }
-  },[isWbe]);
+
+    const filteredLinksByCommit= values?.filter(id=>id.sources?.baseline === sourceDataList?.baseline);
+    if(isWbe){
+      dispatch(handleDisplayLinks(filteredLinksByCommit));
+      if(!filteredLinksByCommit.length) navigate('/wbe/new-link');
+    }
+    else{
+      dispatch(handleDisplayLinks(values));
+    }
+    console.log('Get from Local storage: ',values);
+  },[isWbe, localStorage]);
 
   const handleShowItem = () => { };
 
@@ -56,6 +73,7 @@ const LinkManager = () => {
       },
     });
   };
+
   return (
     <div className='container'>
       <div className={linkFileContainer}>

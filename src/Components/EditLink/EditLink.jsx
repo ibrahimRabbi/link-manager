@@ -6,10 +6,10 @@ import NewLink from '../NewLink/NewLink';
 const EditLink = () => {
   const navigate=useNavigate();
   const {editLinkData}=useSelector(state=>state.links);
-  if(!editLinkData?.id)  navigate('/link-manager');
+  if(!editLinkData?.id)  navigate('/');
   
   return (
-    <NewLink pageTitle='Edit link'/>
+    <NewLink isEditLinkPage='Edit link'/>
   );
 };
 

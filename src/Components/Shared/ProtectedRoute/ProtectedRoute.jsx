@@ -10,8 +10,9 @@ const ProtectedRoute = ({ children }) => {
   if (loggedInUser?.userName) {
     return children;
   }
-
-  return <Navigate to='/login' state={{ from: location }} />;
+  else{
+    return <Navigate to='/login' state={{ from: location }} />;
+  }
 };
 
 export default ProtectedRoute;

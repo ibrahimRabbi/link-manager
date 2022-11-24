@@ -15,25 +15,26 @@ import LoginPage from './Pages/Login';
 import WbeDashboard from './Pages/WbeDashboard';
 import { handleIsLoading, handleLoggedInUser } from './Redux/slices/linksSlice';
 
+
 function App() {
   const dispatch=useDispatch();
+
   useEffect(()=>{
     dispatch(handleIsLoading(true));
     const userName =useSessionStorage('get', 'userName');
     const password =useSessionStorage('get', 'password');
     dispatch(handleLoggedInUser({userName, password}));
     dispatch(handleIsLoading(false));
-  },[]);
+  },[sessionStorage]);
 
   return (
     <div className='App'>
       <Routes>
         <Route path='/wbe' element={<ProtectedRoute><WbeDashboard/></ProtectedRoute>}>
-          <Route path='/wbe/:id' element={<LinkManager />} />
+          <Route path='/wbe' element={<LinkManager />} />
           <Route path='/wbe/new-link' element={<NewLink />} />
           <Route path='/wbe/edit-link/:id' element={<EditLink />} />
           <Route path='/wbe/details/:id' element={<LinkDetails />} />
-          <Route path='/wbe' element={<LinkManager />} />
         </Route>
 
 
