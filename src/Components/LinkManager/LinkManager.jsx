@@ -23,7 +23,6 @@ const LinkManager = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const location=useLocation();
-  // const [displayLinks, setDisplayLinks]=useState([]);
   const [searchParams] = useSearchParams();
   
   useEffect(()=>{
@@ -53,7 +52,13 @@ const LinkManager = () => {
     }
 
     const filteredLinksByCommit= values?.filter(id=>id.sources?.baseline === sourceDataList?.baseline);
-    isWbe ? dispatch(handleDisplayLinks(filteredLinksByCommit)) : dispatch(handleDisplayLinks(values));
+    if(isWbe){
+      dispatch(handleDisplayLinks(filteredLinksByCommit));
+      if(!filteredLinksByCommit.length) navigate('/wbe/new-link');
+    }
+    else{
+      dispatch(handleDisplayLinks(values));
+    }
     console.log('Get from Local storage: ',values);
   },[isWbe, localStorage]);
 

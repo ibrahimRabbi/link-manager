@@ -17,15 +17,7 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
   const [pageSize, setPageSize] = useState(10);
   const dispatch=useDispatch();
   const navigate = useNavigate();
-
-  (()=>{
-    if(isWbe){
-      if (tableData?.length <1) {
-        console.log(tableData.length);
-        navigate('/wbe/new-link');
-      }
-    }
-  })();
+  
 
   // Pagination
   const handlePagination = (values) => {

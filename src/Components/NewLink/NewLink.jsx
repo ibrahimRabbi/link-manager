@@ -138,9 +138,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   };
 
   // Create new link 
-  const handleSaveLink = () => {
+  const handleSaveLink = async () => {
     if (linkType && projectType && resourceType) {
-      dispatch(handleCreateLink());
+      await dispatch(handleCreateLink());
       isWbe ? navigate('/wbe') : navigate('/');
     }
     else if(linkType && projectType && !resourceType) {
