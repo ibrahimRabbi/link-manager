@@ -22,25 +22,21 @@ const LinkManager = () => {
   const { allLinks, sourceDataList, isWbe } = useSelector(state => state.links);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const location=useLocation();
   const [searchParams] = useSearchParams();
+  const {pathname}=useLocation();
+
+  const isWBE = pathname === '/wbe';
+  // Receive Gitlab values and display source section
+  const baseline= searchParams.get('commit');
+  const projectName =searchParams.get('project');
+  const stream= searchParams.get('branch');
+  const origin= searchParams.get('origin');
   
   useEffect(()=>{
+    dispatch(handleIsWbe(isWBE));
     dispatch(handleCurrPageTitle('OSLC Link Manager'));
-    
-    // Checking if this application is being used from WBE
-    if(location.pathname){
-      const currPath =location.pathname.split('/');
-      dispatch(handleIsWbe(currPath[1] === 'wbe' ? true : false));
-    }
-
-    // Receive Gitlab values and display source section
-    const projectName =searchParams.get('project');
-    const stream= searchParams.get('branch');
-    const baseline= searchParams.get('commit');
-    if(projectName && stream && baseline) dispatch(handleGetSources({projectName, stream, baseline}));
-
-  },[searchParams, location]);
+    if(baseline) dispatch(handleGetSources({projectName, stream, baseline, origin}));
+  },[isWBE, baseline, pathname]);
 
   // Get links in localStorage
   useEffect(()=>{
@@ -54,13 +50,15 @@ const LinkManager = () => {
     const filteredLinksByCommit= values?.filter(id=>id.sources?.baseline === sourceDataList?.baseline);
     if(isWbe){
       dispatch(handleDisplayLinks(filteredLinksByCommit));
-      if(!filteredLinksByCommit.length) navigate('/wbe/new-link');
+      setTimeout(()=>{
+        if(!allLinks.length && sourceDataList?.baseline) navigate('/wbe/new-link');
+      },100);
     }
     else{
       dispatch(handleDisplayLinks(values));
     }
     console.log('Get from Local storage: ',values);
-  },[isWbe, localStorage]);
+  },[isWbe, localStorage, allLinks.length]);
 
   const handleShowItem = () => { };
 
