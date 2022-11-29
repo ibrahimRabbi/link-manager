@@ -51,7 +51,7 @@ const LinkManager = () => {
     if(isWbe){
       dispatch(handleDisplayLinks(filteredLinksByCommit));
       setTimeout(()=>{
-        if(!allLinks.length && sourceDataList?.baseline) navigate('/wbe/new-link');
+        if(!filteredLinksByCommit.length && sourceDataList?.baseline) navigate('/wbe/new-link');
       },100);
     }
     else{
