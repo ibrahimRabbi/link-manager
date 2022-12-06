@@ -157,7 +157,32 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     isWbe ? navigate('/wbe') : navigate('/');
   };
 
+
+  // Create Link
+  // useEffect(()=>{
+  //   console.log('Bearer' + loggedInUser?.token);
+  //   fetch('http://lm-api-dev.koneksys.com/api/v1/link', {
+  //     method:'POST', 
+  //     headers:{
+  //       'Content-type':'application/json',
+  //       'authorization':'Bearer '+ loggedInUser?.token,
+  //     },
+  //     body:JSON.stringify({
+  //       source_type: 'Requirement',
+  //       source_id: '0112',
+  //       source_uri: 'http://abc.def',
+  //       target_type: 'Story',
+  //       target_id: '1122',
+  //       target_uri: 'http://xyz.abc',
+  //       relation: 'Completed_by'
+  //     })
+  //   })
+  //     .then(res => res.json())
+  //     .then((res)=>console.log(res)) 
+  //     .catch(err=>console.log(err));
+  // },[]);
   // Create new link 
+  
   const handleSaveLink = async () => {
     if (linkType && projectType && resourceType) {
       await dispatch(handleCreateLink());

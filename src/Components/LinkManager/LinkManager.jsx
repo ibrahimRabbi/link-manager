@@ -32,24 +32,39 @@ const LinkManager = () => {
   const stream= searchParams.get('branch');
   const origin= searchParams.get('origin');
 
-  // Test API 
+
+  // Create link here as a test purpose
+  // useEffect(()=>{
+  //   console.log('Bearer' + loggedInUser?.token);
+  //   fetch('http://lm-api-dev.koneksys.com/api/v1/link', {
+  //     method:'POST', 
+  //     headers:{
+  //       'Content-type':'application/json',
+  //       'authorization':'Bearer '+ loggedInUser?.token,
+  //     },
+  //     body:JSON.stringify({
+  //       source_type: 'Requirement Sources',
+  //       source_id: '0112',
+  //       source_uri: 'http://abc.def/asdfjkl;',
+  //       target_type: 'bug',
+  //       target_id: '001122',
+  //       target_uri: 'http://xyz.abc/adsfjkl;',
+  //       relation: 'Validate_by'
+  //     })
+  //   })
+  //     .then(res => res.json())
+  //     .then((res)=>console.log(res)) 
+  //     .catch(err=>console.log(err));
+  // },[]);
+
+  // Get Created Link
   useEffect(()=>{
-    console.log('Bearer' + loggedInUser?.token);
-    fetch('http://lm-api-dev.koneksys.com/api/v1/link', {
-      method:'POST', 
+    fetch('http://lm-api-dev.koneksys.com/api/v1/link/Completed_by', {
+      method:'GET', 
       headers:{
         'Content-type':'application/json',
         'authorization':'Bearer '+ loggedInUser?.token,
-      },
-      body:JSON.stringify({
-        source_type: 'Requirement',
-        source_id: '0112',
-        source_uri: 'http://abc.def',
-        target_type: 'Story',
-        target_id: '1122',
-        target_uri: 'http://xyz.abc',
-        relation: 'Completed_by'
-      })
+      }
     })
       .then(res => res.json())
       .then((res)=>console.log(res)) 
