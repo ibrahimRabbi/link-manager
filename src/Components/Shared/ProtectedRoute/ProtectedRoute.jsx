@@ -17,12 +17,12 @@ const ProtectedRoute = ({ children }) => {
 
   useEffect(()=>{
     dispatch(handleIsWbe(isWBE));
-    if(baseline) dispatch(handleGetSources({projectName, stream, baseline, origin}));
+    if(baseline) dispatch(handleGetSources({projectName, baseline, stream, origin}));
   },[ baseline]);
 
   if(isLoading) return <h1 className='text-center'>Loading...</h1>;
-
-  if (!loggedInUser?.userName) {
+  
+  if (!loggedInUser?.token) {
     return <Navigate to='/login' state={{ from: location }} />;
   }
   else{

@@ -37,6 +37,23 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     dispatch(handleCurrPageTitle(isEditLinkPage ? isEditLinkPage : 'New Link'));
   },[]);
 
+  // Get link type 
+  useEffect(()=>{
+    const origin =sourceDataList?.origin;
+    const sourceId = origin === 'https://gitlab.com'? 'gitlab': origin === 'https://github.com'? 'github' : origin === 'https://bitbucket.org' ? 'bitbucket' : 'gitlab';
+    console.log(sourceId);
+    // fetch('http://lm-api-dev.koneksys.com/api/v1/auth/login', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'Authorization':'Basic bWFyaW86YWRtaW4='
+    //   }
+    // })
+    //   .then(res => res.json())
+    //   .then((res)=>console.log(res))
+    //   .catch(err=>console.log(err));
+  },[]);
+
   useEffect(()=>{
     isEditLinkPage?null: dispatch(handleCancelLink());
   },[location?.pathname]);
@@ -82,14 +99,17 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   window.addEventListener('message', function (event) {
     let message = event.data;
     if(!message.source && !oslcResponse) {
+      console.log(oslcResponse);
+      console.log(message);
       const response = JSON.parse(message?.substr('oslc-response:'.length));
       const results = response['oslc:results'];
       const targetArray =[];
       for (let i = 0; i < results.length; i++) {
         const label = results[i]['oslc:label'];
         const uri = results[i]['rdf:resource'];
+        const type = results[i]['rdf:type'];
         targetArray.push({uri, label});
-        dispatch(handleOslcResponse({uri, label}));
+        dispatch(handleOslcResponse({uri, label, type}));
       }
       dispatch(handleTargetDataArr([...targetArray]));
     }
@@ -161,7 +181,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         <StructuredListWrapper ariaLabel="Structured list">
           <StructuredListBody>
             {
-              ['OSLC Project', 'OSLC Stream', 'OSLC Baseline' ].map((properties, index)=><StructuredListRow key={properties}>
+              ['GitLab repository', 'Title', 'ID', ].map((properties, index)=><StructuredListRow key={properties}>
                 <StructuredListCell id={sourceProp}>{properties}</StructuredListCell>
                 <StructuredListCell id={sourceValue}>{Object.values(sourceDataList)[index]}</StructuredListCell>
               </StructuredListRow>)

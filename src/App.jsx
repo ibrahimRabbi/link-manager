@@ -21,9 +21,10 @@ function App() {
 
   useEffect(()=>{
     dispatch(handleIsLoading(true));
+    const token =useSessionStorage('get', 'token');
     const userName =useSessionStorage('get', 'userName');
     const password =useSessionStorage('get', 'password');
-    dispatch(handleLoggedInUser({userName, password}));
+    dispatch(handleLoggedInUser({token, userName, password}));
     dispatch(handleIsLoading(false));
   },[sessionStorage]);
 

@@ -56,6 +56,7 @@ export const linksSlice = createSlice({
       state.loggedInUser=payload;
       
       if(!payload) {
+        useSessionStorage('remove', 'token');
         useSessionStorage('remove', 'userName');
         useSessionStorage('remove', 'password');
       }

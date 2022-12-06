@@ -19,7 +19,7 @@ const headers = [
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 
 const LinkManager = () => {
-  const { allLinks, sourceDataList, isWbe } = useSelector(state => state.links);
+  const {loggedInUser, allLinks, sourceDataList, isWbe } = useSelector(state => state.links);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
@@ -31,6 +31,30 @@ const LinkManager = () => {
   const projectName =searchParams.get('project');
   const stream= searchParams.get('branch');
   const origin= searchParams.get('origin');
+
+  // Test API 
+  useEffect(()=>{
+    console.log('Bearer' + loggedInUser?.token);
+    fetch('http://lm-api-dev.koneksys.com/api/v1/link', {
+      method:'POST', 
+      headers:{
+        'Content-type':'application/json',
+        'authorization':'Bearer '+ loggedInUser?.token,
+      },
+      body:JSON.stringify({
+        source_type: 'Requirement',
+        source_id: '0112',
+        source_uri: 'http://abc.def',
+        target_type: 'Story',
+        target_id: '1122',
+        target_uri: 'http://xyz.abc',
+        relation: 'Completed_by'
+      })
+    })
+      .then(res => res.json())
+      .then((res)=>console.log(res)) 
+      .catch(err=>console.log(err));
+  },[]);
   
   useEffect(()=>{
     dispatch(handleIsWbe(isWBE));
@@ -57,7 +81,7 @@ const LinkManager = () => {
     else{
       dispatch(handleDisplayLinks(values));
     }
-    console.log('Get from Local storage: ',values);
+    // console.log('Get all links from Local storage: ',values);
   },[isWbe, localStorage, allLinks.length]);
 
   const handleShowItem = () => { };
