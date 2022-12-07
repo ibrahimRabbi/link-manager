@@ -16,12 +16,18 @@ const Login = () => {
   const {state}=useLocation();
   const navigate=useNavigate();
   const dispatch=useDispatch();
+
+  // useEffect(()=>{
+  //   const token =useSessionStorage('get', 'token');
+  //   dispatch(handleLoggedInUser({token}));
+  //   console.log('this is token', loggedInUser);
+  // },[]);
   
   // redirect management
   useEffect(()=>{
-    const userName =useSessionStorage('get', 'userName');
-    if(userName && state?.from?.pathname) navigate(state?.from?.pathname);
-    else if(userName) navigate('/');
+    const token =useSessionStorage('get', 'token');
+    if(token && state?.from?.pathname) navigate(state?.from?.pathname);
+    else if(token) navigate('/');
   }, [loggedInUser]);
 
   // handle form submit
@@ -39,7 +45,8 @@ const Login = () => {
         return res.json();
       })
       .then(data=>{
-        useSessionStorage('set','token', data.access_token);
+        useSessionStorage('set','token', window.btoa(data.access_token));
+        console.log(data.access_token);
       })
       .catch(err=>console.log(err));
 
@@ -48,7 +55,6 @@ const Login = () => {
     if(token && state?.from?.pathname) navigate(state?.from?.pathname);
     else if(token) navigate('/');
   };
-
 
   return (
     <div className={main}>
