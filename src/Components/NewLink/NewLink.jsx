@@ -42,16 +42,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     const origin =sourceDataList?.origin;
     const sourceId = origin === 'https://gitlab.com'? 'gitlab': origin === 'https://github.com'? 'github' : origin === 'https://bitbucket.org' ? 'bitbucket' : 'gitlab';
     console.log(sourceId);
-    // fetch('http://lm-api-dev.koneksys.com/api/v1/auth/login', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'Authorization':'Basic bWFyaW86YWRtaW4='
-    //   }
-    // })
-    //   .then(res => res.json())
-    //   .then((res)=>console.log(res))
-    //   .catch(err=>console.log(err));
   },[]);
 
   useEffect(()=>{

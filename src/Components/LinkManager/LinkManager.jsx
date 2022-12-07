@@ -59,16 +59,36 @@ const LinkManager = () => {
 
   // Get Created Link
   useEffect(()=>{
-    fetch('http://lm-api-dev.koneksys.com/api/v1/link/Completed_by', {
+    fetch('https://lm-api-dev.koneksys.com/api/v1/link/Completed_by', {
       method:'GET', 
       headers:{
         'Content-type':'application/json',
         'authorization':'Bearer '+ loggedInUser?.token,
       }
     })
-      .then(res => res.json())
-      .then((res)=>console.log(res)) 
-      .catch(err=>console.log(err));
+      .then(response => {
+        return response.json();
+      })
+      .then(data => {
+        // return data;
+        const transformedData = data.map((link) => {
+          return {
+            ...link,
+            identifier: link.uri,
+            name: link.name,
+            description: link.name,
+            status: 'Valid',
+            sources: {baseline: link.uri},
+            linkType: 'Completed_by',
+            targetData: {label: link.name + ' - ' + link.uri}
+          };
+        });
+        dispatch(handleDisplayLinks(transformedData));
+      })
+      .catch(err=>{
+        console.log('ERROR: ', err);
+        return err;
+      });
   },[]);
   
   useEffect(()=>{
@@ -88,13 +108,13 @@ const LinkManager = () => {
 
     const filteredLinksByCommit= values?.filter(id=>id.sources?.baseline === sourceDataList?.baseline);
     if(isWbe){
-      dispatch(handleDisplayLinks(filteredLinksByCommit));
+      if (filteredLinksByCommit) dispatch(handleDisplayLinks(filteredLinksByCommit));
       setTimeout(()=>{
         if(!filteredLinksByCommit.length && sourceDataList?.baseline) navigate('/wbe/new-link');
       },100);
     }
     else{
-      dispatch(handleDisplayLinks(values));
+      if (values.length > 0) dispatch(handleDisplayLinks(values));
     }
     // console.log('Get all links from Local storage: ',values);
   },[isWbe, localStorage, allLinks.length]);

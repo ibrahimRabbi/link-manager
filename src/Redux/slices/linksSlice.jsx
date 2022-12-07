@@ -57,8 +57,6 @@ export const linksSlice = createSlice({
       
       if(!payload) {
         useSessionStorage('remove', 'token');
-        useSessionStorage('remove', 'userName');
-        useSessionStorage('remove', 'password');
       }
     },
 
