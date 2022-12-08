@@ -88,10 +88,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   //// Get Selection dialog response data
   window.addEventListener('message', function (event) {
     let message = event.data;
+    console.log(message);
     if(!message.source && !oslcResponse) {
-      console.log(oslcResponse);
-      console.log(message);
-      const response = JSON.parse(message?.substr('oslc-response:'.length));
+      const response = JSON.parse(message?.substr('oslc-response:'?.length));
       const results = response['oslc:results'];
       const targetArray =[];
       for (let i = 0; i < results.length; i++) {
@@ -148,31 +147,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   };
 
 
-  // Create Link
-  // useEffect(()=>{
-  //   console.log('Bearer' + loggedInUser?.token);
-  //   fetch('http://lm-api-dev.koneksys.com/api/v1/link', {
-  //     method:'POST', 
-  //     headers:{
-  //       'Content-type':'application/json',
-  //       'authorization':'Bearer '+ loggedInUser?.token,
-  //     },
-  //     body:JSON.stringify({
-  //       source_type: 'Requirement',
-  //       source_id: '0112',
-  //       source_uri: 'http://abc.def',
-  //       target_type: 'Story',
-  //       target_id: '1122',
-  //       target_uri: 'http://xyz.abc',
-  //       relation: 'Completed_by'
-  //     })
-  //   })
-  //     .then(res => res.json())
-  //     .then((res)=>console.log(res)) 
-  //     .catch(err=>console.log(err));
-  // },[]);
   // Create new link 
-  
   const handleSaveLink = async () => {
     if (linkType && projectType && resourceType) {
       await dispatch(handleCreateLink());
@@ -188,15 +163,15 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     dispatch(handleCancelLink());
     isWbe ? navigate('/wbe') : navigate('/');
   };
-
+  
   return (
     <div className='container'>
       <div className={sourceContainer}>
         <h5>Source</h5>
-        <StructuredListWrapper ariaLabel="Structured list">
+        <StructuredListWrapper ariaLabel='Structured list'>
           <StructuredListBody>
             {
-              ['GitLab repository', 'Title', 'ID', ].map((properties, index)=><StructuredListRow key={properties}>
+              ['GitLab Project', 'GitLab Branch', 'Filename', 'URI'].map((properties, index)=><StructuredListRow key={properties}>
                 <StructuredListCell id={sourceProp}>{properties}</StructuredListCell>
                 <StructuredListCell id={sourceValue}>{Object.values(sourceDataList)[index]}</StructuredListCell>
               </StructuredListRow>)
@@ -211,7 +186,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         <UseDropdown items={targetProjectItems} onChange={handleTargetProject} title='Target project' selectedValue={editLinkData?.project} label={'Select target project'} id='project-dropdown' className={dropdownStyle}/>
         
         {
-          (linkType && projectType || isEditLinkPage) && 
+          (linkType && !isJiraApp || isEditLinkPage) && 
             <UseDropdown items={targetResourceItems} onChange={handleTargetResource}  title='Target resource type' selectedValue={editLinkData?.resource} label={'Select target resource type'} id='resourceType-dropdown' className={dropdownStyle}/>
         }
       </div>

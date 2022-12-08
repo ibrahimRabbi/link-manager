@@ -9,16 +9,17 @@ const ProtectedRoute = ({ children }) => {
   let location = useLocation();
   const dispatch =useDispatch();
   const [searchParams] = useSearchParams();
-  const baseline= searchParams.get('commit');
   const projectName =searchParams.get('project');
-  const stream= searchParams.get('branch');
+  const title =searchParams.get('title');
+  const uri =searchParams.get('uri');
+  const branch= searchParams.get('branch');
   const origin= searchParams.get('origin');
   const isWBE = location.pathname === '/wbe';
 
   useEffect(()=>{
     dispatch(handleIsWbe(isWBE));
-    if(baseline) dispatch(handleGetSources({projectName, baseline, stream, origin}));
-  },[ baseline, sessionStorage]);
+    if(uri) dispatch(handleGetSources({projectName, branch, title, uri, origin}));
+  },[ uri, sessionStorage]);
 
   if(isLoading) return <h1 className='text-center'>Loading...</h1>;
   

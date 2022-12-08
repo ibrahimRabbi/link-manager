@@ -1,28 +1,22 @@
 import { ArrowRight } from '@carbon/icons-react';
-import { Button, PasswordInput, TextInput } from '@carbon/react';
+import { Button, PasswordInput, ProgressBar, TextInput } from '@carbon/react';
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { handleLoggedInUser } from '../../Redux/slices/linksSlice';
+import { handleIsLoading, handleLoggedInUser } from '../../Redux/slices/linksSlice';
 import useSessionStorage from '../Shared/UseSessionStorage/UseSessionStorage';
 import style from './Login.module.scss';
 
 const {main,container, title, formContainer, btnContainer, titleSpan, errText}=style;
 
 const Login = () => {
-  const {loggedInUser}=useSelector(state=>state.links);
+  const {loggedInUser, isLoading}=useSelector(state=>state.links);
   const {handleSubmit, register, formState:{errors}}=useForm();
   const {state}=useLocation();
   const navigate=useNavigate();
   const dispatch=useDispatch();
 
-  // useEffect(()=>{
-  //   const token =useSessionStorage('get', 'token');
-  //   dispatch(handleLoggedInUser({token}));
-  //   console.log('this is token', loggedInUser);
-  // },[]);
-  
   // redirect management
   useEffect(()=>{
     const token =useSessionStorage('get', 'token');
@@ -31,7 +25,8 @@ const Login = () => {
   }, [loggedInUser]);
 
   // handle form submit
-  const onSubmit=async(data)=>{
+  const onSubmit = async (data)=>{
+    dispatch(handleIsLoading(true));
     const loginURL ='https://lm-api-dev.koneksys.com/api/v1/auth/login';
     const authdata = window.btoa(data.userName + ':' + data.password);
     await fetch(loginURL, {
@@ -41,24 +36,25 @@ const Login = () => {
         'Authorization': 'Basic ' + authdata
       }
     })
-      .then(res => {
-        return res.json();
-      })
+      .then(res => res.json())
       .then(data=>{
-        useSessionStorage('set','token', window.btoa(data.access_token));
-        console.log(data.access_token);
+        dispatch(handleIsLoading(false));
+        const token =data.access_token;
+        useSessionStorage('set','token', window.btoa(token));
+        dispatch(handleLoggedInUser({token}));
+        if(token && state?.from?.pathname) navigate(state?.from?.pathname);
+        else if(token) navigate('/');
       })
-      .catch(err=>console.log(err));
-
-    const token =useSessionStorage('get', 'token');
-    dispatch(handleLoggedInUser({token}));
-    if(token && state?.from?.pathname) navigate(state?.from?.pathname);
-    else if(token) navigate('/');
+      .catch(err=>console.log(err))
+      .finally(()=> dispatch(handleIsLoading(false)));
   };
 
   return (
     <div className={main}>
       <div className={container}>
+        { 
+          isLoading && <ProgressBar label=''/>
+        }
         <h3 className={title}>Link Manager Application<br />
           <span className={titleSpan}>Please Login</span>
         </h3>

@@ -1,9 +1,9 @@
 import { Button, Search } from '@carbon/react';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleCurrPageTitle, handleDisplayLinks, handleEditLinkData, handleGetSources, handleIsWbe } from '../../Redux/slices/linksSlice';
+import { handleCurrPageTitle, handleDisplayLinks, handleEditLinkData, handleIsWbe } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import { dropdownStyle, inputContainer, linkFileContainer, searchBox, searchContainer, searchInput, tableContainer } from './LinkManager.module.scss';
@@ -19,83 +19,45 @@ const headers = [
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 
 const LinkManager = () => {
-  const {loggedInUser, allLinks, sourceDataList, isWbe } = useSelector(state => state.links);
+  const { allLinks, sourceDataList, isWbe } = useSelector(state => state.links);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [searchParams] = useSearchParams();
   const {pathname}=useLocation();
-
   const isWBE = pathname === '/wbe';
-  // Receive Gitlab values and display source section
-  const baseline= searchParams.get('commit');
-  const projectName =searchParams.get('project');
-  const stream= searchParams.get('branch');
-  const origin= searchParams.get('origin');
-
-
-  // Create link here as a test purpose
-  // useEffect(()=>{
-  //   console.log('Bearer' + loggedInUser?.token);
-  //   fetch('http://lm-api-dev.koneksys.com/api/v1/link', {
-  //     method:'POST', 
-  //     headers:{
-  //       'Content-type':'application/json',
-  //       'authorization':'Bearer '+ loggedInUser?.token,
-  //     },
-  //     body:JSON.stringify({
-  //       source_type: 'Requirement Sources',
-  //       source_id: '0112',
-  //       source_uri: 'http://abc.def/asdfjkl;',
-  //       target_type: 'bug',
-  //       target_id: '001122',
-  //       target_uri: 'http://xyz.abc/adsfjkl;',
-  //       relation: 'Validate_by'
-  //     })
-  //   })
-  //     .then(res => res.json())
-  //     .then((res)=>console.log(res)) 
-  //     .catch(err=>console.log(err));
-  // },[]);
 
   // Get Created Link
   useEffect(()=>{
-    fetch('https://lm-api-dev.koneksys.com/api/v1/link/Completed_by', {
-      method:'GET', 
-      headers:{
-        'Content-type':'application/json',
-        'authorization':'Bearer '+ loggedInUser?.token,
-      }
-    })
-      .then(response => {
-        return response.json();
-      })
-      .then(data => {
-        // return data;
-        const transformedData = data.map((link) => {
-          return {
-            ...link,
-            identifier: link.uri,
-            name: link.name,
-            description: link.name,
-            status: 'Valid',
-            sources: {baseline: link.uri},
-            linkType: 'Completed_by',
-            targetData: {label: link.name + ' - ' + link.uri}
-          };
-        });
-        dispatch(handleDisplayLinks(transformedData));
-      })
-      .catch(err=>{
-        console.log('ERROR: ', err);
-        return err;
-      });
+    // fetch('https://lm-api-dev.koneksys.com/api/v1/link/Completed_by', {
+    //   method:'GET', 
+    //   headers:{
+    //     'Content-type':'application/json',
+    //     'authorization':'Bearer '+ loggedInUser?.token,
+    //   }
+    // })
+    //   .then(response => response.json())
+    //   .then(data => {
+    //     // return data;
+    //     const transformedData = data.map((link) => {
+    //       return {
+    //         ...link,
+    //         identifier: link.uri,
+    //         name: link.name,
+    //         description: link.name,
+    //         status: 'Valid',
+    //         sources: {baseline: link.uri},
+    //         linkType: 'Completed_by',
+    //         targetData: {label: link.name + ' - ' + link.uri}
+    //       };
+    //     });
+    //     dispatch(handleDisplayLinks(transformedData));
+    //   })
+    //   .catch(err=> console.log('ERROR: ', err));
   },[]);
   
   useEffect(()=>{
     dispatch(handleIsWbe(isWBE));
     dispatch(handleCurrPageTitle('OSLC Link Manager'));
-    if(baseline) dispatch(handleGetSources({projectName, stream, baseline, origin}));
-  },[isWBE, baseline, pathname]);
+  },[isWBE, pathname]);
 
   // Get links in localStorage
   useEffect(()=>{
@@ -116,9 +78,9 @@ const LinkManager = () => {
     else{
       if (values.length > 0) dispatch(handleDisplayLinks(values));
     }
-    // console.log('Get all links from Local storage: ',values);
   },[isWbe, localStorage, allLinks.length]);
 
+  // Link manager dropdown options
   const handleShowItem = () => { };
 
   const handleOpenTargetLink = () => {

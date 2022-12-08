@@ -10,12 +10,16 @@
 
 #sourceProp {
     border-right: 1px solid lightgray;
-    padding: 8px;
-    width: 30%;
+    padding: 6px;
+    width: 25%;
 }
 
 #sourceValue {
-    padding: 8px;
+    padding: 6px;
+    width: 75%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .linkTypeContainer {
