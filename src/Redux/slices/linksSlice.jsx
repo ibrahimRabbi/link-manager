@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
 import Swal from 'sweetalert2';
-import UniqueID from '../../Components/Shared/UniqueID/UniqueID';
 import useSessionStorage from '../../Components/Shared/UseSessionStorage/UseSessionStorage';
 
 const initialState = {
@@ -70,49 +69,13 @@ export const linksSlice = createSlice({
 
     // create links and store data in the local storage
     handleCreateLink:(state) => {
-      if(state.linkType && state.projectType && state.resourceType){
-        state.targetDataArr?.forEach((item)=>{
-          const linkId= UniqueID();
-          const newLinkData ={id:linkId,sources:state.sourceDataList, linkType:state.linkType, targetProject:state.projectType, targetResource:state.resourceType, targetData: item, status:'No status'};
-          localStorage.setItem(String(linkId), JSON.stringify(newLinkData));
-
-          (async()=>{
-            await fetch('http://lm-api-dev.koneksys.com/api/v1/link', {
-              method:'POST', 
-              headers:{
-                'Content-type':'application/json',
-                'authorization':'Bearer '+ state.loggedInUser?.token,
-              },
-              body:JSON.stringify({
-                source_type: 'Requirement',
-                source_title: 'Store baselines in db',
-                source_provider: 'JIRA',
-                source_id: '0021',
-                source_project: 'Global configuration Management',
-                source_uri: 'https://jira.com',
-                target_type: 'Commit',
-                target_title: 'Configuration of baseline namespace',
-                target_provider: 'Gitlab',
-                target_id: '0021',
-                target_project: 'Global Configuration Management API',
-                target_uri: 'https://gitlab.com',
-                relation: 'Is_Satisfied_by'
-              })
-            })
-              .then(res => res.json())
-              .then((res)=>console.log(res)) 
-              .catch(err=>console.log(err));
-          })();
-        });
-        
-        Swal.fire({ icon: 'success', title: 'Link successfully created!', timer: 3000 });
-        state.linkType =null;
-        state.projectType =null;
-        state.resourceType =null;
-        state.oslcResponse = null;
-        state.targetDataArr=[];
-        state.isLinkEdit=false;
-      }
+      Swal.fire({ icon: 'success', title: 'Link successfully created!', timer: 3000 });
+      state.linkType =null;
+      state.projectType =null;
+      state.resourceType =null;
+      state.oslcResponse = null;
+      state.targetDataArr=[];
+      state.isLinkEdit=false;
     },
 
     // created links state update

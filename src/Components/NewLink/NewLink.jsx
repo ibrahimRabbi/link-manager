@@ -23,7 +23,7 @@ const headers = [
 ];
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
-  const {isWbe, oslcResponse, sourceDataList,allLinks, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);
+  const {isWbe, loggedInUser, oslcResponse, sourceDataList,allLinks, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [isJiraApp, setIsJiraApp] = useState(false);
@@ -35,13 +35,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   useEffect(()=>{
     dispatch(handleCurrPageTitle(isEditLinkPage ? isEditLinkPage : 'New Link'));
-  },[]);
-
-  // Get link type 
-  useEffect(()=>{
-    const origin =sourceDataList?.origin;
-    const sourceId = origin === 'https://gitlab.com'? 'gitlab': origin === 'https://github.com'? 'github' : origin === 'https://bitbucket.org' ? 'bitbucket' : 'gitlab';
-    console.log(sourceId);
   },[]);
 
   useEffect(()=>{
@@ -88,24 +81,26 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   //// Get Selection dialog response data
   window.addEventListener('message', function (event) {
     let message = event.data;
-    console.log(message);
     if(!message.source && !oslcResponse) {
-      const response = JSON.parse(message?.substr('oslc-response:'?.length));
-      const results = response['oslc:results'];
-      const targetArray =[];
-      for (let i = 0; i < results.length; i++) {
-        const label = results[i]['oslc:label'];
-        const uri = results[i]['rdf:resource'];
-        const type = results[i]['rdf:type'];
-        targetArray.push({uri, label});
-        dispatch(handleOslcResponse({uri, label, type}));
+      if(message !== 'oslc-preview-height:315' && message !=='jazz-compact-rendering-preview-height:315'){
+        const response = JSON.parse(message?.substr('oslc-response:'?.length));
+        const results = response['oslc:results'];
+        const targetArray =[];
+        results?.forEach((v, i)=>{
+          const label = results[i]['oslc:label'];
+          const uri = results[i]['rdf:resource'];
+          const type = results[i]['rdf:type'];
+          targetArray.push({uri, label, type});
+          dispatch(handleOslcResponse({uri, label, type}));
+        });
+        dispatch(handleTargetDataArr([...targetArray]));
       }
-      dispatch(handleTargetDataArr([...targetArray]));
     }
   }, false);
 
+  // Call create link function 
   useEffect(()=>{
-    if(oslcResponse) {
+    if(projectType && oslcResponse) {
       handleSaveLink();
     }
   },[oslcResponse]);
@@ -149,13 +144,46 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Create new link 
   const handleSaveLink = async () => {
-    if (linkType && projectType && resourceType) {
+    const {projectName, branch, title, uri, origin}=sourceDataList;
+    const targetProvider = await origin === 'https://gitlab.com'? 'Gitlab': origin === 'https://github.com'? 'Github' : origin === 'https://bitbucket.org' ? 'Bitbucket' : 'Gitlab';
+    if (linkType && projectType ) {
+      targetDataArr?.forEach(async(item)=>{
+        console.log(item);
+        // const linkId= UniqueID();
+        // const newLinkData ={id:linkId,sources:sourceDataList, linkType, targetProject:projectType, targetResource:resourceType, targetData: item, status:'No status'};
+        // localStorage.setItem(String(linkId), JSON.stringify(newLinkData));
+        fetch('http://lm-api-dev.koneksys.com/api/v1/link', {
+          method:'POST', 
+          headers:{
+            'Content-type':'application/json',
+            'authorization':'Bearer '+ loggedInUser?.token,
+          },
+          body:JSON.stringify({
+            source_type: branch,
+            source_title: title,
+            source_provider: 'JIRA',
+            source_id: '0021',
+            source_project: projectName,
+            source_uri: uri,
+            target_type: item.type,
+            target_title: item.label,
+            target_provider: targetProvider,
+            target_id: '005',
+            target_project: projectType,
+            target_uri: item.uri,
+            relation: linkType
+          })
+        })
+          .then(res => res.json())
+          .then((res)=>console.log(res)) 
+          .catch(()=>{});
+      });
       await dispatch(handleCreateLink());
       isWbe ? navigate('/wbe') : navigate('/');
     }
-    else if(linkType && projectType && !resourceType) {
-      Swal.fire({ icon: 'error', title: 'Link create failed!!! Please fill all the options', timer: 3000 });
-    }
+    // else if(linkType && projectType && ) {
+    //   Swal.fire({ icon: 'error', title: 'Link create failed!!! Please fill all the options', timer: 3000 });
+    // }
   };
 
   // cancel create link
@@ -186,7 +214,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         <UseDropdown items={targetProjectItems} onChange={handleTargetProject} title='Target project' selectedValue={editLinkData?.project} label={'Select target project'} id='project-dropdown' className={dropdownStyle}/>
         
         {
-          (linkType && !isJiraApp || isEditLinkPage) && 
+          (linkType && projectType && !isJiraApp || isEditLinkPage) && 
             <UseDropdown items={targetResourceItems} onChange={handleTargetResource}  title='Target resource type' selectedValue={editLinkData?.resource} label={'Select target resource type'} id='resourceType-dropdown' className={dropdownStyle}/>
         }
       </div>
