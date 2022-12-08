@@ -22,7 +22,7 @@ function App() {
   useEffect(()=>{
     dispatch(handleIsLoading(true));
     const token =useSessionStorage('get', 'token');
-    dispatch(handleLoggedInUser({token}));
+    dispatch(handleLoggedInUser({token:window.atob(token)}));
     dispatch(handleIsLoading(false));
   },[sessionStorage]);
 

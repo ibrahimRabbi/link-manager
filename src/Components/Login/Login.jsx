@@ -40,6 +40,7 @@ const Login = () => {
       .then(data=>{
         dispatch(handleIsLoading(false));
         const token =data.access_token;
+        console.log(token);
         useSessionStorage('set','token', window.btoa(token));
         dispatch(handleLoggedInUser({token}));
         if(token && state?.from?.pathname) navigate(state?.from?.pathname);

@@ -78,7 +78,8 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
               <TableCell className={tableCell}>{row?.linkType}</TableCell>
 
               {/* --- Table data with modal ---  */}
-              <TableCell className={`${tableCell} ${targetCell}`}><span onMouseOver={() => setIsOpen({ id: row?.id, value: true })}>{row?.targetData?.label}</span>
+              <TableCell className={`${tableCell} ${targetCell}`}>{row?.targetData?.label}
+                {/* <span onMouseOver={() => setIsOpen({ id: row?.id, value: true })}>{row?.targetData?.label}</span> */}
                 <ComposedModal
                   open={isOpen?.id === row?.id ? isOpen?.value : false}
                   onClose={(e) => e.target.id === isOpen?.id ? setIsOpen({ id: null, value: false }) : null}
@@ -92,7 +93,7 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
                     <ModalHeader onClick={() => setIsOpen({ id: null, value: false })} />
                   </div>
                   <ModalBody className={modalBody}>
-                    <iframe src='https://192.241.220.34:9443/rm/resources/_XBsnIIEzEeqnsvH-FkjSvQ/compact/html?hover=sm[…].220.34%3A9443%2Frm%2Fcm%2Fstream%2F_VpeP8IEzEeqnsvH-FkjSvQ' width='100%' height='auto'></iframe>
+                    {/* <iframe src='https://192.241.220.34:9443/rm/resources/_XBsnIIEzEeqnsvH-FkjSvQ/compact/html?hover=sm[…].220.34%3A9443%2Frm%2Fcm%2Fstream%2F_VpeP8IEzEeqnsvH-FkjSvQ' width='100%' height='auto'></iframe> */}
                   </ModalBody>
                 </ComposedModal>
               </TableCell>

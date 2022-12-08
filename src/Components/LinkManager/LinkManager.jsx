@@ -25,33 +25,32 @@ const LinkManager = () => {
   const {pathname}=useLocation();
   const isWBE = pathname === '/wbe';
 
-  // Get Created Link
+  // Get Created Links
   useEffect(()=>{
-    // fetch('https://lm-api-dev.koneksys.com/api/v1/link/Completed_by', {
-    //   method:'GET', 
-    //   headers:{
-    //     'Content-type':'application/json',
-    //     'authorization':'Bearer '+ loggedInUser?.token,
-    //   }
-    // })
-    //   .then(response => response.json())
-    //   .then(data => {
-    //     // return data;
-    //     const transformedData = data.map((link) => {
-    //       return {
-    //         ...link,
-    //         identifier: link.uri,
-    //         name: link.name,
-    //         description: link.name,
-    //         status: 'Valid',
-    //         sources: {baseline: link.uri},
-    //         linkType: 'Completed_by',
-    //         targetData: {label: link.name + ' - ' + link.uri}
-    //       };
-    //     });
-    //     dispatch(handleDisplayLinks(transformedData));
-    //   })
-    //   .catch(err=> console.log('ERROR: ', err));
+  //   fetch('https://lm-api-dev.koneksys.com/api/v1/link/Completed_by', {
+  //     // method:'GET', 
+  //     headers:{
+  //       'Content-type':'application/json',
+  //       'authorization':'Bearer '+ loggedInUser?.token,
+  //     }
+  //   })
+  //     .then(response => response.json())
+  //     .then(data => {
+  //       const transformedData = data?.map((link) => {
+  //         return {
+  //           ...link,
+  //           identifier: link.uri,
+  //           name: link.name,
+  //           description: link.name,
+  //           status: 'Valid',
+  //           sources: {baseline: link.uri},
+  //           linkType: 'Completed_by',
+  //           targetData: {label: link.name + ' - ' + link.uri}
+  //         };
+  //       });
+  //       dispatch(handleDisplayLinks(transformedData));
+  //     })
+  //     .catch(err=> console.log('ERROR: ', err));
   },[]);
   
   useEffect(()=>{
@@ -68,16 +67,17 @@ const LinkManager = () => {
       values.push( JSON.parse(localStorage.getItem(keys[i])) );
     }
 
-    const filteredLinksByCommit= values?.filter(id=>id.sources?.baseline === sourceDataList?.baseline);
-    if(isWbe){
-      if (filteredLinksByCommit) dispatch(handleDisplayLinks(filteredLinksByCommit));
-      setTimeout(()=>{
-        if(!filteredLinksByCommit.length && sourceDataList?.baseline) navigate('/wbe/new-link');
-      },100);
-    }
-    else{
-      if (values.length > 0) dispatch(handleDisplayLinks(values));
-    }
+    // const filteredLinksByCommit= values?.filter(id=>id.sources?.baseline === sourceDataList?.baseline);
+    // if(isWbe){
+    //   if (filteredLinksByCommit) dispatch(handleDisplayLinks(filteredLinksByCommit));
+    //   setTimeout(()=>{
+    //     if(!filteredLinksByCommit.length && sourceDataList?.baseline) navigate('/wbe/new-link');
+    //   },100);
+    // }
+    // else{
+    //   if (values.length > 0) dispatch(handleDisplayLinks(values));
+    // }
+    dispatch(handleDisplayLinks(values));
   },[isWbe, localStorage, allLinks.length]);
 
   // Link manager dropdown options

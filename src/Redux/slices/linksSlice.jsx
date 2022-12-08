@@ -6,7 +6,6 @@ const initialState = {
   sourceDataList:{},
   isWbe:false,
   isLinkCreate:false,
-  oslcResponse: null,
   isSidebarOpen:false,
   currPageTitle:'',
   isLoading:false,
@@ -45,10 +44,6 @@ export const linksSlice = createSlice({
 
     handleViewLinkDetails: (state, {payload}) => {
       state.linkedData=payload;
-    },
-
-    handleOslcResponse: (state, {payload}) => {
-      state.oslcResponse=payload;
     },
 
     handleLoggedInUser: (state, {payload}) => {      
@@ -168,6 +163,6 @@ export const linksSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const {handleIsWbe, handleIsLoading, handleGetSources, handleOslcResponse, handleIsSidebarOpen, handleLoggedInUser, handleCurrPageTitle, handleIsProfileOpen, handleViewLinkDetails, handleCreateLink, handleDisplayLinks, handleEditLinkData, handleTargetDataArr, handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
+export const {handleIsWbe, handleIsLoading, handleGetSources, handleIsSidebarOpen, handleLoggedInUser, handleCurrPageTitle, handleIsProfileOpen, handleViewLinkDetails, handleCreateLink, handleDisplayLinks, handleEditLinkData, handleTargetDataArr, handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
 
 export default linksSlice.reducer;
