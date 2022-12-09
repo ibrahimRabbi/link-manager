@@ -145,9 +145,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     const { origin}=sourceDataList;
     const targetProvider = await origin === 'https://gitlab.com'? 'Gitlab': origin === 'https://github.com'? 'Github' : origin === 'https://bitbucket.org' ? 'Bitbucket' : 'Gitlab';
     if (linkType && projectType ) {
-      console.log(sourceDataList);
+      console.log('Sources from Gitlab: ',sourceDataList);
       targetDataArr?.forEach(async(item)=>{
-        console.log(item);
+        console.log('target resource: ', item);
         // const linkId= UniqueID();
         // const newLinkData ={id:linkId,sources:sourceDataList, linkType, targetProject:projectType, targetResource:resourceType, targetData: item, status:'No status'};
         // localStorage.setItem(String(linkId), JSON.stringify(newLinkData));

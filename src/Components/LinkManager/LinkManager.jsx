@@ -19,7 +19,7 @@ const headers = [
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 
 const LinkManager = () => {
-  const { allLinks, sourceDataList, isWbe } = useSelector(state => state.links);
+  const { allLinks, loggedInUser, sourceDataList, isWbe } = useSelector(state => state.links);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const {pathname}=useLocation();
@@ -27,30 +27,37 @@ const LinkManager = () => {
 
   // Get Created Links
   useEffect(()=>{
-  //   fetch('https://lm-api-dev.koneksys.com/api/v1/link/Completed_by', {
-  //     // method:'GET', 
-  //     headers:{
-  //       'Content-type':'application/json',
-  //       'authorization':'Bearer '+ loggedInUser?.token,
-  //     }
-  //   })
-  //     .then(response => response.json())
-  //     .then(data => {
-  //       const transformedData = data?.map((link) => {
-  //         return {
-  //           ...link,
-  //           identifier: link.uri,
-  //           name: link.name,
-  //           description: link.name,
-  //           status: 'Valid',
-  //           sources: {baseline: link.uri},
-  //           linkType: 'Completed_by',
-  //           targetData: {label: link.name + ' - ' + link.uri}
-  //         };
-  //       });
-  //       dispatch(handleDisplayLinks(transformedData));
-  //     })
-  //     .catch(err=> console.log('ERROR: ', err));
+    console.log(loggedInUser);
+    fetch('https://lm-api-dev.koneksys.com/api/v1/link/Completed_by', {
+      method:'GET', 
+      crossorigin:true,
+      mode:'no-cors',
+      withCredentials: true,
+      headers:{
+        'Content-type':'application/json',
+        'authorization':'Bearer '+ loggedInUser?.token,
+      }
+    })
+      .then(response => {
+        console.log(response);
+        return response.json();
+      })
+      .then(data => {
+        const transformedData = data?.map((link) => {
+          return {
+            ...link,
+            identifier: link.uri,
+            name: link.name,
+            description: link.name,
+            status: 'Valid',
+            sources: {baseline: link.uri},
+            linkType: 'Completed_by',
+            targetData: {label: link.name + ' - ' + link.uri}
+          };
+        });
+        dispatch(handleDisplayLinks(transformedData));
+      })
+      .catch(()=> {});
   },[]);
   
   useEffect(()=>{

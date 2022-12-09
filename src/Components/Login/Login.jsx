@@ -40,23 +40,19 @@ const Login = () => {
       .then(data=>{
         dispatch(handleIsLoading(false));
         const token =data.access_token;
-        console.log(token);
         useSessionStorage('set','token', window.btoa(token));
         dispatch(handleLoggedInUser({token}));
         if(token && state?.from?.pathname) navigate(state?.from?.pathname);
         else if(token) navigate('/');
       })
-      .catch(err=>console.log(err))
+      .catch(()=>{})
       .finally(()=> dispatch(handleIsLoading(false)));
   };
 
   return (
     <div className={main}>
       <div className={container}>
-        { 
-          isLoading && <ProgressBar label=''/>
-        }
-        <h3 className={title}>Link Manager Application<br />
+        <h3 className={title}>Link Manager Application <br />
           <span className={titleSpan}>Please Login</span>
         </h3>
 
@@ -78,7 +74,9 @@ const Login = () => {
             {...register('password', { required: true, minLength: 5 })}
           />
           <p className={errText}>{errors.password && 'Password should include at least 5 characters'}</p>
-
+          { 
+            isLoading && <ProgressBar label=''/>
+          }
           <div className={btnContainer}>
             <Button
               renderIcon={ArrowRight}

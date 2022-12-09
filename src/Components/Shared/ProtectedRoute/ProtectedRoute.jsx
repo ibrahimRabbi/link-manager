@@ -1,3 +1,4 @@
+import { ProgressBar } from '@carbon/react';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
@@ -8,6 +9,8 @@ const ProtectedRoute = ({ children }) => {
   let { loggedInUser, isLoading } = useSelector(state=>state.links);
   let location = useLocation();
   const dispatch =useDispatch();
+
+  // Get query parameters from the Gitlab
   const [searchParams] = useSearchParams();
   const projectName =searchParams.get('project');
   const title =searchParams.get('title');
@@ -19,9 +22,9 @@ const ProtectedRoute = ({ children }) => {
   useEffect(()=>{
     dispatch(handleIsWbe(isWBE));
     if(uri) dispatch(handleGetSources({projectName, branch, title, uri, origin}));
-  },[ uri, sessionStorage]);
+  },[uri]);
 
-  if(isLoading) return <h1 className='text-center'>Loading...</h1>;
+  if(isLoading) return <ProgressBar label=''/>;
   
   if (loggedInUser?.token) {
     return children;
