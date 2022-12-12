@@ -27,8 +27,7 @@ const LinkManager = () => {
 
   // Get Created Links
   useEffect(()=>{
-    console.log(loggedInUser);
-    fetch('https://lm-api-dev.koneksys.com/api/v1/link/Completed_by', {
+    fetch('https://lm-api-dev.koneksys.com/api/v1/link/resource/Completed_by', {
       method:'GET', 
       crossorigin:true,
       mode:'no-cors',
