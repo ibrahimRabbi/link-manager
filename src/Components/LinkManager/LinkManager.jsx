@@ -19,6 +19,7 @@ const headers = [
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 
 const LinkManager = () => {
+  const [isLoaded, setIsLoaded] = React.useState(false);
   const { allLinks, loggedInUser, sourceDataList, isWbe } = useSelector(state => state.links);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -26,22 +27,28 @@ const LinkManager = () => {
   const isWBE = pathname === '/wbe';
 
   // Get Created Links
+  // useEffect(() => {}, [])
   useEffect(()=>{
-    fetch('https://lm-api-dev.koneksys.com/api/v1/link/resource/Completed_by', {
-      method:'GET', 
-      crossorigin:true,
-      mode:'no-cors',
-      withCredentials: true,
-      headers:{
-        'Content-type':'application/json',
-        'authorization':'Bearer '+ loggedInUser?.token,
+    console.log(loggedInUser.token);
+    fetch(
+      'http://127.0.0.1:5002/api/v1/link/resource/A',
+      {
+      //   method:'GET',
+      //   crossorigin:true,
+      //   mode:'no-cors',
+      //   withCredentials: true,
+        headers:{
+          //     'Content-type':'application/json',
+          'Authorization': 'Bearer '+ loggedInUser?.token,
+        }
       }
-    })
+    )
       .then(response => {
         console.log(response);
         return response.json();
       })
       .then(data => {
+        console.log('returned data: ', data);
         const transformedData = data?.map((link) => {
           return {
             ...link,
@@ -56,7 +63,10 @@ const LinkManager = () => {
         });
         dispatch(handleDisplayLinks(transformedData));
       })
-      .catch(()=> {});
+      .catch(er => {
+        console.log(er);
+        return er;
+      });
   },[]);
   
   useEffect(()=>{

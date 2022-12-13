@@ -142,47 +142,50 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Create new link 
   const handleSaveLink = async () => {
-    const { origin}=sourceDataList;
-    const targetProvider = await origin === 'https://gitlab.com'? 'Gitlab': origin === 'https://github.com'? 'Github' : origin === 'https://bitbucket.org' ? 'Bitbucket' : 'Gitlab';
     if (linkType && projectType ) {
-      console.log('Sources from Gitlab: ',sourceDataList);
-      targetDataArr?.forEach(async(item)=>{
-        console.log('target resource: ', item);
-        // const linkId= UniqueID();
-        // const newLinkData ={id:linkId,sources:sourceDataList, linkType, targetProject:projectType, targetResource:resourceType, targetData: item, status:'No status'};
-        // localStorage.setItem(String(linkId), JSON.stringify(newLinkData));
-        await fetch('https://lm-api-dev.koneksys.com/api/v1/link', {
-          method:'POST', 
-          crossorigin:true,
-          mode:'no-cors',
-          withCredentials: true,
+      console.log('Sources from Gitlab: ', sourceDataList);
+      // data= targetDataArr?.forEach(async(item)=>{prepared the array of json object})
+      // console.log('target resource: ', item);
+      console.log(loggedInUser.token);
+      await fetch(
+        'http://127.0.0.1:5002/api/v1/link',
+        {
+          method:'POST',
+          // crossorigin:true,
+          // mode:'no-cors',
+          // withCredentials: true,
           headers:{
             'Content-type':'application/json',
-            'authorization':'Bearer '+ loggedInUser.token,
+            'Authorization':'Bearer '+ loggedInUser.token,
           },
-          body:JSON.stringify({
-            source_project: 'projectName',
-            source_type: 'branch',
-            source_title: 'title',
-            source_uri: 'uri',
-            source_provider: 'JIRA',
-            source_id: '0021',
-            relation: linkType,
-            target_project: projectType,
-            target_title: item.label,
-            target_uri: item.uri,
-            target_type: 'item.type',
-            target_provider: targetProvider,
-            target_id: '005',
-          })
+          // body:JSON.stringify(data)
+          // body:JSON.stringify({
+          // source_project: 'projectName',
+          // source_type: 'branch',
+          // source_title: 'title',
+          // source_uri: 'uri',
+          // source_provider: 'JIRA',
+          // source_id: '0021',
+          // relation: linkType,
+          // target_project: projectType,
+          // target_title: item.label,
+          // target_uri: item.uri,
+          // target_type: 'item.type',
+          // target_provider: targetProvider,
+          // target_id: '005',
+          // })
         })
-          .then(res => {
-            console.log(res);
-            return res.json();
-          })
-          .then((res)=>console.log(res)) 
-          .catch(()=>{});
-      });
+        .then(res => {
+          console.log(res);
+          return res.json();
+        })
+        .then((res)=> {
+          console.log(res);
+        })
+        .catch((er)=>{
+          console.log(er);
+        });
+      // });
       await dispatch(handleCreateLink());
       isWbe ? navigate('/wbe') : navigate('/');
     }
@@ -234,7 +237,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             isJiraApp && <div className={targetIframe}>
               { isBackJiraApp ?
                 <div>
-                  <iframe src='https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=KGCM#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
+                  <iframe src='https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
                 </div>
                 :
                 <div>

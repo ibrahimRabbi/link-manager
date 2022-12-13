@@ -27,7 +27,7 @@ const Login = () => {
   // handle form submit
   const onSubmit = async (data)=>{
     dispatch(handleIsLoading(true));
-    const loginURL ='https://lm-api-dev.koneksys.com/api/v1/auth/login';
+    const loginURL ='http://127.0.0.1:5002/api/v1/auth/login';
     const authdata = window.btoa(data.userName + ':' + data.password);
     await fetch(loginURL, {
       method:'POST', 
