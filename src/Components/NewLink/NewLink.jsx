@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import UniqueID from '../../Components/Shared/UniqueID/UniqueID';
 import { handleCancelLink, handleCreateLink, handleCurrPageTitle, handleLinkType, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
@@ -23,7 +24,7 @@ const headers = [
 ];
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
-  const {isWbe, loggedInUser, sourceDataList,allLinks, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);
+  const {isWbe, loggedInUser, sourceDataList, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [isJiraApp, setIsJiraApp] = useState(false);
@@ -141,28 +142,28 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   };
 
   // Create new link 
+  console.log(UniqueID());
   const handleSaveLink = async () => {
+    console.log(sourceDataList);
+    console.log(targetDataArr);
     const { origin}=sourceDataList;
     const targetProvider = await origin === 'https://gitlab.com'? 'Gitlab': origin === 'https://github.com'? 'Github' : origin === 'https://bitbucket.org' ? 'Bitbucket' : 'Gitlab';
     if (linkType && projectType ) {
       console.log('Sources from Gitlab: ',sourceDataList);
       targetDataArr?.forEach(async(item)=>{
         console.log('target resource: ', item);
-        // const linkId= UniqueID();
+        // console.log(UniqueID())
         // const newLinkData ={id:linkId,sources:sourceDataList, linkType, targetProject:projectType, targetResource:resourceType, targetData: item, status:'No status'};
         // localStorage.setItem(String(linkId), JSON.stringify(newLinkData));
-        await fetch('https://lm-api-dev.koneksys.com/api/v1/link', {
+        await fetch('http://127.0.0.1:5000/api/v1/link', {
           method:'POST', 
-          crossorigin:true,
-          mode:'no-cors',
-          withCredentials: true,
           headers:{
             'Content-type':'application/json',
             'authorization':'Bearer '+ loggedInUser.token,
           },
           body:JSON.stringify({
             source_project: 'projectName',
-            source_type: 'branch',
+            source_type: 'branch-0021',
             source_title: 'title',
             source_uri: 'uri',
             source_provider: 'JIRA',
@@ -294,8 +295,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
         </div>
       }
-      {(allLinks[0] && isWbe) && <div className={'see-btn'}>
-        <Button kind='primary' onClick={()=>isWbe ? navigate('/wbe'): navigate('/')} size='md'>See created links</Button>
+      { isWbe && <div className={'see-btn'}>
+        <Button kind='primary' onClick={()=>navigate('/wbe')} size='md'>Back to home</Button>
       </div>}
     </div>
   );

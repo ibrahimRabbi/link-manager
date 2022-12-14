@@ -1,9 +1,10 @@
 import { Button, Search } from '@carbon/react';
+import axios from 'axios';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleCurrPageTitle, handleDisplayLinks, handleEditLinkData, handleIsWbe } from '../../Redux/slices/linksSlice';
+import { handleDisplayLinks, handleEditLinkData } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import { dropdownStyle, inputContainer, linkFileContainer, searchBox, searchContainer, searchInput, tableContainer } from './LinkManager.module.scss';
@@ -22,47 +23,55 @@ const LinkManager = () => {
   const { allLinks, loggedInUser, sourceDataList, isWbe } = useSelector(state => state.links);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const {pathname}=useLocation();
-  const isWBE = pathname === '/wbe';
 
   // Get Created Links
   useEffect(()=>{
-    fetch('https://lm-api-dev.koneksys.com/api/v1/link/resource/Completed_by', {
-      method:'GET', 
-      crossorigin:true,
-      mode:'no-cors',
-      withCredentials: true,
-      headers:{
-        'Content-type':'application/json',
-        'authorization':'Bearer '+ loggedInUser?.token,
-      }
-    })
-      .then(response => {
-        console.log(response);
-        return response.json();
+    // fetch('http://127.0.0.1:5000/api/v1/link/A-A', {
+    //   method:'GET', 
+    //   headers:{
+    //     'Content-type':'application/json',
+    //     'authorization':'Bearer '+ loggedInUser?.token,
+    //   }
+    // })
+    //   .then(response => {
+    //     console.log(response);
+    //     return response.json();
+    //   })
+    //   .then(data => {
+    //     console.log(data);
+    //     const transformedData = data?.map((link) => {
+    //       return {
+    //         ...link,
+    //         identifier: link.uri,
+    //         name: link.name,
+    //         description: link.name,
+    //         status: 'Valid',
+    //         sources: {baseline: link.uri},
+    //         linkType: 'Completed_by',
+    //         targetData: {label: link.name + ' - ' + link.uri}
+    //       };
+    //     });
+    //     dispatch(handleDisplayLinks(transformedData));
+    //   })
+    //   .catch((e)=> {console.log(e);});
+
+    (async()=>{
+      const result = await axios.get('http://127.0.0.1:5000/api/v1/link/A-A', {
+        headers:{
+          'Content-type':'application/json',
+          'authorization':'Bearer '+ loggedInUser?.token,
+        }
       })
-      .then(data => {
-        const transformedData = data?.map((link) => {
-          return {
-            ...link,
-            identifier: link.uri,
-            name: link.name,
-            description: link.name,
-            status: 'Valid',
-            sources: {baseline: link.uri},
-            linkType: 'Completed_by',
-            targetData: {label: link.name + ' - ' + link.uri}
-          };
-        });
-        dispatch(handleDisplayLinks(transformedData));
-      })
-      .catch(()=> {});
+        .catch(err=>console.log(err));
+      console.log(result.data);
+    })();
+      
   },[]);
   
-  useEffect(()=>{
-    dispatch(handleIsWbe(isWBE));
-    dispatch(handleCurrPageTitle('OSLC Link Manager'));
-  },[isWBE, pathname]);
+  // useEffect(()=>{
+  //   dispatch(handleIsWbe(isWBE));
+  //   dispatch(handleCurrPageTitle('OSLC Link Manager'));
+  // },[isWBE, pathname]);
 
   // Get links in localStorage
   useEffect(()=>{

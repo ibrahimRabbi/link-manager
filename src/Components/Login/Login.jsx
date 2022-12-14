@@ -5,13 +5,12 @@ import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { handleIsLoading, handleLoggedInUser } from '../../Redux/slices/linksSlice';
-import useSessionStorage from '../Shared/UseSessionStorage/UseSessionStorage';
 import style from './Login.module.scss';
 
 const {main,container, title, formContainer, btnContainer, titleSpan, errText}=style;
 
 const Login = () => {
-  const {loggedInUser, isLoading}=useSelector(state=>state.links);
+  const {isLoading, loggedInUser}=useSelector(state=>state.links);
   const {handleSubmit, register, formState:{errors}}=useForm();
   const {state}=useLocation();
   const navigate=useNavigate();
@@ -19,15 +18,14 @@ const Login = () => {
 
   // redirect management
   useEffect(()=>{
-    const token =useSessionStorage('get', 'token');
-    if(token && state?.from?.pathname) navigate(state?.from?.pathname);
-    else if(token) navigate('/');
+    if(loggedInUser?.token && state?.from?.pathname) navigate(state?.from?.pathname);
+    else if(loggedInUser?.token) navigate('/');
   }, [loggedInUser]);
 
   // handle form submit
   const onSubmit = async (data)=>{
     dispatch(handleIsLoading(true));
-    const loginURL ='https://lm-api-dev.koneksys.com/api/v1/auth/login';
+    const loginURL ='http://127.0.0.1:5000/api/v1/auth/login';
     const authdata = window.btoa(data.userName + ':' + data.password);
     await fetch(loginURL, {
       method:'POST', 
@@ -40,9 +38,10 @@ const Login = () => {
       .then(data=>{
         dispatch(handleIsLoading(false));
         const token =data.access_token;
-        useSessionStorage('set','token', window.btoa(token));
+        // useSessionStorage('set','token', window.btoa(token));
         dispatch(handleLoggedInUser({token}));
-        if(token && state?.from?.pathname) navigate(state?.from?.pathname);
+        const redirect =state?.from?.pathname;
+        if(token && redirect) navigate(redirect);
         else if(token) navigate('/');
       })
       .catch(()=>{})
