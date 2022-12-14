@@ -1,10 +1,10 @@
-import { Button, Search } from '@carbon/react';
+import { Button, ProgressBar, Search } from '@carbon/react';
 import axios from 'axios';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleDisplayLinks, handleEditLinkData } from '../../Redux/slices/linksSlice';
+import { handleDisplayLinks, handleEditLinkData, handleIsLoading } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import { dropdownStyle, inputContainer, linkFileContainer, searchBox, searchContainer, searchInput, tableContainer } from './LinkManager.module.scss';
@@ -20,80 +20,29 @@ const headers = [
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 
 const LinkManager = () => {
-  const { allLinks, loggedInUser, sourceDataList, isWbe } = useSelector(state => state.links);
+  // const [isLoaded, setIsLoaded] = React.useState(false);
+  const { allLinks, isLoading, loggedInUser, sourceDataList, isWbe } = useSelector(state => state.links);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // Get Created Links
+  // Get Created Links from LM API
   useEffect(()=>{
-    // fetch('http://127.0.0.1:5000/api/v1/link/A-A', {
-    //   method:'GET', 
-    //   headers:{
-    //     'Content-type':'application/json',
-    //     'authorization':'Bearer '+ loggedInUser?.token,
-    //   }
-    // })
-    //   .then(response => {
-    //     console.log(response);
-    //     return response.json();
-    //   })
-    //   .then(data => {
-    //     console.log(data);
-    //     const transformedData = data?.map((link) => {
-    //       return {
-    //         ...link,
-    //         identifier: link.uri,
-    //         name: link.name,
-    //         description: link.name,
-    //         status: 'Valid',
-    //         sources: {baseline: link.uri},
-    //         linkType: 'Completed_by',
-    //         targetData: {label: link.name + ' - ' + link.uri}
-    //       };
-    //     });
-    //     dispatch(handleDisplayLinks(transformedData));
-    //   })
-    //   .catch((e)=> {console.log(e);});
-
+    dispatch(handleIsLoading(true));
     (async()=>{
-      const result = await axios.get('http://127.0.0.1:5000/api/v1/link/A-A', {
+      await axios.get('http://127.0.0.1:5000/api/v1/link/A-A', {
         headers:{
           'Content-type':'application/json',
           'authorization':'Bearer '+ loggedInUser?.token,
         }
       })
-        .catch(err=>console.log(err));
-      console.log(result.data);
+        .then(res=>{
+          console.log(res);
+          dispatch(handleDisplayLinks(res?.data));
+        })
+        .catch(()=>{})
+        .finally(()=>dispatch(handleIsLoading(false)));
     })();
-      
   },[]);
-  
-  // useEffect(()=>{
-  //   dispatch(handleIsWbe(isWBE));
-  //   dispatch(handleCurrPageTitle('OSLC Link Manager'));
-  // },[isWBE, pathname]);
-
-  // Get links in localStorage
-  useEffect(()=>{
-    let values = [],
-      keys = Object.keys(localStorage),
-      i = keys.length;
-    while ( i-- ) {
-      values.push( JSON.parse(localStorage.getItem(keys[i])) );
-    }
-
-    // const filteredLinksByCommit= values?.filter(id=>id.sources?.baseline === sourceDataList?.baseline);
-    // if(isWbe){
-    //   if (filteredLinksByCommit) dispatch(handleDisplayLinks(filteredLinksByCommit));
-    //   setTimeout(()=>{
-    //     if(!filteredLinksByCommit.length && sourceDataList?.baseline) navigate('/wbe/new-link');
-    //   },100);
-    // }
-    // else{
-    //   if (values.length > 0) dispatch(handleDisplayLinks(values));
-    // }
-    dispatch(handleDisplayLinks(values));
-  },[isWbe, localStorage, allLinks.length]);
 
   // Link manager dropdown options
   const handleShowItem = () => { };
@@ -137,7 +86,8 @@ const LinkManager = () => {
             <Button kind='primary' size='md'>Search</Button>
           </div>
         </div>
-        <UseDataTable headers={headers} tableData={allLinks} openTargetLink={handleOpenTargetLink} />
+        { (isLoading && !allLinks[0]) && <ProgressBar label=''/> }
+        {allLinks[0] &&<UseDataTable headers={headers} tableData={allLinks} openTargetLink={handleOpenTargetLink} />}
       </div>
     </div>
   );

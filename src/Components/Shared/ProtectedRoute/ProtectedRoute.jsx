@@ -12,22 +12,16 @@ const ProtectedRoute = ({ children }) => {
   // Get query parameters from the Gitlab
   const [searchParams] = useSearchParams();
   const projectName =searchParams.get('project');
-  const title =searchParams.get('title');
-  const uri =searchParams.get('uri');
   const branch= searchParams.get('branch');
+  const uri =searchParams.get('uri');
+  const title =searchParams.get('title');
   const origin= searchParams.get('origin');
   const isWBE = location.pathname === '/wbe';
 
   useEffect(()=>{
     dispatch(handleIsWbe(isWBE));
-    if(uri) dispatch(handleGetSources({projectName, branch, title, uri, origin}));
-  },[uri]);
-
-  // useEffect(()=>{
-  //   const token =useSessionStorage('get', 'token');
-  //   dispatch(handleLoggedInUser({token:window.atob(token)}));
-  //   console.log(token);
-  // },[sessionStorage]);
+    if(uri && title && projectName) dispatch(handleGetSources({projectName, branch, title, uri, origin}));
+  },[uri, title, projectName]);
 
   if (loggedInUser?.token) {
     return children;

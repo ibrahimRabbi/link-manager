@@ -1,11 +1,12 @@
 import { Button, Checkbox, Search, StructuredListBody, StructuredListCell, StructuredListRow, StructuredListWrapper } from '@carbon/react';
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import UniqueID from '../../Components/Shared/UniqueID/UniqueID';
-import { handleCancelLink, handleCreateLink, handleCurrPageTitle, handleLinkType, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
+import { handleCancelLink, handleCurrPageTitle, handleLinkType, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import { btnContainer, dropdownStyle, emptySearchWarning, inputContainer, linkTypeContainer, newLinkTable, searchContainer, searchInput, sourceContainer, sourceProp, sourceValue, targetContainer, targetIframe, targetSearchContainer } from './NewLink.module.scss';
@@ -30,6 +31,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const [isJiraApp, setIsJiraApp] = useState(false);
   const [isBackJiraApp, setIsBackJiraApp] = useState(false);
   const [displayTableData, setDisplayTableData] = useState([]);
+  const [oslcRes, setOslcRes] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -93,6 +95,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           const type = results[i]['rdf:type'];
           targetArray.push({uri, label, type});
         });
+        setOslcRes(true);
         dispatch(handleTargetDataArr([...targetArray]));
       }
     }
@@ -100,10 +103,10 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Call create link function 
   useEffect(()=>{
-    if(projectType && targetDataArr.length) {
+    if(projectType && oslcRes && targetDataArr.length) {
       handleSaveLink();
     }
-  },[targetDataArr]);
+  },[oslcRes]);
   
   // Link type dropdown
   const handleLinkTypeChange = ({ selectedItem }) => {
@@ -142,54 +145,39 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   };
 
   // Create new link 
-  console.log(UniqueID());
-  const handleSaveLink = async () => {
-    console.log(sourceDataList);
-    console.log(targetDataArr);
-    const { origin}=sourceDataList;
-    const targetProvider = await origin === 'https://gitlab.com'? 'Gitlab': origin === 'https://github.com'? 'Github' : origin === 'https://bitbucket.org' ? 'Bitbucket' : 'Gitlab';
-    if (linkType && projectType ) {
-      console.log('Sources from Gitlab: ',sourceDataList);
-      targetDataArr?.forEach(async(item)=>{
-        console.log('target resource: ', item);
-        // console.log(UniqueID())
-        // const newLinkData ={id:linkId,sources:sourceDataList, linkType, targetProject:projectType, targetResource:resourceType, targetData: item, status:'No status'};
-        // localStorage.setItem(String(linkId), JSON.stringify(newLinkData));
-        await fetch('http://127.0.0.1:5000/api/v1/link', {
-          method:'POST', 
-          headers:{
-            'Content-type':'application/json',
-            'authorization':'Bearer '+ loggedInUser.token,
-          },
-          body:JSON.stringify({
-            source_project: 'projectName',
-            source_type: 'branch-0021',
-            source_title: 'title',
-            source_uri: 'uri',
-            source_provider: 'JIRA',
-            source_id: '0021',
-            relation: linkType,
-            target_project: projectType,
-            target_title: item.label,
-            target_uri: item.uri,
-            target_type: 'item.type',
-            target_provider: targetProvider,
-            target_id: '005',
-          })
-        })
-          .then(res => {
-            console.log(res);
-            return res.json();
-          })
-          .then((res)=>console.log(res)) 
-          .catch(()=>{});
-      });
-      await dispatch(handleCreateLink());
-      isWbe ? navigate('/wbe') : navigate('/');
-    }
-    // else if(linkType && projectType && ) {
-    //   Swal.fire({ icon: 'error', title: 'Link create failed!!! Please fill all the options', timer: 3000 });
-    // }
+  const handleSaveLink =async () => {
+    const { projectName, title, uri, origin}=sourceDataList;
+    const targetProvider = origin === 'https://gitlab.com'? 'Gitlab': origin === 'https://github.com'? 'Github' : origin === 'https://bitbucket.org' ? 'Bitbucket' : 'Gitlab';
+    const linksArr = targetDataArr?.map(tgt=>{
+      return {
+        source_type: 'File',
+        source_project: projectName,
+        source_title: title,
+        source_uri: uri,
+        source_provider: targetProvider,
+        source_id: UniqueID(),
+        relation: linkType,
+        target_project: projectType,
+        target_title: tgt?.label,
+        target_uri: tgt?.uri,
+        target_type: tgt?.type,
+        target_provider: 'JIRA OSLC API',
+        target_id: UniqueID(),
+      };
+    });
+    console.log(linksArr);
+    console.log(loggedInUser.token);
+    await axios.post('http://127.0.0.1:5000/api/v1/link', {
+      headers:{
+        'Content-type':'application/json',
+        'authorization':'Bearer '+ loggedInUser?.token,
+      },
+      data:linksArr,
+    })
+      .then(res=>console.log(res?.data))
+      .catch(()=>{})
+      .finally(()=>{});
+    setOslcRes(false);
   };
 
   // cancel create link
@@ -235,7 +223,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             isJiraApp && <div className={targetIframe}>
               { isBackJiraApp ?
                 <div>
-                  <iframe src='https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=KGCM#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
+                  <iframe src='https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
                 </div>
                 :
                 <div>

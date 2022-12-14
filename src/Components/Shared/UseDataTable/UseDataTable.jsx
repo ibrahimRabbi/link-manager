@@ -17,7 +17,6 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
   const [pageSize, setPageSize] = useState(10);
   const dispatch=useDispatch();
   const navigate = useNavigate();
-  
 
   // Pagination
   const handlePagination = (values) => {
@@ -74,11 +73,11 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
             // Link Manager Table
             (!isCheckBox && tableData[0]) && currTableData?.map((row, i) => <TableRow key={i}>
               <TableCell className={tableCell}>{row?.status === 'Valid' ? <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> : row?.status === 'Invalid' ? <BsExclamationTriangleFill className={`${statusIcon} ${invalidIcon}`} /> : <RiCheckboxBlankFill className={`${statusIcon} ${noStatusIcon}`} />}{row?.status}</TableCell>
-              <TableCell className={tableCell}><p>{row.sources?.baseline}</p></TableCell>
-              <TableCell className={tableCell}>{row?.linkType}</TableCell>
+              <TableCell className={tableCell}><p>{row?.name}</p></TableCell>
+              <TableCell className={tableCell}>{row?.link_type}</TableCell>
 
               {/* --- Table data with modal ---  */}
-              <TableCell className={`${tableCell} ${targetCell}`}>{row?.targetData?.label}
+              <TableCell className={`${tableCell} ${targetCell}`}>{row?.description}
                 {/* <span onMouseOver={() => setIsOpen({ id: row?.id, value: true })}>{row?.targetData?.label}</span> */}
                 <ComposedModal
                   open={isOpen?.id === row?.id ? isOpen?.value : false}
