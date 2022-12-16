@@ -1,12 +1,11 @@
-import { Button, Checkbox, Search, StructuredListBody, StructuredListCell, StructuredListRow, StructuredListWrapper } from '@carbon/react';
-import axios from 'axios';
+import { Button, Checkbox, ProgressBar, Search, StructuredListBody, StructuredListCell, StructuredListRow, StructuredListWrapper } from '@carbon/react';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import UniqueID from '../../Components/Shared/UniqueID/UniqueID';
-import { handleCancelLink, handleCurrPageTitle, handleLinkType, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
+import { handleCancelLink, handleCreateLink, handleCurrPageTitle, handleLinkType, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import { btnContainer, dropdownStyle, emptySearchWarning, inputContainer, linkTypeContainer, newLinkTable, searchContainer, searchInput, sourceContainer, sourceProp, sourceValue, targetContainer, targetIframe, targetSearchContainer } from './NewLink.module.scss';
@@ -32,6 +31,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const [isBackJiraApp, setIsBackJiraApp] = useState(false);
   const [displayTableData, setDisplayTableData] = useState([]);
   const [oslcRes, setOslcRes] = useState(false);
+  const [lcLoading, setLcLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -146,38 +146,44 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Create new link 
   const handleSaveLink =async () => {
-    const { projectName, title, uri, origin}=sourceDataList;
+    setLcLoading(true);
+    const { projectName, title, uri, origin, sourceType}=sourceDataList;
     const targetProvider = origin === 'https://gitlab.com'? 'Gitlab': origin === 'https://github.com'? 'Github' : origin === 'https://bitbucket.org' ? 'Bitbucket' : 'Gitlab';
-    const linksArr = targetDataArr?.map(tgt=>{
-      return {
-        source_type: 'File',
-        source_project: projectName,
-        source_title: title,
-        source_uri: uri,
-        source_provider: targetProvider,
-        source_id: UniqueID(),
-        relation: linkType,
-        target_project: projectType,
-        target_title: tgt?.label,
-        target_uri: tgt?.uri,
-        target_type: tgt?.type,
-        target_provider: 'JIRA OSLC API',
-        target_id: UniqueID(),
-      };
-    });
-    console.log(linksArr);
-    console.log(loggedInUser.token);
-    await axios.post('http://127.0.0.1:5000/api/v1/link', {
+    const linkObj = {
+      source_type: sourceType,
+      source_project: projectName,
+      source_title: title,
+      source_uri: uri,
+      source_provider: targetProvider,
+      source_id: UniqueID(),
+      relation: linkType,
+      target_project: projectType,
+      target_title: targetDataArr[0]?.label,
+      target_uri: targetDataArr[0]?.uri,
+      target_type: targetDataArr[0]?.type,
+      target_provider: 'JIRA OSLC API',
+      target_id: UniqueID(),
+    };
+
+    await fetch('http://127.0.0.1:5000/api/v1/link', {
+      method:'POST',
       headers:{
         'Content-type':'application/json',
         'authorization':'Bearer '+ loggedInUser?.token,
       },
-      data:linksArr,
+      body:JSON.stringify(linkObj),
     })
-      .then(res=>console.log(res?.data))
+      .then(res=>res.json())
+      .then(res=>{
+        Swal.fire({title:res?.status, text: res?.message, icon:'success', timer:1500});
+        dispatch(handleCreateLink());
+        isWbe ? navigate('/wbe') : navigate('/');
+      })
       .catch(()=>{})
-      .finally(()=>{});
-    setOslcRes(false);
+      .finally(()=>{
+        setLcLoading(false);
+        setOslcRes(false);
+      });
   };
 
   // cancel create link
@@ -193,7 +199,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         <StructuredListWrapper ariaLabel='Structured list'>
           <StructuredListBody>
             {
-              ['GitLab Project', 'GitLab Branch', 'Filename', 'URI'].map((properties, index)=><StructuredListRow key={properties}>
+              ['GitLab Project', 'GitLab Branch', 'Gitlab Commit', 'Filename', 'URI'].map((properties, index)=><StructuredListRow key={properties}>
                 <StructuredListCell id={sourceProp}>{properties}</StructuredListCell>
                 <StructuredListCell id={sourceValue}>{Object.values(sourceDataList)[index]}</StructuredListCell>
               </StructuredListRow>)
@@ -213,6 +219,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         }
       </div>
 
+      {
+        lcLoading && <ProgressBar label=''/>
+      }
       {/* --- After selected link type ---  */}
       {(linkType && projectType || isEditLinkPage) &&
         <div className={targetContainer}>

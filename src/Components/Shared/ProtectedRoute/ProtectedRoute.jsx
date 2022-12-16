@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { handleGetSources, handleIsWbe } from '../../../Redux/slices/linksSlice';
 
 const ProtectedRoute = ({ children }) => {
   // Get sources in the gitlab and display data  
-  const {loggedInUser}=useSelector(state=>state.links);
+  // const {loggedInUser}=useSelector(state=>state.links);
   let location = useLocation();
   const dispatch =useDispatch();
 
@@ -15,18 +15,20 @@ const ProtectedRoute = ({ children }) => {
   const branch= searchParams.get('branch');
   const uri =searchParams.get('uri');
   const title =searchParams.get('title');
+  const commit =searchParams.get('commit');
   const origin= searchParams.get('origin');
-  const isWBE = location.pathname === '/wbe';
+  const sourceType= searchParams.get('sourceType');
+  const isWBE = location.pathname?.includes('wbe');
 
   useEffect(()=>{
     dispatch(handleIsWbe(isWBE));
-    if(uri && title && projectName) dispatch(handleGetSources({projectName, branch, title, uri, origin}));
+    if(uri && title && projectName) dispatch(handleGetSources({projectName, branch, commit, title, uri, origin, sourceType}));
   },[uri, title, projectName]);
 
-  if (loggedInUser?.token) {
-    return children;
-  }
-  return <Navigate to='/login' state={{ from: location }} />;
+  // if (loggedInUser?.token) {
+  return children;
+  // }
+  // return <Navigate to='/login' state={{ from: location }} />;
 };
 
 export default ProtectedRoute;

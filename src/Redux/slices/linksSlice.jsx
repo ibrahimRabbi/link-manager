@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import Swal from 'sweetalert2';
 import useSessionStorage from '../../Components/Shared/UseSessionStorage/UseSessionStorage';
 
 const initialState = {
@@ -64,7 +63,6 @@ export const linksSlice = createSlice({
 
     // create links and store data in the local storage
     handleCreateLink:(state) => {
-      Swal.fire({ icon: 'success', title: 'Link successfully created!', timer: 3000 });
       state.linkType =null;
       state.projectType =null;
       state.resourceType =null;

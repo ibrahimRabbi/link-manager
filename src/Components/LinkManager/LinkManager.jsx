@@ -1,5 +1,4 @@
 import { Button, ProgressBar, Search } from '@carbon/react';
-import axios from 'axios';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -29,15 +28,16 @@ const LinkManager = () => {
   useEffect(()=>{
     dispatch(handleIsLoading(true));
     (async()=>{
-      await axios.get('http://127.0.0.1:5000/api/v1/link/A-A', {
+      await fetch('http://127.0.0.1:5000/api/v1/link/A-A', {
         headers:{
           'Content-type':'application/json',
           'authorization':'Bearer '+ loggedInUser?.token,
         }
       })
-        .then(res=>{
-          console.log(res);
-          dispatch(handleDisplayLinks(res?.data));
+        .then(res=>res.json())
+        .then(data=>{
+          console.log(data);
+          dispatch(handleDisplayLinks(data));
         })
         .catch(()=>{})
         .finally(()=>dispatch(handleIsLoading(false)));
@@ -60,7 +60,7 @@ const LinkManager = () => {
   return (
     <div className='container'>
       <div className={linkFileContainer}>
-        <h5>Links for file: {sourceDataList?.baseline}</h5>
+        <h5>Links created for: {sourceDataList?.sourceType}</h5>
 
         <Button onClick={() => { 
           isWbe ? navigate('/wbe/new-link') : navigate('/new-link'); 
@@ -86,8 +86,8 @@ const LinkManager = () => {
             <Button kind='primary' size='md'>Search</Button>
           </div>
         </div>
-        { (isLoading && !allLinks[0]) && <ProgressBar label=''/> }
-        {allLinks[0] &&<UseDataTable headers={headers} tableData={allLinks} openTargetLink={handleOpenTargetLink} />}
+        { isLoading && <ProgressBar label=''/> }
+        <UseDataTable headers={headers} tableData={allLinks} openTargetLink={handleOpenTargetLink} />
       </div>
     </div>
   );
