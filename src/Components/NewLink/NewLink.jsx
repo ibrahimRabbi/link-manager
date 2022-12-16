@@ -147,24 +147,33 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // Create new link 
   const handleSaveLink =async () => {
     setLcLoading(true);
-    const { projectName, title, uri, origin, sourceType}=sourceDataList;
-    const targetProvider = origin === 'https://gitlab.com'? 'Gitlab': origin === 'https://github.com'? 'Github' : origin === 'https://bitbucket.org' ? 'Bitbucket' : 'Gitlab';
-    const linkObj = {
+    const { projectName, title, uri, sourceType, origin}=sourceDataList;
+    const sourceProvider = origin === 'https://gitlab.com'? 'Gitlab': origin === 'https://github.com'? 'Github' : origin === 'https://bitbucket.org' ? 'Bitbucket' : 'Gitlab';
+    
+    const targetsData= targetDataArr?.map(data=>{
+      return {
+        target_title: data.label,
+        target_type: data.type,
+        target_uri: data.uri,
+        target_id: UniqueID(),
+        target_project: projectType,
+        target_provider: 'JIRA',
+      };
+    });
+
+    const linkObj ={
       source_type: sourceType,
       source_project: projectName,
       source_title: title,
       source_uri: uri,
-      source_provider: targetProvider,
+      source_provider: sourceProvider,
       source_id: UniqueID(),
       relation: linkType,
-      target_project: projectType,
-      target_title: targetDataArr[0]?.label,
-      target_uri: targetDataArr[0]?.uri,
-      target_type: targetDataArr[0]?.type,
-      target_provider: 'JIRA OSLC API',
-      target_id: UniqueID(),
+      target_data: targetsData
     };
 
+    console.log(linkObj);
+    
     await fetch('http://127.0.0.1:5000/api/v1/link', {
       method:'POST',
       headers:{
@@ -180,10 +189,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         isWbe ? navigate('/wbe') : navigate('/');
       })
       .catch(()=>{})
-      .finally(()=>{
-        setLcLoading(false);
-        setOslcRes(false);
-      });
+      .finally(()=>setLcLoading(false));
+    setOslcRes(false);
   };
 
   // cancel create link

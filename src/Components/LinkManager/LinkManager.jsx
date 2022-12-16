@@ -28,7 +28,7 @@ const LinkManager = () => {
   useEffect(()=>{
     dispatch(handleIsLoading(true));
     (async()=>{
-      await fetch('http://127.0.0.1:5000/api/v1/link/A-A', {
+      await fetch('http://127.0.0.1:5000/api/v1/link/File-c7a54a79a29b4a-81689b-9bdb8', {
         headers:{
           'Content-type':'application/json',
           'authorization':'Bearer '+ loggedInUser?.token,
@@ -37,7 +37,7 @@ const LinkManager = () => {
         .then(res=>res.json())
         .then(data=>{
           console.log(data);
-          dispatch(handleDisplayLinks(data));
+          if(data?.length) dispatch(handleDisplayLinks(data));
         })
         .catch(()=>{})
         .finally(()=>dispatch(handleIsLoading(false)));
@@ -86,7 +86,7 @@ const LinkManager = () => {
             <Button kind='primary' size='md'>Search</Button>
           </div>
         </div>
-        { isLoading && <ProgressBar label=''/> }
+        { (isLoading && !allLinks[0]) && <ProgressBar label=''/> }
         <UseDataTable headers={headers} tableData={allLinks} openTargetLink={handleOpenTargetLink} />
       </div>
     </div>
