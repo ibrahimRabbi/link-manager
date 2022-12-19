@@ -1,7 +1,7 @@
 import { Button, ProgressBar, Search } from '@carbon/react';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { handleDisplayLinks, handleEditLinkData, handleIsLoading } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
@@ -22,13 +22,18 @@ const LinkManager = () => {
   // const [isLoaded, setIsLoaded] = React.useState(false);
   const { allLinks, isLoading, loggedInUser, sourceDataList, isWbe } = useSelector(state => state.links);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
 
   // Get Created Links from LM API
   useEffect(()=>{
+    const title =searchParams.get('title');
     dispatch(handleIsLoading(true));
+    // const title =sourceDataList?.title;
+    console.log(title);
     (async()=>{
-      await fetch('http://127.0.0.1:5000/api/v1/link/File-c7a54a79a29b4a-81689b-9bdb8', {
+      await fetch(`http://127.0.0.1:5000/api/v1/link/resource/${title}`, {
+        method:'GET',
         headers:{
           'Content-type':'application/json',
           'authorization':'Bearer '+ loggedInUser?.token,
@@ -60,7 +65,7 @@ const LinkManager = () => {
   return (
     <div className='container'>
       <div className={linkFileContainer}>
-        <h5>Links created for: {sourceDataList?.sourceType}</h5>
+        <h5>Links created for: {sourceDataList?.title}</h5>
 
         <Button onClick={() => { 
           isWbe ? navigate('/wbe/new-link') : navigate('/new-link'); 

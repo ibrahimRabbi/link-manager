@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import UniqueID from '../../Components/Shared/UniqueID/UniqueID';
 import { handleCancelLink, handleCreateLink, handleCurrPageTitle, handleLinkType, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
@@ -155,7 +154,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         target_title: data.label,
         target_type: data.type,
         target_uri: data.uri,
-        target_id: UniqueID(),
+        target_id: data.uri,
         target_project: projectType,
         target_provider: 'JIRA',
       };
@@ -167,7 +166,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       source_title: title,
       source_uri: uri,
       source_provider: sourceProvider,
-      source_id: UniqueID(),
+      source_id: title,
       relation: linkType,
       target_data: targetsData
     };

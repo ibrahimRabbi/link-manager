@@ -11,7 +11,7 @@ import { handleDeleteLink, handleEditLinkData, handleEditTargetData, handleSetSt
 import { actionMenu, boxCell, invalidIcon, menuItem, modalBody, modalHeadContainer, modalTitle, newLinkCell1, newLinkCell2, noStatusIcon, statusIcon, tableCell, targetCell, validIcon } from './UseDataTable.module.scss';
 
 const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,isChecked,editTargetData }) => {
-  const { isWbe}=useSelector(state=>state.links);
+  const { isWbe, sourceDataList}=useSelector(state=>state.links);
   const [isOpen, setIsOpen] = useState(null);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -73,11 +73,11 @@ const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,i
             // Link Manager Table
             (!isCheckBox && tableData[0]) && currTableData?.map((row, i) => <TableRow key={i}>
               <TableCell className={tableCell}>{row?.status === 'Valid' ? <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> : row?.status === 'Invalid' ? <BsExclamationTriangleFill className={`${statusIcon} ${invalidIcon}`} /> : <RiCheckboxBlankFill className={`${statusIcon} ${noStatusIcon}`} />}{row?.status}</TableCell>
-              <TableCell className={tableCell}><p>{row?.name}</p></TableCell>
+              <TableCell className={tableCell}><p>{sourceDataList?.title}</p></TableCell>
               <TableCell className={tableCell}>{row?.link_type}</TableCell>
 
               {/* --- Table data with modal ---  */}
-              <TableCell className={`${tableCell} ${targetCell}`}>{row?.description}
+              <TableCell className={`${tableCell} ${targetCell}`}>{row?.name}
                 {/* <span onMouseOver={() => setIsOpen({ id: row?.id, value: true })}>{row?.targetData?.label}</span> */}
                 <ComposedModal
                   open={isOpen?.id === row?.id ? isOpen?.value : false}
