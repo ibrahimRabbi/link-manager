@@ -5,7 +5,6 @@ import { handleGetSources, handleIsWbe } from '../../../Redux/slices/linksSlice'
 
 const ProtectedRoute = ({ children }) => {
   // Get sources in the gitlab and display data  
-  // const {loggedInUser}=useSelector(state=>state.links);
   let location = useLocation();
   const dispatch =useDispatch();
 

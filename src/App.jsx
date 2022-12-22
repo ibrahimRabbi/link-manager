@@ -12,7 +12,6 @@ import Dashboard from './Pages/Dashboard';
 import LoginPage from './Pages/Login';
 import WbeDashboard from './Pages/WbeDashboard';
 
-
 function App() {
 
   return (
@@ -24,7 +23,6 @@ function App() {
           <Route path='/wbe/edit-link/:id' element={<EditLink />} />
           <Route path='/wbe/details/:id' element={<LinkDetails />} />
         </Route>
-
 
         <Route path='/' element={<ProtectedRoute><Dashboard/></ProtectedRoute>}>
           <Route path='/new-link' element={<NewLink />} />

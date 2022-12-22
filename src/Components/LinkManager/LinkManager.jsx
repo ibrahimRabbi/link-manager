@@ -27,25 +27,25 @@ const LinkManager = () => {
 
   // Get Created Links from LM API
   useEffect(()=>{
-    const title =searchParams.get('title');
-    dispatch(handleIsLoading(true));
-    // const title =sourceDataList?.title;
-    console.log(title);
     (async()=>{
-      await fetch(`http://127.0.0.1:5000/api/v1/link/resource/${title}`, {
-        method:'GET',
-        headers:{
-          'Content-type':'application/json',
-          'authorization':'Bearer '+ loggedInUser?.token,
-        }
-      })
-        .then(res=>res.json())
-        .then(data=>{
-          console.log(data);
-          if(data?.length) dispatch(handleDisplayLinks(data));
+      const title = await searchParams.get('title');
+      if(title){
+        dispatch(handleIsLoading(true));
+        await fetch(`http://127.0.0.1:5000/api/v1/link/resource/${title}`, {
+          method:'GET',
+          headers:{
+            'Content-type':'application/json',
+            'authorization':'Bearer '+ loggedInUser?.token,
+          }
         })
-        .catch(()=>{})
-        .finally(()=>dispatch(handleIsLoading(false)));
+          .then(res=>res.json())
+          .then(data=>{
+            console.log(data);
+            if(data?.length) dispatch(handleDisplayLinks(data));
+          })
+          .catch(()=>{})
+          .finally(()=>dispatch(handleIsLoading(false)));
+      }
     })();
   },[]);
 
