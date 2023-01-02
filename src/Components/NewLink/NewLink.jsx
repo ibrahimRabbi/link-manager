@@ -205,7 +205,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         <StructuredListWrapper ariaLabel='Structured list'>
           <StructuredListBody>
             {
-              ['GitLab Project', 'GitLab Branch', 'Gitlab Commit', 'Filename', 'URI'].map((properties, index)=><StructuredListRow key={properties}>
+              ['GitLab Project', 'Filename'].map((properties, index)=><StructuredListRow key={properties}>
                 <StructuredListCell id={sourceProp}>{properties}</StructuredListCell>
                 <StructuredListCell id={sourceValue}>{Object.values(sourceDataList)[index]}</StructuredListCell>
               </StructuredListRow>)

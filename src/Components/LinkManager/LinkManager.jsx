@@ -65,12 +65,12 @@ const LinkManager = () => {
   return (
     <div className='container'>
       <div className={linkFileContainer}>
-        <h5>Links created for: {sourceDataList?.title}</h5>
+        <h5>Links For: {sourceDataList?.title}</h5>
 
         <Button onClick={() => { 
           isWbe ? navigate('/wbe/new-link') : navigate('/new-link'); 
           dispatch(handleEditLinkData()); 
-        }} size='sm' kind='ghost'>New link</Button>
+        }} size='md' kind='primary'>New link</Button>
       </div>
       <div className={tableContainer}>
         <div className={searchBox}>

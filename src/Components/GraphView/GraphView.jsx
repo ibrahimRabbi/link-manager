@@ -1,8 +1,8 @@
 import React from 'react';
+// import ReactGraph from 'react-graph';
 import nodesData from './nodesData';
 import relationshipsData from './relationshipsData';
 import rootData from './rootData';
-// import ReactGraph from 'react-graph';
 
 const GraphView = () => {
   console.log(rootData);
@@ -22,7 +22,7 @@ const GraphView = () => {
           hasInspector
           hasTruncatedFields
         /> */}
-        {/* <iframe src={`http://localhost:3000`} width={'100%'} height={'700px'}></iframe> */}
+        {/* <iframe src={'http://localhost:3000'} width={'100%'} height={'700px'}></iframe> */}
       </div>
     </div>
   );
