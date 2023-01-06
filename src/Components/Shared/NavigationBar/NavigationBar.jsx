@@ -1,14 +1,16 @@
 import { Close, Logout, Menu, UserAvatarFilledAlt } from '@carbon/icons-react';
 import { Button, Header, IconButton, Popover, PopoverContent, SideNav, SideNavItems, SideNavMenuItem, Theme } from '@carbon/react';
-import React from 'react';
+import React, {useContext} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleIsProfileOpen, handleIsSidebarOpen, handleLoggedInUser } from '../../../Redux/slices/linksSlice';
+import { handleIsProfileOpen, handleIsSidebarOpen } from '../../../Redux/slices/linksSlice';
 import koneksysLogo from './koneksys_logo.png';
 import { content, header, headerContainer, main, pageTitle, popoverContent, profile, projectTitle, sidebar, sidebarLink, userContainer } from './NavigationBar.module.scss';
+import AuthContext from '../../../Store/Auth-Context.jsx';
 
 const NavigationBar = () => {
+  const authCtx = useContext(AuthContext);
   const {currPageTitle, isSidebarOpen, isProfileOpen}=useSelector(state=>state.links);
   const navigate=useNavigate();
   const {pathname}=useLocation();
@@ -25,8 +27,9 @@ const NavigationBar = () => {
       confirmButtonText: 'Yes, !'
     }).then((result) => {
       if (result.isConfirmed) {
-        dispatch(handleLoggedInUser(null));
+        authCtx.logout();
         Swal.fire({title:'Logged out successful',icon:'success', timer:1500});
+        navigate('/login', {replace:true});
       }
     });
   };
@@ -80,8 +83,10 @@ const NavigationBar = () => {
           >
             <SideNavItems>
               <hr/>
-              <SideNavMenuItem className={sidebarLink} onClick={()=>navigate('/')} isActive={pathname==='/'}>All links</SideNavMenuItem>
-              <SideNavMenuItem className={sidebarLink} onClick={()=>navigate('/graph-view')} isActive={pathname=== '/graph-view'}>Graph view</SideNavMenuItem>
+              <SideNavMenuItem className={sidebarLink}
+                onClick={()=>navigate('/')} isActive={pathname==='/'}>All links</SideNavMenuItem>
+              <SideNavMenuItem className={sidebarLink}
+                onClick={()=>navigate('/graph-view')} isActive={pathname=== '/graph-view'}>Graph view</SideNavMenuItem>
             </SideNavItems>
           </SideNav>
         }

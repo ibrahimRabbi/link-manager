@@ -11,9 +11,10 @@ const Dashboard = () => {
   return (
     <>
       <NavigationBar/>
-      <div className={isSidebarOpen?'show_nav':''} onClick={()=>dispatch(handleIsProfileOpen(isProfileOpen && false))}>
+      <div className={isSidebarOpen?'show_nav':''}
+        onClick={()=>dispatch(handleIsProfileOpen(isProfileOpen && false))}>
         <div className='mainContainer'>
-          <Outlet/>
+          <Outlet />
         </div>
       </div>
     </>
