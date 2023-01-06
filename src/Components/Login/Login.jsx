@@ -9,6 +9,8 @@ import { Button, PasswordInput, ProgressBar, TextInput } from '@carbon/react';
 
 import style from './Login.module.scss';
 
+const loginURL = `${import.meta.env.VITE_LM_REST_API_URL}/auth/login`;
+
 const {main,container, title, formContainer, btnContainer, titleSpan, errText}=style;
 
 const Login = () => {
@@ -20,11 +22,11 @@ const Login = () => {
   const {handleSubmit, register, formState:{errors}}=useForm();
   const navigate = useNavigate();
 
+  console.log('Login.jsx -> loginURL', loginURL);
+
   // handle form submit
-  const onSubmit = async (data)=>{
-    // dispatch(handleIsLoading(true));
+  const onSubmit = async (data) => {
     setIsLoading(true);
-    const loginURL ='http://127.0.0.1:5002/api/v1/auth/login';
     const authData = window.btoa(data.userName + ':' + data.password);
     fetch(
       loginURL,
