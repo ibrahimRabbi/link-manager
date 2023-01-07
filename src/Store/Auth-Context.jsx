@@ -39,8 +39,6 @@ const retrieveStoredToken = () => {
 export const AuthContextProvider = (props) => {
   const tokenData = retrieveStoredToken();
 
-  console.log('Auth-Context.jsx -> tokenData', tokenData);
-
   let initialToken;
   if (tokenData) {
     initialToken = tokenData.token;
@@ -51,7 +49,6 @@ export const AuthContextProvider = (props) => {
   const userIsLoggedIn = !!token;
 
   const logoutHandler = useCallback(() => {
-    console.log('Auth-Context.jsx -> logoutHandler');
     setToken(null);
     localStorage.removeItem('token');
     localStorage.removeItem('expirationTime');
@@ -61,7 +58,6 @@ export const AuthContextProvider = (props) => {
   }, []);
 
   const loginHandler = (token, expirationTime) => {
-    console.log('loginHandler -> expirationTime', expirationTime);
     setToken(token);
     localStorage.setItem('token', token);
     localStorage.setItem('expirationTime', expirationTime);

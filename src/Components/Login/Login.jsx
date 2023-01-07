@@ -22,8 +22,6 @@ const Login = () => {
   const {handleSubmit, register, formState:{errors}}=useForm();
   const navigate = useNavigate();
 
-  console.log('Login.jsx -> loginURL', loginURL);
-
   // handle form submit
   const onSubmit = async (data) => {
     setIsLoading(true);
