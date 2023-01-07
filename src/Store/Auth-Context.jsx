@@ -5,6 +5,7 @@ let logoutTimer;
 const AuthContext = React.createContext({
   token: '',
   isLoggedIn: false,
+  // eslint-disable-next-line no-unused-vars
   login: (token, expirationTime) => {},
   logout: () => {},
 });
