@@ -37,7 +37,10 @@ build-job:       # This job runs in the build stage, which runs first.
   script:
     - echo "Compiling the code..."
     - yarn install
-    - yarn build
+    - touch .env
+    - echo "NODE_ENV=development" >> .env
+    - echo "VITE_LM_REST_API_URL=https://lm-api-dev.koneksys.com/api/v1" >> .env
+    - vite build
     - echo "Compile complete."
   artifacts:
     paths:
