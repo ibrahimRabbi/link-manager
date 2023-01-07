@@ -7,7 +7,7 @@ import LinkManager from './Components/LinkManager/LinkManager';
 import NewLink from './Components/NewLink/NewLink';
 import ProtectedRoute from './Components/Shared/ProtectedRoute/ProtectedRoute';
 import './GlobalStyle.scss';
-import NotFound from './Pages/404';
+// import NotFound from './Pages/404';
 import Dashboard from './Pages/Dashboard';
 import LoginPage from './Pages/Login';
 import WbeDashboard from './Pages/WbeDashboard';
