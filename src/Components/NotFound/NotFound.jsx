@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { gridContainer, image, title } from './NotFound.module.scss';
 
 const NotFound = () => {
-  const {isWbe}=useSelector(state=>state.links);
+  const {isWbe} = useSelector(state=>state.links);
   const navigate =useNavigate();
 
   const handleBackToHome=()=>{

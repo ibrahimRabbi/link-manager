@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import useSessionStorage from '../../Components/Shared/UseSessionStorage/UseSessionStorage';
 
 const initialState = {
   sourceDataList:{},
@@ -43,14 +42,6 @@ export const linksSlice = createSlice({
 
     handleViewLinkDetails: (state, {payload}) => {
       state.linkedData=payload;
-    },
-
-    handleLoggedInUser: (state, {payload}) => {      
-      state.loggedInUser=payload;
-      
-      if(!payload) {
-        useSessionStorage('remove', 'token');
-      }
     },
 
     handleIsProfileOpen: (state, {payload}) => {
@@ -161,6 +152,25 @@ export const linksSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const {handleIsWbe, handleIsLoading, handleGetSources, handleIsSidebarOpen, handleLoggedInUser, handleCurrPageTitle, handleIsProfileOpen, handleViewLinkDetails, handleCreateLink, handleDisplayLinks, handleEditLinkData, handleTargetDataArr, handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
+export const {
+  handleIsWbe,
+  handleIsLoading,
+  handleGetSources,
+  handleIsSidebarOpen,
+  handleCurrPageTitle,
+  handleIsProfileOpen,
+  handleViewLinkDetails,
+  handleCreateLink,
+  handleDisplayLinks,
+  handleEditLinkData,
+  handleTargetDataArr,
+  handleEditTargetData,
+  handleUpdateCreatedLink,
+  handleLinkType,
+  handleProjectType,
+  handleResourceType,
+  handleSetStatus,
+  handleDeleteLink,
+  handleCancelLink } = linksSlice.actions;
 
 export default linksSlice.reducer;
