@@ -1,51 +1,64 @@
+import React, { useContext, useState } from 'react';
+
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import AuthContext from '../../Store/Auth-Context.jsx';
+
 import { ArrowRight } from '@carbon/icons-react';
 import { Button, PasswordInput, ProgressBar, TextInput } from '@carbon/react';
-import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { handleIsLoading, handleLoggedInUser } from '../../Redux/slices/linksSlice';
+
 import style from './Login.module.scss';
+
+const loginURL = `${import.meta.env.VITE_LM_REST_API_URL}/auth/login`;
 
 const {main,container, title, formContainer, btnContainer, titleSpan, errText}=style;
 
 const Login = () => {
-  const {isLoading, loggedInUser}=useSelector(state=>state.links);
-  const {handleSubmit, register, formState:{errors}}=useForm();
-  const {state}=useLocation();
-  const navigate=useNavigate();
-  const dispatch=useDispatch();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  // redirect management
-  useEffect(()=>{
-    if(loggedInUser?.token && state?.from?.pathname) navigate(state?.from?.pathname);
-    else if(loggedInUser?.token) navigate('/');
-  }, [loggedInUser]);
+  const authCtx = useContext(AuthContext);
+
+  const {handleSubmit, register, formState:{errors}}=useForm();
+  const navigate = useNavigate();
 
   // handle form submit
-  const onSubmit = async (data)=>{
-    dispatch(handleIsLoading(true));
-    const loginURL ='http://127.0.0.1:5000/api/v1/auth/login';
-    const authdata = window.btoa(data.userName + ':' + data.password);
-    await fetch(loginURL, {
-      method:'POST', 
-      headers:{
-        'Content-type':'application/json',
-        'Authorization': 'Basic ' + authdata
-      }
-    })
-      .then(res => res.json())
-      .then(data=>{
-        dispatch(handleIsLoading(false));
-        const token =data.access_token;
-        // useSessionStorage('set','token', window.btoa(token));
-        dispatch(handleLoggedInUser({token}));
-        const redirect =state?.from?.pathname;
-        if(token && redirect) navigate(redirect);
-        else if(token) navigate('/');
+  const onSubmit = async (data) => {
+    setIsLoading(true);
+    const authData = window.btoa(data.userName + ':' + data.password);
+    fetch(
+      loginURL,
+      {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+          'Authorization': 'Basic ' + authData,
+        }
       })
-      .catch(()=>{})
-      .finally(()=> dispatch(handleIsLoading(false)));
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          return res.json().then(data => {
+            let errorMessage = 'Authentication failed: ';
+            if (data && data.message) {
+              errorMessage += data.message;
+            }
+            throw new Error(errorMessage);
+          });
+        }
+      })
+      .then(data => {
+        const expirationTime = new Date(new Date().getTime() + (+data.expires_in * 1000));
+        authCtx.login(data.access_token, expirationTime.toISOString());
+        navigate('/', {replace: true});
+      })
+      .catch(err => {
+        setError(err.message);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   return (
@@ -75,6 +88,9 @@ const Login = () => {
           <p className={errText}>{errors.password && 'Password should include at least 5 characters'}</p>
           { 
             isLoading && <ProgressBar label=''/>
+          }
+          {
+            error && <p className={errText}>{error}</p>
           }
           <div className={btnContainer}>
             <Button

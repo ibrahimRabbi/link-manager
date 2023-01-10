@@ -4,7 +4,7 @@ import { useLocation, useSearchParams } from 'react-router-dom';
 import { handleGetSources, handleIsWbe } from '../../../Redux/slices/linksSlice';
 
 const ProtectedRoute = ({ children }) => {
-  // Get sources in the gitlab and display data  
+  // Get sources in the gitlab and display data
   let location = useLocation();
   const dispatch =useDispatch();
 
