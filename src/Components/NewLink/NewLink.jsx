@@ -190,6 +190,32 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     };
 
     console.log(linkObj);
+
+    const example = {
+      'source_type': 'sourceType',
+      'source_title': 'Issue2',
+      'source_provider': 'xxxxx',
+      'source_id': 'https://gitlabpath',
+      'source_project': 'xxxxx',
+      'relation': 'link type',
+      'status': 'active',
+      'target_data': [
+        {
+          'target_type': 'TargetType',
+          'target_title': 'Issue2',
+          'target_provider': 'xxxxx',
+          'target_id': 'https://themuchy.atlassian.net/rest/api/2/1000234334',
+          'target_project': 'xxxxx'
+        },
+        {
+          'target_type': 'TargetType',
+          'target_title': 'Issue2',
+          'target_provider': 'xxxxx',
+          'target_id': 'https://themuchy.atlassian.net/rest/api/2/10002343345',
+          'target_project': 'xxxxx'
+        }
+      ]
+    };
     
     await fetch(apiURL, {
       method:'POST',
@@ -197,7 +223,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         'Content-type':'application/json',
         'authorization':'Bearer ' + authCtx.token,
       },
-      body:JSON.stringify(linkObj),
+      body:JSON.stringify(example),
     })
       .then(res=>res.json())
       .then(res=>{
