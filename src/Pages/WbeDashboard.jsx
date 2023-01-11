@@ -4,7 +4,7 @@ import { Outlet } from 'react-router-dom';
 const WbeDashboard = () => {
   return (
     <div className='mainContainer wbeDashboardContainer'>
-      <Outlet/>
+      <Outlet />
     </div>
   );
 };

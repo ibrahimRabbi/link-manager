@@ -33,7 +33,8 @@ export const linksSlice = createSlice({
 
     // get sources in wbe
     handleGetSources: (state, {payload}) => {
-      state.sourceDataList =payload;
+      console.log('link slice', payload);
+      state.sourceDataList = payload;
     },
 
     handleIsSidebarOpen: (state, {payload}) => {

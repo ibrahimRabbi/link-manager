@@ -1,5 +1,5 @@
 import { Button, ProgressBar, Search } from '@carbon/react';
-import React, { useEffect } from 'react';
+import React, {useContext, useEffect} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -7,6 +7,7 @@ import { handleDisplayLinks, handleEditLinkData, handleIsLoading } from '../../R
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import { dropdownStyle, inputContainer, linkFileContainer, searchBox, searchContainer, searchInput, tableContainer } from './LinkManager.module.scss';
+import AuthContext from '../../Store/Auth-Context.jsx';
 
 const headers = [
   { key: 'status', header: 'Status' },
@@ -18,12 +19,17 @@ const headers = [
 
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 
+const apiURL = `${import.meta.env.VITE_LM_REST_API_URL}/link/resource`;
+
+
 const LinkManager = () => {
   // const [isLoaded, setIsLoaded] = React.useState(false);
-  const { allLinks, isLoading, loggedInUser, sourceDataList, isWbe } = useSelector(state => state.links);
+  const { allLinks, isLoading, sourceDataList, isWbe } = useSelector(state => state.links);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
+
+  const authCtx = useContext(AuthContext);
 
   // Get Created Links from LM API
   useEffect(()=>{
@@ -31,11 +37,11 @@ const LinkManager = () => {
       const title = await searchParams.get('title');
       if(title){
         dispatch(handleIsLoading(true));
-        await fetch(`http://127.0.0.1:5000/api/v1/link/resource/${title}`, {
+        await fetch(`${apiURL}/60`, {
           method:'GET',
           headers:{
             'Content-type':'application/json',
-            'authorization':'Bearer '+ loggedInUser?.token,
+            'authorization':'Bearer ' + authCtx.token,
           }
         })
           .then(res=>res.json())

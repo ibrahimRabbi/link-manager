@@ -1,5 +1,5 @@
 import { Button, Checkbox, ProgressBar, Search, StructuredListBody, StructuredListCell, StructuredListRow, StructuredListWrapper } from '@carbon/react';
-import React, { useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -8,6 +8,7 @@ import { handleCancelLink, handleCreateLink, handleCurrPageTitle, handleLinkType
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import { btnContainer, dropdownStyle, emptySearchWarning, inputContainer, linkTypeContainer, newLinkTable, searchContainer, searchInput, sourceContainer, sourceProp, sourceValue, targetContainer, targetIframe, targetSearchContainer } from './NewLink.module.scss';
+import AuthContext from '../../Store/Auth-Context.jsx';
 
 // dropdown items
 const linkTypeItems = ['affectedBy', 'implementedBy', 'trackedBy', 'constrainedBy', 'decomposedBy', 'elaboratedBy', 'satisfiedBy'];
@@ -22,8 +23,10 @@ const headers = [
   { key: 'checkbox', header: <Checkbox labelText='' id='' /> }
 ];
 
+const apiURL = `${import.meta.env.VITE_LM_REST_API_URL}/link`;
+
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
-  const {isWbe, loggedInUser, sourceDataList, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);
+  const {isWbe, sourceDataList, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [isJiraApp, setIsJiraApp] = useState(false);
@@ -34,6 +37,21 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+
+  console.log('sourceDataList', sourceDataList);
+
+  const isGlide = sourceDataList?.appName?.includes('glide');
+
+  console.log('isGlide', isGlide);
+
+  const authCtx = useContext(AuthContext);
+
+  let sourceTitles = [];
+  if (isGlide) {
+    sourceTitles = ['Glide Project', 'Resource'];
+  } else {
+    sourceTitles = ['GitLab Project', 'GitLab Branch', 'Gitlab Commit', 'Filename', 'URI'];
+  }
 
   useEffect(()=>{
     dispatch(handleCurrPageTitle(isEditLinkPage ? isEditLinkPage : 'New Link'));
@@ -173,11 +191,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
     console.log(linkObj);
     
-    await fetch('http://127.0.0.1:5000/api/v1/link', {
+    await fetch(apiURL, {
       method:'POST',
       headers:{
         'Content-type':'application/json',
-        'authorization':'Bearer '+ loggedInUser?.token,
+        'authorization':'Bearer ' + authCtx.token,
       },
       body:JSON.stringify(linkObj),
     })
@@ -205,7 +223,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         <StructuredListWrapper ariaLabel='Structured list'>
           <StructuredListBody>
             {
-              ['GitLab Project', 'GitLab Branch', 'Gitlab Commit', 'Filename', 'URI'].map((properties, index)=><StructuredListRow key={properties}>
+              sourceTitles.map((properties, index)=><StructuredListRow key={properties}>
                 <StructuredListCell id={sourceProp}>{properties}</StructuredListCell>
                 <StructuredListCell id={sourceValue}>{Object.values(sourceDataList)[index]}</StructuredListCell>
               </StructuredListRow>)
