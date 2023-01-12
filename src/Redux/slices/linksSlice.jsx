@@ -2,13 +2,11 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   sourceDataList:{},
-  isWbe:false,
   isLinkCreate:false,
   isSidebarOpen:false,
   currPageTitle:'',
   isLoading:false,
   loggedInUser: {},
-  isProfileOpen:false,
   allLinks: [],
   editTargetData:{},
   targetDataArr:[],
@@ -24,17 +22,13 @@ export const linksSlice = createSlice({
   initialState,
 
   reducers: {
-    handleIsWbe: (state, {payload}) => {
-      state.isWbe=payload;
-    },
     handleIsLoading: (state, {payload}) => {
       state.isLoading=payload;
     },
 
     // get sources in wbe
     handleGetSources: (state, {payload}) => {
-      console.log('link slice', payload);
-      state.sourceDataList = payload;
+      state.sourceDataList =payload;
     },
 
     handleIsSidebarOpen: (state, {payload}) => {
@@ -154,7 +148,6 @@ export const linksSlice = createSlice({
 
 // Action creators are generated for each case reducer function
 export const {
-  handleIsWbe,
   handleIsLoading,
   handleGetSources,
   handleIsSidebarOpen,

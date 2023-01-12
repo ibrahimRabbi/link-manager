@@ -7,8 +7,16 @@ import Swal from 'sweetalert2';
 import { handleCancelLink, handleCreateLink, handleCurrPageTitle, handleLinkType, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
-import { btnContainer, dropdownStyle, emptySearchWarning, inputContainer, linkTypeContainer, newLinkTable, searchContainer, searchInput, sourceContainer, sourceProp, sourceValue, targetContainer, targetIframe, targetSearchContainer } from './NewLink.module.scss';
 import AuthContext from '../../Store/Auth-Context.jsx';
+
+import styles from './NewLink.module.scss';
+const {
+  btnContainer, dropdownStyle, emptySearchWarning,
+  inputContainer, linkTypeContainer, newLinkTable,
+  searchContainer, searchInput, sourceContainer,
+  sourceProp, sourceValue, targetContainer,
+  targetIframe, targetSearchContainer
+} = styles;
 
 // dropdown items
 const linkTypeItems = ['affectedBy', 'implementedBy', 'trackedBy', 'constrainedBy', 'decomposedBy', 'elaboratedBy', 'satisfiedBy'];
@@ -23,7 +31,7 @@ const headers = [
   { key: 'checkbox', header: <Checkbox labelText='' id='' /> }
 ];
 
-const apiURL = `${import.meta.env.VITE_LM_REST_API_URL}/link`;
+const apiURL = `${process.env.REACT_REST_API_URL}/link`;
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const {isWbe, sourceDataList, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);

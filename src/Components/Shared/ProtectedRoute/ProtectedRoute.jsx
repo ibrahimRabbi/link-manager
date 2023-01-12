@@ -1,35 +1,40 @@
-import { useEffect } from 'react';
+import {useEffect, useState} from 'react';
 import { useDispatch } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { handleGetSources, handleIsWbe } from '../../../Redux/slices/linksSlice';
+import { handleGetSources } from '../../../Redux/slices/linksSlice';
 
 const ProtectedRoute = ({ children }) => {
-  // Get sources in the gitlab and display data
   let location = useLocation();
-  const dispatch =useDispatch();
+  const dispatch = useDispatch();
+
+  const wbePath = location.pathname?.includes('wbe');
+  console.log('ProtectedRoute.jsx -> wbePath', wbePath);
+
+  const [isWBE, setIsWBE] = useState(wbePath);
+  console.log('ProtectedRoute.jsx -> isWBE', isWBE);
+
+  console.log('ProtectedRoute.jsx');
+  // Get sources in the gitlab and display data
 
   // Get query parameters from the Gitlab
   const [searchParams] = useSearchParams();
-  const projectName = searchParams.get('project');
-  const branch = searchParams.get('branch');
-  const uri = searchParams.get('uri');
-  const title = searchParams.get('title');
-  const commit = searchParams.get('commit');
-  const origin = searchParams.get('origin');
-  const sourceType = searchParams.get('sourceType');
-  const isWBE = location.pathname?.includes('wbe');
+  const projectName =searchParams.get('project');
+  const branch= searchParams.get('branch');
+  const uri =searchParams.get('uri');
+  const title =searchParams.get('title');
+  const commit =searchParams.get('commit');
+  const origin= searchParams.get('origin');
+  const sourceType= searchParams.get('sourceType');
   const appName = searchParams.get('appName');
 
-  console.log(appName);
+  console.log('ProtectedRoute -> uri', uri);
+  console.log('ProtectedRoute -> title', title);
+  console.log('ProtectedRoute -> projectName', projectName);
+  console.log('ProtectedRoute -> appName', appName);
 
   useEffect(()=>{
-    console.log('ProtectedRoute -> useEffect');
-    dispatch(handleIsWbe(isWBE));
-    console.log('ProtectedRoute -> useEffect -> isWBE', isWBE);
-    console.log('ProtectedRoute -> useEffect -> appName', appName);
-    console.log('ProtectedRoute -> useEffect -> uri', uri);
-    console.log('ProtectedRoute -> useEffect -> title', title);
-    console.log('ProtectedRoute -> useEffect -> projectName', projectName);
+    // dispatch(handleIsWbe(isWBE));
+    setIsWBE(isWBE);
     if (uri && title && projectName) {
       dispatch(handleGetSources({
         projectName, branch, commit, title, uri, origin, sourceType, appName

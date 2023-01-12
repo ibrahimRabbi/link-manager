@@ -5,7 +5,13 @@ import { TbArrowNarrowRight } from 'react-icons/tb';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { handleCurrPageTitle } from '../../Redux/slices/linksSlice';
-import { arrowIcon, btnContainer, circle, circleBorder, circlesContainer, linkTitle2, linkTypeCenter, sourceContainer, sourceList, sourceProp, sourceTitle2, targetTitle2 } from './LinkDetails.module.scss';
+import styles from './LinkDetails.module.scss';
+const {
+  arrowIcon, btnContainer,
+  circle, circleBorder, circlesContainer,
+  linkTitle2, linkTypeCenter, sourceContainer,
+  sourceList, sourceProp, sourceTitle2, targetTitle2
+} =styles;
 
 const LinkDetails = () => {
   const {isWbe, linkedData, sourceDataList}=useSelector(state=>state.links);

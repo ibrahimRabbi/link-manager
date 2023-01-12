@@ -6,7 +6,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { handleDeleteLink, handleEditLinkData, handleEditTargetData, handleSetStatus, handleTargetDataArr, handleViewLinkDetails } from '../../../Redux/slices/linksSlice';
-import { actionMenu, boxCell, menuItem, modalBody, modalHeadContainer, modalTitle, newLinkCell1, newLinkCell2, statusIcon, tableCell, targetCell, validIcon } from './UseDataTable.module.scss';
+
+import styles from './UseDataTable.module.scss';
+const {
+  actionMenu, boxCell, menuItem,
+  modalBody, modalHeadContainer, modalTitle,
+  newLinkCell1, newLinkCell2, statusIcon,
+  tableCell, targetCell, validIcon
+} = styles;
 
 const UseDataTable = ({ tableData, headers, openTargetLink, isCheckBox = false,isChecked,editTargetData }) => {
   const { isWbe, sourceDataList}=useSelector(state=>state.links);

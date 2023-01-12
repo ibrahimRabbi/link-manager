@@ -6,8 +6,13 @@ import Swal from 'sweetalert2';
 import { handleDisplayLinks, handleEditLinkData, handleIsLoading } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
-import { dropdownStyle, inputContainer, linkFileContainer, searchBox, searchContainer, searchInput, tableContainer } from './LinkManager.module.scss';
 import AuthContext from '../../Store/Auth-Context.jsx';
+
+import styles from './LinkManager.module.scss';
+const {
+  dropdownStyle, inputContainer, linkFileContainer,
+  searchBox, searchContainer, searchInput, tableContainer
+} = styles;
 
 const headers = [
   { key: 'status', header: 'Status' },
@@ -19,7 +24,7 @@ const headers = [
 
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 
-const apiURL = `${import.meta.env.VITE_LM_REST_API_URL}/link/resource`;
+const apiURL = `${process.env.REACT_REST_API_URL}/link/resource`;
 
 
 const LinkManager = () => {

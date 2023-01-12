@@ -5,9 +5,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { handleIsProfileOpen, handleIsSidebarOpen } from '../../../Redux/slices/linksSlice';
-import koneksysLogo from './koneksys_logo.png';
-import { content, header, headerContainer, main, pageTitle, popoverContent, profile, projectTitle, sidebar, sidebarLink, userContainer } from './NavigationBar.module.scss';
 import AuthContext from '../../../Store/Auth-Context.jsx';
+
+import koneksysLogo from './koneksys_logo.png';
+import styles from './NavigationBar.module.scss';
+const {
+  content, header, headerContainer,
+  main, pageTitle, popoverContent,
+  profile, projectTitle, sidebar,
+  sidebarLink, userContainer
+} = styles;
 
 const NavigationBar = () => {
   const authCtx = useContext(AuthContext);

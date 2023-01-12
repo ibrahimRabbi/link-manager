@@ -5,11 +5,22 @@ import { defineConfig } from 'vite';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  // // server: { https: true },
+  // server: { https: true },
 
   plugins: [
     react(),
     // mkcert()
+    // esmodule([
+    //   'react-graph',
+    //   'd3',
+    // ]),
+    // viteCommonjs(),
+    // esbuildCommonjs([]),
+    // viteCommonjs({
+    //   include: ['node_modules/d3/**/*'],
+    // }
+    // ),
+    // commonjs(/* options */),
   ],
   includeAssets: ['favicon.svg', 'favicon.ico', 'assets/*'],
   resolve: {

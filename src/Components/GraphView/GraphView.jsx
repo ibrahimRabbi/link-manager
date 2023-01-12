@@ -2,7 +2,7 @@ import React from 'react';
 import nodesData from './nodesData';
 import relationshipsData from './relationshipsData';
 import rootData from './rootData';
-// import ReactGraph from 'react-graph';
+import ReactGraph from 'react-graph';
 
 const GraphView = () => {
   console.log(rootData);
@@ -12,7 +12,7 @@ const GraphView = () => {
     <div>
       <h3>This is Graph view</h3>
       <div>
-        {/* <ReactGraph
+        <ReactGraph
           initialState={rootData}
           nodes={nodesData}
           relationships={relationshipsData}
@@ -21,7 +21,7 @@ const GraphView = () => {
           hasLegends
           hasInspector
           hasTruncatedFields
-        /> */}
+        />
         {/* <iframe src={`http://localhost:3000`} width={'100%'} height={'700px'}></iframe> */}
       </div>
     </div>
