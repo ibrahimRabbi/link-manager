@@ -3,12 +3,11 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   sourceDataList:{},
   isWbe:false,
+  oslcResponse:null,
   isLinkCreate:false,
   isSidebarOpen:false,
   currPageTitle:'',
   isLoading:false,
-  loggedInUser: {},
-  isProfileOpen:false,
   allLinks: [],
   editTargetData:{},
   targetDataArr:[],
@@ -24,11 +23,16 @@ export const linksSlice = createSlice({
   initialState,
 
   reducers: {
+    handleIsLoading: (state, {payload}) => {
+      state.isLoading=payload;
+    },
+
     handleIsWbe: (state, {payload}) => {
       state.isWbe=payload;
     },
-    handleIsLoading: (state, {payload}) => {
-      state.isLoading=payload;
+
+    handleOslcResponse: (state, {payload}) => {
+      state.oslcResponse=payload;
     },
 
     // get sources in wbe
@@ -43,10 +47,6 @@ export const linksSlice = createSlice({
     handleViewLinkDetails: (state, {payload}) => {
       state.linkedData=payload;
     },
-
-    handleIsProfileOpen: (state, {payload}) => {
-      state.isProfileOpen=payload;
-    },
     
     handleCurrPageTitle: (state, {payload}) => {
       state.currPageTitle=payload;
@@ -57,7 +57,7 @@ export const linksSlice = createSlice({
       state.linkType =null;
       state.projectType =null;
       state.resourceType =null;
-      state.oslcResponse = null;
+      state.oslcResponse = false;
       state.targetDataArr=[];
       state.isLinkEdit=false;
     },
@@ -72,7 +72,7 @@ export const linksSlice = createSlice({
       state.linkType =null;
       state.projectType =null;
       state.resourceType =null;
-      state.oslcResponse =null;
+      state.oslcResponse =false;
       state.editTargetData=payload?.targetData;
       state.editLinkData=payload;
     },
@@ -154,11 +154,11 @@ export const linksSlice = createSlice({
 // Action creators are generated for each case reducer function
 export const {
   handleIsWbe,
+  handleOslcResponse,
   handleIsLoading,
   handleGetSources,
   handleIsSidebarOpen,
   handleCurrPageTitle,
-  handleIsProfileOpen,
   handleViewLinkDetails,
   handleCreateLink,
   handleDisplayLinks,

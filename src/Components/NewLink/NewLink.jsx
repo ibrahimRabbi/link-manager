@@ -1,13 +1,22 @@
 import { Button, Checkbox, ProgressBar, Search, StructuredListBody, StructuredListCell, StructuredListRow, StructuredListWrapper } from '@carbon/react';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleCancelLink, handleCreateLink, handleCurrPageTitle, handleLinkType, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
+import { handleCancelLink, handleCreateLink, handleCurrPageTitle, handleLinkType, handleOslcResponse, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
+import AuthContext from '../../Store/Auth-Context.jsx';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
-import { btnContainer, dropdownStyle, emptySearchWarning, inputContainer, linkTypeContainer, newLinkTable, searchContainer, searchInput, sourceContainer, sourceProp, sourceValue, targetContainer, targetIframe, targetSearchContainer } from './NewLink.module.scss';
+
+import styles from './NewLink.module.scss';
+const {
+  btnContainer, dropdownStyle, emptySearchWarning,
+  inputContainer, linkTypeContainer, newLinkTable,
+  searchContainer, searchInput, sourceContainer,
+  sourceProp, sourceValue, targetContainer,
+  targetIframe, targetSearchContainer
+} = styles;
 
 // dropdown items
 const linkTypeItems = ['affectedBy', 'implementedBy', 'trackedBy', 'constrainedBy', 'decomposedBy', 'elaboratedBy', 'satisfiedBy'];
@@ -23,17 +32,32 @@ const headers = [
 ];
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
-  const {isWbe, loggedInUser, sourceDataList, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);
+  const {isWbe, oslcResponse, sourceDataList, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [isJiraApp, setIsJiraApp] = useState(false);
   const [isBackJiraApp, setIsBackJiraApp] = useState(false);
   const [displayTableData, setDisplayTableData] = useState([]);
-  const [oslcRes, setOslcRes] = useState(false);
+  // const [oslcRes, setOslcRes] = useState(false);
   const [lcLoading, setLcLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+
+  // console.log('sourceDataList', sourceDataList);
+
+  const isGlide = sourceDataList?.appName?.includes('glide');
+
+  // console.log('isGlide', isGlide);
+
+  const authCtx = useContext(AuthContext);
+
+  let sourceTitles = [];
+  if (isGlide) {
+    sourceTitles = ['Glide Project', 'Resource'];
+  } else {
+    sourceTitles = ['GitLab Project', 'GitLab Branch', 'Gitlab Commit', 'Filename', 'URI'];
+  }
 
   useEffect(()=>{
     dispatch(handleCurrPageTitle(isEditLinkPage ? isEditLinkPage : 'New Link'));
@@ -83,8 +107,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   //// Get Selection dialog response data
   window.addEventListener('message', function (event) {
     let message = event.data;
-    if(!message.source) {
-      if(message.startsWith('oslc-response')){
+    if (!message.source) {
+      if (message.startsWith('oslc-response')){
         const response = JSON.parse(message?.substr('oslc-response:'?.length));
         const results = response['oslc:results'];
         const targetArray =[];
@@ -94,7 +118,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           const type = results[i]['rdf:type'];
           targetArray.push({uri, label, type});
         });
-        setOslcRes(true);
+        dispatch(handleOslcResponse(true));
         dispatch(handleTargetDataArr([...targetArray]));
       }
     }
@@ -102,10 +126,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Call create link function 
   useEffect(()=>{
-    if(projectType && oslcRes && targetDataArr.length) {
+    if (projectType && oslcResponse && targetDataArr.length) {
       handleSaveLink();
+      console.log('link creating');
     }
-  },[oslcRes]);
+  },[projectType, oslcResponse, targetDataArr]);
   
   // Link type dropdown
   const handleLinkTypeChange = ({ selectedItem }) => {
@@ -144,16 +169,15 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   };
 
   // Create new link 
-  const handleSaveLink =async () => {
+  const handleSaveLink = async () => {
     setLcLoading(true);
-    const { projectName, title, uri, sourceType, origin}=sourceDataList;
-    const sourceProvider = origin === 'https://gitlab.com'? 'Gitlab': origin === 'https://github.com'? 'Github' : origin === 'https://bitbucket.org' ? 'Bitbucket' : 'Gitlab';
+    const { projectName, title, uri, origin} = sourceDataList;
+    const sourceProvider = origin === 'https://gitlab.com' ? 'Gitlab': origin === 'https://github.com'? 'Github' : origin === 'https://bitbucket.org' ? 'Bitbucket' : 'Gitlab';
     
     const targetsData= targetDataArr?.map(data=>{
       return {
-        target_title: data.label,
         target_type: data.type,
-        target_uri: data.uri,
+        target_title: data.label,
         target_id: data.uri,
         target_project: projectType,
         target_provider: 'JIRA',
@@ -161,35 +185,38 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     });
 
     const linkObj ={
-      source_type: sourceType,
-      source_project: projectName,
+      source_type: title,
       source_title: title,
-      source_uri: uri,
+      source_project: projectName,
       source_provider: sourceProvider,
-      source_id: title,
+      source_id: uri,
       relation: linkType,
-      target_data: targetsData
+      status: 'active',
+      target_data: targetsData,
     };
-
-    console.log(linkObj);
-    
-    await fetch('http://127.0.0.1:5000/api/v1/link', {
-      method:'POST',
-      headers:{
-        'Content-type':'application/json',
-        'authorization':'Bearer '+ loggedInUser?.token,
-      },
-      body:JSON.stringify(linkObj),
-    })
-      .then(res=>res.json())
-      .then(res=>{
-        Swal.fire({title:res?.status, text: res?.message, icon:'success', timer:1500});
-        dispatch(handleCreateLink());
-        isWbe ? navigate('/wbe') : navigate('/');
+    const apiURL = `${process.env.REACT_APP_REST_API_URL}/link`;
+    setTimeout(async()=>{
+      console.log(linkObj);
+      await fetch(apiURL, {
+        method:'POST',
+        headers:{
+          'Content-type':'application/json',
+          'authorization':'Bearer ' + authCtx.token,
+        },
+        body:JSON.stringify(linkObj),
       })
-      .catch(()=>{})
-      .finally(()=>setLcLoading(false));
-    setOslcRes(false);
+        .then((res) => {
+          console.log(res);
+          const showIcon = res.status ==='Created' ?'success': 'error';
+          Swal.fire({title:res?.status, text: res?.message, icon: showIcon, });
+          isWbe ? navigate('/wbe') : navigate('/');
+        })
+        .catch((err) => {console.log(err);})
+        .finally(() => {
+          setLcLoading(false);
+        });
+    }, 0);
+    dispatch(handleCreateLink());
   };
 
   // cancel create link
@@ -205,7 +232,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         <StructuredListWrapper ariaLabel='Structured list'>
           <StructuredListBody>
             {
-              ['GitLab Project', 'Filename'].map((properties, index)=><StructuredListRow key={properties}>
+              sourceTitles.map((properties, index)=><StructuredListRow key={properties}>
                 <StructuredListCell id={sourceProp}>{properties}</StructuredListCell>
                 <StructuredListCell id={sourceValue}>{Object.values(sourceDataList)[index]}</StructuredListCell>
               </StructuredListRow>)
@@ -294,7 +321,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               </div>}
             </>
           }
-
 
         </div>
       }

@@ -1,29 +1,27 @@
 import React from 'react';
-// import ReactGraph from 'react-graph';
-import nodesData from './nodesData';
-import relationshipsData from './relationshipsData';
+import ReactGraph from 'react-graph';
 import rootData from './rootData';
 
+const graphApiURL= `${process.env.REACT_APP_REST_API_URL}/visualize`;
 const GraphView = () => {
+  fetch(graphApiURL)
+    .then(res=>console.log(res))
+    .catch(er=>console.log(er));
+
   console.log(rootData);
-  console.log(nodesData);
-  console.log(relationshipsData);
+  console.log(graphApiURL);
   return (
-    <div>
-      <h3>This is Graph view</h3>
-      <div>
-        {/* <ReactGraph
-          initialState={rootData}
-          nodes={nodesData}
-          relationships={relationshipsData}
-          width="100%"
-          height="100%"
-          hasLegends
-          hasInspector
-          hasTruncatedFields
-        /> */}
-        {/* <iframe src={'http://localhost:3000'} width={'100%'} height={'700px'}></iframe> */}
-      </div>
+    <div style={{width:'100%', height:'90vh'}}>
+      <ReactGraph
+        initialState={rootData}
+        nodes={rootData.nodes}
+        relationships={rootData.relationships}
+        width="100%"
+        height="100%"
+        hasLegends
+        hasInspector
+        hasTruncatedFields
+      />
     </div>
   );
 };
