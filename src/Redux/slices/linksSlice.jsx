@@ -6,7 +6,6 @@ const initialState = {
   isSidebarOpen:false,
   currPageTitle:'',
   isLoading:false,
-  loggedInUser: {},
   allLinks: [],
   editTargetData:{},
   targetDataArr:[],

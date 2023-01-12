@@ -31,7 +31,7 @@ const headers = [
   { key: 'checkbox', header: <Checkbox labelText='' id='' /> }
 ];
 
-const apiURL = `${process.env.REACT_REST_API_URL}/link`;
+const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const {isWbe, sourceDataList, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);
