@@ -71,6 +71,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   
   useEffect(()=>{
+    console.log('NewLink.jsx -> useEffect -> projectType', projectType);
     if(projectType) {
       setIsBackJiraApp(projectType?.includes('Backend (JIRA)'));
       setIsJiraApp(projectType?.includes('JIRA'));
@@ -79,6 +80,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Edit link options start
   useEffect(() => {
+    console.log('NewLink.jsx -> useEffect -> editLinkData', editLinkData);
     if (editTargetData?.identifier) {
       const string = editTargetData?.description?.split(' ')[0]?.toLowerCase();
       setSearchText(string === 'document' ? 'document' : string === 'user' ? 'data' : null);
@@ -109,8 +111,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   //// Get Selection dialog response data
   window.addEventListener('message', function (event) {
     let message = event.data;
-    if(!message.source) {
-      if(message.startsWith('oslc-response')){
+    if (!message.source) {
+      if (message.startsWith('oslc-response')){
         const response = JSON.parse(message?.substr('oslc-response:'?.length));
         const results = response['oslc:results'];
         const targetArray =[];
@@ -128,10 +130,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Call create link function 
   useEffect(()=>{
-    if(projectType && oslcRes && targetDataArr.length) {
+    console.log('NewLink.jsx -> useEffect -> projectType', projectType);
+    console.log('NewLink.jsx -> useEffect -> oslcRes', oslcRes);
+    console.log('NewLink.jsx -> useEffect -> targetDataArr', targetDataArr);
+    if (projectType && oslcRes && targetDataArr.length) {
       handleSaveLink();
     }
-  },[oslcRes]);
+  },[projectType, oslcRes, targetDataArr]);
   
   // Link type dropdown
   const handleLinkTypeChange = ({ selectedItem }) => {
@@ -170,10 +175,10 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   };
 
   // Create new link 
-  const handleSaveLink =async () => {
+  const handleSaveLink = () => {
     setLcLoading(true);
-    const { projectName, title, uri, sourceType, origin}=sourceDataList;
-    const sourceProvider = origin === 'https://gitlab.com'? 'Gitlab': origin === 'https://github.com'? 'Github' : origin === 'https://bitbucket.org' ? 'Bitbucket' : 'Gitlab';
+    const { projectName, title, uri, sourceType, origin} = sourceDataList;
+    const sourceProvider = origin === 'https://gitlab.com' ? 'Gitlab': origin === 'https://github.com'? 'Github' : origin === 'https://bitbucket.org' ? 'Bitbucket' : 'Gitlab';
     
     const targetsData= targetDataArr?.map(data=>{
       return {
@@ -194,53 +199,47 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       source_provider: sourceProvider,
       source_id: title,
       relation: linkType,
-      target_data: targetsData
+      target_data: targetsData,
+      status: 'valid',
     };
 
     console.log(linkObj);
-
-    const example = {
-      'source_type': 'sourceType',
-      'source_title': 'Issue2',
-      'source_provider': 'xxxxx',
-      'source_id': 'https://gitlabpath',
-      'source_project': 'xxxxx',
-      'relation': 'link type',
-      'status': 'active',
-      'target_data': [
-        {
-          'target_type': 'TargetType',
-          'target_title': 'Issue2',
-          'target_provider': 'xxxxx',
-          'target_id': 'https://themuchy.atlassian.net/rest/api/2/1000234334',
-          'target_project': 'xxxxx'
-        },
-        {
-          'target_type': 'TargetType',
-          'target_title': 'Issue2',
-          'target_provider': 'xxxxx',
-          'target_id': 'https://themuchy.atlassian.net/rest/api/2/10002343345',
-          'target_project': 'xxxxx'
-        }
-      ]
-    };
     
-    await fetch(apiURL, {
+    fetch(apiURL, {
       method:'POST',
       headers:{
         'Content-type':'application/json',
         'authorization':'Bearer ' + authCtx.token,
       },
-      body:JSON.stringify(example),
+      body:JSON.stringify(linkObj),
     })
-      .then(res=>res.json())
-      .then(res=>{
+      .then(res => {
+        console.log(res.ok);
+        if (res.ok) {
+          return res.json();
+        } else {
+          console.log(res);
+          return res.json().then(data => {
+            let errorMessage = 'Creation Link failed!';
+            if (data && data.error && data.error.message) {
+              errorMessage = data.error.message;
+            }
+            throw new Error(errorMessage);
+          });
+        }
+        // res.json()
+      })
+      .then(res => {
+        console.log(res);
         Swal.fire({title:res?.status, text: res?.message, icon:'success', timer:1500});
         dispatch(handleCreateLink());
         isWbe ? navigate('/wbe') : navigate('/');
       })
-      .catch(()=>{})
-      .finally(()=>setLcLoading(false));
+      .catch((res) => {
+        // setError(err.message);
+        Swal.fire({title:res?.status, text: res?.message, icon:'error', timer:1500});
+      })
+      .finally(() => setLcLoading(false));
     setOslcRes(false);
   };
 

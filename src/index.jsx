@@ -7,14 +7,17 @@ import {AuthContextProvider} from './Store/Auth-Context.jsx';
 import {Provider} from 'react-redux';
 import store from './Redux/store.jsx';
 import {BrowserRouter} from 'react-router-dom';
+import {NavigationBarContextProvider} from './Store/NavigationBar-Context.jsx';
 
 ReactDOM.render(
   <React.StrictMode>
     <AuthContextProvider>
       <Provider store={store}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <NavigationBarContextProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </NavigationBarContextProvider>
       </Provider>
     </AuthContextProvider>
   </React.StrictMode>,

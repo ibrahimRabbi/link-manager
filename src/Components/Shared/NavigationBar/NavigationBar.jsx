@@ -4,11 +4,12 @@ import React, {useContext} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleIsProfileOpen, handleIsSidebarOpen } from '../../../Redux/slices/linksSlice';
+import { handleIsSidebarOpen } from '../../../Redux/slices/linksSlice';
 import AuthContext from '../../../Store/Auth-Context.jsx';
 
 import koneksysLogo from './koneksys_logo.png';
 import styles from './NavigationBar.module.scss';
+import NavigationBarContext from '../../../Store/NavigationBar-Context.jsx';
 const {
   content, header, headerContainer,
   main, pageTitle, popoverContent,
@@ -18,12 +19,15 @@ const {
 
 const NavigationBar = () => {
   const authCtx = useContext(AuthContext);
-  const {currPageTitle, isSidebarOpen, isProfileOpen}=useSelector(state=>state.links);
-  const navigate=useNavigate();
-  const {pathname}=useLocation();
-  const dispatch=useDispatch();
+  const navbarCtx = useContext(NavigationBarContext);
+
+  const {currPageTitle, isSidebarOpen} = useSelector(state => state.links);
+  const navigate = useNavigate();
+  const {pathname} = useLocation();
+  const dispatch = useDispatch();
+
   const handleLogout=()=>{
-    dispatch(handleIsProfileOpen(!isProfileOpen));
+    navbarCtx.closeProfile(!navbarCtx.isProfileOpen);
     Swal.fire({
       title: 'Are you sure?',
       text: 'You wont to logout!',
@@ -55,14 +59,13 @@ const NavigationBar = () => {
             <img src={koneksysLogo} height='40px' alt='logo' />
             <h5 className={projectTitle}>Link manager</h5>
             <h5 className={pageTitle}>{currPageTitle}</h5>
-                  
 
             {/* --- User popover --- */}
-            <Popover open={isProfileOpen}
+            <Popover open={navbarCtx.isProfileOpen}
               highContrast={false} dropShadow caret={false}
               align='bottom-right'
               className={profile}>
-              <IconButton kind='ghost' label='' onClick={() => dispatch(handleIsProfileOpen(!isProfileOpen))}>
+              <IconButton kind='ghost' label='' onClick={() => navbarCtx.setProfile(!navbarCtx.isProfileOpen)}>
                 <UserAvatarFilledAlt size={30}/>
               </IconButton>
               <PopoverContent className={popoverContent}>
@@ -81,7 +84,6 @@ const NavigationBar = () => {
         </Header>
         
         {/* --------- Side nav ---------   */}
-
         {
           isSidebarOpen && <SideNav id={sidebar}
             aria-label=''
@@ -97,7 +99,6 @@ const NavigationBar = () => {
             </SideNavItems>
           </SideNav>
         }
-
       </Theme>
     </div>
   );

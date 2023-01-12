@@ -1,9 +1,9 @@
 import { Button, ProgressBar, Search } from '@carbon/react';
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleDisplayLinks, handleEditLinkData, handleIsLoading } from '../../Redux/slices/linksSlice';
+import { handleDisplayLinks, handleEditLinkData } from '../../Redux/slices/linksSlice';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import AuthContext from '../../Store/Auth-Context.jsx';
@@ -24,40 +24,59 @@ const headers = [
 
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 
-const apiURL = `${process.env.REACT_REST_API_URL}/link/resource`;
+const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 
 
 const LinkManager = () => {
-  // const [isLoaded, setIsLoaded] = React.useState(false);
-  const { allLinks, isLoading, sourceDataList, isWbe } = useSelector(state => state.links);
+  const [isLoading, setIsLoading] = useState(false);
+  const { allLinks, sourceDataList, isWbe } = useSelector(state => state.links);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
 
   const authCtx = useContext(AuthContext);
 
+  const title = searchParams.get('title');
+
   // Get Created Links from LM API
-  useEffect(()=>{
-    (async()=>{
-      const title = await searchParams.get('title');
-      if(title){
-        dispatch(handleIsLoading(true));
-        await fetch(`${apiURL}/60`, {
-          method:'GET',
-          headers:{
-            'Content-type':'application/json',
-            'authorization':'Bearer ' + authCtx.token,
+  useEffect(() => {
+    if (title) {
+      setIsLoading(true);
+      // dispatch(handleIsLoading(true));
+      fetch(`${apiURL}/6`, {
+        method:'GET',
+        headers:{
+          'Content-type':'application/json',
+          'authorization':'Bearer ' + authCtx.token,
+        }
+      })
+        .then(res => {
+          if (res.ok) {
+            return res.json();
+          } else {
+            return res.json().then(data => {
+              let errorMessage = 'Loading links failed: ';
+              if (data && data.message) {
+                errorMessage += data.message;
+              }
+              throw new Error(errorMessage);
+            });
           }
         })
-          .then(res=>res.json())
-          .then(data=>{
-            console.log(data);
-            if(data?.length) dispatch(handleDisplayLinks(data));
-          })
-          .catch(()=>{})
-          .finally(()=>dispatch(handleIsLoading(false)));
-      }
-    })();
+        .then(data=>{
+          console.log(data);
+          if (data?.length) dispatch(handleDisplayLinks(data));
+        })
+        .catch((err)=>{
+          console.log(err);
+          Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: err.message,
+          });
+        })
+        .finally(() => setIsLoading(false));
+    }
   },[]);
 
   // Link manager dropdown options

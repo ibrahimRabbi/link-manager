@@ -37,10 +37,6 @@ export const linksSlice = createSlice({
     handleViewLinkDetails: (state, {payload}) => {
       state.linkedData=payload;
     },
-
-    handleIsProfileOpen: (state, {payload}) => {
-      state.isProfileOpen=payload;
-    },
     
     handleCurrPageTitle: (state, {payload}) => {
       state.currPageTitle=payload;
@@ -151,7 +147,6 @@ export const {
   handleGetSources,
   handleIsSidebarOpen,
   handleCurrPageTitle,
-  handleIsProfileOpen,
   handleViewLinkDetails,
   handleCreateLink,
   handleDisplayLinks,
