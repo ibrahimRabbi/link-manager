@@ -49,6 +49,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   console.log('sourceDataList', sourceDataList);
 
   const isGlide = sourceDataList?.appName?.includes('glide');
+  const isJIRA = sourceDataList?.appName?.includes('jira');
 
   console.log('isGlide', isGlide);
 
@@ -57,6 +58,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   let sourceTitles = [];
   if (isGlide) {
     sourceTitles = ['Glide Project', 'Resource'];
+  } else if (isJIRA) {
+    sourceTitles = ['JIRA Project', 'Resource', 'URI',];
   } else {
     sourceTitles = ['GitLab Project', 'GitLab Branch', 'Gitlab Commit', 'Filename', 'URI'];
   }
