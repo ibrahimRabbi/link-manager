@@ -2,7 +2,9 @@ import { Button } from '@carbon/react';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { gridContainer, image, title } from './NotFound.module.scss';
+import styles from './NotFound.module.scss';
+
+const { gridContainer, image, title }=styles;
 
 const NotFound = () => {
   const {isWbe} = useSelector(state=>state.links);

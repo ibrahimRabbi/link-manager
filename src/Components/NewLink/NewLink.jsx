@@ -1,13 +1,14 @@
 import { Button, Checkbox, ProgressBar, Search, StructuredListBody, StructuredListCell, StructuredListRow, StructuredListWrapper } from '@carbon/react';
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleCancelLink, handleCreateLink, handleCurrPageTitle, handleLinkType, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
+import { handleCancelLink, handleCreateLink, handleLinkType, handleOslcResponse, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
+import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
+import AuthContext from '../../Store/Auth-Context.jsx';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
-import AuthContext from '../../Store/Auth-Context.jsx';
 
 import styles from './NewLink.module.scss';
 const {
@@ -31,30 +32,23 @@ const headers = [
   { key: 'checkbox', header: <Checkbox labelText='' id='' /> }
 ];
 
-const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
+const apiURL = `${process.env.REACT_APP_REST_API_URL}/link`;
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
-  const {
-    isWbe, sourceDataList, linkType, projectType,
-    resourceType, editLinkData, targetDataArr, editTargetData
-  } = useSelector(state => state.links);
+  const {isWbe, oslcResponse, sourceDataList, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);
+
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [isJiraApp, setIsJiraApp] = useState(false);
   const [isBackJiraApp, setIsBackJiraApp] = useState(false);
   const [displayTableData, setDisplayTableData] = useState([]);
-  const [oslcRes, setOslcRes] = useState(false);
   const [lcLoading, setLcLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
 
-  console.log('sourceDataList', sourceDataList);
-
   const isGlide = sourceDataList?.appName?.includes('glide');
   const isJIRA = sourceDataList?.appName?.includes('jira');
-
-  console.log('isGlide', isGlide);
 
   const authCtx = useContext(AuthContext);
 
@@ -94,7 +88,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   
   useEffect(()=>{
-    console.log('NewLink.jsx -> useEffect -> projectType', projectType);
     if(projectType) {
       setIsBackJiraApp(projectType?.includes('Backend (JIRA)'));
       setIsJiraApp(projectType?.includes('JIRA'));
@@ -103,7 +96,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Edit link options start
   useEffect(() => {
-    console.log('NewLink.jsx -> useEffect -> editLinkData', editLinkData);
     if (editTargetData?.identifier) {
       const string = editTargetData?.description?.split(' ')[0]?.toLowerCase();
       setSearchText(string === 'document' ? 'document' : string === 'user' ? 'data' : null);
@@ -134,8 +126,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   //// Get Selection dialog response data
   window.addEventListener('message', function (event) {
     let message = event.data;
-    if (!message.source) {
-      if (message.toString().startsWith('oslc-response')){
+    if (!message.source && !oslcResponse) {
+      if (message.toString()?.startsWith('oslc-response')){
         const response = JSON.parse(message?.substr('oslc-response:'?.length));
         const results = response['oslc:results'];
         const targetArray =[];
@@ -145,7 +137,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           const type = results[i]['rdf:type'];
           targetArray.push({uri, label, type});
         });
-        setOslcRes(true);
+        dispatch(handleOslcResponse(true));
         dispatch(handleTargetDataArr([...targetArray]));
       }
     }
@@ -153,13 +145,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Call create link function 
   useEffect(()=>{
-    console.log('NewLink.jsx -> useEffect -> projectType', projectType);
-    console.log('NewLink.jsx -> useEffect -> oslcRes', oslcRes);
-    console.log('NewLink.jsx -> useEffect -> targetDataArr', targetDataArr);
-    if (projectType && oslcRes && targetDataArr.length) {
+    if (projectType && oslcResponse && targetDataArr.length) {
       handleSaveLink();
+      console.log('link creating');
     }
-  },[projectType, oslcRes, targetDataArr]);
+  },[projectType, oslcResponse, targetDataArr]);
   
   // Link type dropdown
   const handleLinkTypeChange = ({ selectedItem }) => {
@@ -200,14 +190,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // Create new link 
   const handleSaveLink = () => {
     setLcLoading(true);
-    const { projectName, title, uri, sourceType, origin} = sourceDataList;
+    const { projectName, title, uri, origin} = sourceDataList;
     const sourceProvider = origin === 'https://gitlab.com' ? 'Gitlab': origin === 'https://github.com'? 'Github' : origin === 'https://bitbucket.org' ? 'Bitbucket' : 'Gitlab';
     
     const targetsData= targetDataArr?.map(data=>{
       return {
-        target_title: data.label,
         target_type: data.type,
-        target_uri: data.uri,
+        target_title: data.label,
         target_id: data.uri,
         target_project: projectType,
         target_provider: 'JIRA',
@@ -215,19 +204,16 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     });
 
     const linkObj ={
-      source_type: sourceType,
-      source_project: projectName,
+      source_type: title,
       source_title: title,
-      source_uri: uri,
+      source_project: projectName,
       source_provider: sourceProvider,
-      source_id: title,
+      source_id: uri,
       relation: linkType,
+      status: 'active',
       target_data: targetsData,
-      status: 'valid',
     };
-
     console.log(linkObj);
-    
     fetch(apiURL, {
       method:'POST',
       headers:{
@@ -236,34 +222,18 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       },
       body:JSON.stringify(linkObj),
     })
-      .then(res => {
-        console.log(res.ok);
-        if (res.ok) {
-          return res.json();
-        } else {
-          console.log(res);
-          return res.json().then(data => {
-            let errorMessage = 'Creation Link failed!';
-            if (data && data.error && data.error.message) {
-              errorMessage = data.error.message;
-            }
-            throw new Error(errorMessage);
-          });
-        }
-        // res.json()
-      })
-      .then(res => {
+      .then((res) => {
         console.log(res);
-        Swal.fire({title:res?.status, text: res?.message, icon:'success', timer:1500});
-        dispatch(handleCreateLink());
+        const showIcon = res.status ==='Created' ?'success': 'error';
+        Swal.fire({title:res?.status, text: res?.message, icon: showIcon, });
         isWbe ? navigate('/wbe') : navigate('/');
       })
-      .catch((res) => {
-        // setError(err.message);
-        Swal.fire({title:res?.status, text: res?.message, icon:'error', timer:1500});
-      })
-      .finally(() => setLcLoading(false));
-    setOslcRes(false);
+      .catch((err) => {console.log(err);})
+      .finally(() => {
+        setLcLoading(false);
+      });
+    // }, 0);
+    dispatch(handleCreateLink());
   };
 
   // cancel create link
@@ -273,37 +243,38 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   };
   
   return (
-    <div className='container'>
-      <div className={sourceContainer}>
-        <h5>Source</h5>
-        <StructuredListWrapper ariaLabel='Structured list'>
-          <StructuredListBody>
-            {
-              sourceTitles.map((properties, index)=><StructuredListRow key={properties}>
-                <StructuredListCell id={sourceProp}>{properties}</StructuredListCell>
-                <StructuredListCell id={sourceValue}>{Object.values(sourceValues)[index]}</StructuredListCell>
-              </StructuredListRow>)
-            }
-          </StructuredListBody>
-        </StructuredListWrapper>
-      </div>
+    <div className="mainContainer">
+      <div className='container'>
+        <div className={sourceContainer}>
+          <h5>Source</h5>
+          <StructuredListWrapper ariaLabel='Structured list'>
+            <StructuredListBody>
+              {
+                sourceTitles.map((properties, index)=><StructuredListRow key={properties}>
+                  <StructuredListCell id={sourceProp}>{properties}</StructuredListCell>
+                  <StructuredListCell id={sourceValue}>{Object.values(sourceDataList)[index]}</StructuredListCell>
+                </StructuredListRow>)
+              }
+            </StructuredListBody>
+          </StructuredListWrapper>
+        </div>
 
-      <div className={linkTypeContainer}>
-        <UseDropdown onChange={handleLinkTypeChange} items={linkTypeItems} title='Link type' selectedValue={editLinkData?.linkType} label={'Select link type'} id='newLink_linkTypes' className={dropdownStyle}/>
+        <div className={linkTypeContainer}>
+          <UseDropdown onChange={handleLinkTypeChange} items={linkTypeItems} title='Link type' selectedValue={editLinkData?.linkType} label={'Select link type'} id='newLink_linkTypes' className={dropdownStyle}/>
 
-        <UseDropdown items={targetProjectItems} onChange={handleTargetProject} title='Target project' selectedValue={editLinkData?.project} label={'Select target project'} id='project-dropdown' className={dropdownStyle}/>
+          <UseDropdown items={targetProjectItems} onChange={handleTargetProject} title='Target project' selectedValue={editLinkData?.project} label={'Select target project'} id='project-dropdown' className={dropdownStyle}/>
         
-        {
-          (linkType && projectType && !isJiraApp || isEditLinkPage) && 
+          {
+            (linkType && projectType && !isJiraApp || isEditLinkPage) && 
             <UseDropdown items={targetResourceItems} onChange={handleTargetResource}  title='Target resource type' selectedValue={editLinkData?.resource} label={'Select target resource type'} id='resourceType-dropdown' className={dropdownStyle}/>
-        }
-      </div>
+          }
+        </div>
 
-      {
-        lcLoading && <ProgressBar label=''/>
-      }
-      {/* --- After selected link type ---  */}
-      {(linkType && projectType || isEditLinkPage) &&
+        {
+          lcLoading && <ProgressBar label=''/>
+        }
+        {/* --- After selected link type ---  */}
+        {(linkType && projectType || isEditLinkPage) &&
         <div className={targetContainer}>
           <h5>Target</h5>
 
@@ -369,12 +340,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             </>
           }
 
-
         </div>
-      }
-      { isWbe && <div className={'see-btn'}>
-        <Button kind='primary' onClick={()=>navigate('/wbe')} size='md'>Back to home</Button>
-      </div>}
+        }
+        { isWbe && <div className={'see-btn'}>
+          <Button kind='primary' onClick={()=>navigate('/wbe')} size='md'>Back to home</Button>
+        </div>}
+      </div>
     </div>
   );
 };

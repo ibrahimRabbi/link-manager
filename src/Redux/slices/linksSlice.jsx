@@ -3,9 +3,8 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   sourceDataList:{},
   isWbe:false,
+  oslcResponse:null,
   isLinkCreate:false,
-  isSidebarOpen:false,
-  currPageTitle:'',
   isLoading:false,
   allLinks: [],
   editTargetData:{},
@@ -28,22 +27,18 @@ export const linksSlice = createSlice({
     handleIsLoading: (state, {payload}) => {
       state.isLoading=payload;
     },
+    
+    handleOslcResponse: (state, {payload}) => {
+      state.oslcResponse=payload;
+    },
 
     // get sources in wbe
     handleGetSources: (state, {payload}) => {
       state.sourceDataList =payload;
     },
 
-    handleIsSidebarOpen: (state, {payload}) => {
-      state.isSidebarOpen=payload;
-    },
-
     handleViewLinkDetails: (state, {payload}) => {
       state.linkedData=payload;
-    },
-    
-    handleCurrPageTitle: (state, {payload}) => {
-      state.currPageTitle=payload;
     },
 
     // create links and store data in the local storage
@@ -51,7 +46,7 @@ export const linksSlice = createSlice({
       state.linkType =null;
       state.projectType =null;
       state.resourceType =null;
-      state.oslcResponse = null;
+      state.oslcResponse = false;
       state.targetDataArr=[];
       state.isLinkEdit=false;
     },
@@ -66,7 +61,7 @@ export const linksSlice = createSlice({
       state.linkType =null;
       state.projectType =null;
       state.resourceType =null;
-      state.oslcResponse =null;
+      state.oslcResponse =false;
       state.editTargetData=payload?.targetData;
       state.editLinkData=payload;
     },
@@ -148,10 +143,9 @@ export const linksSlice = createSlice({
 // Action creators are generated for each case reducer function
 export const {
   handleIsWbe,
+  handleOslcResponse,
   handleIsLoading,
   handleGetSources,
-  handleIsSidebarOpen,
-  handleCurrPageTitle,
   handleViewLinkDetails,
   handleCreateLink,
   handleDisplayLinks,

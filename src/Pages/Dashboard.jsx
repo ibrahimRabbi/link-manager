@@ -1,21 +1,19 @@
-import React, {useContext} from 'react';
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Outlet } from 'react-router-dom';
 import NavigationBar from '../Components/Shared/NavigationBar/NavigationBar';
-import NavigationBarContext from '../Store/NavigationBar-Context.jsx';
+import { handleIsProfileOpen } from '../Redux/slices/navSlice';
 
 const Dashboard = () => {
-  console.log('Dashboard.jsx');
-
-  const navbarCtx = useContext(NavigationBarContext);
-
+  const dispatch= useDispatch();
+  const {isSidebarOpen, isProfileOpen} = useSelector(state => state.nav);
+  
   return (
     <>
       <NavigationBar />
-      <div className={navbarCtx.isSidebarOpen ? 'show_nav' : ''}
-        onClick={() => navbarCtx.setProfile((navbarCtx.isProfileOpen && false))}>
-        <div className='mainContainer'>
-          <Outlet />
-        </div>
+      <div className={isSidebarOpen ? 'show_nav' : ''}
+        onClick={() => dispatch(handleIsProfileOpen(isProfileOpen && false))}>
+        <Outlet />
       </div>
     </>
   );
