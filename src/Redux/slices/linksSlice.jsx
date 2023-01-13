@@ -21,14 +21,13 @@ export const linksSlice = createSlice({
   initialState,
 
   reducers: {
+    handleIsWbe: (state, {payload}) => {
+      state.isWbe = payload;
+    },
     handleIsLoading: (state, {payload}) => {
       state.isLoading=payload;
     },
-
-    handleIsWbe: (state, {payload}) => {
-      state.isWbe=payload;
-    },
-
+    
     handleOslcResponse: (state, {payload}) => {
       state.oslcResponse=payload;
     },

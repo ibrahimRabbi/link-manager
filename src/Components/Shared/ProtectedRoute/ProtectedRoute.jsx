@@ -13,18 +13,29 @@ const ProtectedRoute = ({ children }) => {
 
   // Get query parameters from the Gitlab
   const [searchParams] = useSearchParams();
-  const projectName =searchParams.get('project');
-  const title =searchParams.get('title');
-  const uri =searchParams.get('uri');
-  const origin= searchParams.get('origin');
+
+  const appName = searchParams.get('appName'); // glide, gitlab, jira, github <-- from wbe
   const sourceType = searchParams.get('sourceType');
-  const appName = searchParams.get('appName');
+  const title =searchParams.get('title');
+  const origin= searchParams.get('origin');
+  const uri =searchParams.get('uri');
+  const projectName =searchParams.get('project');
+
+  const branch= searchParams.get('branch');
+  const commit =searchParams.get('commit');
 
   useEffect(()=>{
     dispatch(handleIsWbe(wbePath));
     if (uri && title && projectName) {
       dispatch(handleGetSources({
-        projectName, title, uri, origin, sourceType, appName
+        projectName,
+        branch,
+        commit,
+        title,
+        uri,
+        origin,
+        sourceType,
+        appName,
       }));
     }
   },[uri, title, projectName]);

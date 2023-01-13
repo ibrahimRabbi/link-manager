@@ -36,6 +36,7 @@ const apiURL = `${process.env.REACT_APP_REST_API_URL}/link`;
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const {isWbe, oslcResponse, sourceDataList, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);
+
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [isJiraApp, setIsJiraApp] = useState(false);
@@ -47,14 +48,34 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const dispatch = useDispatch();
 
   const isGlide = sourceDataList?.appName?.includes('glide');
+  const isJIRA = sourceDataList?.appName?.includes('jira');
 
   const authCtx = useContext(AuthContext);
 
   let sourceTitles = [];
+  let sourceValues = {};
   if (isGlide) {
-    sourceTitles = ['Glide Project', 'Resource'];
+    sourceTitles = ['Glide Project', 'Title', 'Resource', 'URI'];
+    sourceValues = {
+      projectName: sourceDataList['projectName'],
+      title: sourceDataList['title'],
+      sourceType: sourceDataList['sourceType'],
+      uri: sourceDataList['uri'],
+      origin: sourceDataList['origin']
+    };
+  } else if (isJIRA) {
+    sourceTitles = ['JIRA Project', 'Title', 'Issue Type', 'URI'];
+    sourceValues = {
+      projectName: sourceDataList['projectName'],
+      title: sourceDataList['title'],
+      sourceType: sourceDataList['sourceType'],
+      uri: sourceDataList['uri'],
+      origin: sourceDataList['origin']
+    };
+    console.log(sourceValues);
   } else {
     sourceTitles = ['GitLab Project', 'GitLab Branch', 'Gitlab Commit', 'Filename', 'URI'];
+    sourceValues = sourceDataList;
   }
 
   useEffect(()=>{
@@ -106,7 +127,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   window.addEventListener('message', function (event) {
     let message = event.data;
     if (!message.source && !oslcResponse) {
-      if (message?.startsWith('oslc-response')){
+      if (message.toString()?.startsWith('oslc-response')){
         const response = JSON.parse(message?.substr('oslc-response:'?.length));
         const results = response['oslc:results'];
         const targetArray =[];
