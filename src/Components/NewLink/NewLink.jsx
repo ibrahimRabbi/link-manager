@@ -31,6 +31,8 @@ const headers = [
   { key: 'checkbox', header: <Checkbox labelText='' id='' /> }
 ];
 
+const apiURL = `${process.env.REACT_APP_REST_API_URL}/link`;
+
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const {isWbe, oslcResponse, sourceDataList, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);
   const { register, handleSubmit } = useForm();
@@ -38,17 +40,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const [isJiraApp, setIsJiraApp] = useState(false);
   const [isBackJiraApp, setIsBackJiraApp] = useState(false);
   const [displayTableData, setDisplayTableData] = useState([]);
-  // const [oslcRes, setOslcRes] = useState(false);
   const [lcLoading, setLcLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
 
-  // console.log('sourceDataList', sourceDataList);
-
   const isGlide = sourceDataList?.appName?.includes('glide');
-
-  // console.log('isGlide', isGlide);
 
   const authCtx = useContext(AuthContext);
 
@@ -107,8 +104,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   //// Get Selection dialog response data
   window.addEventListener('message', function (event) {
     let message = event.data;
-    if (!message.source) {
-      if (message.startsWith('oslc-response')){
+    if (!message.source && !oslcResponse) {
+      if (message?.startsWith('oslc-response')){
         const response = JSON.parse(message?.substr('oslc-response:'?.length));
         const results = response['oslc:results'];
         const targetArray =[];
@@ -169,7 +166,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   };
 
   // Create new link 
-  const handleSaveLink = async () => {
+  const handleSaveLink = () => {
     setLcLoading(true);
     const { projectName, title, uri, origin} = sourceDataList;
     const sourceProvider = origin === 'https://gitlab.com' ? 'Gitlab': origin === 'https://github.com'? 'Github' : origin === 'https://bitbucket.org' ? 'Bitbucket' : 'Gitlab';
@@ -194,28 +191,26 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       status: 'active',
       target_data: targetsData,
     };
-    const apiURL = `${process.env.REACT_APP_REST_API_URL}/link`;
-    setTimeout(async()=>{
-      console.log(linkObj);
-      await fetch(apiURL, {
-        method:'POST',
-        headers:{
-          'Content-type':'application/json',
-          'authorization':'Bearer ' + authCtx.token,
-        },
-        body:JSON.stringify(linkObj),
+    console.log(linkObj);
+    fetch(apiURL, {
+      method:'POST',
+      headers:{
+        'Content-type':'application/json',
+        'authorization':'Bearer ' + authCtx.token,
+      },
+      body:JSON.stringify(linkObj),
+    })
+      .then((res) => {
+        console.log(res);
+        const showIcon = res.status ==='Created' ?'success': 'error';
+        Swal.fire({title:res?.status, text: res?.message, icon: showIcon, });
+        isWbe ? navigate('/wbe') : navigate('/');
       })
-        .then((res) => {
-          console.log(res);
-          const showIcon = res.status ==='Created' ?'success': 'error';
-          Swal.fire({title:res?.status, text: res?.message, icon: showIcon, });
-          isWbe ? navigate('/wbe') : navigate('/');
-        })
-        .catch((err) => {console.log(err);})
-        .finally(() => {
-          setLcLoading(false);
-        });
-    }, 0);
+      .catch((err) => {console.log(err);})
+      .finally(() => {
+        setLcLoading(false);
+      });
+    // }, 0);
     dispatch(handleCreateLink());
   };
 

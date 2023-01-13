@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactGraph from 'react-graph';
 import rootData from './rootData';
 
 const graphApiURL= `${process.env.REACT_APP_REST_API_URL}/visualize`;
+
 const GraphView = () => {
-  fetch(graphApiURL)
-    .then(res=>console.log(res))
-    .catch(er=>console.log(er));
+  useEffect(()=>{
+    fetch(graphApiURL)
+      .then(res=>console.log(res))
+      .catch(er=>console.log(er));
+  },[]);
 
   console.log(rootData);
   console.log(graphApiURL);

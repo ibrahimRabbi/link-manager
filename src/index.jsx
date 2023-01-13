@@ -10,15 +10,17 @@ import { AuthContextProvider } from './Store/Auth-Context.jsx';
 import { NavigationBarContextProvider } from './Store/NavigationBar-Context.jsx';
 
 ReactDOM.render(
-  <AuthContextProvider>
-    <Provider store={store}>
-      <NavigationBarContextProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </NavigationBarContextProvider>
-    </Provider>
-  </AuthContextProvider>,
+  <React.StrictMode>
+    <AuthContextProvider>
+      <Provider store={store}>
+        <NavigationBarContextProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </NavigationBarContextProvider>
+      </Provider>
+    </AuthContextProvider>
+  </React.StrictMode>,
   document.getElementById('root')
 );
 

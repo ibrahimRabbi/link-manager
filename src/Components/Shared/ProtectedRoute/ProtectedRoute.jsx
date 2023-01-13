@@ -1,9 +1,12 @@
-import { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import { handleGetSources, handleIsWbe } from '../../../Redux/slices/linksSlice';
+import AuthContext from '../../../Store/Auth-Context';
 
 const ProtectedRoute = ({ children }) => {
+
+  const authCtx = useContext(AuthContext);
   let location = useLocation();
   const dispatch = useDispatch();
   const wbePath = location.pathname?.includes('wbe');
@@ -26,7 +29,11 @@ const ProtectedRoute = ({ children }) => {
     }
   },[uri, title, projectName]);
 
-  return children;
+  if(authCtx.isLoggedIn){
+    return children;
+  }
+
+  return <Navigate to="/login" state={{ from: location }} />;
 };
 
 export default ProtectedRoute;

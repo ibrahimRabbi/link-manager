@@ -1,7 +1,7 @@
 import { Button, ProgressBar, Search } from '@carbon/react';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { handleDisplayLinks, handleEditLinkData } from '../../Redux/slices/linksSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
@@ -9,10 +9,7 @@ import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 
 import styles from './LinkManager.module.scss';
-const {
-  dropdownStyle, inputContainer, linkFileContainer,
-  searchBox, searchContainer, searchInput, tableContainer
-} = styles;
+const { dropdownStyle, inputContainer, linkFileContainer, searchBox, searchContainer, searchInput, tableContainer} = styles;
 
 const headers = [
   { key: 'status', header: 'Status' },
@@ -23,53 +20,47 @@ const headers = [
 ];
 
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
-
-const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
-
+const apiURL = `${process.env.REACT_APP_REST_API_URL}/link/resource`;
 
 const LinkManager = () => {
-  const [isLoading, setIsLoading] = useState(false);
   const { allLinks, sourceDataList, isWbe } = useSelector(state => state.links);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const dispatch = useDispatch();
-
   const authCtx = useContext(AuthContext);
-
-  const title = searchParams.get('title');
+  // const [searchParams] = useSearchParams();
+  // const title = searchParams.get('title');
 
   // Get Created Links from LM API
   useEffect(() => {
-    if (title) {
-      setIsLoading(true);
-      // dispatch(handleIsLoading(true));
-      fetch(`${apiURL}/6`, {
-        method:'GET',
-        headers:{
-          'Content-type':'application/json',
-          'authorization':'Bearer ' + authCtx.token,
+    setIsLoading(true);
+    // dispatch(handleIsLoading(true));
+    fetch(`${apiURL}/6`, {
+      method:'GET',
+      headers:{
+        'Content-type':'application/json',
+        'authorization':'Bearer ' + authCtx.token,
+      }
+    })
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          return res.json().then(data => {
+            let errorMessage = 'Loading links failed: ';
+            if (data && data.message) {
+              errorMessage += data.message;
+            }
+            throw new Error(errorMessage);
+          });
         }
       })
-        .then(res => {
-          if (res.ok) {
-            return res.json();
-          } else {
-            return res.json().then(data => {
-              let errorMessage = 'Loading links failed: ';
-              if (data && data.message) {
-                errorMessage += data.message;
-              }
-              throw new Error(errorMessage);
-            });
-          }
-        })
-        .then(data=>{
-          console.log(data);
-          if (data?.length) dispatch(handleDisplayLinks(data));
-        })
-        .catch(()=>{})
-        .finally(() => setIsLoading(false));
-    }
+      .then(data=>{
+        console.log(data);
+        if (data?.length) dispatch(handleDisplayLinks(data));
+      })
+      .catch((err)=>console.log(err))
+      .finally(() => setIsLoading(false));
   },[]);
 
   // Link manager dropdown options
