@@ -32,7 +32,6 @@ const headers = [
 ];
 
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
-
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const {
     isWbe, sourceDataList, linkType, projectType,
@@ -43,18 +42,16 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const [isJiraApp, setIsJiraApp] = useState(false);
   const [isBackJiraApp, setIsBackJiraApp] = useState(false);
   const [displayTableData, setDisplayTableData] = useState([]);
-  const [oslcRes, setOslcRes] = useState(false);
+  /* const [oslcRes, setOslcRes] = useState(false); */
   const [lcLoading, setLcLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
 
-  console.log('sourceDataList', sourceDataList);
+  // console.log('sourceDataList', sourceDataList);
 
   const isGlide = sourceDataList?.appName?.includes('glide');
   const isJIRA = sourceDataList?.appName?.includes('jira');
-
-  console.log('isGlide', isGlide);
 
   const authCtx = useContext(AuthContext);
 
@@ -92,7 +89,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     isEditLinkPage?null: dispatch(handleCancelLink());
   },[location?.pathname]);
 
-  
   useEffect(()=>{
     console.log('NewLink.jsx -> useEffect -> projectType', projectType);
     if(projectType) {
@@ -103,7 +99,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Edit link options start
   useEffect(() => {
-    console.log('NewLink.jsx -> useEffect -> editLinkData', editLinkData);
+    // console.log('NewLink.jsx -> useEffect -> editLinkData', editLinkData);
     if (editTargetData?.identifier) {
       const string = editTargetData?.description?.split(' ')[0]?.toLowerCase();
       setSearchText(string === 'document' ? 'document' : string === 'user' ? 'data' : null);
@@ -145,7 +141,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           const type = results[i]['rdf:type'];
           targetArray.push({uri, label, type});
         });
-        setOslcRes(true);
+        // setOslcRes(true);
         dispatch(handleTargetDataArr([...targetArray]));
       }
     }
@@ -153,13 +149,16 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Call create link function 
   useEffect(()=>{
-    console.log('NewLink.jsx -> useEffect -> projectType', projectType);
-    console.log('NewLink.jsx -> useEffect -> oslcRes', oslcRes);
-    console.log('NewLink.jsx -> useEffect -> targetDataArr', targetDataArr);
-    if (projectType && oslcRes && targetDataArr.length) {
+    // console.log('NewLink.jsx -> useEffect -> projectType', projectType);
+    // console.log('NewLink.jsx -> useEffect -> oslcRes', oslcRes);
+    // console.log('NewLink.jsx -> useEffect -> targetDataArr', targetDataArr);
+    // if (projectType  && targetDataArr.length) {
+    const identifier = setTimeout(() => {
       handleSaveLink();
-    }
-  },[projectType, oslcRes, targetDataArr]);
+    }, 1000);
+    return () => clearTimeout(identifier);
+    // }
+  },[targetDataArr]);
   
   // Link type dropdown
   const handleLinkTypeChange = ({ selectedItem }) => {
@@ -199,11 +198,14 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Create new link 
   const handleSaveLink = () => {
+
     setLcLoading(true);
     const { projectName, title, uri, sourceType, origin} = sourceDataList;
     const sourceProvider = origin === 'https://gitlab.com' ? 'Gitlab': origin === 'https://github.com'? 'Github' : origin === 'https://bitbucket.org' ? 'Bitbucket' : 'Gitlab';
-    
+
+    // console.log('NewLink.jsx -> handleSaveLink -> targetDataArr', targetDataArr);
     const targetsData= targetDataArr?.map(data=>{
+      // console.log('NewLink.jsx -> handleSaveLink -> targetDataArr -> data', data);
       return {
         target_title: data.label,
         target_type: data.type,
@@ -213,6 +215,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         target_provider: 'JIRA',
       };
     });
+
+    console.log('NewLink.jsx -> handleSaveLink -> targetsData', targetsData);
 
     const linkObj ={
       source_type: sourceType,
@@ -227,7 +231,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     };
 
     console.log(linkObj);
-    
+    console.log('JSON.stringify(linkObj)', JSON.stringify(linkObj));
+
     fetch(apiURL, {
       method:'POST',
       headers:{
@@ -263,7 +268,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         Swal.fire({title:res?.status, text: res?.message, icon:'error', timer:1500});
       })
       .finally(() => setLcLoading(false));
-    setOslcRes(false);
+    // setOslcRes(false);
   };
 
   // cancel create link
