@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { handleDisplayLinks, handleEditLinkData } from '../../Redux/slices/linksSlice';
+import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
@@ -30,6 +31,10 @@ const LinkManager = () => {
   const authCtx = useContext(AuthContext);
   // const [searchParams] = useSearchParams();
   // const title = searchParams.get('title');
+
+  useEffect(()=>{
+    dispatch(handleCurrPageTitle('Links'));
+  },[]);
 
   // Get Created Links from LM API
   useEffect(() => {
@@ -77,36 +82,38 @@ const LinkManager = () => {
   };
 
   return (
-    <div className='container'>
-      <div className={linkFileContainer}>
-        <h5>Links For: {sourceDataList?.title}</h5>
+    <div className='mainContainer'>
+      <div className='container'>
+        <div className={linkFileContainer}>
+          <h5>Links For: {sourceDataList?.title}</h5>
 
-        <Button onClick={() => { 
-          isWbe ? navigate('/wbe/new-link') : navigate('/new-link'); 
-          dispatch(handleEditLinkData()); 
-        }} size='md' kind='primary'>New link</Button>
-      </div>
-      <div className={tableContainer}>
-        <div className={searchBox}>
-          <UseDropdown onChange={handleShowItem} items={dropdownItem} id={'linkManager_showAll'} label='Show all' className={dropdownStyle}/>
-
-          <div className={searchContainer}>
-            <div className={inputContainer}>
-              <Search
-                id=''
-                labelText=''
-                className={searchInput}
-                placeholder='Search by identifier or name'
-                onChange={function noRefCheck(){}}
-                onKeyDown={function noRefCheck(){}}
-                size='md'
-              />
-            </div>
-            <Button kind='primary' size='md'>Search</Button>
-          </div>
+          <Button onClick={() => { 
+            isWbe ? navigate('/wbe/new-link') : navigate('/new-link'); 
+            dispatch(handleEditLinkData()); 
+          }} size='md' kind='primary'>New link</Button>
         </div>
-        { (isLoading && !allLinks[0]) && <ProgressBar label=''/> }
-        <UseDataTable headers={headers} tableData={allLinks} openTargetLink={handleOpenTargetLink} />
+        <div className={tableContainer}>
+          <div className={searchBox}>
+            <UseDropdown onChange={handleShowItem} items={dropdownItem} id={'linkManager_showAll'} label='Show all' className={dropdownStyle}/>
+
+            <div className={searchContainer}>
+              <div className={inputContainer}>
+                <Search
+                  id=''
+                  labelText=''
+                  className={searchInput}
+                  placeholder='Search by identifier or name'
+                  onChange={function noRefCheck(){}}
+                  onKeyDown={function noRefCheck(){}}
+                  size='md'
+                />
+              </div>
+              <Button kind='primary' size='md'>Search</Button>
+            </div>
+          </div>
+          { (isLoading && !allLinks[0]) && <ProgressBar label=''/> }
+          <UseDataTable headers={headers} tableData={allLinks} openTargetLink={handleOpenTargetLink} />
+        </div>
       </div>
     </div>
   );

@@ -4,7 +4,8 @@ import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleCancelLink, handleCreateLink, handleCurrPageTitle, handleLinkType, handleOslcResponse, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
+import { handleCancelLink, handleCreateLink, handleLinkType, handleOslcResponse, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
+import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
@@ -221,37 +222,38 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   };
   
   return (
-    <div className='container'>
-      <div className={sourceContainer}>
-        <h5>Source</h5>
-        <StructuredListWrapper ariaLabel='Structured list'>
-          <StructuredListBody>
-            {
-              sourceTitles.map((properties, index)=><StructuredListRow key={properties}>
-                <StructuredListCell id={sourceProp}>{properties}</StructuredListCell>
-                <StructuredListCell id={sourceValue}>{Object.values(sourceDataList)[index]}</StructuredListCell>
-              </StructuredListRow>)
-            }
-          </StructuredListBody>
-        </StructuredListWrapper>
-      </div>
+    <div className="mainContainer">
+      <div className='container'>
+        <div className={sourceContainer}>
+          <h5>Source</h5>
+          <StructuredListWrapper ariaLabel='Structured list'>
+            <StructuredListBody>
+              {
+                sourceTitles.map((properties, index)=><StructuredListRow key={properties}>
+                  <StructuredListCell id={sourceProp}>{properties}</StructuredListCell>
+                  <StructuredListCell id={sourceValue}>{Object.values(sourceDataList)[index]}</StructuredListCell>
+                </StructuredListRow>)
+              }
+            </StructuredListBody>
+          </StructuredListWrapper>
+        </div>
 
-      <div className={linkTypeContainer}>
-        <UseDropdown onChange={handleLinkTypeChange} items={linkTypeItems} title='Link type' selectedValue={editLinkData?.linkType} label={'Select link type'} id='newLink_linkTypes' className={dropdownStyle}/>
+        <div className={linkTypeContainer}>
+          <UseDropdown onChange={handleLinkTypeChange} items={linkTypeItems} title='Link type' selectedValue={editLinkData?.linkType} label={'Select link type'} id='newLink_linkTypes' className={dropdownStyle}/>
 
-        <UseDropdown items={targetProjectItems} onChange={handleTargetProject} title='Target project' selectedValue={editLinkData?.project} label={'Select target project'} id='project-dropdown' className={dropdownStyle}/>
+          <UseDropdown items={targetProjectItems} onChange={handleTargetProject} title='Target project' selectedValue={editLinkData?.project} label={'Select target project'} id='project-dropdown' className={dropdownStyle}/>
         
-        {
-          (linkType && projectType && !isJiraApp || isEditLinkPage) && 
+          {
+            (linkType && projectType && !isJiraApp || isEditLinkPage) && 
             <UseDropdown items={targetResourceItems} onChange={handleTargetResource}  title='Target resource type' selectedValue={editLinkData?.resource} label={'Select target resource type'} id='resourceType-dropdown' className={dropdownStyle}/>
-        }
-      </div>
+          }
+        </div>
 
-      {
-        lcLoading && <ProgressBar label=''/>
-      }
-      {/* --- After selected link type ---  */}
-      {(linkType && projectType || isEditLinkPage) &&
+        {
+          lcLoading && <ProgressBar label=''/>
+        }
+        {/* --- After selected link type ---  */}
+        {(linkType && projectType || isEditLinkPage) &&
         <div className={targetContainer}>
           <h5>Target</h5>
 
@@ -318,10 +320,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           }
 
         </div>
-      }
-      { isWbe && <div className={'see-btn'}>
-        <Button kind='primary' onClick={()=>navigate('/wbe')} size='md'>Back to home</Button>
-      </div>}
+        }
+        { isWbe && <div className={'see-btn'}>
+          <Button kind='primary' onClick={()=>navigate('/wbe')} size='md'>Back to home</Button>
+        </div>}
+      </div>
     </div>
   );
 };

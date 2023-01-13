@@ -7,17 +7,14 @@ import './index.scss';
 import store from './Redux/store.jsx';
 import reportWebVitals from './reportWebVitals';
 import { AuthContextProvider } from './Store/Auth-Context.jsx';
-import { NavigationBarContextProvider } from './Store/NavigationBar-Context.jsx';
 
 ReactDOM.render(
   <React.StrictMode>
     <AuthContextProvider>
       <Provider store={store}>
-        <NavigationBarContextProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </NavigationBarContextProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </Provider>
     </AuthContextProvider>
   </React.StrictMode>,

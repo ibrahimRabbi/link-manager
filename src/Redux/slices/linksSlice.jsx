@@ -5,8 +5,6 @@ const initialState = {
   isWbe:false,
   oslcResponse:null,
   isLinkCreate:false,
-  isSidebarOpen:false,
-  currPageTitle:'',
   isLoading:false,
   allLinks: [],
   editTargetData:{},
@@ -40,16 +38,8 @@ export const linksSlice = createSlice({
       state.sourceDataList =payload;
     },
 
-    handleIsSidebarOpen: (state, {payload}) => {
-      state.isSidebarOpen=payload;
-    },
-
     handleViewLinkDetails: (state, {payload}) => {
       state.linkedData=payload;
-    },
-    
-    handleCurrPageTitle: (state, {payload}) => {
-      state.currPageTitle=payload;
     },
 
     // create links and store data in the local storage
@@ -157,8 +147,6 @@ export const {
   handleOslcResponse,
   handleIsLoading,
   handleGetSources,
-  handleIsSidebarOpen,
-  handleCurrPageTitle,
   handleViewLinkDetails,
   handleCreateLink,
   handleDisplayLinks,
