@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   sourceDataList:{},
+  isWbe:false,
   isLinkCreate:false,
   isSidebarOpen:false,
   currPageTitle:'',
@@ -21,6 +22,9 @@ export const linksSlice = createSlice({
   initialState,
 
   reducers: {
+    handleIsWbe: (state, {payload}) => {
+      state.isWbe = payload;
+    },
     handleIsLoading: (state, {payload}) => {
       state.isLoading=payload;
     },
@@ -143,6 +147,7 @@ export const linksSlice = createSlice({
 
 // Action creators are generated for each case reducer function
 export const {
+  handleIsWbe,
   handleIsLoading,
   handleGetSources,
   handleIsSidebarOpen,

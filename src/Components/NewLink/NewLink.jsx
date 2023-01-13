@@ -34,7 +34,10 @@ const headers = [
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
-  const {isWbe, sourceDataList, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);
+  const {
+    isWbe, sourceDataList, linkType, projectType,
+    resourceType, editLinkData, targetDataArr, editTargetData
+  } = useSelector(state => state.links);
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [isJiraApp, setIsJiraApp] = useState(false);
@@ -56,12 +59,29 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const authCtx = useContext(AuthContext);
 
   let sourceTitles = [];
+  let sourceValues = {};
   if (isGlide) {
-    sourceTitles = ['Glide Project', 'Resource'];
+    sourceTitles = ['Glide Project', 'Title', 'Resource', 'URI'];
+    sourceValues = {
+      projectName: sourceDataList['projectName'],
+      title: sourceDataList['title'],
+      sourceType: sourceDataList['sourceType'],
+      uri: sourceDataList['uri'],
+      origin: sourceDataList['origin']
+    };
   } else if (isJIRA) {
-    sourceTitles = ['JIRA Project', 'Resource', 'URI',];
+    sourceTitles = ['JIRA Project', 'Title', 'Issue Type', 'URI'];
+    sourceValues = {
+      projectName: sourceDataList['projectName'],
+      title: sourceDataList['title'],
+      sourceType: sourceDataList['sourceType'],
+      uri: sourceDataList['uri'],
+      origin: sourceDataList['origin']
+    };
+    console.log(sourceValues);
   } else {
     sourceTitles = ['GitLab Project', 'GitLab Branch', 'Gitlab Commit', 'Filename', 'URI'];
+    sourceValues = sourceDataList;
   }
 
   useEffect(()=>{
@@ -115,7 +135,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   window.addEventListener('message', function (event) {
     let message = event.data;
     if (!message.source) {
-      if (message.startsWith('oslc-response')){
+      if (message.toString().startsWith('oslc-response')){
         const response = JSON.parse(message?.substr('oslc-response:'?.length));
         const results = response['oslc:results'];
         const targetArray =[];
@@ -261,7 +281,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             {
               sourceTitles.map((properties, index)=><StructuredListRow key={properties}>
                 <StructuredListCell id={sourceProp}>{properties}</StructuredListCell>
-                <StructuredListCell id={sourceValue}>{Object.values(sourceDataList)[index]}</StructuredListCell>
+                <StructuredListCell id={sourceValue}>{Object.values(sourceValues)[index]}</StructuredListCell>
               </StructuredListRow>)
             }
           </StructuredListBody>
