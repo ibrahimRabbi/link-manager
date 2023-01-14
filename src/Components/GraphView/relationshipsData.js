@@ -1,4 +1,4 @@
-const relationsShipData= [
+const relationsShipData = [
   {
     id: '14',
     type: 'type8',
@@ -833,5 +833,5 @@ const relationsShipData= [
     properties: {},
   },
 ];
-  
+
 export default relationsShipData;

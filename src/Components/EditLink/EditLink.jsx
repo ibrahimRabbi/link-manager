@@ -4,13 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import NewLink from '../NewLink/NewLink';
 
 const EditLink = () => {
-  const navigate=useNavigate();
-  const {editLinkData}=useSelector(state=>state.links);
-  if(!editLinkData?.id)  navigate('/');
-  
-  return (
-    <NewLink isEditLinkPage='Edit link'/>
-  );
+  const navigate = useNavigate();
+  const { editLinkData } = useSelector((state) => state.links);
+  if (!editLinkData?.id) navigate('/');
+
+  return <NewLink isEditLinkPage="Edit link" />;
 };
 
 export default EditLink;

@@ -5,7 +5,6 @@ import { handleGetSources, handleIsWbe } from '../../../Redux/slices/linksSlice'
 import AuthContext from '../../../Store/Auth-Context';
 
 const ProtectedRoute = ({ children }) => {
-
   const authCtx = useContext(AuthContext);
   let location = useLocation();
   const dispatch = useDispatch();
@@ -16,31 +15,33 @@ const ProtectedRoute = ({ children }) => {
 
   const appName = searchParams.get('appName'); // glide, gitlab, jira, github <-- from wbe
   const sourceType = searchParams.get('sourceType');
-  const title =searchParams.get('title');
-  const origin= searchParams.get('origin');
-  const uri =searchParams.get('uri');
-  const projectName =searchParams.get('project');
+  const title = searchParams.get('title');
+  const origin = searchParams.get('origin');
+  const uri = searchParams.get('uri');
+  const projectName = searchParams.get('project');
 
-  const branch= searchParams.get('branch');
-  const commit =searchParams.get('commit');
+  const branch = searchParams.get('branch');
+  const commit = searchParams.get('commit');
 
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(handleIsWbe(wbePath));
     if (uri && title && projectName) {
-      dispatch(handleGetSources({
-        projectName,
-        branch,
-        commit,
-        title,
-        uri,
-        origin,
-        sourceType,
-        appName,
-      }));
+      dispatch(
+        handleGetSources({
+          projectName,
+          branch,
+          commit,
+          title,
+          uri,
+          origin,
+          sourceType,
+          appName,
+        }),
+      );
     }
-  },[uri, title, projectName]);
+  }, [uri, title, projectName]);
 
-  if(authCtx.isLoggedIn){
+  if (authCtx.isLoggedIn) {
     return children;
   }
 

@@ -2,112 +2,112 @@
 @use '@carbon/type';
 
 .sourceContainer {
-    padding: 10px 1vw;
-    margin-bottom: 15px;
-    background-color: colors.$white;
-    border: 1px solid colors.$gray-30;
+  padding: 10px 1vw;
+  margin-bottom: 15px;
+  background-color: colors.$white;
+  border: 1px solid colors.$gray-30;
 }
 
 .sourceList {
-    display: flex;
-    align-items: center;
-    margin-left: 10px;
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
 }
 
 .sourceList p {
-    margin-left: 5px;
+  margin-left: 5px;
 }
 
 .sourceList h5:first-child {
-    color: colors.$black;
-    width: 120px;
+  color: colors.$black;
+  width: 120px;
 }
 
 .sourceTitle2 {
-    background-color: colors.$red-30;
-    border-radius: 5px;
-    padding: 0 5px;
-    min-width: 40%;
+  background-color: colors.$red-30;
+  border-radius: 5px;
+  padding: 0 5px;
+  min-width: 40%;
 }
 
 .linkTitle2 {
-    background-color: colors.$gray-30;
-    border-radius: 5px;
-    padding: 0 5px;
-    min-width: 40%;
+  background-color: colors.$gray-30;
+  border-radius: 5px;
+  padding: 0 5px;
+  min-width: 40%;
 }
 
 .targetTitle2 {
-    background-color: colors.$blue-30;
-    border-radius: 5px;
-    padding: 0 5px;
-    min-width: 40%;
+  background-color: colors.$blue-30;
+  border-radius: 5px;
+  padding: 0 5px;
+  min-width: 40%;
 }
 
 .sourceProp {
-    width: 110px;
-    color: colors.$gray-50;
+  width: 110px;
+  color: colors.$gray-50;
 }
 
 .circlesContainer {
-    position: relative;
-    display: flex;
-    align-items: center;
-    width: 55%;
-    margin: 0 auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 55%;
+  margin: 0 auto;
 }
 
 .circle {
-    width: 120px;
-    height: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    padding: 5px;
-    background-color: colors.$red-50;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 5px;
+  background-color: colors.$red-50;
 }
 
 .circle:last-child {
-    background-color: colors.$blue-50;
+  background-color: colors.$blue-50;
 }
 
 .linkTypeCenter {
-    position: absolute;
-    top: 25%;
-    left: 35%;
-    right: 40%;
-    color: colors.$black;
-    font-weight: 500;
+  position: absolute;
+  top: 25%;
+  left: 35%;
+  right: 40%;
+  color: colors.$black;
+  font-weight: 500;
 }
 
 .circleBorder {
-    flex: 1;
-    border-bottom: 5px solid colors.$black;
+  flex: 1;
+  border-bottom: 5px solid colors.$black;
 }
 
 .arrowIcon {
-    font-size: 50px;
-    color: colors.$black;
-    margin: 0 -8px -0.5px -15px;
+  font-size: 50px;
+  color: colors.$black;
+  margin: 0 -8px -0.5px -15px;
 }
 
 .circle p {
-    text-align: center;
-    color: colors.$white;
-    font-weight: 500;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    // width: 160px;
-    white-space: nowrap;
+  text-align: center;
+  color: colors.$white;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  // width: 160px;
+  white-space: nowrap;
 }
 
 .btnContainer {
-    display: flex;
-    justify-content: flex-end;
-    margin: 30px 0;
+  display: flex;
+  justify-content: flex-end;
+  margin: 30px 0;
 }
 
 .btnContainer button {
-    width: 50%;
+  width: 50%;
 }

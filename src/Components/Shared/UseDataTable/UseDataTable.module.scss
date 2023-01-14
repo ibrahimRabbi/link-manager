@@ -1,104 +1,104 @@
 @use '@carbon/colors';
 
 .tableCell {
-    border-left: 1px solid colors.$gray-30;
-    width: 200px;
+  border-left: 1px solid colors.$gray-30;
+  width: 200px;
 
-    span {
-        width: 250px;
-        overflow: hidden;
-        display: inline-block;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        cursor: pointer;
-    }
+  span {
+    width: 250px;
+    overflow: hidden;
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+  }
 }
 
 .tableCell:first-child {
-    border-left: 0;
+  border-left: 0;
 }
 
 .boxCell {
-    border-left: 1px solid colors.$gray-30;
-    width: 100px;
+  border-left: 1px solid colors.$gray-30;
+  width: 100px;
 }
 
 .newLinkCell1 {
-    width: 15%;
+  width: 15%;
 }
 
 .newLinkCell2 {
-    width: 35%;
+  width: 35%;
 }
 
 .tableCellName {
-    color: colors.$blue-50;
-    cursor: pointer;
+  color: colors.$blue-50;
+  cursor: pointer;
 }
 
 .targetCell {
-    width: 35%;
+  width: 35%;
 }
 
 .actionContainer {
-    display: flex;
-    flex-direction: column;
-    width: 150px;
-    padding: 10px;
+  display: flex;
+  flex-direction: column;
+  width: 150px;
+  padding: 10px;
 }
 
 .actionMenu {
-    width: 160px;
+  width: 160px;
 }
 
 .menuItem {
-    height: 30px;
+  height: 30px;
 }
 
 .statusIcon {
-    font-size: 18px;
-    margin: 0 5px -4px 0;
+  font-size: 18px;
+  margin: 0 5px -4px 0;
 }
 
 .validIcon {
-    color: colors.$green-50;
+  color: colors.$green-50;
 }
 
 .invalidIcon {
-    color: colors.$red-60;
+  color: colors.$red-60;
 }
 
 .noStatusIcon {
-    color: colors.$gray-30;
+  color: colors.$gray-30;
 }
 
 .modalHeadContainer {
-    display: flex;
-    border-bottom: 1px solid colors.$gray-30;
-    padding: 10px;
+  display: flex;
+  border-bottom: 1px solid colors.$gray-30;
+  padding: 10px;
 }
 
 .modalTitle {
-    cursor: pointer;
-    font-weight: bold;
-    color: colors.$blue-70;
-    font-size: 18px;
-    border-bottom: 2px solid colors.$blue-70;
+  cursor: pointer;
+  font-weight: bold;
+  color: colors.$blue-70;
+  font-size: 18px;
+  border-bottom: 2px solid colors.$blue-70;
 }
 
 .modalBody {
-    margin: 0;
-    padding: 10px;
-    background-color: colors.$white;
-    border-radius: 10px;
+  margin: 0;
+  padding: 10px;
+  background-color: colors.$white;
+  border-radius: 10px;
 }
 
 #sourceProp {
-    border-right: 1px solid lightgray;
-    padding: 8px;
-    width: 30%;
+  border-right: 1px solid lightgray;
+  padding: 8px;
+  width: 30%;
 }
 
 #sourceValue {
-    padding: 8px;
+  padding: 8px;
 }
