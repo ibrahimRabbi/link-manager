@@ -1,11 +1,15 @@
-import { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import { handleGetSources, handleIsWbe } from '../../../Redux/slices/linksSlice';
+import AuthContext from '../../../Store/Auth-Context';
 
 const ProtectedRoute = ({ children }) => {
+
+  const authCtx = useContext(AuthContext);
   let location = useLocation();
   const dispatch = useDispatch();
+  const wbePath = location.pathname?.includes('wbe');
 
   // Get query parameters from the Gitlab
   const [searchParams] = useSearchParams();
@@ -20,10 +24,8 @@ const ProtectedRoute = ({ children }) => {
   const branch= searchParams.get('branch');
   const commit =searchParams.get('commit');
 
-  const isWBE = location.pathname?.includes('wbe');
-
   useEffect(()=>{
-    dispatch(handleIsWbe(isWBE));
+    dispatch(handleIsWbe(wbePath));
     if (uri && title && projectName) {
       dispatch(handleGetSources({
         projectName,
@@ -33,12 +35,16 @@ const ProtectedRoute = ({ children }) => {
         uri,
         origin,
         sourceType,
-        appName
+        appName,
       }));
     }
   },[uri, title, projectName]);
 
-  return children;
+  if(authCtx.isLoggedIn){
+    return children;
+  }
+
+  return <Navigate to="/login" state={{ from: location }} />;
 };
 
 export default ProtectedRoute;

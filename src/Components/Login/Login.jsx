@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, { useContext, useState } from 'react';
 
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +9,7 @@ import { Button, PasswordInput, ProgressBar, TextInput } from '@carbon/react';
 
 import style from './Login.module.scss';
 
-const loginURL = `${process.env.REACT_APP_LM_REST_API_URL}/auth/login`;
+const loginURL = `${process.env.REACT_APP_REST_API_URL}/auth/login`;
 
 const {main,container, title, formContainer, btnContainer, titleSpan, errText}=style;
 

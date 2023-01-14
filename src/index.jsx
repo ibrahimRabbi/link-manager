@@ -1,23 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.scss';
+import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
-import {AuthContextProvider} from './Store/Auth-Context.jsx';
-import {Provider} from 'react-redux';
+import './index.scss';
 import store from './Redux/store.jsx';
-import {BrowserRouter} from 'react-router-dom';
-import {NavigationBarContextProvider} from './Store/NavigationBar-Context.jsx';
+import reportWebVitals from './reportWebVitals';
+import { AuthContextProvider } from './Store/Auth-Context.jsx';
 
 ReactDOM.render(
   <React.StrictMode>
     <AuthContextProvider>
       <Provider store={store}>
-        <NavigationBarContextProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </NavigationBarContextProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </Provider>
     </AuthContextProvider>
   </React.StrictMode>,

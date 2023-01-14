@@ -2,9 +2,6 @@
 @use '@carbon/type';
 
 .App {
-    background-color: colors.$gray-10;
-    min-height: 100vh;
-
     h1 {
         font-size: type.type-scale(12);
     }
@@ -35,7 +32,7 @@
 }
 
 .mainContainer {
-    max-width: 1280px;
+    max-width: 1300px;
     margin: 0 auto;
     padding: 0 1vw;
 }
@@ -49,7 +46,7 @@
 }
 
 .wbeDashboardContainer {
-    padding-top: 50px;
+    padding-top: 30px;
 }
 
 .text-center {

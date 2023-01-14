@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { TbArrowNarrowRight } from 'react-icons/tb';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { handleCurrPageTitle } from '../../Redux/slices/linksSlice';
+import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import styles from './LinkDetails.module.scss';
 const {
   arrowIcon, btnContainer,
