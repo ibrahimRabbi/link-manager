@@ -8,7 +8,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "eslint . --ext .js,.jsx"
+    "lint": "eslint --color --ext .js,.jsx src/",
+    "prettier": "prettier --write src/ "
   },
   "dependencies": {
     "@carbon/icons-react": "^11.9.0",
