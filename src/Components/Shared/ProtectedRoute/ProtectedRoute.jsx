@@ -29,10 +29,10 @@ const ProtectedRoute = ({ children }) => {
     if (uri && title && projectName) {
       dispatch(handleGetSources({
         projectName,
-        branch,
-        commit,
         title,
         uri,
+        branch,
+        commit,
         origin,
         sourceType,
         appName,

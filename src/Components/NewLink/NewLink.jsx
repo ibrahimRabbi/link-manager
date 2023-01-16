@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleCancelLink, handleCreateLink, handleLinkType, handleOslcResponse, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
+import { fetchCreateLink, handleCancelLink, handleLinkType, handleOslcResponse, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
@@ -35,22 +35,22 @@ const headers = [
 const apiURL = `${process.env.REACT_APP_REST_API_URL}/link`;
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
-  const {isWbe, oslcResponse, sourceDataList, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData } = useSelector(state => state.links);
+  const {isWbe, oslcResponse, sourceDataList, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData, CLResponse, linkCreateLoading } = useSelector(state => state.links);
 
+  console.log(CLResponse);
+  
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [isJiraApp, setIsJiraApp] = useState(false);
   const [isBackJiraApp, setIsBackJiraApp] = useState(false);
   const [displayTableData, setDisplayTableData] = useState([]);
-  const [lcLoading, setLcLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
 
+  const authCtx = useContext(AuthContext);
   const isGlide = sourceDataList?.appName?.includes('glide');
   const isJIRA = sourceDataList?.appName?.includes('jira');
-
-  const authCtx = useContext(AuthContext);
 
   let sourceTitles = [];
   let sourceValues = {};
@@ -74,7 +74,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     };
     console.log(sourceValues);
   } else {
-    sourceTitles = ['GitLab Project', 'GitLab Branch', 'Gitlab Commit', 'Filename', 'URI'];
+    sourceTitles = ['GitLab Project', 'Filename', 'URI'];
     sourceValues = sourceDataList;
   }
 
@@ -189,7 +189,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Create new link 
   const handleSaveLink = () => {
-    setLcLoading(true);
     const { projectName, title, uri, origin} = sourceDataList;
     const sourceProvider = origin === 'https://gitlab.com' ? 'Gitlab': origin === 'https://github.com'? 'Github' : origin === 'https://bitbucket.org' ? 'Bitbucket' : 'Gitlab';
     
@@ -202,7 +201,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         target_provider: 'JIRA',
       };
     });
-
+    
     const linkObj ={
       source_type: title,
       source_title: title,
@@ -213,27 +212,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       status: 'active',
       target_data: targetsData,
     };
-    console.log(linkObj);
-    fetch(apiURL, {
-      method:'POST',
-      headers:{
-        'Content-type':'application/json',
-        'authorization':'Bearer ' + authCtx.token,
-      },
-      body:JSON.stringify(linkObj),
-    })
-      .then((res) => {
-        console.log(res);
-        const showIcon = res.status ==='Created' ?'success': 'error';
-        Swal.fire({title:res?.status, text: res?.message, icon: showIcon, });
-        isWbe ? navigate('/wbe') : navigate('/');
-      })
-      .catch((err) => {console.log(err);})
-      .finally(() => {
-        setLcLoading(false);
-      });
-    // }, 0);
-    dispatch(handleCreateLink());
+    dispatch(fetchCreateLink({url:apiURL, token: authCtx.token, bodyData: linkObj }));
   };
 
   // cancel create link
@@ -271,7 +250,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         </div>
 
         {
-          lcLoading && <ProgressBar label=''/>
+          linkCreateLoading && <ProgressBar label=''/>
         }
         {/* --- After selected link type ---  */}
         {(linkType && projectType || isEditLinkPage) &&
