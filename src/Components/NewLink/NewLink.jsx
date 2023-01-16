@@ -120,7 +120,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       title: sourceDataList['title'],
       sourceType: sourceDataList['sourceType'],
       uri: sourceDataList['uri'],
-      origin: sourceDataList['origin'],
     };
     console.log(sourceValues);
   } else {
