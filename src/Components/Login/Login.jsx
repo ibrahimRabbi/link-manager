@@ -9,7 +9,7 @@ import { Button, PasswordInput, ProgressBar, TextInput } from '@carbon/react';
 
 import style from './Login.module.scss';
 
-const loginURL = `${process.env.REACT_APP_REST_API_URL}/auth/login`;
+const loginURL = `${process.env.REACT_APP_LM_REST_API_URL}/auth/login`;
 
 const { main, container, title, formContainer, btnContainer, titleSpan, errText } = style;
 
@@ -25,8 +25,6 @@ const Login = () => {
     formState: { errors },
   } = useForm();
   const navigate = useNavigate();
-
-  console.log('Login.jsx -> loginURL', loginURL);
 
   // handle form submit
   const onSubmit = (data) => {

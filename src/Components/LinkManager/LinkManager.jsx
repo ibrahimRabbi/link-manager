@@ -3,7 +3,9 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleDisplayLinks, handleEditLinkData } from '../../Redux/slices/linksSlice';
+import {
+  handleDisplayLinks, handleEditLinkData,
+} from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
@@ -29,7 +31,7 @@ const headers = [
 ];
 
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
-const apiURL = `${process.env.REACT_APP_REST_API_URL}/link/resource`;
+const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 
 const LinkManager = () => {
   const { allLinks, sourceDataList, isWbe } = useSelector((state) => state.links);
@@ -69,7 +71,6 @@ const LinkManager = () => {
         }
       })
       .then((data) => {
-        console.log(data);
         if (data?.length) dispatch(handleDisplayLinks(data));
       })
       .catch((err) => console.log(err))
