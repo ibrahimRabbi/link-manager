@@ -3,9 +3,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import {
-  handleDisplayLinks, handleEditLinkData,
-} from '../../Redux/slices/linksSlice';
+import { handleDisplayLinks, handleEditLinkData } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
