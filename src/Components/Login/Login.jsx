@@ -9,7 +9,7 @@ import AuthContext from '../../Store/Auth-Context.jsx';
 import style from './Login.module.scss';
 
 const {main,container, title, formContainer, btnContainer, titleSpan, errText}=style;
-const loginURL = `${process.env.REACT_APP_REST_API_URL}/auth/login`;
+const loginURL = `${process.env.REACT_APP_LM_REST_API_URL}/auth/login`;
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);

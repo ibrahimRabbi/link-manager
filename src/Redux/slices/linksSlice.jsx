@@ -18,7 +18,7 @@ export const fetchCreateLink = createAsyncThunk(
             Swal.fire({title:data.status, text: data.message, icon: 'success' });
             return data;
           });
-        }else{
+        }else if(res.status !==404){
           res.json().then(data=>{
             Swal.fire({title:'Error', text: data.message, icon: 'error' });
           });
@@ -212,9 +212,9 @@ export const linksSlice = createSlice({
 
     builder.addCase(fetchCreateLink.fulfilled, (state, {payload}) => {
       state.linkCreateLoading = false;
-      if(payload.isConfirmed) state.CLResponse =null;
+      if(payload) state.CLResponse = payload;
       else{
-        state.CLResponse = payload;
+        state.CLResponse = [];
       }
     });
   },

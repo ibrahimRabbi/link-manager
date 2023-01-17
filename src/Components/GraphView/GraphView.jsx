@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context';
 
-const apiURL= `${process.env.REACT_APP_REST_API_URL}/link/visualize`;
+const apiURL= `${process.env.REACT_APP_LM_REST_API_URL}/link/visualize`;
 
 const GraphView = () => {
   const {graphData, isLoading}=useSelector(state=>state.graph);
