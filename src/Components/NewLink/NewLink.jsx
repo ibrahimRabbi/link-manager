@@ -133,9 +133,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     sourceValues = sourceDataList;
   }
 
-  console.log('sourceValues', sourceValues);
-  console.log('sourceTitles', sourceTitles);
-
   useEffect(() => {
     dispatch(handleCurrPageTitle(isEditLinkPage ? isEditLinkPage : 'New Link'));
   }, []);
