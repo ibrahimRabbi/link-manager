@@ -47,8 +47,8 @@ const LinkManager = () => {
   // Get Created Links from LM API
   useEffect(() => {
     setIsLoading(true);
-    // dispatch(handleIsLoading(true));
-    fetch(`${apiURL}/6`, {
+    const { uri } = sourceDataList;
+    fetch(`${apiURL}/?resource_id=${uri}`, {
       method: 'GET',
       headers: {
         'Content-type': 'application/json',
@@ -73,7 +73,7 @@ const LinkManager = () => {
       })
       .catch((err) => console.log(err))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [sourceDataList]);
 
   // Link manager dropdown options
   const handleShowItem = () => {};
