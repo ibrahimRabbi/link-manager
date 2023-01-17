@@ -54,10 +54,8 @@ const linkTypeItems = [
   'satisfiedBy',
 ];
 const projectItems = [
-  'GCM System - Backend (JIRA)',
-  'GCM UI - Frontend (JIRA)',
-  'LIM Link Manager (JIRA)',
-  'Delivery System (GLIDE)',
+  'Cross-Domain Integration Demo (JIRA)',
+  'Cross-Domain Integration Demo (GITLAB)',
   'Jet Engine Design (GLIDE)',
 ];
 const resourceItems = ['User story', 'Task', 'Epic', 'Bug', 'Improvement'];
@@ -90,8 +88,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
-  const [isJiraApp, setIsJiraApp] = useState(false);
-  const [isBackJiraApp, setIsBackJiraApp] = useState(false);
+  const [isJiraDialog, setIsJiraDialog] = useState(false);
+  const [isGitlabDialog, setIsGitlabDialog] = useState(false);
+  const [isGlideDialog, setIsGlideDialog] = useState(false);
   const [displayTableData, setDisplayTableData] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
@@ -136,8 +135,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   useEffect(() => {
     if (projectType) {
-      setIsBackJiraApp(projectType?.includes('Backend (JIRA)'));
-      setIsJiraApp(projectType?.includes('JIRA'));
+      setIsJiraDialog(projectType?.includes('(JIRA)'));
+      setIsGitlabDialog(projectType?.includes('(GITLAB)'));
+      setIsGlideDialog(projectType?.includes('GLIDE'));
     }
   }, [projectType]);
 
@@ -281,6 +281,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       target_data: targetsData,
     };
     dispatch(fetchCreateLink({url:apiURL, token: authCtx.token, bodyData: linkObj }));
+    
   };
 
   // cancel create link
@@ -329,7 +330,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             className={dropdownStyle}
           />
 
-          {((linkType && projectType && !isJiraApp) || isEditLinkPage) && (
+          {((linkType &&!isJiraDialog && !isGitlabDialog && !isGlideDialog)) && (
             <UseDropdown
               items={targetResourceItems}
               onChange={handleTargetResource}
@@ -352,33 +353,51 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
             {
               // Show the selection dialogs
-              isJiraApp && (
+              isJiraDialog && (
                 <div className={targetIframe}>
-                  {isBackJiraApp ? (
-                    <div>
-                      <iframe
-                        // eslint-disable-next-line max-len
-                        src="https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0"
-                        height="550px"
-                        width="800px"
-                      ></iframe>
-                    </div>
-                  ) : (
-                    <div>
-                      <iframe
-                        // eslint-disable-next-line max-len
-                        src="https://192.241.220.34:9443/rm/pickers/com.ibm.rdm.web.RRCPicker?projectURL=https://192.241.220.34:9443/rm/rm-projects/_VhNr0IEzEeqnsvH-FkjSvQ#oslc-core-postMessage-1.0"
-                        height="550px"
-                        width="800px"
-                      ></iframe>
-                    </div>
-                  )}
-                  {/*you will receive the information coming from the Selection Dialog*/}
+                  <div>
+                    <iframe
+                      // eslint-disable-next-line max-len
+                      src="https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0"
+                      height="550px"
+                      width="800px"
+                    ></iframe>
+                  </div>
+                </div>
+              )
+            }
+            {
+              // Show the selection dialogs
+              isGitlabDialog && (
+                <div className={targetIframe}>
+                  <div>
+                    <iframe
+                      // eslint-disable-next-line max-len
+                      src="https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/selector"
+                      height="550px"
+                      width="800px"
+                    ></iframe>
+                  </div>
+                </div>
+              )
+            }
+            {
+              // Show the selection dialogs
+              isGlideDialog && (
+                <div className={targetIframe}>
+                  <div>
+                    <iframe
+                      // eslint-disable-next-line max-len
+                      src="https://glide-oslc-api-dev.koneksys.com/oslc/provider/selector"
+                      height="550px"
+                      width="800px"
+                    ></iframe>
+                  </div>
                 </div>
               )
             }
 
-            {!isJiraApp && (
+            {!isGlideDialog && !isJiraDialog && !isGitlabDialog&& (
               <>
                 <div className={targetSearchContainer}>
                   <form
@@ -423,7 +442,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               </>
             )}
 
-            {!isJiraApp && (
+            {!isJiraDialog && (
               <>
                 {/* new link btn  */}
                 {projectType && resourceType && targetDataArr[0] && !isEditLinkPage && (

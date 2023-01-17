@@ -6,11 +6,12 @@ import AuthContext from '../../Store/Auth-Context';
 
 const apiURL= `${process.env.REACT_APP_LM_REST_API_URL}/link/visualize`;
 
-const GraphView = () => {
+const GraphView = ({uri}) => {
   const {graphData, isLoading}=useSelector(state=>state.graph);
+  // const {sourceDataList}=useSelector(state=>state.links);
   const authCtx = useContext(AuthContext);
   const dispatch =useDispatch();
-
+  console.log(uri);
   useEffect(()=>{
     dispatch(handleCurrPageTitle('Graph view'));
     // dispatch(fetchGraphData({url:graphApiURL, token:authCtx.token}));
@@ -21,32 +22,26 @@ const GraphView = () => {
   const [data, setData] = useState(null);
 
   useEffect(() => {
-    fetch(apiURL, {
-      method: 'POST',
+    fetch(`${apiURL}?start_node_id=${encodeURIComponent(uri)}`, {
+      method: 'GET',
       headers: {
         'Content-type': 'application/json',
         authorization: 'Bearer ' + authCtx.token,
       },
-      body: JSON.stringify({
-        start_node: 'README.md',
-        end_node:
-          // eslint-disable-next-line max-len
-          'https://jira-oslc-api-dev.koneksys.com/oslc/provider/CDID/resources/tasks/CDID-20',
-      }),
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         setData(data.data);
       })
       .finally(() => {
         setIsLoaded(true);
       });
   }, []);
-
+  console.log(data);
+  console.log(isLoaded);
   return (
     <div style={{ width: '100%', height: '90vh' }}>
-      {isLoaded && (
+      {isLoaded && data?.nodes[0] && (
         <ReactGraph
           initialState={data}
           nodes={data.nodes}
