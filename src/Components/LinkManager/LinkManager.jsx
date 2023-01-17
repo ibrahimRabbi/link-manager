@@ -48,31 +48,33 @@ const LinkManager = () => {
   useEffect(() => {
     setIsLoading(true);
     const { uri } = sourceDataList;
-    fetch(`${apiURL}/?resource_id=${uri}`, {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json',
-        authorization: 'Bearer ' + authCtx.token,
-      },
-    })
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        } else {
-          return res.json().then((data) => {
-            let errorMessage = 'Loading links failed: ';
-            if (data && data.message) {
-              errorMessage += data.message;
-            }
-            throw new Error(errorMessage);
-          });
-        }
+    if (uri) {
+      fetch(`${apiURL}/?resource_id=${uri}`, {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json',
+          authorization: 'Bearer ' + authCtx.token,
+        },
       })
-      .then((data) => {
-        if (data?.length) dispatch(handleDisplayLinks(data));
-      })
-      .catch((err) => console.log(err))
-      .finally(() => setIsLoading(false));
+        .then((res) => {
+          if (res.ok) {
+            return res.json();
+          } else {
+            return res.json().then((data) => {
+              let errorMessage = 'Loading links failed: ';
+              if (data && data.message) {
+                errorMessage += data.message;
+              }
+              throw new Error(errorMessage);
+            });
+          }
+        })
+        .then((data) => {
+          if (data?.length) dispatch(handleDisplayLinks(data));
+        })
+        .catch((err) => console.log(err))
+        .finally(() => setIsLoading(false));
+    }
   }, [sourceDataList]);
 
   // Link manager dropdown options
