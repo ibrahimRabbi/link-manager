@@ -12,14 +12,12 @@
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended",
-    "plugin:jest/recommended"
+    "plugin:jest/recommended",
+    "prettier"
   ],
   "overrides": [
     {
-      "files": [
-        "**/*.spec.js",
-        "**/*.spec.jsx"
-      ],
+      "files": ["**/*.spec.js", "**/*.spec.jsx"],
       "env": {
         "jest": true
       }
@@ -35,27 +33,14 @@
     },
     "requireConfigFile": false
   },
-  "plugins": [
-    "react",
-    "jest"
-  ],
+  "plugins": ["react", "jest"],
   "rules": {
     "react/prop-types": "off",
-    "indent": [
-      "error",
-      2
-    ],
-    "linebreak-style": [
-      "error",
-      "unix"
-    ],
-    "quotes": [
-      "error",
-      "single"
-    ],
-    "semi": [
-      "error",
-      "always"
-    ]
+    "indent": ["error", 2],
+    "linebreak-style": ["error", "unix"],
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"],
+    "max-len": ["error", { "code": 90 }],
+    "comma-dangle": ["error", "always-multiline"]
   }
 }

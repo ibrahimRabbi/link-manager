@@ -1,4 +1,4 @@
-const nodesData= [
+const nodesData = [
   {
     id: '3cc1a2a289dddbd64688',
     labels: ['label2'],
@@ -1020,5 +1020,5 @@ const nodesData= [
     },
   },
 ];
-  
+
 export default nodesData;

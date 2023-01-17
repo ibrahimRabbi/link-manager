@@ -35,7 +35,7 @@ export const fetchLinksData = createAsyncThunk(
       headers:{
         'Content-type':'application/json',
         'authorization':'Bearer ' + token,
-      }
+      },
     })
       .then(res => {
         if (res.ok) {
@@ -77,111 +77,111 @@ export const linksSlice = createSlice({
   initialState,
 
   reducers: {
-    handleIsWbe: (state, {payload}) => {
+    handleIsWbe: (state, { payload }) => {
       state.isWbe = payload;
     },
-    handleIsLoading: (state, {payload}) => {
-      state.isLoading=payload;
+    handleIsLoading: (state, { payload }) => {
+      state.isLoading = payload;
     },
-    
-    handleOslcResponse: (state, {payload}) => {
-      state.oslcResponse=payload;
+
+    handleOslcResponse: (state, { payload }) => {
+      state.oslcResponse = payload;
     },
 
     // get sources in wbe
-    handleGetSources: (state, {payload}) => {
-      state.sourceDataList =payload;
+    handleGetSources: (state, { payload }) => {
+      state.sourceDataList = payload;
     },
 
-    handleViewLinkDetails: (state, {payload}) => {
-      state.linkedData=payload;
+    handleViewLinkDetails: (state, { payload }) => {
+      state.linkedData = payload;
     },
 
     // created links state update
-    handleDisplayLinks: (state, {payload}) => {
-      state.allLinks=payload;
+    handleDisplayLinks: (state, { payload }) => {
+      state.allLinks = payload;
     },
 
     // edit link first step get data
-    handleEditLinkData: (state, {payload}) => {
-      state.linkType =null;
-      state.projectType =null;
-      state.resourceType =null;
-      state.oslcResponse =false;
-      state.editTargetData=payload?.targetData;
-      state.editLinkData=payload;
+    handleEditLinkData: (state, { payload }) => {
+      state.linkType = null;
+      state.projectType = null;
+      state.resourceType = null;
+      state.oslcResponse = false;
+      state.editTargetData = payload?.targetData;
+      state.editLinkData = payload;
     },
 
     // edit link
     handleUpdateCreatedLink: (state) => {
-      const index=state.allLinks.findIndex(item=>item?.id===state.editLinkData?.id);
-      state.allLinks[index]={
+      const index = state.allLinks.findIndex(
+        (item) => item?.id === state.editLinkData?.id,
+      );
+      state.allLinks[index] = {
         ...state.allLinks[index],
-        ...{targetData:state.editTargetData,linkType:state.linkType?state?.linkType:state.editLinkData?.linkType, project:state.projectType?state.projectType:state.editLinkData?.project, resource:state.resourceType? state.resourceType:state.editLinkData?.resource,}
+        ...{
+          targetData: state.editTargetData,
+          linkType: state.linkType ? state?.linkType : state.editLinkData?.linkType,
+          project: state.projectType ? state.projectType : state.editLinkData?.project,
+          resource: state.resourceType
+            ? state.resourceType
+            : state.editLinkData?.resource,
+        },
       };
-      state.linkType =null;
-      state.projectType =null;
-      state.resourceType =null;
-      state.editTargetData={};
-      state.targetDataArr=[];
+      state.linkType = null;
+      state.projectType = null;
+      state.resourceType = null;
+      state.editTargetData = {};
+      state.targetDataArr = [];
     },
 
     // edit target data
-    handleEditTargetData:(state, {payload})=>{
-      state.editTargetData=payload;
+    handleEditTargetData: (state, { payload }) => {
+      state.editTargetData = payload;
     },
 
     // get multiple target data
-    handleTargetDataArr: (state, {payload}) => {
-      // if(payload){
-      //   const {data, value}=payload;
-      //   if(value?.isChecked){
-      //     state.targetDataArr.push(data);
-      //   }
-      //   else{
-      //     state.targetDataArr=state.targetDataArr.filter(item=>item?.identifier !==value.id);
-      //   }
-      // }
-      // else{
-      //   state.targetDataArr=[];
-      // }
+    handleTargetDataArr: (state, { payload }) => {
       state.targetDataArr = payload;
     },
 
-    handleLinkType: (state, {payload}) => {
-      state.linkType=payload;
+    handleLinkType: (state, { payload }) => {
+      state.linkType = payload;
     },
 
-    handleProjectType: (state, {payload}) => {
-      state.projectType=payload;
+    handleProjectType: (state, { payload }) => {
+      state.projectType = payload;
     },
 
-    handleResourceType: (state, {payload}) => {
-      state.resourceType=payload;
+    handleResourceType: (state, { payload }) => {
+      state.resourceType = payload;
     },
 
     // new link and edit link cancel btn
     handleCancelLink: (state) => {
-      state.linkType =null;
-      state.projectType =null;
-      state.resourceType =null;
-      state.editTargetData={};
-      state.targetDataArr=[];
+      state.linkType = null;
+      state.projectType = null;
+      state.resourceType = null;
+      state.editTargetData = {};
+      state.targetDataArr = [];
       state.oslcResponse = null;
     },
 
-    // status update 
-    handleSetStatus: (state, {payload}) => {
-      const id=payload.row?.id;
-      localStorage.setItem(id, JSON.stringify({...payload.row, status:payload.status}));
-      const link=state.allLinks.find(data=>data?.id=== id);
-      link.status=payload.status;
+    // status update
+    handleSetStatus: (state, { payload }) => {
+      const id = payload.row?.id;
+      localStorage.setItem(
+        id,
+        JSON.stringify({ ...payload.row, status: payload.status }),
+      );
+      const link = state.allLinks.find((data) => data?.id === id);
+      link.status = payload.status;
     },
 
     // delete link
-    handleDeleteLink: (state, {payload}) => {
+    handleDeleteLink: (state, { payload }) => {
       localStorage.removeItem(payload.id);
-      state.allLinks= state.allLinks.filter(data=>data?.id !== payload?.id);
+      state.allLinks = state.allLinks.filter((data) => data?.id !== payload?.id);
     },
   },
   /// Extra Reducers ///
@@ -193,8 +193,10 @@ export const linksSlice = createSlice({
 
     builder.addCase(fetchLinksData.fulfilled, (state, {payload}) => {
       state.isLoading = false;
-      if(payload.length) state.linksData = payload;
-      else if(payload.isConfirmed) state.linksData = [];
+      if(payload) state.linksData = payload;
+      else{
+        state.linksData =[];
+      }
     });
 
     // Create new link controller
@@ -235,6 +237,7 @@ export const {
   handleResourceType,
   handleSetStatus,
   handleDeleteLink,
-  handleCancelLink } = linksSlice.actions;
+  handleCancelLink,
+} = linksSlice.actions;
 
 export default linksSlice.reducer;

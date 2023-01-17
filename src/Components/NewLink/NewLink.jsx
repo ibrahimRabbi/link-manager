@@ -1,10 +1,25 @@
-import { Button, Checkbox, ProgressBar, Search, StructuredListBody, StructuredListCell, StructuredListRow, StructuredListWrapper } from '@carbon/react';
+import {
+  Button,
+  Checkbox,
+  ProgressBar,
+  Search,
+  StructuredListBody, StructuredListCell, StructuredListRow, StructuredListWrapper,
+} from '@carbon/react';
 import React, { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { fetchCreateLink, handleCancelLink, handleLinkType, handleOslcResponse, handleProjectType, handleResourceType, handleTargetDataArr, handleUpdateCreatedLink } from '../../Redux/slices/linksSlice';
+import {
+  fetchCreateLink,
+  handleCancelLink,
+  handleLinkType,
+  handleOslcResponse,
+  handleProjectType,
+  handleResourceType,
+  handleTargetDataArr,
+  handleUpdateCreatedLink,
+} from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
@@ -12,30 +27,64 @@ import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 
 import styles from './NewLink.module.scss';
 const {
-  btnContainer, dropdownStyle, emptySearchWarning,
-  inputContainer, linkTypeContainer, newLinkTable,
-  searchContainer, searchInput, sourceContainer,
-  sourceProp, sourceValue, targetContainer,
-  targetIframe, targetSearchContainer
+  btnContainer,
+  dropdownStyle,
+  emptySearchWarning,
+  inputContainer,
+  linkTypeContainer,
+  newLinkTable,
+  searchContainer,
+  searchInput,
+  sourceContainer,
+  sourceProp,
+  sourceValue,
+  targetContainer,
+  targetIframe,
+  targetSearchContainer,
 } = styles;
 
 // dropdown items
-const linkTypeItems = ['affectedBy', 'implementedBy', 'trackedBy', 'constrainedBy', 'decomposedBy', 'elaboratedBy', 'satisfiedBy'];
-const projectItems = ['GCM System - Backend (JIRA)', 'GCM UI - Frontend (JIRA)', 'LIM Link Manager (JIRA)', 'Delivery System (GLIDE)', 'Jet Engine Design (GLIDE)'];
+const linkTypeItems = [
+  'affectedBy',
+  'implementedBy',
+  'trackedBy',
+  'constrainedBy',
+  'decomposedBy',
+  'elaboratedBy',
+  'satisfiedBy',
+];
+const projectItems = [
+  'GCM System - Backend (JIRA)',
+  'GCM UI - Frontend (JIRA)',
+  'LIM Link Manager (JIRA)',
+  'Delivery System (GLIDE)',
+  'Jet Engine Design (GLIDE)',
+];
 const resourceItems = ['User story', 'Task', 'Epic', 'Bug', 'Improvement'];
 
-// Table header 
+// Table header
 const headers = [
   { key: 'identifier', header: 'Identifier' },
   { key: 'name', header: 'Name' },
   { key: 'description', header: 'Description' },
-  { key: 'checkbox', header: <Checkbox labelText='' id='' /> }
+  { key: 'checkbox', header: <Checkbox labelText="" id="" /> },
 ];
 
-const apiURL = `${process.env.REACT_APP_REST_API_URL}/link`;
-
+const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
-  const {isWbe, oslcResponse, sourceDataList, linkType, projectType, resourceType, editLinkData, targetDataArr, editTargetData, CLResponse, linkCreateLoading } = useSelector(state => state.links);
+  const {
+    isWbe, 
+    oslcResponse, 
+    sourceDataList, 
+    linkType, 
+    projectType, 
+    resourceType, 
+    editLinkData, 
+    targetDataArr, 
+    editTargetData, 
+    CLResponse, 
+    linkCreateLoading, 
+  } = useSelector(state => state.links);
 
   console.log(CLResponse);
   
@@ -61,7 +110,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       title: sourceDataList['title'],
       sourceType: sourceDataList['sourceType'],
       uri: sourceDataList['uri'],
-      origin: sourceDataList['origin']
+      origin: sourceDataList['origin'],
     };
   } else if (isJIRA) {
     sourceTitles = ['JIRA Project', 'Title', 'Issue Type', 'URI'];
@@ -70,7 +119,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       title: sourceDataList['title'],
       sourceType: sourceDataList['sourceType'],
       uri: sourceDataList['uri'],
-      origin: sourceDataList['origin']
     };
     console.log(sourceValues);
   } else {
@@ -78,34 +126,36 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     sourceValues = sourceDataList;
   }
 
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(handleCurrPageTitle(isEditLinkPage ? isEditLinkPage : 'New Link'));
-  },[]);
+  }, []);
 
-  useEffect(()=>{
-    isEditLinkPage?null: dispatch(handleCancelLink());
-  },[location?.pathname]);
+  useEffect(() => {
+    isEditLinkPage ? null : dispatch(handleCancelLink());
+  }, [location?.pathname]);
 
-  
-  useEffect(()=>{
-    if(projectType) {
+  useEffect(() => {
+    if (projectType) {
       setIsBackJiraApp(projectType?.includes('Backend (JIRA)'));
       setIsJiraApp(projectType?.includes('JIRA'));
     }
-  },[projectType]);
+  }, [projectType]);
 
   // Edit link options start
   useEffect(() => {
     if (editTargetData?.identifier) {
       const string = editTargetData?.description?.split(' ')[0]?.toLowerCase();
-      setSearchText(string === 'document' ? 'document' : string === 'user' ? 'data' : null);
+      setSearchText(
+        string === 'document' ? 'document' : string === 'user' ? 'data' : null,
+      );
     }
   }, [isEditLinkPage]);
   // Edit link options end
 
-  // search data or document 
+  // search data or document
   useEffect(() => {
     setDisplayTableData([]);
+    // eslint-disable-next-line max-len
     // const URL = editTargetData?.identifier ? `../../${searchText}.json` : `../../${searchText}.json`;
     // if(searchText){
     //   fetch(URL)
@@ -117,40 +167,47 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   const handleSearchData = (data) => {
     dispatch(handleTargetDataArr(null));
-    fetch('https://192.241.220.34:9443/jts/j_security_check?j_username=koneksys&j_password=koneksys')
-      .then(res =>  console.log(res))
+    fetch(
+      // eslint-disable-next-line max-len
+      'https://192.241.220.34:9443/jts/j_security_check?j_username=koneksys&j_password=koneksys',
+    )
+      .then((res) => console.log(res))
       .catch((err) => console.log(err));
     setSearchText(data?.searchText);
   };
 
   //// Get Selection dialog response data
-  window.addEventListener('message', function (event) {
-    let message = event.data;
-    if (!message.source && !oslcResponse) {
-      if (message.toString()?.startsWith('oslc-response')){
-        const response = JSON.parse(message?.substr('oslc-response:'?.length));
-        const results = response['oslc:results'];
-        const targetArray =[];
-        results?.forEach((v, i)=>{
-          const label = results[i]['oslc:label'];
-          const uri = results[i]['rdf:resource'];
-          const type = results[i]['rdf:type'];
-          targetArray.push({uri, label, type});
-        });
-        dispatch(handleOslcResponse(true));
-        dispatch(handleTargetDataArr([...targetArray]));
+  window.addEventListener(
+    'message',
+    function (event) {
+      let message = event.data;
+      if (!message.source && !oslcResponse) {
+        if (message.toString()?.startsWith('oslc-response')) {
+          const response = JSON.parse(message?.substr('oslc-response:'?.length));
+          const results = response['oslc:results'];
+          const targetArray = [];
+          results?.forEach((v, i) => {
+            const label = results[i]['oslc:label'];
+            const uri = results[i]['rdf:resource'];
+            const type = results[i]['rdf:type'];
+            targetArray.push({ uri, label, type });
+          });
+          dispatch(handleOslcResponse(true));
+          dispatch(handleTargetDataArr([...targetArray]));
+        }
       }
-    }
-  }, false);
+    },
+    false,
+  );
 
-  // Call create link function 
-  useEffect(()=>{
+  // Call create link function
+  useEffect(() => {
     if (projectType && oslcResponse && targetDataArr.length) {
       handleSaveLink();
       console.log('link creating');
     }
-  },[projectType, oslcResponse, targetDataArr]);
-  
+  }, [projectType, oslcResponse, targetDataArr]);
+
   // Link type dropdown
   const handleLinkTypeChange = ({ selectedItem }) => {
     dispatch(handleProjectType(null));
@@ -158,8 +215,10 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     dispatch(handleLinkType(selectedItem));
   };
 
-  const targetProjectItems = linkType === 'constrainedBy' ? ['Jet Engine Design (GLIDE)'] : projectItems;
-  const targetResourceItems = linkType === 'constrainedBy' ? ['Document (PLM)', 'Part (PLM)'] : resourceItems;
+  const targetProjectItems =
+    linkType === 'constrainedBy' ? ['Jet Engine Design (GLIDE)'] : projectItems;
+  const targetResourceItems =
+    linkType === 'constrainedBy' ? ['Document (PLM)', 'Part (PLM)'] : resourceItems;
 
   // Project type dropdown
   const handleTargetProject = ({ selectedItem }) => {
@@ -182,17 +241,26 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     Swal.fire({
       icon: 'success',
       title: 'Link Updated success!',
-      timer: 3000
+      timer: 3000,
     });
     isWbe ? navigate('/wbe') : navigate('/');
   };
 
-  // Create new link 
+  // Create new link
   const handleSaveLink = () => {
-    const { projectName, title, uri, origin} = sourceDataList;
-    const sourceProvider = origin === 'https://gitlab.com' ? 'Gitlab': origin === 'https://github.com'? 'Github' : origin === 'https://bitbucket.org' ? 'Bitbucket' : 'Gitlab';
-    
-    const targetsData= targetDataArr?.map(data=>{
+    const { projectName, title, uri, origin } = sourceDataList;
+    const sourceProvider =
+      origin === 'https://gitlab.com'
+        ? 'Gitlab'
+        : origin === 'https://github.com'
+          ? 'Github'
+          : origin === 'https://bitbucket.org'
+            ? 'Bitbucket'
+            : 'Gitlab';
+
+    // console.log('NewLink.jsx -> handleSaveLink -> targetDataArr', targetDataArr);
+    const targetsData = targetDataArr?.map((data) => {
+      // console.log('NewLink.jsx -> handleSaveLink -> targetDataArr -> data', data);
       return {
         target_type: data.type,
         target_title: data.label,
@@ -220,110 +288,177 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     dispatch(handleCancelLink());
     isWbe ? navigate('/wbe') : navigate('/');
   };
-  
+
   return (
     <div className="mainContainer">
-      <div className='container'>
+      <div className="container">
         <div className={sourceContainer}>
           <h5>Source</h5>
-          <StructuredListWrapper ariaLabel='Structured list'>
+          <StructuredListWrapper ariaLabel="Structured list">
             <StructuredListBody>
-              {
-                sourceTitles.map((properties, index)=><StructuredListRow key={properties}>
+              {sourceTitles.map((properties, index) => (
+                <StructuredListRow key={properties}>
                   <StructuredListCell id={sourceProp}>{properties}</StructuredListCell>
-                  <StructuredListCell id={sourceValue}>{Object.values(sourceDataList)[index]}</StructuredListCell>
-                </StructuredListRow>)
-              }
+                  <StructuredListCell id={sourceValue}>
+                    {Object.values(sourceValues)[index]}
+                  </StructuredListCell>
+                </StructuredListRow>
+              ))}
             </StructuredListBody>
           </StructuredListWrapper>
         </div>
 
         <div className={linkTypeContainer}>
-          <UseDropdown onChange={handleLinkTypeChange} items={linkTypeItems} title='Link type' selectedValue={editLinkData?.linkType} label={'Select link type'} id='newLink_linkTypes' className={dropdownStyle}/>
+          <UseDropdown
+            onChange={handleLinkTypeChange}
+            items={linkTypeItems}
+            title="Link type"
+            selectedValue={editLinkData?.linkType}
+            label={'Select link type'}
+            id="newLink_linkTypes"
+            className={dropdownStyle}
+          />
 
-          <UseDropdown items={targetProjectItems} onChange={handleTargetProject} title='Target project' selectedValue={editLinkData?.project} label={'Select target project'} id='project-dropdown' className={dropdownStyle}/>
-        
-          {
-            (linkType && projectType && !isJiraApp || isEditLinkPage) && 
-            <UseDropdown items={targetResourceItems} onChange={handleTargetResource}  title='Target resource type' selectedValue={editLinkData?.resource} label={'Select target resource type'} id='resourceType-dropdown' className={dropdownStyle}/>
-          }
+          <UseDropdown
+            items={targetProjectItems}
+            onChange={handleTargetProject}
+            title="Target project"
+            selectedValue={editLinkData?.project}
+            label={'Select target project'}
+            id="project-dropdown"
+            className={dropdownStyle}
+          />
+
+          {((linkType && projectType && !isJiraApp) || isEditLinkPage) && (
+            <UseDropdown
+              items={targetResourceItems}
+              onChange={handleTargetResource}
+              title="Target resource type"
+              selectedValue={editLinkData?.resource}
+              label={'Select target resource type'}
+              id="resourceType-dropdown"
+              className={dropdownStyle}
+            />
+          )}
         </div>
 
         {
           linkCreateLoading && <ProgressBar label=''/>
         }
         {/* --- After selected link type ---  */}
-        {(linkType && projectType || isEditLinkPage) &&
-        <div className={targetContainer}>
-          <h5>Target</h5>
+        {((linkType && projectType) || isEditLinkPage) && (
+          <div className={targetContainer}>
+            <h5>Target</h5>
 
-
-          { // Show the selection dialogs
-            isJiraApp && <div className={targetIframe}>
-              { isBackJiraApp ?
-                <div>
-                  <iframe src='https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
+            {
+              // Show the selection dialogs
+              isJiraApp && (
+                <div className={targetIframe}>
+                  {isBackJiraApp ? (
+                    <div>
+                      <iframe
+                        // eslint-disable-next-line max-len
+                        src="https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0"
+                        height="550px"
+                        width="800px"
+                      ></iframe>
+                    </div>
+                  ) : (
+                    <div>
+                      <iframe
+                        // eslint-disable-next-line max-len
+                        src="https://192.241.220.34:9443/rm/pickers/com.ibm.rdm.web.RRCPicker?projectURL=https://192.241.220.34:9443/rm/rm-projects/_VhNr0IEzEeqnsvH-FkjSvQ#oslc-core-postMessage-1.0"
+                        height="550px"
+                        width="800px"
+                      ></iframe>
+                    </div>
+                  )}
+                  {/*you will receive the information coming from the Selection Dialog*/}
                 </div>
-                :
-                <div>
-                  <iframe src='https://192.241.220.34:9443/rm/pickers/com.ibm.rdm.web.RRCPicker?projectURL=https://192.241.220.34:9443/rm/rm-projects/_VhNr0IEzEeqnsvH-FkjSvQ#oslc-core-postMessage-1.0' height='550px' width='800px'></iframe>
-                </div>
-              }
-              {/*you will receive the information coming from the Selection Dialog*/}
-            </div>
-          }
+              )
+            }
 
-          {
-            !isJiraApp && 
-            <>
-              <div className={targetSearchContainer}>
-                <form onSubmit={handleSubmit(handleSearchData)} className={searchContainer}>
-                  <div className={inputContainer}>
-                    <Search
-                      id=''
-                      labelText=''
-                      className={searchInput} 
-                      type='text' 
-                      placeholder='Search by identifier or name' 
-                      {...register('searchText')}
-                      size='md'
+            {!isJiraApp && (
+              <>
+                <div className={targetSearchContainer}>
+                  <form
+                    onSubmit={handleSubmit(handleSearchData)}
+                    className={searchContainer}
+                  >
+                    <div className={inputContainer}>
+                      <Search
+                        id=""
+                        labelText=""
+                        className={searchInput}
+                        type="text"
+                        placeholder="Search by identifier or name"
+                        {...register('searchText')}
+                        size="md"
+                      />
+                    </div>
+                    <Button kind="primary" size="md" type="submit">
+                      Search
+                    </Button>
+                  </form>
+                </div>
+
+                {((searchText && displayTableData[0]) || isEditLinkPage) && (
+                  <div className={newLinkTable}>
+                    <UseDataTable
+                      headers={headers}
+                      tableData={displayTableData}
+                      isCheckBox={true}
+                      isChecked={editLinkData?.targetData?.identifier}
+                      editTargetData={editTargetData}
+                      isPagination={displayTableData[0] ? true : false}
+                      selectedData={handleSelectedData}
                     />
                   </div>
-                  <Button kind='primary' size='md' type='submit'>Search</Button>
-                </form>
-              </div>
+                )}
+                {searchText && !displayTableData[0] && (
+                  <h2 className={emptySearchWarning}>
+                    Please search by valid identifier or name
+                  </h2>
+                )}
+              </>
+            )}
 
-              {
-                (searchText && displayTableData[0] || isEditLinkPage) &&
-                 <div className={newLinkTable}>
-                   <UseDataTable headers={headers} tableData={displayTableData} isCheckBox={true} isChecked={editLinkData?.targetData?.identifier} editTargetData={editTargetData} isPagination={displayTableData[0] ? true : false} selectedData={handleSelectedData} />
-                 </div>
-              }
-              { (searchText && !displayTableData[0]) && <h2 className={emptySearchWarning}>Please search by valid identifier or name</h2> }
-            </>
-          }
-          
-          { !isJiraApp &&
-            <>
-              {/* new link btn  */}
-              {(projectType && resourceType &&  targetDataArr[0] &&!isEditLinkPage) && <div className={btnContainer}>
-                <Button kind='secondary' onClick={handleCancelOpenedLink} size='md'>Cancel</Button>
-                <Button kind='primary' onClick={handleSaveLink} size='md'>Save</Button>
-              </div>}
+            {!isJiraApp && (
+              <>
+                {/* new link btn  */}
+                {projectType && resourceType && targetDataArr[0] && !isEditLinkPage && (
+                  <div className={btnContainer}>
+                    <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
+                      Cancel
+                    </Button>
+                    <Button kind="primary" onClick={handleSaveLink} size="md">
+                      Save
+                    </Button>
+                  </div>
+                )}
 
-              {/* edit link btn  */}
-              {(isEditLinkPage && editLinkData?.id) && <div className={btnContainer}>
-                <Button kind='secondary' onClick={handleCancelOpenedLink} size='md'>Cancel</Button>
-                <Button kind='primary' onClick={handleLinkUpdate} size='md'>Save</Button>
-              </div>}
-            </>
-          }
-
-        </div>
-        }
-        { isWbe && <div className={'see-btn'}>
-          <Button kind='primary' onClick={()=>navigate('/wbe')} size='md'>Back to home</Button>
-        </div>}
+                {/* edit link btn  */}
+                {isEditLinkPage && editLinkData?.id && (
+                  <div className={btnContainer}>
+                    <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
+                      Cancel
+                    </Button>
+                    <Button kind="primary" onClick={handleLinkUpdate} size="md">
+                      Save
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+        {isWbe && (
+          <div className={'see-btn'}>
+            <Button kind="primary" onClick={() => navigate('/wbe')} size="md">
+              Back to home
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

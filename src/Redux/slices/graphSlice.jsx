@@ -8,7 +8,7 @@ export const fetchGraphData = createAsyncThunk(
       headers:{
         'Content-type':'application/json',
         'authorization':'Bearer ' + token,
-      }
+      },
     })
       .then(res => res.json());
     return res;
@@ -49,6 +49,10 @@ export const graphSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const {handleIsSidebarOpen, handleCurrPageTitle, handleIsProfileOpen} = graphSlice.actions;
+export const {
+  handleIsSidebarOpen, 
+  handleCurrPageTitle, 
+  handleIsProfileOpen,
+} = graphSlice.actions;
 
 export default graphSlice.reducer;

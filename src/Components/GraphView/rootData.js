@@ -1,4 +1,4 @@
-const rootData= {
+const rootData = {
   nodes: [
     {
       id: '3cc1a2a289dddbd64688',
@@ -328,5 +328,5 @@ const rootData= {
     },
   ],
 };
-  
+
 export default rootData;
