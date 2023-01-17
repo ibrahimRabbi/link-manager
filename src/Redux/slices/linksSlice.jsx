@@ -3,73 +3,79 @@ import Swal from 'sweetalert2';
 
 // Fetch Create New link
 export const fetchCreateLink = createAsyncThunk(
-  'links/fetchCreateLink', async ({url, token, bodyData}) => {
+  'links/fetchCreateLink',
+  async ({ url, token, bodyData }) => {
     const res = await fetch(`${url}`, {
-      method:'POST',
-      headers:{
-        'Content-type':'application/json',
-        'authorization':'Bearer ' + token,
-      }, 
-      body:JSON.stringify(bodyData),
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+        authorization: 'Bearer ' + token,
+      },
+      body: JSON.stringify(bodyData),
     })
-      .then(res => {
-        if(res.ok){
-          return res.json().then(data=>{
-            Swal.fire({title:data.status, text: data.message, icon: 'success' });
+      .then((res) => {
+        if (res.ok) {
+          return res.json().then((data) => {
+            Swal.fire({ title: data.status, text: data.message, icon: 'success' });
             return data;
           });
-        }else if(res.status !==404){
-          res.json().then(data=>{
-            Swal.fire({title:'Error', text: data.message, icon: 'error' });
+        } else if (res.status !== 404) {
+          res.json().then((data) => {
+            Swal.fire({ title: 'Error', text: data.message, icon: 'error' });
           });
         }
-      }).catch(err=>Swal.fire({title:'Error', text: err.message, icon: 'error' }));
+      })
+      .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
     return res;
-  });
+  },
+);
 
 // Fetch all created links for Link manager table
 export const fetchLinksData = createAsyncThunk(
-  'links/fetchLinksData', async ({url, token}) => {
+  'links/fetchLinksData',
+  async ({ url, token }) => {
     const res = await fetch(url, {
-      method:'GET',
-      headers:{
-        'Content-type':'application/json',
-        'authorization':'Bearer ' + token,
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        authorization: 'Bearer ' + token,
       },
     })
-      .then(res => {
+      .then((res) => {
         if (res.ok) {
           return res.json();
         } else {
-          res.json().then(data => {
+          res.json().then((data) => {
             let errorMessage = 'Loading links failed: ';
             if (data && data.message) {
               errorMessage += data.message;
             }
-            Swal.fire({title:'Error', text: errorMessage, icon: 'error' });
+            Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
           });
         }
-      }).catch(err=>Swal.fire({title:'Error', text: err.message, icon: 'error' }));
+      })
+      .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
     return res;
-  });
+  },
+);
 
 const initialState = {
-  sourceDataList:{},
-  isWbe:false,
-  oslcResponse:null,
-  isLinkCreate:false,
-  isLoading:false,
-  linkCreateLoading:false,
+  sourceDataList: {},
+  isWbe: false,
+  oslcResponse: null,
+  isLinkCreate: false,
+  isLoading: false,
+  linkCreateLoading: false,
   allLinks: [],
   linksData: [],
-  CLResponse:null,
-  editTargetData:{},
-  targetDataArr:[],
-  linkedData:{},
-  editLinkData:{},
-  linkType:null,
-  projectType:null,
-  resourceType:null,
+  CLResponse: null,
+  editTargetData: {},
+  targetDataArr: [],
+  linkedData: {},
+  editLinkData: {},
+  linkType: null,
+  projectType: null,
+  resourceType: null,
 };
 
 export const linksSlice = createSlice({
@@ -191,29 +197,29 @@ export const linksSlice = createSlice({
       state.isLoading = true;
     });
 
-    builder.addCase(fetchLinksData.fulfilled, (state, {payload}) => {
+    builder.addCase(fetchLinksData.fulfilled, (state, { payload }) => {
       state.isLoading = false;
-      if(payload) state.linksData = payload;
-      else{
-        state.linksData =[];
+      if (payload) state.linksData = payload;
+      else {
+        state.linksData = [];
       }
     });
 
     // Create new link controller
     builder.addCase(fetchCreateLink.pending, (state) => {
       state.linkCreateLoading = true;
-      state.linkType =null;
-      state.projectType =null;
-      state.resourceType =null;
+      state.linkType = null;
+      state.projectType = null;
+      state.resourceType = null;
       state.oslcResponse = false;
-      state.targetDataArr=[];
-      state.isLinkEdit=false;
+      state.targetDataArr = [];
+      state.isLinkEdit = false;
     });
 
-    builder.addCase(fetchCreateLink.fulfilled, (state, {payload}) => {
+    builder.addCase(fetchCreateLink.fulfilled, (state, { payload }) => {
       state.linkCreateLoading = false;
-      if(payload) state.CLResponse = payload;
-      else{
+      if (payload) state.CLResponse = payload;
+      else {
         state.CLResponse = [];
       }
     });

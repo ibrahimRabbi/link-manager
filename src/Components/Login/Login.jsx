@@ -8,7 +8,7 @@ import Swal from 'sweetalert2';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import style from './Login.module.scss';
 
-const {main,container, title, formContainer, btnContainer, titleSpan, errText}=style;
+const { main, container, title, formContainer, btnContainer, titleSpan, errText } = style;
 const loginURL = `${process.env.REACT_APP_LM_REST_API_URL}/auth/login`;
 
 const Login = () => {
@@ -37,11 +37,11 @@ const Login = () => {
         if (res.ok) {
           return res.json();
         } else {
-          res.json().then(data => {
+          res.json().then((data) => {
             let errorMessage = 'Authentication failed: ';
             if (data && data.message) {
               errorMessage += data.message;
-              Swal.fire({title:'Error', text: errorMessage, icon: 'error' });
+              Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
             }
           });
         }
@@ -51,9 +51,10 @@ const Login = () => {
         authCtx.login(data.access_token, expirationTime.toISOString());
         navigate('/', { replace: true });
       })
-      .catch(err => {
-        Swal.fire({title:'Error', text: err.message, icon: 'error' });
-      }).finally(()=>setIsLoading(false));
+      .catch((err) => {
+        Swal.fire({ title: 'Error', text: err.message, icon: 'error' });
+      })
+      .finally(() => setIsLoading(false));
   };
 
   return (
@@ -84,9 +85,7 @@ const Login = () => {
           <p className={errText}>
             {errors.password && 'Password should include at least 5 characters'}
           </p>
-          { 
-            isLoading && <ProgressBar label=''/>
-          }
+          {isLoading && <ProgressBar label="" />}
           <div className={btnContainer}>
             <Button renderIcon={ArrowRight} size="lg" kind="primary" type="submit">
               Sign in

@@ -6,7 +6,6 @@ import Swal from 'sweetalert2';
 import { fetchLinksData, handleEditLinkData } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
-import GraphView from '../GraphView/GraphView';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 
@@ -33,30 +32,30 @@ const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 
 const LinkManager = () => {
-  const { 
-    sourceDataList, 
-    isWbe, linksData, 
-    isLoading ,
-  } = useSelector(state => state.links);
+  const { sourceDataList, isWbe, linksData, isLoading } = useSelector(
+    (state) => state.links,
+  );
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
   const [searchParams] = useSearchParams();
-  const uri =searchParams.get('uri');
-  const sourceFileURL= uri || sourceDataList?.uri;
+  const uri = searchParams.get('uri');
+  const sourceFileURL = uri || sourceDataList?.uri;
 
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(handleCurrPageTitle('Links'));
     console.log(sourceFileURL);
-    // Create link 
-    if(sourceFileURL){
-      dispatch(fetchLinksData({
-        url:`${apiURL}/?resource_id=${sourceFileURL}`, 
-        token:authCtx.token,
-      }));
+    // Create link
+    if (sourceFileURL) {
+      dispatch(
+        fetchLinksData({
+          url: `${apiURL}/?resource_id=${sourceFileURL}`,
+          token: authCtx.token,
+        }),
+      );
     }
-  },[sourceDataList]);
-  
+  }, [sourceDataList]);
+
   // Link manager dropdown options
   const handleShowItem = () => {};
 
@@ -115,15 +114,15 @@ const LinkManager = () => {
             </div>
           </div>
 
-          { (isLoading && !linksData[0]) && <ProgressBar label=''/> }
-          <UseDataTable 
-            headers={headers} 
-            tableData={linksData} 
-            openTargetLink={handleOpenTargetLink} 
+          {isLoading && !linksData[0] && <ProgressBar label="" />}
+          <UseDataTable
+            headers={headers}
+            tableData={linksData}
+            openTargetLink={handleOpenTargetLink}
           />
         </div>
       </div>
-      <GraphView uri={uri}/>
+      {/*<GraphView uri={uri} />*/}
     </div>
   );
 };

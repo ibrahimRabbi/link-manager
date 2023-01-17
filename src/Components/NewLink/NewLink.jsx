@@ -3,7 +3,10 @@ import {
   Checkbox,
   ProgressBar,
   Search,
-  StructuredListBody, StructuredListCell, StructuredListRow, StructuredListWrapper,
+  StructuredListBody,
+  StructuredListCell,
+  StructuredListRow,
+  StructuredListWrapper,
 } from '@carbon/react';
 import React, { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -58,7 +61,7 @@ const projectItems = [
   'Cross-Domain Integration Demo (GITLAB)',
   'Jet Engine Design (GLIDE)',
 ];
-const resourceItems = ['User story', 'Task', 'Epic', 'Bug', 'Improvement'];
+// const resourceItems = ['User story', 'Task', 'Epic', 'Bug', 'Improvement'];
 
 // Table header
 const headers = [
@@ -71,21 +74,21 @@ const headers = [
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const {
-    isWbe, 
-    oslcResponse, 
-    sourceDataList, 
-    linkType, 
-    projectType, 
-    resourceType, 
-    editLinkData, 
-    targetDataArr, 
-    editTargetData, 
-    CLResponse, 
-    linkCreateLoading, 
-  } = useSelector(state => state.links);
+    isWbe,
+    oslcResponse,
+    sourceDataList,
+    linkType,
+    projectType,
+    resourceType,
+    editLinkData,
+    targetDataArr,
+    editTargetData,
+    CLResponse,
+    linkCreateLoading,
+  } = useSelector((state) => state.links);
 
   console.log(CLResponse);
-  
+
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [isJiraDialog, setIsJiraDialog] = useState(false);
@@ -217,8 +220,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   const targetProjectItems =
     linkType === 'constrainedBy' ? ['Jet Engine Design (GLIDE)'] : projectItems;
-  const targetResourceItems =
-    linkType === 'constrainedBy' ? ['Document (PLM)', 'Part (PLM)'] : resourceItems;
+  // const targetResourceItems =
+  //   linkType === 'constrainedBy' ? ['Document (PLM)', 'Part (PLM)'] : resourceItems;
 
   // Project type dropdown
   const handleTargetProject = ({ selectedItem }) => {
@@ -226,9 +229,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   };
 
   // Resource type dropdown
-  const handleTargetResource = ({ selectedItem }) => {
-    dispatch(handleResourceType(selectedItem));
-  };
+  // const handleTargetResource = ({ selectedItem }) => {
+  //   dispatch(handleResourceType(selectedItem));
+  // };
 
   // Selected target data
   const handleSelectedData = (data, value) => {
@@ -269,8 +272,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         target_provider: 'JIRA',
       };
     });
-    
-    const linkObj ={
+
+    const linkObj = {
       source_type: title,
       source_title: title,
       source_project: projectName,
@@ -280,8 +283,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       status: 'active',
       target_data: targetsData,
     };
-    dispatch(fetchCreateLink({url:apiURL, token: authCtx.token, bodyData: linkObj }));
-    
+    dispatch(fetchCreateLink({ url: apiURL, token: authCtx.token, bodyData: linkObj }));
   };
 
   // cancel create link
@@ -330,22 +332,20 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             className={dropdownStyle}
           />
 
-          {((linkType &&!isJiraDialog && !isGitlabDialog && !isGlideDialog)) && (
-            <UseDropdown
-              items={targetResourceItems}
-              onChange={handleTargetResource}
-              title="Target resource type"
-              selectedValue={editLinkData?.resource}
-              label={'Select target resource type'}
-              id="resourceType-dropdown"
-              className={dropdownStyle}
-            />
-          )}
+          {/*{linkType && !isJiraDialog && !isGitlabDialog && !isGlideDialog && (*/}
+          {/*  <UseDropdown*/}
+          {/*    items={targetResourceItems}*/}
+          {/*    onChange={handleTargetResource}*/}
+          {/*    title="Target resource type"*/}
+          {/*    selectedValue={editLinkData?.resource}*/}
+          {/*    label={'Select target resource type'}*/}
+          {/*    id="resourceType-dropdown"*/}
+          {/*    className={dropdownStyle}*/}
+          {/*  />*/}
+          {/*)}*/}
         </div>
 
-        {
-          linkCreateLoading && <ProgressBar label=''/>
-        }
+        {linkCreateLoading && <ProgressBar label="" />}
         {/* --- After selected link type ---  */}
         {((linkType && projectType) || isEditLinkPage) && (
           <div className={targetContainer}>
@@ -397,7 +397,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               )
             }
 
-            {!isGlideDialog && !isJiraDialog && !isGitlabDialog&& (
+            {!isGlideDialog && !isJiraDialog && !isGitlabDialog && (
               <>
                 <div className={targetSearchContainer}>
                   <form

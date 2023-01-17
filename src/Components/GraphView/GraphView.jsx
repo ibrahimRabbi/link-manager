@@ -4,18 +4,18 @@ import { useDispatch, useSelector } from 'react-redux';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context';
 
-const apiURL= `${process.env.REACT_APP_LM_REST_API_URL}/link/visualize`;
+const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/visualize`;
 
-const GraphView = ({uri}) => {
-  const {graphData, isLoading}=useSelector(state=>state.graph);
+const GraphView = ({ uri }) => {
+  const { graphData, isLoading } = useSelector((state) => state.graph);
   // const {sourceDataList}=useSelector(state=>state.links);
   const authCtx = useContext(AuthContext);
-  const dispatch =useDispatch();
+  const dispatch = useDispatch();
   console.log(uri);
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(handleCurrPageTitle('Graph view'));
     // dispatch(fetchGraphData({url:graphApiURL, token:authCtx.token}));
-  },[]);
+  }, []);
 
   console.log('Loading: ', isLoading, graphData);
   const [isLoaded, setIsLoaded] = useState(false);

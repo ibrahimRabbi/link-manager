@@ -26,16 +26,18 @@ const ProtectedRoute = ({ children }) => {
   useEffect(() => {
     dispatch(handleIsWbe(wbePath));
     if (uri && title && projectName) {
-      dispatch(handleGetSources({
-        projectName,
-        title,
-        uri,
-        branch,
-        commit,
-        origin,
-        sourceType,
-        appName,
-      }));
+      dispatch(
+        handleGetSources({
+          projectName,
+          title,
+          uri,
+          branch,
+          commit,
+          origin,
+          sourceType,
+          appName,
+        }),
+      );
     }
   }, [uri, title, projectName]);
 

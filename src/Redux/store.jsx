@@ -6,8 +6,8 @@ import navReducer from './slices/navSlice';
 const store = configureStore({
   reducer: {
     links: linksReducer,
-    nav:navReducer,
-    graph:graphReducer,
+    nav: navReducer,
+    graph: graphReducer,
   },
 });
 export default store;
