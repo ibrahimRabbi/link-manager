@@ -29,7 +29,7 @@ const headers = [
 ];
 
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
-const apiURL = `${process.env.REACT_APP_REST_API_URL}/link/resource`;
+const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 
 const LinkManager = () => {
   const { 
@@ -48,10 +48,12 @@ const LinkManager = () => {
     dispatch(handleCurrPageTitle('Links'));
     console.log(sourceFileURL);
     // Create link 
-    dispatch(fetchLinksData({
-      url:`${apiURL}/?resource_id=${sourceFileURL}`, 
-      token:authCtx.token,
-    }));
+    if(sourceFileURL){
+      dispatch(fetchLinksData({
+        url:`${apiURL}/?resource_id=${sourceFileURL}`, 
+        token:authCtx.token,
+      }));
+    }
   },[sourceDataList]);
   
   // Link manager dropdown options
