@@ -1,9 +1,9 @@
 import { Button, ProgressBar, Search } from '@carbon/react';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleDisplayLinks, handleEditLinkData } from '../../Redux/slices/linksSlice';
+import { fetchLinksData, handleEditLinkData } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
@@ -29,54 +29,31 @@ const headers = [
 ];
 
 const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
-const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
+const apiURL = `${process.env.REACT_APP_REST_API_URL}/link/resource`;
 
 const LinkManager = () => {
-  const { allLinks, sourceDataList, isWbe } = useSelector((state) => state.links);
-  const [isLoading, setIsLoading] = useState(false);
+  const { 
+    sourceDataList, 
+    isWbe, linksData, 
+    isLoading ,
+  } = useSelector(state => state.links);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
-  // const [searchParams] = useSearchParams();
-  // const title = searchParams.get('title');
+  const [searchParams] = useSearchParams();
+  const uri =searchParams.get('uri');
+  const sourceFileURL= uri || sourceDataList?.uri;
 
-  useEffect(() => {
+  useEffect(()=>{
     dispatch(handleCurrPageTitle('Links'));
-  }, []);
-
-  // Get Created Links from LM API
-  useEffect(() => {
-    setIsLoading(true);
-    const { uri } = sourceDataList;
-    if (uri) {
-      fetch(`${apiURL}/?resource_id=${uri}`, {
-        method: 'GET',
-        headers: {
-          'Content-type': 'application/json',
-          authorization: 'Bearer ' + authCtx.token,
-        },
-      })
-        .then((res) => {
-          if (res.ok) {
-            return res.json();
-          } else {
-            return res.json().then((data) => {
-              let errorMessage = 'Loading links failed: ';
-              if (data && data.message) {
-                errorMessage += data.message;
-              }
-              throw new Error(errorMessage);
-            });
-          }
-        })
-        .then((data) => {
-          if (data?.length) dispatch(handleDisplayLinks(data));
-        })
-        .catch((err) => console.log(err))
-        .finally(() => setIsLoading(false));
-    }
-  }, [sourceDataList]);
-
+    console.log(sourceFileURL);
+    // Create link 
+    dispatch(fetchLinksData({
+      url:`${apiURL}/?resource_id=${sourceFileURL}`, 
+      token:authCtx.token,
+    }));
+  },[sourceDataList]);
+  
   // Link manager dropdown options
   const handleShowItem = () => {};
 
@@ -134,11 +111,12 @@ const LinkManager = () => {
               </Button>
             </div>
           </div>
-          {isLoading && !allLinks[0] && <ProgressBar label="" />}
-          <UseDataTable
-            headers={headers}
-            tableData={allLinks}
-            openTargetLink={handleOpenTargetLink}
+
+          { (isLoading && !linksData[0]) && <ProgressBar label=''/> }
+          <UseDataTable 
+            headers={headers} 
+            tableData={linksData} 
+            openTargetLink={handleOpenTargetLink} 
           />
         </div>
       </div>

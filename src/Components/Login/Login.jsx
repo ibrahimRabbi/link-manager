@@ -1,22 +1,18 @@
 import React, { useContext, useState } from 'react';
 
-import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
-import AuthContext from '../../Store/Auth-Context.jsx';
-
 import { ArrowRight } from '@carbon/icons-react';
 import { Button, PasswordInput, ProgressBar, TextInput } from '@carbon/react';
-
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import AuthContext from '../../Store/Auth-Context.jsx';
 import style from './Login.module.scss';
 
-const loginURL = `${process.env.REACT_APP_LM_REST_API_URL}/auth/login`;
-
-const { main, container, title, formContainer, btnContainer, titleSpan, errText } = style;
+const {main,container, title, formContainer, btnContainer, titleSpan, errText}=style;
+const loginURL = `${process.env.REACT_APP_REST_API_URL}/auth/login`;
 
 const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-
   const authCtx = useContext(AuthContext);
 
   const {
@@ -41,12 +37,12 @@ const Login = () => {
         if (res.ok) {
           return res.json();
         } else {
-          return res.json().then((data) => {
+          res.json().then(data => {
             let errorMessage = 'Authentication failed: ';
             if (data && data.message) {
               errorMessage += data.message;
+              Swal.fire({title:'Error', text: errorMessage, icon: 'error' });
             }
-            throw new Error(errorMessage);
           });
         }
       })
@@ -55,12 +51,9 @@ const Login = () => {
         authCtx.login(data.access_token, expirationTime.toISOString());
         navigate('/', { replace: true });
       })
-      .catch((err) => {
-        setError(err.message);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      .catch(err => {
+        Swal.fire({title:'Error', text: err.message, icon: 'error' });
+      }).finally(()=>setIsLoading(false));
   };
 
   return (
@@ -91,8 +84,9 @@ const Login = () => {
           <p className={errText}>
             {errors.password && 'Password should include at least 5 characters'}
           </p>
-          {isLoading && <ProgressBar label="" />}
-          {error && <p className={errText}>{error}</p>}
+          { 
+            isLoading && <ProgressBar label=''/>
+          }
           <div className={btnContainer}>
             <Button renderIcon={ArrowRight} size="lg" kind="primary" type="submit">
               Sign in
