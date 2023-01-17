@@ -43,7 +43,7 @@ export const fetchLinksData = createAsyncThunk(
     })
       .then((res) => {
         if (res.ok) {
-          if  (res.status !== 204) return res.json();
+          if (res.status !== 204) return res.json();
         } else {
           res.json().then((data) => {
             let errorMessage = 'Loading links failed: ';
