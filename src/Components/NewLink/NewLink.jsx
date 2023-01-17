@@ -133,6 +133,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     sourceValues = sourceDataList;
   }
 
+  console.log('sourceValues', sourceValues);
+  console.log('sourceTitles', sourceTitles);
+
   useEffect(() => {
     dispatch(handleCurrPageTitle(isEditLinkPage ? isEditLinkPage : 'New Link'));
   }, []);
@@ -335,7 +338,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                 <StructuredListRow key={properties}>
                   <StructuredListCell id={sourceProp}>{properties}</StructuredListCell>
                   <StructuredListCell id={sourceValue}>
-                    {Object.values(sourceDataList)[index]}
+                    {Object.values(sourceValues)[index]}
                   </StructuredListCell>
                 </StructuredListRow>
               ))}
