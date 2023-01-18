@@ -331,7 +331,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             id="project-dropdown"
             className={dropdownStyle}
           />
-
           {/*{linkType && !isJiraDialog && !isGitlabDialog && !isGlideDialog && (*/}
           {/*  <UseDropdown*/}
           {/*    items={targetResourceItems}*/}
@@ -469,13 +468,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                 )}
               </>
             )}
-          </div>
-        )}
-        {isWbe && (
-          <div className={'see-btn'}>
-            <Button kind="primary" onClick={() => navigate('/wbe')} size="md">
-              Back to home
-            </Button>
           </div>
         )}
       </div>

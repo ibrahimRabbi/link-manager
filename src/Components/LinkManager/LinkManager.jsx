@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import { fetchLinksData, handleEditLinkData } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
+// import GraphView from '../GraphView/GraphView';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 
@@ -15,7 +16,7 @@ const {
   inputContainer,
   linkFileContainer,
   searchBox,
-  searchContainer,
+  searchContainer,                                                   
   searchInput,
   tableContainer,
 } = styles;
@@ -49,7 +50,7 @@ const LinkManager = () => {
     if (sourceFileURL) {
       dispatch(
         fetchLinksData({
-          url: `${apiURL}/?resource_id=${sourceFileURL}`,
+          url: `${apiURL}/?resource_id=${encodeURIComponent(sourceFileURL)}`,
           token: authCtx.token,
         }),
       );

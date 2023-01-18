@@ -32,6 +32,7 @@ function App() {
           <Route path="/wbe" element={<LinkManager />} />
         </Route>
 
+        {/* This is Browser dashboard  */}
         <Route
           path="/"
           element={
