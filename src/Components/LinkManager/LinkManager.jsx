@@ -16,7 +16,7 @@ const {
   inputContainer,
   linkFileContainer,
   searchBox,
-  searchContainer,                                                   
+  searchContainer,
   searchInput,
   tableContainer,
 } = styles;

@@ -5,23 +5,25 @@ import { fetchGraphData } from '../../Redux/slices/graphSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context';
 import rootData from './rootData';
-const apiURL= `${process.env.REACT_APP_LM_REST_API_URL}/link/visualize`;
+const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/visualize`;
 
 const GraphView = () => {
-  const {graphData, graphLoading}=useSelector(state=>state.graph);
-  const {sourceDataList}=useSelector(state=>state.links);
+  const { graphData, graphLoading } = useSelector((state) => state.graph);
+  const { sourceDataList } = useSelector((state) => state.links);
   const authCtx = useContext(AuthContext);
-  const dispatch =useDispatch();
+  const dispatch = useDispatch();
 
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(handleCurrPageTitle('Graph view'));
-    if(sourceDataList.uri){
-      dispatch(fetchGraphData({
-        url: `${apiURL}?start_node_id=${encodeURIComponent(sourceDataList?.uri)}`, 
-        token:authCtx.token,
-      }));
+    if (sourceDataList.uri) {
+      dispatch(
+        fetchGraphData({
+          url: `${apiURL}?start_node_id=${encodeURIComponent(sourceDataList?.uri)}`,
+          token: authCtx.token,
+        }),
+      );
     }
-  },[]);
+  }, []);
 
   // console.log('graphLoading: ', graphLoading, graphData);
   // const [isLoaded, setIsLoaded] = useState(false);
@@ -42,7 +44,7 @@ const GraphView = () => {
   //     })
   //     .finally(() => setIsLoaded(false));
   // }, []);
-  
+
   console.log('fake data: ', rootData);
   console.log('API data: ', graphLoading, graphData);
 

@@ -49,7 +49,7 @@ export const fetchLinksData = createAsyncThunk(
             let errorMessage = 'Loading links failed: ';
             if (data && data.message) {
               errorMessage += data.message;
-              Swal.fire({title:'Error', text: errorMessage, icon: 'error' });
+              Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
             }
             Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
           });
@@ -200,14 +200,13 @@ export const linksSlice = createSlice({
 
     builder.addCase(fetchLinksData.fulfilled, (state, { payload }) => {
       state.isLoading = false;
-      if(payload){
-        if(payload?.isConfirmed) state.linksData =[];
-        else{
+      if (payload) {
+        if (payload?.isConfirmed) state.linksData = [];
+        else {
           state.linksData = payload;
-        } 
-      }
-      else{
-        state.linksData =[];
+        }
+      } else {
+        state.linksData = [];
       }
     });
 
@@ -224,8 +223,8 @@ export const linksSlice = createSlice({
 
     builder.addCase(fetchCreateLink.fulfilled, (state, { payload }) => {
       state.linkCreateLoading = false;
-      if(payload) state.CLResponse = payload;
-      else{
+      if (payload) state.CLResponse = payload;
+      else {
         state.CLResponse = {};
       }
     });
