@@ -15,9 +15,8 @@ export const fetchGraphData = createAsyncThunk(
   });
 
 const initialState = {
-  graphData:[],
+  graphData:{},
   graphLoading:false,
-  error:null,
 };
 
 export const graphSlice = createSlice({
@@ -37,13 +36,15 @@ export const graphSlice = createSlice({
 
     builder.addCase(fetchGraphData.fulfilled, (state, {payload}) => {
       state.graphLoading = false;
-      state.graphData = payload;
-      state.error= null;
+      if (payload) state.graphData = payload.data;
+      else{
+        state.graphData = {nodes:[], relationships:[]};
+      }
     });
 
     builder.addCase(fetchGraphData.rejected, (state, {payload}) => {
       state.graphLoading = false;
-      state.error = payload;
+      state.graphError = payload;
     });
   },
 });

@@ -330,7 +330,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             className={dropdownStyle}
           />
 
-          {((linkType &&!isJiraDialog && !isGitlabDialog && !isGlideDialog)) && (
+          {((linkType && isJiraDialog && isGitlabDialog && isGlideDialog)) && (
             <UseDropdown
               items={targetResourceItems}
               onChange={handleTargetResource}
@@ -397,7 +397,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               )
             }
 
-            {!isGlideDialog && !isJiraDialog && !isGitlabDialog&& (
+            {(isGlideDialog && isJiraDialog && isGitlabDialog) && (
               <>
                 <div className={targetSearchContainer}>
                   <form
@@ -469,13 +469,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                 )}
               </>
             )}
-          </div>
-        )}
-        {isWbe && (
-          <div className={'see-btn'}>
-            <Button kind="primary" onClick={() => navigate('/wbe')} size="md">
-              Back to home
-            </Button>
           </div>
         )}
       </div>
