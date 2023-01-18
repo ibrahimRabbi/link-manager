@@ -2,21 +2,23 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 // Fetch data for show the graph view
 export const fetchGraphData = createAsyncThunk(
-  'graph/fetchGraphsData', async ({url, token}) => {
+  'graph/fetchGraphsData',
+  async ({ url, token }) => {
     const res = await fetch(url, {
-      method:'GET',
-      headers:{
-        'Content-type':'application/json',
-        'authorization':'Bearer ' + token,
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        authorization: 'Bearer ' + token,
       },
-    })
-      .then(res => res.json());
+    }).then((res) => res.json());
     return res;
-  });
+  },
+);
 
 const initialState = {
   graphData:{},
   graphLoading:false,
+  error: null,
 };
 
 export const graphSlice = createSlice({
@@ -24,8 +26,8 @@ export const graphSlice = createSlice({
   initialState,
 
   reducers: {
-    handleIsProfileOpen: (state, {payload}) => {
-      state.isProfileOpen=payload;
+    handleIsProfileOpen: (state, { payload }) => {
+      state.isProfileOpen = payload;
     },
   },
   extraReducers: (builder) => {
@@ -34,7 +36,7 @@ export const graphSlice = createSlice({
       state.graphLoading = true;
     });
 
-    builder.addCase(fetchGraphData.fulfilled, (state, {payload}) => {
+    builder.addCase(fetchGraphData.fulfilled, (state, { payload }) => {
       state.graphLoading = false;
       if (payload) state.graphData = payload.data;
       else{
@@ -42,7 +44,7 @@ export const graphSlice = createSlice({
       }
     });
 
-    builder.addCase(fetchGraphData.rejected, (state, {payload}) => {
+    builder.addCase(fetchGraphData.rejected, (state, { payload }) => {
       state.graphLoading = false;
       state.graphError = payload;
     });
@@ -50,10 +52,7 @@ export const graphSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const {
-  handleIsSidebarOpen, 
-  handleCurrPageTitle, 
-  handleIsProfileOpen,
-} = graphSlice.actions;
+export const { handleIsSidebarOpen, handleCurrPageTitle, handleIsProfileOpen } =
+  graphSlice.actions;
 
 export default graphSlice.reducer;
