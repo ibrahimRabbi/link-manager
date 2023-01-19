@@ -13,10 +13,10 @@ const { main, container, title, formContainer, btnContainer, titleSpan, errText 
 const loginURL = `${process.env.REACT_APP_LM_REST_API_URL}/auth/login`;
 
 const Login = () => {
-  const {isWbe}=useSelector(state=>state.links);
+  const { isWbe } = useSelector((state) => state.links);
   const [isLoading, setIsLoading] = useState(false);
   const authCtx = useContext(AuthContext);
-  const location =useLocation();
+  const location = useLocation();
 
   const {
     handleSubmit,
@@ -54,8 +54,8 @@ const Login = () => {
         authCtx.login(data.access_token, expirationTime.toISOString());
 
         // manage redirect user
-        if(location.state) navigate(location.state.from.pathname);
-        else{
+        if (location.state) navigate(location.state.from.pathname);
+        else {
           isWbe ? navigate('/wbe') : navigate('/');
         }
       })

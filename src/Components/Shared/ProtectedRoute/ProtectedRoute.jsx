@@ -23,9 +23,9 @@ const ProtectedRoute = ({ children }) => {
   const branch = searchParams.get('branch');
   const commit = searchParams.get('commit');
 
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(handleIsWbe(wbePath));
-  },[location]);
+  }, [location]);
 
   useEffect(() => {
     if (uri && title && projectName) {

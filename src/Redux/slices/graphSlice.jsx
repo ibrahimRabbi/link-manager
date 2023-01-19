@@ -11,15 +11,17 @@ export const fetchGraphData = createAsyncThunk(
         'Content-type': 'application/json',
         authorization: 'Bearer ' + token,
       },
-    }).then((res) => {
-      if(res.ok) return res.json();
-      else{
-        res.json().then(data=>{
-          Swal.fire({ title: data.status, text: data.message, icon: 'error' });
-          console.log(data);
-        });
-      }
-    }).catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
+    })
+      .then((res) => {
+        if (res.ok) return res.json();
+        else {
+          res.json().then((data) => {
+            Swal.fire({ title: data.status, text: data.message, icon: 'error' });
+            console.log(data);
+          });
+        }
+      })
+      .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
     return res;
   },
 );
@@ -46,8 +48,8 @@ export const graphSlice = createSlice({
     });
 
     builder.addCase(fetchGraphData.fulfilled, (state, { payload }) => {
-      if (payload){
-        if(!payload.isConfirmed){
+      if (payload) {
+        if (!payload.isConfirmed) {
           state.graphData = payload.data;
         }
       }

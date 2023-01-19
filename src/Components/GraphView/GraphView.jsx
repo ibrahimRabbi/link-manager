@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchGraphData } from '../../Redux/slices/graphSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context';
+
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/visualize`;
 
 const GraphView = () => {
@@ -26,7 +27,7 @@ const GraphView = () => {
     }
   }, []);
 
-  if(graphLoading) return <ProgressBar label="" />;
+  if (graphLoading) return <ProgressBar label="" />;
 
   return (
     <div style={{ width: '100%', height: '90vh' }}>

@@ -45,8 +45,8 @@ export const fetchLinksData = createAsyncThunk(
         if (res.ok) {
           if (res.status !== 204) {
             return res.json();
-          }else{
-            Swal.fire({ title: res.status, text:res.statusText, icon: 'error' });
+          } else {
+            Swal.fire({ title: res.status, text: res.statusText, icon: 'error' });
           }
         } else {
           res.json().then((data) => {

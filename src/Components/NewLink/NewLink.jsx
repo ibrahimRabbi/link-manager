@@ -62,16 +62,16 @@ const linkTypeItems = [
 ];
 const projectItems = [
   {
-    text:'Cross-Domain Integration Demo (JIRA)', 
-    icon:<SiJirasoftware color='#2684ff' size={18}/>,
+    text: 'Cross-Domain Integration Demo (JIRA)',
+    icon: <SiJirasoftware color="#2684ff" size={18} />,
   },
   {
-    text:'Cross-Domain Integration Demo (GITLAB)', 
-    icon: <AiFillGitlab color='red' size={18}/>,
+    text: 'Cross-Domain Integration Demo (GITLAB)',
+    icon: <AiFillGitlab color="red" size={18} />,
   },
   {
-    text:'Jet Engine Design (GLIDE)', 
-    icon:<FaGlide color='#25baa2' size={18}/>,
+    text: 'Jet Engine Design (GLIDE)',
+    icon: <FaGlide color="#25baa2" size={18} />,
   },
 ];
 // const resourceItems = ['User story', 'Task', 'Epic', 'Bug', 'Improvement'];
@@ -336,17 +336,22 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           />
 
           {/* Target project dropdown */}
-          <Dropdown className={dropdownStyle}
+          <Dropdown
+            className={dropdownStyle}
             label={'Select target project'}
             titleText={<p>Target project</p>}
             items={targetProjectItems}
             itemToString={(item) => (item ? item.text : '')}
-            itemToElement={(item)=> item ?(
-              <div style={{display:'flex', alignItems:'center', gap:'3px'}}>
-                <span style={{paddingTop:'3px'}}>{item.icon}</span> 
-                <span>{item.text}</span>
-              </div>
-            ): ''}
+            itemToElement={(item) =>
+              item ? (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                  <span style={{ paddingTop: '3px' }}>{item.icon}</span>
+                  <span>{item.text}</span>
+                </div>
+              ) : (
+                ''
+              )
+            }
             id="target-project-dropdown"
             onChange={handleTargetProject}
           />

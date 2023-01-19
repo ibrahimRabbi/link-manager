@@ -3,9 +3,11 @@ import React, { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { fetchLinksData, 
-  handleEditLinkData, 
-  handleIsWbe } from '../../Redux/slices/linksSlice';
+import {
+  fetchLinksData,
+  handleEditLinkData,
+  handleIsWbe,
+} from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 // import GraphView from '../GraphView/GraphView';
@@ -35,9 +37,7 @@ const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 
 const LinkManager = () => {
-  const { sourceDataList, linksData, isLoading } = useSelector(
-    (state) => state.links,
-  );
+  const { sourceDataList, linksData, isLoading } = useSelector((state) => state.links);
   const location = useLocation();
   const wbePath = location.pathname?.includes('wbe');
   const navigate = useNavigate();
@@ -47,9 +47,9 @@ const LinkManager = () => {
   const uri = searchParams.get('uri');
   const sourceFileURL = uri || sourceDataList?.uri;
 
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(handleIsWbe(wbePath));
-  },[location]);
+  }, [location]);
 
   useEffect(() => {
     dispatch(handleCurrPageTitle('Links'));
@@ -128,7 +128,6 @@ const LinkManager = () => {
             tableData={linksData}
             openTargetLink={handleOpenTargetLink}
           />
-
         </div>
       </div>
     </div>
