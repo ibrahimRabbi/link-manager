@@ -25,6 +25,9 @@ const ProtectedRoute = ({ children }) => {
 
   useEffect(() => {
     dispatch(handleIsWbe(wbePath));
+  }, [location]);
+
+  useEffect(() => {
     if (uri && title && projectName) {
       dispatch(
         handleGetSources({

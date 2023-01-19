@@ -1,9 +1,13 @@
 import { Button, ProgressBar, Search } from '@carbon/react';
 import React, { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { fetchLinksData, handleEditLinkData } from '../../Redux/slices/linksSlice';
+import {
+  fetchLinksData,
+  handleEditLinkData,
+  handleIsWbe,
+} from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 // import GraphView from '../GraphView/GraphView';
@@ -33,9 +37,9 @@ const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 
 const LinkManager = () => {
-  const { sourceDataList, isWbe, linksData, isLoading } = useSelector(
-    (state) => state.links,
-  );
+  const { sourceDataList, linksData, isLoading } = useSelector((state) => state.links);
+  const location = useLocation();
+  const wbePath = location.pathname?.includes('wbe');
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
@@ -44,8 +48,11 @@ const LinkManager = () => {
   const sourceFileURL = uri || sourceDataList?.uri;
 
   useEffect(() => {
+    dispatch(handleIsWbe(wbePath));
+  }, [location]);
+
+  useEffect(() => {
     dispatch(handleCurrPageTitle('Links'));
-    console.log(sourceFileURL);
     // Create link
     if (sourceFileURL) {
       dispatch(
@@ -78,7 +85,7 @@ const LinkManager = () => {
 
           <Button
             onClick={() => {
-              isWbe ? navigate('/wbe/new-link') : navigate('/new-link');
+              wbePath ? navigate('/wbe/new-link') : navigate('/new-link');
               dispatch(handleEditLinkData());
             }}
             size="md"
@@ -123,7 +130,6 @@ const LinkManager = () => {
           />
         </div>
       </div>
-      {/*<GraphView uri={uri} />*/}
     </div>
   );
 };
