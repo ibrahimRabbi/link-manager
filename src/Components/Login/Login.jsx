@@ -3,17 +3,20 @@ import React, { useContext, useState } from 'react';
 import { ArrowRight } from '@carbon/icons-react';
 import { Button, PasswordInput, ProgressBar, TextInput } from '@carbon/react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import style from './Login.module.scss';
+import { useSelector } from 'react-redux';
 
 const { main, container, title, formContainer, btnContainer, titleSpan, errText } = style;
 const loginURL = `${process.env.REACT_APP_LM_REST_API_URL}/auth/login`;
 
 const Login = () => {
+  const {isWbe}=useSelector(state=>state.links);
   const [isLoading, setIsLoading] = useState(false);
   const authCtx = useContext(AuthContext);
+  const location =useLocation();
 
   const {
     handleSubmit,
@@ -49,7 +52,12 @@ const Login = () => {
       .then((data) => {
         const expirationTime = new Date(new Date().getTime() + +data.expires_in * 1000);
         authCtx.login(data.access_token, expirationTime.toISOString());
-        navigate('/', { replace: true });
+
+        // manage redirect user
+        if(location.state) navigate(location.state.from.pathname);
+        else{
+          isWbe ? navigate('/wbe') : navigate('/');
+        }
       })
       .catch((err) => {
         Swal.fire({ title: 'Error', text: err.message, icon: 'error' });

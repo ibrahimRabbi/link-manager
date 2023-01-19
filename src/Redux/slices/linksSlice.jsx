@@ -21,7 +21,7 @@ export const fetchCreateLink = createAsyncThunk(
           });
         } else if (res.status !== 404) {
           res.json().then((data) => {
-            Swal.fire({ title: 'Error', text: data.message, icon: 'error' });
+            Swal.fire({ title: data.status, text: data.message, icon: 'error' });
           });
         }
       })
@@ -43,7 +43,11 @@ export const fetchLinksData = createAsyncThunk(
     })
       .then((res) => {
         if (res.ok) {
-          if (res.status !== 204) return res.json();
+          if (res.status !== 204) {
+            return res.json();
+          }else{
+            Swal.fire({ title: res.status, text:res.statusText, icon: 'error' });
+          }
         } else {
           res.json().then((data) => {
             let errorMessage = 'Loading links failed: ';

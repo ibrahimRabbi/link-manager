@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import Swal from 'sweetalert2';
 
 // Fetch data for show the graph view
 export const fetchGraphData = createAsyncThunk(
@@ -10,13 +11,21 @@ export const fetchGraphData = createAsyncThunk(
         'Content-type': 'application/json',
         authorization: 'Bearer ' + token,
       },
-    }).then((res) => res.json());
+    }).then((res) => {
+      if(res.ok) return res.json();
+      else{
+        res.json().then(data=>{
+          Swal.fire({ title: data.status, text: data.message, icon: 'error' });
+          console.log(data);
+        });
+      }
+    }).catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
     return res;
   },
 );
 
 const initialState = {
-  graphData: {},
+  graphData: { nodes: [], relationships: [] },
   graphLoading: false,
   error: null,
 };
@@ -37,16 +46,17 @@ export const graphSlice = createSlice({
     });
 
     builder.addCase(fetchGraphData.fulfilled, (state, { payload }) => {
-      state.graphLoading = false;
-      if (payload) state.graphData = payload.data;
-      else {
-        state.graphData = { nodes: [], relationships: [] };
+      if (payload){
+        if(!payload.isConfirmed){
+          state.graphData = payload.data;
+        }
       }
+      state.graphLoading = false;
     });
 
     builder.addCase(fetchGraphData.rejected, (state, { payload }) => {
-      state.graphLoading = false;
       state.graphError = payload;
+      state.graphLoading = false;
     });
   },
 });

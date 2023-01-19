@@ -1,6 +1,7 @@
 import {
   Button,
   Checkbox,
+  Dropdown,
   ProgressBar,
   Search,
   StructuredListBody,
@@ -10,6 +11,9 @@ import {
 } from '@carbon/react';
 import React, { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { AiFillGitlab } from 'react-icons/ai';
+import { SiJirasoftware } from 'react-icons/si';
+import { FaGlide } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -57,9 +61,18 @@ const linkTypeItems = [
   'satisfiedBy',
 ];
 const projectItems = [
-  'Cross-Domain Integration Demo (JIRA)',
-  'Cross-Domain Integration Demo (GITLAB)',
-  'Jet Engine Design (GLIDE)',
+  {
+    text:'Cross-Domain Integration Demo (JIRA)', 
+    icon:<SiJirasoftware color='#2684ff' size={18}/>,
+  },
+  {
+    text:'Cross-Domain Integration Demo (GITLAB)', 
+    icon: <AiFillGitlab color='red' size={18}/>,
+  },
+  {
+    text:'Jet Engine Design (GLIDE)', 
+    icon:<FaGlide color='#25baa2' size={18}/>,
+  },
 ];
 // const resourceItems = ['User story', 'Task', 'Epic', 'Bug', 'Improvement'];
 
@@ -225,7 +238,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Project type dropdown
   const handleTargetProject = ({ selectedItem }) => {
-    dispatch(handleProjectType(selectedItem));
+    dispatch(handleProjectType(selectedItem.text));
   };
 
   // Resource type dropdown
@@ -322,14 +335,20 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             className={dropdownStyle}
           />
 
-          <UseDropdown
-            items={targetProjectItems}
-            onChange={handleTargetProject}
-            title="Target project"
-            selectedValue={editLinkData?.project}
+          {/* Target project dropdown */}
+          <Dropdown className={dropdownStyle}
             label={'Select target project'}
-            id="project-dropdown"
-            className={dropdownStyle}
+            titleText={<p>Target project</p>}
+            items={targetProjectItems}
+            itemToString={(item) => (item ? item.text : '')}
+            itemToElement={(item)=> item ?(
+              <div style={{display:'flex', alignItems:'center', gap:'3px'}}>
+                <span style={{paddingTop:'3px'}}>{item.icon}</span> 
+                <span>{item.text}</span>
+              </div>
+            ): ''}
+            id="target-project-dropdown"
+            onChange={handleTargetProject}
           />
           {/*{linkType && !isJiraDialog && !isGitlabDialog && !isGlideDialog && (*/}
           {/*  <UseDropdown*/}
