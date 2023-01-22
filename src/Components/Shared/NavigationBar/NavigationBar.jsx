@@ -79,7 +79,7 @@ const NavigationBar = () => {
             </IconButton>
             <img src={koneksysLogo} height="40px" alt="logo" />
             <h5 className={projectTitle}>Link manager</h5>
-            <h5 className={pageTitle}>{currPageTitle}</h5>
+            <h6 className={pageTitle}>{currPageTitle}</h6>
 
             {/* --- User popover --- */}
             <Popover

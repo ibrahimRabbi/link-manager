@@ -73,7 +73,7 @@ const initialState = {
   linkCreateLoading: false,
   allLinks: [],
   linksData: [],
-  CLResponse: null,
+  createLinkRes: null,
   editTargetData: {},
   targetDataArr: [],
   linkedData: {},
@@ -227,9 +227,9 @@ export const linksSlice = createSlice({
 
     builder.addCase(fetchCreateLink.fulfilled, (state, { payload }) => {
       state.linkCreateLoading = false;
-      if (payload) state.CLResponse = payload;
+      if (payload) state.createLinkRes = payload;
       else {
-        state.CLResponse = {};
+        state.createLinkRes = null;
       }
     });
   },

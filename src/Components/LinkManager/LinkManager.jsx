@@ -33,11 +33,18 @@ const headers = [
   { key: 'actions', header: 'Actions' },
 ];
 
-const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
+const dropdownItem = [
+  {text:'Link type'}, 
+  {text:'Project type'}, 
+  {text:'Status'}, 
+  {text:'Target'},
+];
+
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 
 const LinkManager = () => {
-  const { sourceDataList, linksData, isLoading } = useSelector((state) => state.links);
+  const { sourceDataList, linksData, 
+    isLoading } = useSelector((state) => state.links);
   const location = useLocation();
   const wbePath = location.pathname?.includes('wbe');
   const navigate = useNavigate();
@@ -55,6 +62,7 @@ const LinkManager = () => {
     dispatch(handleCurrPageTitle('Links'));
     // Create link
     if (sourceFileURL) {
+      console.log('Api calling from link manager');
       dispatch(
         fetchLinksData({
           url: `${apiURL}/?resource_id=${encodeURIComponent(sourceFileURL)}`,
@@ -62,7 +70,7 @@ const LinkManager = () => {
         }),
       );
     }
-  }, [sourceDataList]);
+  }, [ sourceFileURL]);
 
   // Link manager dropdown options
   const handleShowItem = () => {};
@@ -88,9 +96,7 @@ const LinkManager = () => {
               wbePath ? navigate('/wbe/new-link') : navigate('/new-link');
               dispatch(handleEditLinkData());
             }}
-            size="md"
-            kind="primary"
-          >
+            size="md" kind="primary">
             New link
           </Button>
         </div>
@@ -113,16 +119,16 @@ const LinkManager = () => {
                   placeholder="Search by identifier or name"
                   onChange={function noRefCheck() {}}
                   onKeyDown={function noRefCheck() {}}
-                  size="md"
+                  size="sm"
                 />
               </div>
-              <Button kind="primary" size="md">
+              <Button kind="primary" size="sm">
                 Search
               </Button>
             </div>
           </div>
 
-          {isLoading && !linksData[0] && <ProgressBar label="" />}
+          {isLoading && <ProgressBar label="" />}
           <UseDataTable
             headers={headers}
             tableData={linksData}

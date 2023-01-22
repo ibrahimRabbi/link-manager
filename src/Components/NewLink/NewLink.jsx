@@ -1,13 +1,8 @@
 import {
   Button,
   Checkbox,
-  Dropdown,
   ProgressBar,
   Search,
-  StructuredListBody,
-  StructuredListCell,
-  StructuredListRow,
-  StructuredListWrapper,
 } from '@carbon/react';
 import React, { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -43,22 +38,22 @@ const {
   searchContainer,
   searchInput,
   sourceContainer,
+  sourceGrid,
   sourceProp,
   sourceValue,
   targetContainer,
-  targetIframe,
   targetSearchContainer,
 } = styles;
 
 // dropdown items
 const linkTypeItems = [
-  'affectedBy',
-  'implementedBy',
-  'trackedBy',
-  'constrainedBy',
-  'decomposedBy',
-  'elaboratedBy',
-  'satisfiedBy',
+  {text:'affectedBy'},
+  {text:'implementedBy'},
+  {text:'trackedBy'},
+  {text:'constrainedBy'},
+  {text:'decomposedBy'},
+  {text:'elaboratedBy'},
+  {text:'satisfiedBy'},
 ];
 const projectItems = [
   {
@@ -96,11 +91,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     editLinkData,
     targetDataArr,
     editTargetData,
-    CLResponse,
+    createLinkRes,
     linkCreateLoading,
   } = useSelector((state) => state.links);
-
-  console.log(CLResponse);
 
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
@@ -228,7 +221,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const handleLinkTypeChange = ({ selectedItem }) => {
     dispatch(handleProjectType(null));
     dispatch(handleResourceType(null));
-    dispatch(handleLinkType(selectedItem));
+    dispatch(handleLinkType(selectedItem.text));
   };
 
   const targetProjectItems =
@@ -263,7 +256,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   };
 
   // Create new link
-  const handleSaveLink = () => {
+  const handleSaveLink = async() => {
     const { projectName, title, uri, origin } = sourceDataList;
     const sourceProvider =
       origin === 'https://gitlab.com'
@@ -296,8 +289,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       status: 'active',
       target_data: targetsData,
     };
-    dispatch(fetchCreateLink({ url: apiURL, token: authCtx.token, bodyData: linkObj }));
+    await dispatch(fetchCreateLink({ 
+      url: apiURL, token: authCtx.token, bodyData: linkObj, 
+    }));
+    console.log(createLinkRes);
   };
+  console.log(createLinkRes);
 
   // cancel create link
   const handleCancelOpenedLink = () => {
@@ -310,18 +307,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       <div className="container">
         <div className={sourceContainer}>
           <h5>Source</h5>
-          <StructuredListWrapper ariaLabel="Structured list">
-            <StructuredListBody>
-              {sourceTitles.map((properties, index) => (
-                <StructuredListRow key={properties}>
-                  <StructuredListCell id={sourceProp}>{properties}</StructuredListCell>
-                  <StructuredListCell id={sourceValue}>
-                    {Object.values(sourceValues)[index]}
-                  </StructuredListCell>
-                </StructuredListRow>
-              ))}
-            </StructuredListBody>
-          </StructuredListWrapper>
+          {sourceTitles.map((properties, index) => (
+            <div className={sourceGrid} key={properties}>
+              <p className={sourceProp}>{properties} :</p>
+              <p className={sourceValue}>{Object.values(sourceValues)[index]}</p>
+            </div>
+          ))}
         </div>
 
         <div className={linkTypeContainer}>
@@ -335,26 +326,16 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             className={dropdownStyle}
           />
 
-          {/* Target project dropdown */}
-          <Dropdown
-            className={dropdownStyle}
-            label={'Select target project'}
-            titleText={<p>Target project</p>}
-            items={targetProjectItems}
-            itemToString={(item) => (item ? item.text : '')}
-            itemToElement={(item) =>
-              item ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                  <span style={{ paddingTop: '3px' }}>{item.icon}</span>
-                  <span>{item.text}</span>
-                </div>
-              ) : (
-                ''
-              )
-            }
-            id="target-project-dropdown"
+          <UseDropdown
             onChange={handleTargetProject}
+            items={targetProjectItems}
+            title="Target project"
+            label={'Select target project'}
+            selectedValue={editLinkData?.projectType}
+            id="target-project-dropdown"
+            className={dropdownStyle}
           />
+
           {/*{linkType && !isJiraDialog && !isGitlabDialog && !isGlideDialog && (*/}
           {/*  <UseDropdown*/}
           {/*    items={targetResourceItems}*/}
@@ -373,54 +354,41 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         {((linkType && projectType) || isEditLinkPage) && (
           <div className={targetContainer}>
             <h5>Target</h5>
-
             {
               // Show the selection dialogs
               isJiraDialog && (
-                <div className={targetIframe}>
-                  <div>
-                    <iframe
-                      // eslint-disable-next-line max-len
-                      src="https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0"
-                      height="550px"
-                      width="800px"
-                    ></iframe>
-                  </div>
-                </div>
+                <iframe
+                  // eslint-disable-next-line max-len
+                  src="https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0"
+                  height="600px"
+                  width="100%"
+                ></iframe>
               )
             }
             {
               // Show the selection dialogs
               isGitlabDialog && (
-                <div className={targetIframe}>
-                  <div>
-                    <iframe
-                      // eslint-disable-next-line max-len
-                      src="https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/selector"
-                      height="550px"
-                      width="800px"
-                    ></iframe>
-                  </div>
-                </div>
+                <iframe
+                  // eslint-disable-next-line max-len
+                  src="https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/selector"
+                  height="600px"
+                  width="100%"
+                ></iframe>
               )
             }
             {
               // Show the selection dialogs
               isGlideDialog && (
-                <div className={targetIframe}>
-                  <div>
-                    <iframe
-                      // eslint-disable-next-line max-len
-                      src="https://glide-oslc-api-dev.koneksys.com/oslc/provider/selector"
-                      height="550px"
-                      width="800px"
-                    ></iframe>
-                  </div>
-                </div>
+                <iframe
+                  // eslint-disable-next-line max-len
+                  src="https://glide-oslc-api-dev.koneksys.com/oslc/provider/selector"
+                  height="600px"
+                  width="100%"
+                ></iframe>
               )
             }
 
-            {!isGlideDialog && !isJiraDialog && !isGitlabDialog && (
+            {isGlideDialog && isJiraDialog && isGitlabDialog && (
               <>
                 <div className={targetSearchContainer}>
                   <form

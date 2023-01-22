@@ -20,15 +20,16 @@ const WbeDashboard = () => {
   return (
     <div className="mainContainer wbeDashboardContainer">
       <ContentSwitcher
+        light={true}
         selectionMode="manual"
         className="wbeContentSwitcher"
         selectedIndex={isSelected}
         onChange={handleNavigate}
         size="sm"
       >
-        <Switch name={'Links'} text="Links" disabled={false} />
-        <Switch name={'New Link'} text="New Link" disabled={false} />
-        <Switch name={'Graph View'} text="Graph View" disabled={false} />
+        <Switch name={'Links'} disabled={false}><p>Links</p></Switch>
+        <Switch name={'New Link'} disabled={false}><p>New Link</p></Switch>
+        <Switch name={'Graph View'} disabled={false}><p>Graph View</p></Switch>
       </ContentSwitcher>
 
       <Outlet />

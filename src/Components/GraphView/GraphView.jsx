@@ -13,11 +13,11 @@ const GraphView = () => {
   const { sourceDataList } = useSelector((state) => state.links);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
-  console.log(graphData);
 
   useEffect(() => {
     dispatch(handleCurrPageTitle('Graph view'));
     if (sourceDataList.uri) {
+      console.log('Api calling from graph view');
       dispatch(
         fetchGraphData({
           url: `${apiURL}?start_node_id=${encodeURIComponent(sourceDataList?.uri)}`,
@@ -30,7 +30,7 @@ const GraphView = () => {
   if (graphLoading) return <ProgressBar label="" />;
 
   return (
-    <div style={{ width: '100%', height: '90vh' }}>
+    <div style={{ width: '100%', height: '150vh' }}>
       <ReactGraph
         initialState={graphData}
         nodes={graphData.nodes}
