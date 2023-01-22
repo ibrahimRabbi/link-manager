@@ -108,11 +108,6 @@ export const linksSlice = createSlice({
       state.linkedData = payload;
     },
 
-    // created links state update
-    handleDisplayLinks: (state, { payload }) => {
-      state.allLinks = payload;
-    },
-
     // edit link first step get data
     handleEditLinkData: (state, { payload }) => {
       state.linkType = null;
@@ -199,6 +194,7 @@ export const linksSlice = createSlice({
   extraReducers: (builder) => {
     // get all links controller
     builder.addCase(fetchLinksData.pending, (state) => {
+      state.createLinkRes = null;
       state.isLoading = true;
     });
 
@@ -242,7 +238,6 @@ export const {
   handleIsLoading,
   handleGetSources,
   handleViewLinkDetails,
-  handleDisplayLinks,
   handleEditLinkData,
   handleTargetDataArr,
   handleEditTargetData,

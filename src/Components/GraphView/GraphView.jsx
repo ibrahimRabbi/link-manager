@@ -1,4 +1,4 @@
-import { ProgressBar } from '@carbon/react';
+import { Loading } from '@carbon/react';
 import React, { useContext, useEffect } from 'react';
 import ReactGraph from 'react-graph';
 import { useDispatch, useSelector } from 'react-redux';
@@ -17,7 +17,6 @@ const GraphView = () => {
   useEffect(() => {
     dispatch(handleCurrPageTitle('Graph view'));
     if (sourceDataList.uri) {
-      console.log('Api calling from graph view');
       dispatch(
         fetchGraphData({
           url: `${apiURL}?start_node_id=${encodeURIComponent(sourceDataList?.uri)}`,
@@ -25,19 +24,21 @@ const GraphView = () => {
         }),
       );
     }
-  }, []);
+  }, [sourceDataList]);
 
-  if (graphLoading) return <ProgressBar label="" />;
+  if (graphLoading) return <div className='loading-container'>
+    <Loading small withOverlay={false} />
+  </div>;
 
   return (
-    <div style={{ width: '100%', height: '150vh' }}>
+    <div style={{ width: '100%', height: '100vh' }}>
       <ReactGraph
         initialState={graphData}
         nodes={graphData.nodes}
         relationships={graphData.relationships}
         width="100%"
         height="100%"
-        hasLegends
+        // hasLegends
         hasInspector
         hasTruncatedFields
       />

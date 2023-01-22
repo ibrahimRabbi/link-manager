@@ -1,4 +1,4 @@
-import { Button, ProgressBar, Search } from '@carbon/react';
+import { Button, Loading, Search } from '@carbon/react';
 import React, { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -10,7 +10,6 @@ import {
 } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
-// import GraphView from '../GraphView/GraphView';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 
@@ -62,7 +61,6 @@ const LinkManager = () => {
     dispatch(handleCurrPageTitle('Links'));
     // Create link
     if (sourceFileURL) {
-      console.log('Api calling from link manager');
       dispatch(
         fetchLinksData({
           url: `${apiURL}/?resource_id=${encodeURIComponent(sourceFileURL)}`,
@@ -70,7 +68,7 @@ const LinkManager = () => {
         }),
       );
     }
-  }, [ sourceFileURL]);
+  }, [sourceFileURL]);
 
   // Link manager dropdown options
   const handleShowItem = () => {};
@@ -128,7 +126,10 @@ const LinkManager = () => {
             </div>
           </div>
 
-          {isLoading && <ProgressBar label="" />}
+          {isLoading &&  
+          <div className='loading-container'>
+            <Loading small withOverlay={false} />
+          </div>}
           <UseDataTable
             headers={headers}
             tableData={linksData}

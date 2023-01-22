@@ -1,7 +1,7 @@
 import {
   Button,
   Checkbox,
-  ProgressBar,
+  Loading,
   Search,
 } from '@carbon/react';
 import React, { useContext, useEffect, useState } from 'react';
@@ -217,6 +217,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     }
   }, [projectType, oslcResponse, targetDataArr]);
 
+  useEffect(() => {
+    if (createLinkRes) {
+      console.log(createLinkRes);
+      navigate('/wbe');
+    }
+  }, [createLinkRes]);
+
   // Link type dropdown
   const handleLinkTypeChange = ({ selectedItem }) => {
     dispatch(handleProjectType(null));
@@ -292,9 +299,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     await dispatch(fetchCreateLink({ 
       url: apiURL, token: authCtx.token, bodyData: linkObj, 
     }));
-    console.log(createLinkRes);
   };
-  console.log(createLinkRes);
 
   // cancel create link
   const handleCancelOpenedLink = () => {
@@ -349,7 +354,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           {/*)}*/}
         </div>
 
-        {linkCreateLoading && <ProgressBar label="" />}
+        {linkCreateLoading && <div className='loading-container'>
+          <Loading small withOverlay={false} />
+        </div>}
         {/* --- After selected link type ---  */}
         {((linkType && projectType) || isEditLinkPage) && (
           <div className={targetContainer}>
