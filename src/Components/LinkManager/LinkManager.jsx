@@ -1,11 +1,10 @@
 import { Button, Loading, Search } from '@carbon/react';
 import React, { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import {
   fetchLinksData,
-  handleEditLinkData,
   handleIsWbe,
 } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
@@ -17,7 +16,6 @@ import styles from './LinkManager.module.scss';
 const {
   dropdownStyle,
   inputContainer,
-  linkFileContainer,
   searchBox,
   searchContainer,
   searchInput,
@@ -46,7 +44,7 @@ const LinkManager = () => {
     isLoading } = useSelector((state) => state.links);
   const location = useLocation();
   const wbePath = location.pathname?.includes('wbe');
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
   const [searchParams] = useSearchParams();
@@ -86,18 +84,6 @@ const LinkManager = () => {
   return (
     <div className="mainContainer">
       <div className="container">
-        <div className={linkFileContainer}>
-          <h5>Links For: {sourceDataList?.title}</h5>
-
-          <Button
-            onClick={() => {
-              wbePath ? navigate('/wbe/new-link') : navigate('/new-link');
-              dispatch(handleEditLinkData());
-            }}
-            size="md" kind="primary">
-            New link
-          </Button>
-        </div>
         <div className={tableContainer}>
           <div className={searchBox}>
             <UseDropdown

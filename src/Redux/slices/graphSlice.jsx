@@ -17,7 +17,6 @@ export const fetchGraphData = createAsyncThunk(
         else {
           res.json().then((data) => {
             Swal.fire({ title: data.status, text: data.message, icon: 'error' });
-            console.log(data);
           });
         }
       })
@@ -49,8 +48,11 @@ export const graphSlice = createSlice({
 
     builder.addCase(fetchGraphData.fulfilled, (state, { payload }) => {
       if (payload) {
-        if (!payload.isConfirmed) {
-          state.graphData = payload.data;
+        if (payload?.isConfirmed) {
+          // 
+        }
+        else{
+          state.graphData =payload.data;
         }
       }
       state.graphLoading = false;

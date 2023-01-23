@@ -77,6 +77,7 @@ const NavigationBar = () => {
             >
               {isSidebarOpen ? <Close size={30} /> : <Menu size={30} />}
             </IconButton>
+
             <img src={koneksysLogo} height="40px" alt="logo" />
             <h5 className={projectTitle}>Link manager</h5>
             <h6 className={pageTitle}>{currPageTitle}</h6>
@@ -97,6 +98,7 @@ const NavigationBar = () => {
               >
                 <UserAvatarFilledAlt size={30} />
               </IconButton>
+
               <PopoverContent className={popoverContent}>
                 <div className={content}>
                   <div className={userContainer}>
@@ -108,7 +110,8 @@ const NavigationBar = () => {
                   <p>Item option 1</p>
                   <p>Item option 2</p>
                 </div>
-                <Button onClick={handleLogout} renderIcon={Logout} kind="secondary">
+                <Button onClick={handleLogout}
+                  renderIcon={Logout} size="md" kind="secondary">
                   Logout
                 </Button>
               </PopoverContent>
@@ -124,16 +127,22 @@ const NavigationBar = () => {
               <SideNavMenuItem
                 className={sidebarLink}
                 onClick={() => navigate('/')}
-                isActive={pathname === '/'}
-              >
-                All links
+                isActive={pathname === '/'}>
+                Links
               </SideNavMenuItem>
+
+              <SideNavMenuItem
+                className={sidebarLink}
+                onClick={() => navigate('/new-link')}
+                isActive={pathname === '/new-link'}>
+                New Link
+              </SideNavMenuItem>
+
               <SideNavMenuItem
                 className={sidebarLink}
                 onClick={() => navigate('/graph-view')}
-                isActive={pathname === '/graph-view'}
-              >
-                Graph view
+                isActive={pathname === '/graph-view'}>
+                Graph View
               </SideNavMenuItem>
             </SideNavItems>
           </SideNav>

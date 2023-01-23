@@ -34,6 +34,7 @@ export const fetchCreateLink = createAsyncThunk(
 export const fetchLinksData = createAsyncThunk(
   'links/fetchLinksData',
   async ({ url, token }) => {
+    console.time();
     const res = await fetch(url, {
       method: 'GET',
       headers: {
@@ -60,6 +61,8 @@ export const fetchLinksData = createAsyncThunk(
         }
       })
       .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
+
+    console.timeEnd();
     return res;
   },
 );

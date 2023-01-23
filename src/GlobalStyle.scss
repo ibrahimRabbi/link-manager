@@ -7,19 +7,19 @@
   }
 
   h2 {
-    font-size: type.type-scale(10);
+    font-size: type.type-scale(9);
   }
 
   h3 {
-    font-size: type.type-scale(8);
-  }
-
-  h4 {
     font-size: type.type-scale(7);
   }
 
-  h5 {
+  h4 {
     font-size: type.type-scale(6);
+  }
+
+  h5 {
+    font-size: type.type-scale(5);
   }
 
   h6 {
@@ -48,7 +48,11 @@
 }
 
 .wbeDashboardContainer {
-  padding-top: 10px;
+  padding-top: 15px;
+}
+
+.wbeContent {
+  padding-top: 90px;
 }
 
 .wbeContentSwitcher {

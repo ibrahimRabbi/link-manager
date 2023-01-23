@@ -6,9 +6,9 @@ import {
 } from '@carbon/react';
 import React, { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { AiFillGitlab } from 'react-icons/ai';
-import { SiJirasoftware } from 'react-icons/si';
-import { FaGlide } from 'react-icons/fa';
+// import { AiFillGitlab } from 'react-icons/ai';
+// import { SiJirasoftware } from 'react-icons/si';
+// import { FaGlide } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -26,6 +26,9 @@ import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
+import jiraLogo from './jira_logo.png';
+import gitlabLogo from './gitlab_logo.png';
+import glideLogo from './glide_logo.png';
 
 import styles from './NewLink.module.scss';
 const {
@@ -58,15 +61,15 @@ const linkTypeItems = [
 const projectItems = [
   {
     text: 'Cross-Domain Integration Demo (JIRA)',
-    icon: <SiJirasoftware color="#2684ff" size={18} />,
+    icon: <img src={jiraLogo} height={25} alt="Jira" />,
   },
   {
     text: 'Cross-Domain Integration Demo (GITLAB)',
-    icon: <AiFillGitlab color="red" size={18} />,
+    icon: <img src={gitlabLogo} height={22} alt="Gitlab"/>,
   },
   {
     text: 'Jet Engine Design (GLIDE)',
-    icon: <FaGlide color="#25baa2" size={18} />,
+    icon: <img src={glideLogo} height={23} alt="Glide" />,
   },
 ];
 // const resourceItems = ['User story', 'Task', 'Epic', 'Bug', 'Improvement'];
@@ -94,21 +97,63 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     createLinkRes,
     linkCreateLoading,
   } = useSelector((state) => state.links);
-
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [isJiraDialog, setIsJiraDialog] = useState(false);
   const [isGitlabDialog, setIsGitlabDialog] = useState(false);
   const [isGlideDialog, setIsGlideDialog] = useState(false);
   const [displayTableData, setDisplayTableData] = useState([]);
+  const [projectTypeItems, setProjectTypeItems] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
 
   const authCtx = useContext(AuthContext);
-  const isGlide = sourceDataList?.appName?.includes('glide');
   const isJIRA = sourceDataList?.appName?.includes('jira');
+  const isGitlab = sourceDataList?.appName?.includes('gitlab');
+  const isGlide = sourceDataList?.appName?.includes('glide');
 
+  // Display project types conditionally by App name
+  useEffect(()=>{
+    if(isJIRA){
+      setProjectTypeItems([
+        {
+          text: 'Cross-Domain Integration Demo (GITLAB)',
+          icon: <img src={gitlabLogo} height={22} alt="Gitlab"/>,
+        },
+        {
+          text: 'Jet Engine Design (GLIDE)',
+          icon: <img src={glideLogo} height={23} alt="Glide" />,
+        },
+      ]);
+    }else if(isGitlab){
+      setProjectTypeItems([
+        {
+          text: 'Cross-Domain Integration Demo (JIRA)',
+          icon: <img src={jiraLogo} height={25} alt="Jira" />,
+        },
+        {
+          text: 'Jet Engine Design (GLIDE)',
+          icon: <img src={glideLogo} height={23} alt="Glide" />,
+        },
+      ]);
+    }else if(isGlide){
+      setProjectTypeItems([
+        {
+          text: 'Cross-Domain Integration Demo (JIRA)',
+          icon: <img src={jiraLogo} height={25} alt="Jira" />,
+        },
+        {
+          text: 'Cross-Domain Integration Demo (GITLAB)',
+          icon: <img src={gitlabLogo} height={22} alt="Gitlab"/>,
+        },
+      ]);
+    }else{
+      setProjectTypeItems(projectItems);
+    }
+  },[]);
+
+  
   let sourceTitles = [];
   let sourceValues = {};
   if (isGlide) {
@@ -226,13 +271,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Link type dropdown
   const handleLinkTypeChange = ({ selectedItem }) => {
-    dispatch(handleProjectType(null));
     dispatch(handleResourceType(null));
     dispatch(handleLinkType(selectedItem.text));
   };
 
   const targetProjectItems =
-    linkType === 'constrainedBy' ? ['Jet Engine Design (GLIDE)'] : projectItems;
+    linkType === 'constrainedBy' ? ['Jet Engine Design (GLIDE)'] : projectTypeItems;
   // const targetResourceItems =
   //   linkType === 'constrainedBy' ? ['Document (PLM)', 'Part (PLM)'] : resourceItems;
 
@@ -263,16 +307,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   };
 
   // Create new link
-  const handleSaveLink = async() => {
-    const { projectName, title, uri, origin } = sourceDataList;
-    const sourceProvider =
-      origin === 'https://gitlab.com'
-        ? 'Gitlab'
-        : origin === 'https://github.com'
-          ? 'Github'
-          : origin === 'https://bitbucket.org'
-            ? 'Bitbucket'
-            : 'Gitlab';
+  const handleSaveLink = () => {
+    const { projectName, title, uri, appName } = sourceDataList;
 
     // console.log('NewLink.jsx -> handleSaveLink -> targetDataArr', targetDataArr);
     const targetsData = targetDataArr?.map((data) => {
@@ -290,13 +326,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       source_type: title,
       source_title: title,
       source_project: projectName,
-      source_provider: sourceProvider,
+      source_provider: appName,
       source_id: uri,
       relation: linkType,
       status: 'active',
       target_data: targetsData,
     };
-    await dispatch(fetchCreateLink({ 
+    dispatch(fetchCreateLink({ 
       url: apiURL, token: authCtx.token, bodyData: linkObj, 
     }));
   };
