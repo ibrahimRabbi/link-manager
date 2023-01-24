@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 export const fetchGraphData = createAsyncThunk(
   'graph/fetchGraphsData',
   async ({ url, token }) => {
+    console.time();
     const res = await fetch(url, {
       method: 'GET',
       headers: {
@@ -13,14 +14,28 @@ export const fetchGraphData = createAsyncThunk(
       },
     })
       .then((res) => {
-        if (res.ok) return res.json();
-        else {
+        if (res.ok) {
+          if (res.status !== 204) {
+            return res.json();
+          } else {
+            Swal.fire({ 
+              text: 'No Links Created for this source', 
+              icon: 'info' });
+          }
+        } else {
           res.json().then((data) => {
-            Swal.fire({ title: data.status, text: data.message, icon: 'error' });
+            let errorMessage = 'Loading graph failed: ';
+            if (data && data.message) {
+              errorMessage += data.message;
+              Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
+            }
+            Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
           });
         }
       })
       .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
+    console.log('graph load time');
+    console.timeEnd();
     return res;
   },
 );
@@ -47,12 +62,13 @@ export const graphSlice = createSlice({
     });
 
     builder.addCase(fetchGraphData.fulfilled, (state, { payload }) => {
+      // console.log(payload.data[0].graph);
       if (payload) {
         if (payload?.isConfirmed) {
           // 
         }
         else{
-          state.graphData =payload.data;
+          state.graphData =payload.data[0].graph;
         }
       }
       state.graphLoading = false;

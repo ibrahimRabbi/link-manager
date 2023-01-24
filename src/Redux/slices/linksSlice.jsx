@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 export const fetchCreateLink = createAsyncThunk(
   'links/fetchCreateLink',
   async ({ url, token, bodyData }) => {
+    console.time();
     const res = await fetch(`${url}`, {
       method: 'POST',
       headers: {
@@ -26,6 +27,8 @@ export const fetchCreateLink = createAsyncThunk(
         }
       })
       .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
+    console.log('Create link time');
+    console.timeEnd();
     return res;
   },
 );
@@ -47,9 +50,9 @@ export const fetchLinksData = createAsyncThunk(
           if (res.status !== 204) {
             return res.json();
           } else {
-            Swal.fire({ title: res.status, 
+            Swal.fire({ 
               text: 'No Links Created for this source', 
-              icon: 'error' });
+              icon: 'info' });
           }
         } else {
           res.json().then((data) => {
@@ -63,7 +66,7 @@ export const fetchLinksData = createAsyncThunk(
         }
       })
       .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
-
+    console.log('Load all links time');
     console.timeEnd();
     return res;
   },
