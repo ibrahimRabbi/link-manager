@@ -68,7 +68,7 @@ export const graphSlice = createSlice({
           // 
         }
         else{
-          state.graphData =payload.data[0].graph;
+          state.graphData =payload.data;
         }
       }
       state.graphLoading = false;
