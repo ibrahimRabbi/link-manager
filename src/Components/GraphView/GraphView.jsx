@@ -6,7 +6,7 @@ import { fetchGraphData } from '../../Redux/slices/graphSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context';
 
-const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/visualize`;
+const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/visualize/staged`;
 
 const GraphView = () => {
   const { graphData, graphLoading } = useSelector((state) => state.graph);
@@ -25,7 +25,7 @@ const GraphView = () => {
       );
     }
   }, [sourceDataList]);
-
+  console.log(graphData);
   if (graphLoading) return <div className='loading-container'>
     <Loading small withOverlay={false} />
   </div>;

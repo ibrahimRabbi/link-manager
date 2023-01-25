@@ -53,6 +53,7 @@ export const fetchLinksData = createAsyncThunk(
             Swal.fire({ 
               text: 'No Links Created for this source', 
               icon: 'info' });
+            return null;
           }
         } else {
           res.json().then((data) => {

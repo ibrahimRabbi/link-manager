@@ -21,15 +21,13 @@ export const fetchGraphData = createAsyncThunk(
             Swal.fire({ 
               text: 'No Links Created for this source', 
               icon: 'info' });
+            return null;
           }
-        } else {
-          res.json().then((data) => {
-            let errorMessage = 'Loading graph failed: ';
-            if (data && data.message) {
-              errorMessage += data.message;
-              Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
-            }
-            Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
+        }
+        else {
+          return res.json().then((data) => {
+            Swal.fire({ title: data.status, text: data.message, icon: 'error' });
+            return null;
           });
         }
       })
@@ -62,14 +60,21 @@ export const graphSlice = createSlice({
     });
 
     builder.addCase(fetchGraphData.fulfilled, (state, { payload }) => {
-      // console.log(payload.data[0].graph);
       if (payload) {
-        if (payload?.isConfirmed) {
-          // 
-        }
-        else{
-          state.graphData =payload.data;
-        }
+        const data = payload.data[0].graph;
+        const relationships = data?.relationships;
+        const nodes = data?.nodes?.map(n=>{
+          return{
+            id:n.id,
+            labels:n.labels,
+            properties:{
+              name:n.name,
+              project:n.project,
+              provider:n.provider,
+            },
+          };
+        });
+        state.graphData = {nodes, relationships};
       }
       state.graphLoading = false;
     });

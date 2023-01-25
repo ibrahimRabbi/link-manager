@@ -99,11 +99,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   } = useSelector((state) => state.links);
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
-  const [isJiraDialog, setIsJiraDialog] = useState(false);
-  const [isGitlabDialog, setIsGitlabDialog] = useState(false);
-  const [isGlideDialog, setIsGlideDialog] = useState(false);
   const [displayTableData, setDisplayTableData] = useState([]);
   const [projectTypeItems, setProjectTypeItems] = useState([]);
+  const [ projectFrameSrc, setProjectFrameSrc] =useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -187,11 +185,25 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     isEditLinkPage ? null : dispatch(handleCancelLink());
   }, [location?.pathname]);
 
+  // set iframe SRC conditionally
   useEffect(() => {
     if (projectType) {
-      setIsJiraDialog(projectType?.includes('(JIRA)'));
-      setIsGitlabDialog(projectType?.includes('(GITLAB)'));
-      setIsGlideDialog(projectType?.includes('GLIDE'));
+      const jiraApp =projectType?.includes('(JIRA)');
+      const gitlabApp =projectType?.includes('(GITLAB)');
+      const glideApp =projectType?.includes('(GLIDE)');
+
+      if(jiraApp){
+        // eslint-disable-next-line max-len
+        setProjectFrameSrc('https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0');
+      }
+      else if(gitlabApp){
+        // eslint-disable-next-line max-len
+        setProjectFrameSrc('https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/selector');
+      }
+      else if(glideApp){
+        // eslint-disable-next-line max-len
+        setProjectFrameSrc('https://glide-oslc-api-dev.koneksys.com/oslc/provider/selector');
+      }
     }
   }, [projectType]);
 
@@ -397,41 +409,14 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         {((linkType && projectType) || isEditLinkPage) && (
           <div className={targetContainer}>
             <h5>Target</h5>
+
+            {/* Show the selection dialogs */}
             {
-              // Show the selection dialogs
-              isJiraDialog && (
-                <iframe
-                  // eslint-disable-next-line max-len
-                  src="https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0"
-                  height="600px"
-                  width="100%"
-                ></iframe>
-              )
-            }
-            {
-              // Show the selection dialogs
-              isGitlabDialog && (
-                <iframe
-                  // eslint-disable-next-line max-len
-                  src="https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/selector"
-                  height="600px"
-                  width="100%"
-                ></iframe>
-              )
-            }
-            {
-              // Show the selection dialogs
-              isGlideDialog && (
-                <iframe
-                  // eslint-disable-next-line max-len
-                  src="https://glide-oslc-api-dev.koneksys.com/oslc/provider/selector"
-                  height="600px"
-                  width="100%"
-                ></iframe>
-              )
+              projectFrameSrc &&
+              <iframe src={projectFrameSrc} height="600px" width="100%" />
             }
 
-            {isGlideDialog && isJiraDialog && isGitlabDialog && (
+            {isGlide && (
               <>
                 <div className={targetSearchContainer}>
                   <form
@@ -476,9 +461,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               </>
             )}
 
-            {!isJiraDialog && (
+            {targetDataArr.length && (
               <>
-                {/* new link btn  */}
+                {/* // new link btn  */}
                 {projectType && resourceType && targetDataArr[0] && !isEditLinkPage && (
                   <div className={btnContainer}>
                     <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
@@ -490,7 +475,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                   </div>
                 )}
 
-                {/* edit link btn  */}
+                {/* // edit link btn  */}
                 {isEditLinkPage && editLinkData?.id && (
                   <div className={btnContainer}>
                     <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
