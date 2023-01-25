@@ -13,7 +13,16 @@ export const fetchGraphData = createAsyncThunk(
       },
     })
       .then((res) => {
-        if (res.ok) return res.json();
+        if (res.ok) {
+          if (res.status !== 204) {
+            return res.json();
+          } else {
+            Swal.fire({
+              text: 'No Links created for this resource',
+              icon: 'info' });
+            return null;
+          }
+        }
         else {
           res.json().then((data) => {
             Swal.fire({ title: data.status, text: data.message, icon: 'error' });
