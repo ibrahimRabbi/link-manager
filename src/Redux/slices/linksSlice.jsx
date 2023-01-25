@@ -46,7 +46,6 @@ export const fetchLinksData = createAsyncThunk(
           if (res.status !== 204) {
             return res.json();
           } else {
-            Swal.fire({ title: res.status, text: res.statusText, icon: 'error' });
             Swal.fire({
               text: 'No Links created for this resource',
               icon: 'info' });
