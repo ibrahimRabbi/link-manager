@@ -8,11 +8,11 @@ const UseDropdown = ({ items, className, title, label, id, onChange, selectedVal
       label={<p>{label}</p>}
       id={id}
       titleText={title && <h6>{title}</h6>}
-      itemToString={(item)=> item ? <p>{item.text}</p>: ''}
+      itemToString={(item) => (item ? <p>{item.text}</p> : '')}
       itemToElement={(item) =>
         item ? (
           <div style={{ display: 'flex', gap: '10px' }}>
-            { item.icon && <span>{item.icon}</span>}
+            {item.icon && <span>{item.icon}</span>}
             <p>{item.text}</p>
           </div>
         ) : (

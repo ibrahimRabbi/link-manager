@@ -1,12 +1,9 @@
-import { Button, Loading, Search } from '@carbon/react';
+import { Button, ProgressBar, Search } from '@carbon/react';
 import React, { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import {
-  fetchLinksData,
-  handleIsWbe,
-} from '../../Redux/slices/linksSlice';
+import { fetchLinksData, handleIsWbe } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
@@ -20,6 +17,7 @@ const {
   searchContainer,
   searchInput,
   tableContainer,
+  linkFileContainer,
 } = styles;
 
 const headers = [
@@ -31,20 +29,19 @@ const headers = [
 ];
 
 const dropdownItem = [
-  {text:'Link type'}, 
-  {text:'Project type'}, 
-  {text:'Status'}, 
-  {text:'Target'},
+  { text: 'Link type' },
+  { text: 'Project type' },
+  { text: 'Status' },
+  { text: 'Target' },
 ];
 
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 
 const LinkManager = () => {
-  const { sourceDataList, linksData, 
-    isLoading } = useSelector((state) => state.links);
+  const { sourceDataList, linksData, isLoading } = useSelector((state) => state.links);
   const location = useLocation();
   const wbePath = location.pathname?.includes('wbe');
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
   const [searchParams] = useSearchParams();
@@ -84,6 +81,20 @@ const LinkManager = () => {
   return (
     <div className="mainContainer">
       <div className="container">
+        <div className={linkFileContainer}>
+          <h5>Links For: {sourceDataList?.title}</h5>
+
+          <Button
+            onClick={() => {
+              wbePath ? navigate('/wbe/new-link') : navigate('/new-link');
+            }}
+            size="md"
+            kind="primary"
+          >
+            New link
+          </Button>
+        </div>
+
         <div className={tableContainer}>
           <div className={searchBox}>
             <UseDropdown
@@ -112,10 +123,9 @@ const LinkManager = () => {
             </div>
           </div>
 
-          {isLoading &&  
-          <div className='loading-container'>
-            <Loading small withOverlay={false} />
-          </div>}
+          {
+            isLoading && <ProgressBar />
+          }
           <UseDataTable
             headers={headers}
             tableData={linksData}

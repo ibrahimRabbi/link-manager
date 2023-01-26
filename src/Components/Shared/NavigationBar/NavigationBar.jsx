@@ -110,8 +110,12 @@ const NavigationBar = () => {
                   <p>Item option 1</p>
                   <p>Item option 2</p>
                 </div>
-                <Button onClick={handleLogout}
-                  renderIcon={Logout} size="md" kind="secondary">
+                <Button
+                  onClick={handleLogout}
+                  renderIcon={Logout}
+                  size="md"
+                  kind="secondary"
+                >
                   Logout
                 </Button>
               </PopoverContent>
@@ -127,21 +131,16 @@ const NavigationBar = () => {
               <SideNavMenuItem
                 className={sidebarLink}
                 onClick={() => navigate('/')}
-                isActive={pathname === '/'}>
+                isActive={pathname === '/'}
+              >
                 Links
               </SideNavMenuItem>
 
               <SideNavMenuItem
                 className={sidebarLink}
-                onClick={() => navigate('/new-link')}
-                isActive={pathname === '/new-link'}>
-                New Link
-              </SideNavMenuItem>
-
-              <SideNavMenuItem
-                className={sidebarLink}
                 onClick={() => navigate('/graph-view')}
-                isActive={pathname === '/graph-view'}>
+                isActive={pathname === '/graph-view'}
+              >
                 Graph View
               </SideNavMenuItem>
             </SideNavItems>

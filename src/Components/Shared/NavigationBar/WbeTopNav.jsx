@@ -10,7 +10,7 @@ import {
 } from '@carbon/react';
 import React, { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {useLocation, useNavigate} from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { handleIsProfileOpen } from '../../../Redux/slices/navSlice';
 import AuthContext from '../../../Store/Auth-Context.jsx';
@@ -25,15 +25,15 @@ const {
   popoverContent,
   profile,
   userContainer,
-  fileName,
+  // fileName,
 } = styles;
 
 const WbeTopNav = () => {
   const authCtx = useContext(AuthContext);
-  const {isProfileOpen } = useSelector((state) => state.nav);
-  const {sourceDataList}=useSelector(state=>state.links);
+  const { isProfileOpen } = useSelector((state) => state.nav);
+  // const {sourceDataList}=useSelector(state=>state.links);
   const navigate = useNavigate();
-  const {pathname} =useLocation();
+  const { pathname } = useLocation();
   const dispatch = useDispatch();
 
   const handleLogout = () => {
@@ -62,26 +62,27 @@ const WbeTopNav = () => {
   return (
     <Theme theme="white">
       <Header aria-label="" id={wbeHeader}>
-        <h5 className={fileName}>Links For: <span>{sourceDataList?.title}</span></h5>
+        {/* <h5 className={fileName}>
+        Links For: <span>{sourceDataList?.title}</span></h5> */}
 
         <div className={`${'mainContainer'}`}>
-          
           <div className={wbeHeaderContainer}>
             <div className={hMenuItemContainer}>
-              <HeaderMenuItem 
-                isCurrentPage={pathname === '/wbe'}
-                onClick={()=>navigate('/wbe')}
-                className={hMenuItem}><p>Links</p></HeaderMenuItem>
               <HeaderMenuItem
-                isCurrentPage={pathname === '/wbe/new-link'}
-                onClick={()=>navigate('/wbe/new-link')}
-                className={hMenuItem}><p>New Link</p></HeaderMenuItem>
+                isCurrentPage={pathname === '/wbe'}
+                onClick={() => navigate('/wbe')}
+                className={hMenuItem}
+              >
+                <p>Links</p>
+              </HeaderMenuItem>
               <HeaderMenuItem
                 isCurrentPage={pathname === '/wbe/graph-view'}
-                onClick={()=>navigate('/wbe/graph-view')}
-                className={hMenuItem}><p>Graph View</p></HeaderMenuItem>
+                onClick={() => navigate('/wbe/graph-view')}
+                className={hMenuItem}
+              >
+                <p>Graph View</p>
+              </HeaderMenuItem>
             </div>
-
 
             {/* --- User popover --- */}
             <Popover
@@ -110,8 +111,12 @@ const WbeTopNav = () => {
                   {/* <p>Item option 1</p>
                 <p>Item option 2</p> */}
                 </div>
-                <Button onClick={handleLogout}
-                  renderIcon={Logout} size="md" kind="danger">
+                <Button
+                  onClick={handleLogout}
+                  renderIcon={Logout}
+                  size="md"
+                  kind="danger"
+                >
                   Logout
                 </Button>
               </PopoverContent>

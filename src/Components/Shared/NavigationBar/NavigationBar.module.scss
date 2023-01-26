@@ -5,16 +5,12 @@
   padding-top: 50px;
 }
 
-.wbeMain {
-  padding-top: 120px;
-}
-
 #header {
   height: 55px;
 }
 
 #wbeHeader {
-  height: 85px;
+  height: 50px;
   display: block;
   border: none;
 }
@@ -176,6 +172,6 @@
   cursor: pointer;
 }
 
-.linkFileContainer>h5 {
+.linkFileContainer > h5 {
   color: colors.$gray-90;
 }

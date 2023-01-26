@@ -1,4 +1,4 @@
-import { Loading } from '@carbon/react';
+import { ProgressBar } from '@carbon/react';
 import React, { useContext, useEffect } from 'react';
 import ReactGraph from 'react-graph';
 import { useDispatch, useSelector } from 'react-redux';
@@ -25,10 +25,10 @@ const GraphView = () => {
       );
     }
   }, [sourceDataList]);
+
   console.log(graphData);
-  if (graphLoading) return <div className='loading-container'>
-    <Loading small withOverlay={false} />
-  </div>;
+
+  if (graphLoading) return  <ProgressBar />;
 
   return (
     <div style={{ width: '100%', height: '95vh' }}>

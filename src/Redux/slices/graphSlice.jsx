@@ -18,13 +18,13 @@ export const fetchGraphData = createAsyncThunk(
           if (res.status !== 204) {
             return res.json();
           } else {
-            Swal.fire({ 
-              text: 'No Links Created for this source', 
-              icon: 'info' });
+            Swal.fire({
+              text: 'No Links Created for this source',
+              icon: 'info',
+            });
             return null;
           }
-        }
-        else {
+        } else {
           return res.json().then((data) => {
             Swal.fire({ title: data.status, text: data.message, icon: 'error' });
             return null;
@@ -63,18 +63,18 @@ export const graphSlice = createSlice({
       if (payload) {
         const data = payload.data[0].graph;
         const relationships = data?.relationships;
-        const nodes = data?.nodes?.map(n=>{
-          return{
-            id:n.id,
-            labels:n.labels,
-            properties:{
-              name:n.name,
-              project:n.project,
-              provider:n.provider,
+        const nodes = data?.nodes?.map((n) => {
+          return {
+            id: n.id,
+            labels: n.labels,
+            properties: {
+              name: n.name,
+              project: n.project,
+              provider: n.provider,
             },
           };
         });
-        state.graphData = {nodes, relationships};
+        state.graphData = { nodes, relationships };
       }
       state.graphLoading = false;
     });

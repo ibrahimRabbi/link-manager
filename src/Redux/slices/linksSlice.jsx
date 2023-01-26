@@ -46,13 +46,15 @@ export const fetchLinksData = createAsyncThunk(
       },
     })
       .then((res) => {
+        console.log(res);
         if (res.ok) {
           if (res.status !== 204) {
             return res.json();
           } else {
-            Swal.fire({ 
-              text: 'No Links Created for this source', 
-              icon: 'info' });
+            Swal.fire({
+              text: 'No Links Created for this source',
+              icon: 'info',
+            });
             return null;
           }
         } else {
