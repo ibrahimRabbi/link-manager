@@ -3,14 +3,9 @@ import React, { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import {
-  fetchLinksData,
-  handleEditLinkData,
-  handleIsWbe,
-} from '../../Redux/slices/linksSlice';
+import { fetchLinksData, handleIsWbe } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
-// import GraphView from '../GraphView/GraphView';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 
@@ -18,11 +13,11 @@ import styles from './LinkManager.module.scss';
 const {
   dropdownStyle,
   inputContainer,
-  linkFileContainer,
   searchBox,
   searchContainer,
   searchInput,
   tableContainer,
+  linkFileContainer,
 } = styles;
 
 const headers = [
@@ -33,7 +28,13 @@ const headers = [
   { key: 'actions', header: 'Actions' },
 ];
 
-const dropdownItem = ['Link type', 'Project type', 'Status', 'Target'];
+const dropdownItem = [
+  { text: 'Link type' },
+  { text: 'Project type' },
+  { text: 'Status' },
+  { text: 'Target' },
+];
+
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 
 const LinkManager = () => {
@@ -62,7 +63,7 @@ const LinkManager = () => {
         }),
       );
     }
-  }, [sourceDataList]);
+  }, [sourceFileURL]);
 
   // Link manager dropdown options
   const handleShowItem = () => {};
@@ -86,7 +87,6 @@ const LinkManager = () => {
           <Button
             onClick={() => {
               wbePath ? navigate('/wbe/new-link') : navigate('/new-link');
-              dispatch(handleEditLinkData());
             }}
             size="md"
             kind="primary"
@@ -94,6 +94,7 @@ const LinkManager = () => {
             New link
           </Button>
         </div>
+
         <div className={tableContainer}>
           <div className={searchBox}>
             <UseDropdown
@@ -113,16 +114,18 @@ const LinkManager = () => {
                   placeholder="Search by identifier or name"
                   onChange={function noRefCheck() {}}
                   onKeyDown={function noRefCheck() {}}
-                  size="md"
+                  size="sm"
                 />
               </div>
-              <Button kind="primary" size="md">
+              <Button kind="primary" size="sm">
                 Search
               </Button>
             </div>
           </div>
 
-          {isLoading && !linksData[0] && <ProgressBar label="" />}
+          {
+            isLoading && <ProgressBar label=''/>
+          }
           <UseDataTable
             headers={headers}
             tableData={linksData}

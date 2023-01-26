@@ -1,8 +1,9 @@
 @use '@carbon/colors';
+@use '@carbon/type';
 
 .tableCell {
-  border-left: 1px solid colors.$gray-30;
   width: 200px;
+  font-size: type.type-scale(3);
 
   span {
     width: 250px;
@@ -12,10 +13,6 @@
     white-space: nowrap;
     cursor: pointer;
   }
-}
-
-.tableCell:first-child {
-  border-left: 0;
 }
 
 .boxCell {

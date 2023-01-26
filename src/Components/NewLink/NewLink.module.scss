@@ -4,18 +4,23 @@
 .sourceContainer {
   padding: 10px 1vw;
   margin-bottom: 15px;
-  border: 1px solid colors.$gray-30;
   background-color: colors.$white;
+  border-radius: 5px;
+  // box-shadow: 0 0px 2px rgb(0 0 0 / 0.2);
 }
 
-#sourceProp {
-  border-right: 1px solid lightgray;
-  padding: 6px;
+.sourceGrid {
+  display: flex;
+  align-items: center;
+}
+
+.sourceProp {
+  margin: 2px 0;
   width: 25%;
 }
 
-#sourceValue {
-  padding: 6px;
+.sourceValue {
+  margin: 2px 0;
   width: 75%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -26,18 +31,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid colors.$gray-30;
   background-color: colors.$white;
   padding: 10px 1vw;
   margin-bottom: 15px;
   gap: 10px;
+  border-radius: 5px;
 }
 
 .targetContainer {
-  border: 1px solid colors.$gray-30;
+  // border: 1px solid colors.$gray-30;
   background-color: colors.$white;
   padding: 10px 1vw;
   min-height: 50vh;
+  border-radius: 5px;
 }
 
 .targetIframe {
@@ -63,7 +69,7 @@
 }
 
 .dropdownStyle {
-  min-width: 35%;
+  min-width: 40%;
 }
 
 .targetSearchContainer {

@@ -1,19 +1,6 @@
-import {
-  Button,
-  Checkbox,
-  Dropdown,
-  ProgressBar,
-  Search,
-  StructuredListBody,
-  StructuredListCell,
-  StructuredListRow,
-  StructuredListWrapper,
-} from '@carbon/react';
+import { Button, Checkbox, ProgressBar, Search } from '@carbon/react';
 import React, { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { AiFillGitlab } from 'react-icons/ai';
-import { SiJirasoftware } from 'react-icons/si';
-import { FaGlide } from 'react-icons/fa';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -31,6 +18,9 @@ import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
+import jiraLogo from './jira_logo.png';
+import gitlabLogo from './gitlab_logo.png';
+import glideLogo from './glide_logo.png';
 
 import styles from './NewLink.module.scss';
 const {
@@ -43,35 +33,35 @@ const {
   searchContainer,
   searchInput,
   sourceContainer,
+  sourceGrid,
   sourceProp,
   sourceValue,
   targetContainer,
-  targetIframe,
   targetSearchContainer,
 } = styles;
 
 // dropdown items
 const linkTypeItems = [
-  'affectedBy',
-  'implementedBy',
-  'trackedBy',
-  'constrainedBy',
-  'decomposedBy',
-  'elaboratedBy',
-  'satisfiedBy',
+  { text: 'affectedBy' },
+  { text: 'implementedBy' },
+  { text: 'trackedBy' },
+  { text: 'constrainedBy' },
+  { text: 'decomposedBy' },
+  { text: 'elaboratedBy' },
+  { text: 'satisfiedBy' },
 ];
 const projectItems = [
   {
     text: 'Cross-Domain Integration Demo (JIRA)',
-    icon: <SiJirasoftware color="#2684ff" size={18} />,
+    icon: <img src={jiraLogo} height={25} alt="Jira" />,
   },
   {
     text: 'Cross-Domain Integration Demo (GITLAB)',
-    icon: <AiFillGitlab color="red" size={18} />,
+    icon: <img src={gitlabLogo} height={22} alt="Gitlab" />,
   },
   {
     text: 'Jet Engine Design (GLIDE)',
-    icon: <FaGlide color="#25baa2" size={18} />,
+    icon: <img src={glideLogo} height={23} alt="Glide" />,
   },
 ];
 // const resourceItems = ['User story', 'Task', 'Epic', 'Bug', 'Improvement'];
@@ -96,25 +86,62 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     editLinkData,
     targetDataArr,
     editTargetData,
-    CLResponse,
+    createLinkRes,
     linkCreateLoading,
   } = useSelector((state) => state.links);
-
-  console.log(CLResponse);
-
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
-  const [isJiraDialog, setIsJiraDialog] = useState(false);
-  const [isGitlabDialog, setIsGitlabDialog] = useState(false);
-  const [isGlideDialog, setIsGlideDialog] = useState(false);
   const [displayTableData, setDisplayTableData] = useState([]);
+  const [projectTypeItems, setProjectTypeItems] = useState([]);
+  const [projectFrameSrc, setProjectFrameSrc] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
 
   const authCtx = useContext(AuthContext);
-  const isGlide = sourceDataList?.appName?.includes('glide');
   const isJIRA = sourceDataList?.appName?.includes('jira');
+  const isGitlab = sourceDataList?.appName?.includes('gitlab');
+  const isGlide = sourceDataList?.appName?.includes('glide');
+
+  // Display project types conditionally by App name
+  useEffect(() => {
+    if (isJIRA) {
+      setProjectTypeItems([
+        {
+          text: 'Cross-Domain Integration Demo (GITLAB)',
+          icon: <img src={gitlabLogo} height={22} alt="Gitlab" />,
+        },
+        {
+          text: 'Jet Engine Design (GLIDE)',
+          icon: <img src={glideLogo} height={23} alt="Glide" />,
+        },
+      ]);
+    } else if (isGitlab) {
+      setProjectTypeItems([
+        {
+          text: 'Cross-Domain Integration Demo (JIRA)',
+          icon: <img src={jiraLogo} height={25} alt="Jira" />,
+        },
+        {
+          text: 'Jet Engine Design (GLIDE)',
+          icon: <img src={glideLogo} height={23} alt="Glide" />,
+        },
+      ]);
+    } else if (isGlide) {
+      setProjectTypeItems([
+        {
+          text: 'Cross-Domain Integration Demo (JIRA)',
+          icon: <img src={jiraLogo} height={25} alt="Jira" />,
+        },
+        {
+          text: 'Cross-Domain Integration Demo (GITLAB)',
+          icon: <img src={gitlabLogo} height={22} alt="Gitlab" />,
+        },
+      ]);
+    } else {
+      setProjectTypeItems(projectItems);
+    }
+  }, []);
 
   let sourceTitles = [];
   let sourceValues = {};
@@ -149,11 +176,27 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     isEditLinkPage ? null : dispatch(handleCancelLink());
   }, [location?.pathname]);
 
+  // set iframe SRC conditionally
   useEffect(() => {
     if (projectType) {
-      setIsJiraDialog(projectType?.includes('(JIRA)'));
-      setIsGitlabDialog(projectType?.includes('(GITLAB)'));
-      setIsGlideDialog(projectType?.includes('GLIDE'));
+      const jiraApp = projectType?.includes('(JIRA)');
+      const gitlabApp = projectType?.includes('(GITLAB)');
+      const glideApp = projectType?.includes('(GLIDE)');
+
+      if (jiraApp) {
+        // eslint-disable-next-line max-len
+        setProjectFrameSrc('https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0');
+      } else if (gitlabApp) {
+        // eslint-disable-next-line max-len
+        setProjectFrameSrc(
+          'https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/selector',
+        );
+      } else if (glideApp) {
+        // eslint-disable-next-line max-len
+        setProjectFrameSrc(
+          'https://glide-oslc-api-dev.koneksys.com/oslc/provider/selector',
+        );
+      }
     }
   }, [projectType]);
 
@@ -224,15 +267,21 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     }
   }, [projectType, oslcResponse, targetDataArr]);
 
+  useEffect(() => {
+    if (createLinkRes) {
+      console.log(createLinkRes);
+      navigate('/wbe');
+    }
+  }, [createLinkRes]);
+
   // Link type dropdown
   const handleLinkTypeChange = ({ selectedItem }) => {
-    dispatch(handleProjectType(null));
     dispatch(handleResourceType(null));
-    dispatch(handleLinkType(selectedItem));
+    dispatch(handleLinkType(selectedItem.text));
   };
 
   const targetProjectItems =
-    linkType === 'constrainedBy' ? ['Jet Engine Design (GLIDE)'] : projectItems;
+    linkType === 'constrainedBy' ? ['Jet Engine Design (GLIDE)'] : projectTypeItems;
   // const targetResourceItems =
   //   linkType === 'constrainedBy' ? ['Document (PLM)', 'Part (PLM)'] : resourceItems;
 
@@ -264,15 +313,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Create new link
   const handleSaveLink = () => {
-    const { projectName, title, uri, origin } = sourceDataList;
-    const sourceProvider =
-      origin === 'https://gitlab.com'
-        ? 'Gitlab'
-        : origin === 'https://github.com'
-          ? 'Github'
-          : origin === 'https://bitbucket.org'
-            ? 'Bitbucket'
-            : 'Gitlab';
+    const { projectName, title, uri, appName } = sourceDataList;
 
     // console.log('NewLink.jsx -> handleSaveLink -> targetDataArr', targetDataArr);
     const targetsData = targetDataArr?.map((data) => {
@@ -290,13 +331,19 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       source_type: title,
       source_title: title,
       source_project: projectName,
-      source_provider: sourceProvider,
+      source_provider: appName,
       source_id: uri,
       relation: linkType,
       status: 'active',
       target_data: targetsData,
     };
-    dispatch(fetchCreateLink({ url: apiURL, token: authCtx.token, bodyData: linkObj }));
+    dispatch(
+      fetchCreateLink({
+        url: apiURL,
+        token: authCtx.token,
+        bodyData: linkObj,
+      }),
+    );
   };
 
   // cancel create link
@@ -310,18 +357,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       <div className="container">
         <div className={sourceContainer}>
           <h5>Source</h5>
-          <StructuredListWrapper ariaLabel="Structured list">
-            <StructuredListBody>
-              {sourceTitles.map((properties, index) => (
-                <StructuredListRow key={properties}>
-                  <StructuredListCell id={sourceProp}>{properties}</StructuredListCell>
-                  <StructuredListCell id={sourceValue}>
-                    {Object.values(sourceValues)[index]}
-                  </StructuredListCell>
-                </StructuredListRow>
-              ))}
-            </StructuredListBody>
-          </StructuredListWrapper>
+          {sourceTitles.map((properties, index) => (
+            <div className={sourceGrid} key={properties}>
+              <p className={sourceProp}>{properties} :</p>
+              <p className={sourceValue}>{Object.values(sourceValues)[index]}</p>
+            </div>
+          ))}
         </div>
 
         <div className={linkTypeContainer}>
@@ -335,26 +376,16 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             className={dropdownStyle}
           />
 
-          {/* Target project dropdown */}
-          <Dropdown
-            className={dropdownStyle}
-            label={'Select target project'}
-            titleText={<p>Target project</p>}
-            items={targetProjectItems}
-            itemToString={(item) => (item ? item.text : '')}
-            itemToElement={(item) =>
-              item ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                  <span style={{ paddingTop: '3px' }}>{item.icon}</span>
-                  <span>{item.text}</span>
-                </div>
-              ) : (
-                ''
-              )
-            }
-            id="target-project-dropdown"
+          <UseDropdown
             onChange={handleTargetProject}
+            items={targetProjectItems}
+            title="Target project"
+            label={'Select target project'}
+            selectedValue={editLinkData?.projectType}
+            id="target-project-dropdown"
+            className={dropdownStyle}
           />
+
           {/*{linkType && !isJiraDialog && !isGitlabDialog && !isGlideDialog && (*/}
           {/*  <UseDropdown*/}
           {/*    items={targetResourceItems}*/}
@@ -368,59 +399,20 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           {/*)}*/}
         </div>
 
-        {linkCreateLoading && <ProgressBar label="" />}
+        {
+          linkCreateLoading && <ProgressBar label=''/>
+        }
         {/* --- After selected link type ---  */}
         {((linkType && projectType) || isEditLinkPage) && (
           <div className={targetContainer}>
             <h5>Target</h5>
 
-            {
-              // Show the selection dialogs
-              isJiraDialog && (
-                <div className={targetIframe}>
-                  <div>
-                    <iframe
-                      // eslint-disable-next-line max-len
-                      src="https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0"
-                      height="550px"
-                      width="800px"
-                    ></iframe>
-                  </div>
-                </div>
-              )
-            }
-            {
-              // Show the selection dialogs
-              isGitlabDialog && (
-                <div className={targetIframe}>
-                  <div>
-                    <iframe
-                      // eslint-disable-next-line max-len
-                      src="https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/selector"
-                      height="550px"
-                      width="800px"
-                    ></iframe>
-                  </div>
-                </div>
-              )
-            }
-            {
-              // Show the selection dialogs
-              isGlideDialog && (
-                <div className={targetIframe}>
-                  <div>
-                    <iframe
-                      // eslint-disable-next-line max-len
-                      src="https://glide-oslc-api-dev.koneksys.com/oslc/provider/selector"
-                      height="550px"
-                      width="800px"
-                    ></iframe>
-                  </div>
-                </div>
-              )
-            }
+            {/* Show the selection dialogs */}
+            {projectFrameSrc && (
+              <iframe src={projectFrameSrc} height="600px" width="100%" />
+            )}
 
-            {!isGlideDialog && !isJiraDialog && !isGitlabDialog && (
+            {isGlide && (
               <>
                 <div className={targetSearchContainer}>
                   <form
@@ -465,9 +457,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               </>
             )}
 
-            {!isJiraDialog && (
+            {targetDataArr.length && (
               <>
-                {/* new link btn  */}
+                {/* // new link btn  */}
                 {projectType && resourceType && targetDataArr[0] && !isEditLinkPage && (
                   <div className={btnContainer}>
                     <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
@@ -479,7 +471,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                   </div>
                 )}
 
-                {/* edit link btn  */}
+                {/* // edit link btn  */}
                 {isEditLinkPage && editLinkData?.id && (
                   <div className={btnContainer}>
                     <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">

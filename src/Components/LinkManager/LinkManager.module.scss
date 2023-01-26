@@ -5,9 +5,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 0;
   padding: 10px 1vw;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   border-radius: 5px;
   background-color: colors.$white;
 }
@@ -29,35 +28,22 @@
 .tableContainer {
   position: relative;
   padding: 10px 1vw;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   min-height: 70vh;
   border-radius: 5px;
-  border: 0;
   background-color: colors.$white;
-}
-
-.sourceList {
-  display: flex;
-  align-items: center;
-  margin-left: 10px;
-}
-
-.sourceProp {
-  width: 110px;
-  color: colors.$gray-50;
 }
 
 .searchBox {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
 }
 
 .searchContainer {
   display: flex;
   align-items: center;
-  height: 40px;
 }
 
 .inputContainer {

@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 export const fetchCreateLink = createAsyncThunk(
   'links/fetchCreateLink',
   async ({ url, token, bodyData }) => {
+    console.time();
     const res = await fetch(`${url}`, {
       method: 'POST',
       headers: {
@@ -26,6 +27,8 @@ export const fetchCreateLink = createAsyncThunk(
         }
       })
       .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
+    console.log('Create link time');
+    console.timeEnd();
     return res;
   },
 );
@@ -34,6 +37,7 @@ export const fetchCreateLink = createAsyncThunk(
 export const fetchLinksData = createAsyncThunk(
   'links/fetchLinksData',
   async ({ url, token }) => {
+    console.time();
     const res = await fetch(url, {
       method: 'GET',
       headers: {
@@ -48,8 +52,9 @@ export const fetchLinksData = createAsyncThunk(
             return res.json();
           } else {
             Swal.fire({
-              text: 'No Links created for this resource',
-              icon: 'info' });
+              text: 'No Links Created for this source',
+              icon: 'info',
+            });
             return null;
           }
         } else {
@@ -64,6 +69,8 @@ export const fetchLinksData = createAsyncThunk(
         }
       })
       .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
+    console.log('Load all links time');
+    console.timeEnd();
     return res;
   },
 );
@@ -77,7 +84,7 @@ const initialState = {
   linkCreateLoading: false,
   allLinks: [],
   linksData: [],
-  CLResponse: null,
+  createLinkRes: null,
   editTargetData: {},
   targetDataArr: [],
   linkedData: {},
@@ -110,11 +117,6 @@ export const linksSlice = createSlice({
 
     handleViewLinkDetails: (state, { payload }) => {
       state.linkedData = payload;
-    },
-
-    // created links state update
-    handleDisplayLinks: (state, { payload }) => {
-      state.allLinks = payload;
     },
 
     // edit link first step get data
@@ -203,6 +205,7 @@ export const linksSlice = createSlice({
   extraReducers: (builder) => {
     // get all links controller
     builder.addCase(fetchLinksData.pending, (state) => {
+      state.createLinkRes = null;
       state.isLoading = true;
     });
 
@@ -231,9 +234,9 @@ export const linksSlice = createSlice({
 
     builder.addCase(fetchCreateLink.fulfilled, (state, { payload }) => {
       state.linkCreateLoading = false;
-      if (payload) state.CLResponse = payload;
+      if (payload) state.createLinkRes = payload;
       else {
-        state.CLResponse = {};
+        state.createLinkRes = null;
       }
     });
   },
@@ -246,7 +249,6 @@ export const {
   handleIsLoading,
   handleGetSources,
   handleViewLinkDetails,
-  handleDisplayLinks,
   handleEditLinkData,
   handleTargetDataArr,
   handleEditTargetData,

@@ -1,43 +1,37 @@
-import { Close, Logout, Menu, UserAvatarFilledAlt } from '@carbon/icons-react';
+import { Logout, UserAvatarFilledAlt } from '@carbon/icons-react';
 import {
   Button,
   Header,
+  HeaderMenuItem,
   IconButton,
   Popover,
   PopoverContent,
-  SideNav,
-  SideNavItems,
-  SideNavMenuItem,
   Theme,
 } from '@carbon/react';
 import React, { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleIsProfileOpen, handleIsSidebarOpen } from '../../../Redux/slices/navSlice';
+import { handleIsProfileOpen } from '../../../Redux/slices/navSlice';
 import AuthContext from '../../../Store/Auth-Context.jsx';
 
-import koneksysLogo from './koneksys_logo.png';
 import styles from './NavigationBar.module.scss';
 const {
-  content,
-  header,
-  headerContainer,
-  main,
-  pageTitle,
+  wbeContent,
+  wbeHeader,
+  hMenuItemContainer,
+  hMenuItem,
+  wbeHeaderContainer,
   popoverContent,
   profile,
-  projectTitle,
-  sidebar,
-  sidebarLink,
   userContainer,
+  // fileName,
 } = styles;
 
-const NavigationBar = () => {
+const WbeTopNav = () => {
   const authCtx = useContext(AuthContext);
-  const { currPageTitle, isSidebarOpen, isProfileOpen } = useSelector(
-    (state) => state.nav,
-  );
+  const { isProfileOpen } = useSelector((state) => state.nav);
+  // const {sourceDataList}=useSelector(state=>state.links);
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const dispatch = useDispatch();
@@ -56,7 +50,7 @@ const NavigationBar = () => {
       if (result.isConfirmed) {
         authCtx.logout();
         Swal.fire({
-          title: 'Logged out successful',
+          title: 'Logged out',
           icon: 'success',
           timer: 1500,
         });
@@ -66,21 +60,29 @@ const NavigationBar = () => {
   };
 
   return (
-    <div className={`${'container'} ${main}`}>
-      <Theme theme="g100">
-        <Header aria-label="" id={header}>
-          <div className={headerContainer}>
-            <IconButton
-              kind="ghost"
-              label=""
-              onClick={() => dispatch(handleIsSidebarOpen(!isSidebarOpen))}
-            >
-              {isSidebarOpen ? <Close size={30} /> : <Menu size={30} />}
-            </IconButton>
+    <Theme theme="white">
+      <Header aria-label="" id={wbeHeader}>
+        {/* <h5 className={fileName}>
+        Links For: <span>{sourceDataList?.title}</span></h5> */}
 
-            <img src={koneksysLogo} height="40px" alt="logo" />
-            <h5 className={projectTitle}>Link manager</h5>
-            <h6 className={pageTitle}>{currPageTitle}</h6>
+        <div className={`${'mainContainer'}`}>
+          <div className={wbeHeaderContainer}>
+            <div className={hMenuItemContainer}>
+              <HeaderMenuItem
+                isCurrentPage={pathname === '/wbe'}
+                onClick={() => navigate('/wbe')}
+                className={hMenuItem}
+              >
+                <p>Links</p>
+              </HeaderMenuItem>
+              <HeaderMenuItem
+                isCurrentPage={pathname === '/wbe/graph-view'}
+                onClick={() => navigate('/wbe/graph-view')}
+                className={hMenuItem}
+              >
+                <p>Graph View</p>
+              </HeaderMenuItem>
+            </div>
 
             {/* --- User popover --- */}
             <Popover
@@ -98,57 +100,32 @@ const NavigationBar = () => {
               >
                 <UserAvatarFilledAlt size={30} />
               </IconButton>
-
               <PopoverContent className={popoverContent}>
-                <div className={content}>
+                <div className={wbeContent}>
                   <div className={userContainer}>
                     <h5>User Name</h5>
                     <span>
                       <UserAvatarFilledAlt size={25} />
                     </span>
                   </div>
-                  <p>Item option 1</p>
-                  <p>Item option 2</p>
+                  {/* <p>Item option 1</p>
+                <p>Item option 2</p> */}
                 </div>
                 <Button
                   onClick={handleLogout}
                   renderIcon={Logout}
                   size="md"
-                  kind="secondary"
+                  kind="danger"
                 >
                   Logout
                 </Button>
               </PopoverContent>
             </Popover>
           </div>
-        </Header>
-
-        {/* --------- Side nav ---------   */}
-        {isSidebarOpen && (
-          <SideNav id={sidebar} aria-label="" isPersistent={true} isChildOfHeader={false}>
-            <SideNavItems>
-              <hr />
-              <SideNavMenuItem
-                className={sidebarLink}
-                onClick={() => navigate('/')}
-                isActive={pathname === '/'}
-              >
-                Links
-              </SideNavMenuItem>
-
-              <SideNavMenuItem
-                className={sidebarLink}
-                onClick={() => navigate('/graph-view')}
-                isActive={pathname === '/graph-view'}
-              >
-                Graph View
-              </SideNavMenuItem>
-            </SideNavItems>
-          </SideNav>
-        )}
-      </Theme>
-    </div>
+        </div>
+      </Header>
+    </Theme>
   );
 };
 
-export default NavigationBar;
+export default WbeTopNav;

@@ -2,22 +2,64 @@
 @use '@carbon/type';
 
 .main {
-  padding-top: 60px;
+  padding-top: 50px;
 }
 
 #header {
   height: 55px;
 }
 
+#wbeHeader {
+  height: 50px;
+  display: block;
+  border: none;
+}
+
 .projectTitle {
   margin-left: 5px;
-  min-width: 150px;
+  width: 220px;
 }
 
 .headerContainer {
   display: flex;
   width: 100%;
   align-items: center;
+  justify-content: space-between;
+}
+
+.wbeHeaderContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fileName {
+  padding-left: 2vw;
+  background-color: #f8f9fa;
+
+  span {
+    margin-left: 10px;
+    font-size: 22px;
+    text-decoration: underline;
+  }
+}
+
+.hMenuItemContainer {
+  display: flex;
+}
+
+.hMenuItem {
+  list-style: none;
+  cursor: pointer;
+  height: 50px;
+
+  p {
+    font-weight: 550;
+  }
+}
+
+.hMenuItem:focus {
+  border: none;
 }
 
 .pageTitle {
@@ -70,6 +112,41 @@
     }
   }
 
+  .wbeContent {
+    min-height: 10vh;
+    padding: 5px 0;
+    background-color: colors.$white;
+
+    .userContainer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding: 0 15px;
+
+      span {
+        background-color: colors.$gray-10;
+        border-radius: 50%;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    p {
+      color: colors.$blue-50;
+      font-weight: 500;
+      padding: 2px 15px;
+      cursor: pointer;
+    }
+
+    p:hover {
+      background-color: colors.$gray-10;
+    }
+  }
+
   button {
     width: 100%;
   }
@@ -93,4 +170,8 @@
 
 .sidebarLink {
   cursor: pointer;
+}
+
+.linkFileContainer > h5 {
+  color: colors.$gray-90;
 }
