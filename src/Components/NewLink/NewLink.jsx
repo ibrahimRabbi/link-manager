@@ -400,7 +400,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         </div>
 
         {
-          linkCreateLoading && <ProgressBar />
+          linkCreateLoading && <ProgressBar label=''/>
         }
         {/* --- After selected link type ---  */}
         {((linkType && projectType) || isEditLinkPage) && (

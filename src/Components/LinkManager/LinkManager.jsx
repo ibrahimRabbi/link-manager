@@ -124,7 +124,7 @@ const LinkManager = () => {
           </div>
 
           {
-            isLoading && <ProgressBar />
+            isLoading && <ProgressBar label=''/>
           }
           <UseDataTable
             headers={headers}

@@ -28,7 +28,7 @@ const GraphView = () => {
 
   console.log(graphData);
 
-  if (graphLoading) return  <ProgressBar />;
+  if (graphLoading) return  <ProgressBar label='' />;
 
   return (
     <div style={{ width: '100%', height: '95vh' }}>
