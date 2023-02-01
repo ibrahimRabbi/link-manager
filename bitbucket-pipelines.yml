@@ -10,30 +10,21 @@ pipelines:
     - step:
         name: 'Lint'
         script:
-          - echo "Linting the src"
           - yarn install
           - yarn run lint src/
-          - echo "Compile complete."
 
     - step:
         name: 'Build'
         caches:
           - node
         script:
-          - echo "Compiling the code..."
           - touch .env
           - echo "NODE_ENV=development" >> .env
           - echo "REACT_APP_LM_REST_API_URL=https://lm-api-dev.koneksys.com/api/v1" >> .env
           - yarn install
           - yarn build
-          - echo "Compile complete."
         artifacts:
           - build/**
-      
-    - step:
-        name: 'Security scan'
-        script:
-          - echo "Your security scan goes here..."
 
     # The following deployment steps will be executed for each pipeline run. To configure your steps and conditionally deploy see https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/
     - step:
