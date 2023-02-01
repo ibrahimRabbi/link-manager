@@ -1,0 +1,54 @@
+# This is an example Starter pipeline configuration
+# Use a skeleton to build, test and deploy using manual and parallel steps
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+
+image: node:18.10.0-alpine
+
+pipelines:
+  default:
+    - step:
+        name: 'Lint'
+        script:
+          - echo "Linting the src"
+          - yarn install
+          - yarn run lint src/
+          - echo "Compile complete."
+
+    - step:
+        name: 'Build'
+        caches:
+          - node
+        script:
+          - echo "Compiling the code..."
+          - touch .env
+          - echo "NODE_ENV=development" >> .env
+          - echo "REACT_APP_LM_REST_API_URL=https://lm-api-dev.koneksys.com/api/v1" >> .env
+          - yarn install
+          - yarn build
+          - echo "Compile complete."
+        artifacts:
+          - build/**
+      
+    - step:
+        name: 'Security scan'
+        script:
+          - echo "Your security scan goes here..."
+
+    # The following deployment steps will be executed for each pipeline run. To configure your steps and conditionally deploy see https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/
+    - step:
+        name: 'Deployment to Staging'
+        deployment: staging
+        script:
+          - pipe: atlassian/rsync-deploy:0.8.1
+            variables:
+              USER: $SERVER_USER
+              SERVER: $SERVER_IP
+              REMOTE_PATH: '/var/www/lm-dev'
+              LOCAL_PATH: 'build/**'
+    - step:
+        name: 'Deployment to Production'
+        deployment: production
+        trigger: 'manual'
+        script:
+          - echo "Your deployment to production script goes here..."
