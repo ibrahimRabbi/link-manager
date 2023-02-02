@@ -35,7 +35,7 @@ const tableDropdownItems = [
   { text: 'Target' },
 ];
 
-const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
+const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource/all`;
 
 const LinkManager = () => {
   const { sourceDataList, linksData, isLoading } = useSelector((state) => state.links);
@@ -57,11 +57,13 @@ const LinkManager = () => {
     dispatch(handleIsProfileOpen(isProfileOpen && false));
     dispatch(handleCurrPageTitle('Links'));
     console.log(linksStream);
+    const stream = linksStream ? linksStream :'GCM Initial Stream';
     // Create link
     if (sourceFileURL) {
       dispatch(
         fetchLinksData({
-          url: `${apiURL}/?resource_id=${encodeURIComponent(sourceFileURL)}`,
+          // eslint-disable-next-line max-len
+          url: `${apiURL}/?stream=${stream}&resource_id=${encodeURIComponent(sourceFileURL)}`,
           token: authCtx.token,
         }),
       );
