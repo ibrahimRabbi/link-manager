@@ -11,6 +11,7 @@ import {
   handleOslcResponse,
   handleProjectType,
   handleResourceType,
+  handleStreamType,
   handleTargetDataArr,
   handleUpdateCreatedLink,
 } from '../../Redux/slices/linksSlice';
@@ -37,6 +38,7 @@ const {
   sourceProp,
   sourceValue,
   targetContainer,
+  streamDD,
   targetSearchContainer,
 } = styles;
 
@@ -49,6 +51,13 @@ const linkTypeItems = [
   { text: 'decomposedBy' },
   { text: 'elaboratedBy' },
   { text: 'satisfiedBy' },
+];
+
+// stream items
+const streamItems = [
+  { text: 'GCM Initial Stream' },
+  { text: 'GCM Develop Stream' },
+  { text: 'GCM Staging Stream' },
 ];
 const projectItems = [
   {
@@ -75,12 +84,14 @@ const headers = [
 ];
 
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
+
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const {
     isWbe,
     oslcResponse,
     sourceDataList,
     linkType,
+    streamType,
     projectType,
     resourceType,
     editLinkData,
@@ -97,7 +108,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-
+  const wbePath = location.pathname?.includes('wbe');
   const authCtx = useContext(AuthContext);
   const isJIRA = sourceDataList?.appName?.includes('jira');
   const isGitlab = sourceDataList?.appName?.includes('gitlab');
@@ -186,16 +197,14 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       if (jiraApp) {
         // eslint-disable-next-line max-len
         setProjectFrameSrc('https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0');
-      } else if (gitlabApp) {
+      }
+      else if (gitlabApp) {
         // eslint-disable-next-line max-len
-        setProjectFrameSrc(
-          'https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/selector',
-        );
-      } else if (glideApp) {
+        setProjectFrameSrc(`https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/selector?gc_context=${streamType}`);
+      } 
+      else if (glideApp) {
         // eslint-disable-next-line max-len
-        setProjectFrameSrc(
-          'https://glide-oslc-api-dev.koneksys.com/oslc/provider/selector',
-        );
+        setProjectFrameSrc('https://glide-oslc-api-dev.koneksys.com/oslc/provider/selector' );
       }
     }
   }, [projectType]);
@@ -280,6 +289,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     dispatch(handleLinkType(selectedItem.text));
   };
 
+  // stream type dropdown
+  const handleStreamChange = ({ selectedItem }) => {
+    dispatch(handleStreamType(selectedItem.text));
+  };
+  console.log('Stream: ', streamType);
+
   const targetProjectItems =
     linkType === 'constrainedBy' ? ['Jet Engine Design (GLIDE)'] : projectTypeItems;
   // const targetResourceItems =
@@ -355,6 +370,17 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   return (
     <div className="mainContainer">
       <div className="container">
+
+        {
+          wbePath && <div className='linkFileContainer'>
+            <h5>Links For: {sourceDataList?.title}</h5>
+
+            <Button size="md" kind="primary"
+              onClick={() =>navigate('/wbe')}> Cancel</Button>
+          </div>
+        }
+
+
         <div className={sourceContainer}>
           <h5>Source</h5>
           {sourceTitles.map((properties, index) => (
@@ -363,6 +389,19 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               <p className={sourceValue}>{Object.values(sourceValues)[index]}</p>
             </div>
           ))}
+        </div>
+
+        {/* Stream dropdown  */}
+        <div className={linkTypeContainer}>
+          <UseDropdown
+            onChange={handleStreamChange}
+            items={streamItems}
+            title="Target Container"
+            selectedValue={editLinkData?.linkType}
+            label={'Select  Configuration Context'}
+            id="newLink_stream"
+            className={streamDD}
+          />
         </div>
 
         <div className={linkTypeContainer}>

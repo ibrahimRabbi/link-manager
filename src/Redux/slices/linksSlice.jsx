@@ -5,7 +5,6 @@ import Swal from 'sweetalert2';
 export const fetchCreateLink = createAsyncThunk(
   'links/fetchCreateLink',
   async ({ url, token, bodyData }) => {
-    console.time();
     const res = await fetch(`${url}`, {
       method: 'POST',
       headers: {
@@ -27,8 +26,6 @@ export const fetchCreateLink = createAsyncThunk(
         }
       })
       .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
-    console.log('Create link time');
-    console.timeEnd();
     return res;
   },
 );
@@ -37,7 +34,6 @@ export const fetchCreateLink = createAsyncThunk(
 export const fetchLinksData = createAsyncThunk(
   'links/fetchLinksData',
   async ({ url, token }) => {
-    console.time();
     const res = await fetch(url, {
       method: 'GET',
       headers: {
@@ -46,7 +42,6 @@ export const fetchLinksData = createAsyncThunk(
       },
     })
       .then((res) => {
-        console.log(res);
         if (res.ok) {
           if (res.status !== 204) {
             return res.json();
@@ -69,8 +64,6 @@ export const fetchLinksData = createAsyncThunk(
         }
       })
       .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
-    console.log('Load all links time');
-    console.timeEnd();
     return res;
   },
 );
@@ -90,6 +83,7 @@ const initialState = {
   linkedData: {},
   editLinkData: {},
   linkType: null,
+  streamType: null,
   projectType: null,
   resourceType: null,
 };
@@ -164,6 +158,10 @@ export const linksSlice = createSlice({
 
     handleLinkType: (state, { payload }) => {
       state.linkType = payload;
+    },
+
+    handleStreamType: (state, { payload }) => {
+      state.streamType = payload;
     },
 
     handleProjectType: (state, { payload }) => {
@@ -254,6 +252,7 @@ export const {
   handleEditTargetData,
   handleUpdateCreatedLink,
   handleLinkType,
+  handleStreamType,
   handleProjectType,
   handleResourceType,
   handleSetStatus,

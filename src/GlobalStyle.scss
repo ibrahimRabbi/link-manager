@@ -11,19 +11,19 @@
   }
 
   h3 {
-    font-size: type.type-scale(7);
-  }
-
-  h4 {
     font-size: type.type-scale(6);
   }
 
-  h5 {
+  h4 {
     font-size: type.type-scale(5);
   }
 
-  h6 {
+  h5 {
     font-size: type.type-scale(4);
+  }
+
+  h6 {
+    font-size: type.type-scale(3);
   }
 
   p,
@@ -51,10 +51,29 @@
   padding-top: 15px;
 }
 
-.wbeContent {
-  padding-top: 50px;
-}
-
 .text-center {
   text-align: center;
+}
+
+.linkFileContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 1vw;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  background-color: colors.$white;
+}
+
+.linkFileContainer>h5 {
+  color: colors.$gray-90;
+}
+
+.graphContainer {
+  width: 100%;
+  height: 90vw;
+}
+
+.wbeNavSpace {
+  margin-top: 160px;
 }

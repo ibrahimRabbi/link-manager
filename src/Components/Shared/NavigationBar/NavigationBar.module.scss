@@ -10,7 +10,7 @@
 }
 
 #wbeHeader {
-  height: 50px;
+  height: 165px;
   display: block;
   border: none;
 }
@@ -33,10 +33,17 @@
   justify-content: space-between;
 }
 
-.fileName {
-  padding-left: 2vw;
-  background-color: #f8f9fa;
+.topContentContainer {
+  padding: 10px 3vw 0 2vw;
+}
 
+.fileContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fileName {
   span {
     margin-left: 10px;
     font-size: 22px;
@@ -172,6 +179,6 @@
   cursor: pointer;
 }
 
-.linkFileContainer > h5 {
+.linkFileContainer>h5 {
   color: colors.$gray-90;
 }

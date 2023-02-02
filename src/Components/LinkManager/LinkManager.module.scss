@@ -1,24 +1,22 @@
 @use '@carbon/colors';
 @use '@carbon/type';
 
-.linkFileContainer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.resourceDdContainer {
   padding: 10px 1vw;
   margin-bottom: 15px;
   border-radius: 5px;
   background-color: colors.$white;
-}
-
-.linkFileContainer > h5 {
-  color: colors.$gray-90;
+  width: 45%;
 }
 
 .fileName {
   font-weight: 500;
   text-decoration: underline;
   font-size: type.type-scale(4);
+}
+
+.fileDropdown {
+  width: 100%;
 }
 
 .dropdownStyle {
