@@ -62,8 +62,7 @@ export const graphSlice = createSlice({
       if (payload) {
         if (payload?.isConfirmed) {
           //
-        }
-        else {
+        } else {
           state.linksData = payload.data;
         }
         state.graphData = payload.data;

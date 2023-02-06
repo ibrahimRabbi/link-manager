@@ -19,7 +19,7 @@ export const fetchCreateLink = createAsyncThunk(
             Swal.fire({ title: data.status, text: data.message, icon: 'success' });
             return data;
           });
-        } else{
+        } else {
           return res.json().then((data) => {
             Swal.fire({ title: data.status, text: data.message, icon: 'info' });
             return data;

@@ -195,16 +195,20 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       const glideApp = projectType?.includes('(GLIDE)');
 
       if (jiraApp) {
-        // eslint-disable-next-line max-len
-        setProjectFrameSrc('https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0');
-      }
-      else if (gitlabApp) {
-        // eslint-disable-next-line max-len
-        setProjectFrameSrc(`https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/selector?gc_context=${streamType}`);
-      } 
-      else if (glideApp) {
-        // eslint-disable-next-line max-len
-        setProjectFrameSrc('https://glide-oslc-api-dev.koneksys.com/oslc/provider/selector' );
+        setProjectFrameSrc(
+          // eslint-disable-next-line max-len
+          'https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0',
+        );
+      } else if (gitlabApp) {
+        setProjectFrameSrc(
+          // eslint-disable-next-line max-len
+          `https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/selector?gc_context=${streamType}`,
+        );
+      } else if (glideApp) {
+        setProjectFrameSrc(
+          // eslint-disable-next-line max-len
+          'https://glide-oslc-api-dev.koneksys.com/oslc/provider/selector',
+        );
       }
     }
   }, [projectType]);
@@ -368,16 +372,16 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   return (
     <div className="mainContainer">
       <div className="container">
-
-        {
-          wbePath && <div className='linkFileContainer'>
+        {wbePath && (
+          <div className="linkFileContainer">
             <h5>Links For: {sourceDataList?.title}</h5>
 
-            <Button size="md" kind="primary"
-              onClick={() =>navigate('/wbe')}> Cancel</Button>
+            <Button size="md" kind="primary" onClick={() => navigate('/wbe')}>
+              {' '}
+              Cancel
+            </Button>
           </div>
-        }
-
+        )}
 
         <div className={sourceContainer}>
           <h5>Source</h5>
@@ -436,11 +440,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           {/*)}*/}
         </div>
 
-        {
-          linkCreateLoading && <ProgressBar label=''/>
-        }
+        {linkCreateLoading && <ProgressBar label="" />}
         {/* --- After selected link type ---  */}
-        {(linkType && projectType && streamType) && (
+        {linkType && projectType && streamType && (
           <div className={targetContainer}>
             <h5>Target</h5>
 

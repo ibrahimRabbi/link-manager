@@ -12,8 +12,8 @@ import React, { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { 
-  handleIsProfileOpen, 
+import {
+  handleIsProfileOpen,
   handleSelectStreamType,
 } from '../../../Redux/slices/navSlice';
 import AuthContext from '../../../Store/Auth-Context.jsx';
@@ -43,7 +43,7 @@ const streamItems = [
 const WbeTopNav = () => {
   const authCtx = useContext(AuthContext);
   const { isProfileOpen, linksStream } = useSelector((state) => state.nav);
-  const {sourceDataList}=useSelector(state=>state.links);
+  const { sourceDataList } = useSelector((state) => state.links);
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const dispatch = useDispatch();
@@ -71,7 +71,7 @@ const WbeTopNav = () => {
     });
   };
 
-  const streamTypeChange=({selectedItem})=>{
+  const streamTypeChange = ({ selectedItem }) => {
     dispatch(handleSelectStreamType(selectedItem.text));
   };
 
@@ -81,12 +81,11 @@ const WbeTopNav = () => {
         <div className={topContentContainer}>
           <div className={fileContainer}>
             <h5 className={fileName}>
-        Links For: <span>{sourceDataList?.title}</span>
+              Links For: <span>{sourceDataList?.title}</span>
             </h5>
 
-            <Button size="sm" kind="primary"
-              onClick={() =>  navigate('/wbe/new-link')} >
-            New link
+            <Button size="sm" kind="primary" onClick={() => navigate('/wbe/new-link')}>
+              New link
             </Button>
           </div>
 
@@ -94,7 +93,7 @@ const WbeTopNav = () => {
             onChange={streamTypeChange}
             items={streamItems}
             title="Target Container"
-            label={ linksStream ? linksStream : streamItems[0]?.text}
+            label={linksStream ? linksStream : streamItems[0]?.text}
             id="links_stream"
             className={''}
           />

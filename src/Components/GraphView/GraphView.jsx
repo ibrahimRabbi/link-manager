@@ -16,7 +16,7 @@ const GraphView = () => {
   const { isProfileOpen } = useSelector((state) => state.nav);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
-  const location =useLocation();
+  const location = useLocation();
   const wbePath = location.pathname?.includes('wbe');
 
   useEffect(() => {
@@ -36,28 +36,28 @@ const GraphView = () => {
 
   return (
     <>
-      {
-        wbePath && <WbeTopNav/>
-      }
+      {wbePath && <WbeTopNav />}
 
-      <div onClick={()=>dispatch(handleIsProfileOpen(isProfileOpen && false))}
-        className={wbePath ? 'wbeNavSpace': ''}>
-        {
-          graphLoading ? <ProgressBar label='' />
-            : 
-            <div className='graphContainer'>
-              <ReactGraph
-                initialState={graphData}
-                nodes={graphData.nodes}
-                relationships={graphData.relationships}
-                width="100%"
-                height="100%"
-                // hasLegends
-                hasInspector
-                hasTruncatedFields
-              />
-            </div>
-        }
+      <div
+        onClick={() => dispatch(handleIsProfileOpen(isProfileOpen && false))}
+        className={wbePath ? 'wbeNavSpace' : ''}
+      >
+        {graphLoading ? (
+          <ProgressBar label="" />
+        ) : (
+          <div className="graphContainer">
+            <ReactGraph
+              initialState={graphData}
+              nodes={graphData.nodes}
+              relationships={graphData.relationships}
+              width="100%"
+              height="100%"
+              // hasLegends
+              hasInspector
+              hasTruncatedFields
+            />
+          </div>
+        )}
       </div>
     </>
   );
