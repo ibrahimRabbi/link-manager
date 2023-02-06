@@ -39,7 +39,7 @@ const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource/all`;
 
 const LinkManager = () => {
   const { sourceDataList, linksData, isLoading } = useSelector((state) => state.links);
-  const { linksStream, isProfileOpen} = useSelector((state) => state.nav);
+  const { linksStream, isProfileOpen } = useSelector((state) => state.nav);
   const location = useLocation();
   const wbePath = location.pathname?.includes('wbe');
   const navigate = useNavigate();
@@ -57,13 +57,15 @@ const LinkManager = () => {
     dispatch(handleIsProfileOpen(isProfileOpen && false));
     dispatch(handleCurrPageTitle('Links'));
     console.log(linksStream);
-    const stream = linksStream ? linksStream :'GCM Initial Stream';
+    const stream = linksStream ? linksStream : 'GCM Initial Stream';
     // Create link
     if (sourceFileURL) {
       dispatch(
         fetchLinksData({
           // eslint-disable-next-line max-len
-          url: `${apiURL}/?stream=${stream}&resource_id=${encodeURIComponent(sourceFileURL)}`,
+          url: `${apiURL}?stream=${stream}&resource_id=${encodeURIComponent(
+            sourceFileURL,
+          )}`,
           token: authCtx.token,
         }),
       );
@@ -86,16 +88,16 @@ const LinkManager = () => {
   return (
     <>
       {/* WBE Nav bar  */}
-      {
-        wbePath && <WbeTopNav/>
-      }
-    
-      <div onClick={()=>dispatch(handleIsProfileOpen(isProfileOpen && false))}
-        className={wbePath ? 'wbeNavSpace' : ''}>
+      {wbePath && <WbeTopNav />}
+
+      <div
+        onClick={() => dispatch(handleIsProfileOpen(isProfileOpen && false))}
+        className={wbePath ? 'wbeNavSpace' : ''}
+      >
         <div className="mainContainer">
           <div className="container">
-            {
-              !wbePath && <div className='linkFileContainer'>
+            {!wbePath && (
+              <div className="linkFileContainer">
                 <h5>Links For: {sourceDataList?.title}</h5>
 
                 <Button
@@ -105,10 +107,10 @@ const LinkManager = () => {
                   size="md"
                   kind="primary"
                 >
-            New link
+                  New link
                 </Button>
               </div>
-            }
+            )}
 
             <div className={tableContainer}>
               <div className={searchBox}>
@@ -133,14 +135,12 @@ const LinkManager = () => {
                     />
                   </div>
                   <Button kind="primary" size="sm">
-                Search
+                    Search
                   </Button>
                 </div>
               </div>
 
-              {
-                isLoading && <ProgressBar label=''/>
-              }
+              {isLoading && <ProgressBar label="" />}
               <UseDataTable
                 headers={headers}
                 tableData={linksData}

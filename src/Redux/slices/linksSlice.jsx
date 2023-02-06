@@ -212,7 +212,7 @@ export const linksSlice = createSlice({
       if (payload) {
         if (payload?.isConfirmed) state.linksData = [];
         else {
-          state.linksData = payload;
+          state.linksData = payload.data;
         }
       } else {
         state.linksData = [];

@@ -61,19 +61,10 @@ export const graphSlice = createSlice({
 
     builder.addCase(fetchGraphData.fulfilled, (state, { payload }) => {
       if (payload) {
-        const data = payload.data[0].graph;
+        const data = payload.data;
         const relationships = data?.relationships;
-        const nodes = data?.nodes?.map((n) => {
-          return {
-            id: n.id,
-            labels: n.labels,
-            properties: {
-              name: n.name,
-              project: n.project,
-              provider: n.provider,
-            },
-          };
-        });
+        const nodes = data?.nodes;
+
         state.graphData = { nodes, relationships };
       }
       state.graphLoading = false;
