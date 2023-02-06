@@ -4,8 +4,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { fetchLinksData, handleIsWbe } from '../../Redux/slices/linksSlice';
-import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
+import { handleCurrPageTitle, handleIsProfileOpen } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
+import WbeTopNav from '../Shared/NavigationBar/WbeTopNav';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 
@@ -17,7 +18,6 @@ const {
   searchContainer,
   searchInput,
   tableContainer,
-  linkFileContainer,
 } = styles;
 
 const headers = [
@@ -28,7 +28,7 @@ const headers = [
   { key: 'actions', header: 'Actions' },
 ];
 
-const dropdownItem = [
+const tableDropdownItems = [
   { text: 'Link type' },
   { text: 'Project type' },
   { text: 'Status' },
@@ -39,6 +39,7 @@ const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 
 const LinkManager = () => {
   const { sourceDataList, linksData, isLoading } = useSelector((state) => state.links);
+  const { linksStream, isProfileOpen } = useSelector((state) => state.nav);
   const location = useLocation();
   const wbePath = location.pathname?.includes('wbe');
   const navigate = useNavigate();
@@ -53,17 +54,23 @@ const LinkManager = () => {
   }, [location]);
 
   useEffect(() => {
+    dispatch(handleIsProfileOpen(isProfileOpen && false));
     dispatch(handleCurrPageTitle('Links'));
+
+    let stream = linksStream ? linksStream : 'GCM Initial Stream';
     // Create link
-    if (sourceFileURL) {
+    if (sourceFileURL && stream) {
       dispatch(
         fetchLinksData({
-          url: `${apiURL}/?resource_id=${encodeURIComponent(sourceFileURL)}`,
+          // eslint-disable-next-line max-len
+          url: `${apiURL}?stream=${stream}&resource_id=${encodeURIComponent(
+            sourceFileURL,
+          )}`,
           token: authCtx.token,
         }),
       );
     }
-  }, [sourceFileURL]);
+  }, [linksStream]);
 
   // Link manager dropdown options
   const handleShowItem = () => {};
@@ -79,61 +86,71 @@ const LinkManager = () => {
   };
 
   return (
-    <div className="mainContainer">
-      <div className="container">
-        <div className={linkFileContainer}>
-          <h5>Links For: {sourceDataList?.title}</h5>
+    <>
+      {/* WBE Nav bar  */}
+      {wbePath && <WbeTopNav />}
 
-          <Button
-            onClick={() => {
-              wbePath ? navigate('/wbe/new-link') : navigate('/new-link');
-            }}
-            size="md"
-            kind="primary"
-          >
-            New link
-          </Button>
-        </div>
+      <div
+        onClick={() => dispatch(handleIsProfileOpen(isProfileOpen && false))}
+        className={wbePath ? 'wbeNavSpace' : ''}
+      >
+        <div className="mainContainer">
+          <div className="container">
+            {!wbePath && (
+              <div className="linkFileContainer">
+                <h5>Links For: {sourceDataList?.title}</h5>
 
-        <div className={tableContainer}>
-          <div className={searchBox}>
-            <UseDropdown
-              onChange={handleShowItem}
-              items={dropdownItem}
-              id={'linkManager_showAll'}
-              label="Show all"
-              className={dropdownStyle}
-            />
-
-            <div className={searchContainer}>
-              <div className={inputContainer}>
-                <Search
-                  id=""
-                  labelText=""
-                  className={searchInput}
-                  placeholder="Search by identifier or name"
-                  onChange={function noRefCheck() {}}
-                  onKeyDown={function noRefCheck() {}}
-                  size="sm"
-                />
+                <Button
+                  onClick={() => {
+                    wbePath ? navigate('/wbe/new-link') : navigate('/new-link');
+                  }}
+                  size="md"
+                  kind="primary"
+                >
+                  New link
+                </Button>
               </div>
-              <Button kind="primary" size="sm">
-                Search
-              </Button>
+            )}
+
+            <div className={tableContainer}>
+              <div className={searchBox}>
+                <UseDropdown
+                  onChange={handleShowItem}
+                  items={tableDropdownItems}
+                  id={'linkManager_showAll'}
+                  label="Show all"
+                  className={dropdownStyle}
+                />
+
+                <div className={searchContainer}>
+                  <div className={inputContainer}>
+                    <Search
+                      id=""
+                      labelText=""
+                      className={searchInput}
+                      placeholder="Search by identifier or name"
+                      onChange={function noRefCheck() {}}
+                      onKeyDown={function noRefCheck() {}}
+                      size="sm"
+                    />
+                  </div>
+                  <Button kind="primary" size="sm">
+                    Search
+                  </Button>
+                </div>
+              </div>
+
+              {isLoading && <ProgressBar label="" />}
+              <UseDataTable
+                headers={headers}
+                tableData={linksData}
+                openTargetLink={handleOpenTargetLink}
+              />
             </div>
           </div>
-
-          {
-            isLoading && <ProgressBar label=''/>
-          }
-          <UseDataTable
-            headers={headers}
-            tableData={linksData}
-            openTargetLink={handleOpenTargetLink}
-          />
         </div>
       </div>
-    </div>
+    </>
   );
 };
 export default LinkManager;

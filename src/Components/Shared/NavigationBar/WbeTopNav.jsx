@@ -12,8 +12,12 @@ import React, { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleIsProfileOpen } from '../../../Redux/slices/navSlice';
+import {
+  handleIsProfileOpen,
+  handleSelectStreamType,
+} from '../../../Redux/slices/navSlice';
 import AuthContext from '../../../Store/Auth-Context.jsx';
+import UseDropdown from '../UseDropdown/UseDropdown';
 
 import styles from './NavigationBar.module.scss';
 const {
@@ -25,13 +29,21 @@ const {
   popoverContent,
   profile,
   userContainer,
-  // fileName,
+  topContentContainer,
+  fileContainer,
+  fileName,
 } = styles;
+
+const streamItems = [
+  { text: 'GCM Initial Stream' },
+  { text: 'GCM Develop Stream' },
+  { text: 'GCM Staging Stream' },
+];
 
 const WbeTopNav = () => {
   const authCtx = useContext(AuthContext);
-  const { isProfileOpen } = useSelector((state) => state.nav);
-  // const {sourceDataList}=useSelector(state=>state.links);
+  const { isProfileOpen, linksStream } = useSelector((state) => state.nav);
+  const { sourceDataList } = useSelector((state) => state.links);
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const dispatch = useDispatch();
@@ -59,11 +71,33 @@ const WbeTopNav = () => {
     });
   };
 
+  const streamTypeChange = ({ selectedItem }) => {
+    dispatch(handleSelectStreamType(selectedItem.text));
+  };
+
   return (
     <Theme theme="white">
       <Header aria-label="" id={wbeHeader}>
-        {/* <h5 className={fileName}>
-        Links For: <span>{sourceDataList?.title}</span></h5> */}
+        <div className={topContentContainer}>
+          <div className={fileContainer}>
+            <h5 className={fileName}>
+              Links For: <span>{sourceDataList?.title}</span>
+            </h5>
+
+            <Button size="sm" kind="primary" onClick={() => navigate('/wbe/new-link')}>
+              New link
+            </Button>
+          </div>
+
+          <UseDropdown
+            onChange={streamTypeChange}
+            items={streamItems}
+            title="Target Container"
+            label={linksStream ? linksStream : streamItems[0]?.text}
+            id="links_stream"
+            className={''}
+          />
+        </div>
 
         <div className={`${'mainContainer'}`}>
           <div className={wbeHeaderContainer}>

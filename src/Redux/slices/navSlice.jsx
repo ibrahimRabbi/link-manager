@@ -4,6 +4,7 @@ const initialState = {
   isProfileOpen: false,
   isSidebarOpen: false,
   currPageTitle: '',
+  linksStream: '',
 };
 
 export const navSlice = createSlice({
@@ -24,11 +25,19 @@ export const navSlice = createSlice({
     handleCurrPageTitle: (state, { payload }) => {
       state.currPageTitle = payload;
     },
+    // top navbar page title
+    handleSelectStreamType: (state, { payload }) => {
+      state.linksStream = payload;
+    },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { handleIsSidebarOpen, handleCurrPageTitle, handleIsProfileOpen } =
-  navSlice.actions;
+export const {
+  handleIsSidebarOpen,
+  handleCurrPageTitle,
+  handleIsProfileOpen,
+  handleSelectStreamType,
+} = navSlice.actions;
 
 export default navSlice.reducer;

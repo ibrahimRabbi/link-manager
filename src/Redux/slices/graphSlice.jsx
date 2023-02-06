@@ -5,7 +5,6 @@ import Swal from 'sweetalert2';
 export const fetchGraphData = createAsyncThunk(
   'graph/fetchGraphsData',
   async ({ url, token }) => {
-    console.time();
     const res = await fetch(url, {
       method: 'GET',
       headers: {
@@ -32,8 +31,7 @@ export const fetchGraphData = createAsyncThunk(
         }
       })
       .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
-    console.log('graph load time');
-    console.timeEnd();
+
     return res;
   },
 );
@@ -60,23 +58,15 @@ export const graphSlice = createSlice({
     });
 
     builder.addCase(fetchGraphData.fulfilled, (state, { payload }) => {
-      if (payload) {
-        const data = payload.data[0].graph;
-        const relationships = data?.relationships;
-        const nodes = data?.nodes?.map((n) => {
-          return {
-            id: n.id,
-            labels: n.labels,
-            properties: {
-              name: n.name,
-              project: n.project,
-              provider: n.provider,
-            },
-          };
-        });
-        state.graphData = { nodes, relationships };
-      }
       state.graphLoading = false;
+      if (payload) {
+        if (payload?.isConfirmed) {
+          //
+        } else {
+          state.linksData = payload.data;
+        }
+        state.graphData = payload.data;
+      }
     });
 
     builder.addCase(fetchGraphData.rejected, (state, { payload }) => {
