@@ -42,7 +42,7 @@ const streamItems = [
 
 const WbeTopNav = () => {
   const authCtx = useContext(AuthContext);
-  const { isProfileOpen } = useSelector((state) => state.nav);
+  const { isProfileOpen, linksStream } = useSelector((state) => state.nav);
   const {sourceDataList}=useSelector(state=>state.links);
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -72,7 +72,6 @@ const WbeTopNav = () => {
   };
 
   const streamTypeChange=({selectedItem})=>{
-    console.log(selectedItem);
     dispatch(handleSelectStreamType(selectedItem.text));
   };
 
@@ -95,7 +94,7 @@ const WbeTopNav = () => {
             onChange={streamTypeChange}
             items={streamItems}
             title="Target Container"
-            label={'Select  Stream'}
+            label={ linksStream ? linksStream : streamItems[0]?.text}
             id="links_stream"
             className={''}
           />

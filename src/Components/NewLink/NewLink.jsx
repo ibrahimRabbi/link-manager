@@ -272,13 +272,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   useEffect(() => {
     if (projectType && oslcResponse && targetDataArr.length) {
       handleSaveLink();
-      console.log('link creating');
     }
-  }, [projectType, oslcResponse, targetDataArr]);
+  }, [oslcResponse, oslcResponse, targetDataArr]);
 
   useEffect(() => {
     if (createLinkRes) {
-      console.log(createLinkRes);
       navigate('/wbe');
     }
   }, [createLinkRes]);
@@ -293,7 +291,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const handleStreamChange = ({ selectedItem }) => {
     dispatch(handleStreamType(selectedItem.text));
   };
-  console.log('Stream: ', streamType);
 
   const targetProjectItems =
     linkType === 'constrainedBy' ? ['Jet Engine Design (GLIDE)'] : projectTypeItems;
@@ -343,6 +340,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     });
 
     const linkObj = {
+      stream: streamType,
       source_type: title,
       source_title: title,
       source_project: projectName,
@@ -442,7 +440,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           linkCreateLoading && <ProgressBar label=''/>
         }
         {/* --- After selected link type ---  */}
-        {((linkType && projectType) || isEditLinkPage) && (
+        {(linkType && projectType && streamType) && (
           <div className={targetContainer}>
             <h5>Target</h5>
 
@@ -451,7 +449,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               <iframe src={projectFrameSrc} height="600px" width="100%" />
             )}
 
-            {isGlide && (
+            {isGlide && isJIRA && (
               <>
                 <div className={targetSearchContainer}>
                   <form

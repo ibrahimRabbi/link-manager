@@ -19,9 +19,10 @@ export const fetchCreateLink = createAsyncThunk(
             Swal.fire({ title: data.status, text: data.message, icon: 'success' });
             return data;
           });
-        } else if (res.status !== 404) {
-          res.json().then((data) => {
-            Swal.fire({ title: data.status, text: data.message, icon: 'error' });
+        } else{
+          return res.json().then((data) => {
+            Swal.fire({ title: data.status, text: data.message, icon: 'info' });
+            return data;
           });
         }
       })
@@ -50,7 +51,6 @@ export const fetchLinksData = createAsyncThunk(
               text: 'No Links Created for this source',
               icon: 'info',
             });
-            return null;
           }
         } else {
           res.json().then((data) => {
@@ -209,10 +209,11 @@ export const linksSlice = createSlice({
 
     builder.addCase(fetchLinksData.fulfilled, (state, { payload }) => {
       state.isLoading = false;
+      console.log(payload);
       if (payload) {
         if (payload?.isConfirmed) state.linksData = [];
         else {
-          state.linksData = payload;
+          state.linksData = payload.data;
         }
       } else {
         state.linksData = [];
@@ -223,6 +224,7 @@ export const linksSlice = createSlice({
     builder.addCase(fetchCreateLink.pending, (state) => {
       state.linkCreateLoading = true;
       state.linkType = null;
+      state.streamType = null;
       state.projectType = null;
       state.resourceType = null;
       state.oslcResponse = false;
@@ -232,6 +234,7 @@ export const linksSlice = createSlice({
 
     builder.addCase(fetchCreateLink.fulfilled, (state, { payload }) => {
       state.linkCreateLoading = false;
+      console.log(payload);
       if (payload) state.createLinkRes = payload;
       else {
         state.createLinkRes = null;

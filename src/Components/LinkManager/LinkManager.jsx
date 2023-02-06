@@ -35,7 +35,7 @@ const tableDropdownItems = [
   { text: 'Target' },
 ];
 
-const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource/all`;
+const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 
 const LinkManager = () => {
   const { sourceDataList, linksData, isLoading } = useSelector((state) => state.links);
@@ -56,10 +56,10 @@ const LinkManager = () => {
   useEffect(() => {
     dispatch(handleIsProfileOpen(isProfileOpen && false));
     dispatch(handleCurrPageTitle('Links'));
-    console.log(linksStream);
-    const stream = linksStream ? linksStream :'GCM Initial Stream';
+
+    let stream = linksStream ? linksStream :'GCM Initial Stream';
     // Create link
-    if (sourceFileURL) {
+    if (sourceFileURL && stream) {
       dispatch(
         fetchLinksData({
           // eslint-disable-next-line max-len
@@ -68,7 +68,7 @@ const LinkManager = () => {
         }),
       );
     }
-  }, [sourceFileURL]);
+  }, [linksStream]);
 
   // Link manager dropdown options
   const handleShowItem = () => {};
