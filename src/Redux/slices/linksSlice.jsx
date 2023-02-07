@@ -1,25 +1,91 @@
-import { createSlice } from '@reduxjs/toolkit';
-import UniqueID from '../../Components/Shared/UniqueID/UniqueID';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import Swal from 'sweetalert2';
 
-const sources=[
-  {Source: 'requirements.txt'},
-  {Project: 'Gitlab OSLC API'},
-  {Type: 'Gitlab - File'},
-  {Component: 'Gitlab component 1'},
-  { Stream: 'development'},
-  { BaseLine: '78zabc'}
-];
+// Fetch Create New link
+export const fetchCreateLink = createAsyncThunk(
+  'links/fetchCreateLink',
+  async ({ url, token, bodyData }) => {
+    const res = await fetch(`${url}`, {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+        authorization: 'Bearer ' + token,
+      },
+      body: JSON.stringify(bodyData),
+    })
+      .then((res) => {
+        if (res.ok) {
+          return res.json().then((data) => {
+            Swal.fire({ title: data.status, text: data.message, icon: 'success' });
+            return data;
+          });
+        } else {
+          return res.json().then((data) => {
+            Swal.fire({ title: data.status, text: data.message, icon: 'info' });
+            return data;
+          });
+        }
+      })
+      .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
+    return res;
+  },
+);
+
+// Fetch all created links for Link manager table
+export const fetchLinksData = createAsyncThunk(
+  'links/fetchLinksData',
+  async ({ url, token }) => {
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-type': 'application/json',
+        authorization: 'Bearer ' + token,
+      },
+    })
+      .then((res) => {
+        if (res.ok) {
+          if (res.status !== 204) {
+            return res.json();
+          } else {
+            Swal.fire({
+              text: 'No Links Created for this source',
+              icon: 'info',
+            });
+          }
+        } else {
+          res.json().then((data) => {
+            let errorMessage = 'Loading links failed: ';
+            if (data && data.message) {
+              errorMessage += data.message;
+              Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
+            }
+            Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
+          });
+        }
+      })
+      .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
+    return res;
+  },
+);
 
 const initialState = {
-  sourceDataList:[...sources],
+  sourceDataList: {},
+  isWbe: false,
+  oslcResponse: null,
+  isLinkCreate: false,
+  isLoading: false,
+  linkCreateLoading: false,
   allLinks: [],
-  editTargetData:{},
-  targetDataArr:[],
-  linkedData:{},
-  editLinkData:{},
-  linkType:null,
-  projectType:null,
-  resourceType:null,
+  linksData: [],
+  createLinkRes: null,
+  editTargetData: {},
+  targetDataArr: [],
+  linkedData: {},
+  editLinkData: {},
+  linkType: null,
+  streamType: null,
+  projectType: null,
+  resourceType: null,
 };
 
 export const linksSlice = createSlice({
@@ -27,94 +93,174 @@ export const linksSlice = createSlice({
   initialState,
 
   reducers: {
-    handleViewLinkDetails: (state, {payload}) => {
-      state.linkedData=payload;
+    handleIsWbe: (state, { payload }) => {
+      state.isWbe = payload;
+    },
+    handleIsLoading: (state, { payload }) => {
+      state.isLoading = payload;
     },
 
-    handleCreateLink: (state) => {
-      state.targetDataArr?.forEach((item)=>{
-        state.allLinks.push({id:UniqueID(),targetData:item,linkType:state.linkType, project:state.projectType, resource:state.resourceType,status:'No status'});
-      });
-      state.linkType =null;
-      state.projectType =null;
-      state.resourceType =null;
-      state.targetDataArr=[];
-      state.isLinkEdit=false;
+    handleOslcResponse: (state, { payload }) => {
+      state.oslcResponse = payload;
     },
 
-    handleEditLinkData: (state, {payload}) => {
-      state.linkType =null;
-      state.projectType =null;
-      state.resourceType =null;
-      state.editTargetData=payload?.targetData;
-      state.editLinkData=payload;
+    // get sources in wbe
+    handleGetSources: (state, { payload }) => {
+      state.sourceDataList = payload;
     },
 
+    handleViewLinkDetails: (state, { payload }) => {
+      state.linkedData = payload;
+    },
+
+    // edit link first step get data
+    handleEditLinkData: (state, { payload }) => {
+      state.linkType = null;
+      state.projectType = null;
+      state.resourceType = null;
+      state.oslcResponse = false;
+      state.editTargetData = payload?.targetData;
+      state.editLinkData = payload;
+    },
+
+    // edit link
     handleUpdateCreatedLink: (state) => {
-      const index=state.allLinks.findIndex(item=>item?.id===state.editLinkData?.id);
-      state.allLinks[index]={
+      const index = state.allLinks.findIndex(
+        (item) => item?.id === state.editLinkData?.id,
+      );
+      state.allLinks[index] = {
         ...state.allLinks[index],
-        ...{targetData:state.editTargetData,linkType:state.linkType?state?.linkType:state.editLinkData?.linkType, project:state.projectType?state.projectType:state.editLinkData?.project, resource:state.resourceType? state.resourceType:state.editLinkData?.resource,}
+        ...{
+          targetData: state.editTargetData,
+          linkType: state.linkType ? state?.linkType : state.editLinkData?.linkType,
+          project: state.projectType ? state.projectType : state.editLinkData?.project,
+          resource: state.resourceType
+            ? state.resourceType
+            : state.editLinkData?.resource,
+        },
       };
-      state.linkType =null;
-      state.projectType =null;
-      state.resourceType =null;
-      state.editTargetData={};
-      state.targetDataArr=[];
+      state.linkType = null;
+      state.projectType = null;
+      state.resourceType = null;
+      state.editTargetData = {};
+      state.targetDataArr = [];
     },
 
-    handleEditTargetData:(state, {payload})=>{
-      state.editTargetData=payload;
+    // edit target data
+    handleEditTargetData: (state, { payload }) => {
+      state.editTargetData = payload;
     },
 
-    handleTargetDataArr: (state, {payload}) => {
-      if(payload){
-        const {data, value}=payload;
-        if(value?.isChecked){
-          state.targetDataArr.push(data);
-        }
-        else{
-          state.targetDataArr=state.targetDataArr.filter(item=>item?.identifier !==value.id);
-        }
-      }
-      else{
-        state.targetDataArr=[];
-      }
+    // get multiple target data
+    handleTargetDataArr: (state, { payload }) => {
+      state.targetDataArr = payload;
     },
 
-    handleLinkType: (state, {payload}) => {
-      state.linkType=payload;
+    handleLinkType: (state, { payload }) => {
+      state.linkType = payload;
     },
 
-    handleProjectType: (state, {payload}) => {
-      state.projectType=payload;
+    handleStreamType: (state, { payload }) => {
+      state.streamType = payload;
     },
 
-    handleResourceType: (state, {payload}) => {
-      state.resourceType=payload;
+    handleProjectType: (state, { payload }) => {
+      state.projectType = payload;
+    },
+
+    handleResourceType: (state, { payload }) => {
+      state.resourceType = payload;
     },
 
     // new link and edit link cancel btn
     handleCancelLink: (state) => {
-      state.linkType =null;
-      state.projectType =null;
-      state.resourceType =null;
-      state.editTargetData={};
-      state.targetDataArr=[];
+      state.linkType = null;
+      state.projectType = null;
+      state.resourceType = null;
+      state.editTargetData = {};
+      state.targetDataArr = [];
+      state.oslcResponse = null;
     },
 
-    handleSetStatus: (state, {payload}) => {
-      const link=state.allLinks.find(data=>data?.id=== payload.row?.id);
-      link.status=payload.status;
+    // status update
+    handleSetStatus: (state, { payload }) => {
+      const id = payload.row?.id;
+      localStorage.setItem(
+        id,
+        JSON.stringify({ ...payload.row, status: payload.status }),
+      );
+      const link = state.allLinks.find((data) => data?.id === id);
+      link.status = payload.status;
     },
 
-    handleDeleteLink: (state, {payload}) => {
-      state.allLinks= state.allLinks.filter(data=>data?.id !== payload?.id);
+    // delete link
+    handleDeleteLink: (state, { payload }) => {
+      localStorage.removeItem(payload.id);
+      state.allLinks = state.allLinks.filter((data) => data?.id !== payload?.id);
     },
+  },
+  /// Extra Reducers ///
+  extraReducers: (builder) => {
+    // get all links controller
+    builder.addCase(fetchLinksData.pending, (state) => {
+      state.createLinkRes = null;
+      state.isLoading = true;
+    });
+
+    builder.addCase(fetchLinksData.fulfilled, (state, { payload }) => {
+      state.isLoading = false;
+      console.log(payload);
+      if (payload) {
+        if (payload?.isConfirmed) state.linksData = [];
+        else {
+          state.linksData = payload.data;
+        }
+      } else {
+        state.linksData = [];
+      }
+    });
+
+    // Create new link controller
+    builder.addCase(fetchCreateLink.pending, (state) => {
+      state.linkCreateLoading = true;
+      state.linkType = null;
+      state.streamType = null;
+      state.projectType = null;
+      state.resourceType = null;
+      state.oslcResponse = false;
+      state.targetDataArr = [];
+      state.isLinkEdit = false;
+    });
+
+    builder.addCase(fetchCreateLink.fulfilled, (state, { payload }) => {
+      state.linkCreateLoading = false;
+      console.log(payload);
+      if (payload) state.createLinkRes = payload;
+      else {
+        state.createLinkRes = null;
+      }
+    });
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { handleViewLinkDetails, handleCreateLink, handleEditLinkData, handleTargetDataArr,handleEditTargetData, handleUpdateCreatedLink, handleLinkType, handleProjectType, handleResourceType, handleSetStatus, handleDeleteLink, handleCancelLink } = linksSlice.actions;
+export const {
+  handleIsWbe,
+  handleOslcResponse,
+  handleIsLoading,
+  handleGetSources,
+  handleViewLinkDetails,
+  handleEditLinkData,
+  handleTargetDataArr,
+  handleEditTargetData,
+  handleUpdateCreatedLink,
+  handleLinkType,
+  handleStreamType,
+  handleProjectType,
+  handleResourceType,
+  handleSetStatus,
+  handleDeleteLink,
+  handleCancelLink,
+} = linksSlice.actions;
 
 export default linksSlice.reducer;

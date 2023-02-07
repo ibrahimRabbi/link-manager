@@ -1,0 +1,66 @@
+@use '@carbon/colors';
+@use '@carbon/type';
+
+.resourceDdContainer {
+  padding: 10px 1vw;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  background-color: colors.$white;
+  width: 45%;
+}
+
+.fileName {
+  font-weight: 500;
+  text-decoration: underline;
+  font-size: type.type-scale(4);
+}
+
+.fileDropdown {
+  width: 100%;
+}
+
+.dropdownStyle {
+  min-width: 150px;
+}
+
+.tableContainer {
+  position: relative;
+  padding: 10px 1vw;
+  margin-bottom: 15px;
+  min-height: 70vh;
+  border-radius: 5px;
+  background-color: colors.$white;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+}
+
+.inputContainer {
+  border-radius: 5px 0 0 5px;
+  min-width: 20vw;
+}
+
+.searchInput {
+  border: none;
+  min-width: 200px;
+  font-size: 15px;
+  padding-left: 5px;
+}
+
+.searchInput:focus {
+  outline: none;
+}
+
+.searchIcon {
+  margin-bottom: -5px;
+  font-size: 20px;
+}

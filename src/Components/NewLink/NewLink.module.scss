@@ -1,0 +1,117 @@
+@use '@carbon/colors';
+@use '@carbon/type';
+
+.sourceContainer {
+  padding: 10px 1vw;
+  margin-bottom: 15px;
+  background-color: colors.$white;
+  border-radius: 5px;
+  // box-shadow: 0 0px 2px rgb(0 0 0 / 0.2);
+}
+
+.sourceGrid {
+  display: flex;
+  align-items: center;
+}
+
+.sourceProp {
+  margin: 2px 0;
+  width: 25%;
+}
+
+.sourceValue {
+  margin: 2px 0;
+  width: 75%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.linkTypeContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: colors.$white;
+  padding: 10px 1vw;
+  margin-bottom: 15px;
+  gap: 10px;
+  border-radius: 5px;
+}
+
+.targetContainer {
+  // border: 1px solid colors.$gray-30;
+  background-color: colors.$white;
+  padding: 10px 1vw;
+  min-height: 50vh;
+  border-radius: 5px;
+}
+
+.targetIframe {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.projectContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.resourceTypeContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.dropDownLabel {
+  width: 130px;
+}
+
+.dropdownStyle {
+  min-width: 40%;
+}
+
+.streamDD {
+  width: 100%;
+}
+
+.targetSearchContainer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  height: 40px;
+}
+
+.inputContainer {
+  min-width: 20vw;
+}
+
+.searchInput {
+  min-width: 200px;
+  padding-left: 5px;
+}
+
+.newLinkTable {
+  margin: 10px 0 15px 0;
+}
+
+.btnContainer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  background-color: colors.$white;
+}
+
+.emptySearchWarning {
+  text-align: center;
+  margin-top: 2vw;
+  font-weight: bold;
+  color: colors.$gray-30;
+}
