@@ -280,9 +280,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   }, [oslcResponse, oslcResponse, targetDataArr]);
 
   useEffect(() => {
-    if (createLinkRes) {
-      navigate('/wbe');
-    }
+    if (createLinkRes) isWbe ? navigate('/wbe') : navigate('/');
+    
   }, [createLinkRes]);
 
   // Link type dropdown
