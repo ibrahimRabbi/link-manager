@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 export const fetchCreateLink = createAsyncThunk(
   'links/fetchCreateLink',
   async ({ url, token, bodyData }) => {
-    const res = await fetch(`${url}`, {
+    const response = await fetch(`${url}`, {
       method: 'POST',
       headers: {
         'Content-type': 'application/json',
@@ -14,20 +14,19 @@ export const fetchCreateLink = createAsyncThunk(
       body: JSON.stringify(bodyData),
     })
       .then((res) => {
+        
         if (res.ok) {
           return res.json().then((data) => {
             Swal.fire({ title: data.status, text: data.message, icon: 'success' });
             return data;
           });
         } else {
-          return res.json().then((data) => {
-            Swal.fire({ title: data.status, text: data.message, icon: 'info' });
-            return data;
-          });
+          Swal.fire({ title: res.status, text: res.statusText, icon: 'info' });
+          return null;
         }
       })
       .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
-    return res;
+    return response;
   },
 );
 
@@ -35,7 +34,7 @@ export const fetchCreateLink = createAsyncThunk(
 export const fetchLinksData = createAsyncThunk(
   'links/fetchLinksData',
   async ({ url, token }) => {
-    const res = await fetch(url, {
+    const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Content-type': 'application/json',
@@ -64,7 +63,7 @@ export const fetchLinksData = createAsyncThunk(
         }
       })
       .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
-    return res;
+    return response;
   },
 );
 
@@ -223,22 +222,18 @@ export const linksSlice = createSlice({
     // Create new link controller
     builder.addCase(fetchCreateLink.pending, (state) => {
       state.linkCreateLoading = true;
+      state.oslcResponse = false;
       state.linkType = null;
       state.streamType = null;
       state.projectType = null;
       state.resourceType = null;
-      state.oslcResponse = false;
       state.targetDataArr = [];
       state.isLinkEdit = false;
     });
 
     builder.addCase(fetchCreateLink.fulfilled, (state, { payload }) => {
       state.linkCreateLoading = false;
-      console.log(payload);
-      if (payload) state.createLinkRes = payload;
-      else {
-        state.createLinkRes = null;
-      }
+      state.createLinkRes = payload;
     });
   },
 });

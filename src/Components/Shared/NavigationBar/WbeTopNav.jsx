@@ -34,10 +34,11 @@ const {
   fileName,
 } = styles;
 
+// stream items
 const streamItems = [
-  { text: 'GCM Initial Stream' },
-  { text: 'GCM Develop Stream' },
-  { text: 'GCM Staging Stream' },
+  { text: 'GCM Initial Stream', key:'st-main' },
+  { text: 'GCM Develop Stream', key:'st-develop' },
+  { text: 'GCM Staging Stream', key:'st-staging' },
 ];
 
 const WbeTopNav = () => {
@@ -72,7 +73,7 @@ const WbeTopNav = () => {
   };
 
   const streamTypeChange = ({ selectedItem }) => {
-    dispatch(handleSelectStreamType(selectedItem.text));
+    dispatch(handleSelectStreamType(selectedItem.key));
   };
 
   return (

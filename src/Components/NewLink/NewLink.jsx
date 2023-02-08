@@ -55,9 +55,9 @@ const linkTypeItems = [
 
 // stream items
 const streamItems = [
-  { text: 'GCM Initial Stream' },
-  { text: 'GCM Develop Stream' },
-  { text: 'GCM Staging Stream' },
+  { text: 'GCM Initial Stream', key:'st-main' },
+  { text: 'GCM Develop Stream', key:'st-develop' },
+  { text: 'GCM Staging Stream', key:'st-staging' },
 ];
 const projectItems = [
   {
@@ -197,7 +197,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       if (jiraApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          'https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0',
+          `https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0&gc_context=${streamType}`,
         );
       } else if (gitlabApp) {
         setProjectFrameSrc(
@@ -207,7 +207,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       } else if (glideApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          'https://glide-oslc-api-dev.koneksys.com/oslc/provider/selector',
+          `https://glide-oslc-api-dev.koneksys.com/oslc/provider/selector?gc_context=${streamType}`,
         );
       }
     }
@@ -292,7 +292,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // stream type dropdown
   const handleStreamChange = ({ selectedItem }) => {
-    dispatch(handleStreamType(selectedItem.text));
+    dispatch(handleStreamType(selectedItem.key));
   };
 
   const targetProjectItems =
@@ -353,6 +353,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       status: 'active',
       target_data: targetsData,
     };
+    console.log(linkObj);
     dispatch(
       fetchCreateLink({
         url: apiURL,

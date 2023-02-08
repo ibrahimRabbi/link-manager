@@ -57,7 +57,7 @@ const LinkManager = () => {
     dispatch(handleIsProfileOpen(isProfileOpen && false));
     dispatch(handleCurrPageTitle('Links'));
 
-    let stream = linksStream ? linksStream : 'GCM Initial Stream';
+    let stream = linksStream ? linksStream : 'st-main';
     // Create link
     if (sourceFileURL && stream) {
       dispatch(
