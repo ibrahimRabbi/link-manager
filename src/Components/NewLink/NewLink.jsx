@@ -495,10 +495,10 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               </>
             )}
 
-            {targetDataArr.length && (
+            {targetDataArr[0] && (
               <>
                 {/* // new link btn  */}
-                {projectType && resourceType && targetDataArr[0] && !isEditLinkPage && (
+                {(projectType && resourceType && !isEditLinkPage) && (
                   <div className={btnContainer}>
                     <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
                       Cancel
