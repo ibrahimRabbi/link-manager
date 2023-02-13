@@ -99,7 +99,7 @@ const WbeTopNav = () => {
           <UseDropdown
             onChange={streamTypeChange}
             items={linksStreamItems}
-            title="Target Container"
+            title="GCM Configuration Context"
             label={linksStream.text ? linksStream.text : linksStreamItems[0]?.text}
             id="links_stream"
             className={''}

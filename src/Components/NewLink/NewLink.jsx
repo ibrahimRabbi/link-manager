@@ -380,7 +380,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           <UseDropdown
             onChange={handleStreamChange}
             items={streamItems}
-            title="Configuration Context"
+            title="GCM Configuration Context"
             selectedValue={editLinkData?.linkType}
             label={'Select  Configuration Context'}
             id="newLink_stream"
