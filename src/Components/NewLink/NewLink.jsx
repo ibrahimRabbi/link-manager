@@ -19,9 +19,6 @@ import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
-import jiraLogo from './jira_logo.png';
-import gitlabLogo from './gitlab_logo.png';
-import glideLogo from './glide_logo.png';
 
 import styles from './NewLink.module.scss';
 const {
@@ -38,42 +35,9 @@ const {
   sourceProp,
   sourceValue,
   targetContainer,
-  streamDD,
+  // streamDD,
   targetSearchContainer,
 } = styles;
-
-// dropdown items
-const linkTypeItems = [
-  { text: 'affectedBy' },
-  { text: 'implementedBy' },
-  { text: 'trackedBy' },
-  { text: 'constrainedBy' },
-  { text: 'decomposedBy' },
-  { text: 'elaboratedBy' },
-  { text: 'satisfiedBy' },
-];
-
-// stream items
-const streamItems = [
-  { text: 'GCM Initial Stream' },
-  { text: 'GCM Develop Stream' },
-  { text: 'GCM Staging Stream' },
-];
-const projectItems = [
-  {
-    text: 'Cross-Domain Integration Demo (JIRA)',
-    icon: <img src={jiraLogo} height={25} alt="Jira" />,
-  },
-  {
-    text: 'Cross-Domain Integration Demo (GITLAB)',
-    icon: <img src={gitlabLogo} height={22} alt="Gitlab" />,
-  },
-  {
-    text: 'Jet Engine Design (GLIDE)',
-    icon: <img src={glideLogo} height={23} alt="Glide" />,
-  },
-];
-// const resourceItems = ['User story', 'Task', 'Epic', 'Bug', 'Improvement'];
 
 // Table header
 const headers = [
@@ -103,6 +67,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
   const [displayTableData, setDisplayTableData] = useState([]);
+  const [streamItems, setStreamItems] = useState([]);
+  const [linkTypeItems, setLinkTypeItems] = useState([]);
   const [projectTypeItems, setProjectTypeItems] = useState([]);
   const [projectFrameSrc, setProjectFrameSrc] = useState('');
   const navigate = useNavigate();
@@ -116,42 +82,47 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Display project types conditionally by App name
   useEffect(() => {
-    if (isJIRA) {
-      setProjectTypeItems([
-        {
-          text: 'Cross-Domain Integration Demo (GITLAB)',
-          icon: <img src={gitlabLogo} height={22} alt="Gitlab" />,
-        },
-        {
-          text: 'Jet Engine Design (GLIDE)',
-          icon: <img src={glideLogo} height={23} alt="Glide" />,
-        },
-      ]);
-    } else if (isGitlab) {
-      setProjectTypeItems([
-        {
-          text: 'Cross-Domain Integration Demo (JIRA)',
-          icon: <img src={jiraLogo} height={25} alt="Jira" />,
-        },
-        {
-          text: 'Jet Engine Design (GLIDE)',
-          icon: <img src={glideLogo} height={23} alt="Glide" />,
-        },
-      ]);
-    } else if (isGlide) {
-      setProjectTypeItems([
-        {
-          text: 'Cross-Domain Integration Demo (JIRA)',
-          icon: <img src={jiraLogo} height={25} alt="Jira" />,
-        },
-        {
-          text: 'Cross-Domain Integration Demo (GITLAB)',
-          icon: <img src={gitlabLogo} height={22} alt="Gitlab" />,
-        },
-      ]);
-    } else {
-      setProjectTypeItems(projectItems);
-    }
+    (async()=>{
+
+      // get link_types dropdown items
+      fetch('.././gcm_context.json')
+        .then(res=>res.json())
+        .then(data=>setStreamItems(data))
+        .catch(err=>console.log(err));
+
+      // get link_types dropdown items
+      fetch('.././link_types.json')
+        .then(res=>res.json())
+        .then(data=>setLinkTypeItems(data))
+        .catch(err=>console.log(err));
+
+      // get project_types dropdown items
+      const projectsRes = await fetch('.././project_types.json')
+        .then(res=>res.json())
+        .catch(err=>console.log(err));
+
+      // display projects conditionally
+      const specificProject = projectsRes?.reduce((acc, curr)=>{
+        if(isJIRA){
+          const jira = curr.text.includes('JIRA');
+          if(!jira) acc.push(curr);
+        }
+        else if(isGitlab){
+          const gitlab = curr.text.includes('GITLAB');
+          if(!gitlab) acc.push(curr);
+        }
+        else if(isGlide){
+          const glide = curr.text.includes('GLIDE');
+          if(!glide) acc.push(curr);
+        }
+        else {
+          acc.push(curr);
+        }
+        
+        return acc;
+      }, []);
+      setProjectTypeItems(specificProject);
+    })();
   }, []);
 
   let sourceTitles = [];
@@ -197,7 +168,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       if (jiraApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          'https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0',
+          `https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0&gc_context=${streamType}`,
         );
       } else if (gitlabApp) {
         setProjectFrameSrc(
@@ -207,7 +178,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       } else if (glideApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          'https://glide-oslc-api-dev.koneksys.com/oslc/provider/selector',
+          `https://glide-oslc-api-dev.koneksys.com/oslc/provider/selector?gc_context=${streamType}`,
         );
       }
     }
@@ -280,9 +251,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   }, [oslcResponse, oslcResponse, targetDataArr]);
 
   useEffect(() => {
-    if (createLinkRes) {
-      navigate('/wbe');
-    }
+    if (createLinkRes) isWbe ? navigate('/wbe') : navigate('/');
+    
   }, [createLinkRes]);
 
   // Link type dropdown
@@ -293,7 +263,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // stream type dropdown
   const handleStreamChange = ({ selectedItem }) => {
-    dispatch(handleStreamType(selectedItem.text));
+    dispatch(handleStreamType(selectedItem.key));
   };
 
   const targetProjectItems =
@@ -394,7 +364,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         </div>
 
         {/* Stream dropdown  */}
-        <div className={linkTypeContainer}>
+        {/* <div className={linkTypeContainer}>
           <UseDropdown
             onChange={handleStreamChange}
             items={streamItems}
@@ -404,9 +374,19 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             id="newLink_stream"
             className={streamDD}
           />
-        </div>
+        </div> */}
 
         <div className={linkTypeContainer}>
+          <UseDropdown
+            onChange={handleStreamChange}
+            items={streamItems}
+            title="GCM Configuration Context"
+            selectedValue={editLinkData?.linkType}
+            label={'Select  Configuration Context'}
+            id="newLink_stream"
+            className={dropdownStyle}
+          />
+
           <UseDropdown
             onChange={handleLinkTypeChange}
             items={linkTypeItems}
@@ -442,89 +422,90 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
         {linkCreateLoading && <ProgressBar label="" />}
         {/* --- After selected link type ---  */}
-        {linkType && projectType && streamType && (
-          <div className={targetContainer}>
-            <h5>Target</h5>
+        {
+          (linkType && projectType && streamType) && (
+            <div className={targetContainer}>
+              <h5>Target</h5>
 
-            {/* Show the selection dialogs */}
-            {projectFrameSrc && (
-              <iframe src={projectFrameSrc} height="600px" width="100%" />
-            )}
+              {/* Show the selection dialogs */}
+              {projectFrameSrc && (
+                <iframe src={projectFrameSrc} height="600px" width="100%" />
+              )}
 
-            {isGlide && isJIRA && (
-              <>
-                <div className={targetSearchContainer}>
-                  <form
-                    onSubmit={handleSubmit(handleSearchData)}
-                    className={searchContainer}
-                  >
-                    <div className={inputContainer}>
-                      <Search
-                        id=""
-                        labelText=""
-                        className={searchInput}
-                        type="text"
-                        placeholder="Search by identifier or name"
-                        {...register('searchText')}
-                        size="md"
+              {isGlide && isJIRA && (
+                <>
+                  <div className={targetSearchContainer}>
+                    <form
+                      onSubmit={handleSubmit(handleSearchData)}
+                      className={searchContainer}
+                    >
+                      <div className={inputContainer}>
+                        <Search
+                          id=""
+                          labelText=""
+                          className={searchInput}
+                          type="text"
+                          placeholder="Search by identifier or name"
+                          {...register('searchText')}
+                          size="md"
+                        />
+                      </div>
+                      <Button kind="primary" size="md" type="submit">
+                      Search
+                      </Button>
+                    </form>
+                  </div>
+
+                  {((searchText && displayTableData[0]) || isEditLinkPage) && (
+                    <div className={newLinkTable}>
+                      <UseDataTable
+                        headers={headers}
+                        tableData={displayTableData}
+                        isCheckBox={true}
+                        isChecked={editLinkData?.targetData?.identifier}
+                        editTargetData={editTargetData}
+                        isPagination={displayTableData[0] ? true : false}
+                        selectedData={handleSelectedData}
                       />
                     </div>
-                    <Button kind="primary" size="md" type="submit">
-                      Search
-                    </Button>
-                  </form>
-                </div>
-
-                {((searchText && displayTableData[0]) || isEditLinkPage) && (
-                  <div className={newLinkTable}>
-                    <UseDataTable
-                      headers={headers}
-                      tableData={displayTableData}
-                      isCheckBox={true}
-                      isChecked={editLinkData?.targetData?.identifier}
-                      editTargetData={editTargetData}
-                      isPagination={displayTableData[0] ? true : false}
-                      selectedData={handleSelectedData}
-                    />
-                  </div>
-                )}
-                {searchText && !displayTableData[0] && (
-                  <h2 className={emptySearchWarning}>
+                  )}
+                  {searchText && !displayTableData[0] && (
+                    <h2 className={emptySearchWarning}>
                     Please search by valid identifier or name
-                  </h2>
-                )}
-              </>
-            )}
+                    </h2>
+                  )}
+                </>
+              )}
 
-            {targetDataArr.length && (
-              <>
-                {/* // new link btn  */}
-                {projectType && resourceType && targetDataArr[0] && !isEditLinkPage && (
-                  <div className={btnContainer}>
-                    <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
+              {targetDataArr[0] && (
+                <>
+                  {/* // new link btn  */}
+                  {(projectType && resourceType && !isEditLinkPage) && (
+                    <div className={btnContainer}>
+                      <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
                       Cancel
-                    </Button>
-                    <Button kind="primary" onClick={handleSaveLink} size="md">
+                      </Button>
+                      <Button kind="primary" onClick={handleSaveLink} size="md">
                       Save
-                    </Button>
-                  </div>
-                )}
+                      </Button>
+                    </div>
+                  )}
 
-                {/* // edit link btn  */}
-                {isEditLinkPage && editLinkData?.id && (
-                  <div className={btnContainer}>
-                    <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
+                  {/* // edit link btn  */}
+                  {isEditLinkPage && editLinkData?.id && (
+                    <div className={btnContainer}>
+                      <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
                       Cancel
-                    </Button>
-                    <Button kind="primary" onClick={handleLinkUpdate} size="md">
+                      </Button>
+                      <Button kind="primary" onClick={handleLinkUpdate} size="md">
                       Save
-                    </Button>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        )}
+                      </Button>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
       </div>
     </div>
   );

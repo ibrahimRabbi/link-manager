@@ -85,9 +85,10 @@ const Login = () => {
 
           <PasswordInput
             type="password"
-            id="pass"
+            id="login_password_id"
             labelText="Password"
             placeholder="Enter your password"
+            autoComplete="on"
             {...register('password', { required: true, minLength: 5 })}
           />
           <p className={errText}>

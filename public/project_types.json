@@ -1,0 +1,14 @@
+[
+    {
+        "text": "Cross-Domain Integration Demo (JIRA)",
+        "icon": "http://localhost:3000/jira_logo.png"
+    },
+    {
+        "text": "Cross-Domain Integration Demo (GITLAB)",
+        "icon": "http://localhost:3000/gitlab_logo.png"
+    },
+    {
+        "text": "Jet Engine Design (GLIDE)",
+        "icon": "http://localhost:3000/glide_logo.png"
+    }
+]

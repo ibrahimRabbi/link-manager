@@ -65,7 +65,7 @@
   background-color: colors.$white;
 }
 
-.linkFileContainer > h5 {
+.linkFileContainer>h5 {
   color: colors.$gray-90;
 }
 
@@ -76,4 +76,12 @@
 
 .wbeNavSpace {
   margin-top: 160px;
+}
+
+.dropdown-text {
+  width: 100%;
+  overflow: hidden;
+  display: inline-block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
