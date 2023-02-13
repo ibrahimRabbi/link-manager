@@ -4,7 +4,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { fetchLinksData, handleIsWbe } from '../../Redux/slices/linksSlice';
-import { handleCurrPageTitle, handleIsProfileOpen } from '../../Redux/slices/navSlice';
+import { 
+  handleCurrPageTitle, 
+  handleIsProfileOpen, 
+} from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import WbeTopNav from '../Shared/NavigationBar/WbeTopNav';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
@@ -39,7 +42,10 @@ const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 
 const LinkManager = () => {
   const { sourceDataList, linksData, isLoading } = useSelector((state) => state.links);
-  const { linksStream, isProfileOpen } = useSelector((state) => state.nav);
+  const { 
+    linksStream, 
+    isProfileOpen, 
+  } = useSelector((state) => state.nav);
   const location = useLocation();
   const wbePath = location.pathname?.includes('wbe');
   const navigate = useNavigate();
@@ -54,22 +60,32 @@ const LinkManager = () => {
   }, [location]);
 
   useEffect(() => {
-    dispatch(handleIsProfileOpen(isProfileOpen && false));
-    dispatch(handleCurrPageTitle('Links'));
+    (async()=>{
+      dispatch(handleIsProfileOpen(isProfileOpen && false));
+      dispatch(handleCurrPageTitle('Links'));
 
-    let stream = linksStream ? linksStream : 'st-main';
-    // Create link
-    if (sourceFileURL && stream) {
-      dispatch(
-        fetchLinksData({
-          // eslint-disable-next-line max-len
-          url: `${apiURL}?stream=${stream}&resource_id=${encodeURIComponent(
-            sourceFileURL,
-          )}`,
-          token: authCtx.token,
-        }),
-      );
-    }
+      let streamRes = [];
+      if(!linksStream.key){
+        streamRes = await fetch('.././gcm_context.json')
+          .then(res=>res.json())
+          .catch(err=>console.log(err));
+      }
+
+      let stream = linksStream.key ? linksStream.key : streamRes[0]?.key;
+      
+      // Create link
+      if (sourceFileURL && stream) {
+        dispatch(
+          fetchLinksData({
+            // eslint-disable-next-line max-len
+            url: `${apiURL}?stream=${stream}&resource_id=${encodeURIComponent(
+              sourceFileURL,
+            )}`,
+            token: authCtx.token,
+          }),
+        );
+      }
+    })();
   }, [linksStream]);
 
   // Link manager dropdown options

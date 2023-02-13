@@ -6,13 +6,17 @@ import {
   IconButton,
   Popover,
   PopoverContent,
+  // SideNav,
+  // SideNavItems,
+  // SideNavMenuItem,
   Theme,
 } from '@carbon/react';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import {
+  fetchStreamItems,
   handleIsProfileOpen,
   handleSelectStreamType,
 } from '../../../Redux/slices/navSlice';
@@ -34,20 +38,25 @@ const {
   fileName,
 } = styles;
 
-// stream items
-const streamItems = [
-  { text: 'GCM Initial Stream', key:'st-main' },
-  { text: 'GCM Develop Stream', key:'st-develop' },
-  { text: 'GCM Staging Stream', key:'st-staging' },
-];
-
 const WbeTopNav = () => {
   const authCtx = useContext(AuthContext);
-  const { isProfileOpen, linksStream } = useSelector((state) => state.nav);
+  const { isProfileOpen, 
+    linksStream, 
+    linksStreamItems, 
+  } = useSelector((state) => state.nav);
   const { sourceDataList } = useSelector((state) => state.links);
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const dispatch = useDispatch();
+
+  useEffect(()=>{
+    // get link_types dropdown items
+    dispatch(fetchStreamItems('.././gcm_context.json'));
+  },[]);
+
+  const streamTypeChange = ({ selectedItem }) => {
+    dispatch(handleSelectStreamType(selectedItem));
+  };
 
   const handleLogout = () => {
     dispatch(handleIsProfileOpen(!isProfileOpen));
@@ -72,9 +81,6 @@ const WbeTopNav = () => {
     });
   };
 
-  const streamTypeChange = ({ selectedItem }) => {
-    dispatch(handleSelectStreamType(selectedItem.key));
-  };
 
   return (
     <Theme theme="white">
@@ -92,9 +98,9 @@ const WbeTopNav = () => {
 
           <UseDropdown
             onChange={streamTypeChange}
-            items={streamItems}
+            items={linksStreamItems}
             title="Target Container"
-            label={linksStream ? linksStream : streamItems[0]?.text}
+            label={linksStream.text ? linksStream.text : linksStreamItems[0]?.text}
             id="links_stream"
             className={''}
           />
@@ -159,6 +165,31 @@ const WbeTopNav = () => {
           </div>
         </div>
       </Header>
+
+      {/* <SideNav aria-label="" 
+         
+        isChildOfHeader={false}
+        isRail={true}
+      >
+        <SideNavItems>
+          <hr />
+          <SideNavMenuItem
+            className={'sidebarLink'}
+            onClick={() => navigate('/wbe')}
+            // isActive={pathname === '/'}
+          >
+                Links
+          </SideNavMenuItem>
+
+          <SideNavMenuItem
+            className={'sidebarLink'}
+            onClick={() => navigate('/wbe/graph-view')}
+            // isActive={pathname === '/graph-view'}
+          >
+                Graph View
+          </SideNavMenuItem>
+        </SideNavItems>
+      </SideNav> */}
     </Theme>
   );
 };
