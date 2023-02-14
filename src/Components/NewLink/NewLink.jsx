@@ -173,7 +173,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       } else if (gitlabApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          `https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/selector?gc_context=${streamType}`,
+          `https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=${'42854970'}&gc_context=${'st-develop'}`,
         );
       } else if (glideApp) {
         setProjectFrameSrc(
@@ -248,11 +248,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     if (projectType && oslcResponse && targetDataArr.length) {
       handleSaveLink();
     }
-  }, [oslcResponse, oslcResponse, targetDataArr]);
+  }, [oslcResponse, targetDataArr]);
 
   useEffect(() => {
-    if (createLinkRes) isWbe ? navigate('/wbe') : navigate('/');
-    
+    if (createLinkRes) {
+      isWbe ? navigate('/wbe') : navigate('/');
+    }
   }, [createLinkRes]);
 
   // Link type dropdown
@@ -363,26 +364,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           ))}
         </div>
 
-        {/* Stream dropdown  */}
-        {/* <div className={linkTypeContainer}>
-          <UseDropdown
-            onChange={handleStreamChange}
-            items={streamItems}
-            title="Target Container"
-            selectedValue={editLinkData?.linkType}
-            label={'Select  Configuration Context'}
-            id="newLink_stream"
-            className={streamDD}
-          />
-        </div> */}
-
         <div className={linkTypeContainer}>
           <UseDropdown
             onChange={handleStreamChange}
             items={streamItems}
             title="GCM Configuration Context"
             selectedValue={editLinkData?.linkType}
-            label={'Select  Configuration Context'}
+            label={'Select GCM Configuration Context'}
             id="newLink_stream"
             className={dropdownStyle}
           />

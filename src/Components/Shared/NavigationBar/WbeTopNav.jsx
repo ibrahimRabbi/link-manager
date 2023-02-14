@@ -6,9 +6,6 @@ import {
   IconButton,
   Popover,
   PopoverContent,
-  // SideNav,
-  // SideNavItems,
-  // SideNavMenuItem,
   Theme,
 } from '@carbon/react';
 import React, { useContext, useEffect } from 'react';
@@ -99,7 +96,7 @@ const WbeTopNav = () => {
           <UseDropdown
             onChange={streamTypeChange}
             items={linksStreamItems}
-            title="GCM Configuration Context"
+            title="Select GCM Configuration Context"
             label={linksStream.text ? linksStream.text : linksStreamItems[0]?.text}
             id="links_stream"
             className={''}
@@ -165,31 +162,6 @@ const WbeTopNav = () => {
           </div>
         </div>
       </Header>
-
-      {/* <SideNav aria-label="" 
-         
-        isChildOfHeader={false}
-        isRail={true}
-      >
-        <SideNavItems>
-          <hr />
-          <SideNavMenuItem
-            className={'sidebarLink'}
-            onClick={() => navigate('/wbe')}
-            // isActive={pathname === '/'}
-          >
-                Links
-          </SideNavMenuItem>
-
-          <SideNavMenuItem
-            className={'sidebarLink'}
-            onClick={() => navigate('/wbe/graph-view')}
-            // isActive={pathname === '/graph-view'}
-          >
-                Graph View
-          </SideNavMenuItem>
-        </SideNavItems>
-      </SideNav> */}
     </Theme>
   );
 };
