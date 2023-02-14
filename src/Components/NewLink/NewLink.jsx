@@ -123,7 +123,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       }, []);
       setProjectTypeItems(specificProject);
     })();
-  }, []);
+  }, [sourceDataList]);
 
   let sourceTitles = [];
   let sourceValues = {};
