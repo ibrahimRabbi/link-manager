@@ -86,8 +86,8 @@ const UseDataTable = ({
   };
 
   return (
-    <TableContainer title="">
-      <Table size="md">
+    <TableContainer title=''>
+      <Table size='md'>
         <TableHead>
           <TableRow>
             {headers?.map((header, i) => (
@@ -118,7 +118,7 @@ const UseDataTable = ({
                       <Checkbox
                         checked={row?.identifier === editTargetData?.identifier}
                         onClick={() => dispatch(handleEditTargetData(row))}
-                        labelText=""
+                        labelText=''
                         id={row?.identifier}
                       />
                     </TableCell>
@@ -139,7 +139,7 @@ const UseDataTable = ({
                             }),
                           )
                         }
-                        labelText=""
+                        labelText=''
                         id={row?.identifier}
                       />
                     </TableCell>
@@ -147,11 +147,10 @@ const UseDataTable = ({
                 </TableRow>
               ))
           }
-
+  
           {
             // Link Manager Table
-            !isCheckBox &&
-              tableData[0] &&
+            (!isCheckBox && tableData[0]) &&
               currTableData?.map((row, i) => (
                 <TableRow key={i}>
                   <TableCell className={tableCell}>
@@ -163,37 +162,38 @@ const UseDataTable = ({
                   <TableCell className={tableCell}>{row?.link_type}</TableCell>
 
                   {/* --- Table data with modal ---  */}
-                  <TableCell className={`${tableCell} ${targetCell}`}>
-                    {row?.name}
-                    <ComposedModal
-                      open={isOpen?.id === row?.id ? isOpen?.value : false}
-                      onClose={(e) =>
-                        e.target.id === isOpen?.id
-                          ? setIsOpen({ id: null, value: false })
-                          : null
-                      }
-                      id={row?.id}
-                      size="sm"
-                    >
-                      <div className={modalHeadContainer}>
-                        <h4
-                          onClick={() => {
-                            setIsOpen({ id: null, value: false });
-                            openTargetLink(row);
-                          }}
-                          className={modalTitle}
-                        >
-                          {row?.targetData?.identifier}
-                        </h4>
-                        <ModalHeader
-                          onClick={() => setIsOpen({ id: null, value: false })}
-                        />
-                      </div>
-                      <ModalBody className={modalBody}>
-                        {/* eslint-disable-next-line max-len */}
-                        {/* <iframe src='https://192.241.220.34:9443/rm/resources/_XBsnIIEzEeqnsvH-FkjSvQ/compact/html?hover=sm[…].220.34%3A9443%2Frm%2Fcm%2Fstream%2F_VpeP8IEzEeqnsvH-FkjSvQ' width='100%' height='auto'></iframe> */}
-                      </ModalBody>
-                    </ComposedModal>
+                  <TableCell className={`${tableCell} ${targetCell}`}><a href={row?.id} 
+                    target='_blank' rel='noopener noreferrer'>{row?.name}</a>
+
+                  <ComposedModal
+                    open={isOpen?.id === row?.id ? isOpen?.value : false}
+                    onClose={(e) =>
+                      e.target.id === isOpen?.id
+                        ? setIsOpen({ id: null, value: false })
+                        : null
+                    }
+                    id={row?.id}
+                    size='sm'
+                  >
+                    <div className={modalHeadContainer}>
+                      <h4
+                        onClick={() => {
+                          setIsOpen({ id: null, value: false });
+                          openTargetLink(row);
+                        }}
+                        className={modalTitle}
+                      >
+                        {row?.targetData?.identifier}
+                      </h4>
+                      <ModalHeader
+                        onClick={() => setIsOpen({ id: null, value: false })}
+                      />
+                    </div>
+                    <ModalBody className={modalBody}>
+                      {/* eslint-disable-next-line max-len */}
+                      {/* <iframe src='https://192.241.220.34:9443/rm/resources/_XBsnIIEzEeqnsvH-FkjSvQ/compact/html?hover=sm[…].220.34%3A9443%2Frm%2Fcm%2Fstream%2F_VpeP8IEzEeqnsvH-FkjSvQ' width='100%' height='auto'></iframe> */}
+                    </ModalBody>
+                  </ComposedModal>
                   </TableCell>
 
                   <TableCell className={`${tableCell} ${'cds--table-column-menu'}`}>
@@ -201,8 +201,8 @@ const UseDataTable = ({
                       menuOptionsClass={actionMenu}
                       menuOffset={{ left: -55 }}
                       renderIcon={() => <FiSettings />}
-                      size="md"
-                      ariaLabel=""
+                      size='md'
+                      ariaLabel=''
                     >
                       <OverflowMenuItem
                         wrapperClassName={menuItem}
@@ -213,7 +213,7 @@ const UseDataTable = ({
                             : navigate(`/details/${row?.id}`);
                         }}
                         hasDivider
-                        itemText="Details"
+                        itemText='Details'
                       />
 
                       <OverflowMenuItem
@@ -225,7 +225,7 @@ const UseDataTable = ({
                             : navigate(`/edit-link/${row?.id}`);
                         }}
                         hasDivider
-                        itemText="Edit"
+                        itemText='Edit'
                       />
 
                       <OverflowMenuItem
@@ -234,7 +234,7 @@ const UseDataTable = ({
                           dispatch(handleSetStatus({ row, status: 'Valid' }))
                         }
                         hasDivider
-                        itemText="Set status - Valid"
+                        itemText='Set status - Valid'
                       />
                       <OverflowMenuItem
                         wrapperClassName={menuItem}
@@ -242,13 +242,13 @@ const UseDataTable = ({
                           dispatch(handleSetStatus({ row, status: 'Invalid' }))
                         }
                         hasDivider
-                        itemText="Set status - Invalid"
+                        itemText='Set status - Invalid'
                       />
                       <OverflowMenuItem
                         wrapperClassName={menuItem}
                         onClick={() => handleDeleteCreatedLink(row)}
                         hasDivider
-                        itemText="Remove"
+                        itemText='Remove'
                       />
                     </OverflowMenu>
                   </TableCell>
@@ -259,14 +259,14 @@ const UseDataTable = ({
       </Table>
       {/* --- Pagination --- */}
       <Pagination
-        backwardText="Previous page"
-        forwardText="Next page"
-        itemsPerPageText="Items per page:"
+        backwardText='Previous page'
+        forwardText='Next page'
+        itemsPerPageText='Items per page:'
         onChange={handlePagination}
         page={currPage}
         pageSize={pageSize}
         pageSizes={[10, 20, 30, 40, 50]}
-        size="lg"
+        size='lg'
         totalItems={tableData?.length}
       />
     </TableContainer>

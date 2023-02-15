@@ -128,7 +128,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   let sourceTitles = [];
   let sourceValues = {};
   if (isGlide) {
-    sourceTitles = ['Glide Project', 'Title', 'Resource', 'URI'];
+    sourceTitles = ['Glide Project', 'Title', 'Resource'];
     sourceValues = {
       projectName: sourceDataList['projectName'],
       title: sourceDataList['title'],
@@ -137,7 +137,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       origin: sourceDataList['origin'],
     };
   } else if (isJIRA) {
-    sourceTitles = ['JIRA Project', 'Title', 'Issue Type', 'URI'];
+    sourceTitles = ['JIRA Project', 'Title', 'Issue Type'];
     sourceValues = {
       projectName: sourceDataList['projectName'],
       title: sourceDataList['title'],
@@ -146,7 +146,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     };
     console.log(sourceValues);
   } else {
-    sourceTitles = ['GitLab Project', 'Filename', 'URI'];
+    sourceTitles = ['GitLab Project', 'Filename'];
     sourceValues = sourceDataList;
   }
 
