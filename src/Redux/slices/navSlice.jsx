@@ -44,7 +44,7 @@ export const navSlice = createSlice({
   },
   //----------------------\\
   extraReducers: (builder) => {
-    // stream items 
+    // stream items
     builder.addCase(fetchStreamItems.fulfilled, (state, { payload }) => {
       state.linksStreamItems = payload;
     });

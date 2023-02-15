@@ -14,21 +14,24 @@ export const fetchCreateLink = createAsyncThunk(
       body: JSON.stringify(bodyData),
     })
       .then((res) => {
-        
+        console.log(res);
         if (res.ok) {
           return res.json().then((data) => {
             Swal.fire({ title: data.status, text: data.message, icon: 'success' });
             return data;
           });
         } else {
-          if(res.status === 304){
-            Swal.fire({ 
-              icon: 'info', title: 'Failed', 
-              text: 'links could not be created because it already exists.', 
+          if (res.status === 304) {
+            Swal.fire({
+              icon: 'info',
+              title: 'Failed',
+              text: 'links could not be created because it already exists.',
             });
-          }else{
-            Swal.fire({icon: 'info', title:'Failed', 
-              text: 'Link could not be created', 
+          } else {
+            Swal.fire({
+              icon: 'info',
+              title: 'Failed',
+              text: 'Link could not be created',
             });
           }
           return 'Link creating Failed';
@@ -64,10 +67,10 @@ export const fetchLinksData = createAsyncThunk(
           res.json().then((data) => {
             let errorMessage = 'Loading links failed: ';
             if (data && data.message) {
-              errorMessage += data.message;
+              Swal.fire({ text: data.message, icon: 'info' });
+            } else {
               Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
             }
-            Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
           });
         }
       })

@@ -82,43 +82,39 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Display project types conditionally by App name
   useEffect(() => {
-    (async()=>{
-
+    (async () => {
       // get link_types dropdown items
       fetch('.././gcm_context.json')
-        .then(res=>res.json())
-        .then(data=>setStreamItems(data))
-        .catch(err=>console.log(err));
+        .then((res) => res.json())
+        .then((data) => setStreamItems(data))
+        .catch((err) => console.log(err));
 
       // get link_types dropdown items
       fetch('.././link_types.json')
-        .then(res=>res.json())
-        .then(data=>setLinkTypeItems(data))
-        .catch(err=>console.log(err));
+        .then((res) => res.json())
+        .then((data) => setLinkTypeItems(data))
+        .catch((err) => console.log(err));
 
       // get project_types dropdown items
       const projectsRes = await fetch('.././project_types.json')
-        .then(res=>res.json())
-        .catch(err=>console.log(err));
+        .then((res) => res.json())
+        .catch((err) => console.log(err));
 
       // display projects conditionally
-      const specificProject = projectsRes?.reduce((acc, curr)=>{
-        if(isJIRA){
+      const specificProject = projectsRes?.reduce((acc, curr) => {
+        if (isJIRA) {
           const jira = curr.text.includes('JIRA');
-          if(!jira) acc.push(curr);
-        }
-        else if(isGitlab){
+          if (!jira) acc.push(curr);
+        } else if (isGitlab) {
           const gitlab = curr.text.includes('GITLAB');
-          if(!gitlab) acc.push(curr);
-        }
-        else if(isGlide){
+          if (!gitlab) acc.push(curr);
+        } else if (isGlide) {
           const glide = curr.text.includes('GLIDE');
-          if(!glide) acc.push(curr);
-        }
-        else {
+          if (!glide) acc.push(curr);
+        } else {
           acc.push(curr);
         }
-        
+
         return acc;
       }, []);
       setProjectTypeItems(specificProject);
@@ -144,7 +140,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       sourceType: sourceDataList['sourceType'],
       uri: sourceDataList['uri'],
     };
-    console.log(sourceValues);
   } else {
     sourceTitles = ['GitLab Project', 'Filename'];
     sourceValues = sourceDataList;
@@ -410,90 +405,89 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
         {linkCreateLoading && <ProgressBar label="" />}
         {/* --- After selected link type ---  */}
-        {
-          (linkType && projectType && streamType) && (
-            <div className={targetContainer}>
-              <h5>Target</h5>
+        {linkType && projectType && streamType && (
+          <div className={targetContainer}>
+            <h5>Target</h5>
 
-              {/* Show the selection dialogs */}
-              {projectFrameSrc && (
-                <iframe src={projectFrameSrc} height="600px" width="100%" />
-              )}
+            {/* Show the selection dialogs */}
+            {projectFrameSrc && (
+              <iframe src={projectFrameSrc} height="600px" width="100%" />
+            )}
 
-              {isGlide && isJIRA && (
-                <>
-                  <div className={targetSearchContainer}>
-                    <form
-                      onSubmit={handleSubmit(handleSearchData)}
-                      className={searchContainer}
-                    >
-                      <div className={inputContainer}>
-                        <Search
-                          id=""
-                          labelText=""
-                          className={searchInput}
-                          type="text"
-                          placeholder="Search by identifier or name"
-                          {...register('searchText')}
-                          size="md"
-                        />
-                      </div>
-                      <Button kind="primary" size="md" type="submit">
-                      Search
-                      </Button>
-                    </form>
-                  </div>
-
-                  {((searchText && displayTableData[0]) || isEditLinkPage) && (
-                    <div className={newLinkTable}>
-                      <UseDataTable
-                        headers={headers}
-                        tableData={displayTableData}
-                        isCheckBox={true}
-                        isChecked={editLinkData?.targetData?.identifier}
-                        editTargetData={editTargetData}
-                        isPagination={displayTableData[0] ? true : false}
-                        selectedData={handleSelectedData}
+            {isGlide && isJIRA && (
+              <>
+                <div className={targetSearchContainer}>
+                  <form
+                    onSubmit={handleSubmit(handleSearchData)}
+                    className={searchContainer}
+                  >
+                    <div className={inputContainer}>
+                      <Search
+                        id=""
+                        labelText=""
+                        className={searchInput}
+                        type="text"
+                        placeholder="Search by identifier or name"
+                        {...register('searchText')}
+                        size="md"
                       />
                     </div>
-                  )}
-                  {searchText && !displayTableData[0] && (
-                    <h2 className={emptySearchWarning}>
+                    <Button kind="primary" size="md" type="submit">
+                      Search
+                    </Button>
+                  </form>
+                </div>
+
+                {((searchText && displayTableData[0]) || isEditLinkPage) && (
+                  <div className={newLinkTable}>
+                    <UseDataTable
+                      headers={headers}
+                      tableData={displayTableData}
+                      isCheckBox={true}
+                      isChecked={editLinkData?.targetData?.identifier}
+                      editTargetData={editTargetData}
+                      isPagination={displayTableData[0] ? true : false}
+                      selectedData={handleSelectedData}
+                    />
+                  </div>
+                )}
+                {searchText && !displayTableData[0] && (
+                  <h2 className={emptySearchWarning}>
                     Please search by valid identifier or name
-                    </h2>
-                  )}
-                </>
-              )}
+                  </h2>
+                )}
+              </>
+            )}
 
-              {targetDataArr[0] && (
-                <>
-                  {/* // new link btn  */}
-                  {(projectType && resourceType && !isEditLinkPage) && (
-                    <div className={btnContainer}>
-                      <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
+            {targetDataArr[0] && (
+              <>
+                {/* // new link btn  */}
+                {projectType && resourceType && !isEditLinkPage && (
+                  <div className={btnContainer}>
+                    <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
                       Cancel
-                      </Button>
-                      <Button kind="primary" onClick={handleSaveLink} size="md">
+                    </Button>
+                    <Button kind="primary" onClick={handleSaveLink} size="md">
                       Save
-                      </Button>
-                    </div>
-                  )}
+                    </Button>
+                  </div>
+                )}
 
-                  {/* // edit link btn  */}
-                  {isEditLinkPage && editLinkData?.id && (
-                    <div className={btnContainer}>
-                      <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
+                {/* // edit link btn  */}
+                {isEditLinkPage && editLinkData?.id && (
+                  <div className={btnContainer}>
+                    <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
                       Cancel
-                      </Button>
-                      <Button kind="primary" onClick={handleLinkUpdate} size="md">
+                    </Button>
+                    <Button kind="primary" onClick={handleLinkUpdate} size="md">
                       Save
-                      </Button>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          )}
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

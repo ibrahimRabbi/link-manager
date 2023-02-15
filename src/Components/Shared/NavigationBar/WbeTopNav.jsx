@@ -37,19 +37,18 @@ const {
 
 const WbeTopNav = () => {
   const authCtx = useContext(AuthContext);
-  const { isProfileOpen, 
-    linksStream, 
-    linksStreamItems, 
-  } = useSelector((state) => state.nav);
+  const { isProfileOpen, linksStream, linksStreamItems } = useSelector(
+    (state) => state.nav,
+  );
   const { sourceDataList } = useSelector((state) => state.links);
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const dispatch = useDispatch();
 
-  useEffect(()=>{
+  useEffect(() => {
     // get link_types dropdown items
     dispatch(fetchStreamItems('.././gcm_context.json'));
-  },[]);
+  }, []);
 
   const streamTypeChange = ({ selectedItem }) => {
     dispatch(handleSelectStreamType(selectedItem));
@@ -77,7 +76,6 @@ const WbeTopNav = () => {
       }
     });
   };
-
 
   return (
     <Theme theme="white">

@@ -29,7 +29,7 @@ const ProtectedRoute = ({ children }) => {
 
   useEffect(() => {
     if (uri && title && projectName) {
-      const sources ={
+      const sources = {
         projectName,
         title,
         uri,
@@ -43,13 +43,13 @@ const ProtectedRoute = ({ children }) => {
       sessionStorage.setItem('sourceData', JSON.stringify(sources));
     }
   }, [uri, title, projectName]);
-  
+
   // eslint-disable-next-line max-len
   // When the token expires, the state data is emptied after the user re-logins, so the source data is stored and reused.
-  useEffect(()=>{
-    const source =sessionStorage.getItem('sourceData');
-    if(source) dispatch(handleGetSources(JSON.parse(source)));
-  },[]);
+  useEffect(() => {
+    const source = sessionStorage.getItem('sourceData');
+    if (source) dispatch(handleGetSources(JSON.parse(source)));
+  }, []);
 
   if (authCtx.isLoggedIn) {
     return children;
