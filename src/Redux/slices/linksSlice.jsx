@@ -21,6 +21,7 @@ export const fetchCreateLink = createAsyncThunk(
             return data;
           });
         } else {
+          console.log(res);
           if (res.status === 304) {
             Swal.fire({
               icon: 'info',
@@ -79,7 +80,9 @@ export const fetchLinksData = createAsyncThunk(
   },
 );
 
+
 const initialState = {
+  configuration_aware: false,
   sourceDataList: {},
   isWbe: false,
   oslcResponse: null,

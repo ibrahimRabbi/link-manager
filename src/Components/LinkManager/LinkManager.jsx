@@ -29,16 +29,20 @@ const headers = [
 ];
 
 const tableDropdownItems = [
-  { text: 'Link type' },
-  { text: 'Project type' },
-  { text: 'Status' },
-  { text: 'Target' },
+  { name: 'Link type' },
+  { name: 'Project type' },
+  { name: 'Status' },
+  { name: 'Target' },
 ];
 
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 
 const LinkManager = () => {
-  const { sourceDataList, linksData, isLoading } = useSelector((state) => state.links);
+  const { 
+    sourceDataList, 
+    linksData, isLoading, 
+    configuration_aware, 
+  } = useSelector((state) => state.links);
   const { linksStream, isProfileOpen } = useSelector((state) => state.nav);
   const location = useLocation();
   const wbePath = location.pathname?.includes('wbe');
@@ -59,7 +63,7 @@ const LinkManager = () => {
       dispatch(handleCurrPageTitle('Links'));
 
       let streamRes = [];
-      if (!linksStream.key) {
+      if (configuration_aware && !linksStream.key) {
         streamRes = await fetch('.././gcm_context.json')
           .then((res) => res.json())
           .catch((err) => console.log(err));
@@ -68,7 +72,7 @@ const LinkManager = () => {
       let stream = linksStream.key ? linksStream.key : streamRes[0]?.key;
 
       // Create link
-      if (sourceFileURL && stream) {
+      if (sourceFileURL) {
         dispatch(
           fetchLinksData({
             url: `${apiURL}?stream=${stream}&resource_id=${encodeURIComponent(

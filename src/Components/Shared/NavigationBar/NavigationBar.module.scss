@@ -34,7 +34,11 @@
 }
 
 .topContentContainer {
-  padding: 10px 3vw 0 2vw;
+  background-color: #eeeeee;
+  padding: 10px 1vw;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  margin-left: 50px;
 }
 
 .fileContainer {
@@ -46,8 +50,9 @@
 .fileName {
   span {
     margin-left: 10px;
-    font-size: 22px;
-    text-decoration: underline;
+    background-color: #84ffff;
+    padding: 2px 10px;
+    border-radius: 10px;
   }
 }
 
@@ -179,6 +184,6 @@
   cursor: pointer;
 }
 
-.linkFileContainer > h5 {
+.linkFileContainer>h5 {
   color: colors.$gray-90;
 }
