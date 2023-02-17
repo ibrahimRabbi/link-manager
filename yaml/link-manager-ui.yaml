@@ -1,0 +1,48 @@
+##################################################################################################
+# Link Manager UI Deployment
+##################################################################################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: link-manager-ui
+  name: link-manager-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: link-manager-ui
+  template:
+    metadata:
+      labels:
+        app: link-manager-ui
+    spec:
+      containers:
+        - name: main
+          image: hemlatasharma/kiwi-demo:test1
+          imagePullPolicy: Always
+          env:
+            - name: REACT_APP_LM_REST_API_URL
+              value: LM_API_URL
+            - name: NODE_ENV
+              value: development
+            - name: WDS_SOCKET_PORT
+              value: "0"
+          ports:
+            - containerPort: 3000
+---
+##################################################################################################
+# Link Manager UI Service
+##################################################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: link-manager-ui
+spec:
+  type: NodePort
+  selector:
+    app: link-manager-ui
+  ports:
+    - targetPort: 3000
+      port: 81
+      protocol: TCP
