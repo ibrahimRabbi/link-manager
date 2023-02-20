@@ -31,7 +31,7 @@ minikube   Ready    control-plane   25h   v1.25.2   192.168.49.2   <none>       
 ```
 - Identify the ip of your cluster. In this case it is **192.168.49.2**
 ```bash
-$ export $LM_API_HOST=192.168.49.2
+$ export LM_API_HOST=192.168.49.2
 ```
 - Construct your link-manager-api url. 
 ```bash
@@ -41,7 +41,7 @@ http://192.168.49.2:32001/api/v1
 ```
 - Replace __LM_API_URL__ in link-manager-ui.yaml with its value
 ```bash
-$ sed -i "s|LM_API_URL|$LM_API_URL|" yaml/link-manager-ui.yaml
+$ sed -i "s|LM_API_URL|$LM_API_ADDR|" link-manager-ui.yaml
 ```
 #### 2. Run Link Manager UI on kubernetes
 - Apply link-manager-ui.yaml 
