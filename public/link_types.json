@@ -1,23 +1,23 @@
 [
     {
-        "text": "affectedBy"
+        "name": "affectedBy"
     },
     {
-        "text": "implementedBy"
+        "name": "implementedBy"
     },
     {
-        "text": "trackedBy"
+        "name": "trackedBy"
     },
     {
-        "text": "constrainedBy"
+        "name": "constrainedBy"
     },
     {
-        "text": "decomposedBy"
+        "name": "decomposedBy"
     },
     {
-        "text": "elaboratedBy"
+        "name": "elaboratedBy"
     },
     {
-        "text": "satisfiedBy"
+        "name": "satisfiedBy"
     }
 ]

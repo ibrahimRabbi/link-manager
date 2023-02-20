@@ -1,52 +1,43 @@
-import { Logout, UserAvatarFilledAlt } from '@carbon/icons-react';
+import {FaLink, FaShareAlt} from 'react-icons/fa';
+// import {GrClose} from 'react-icons/gr';
+import {ImMenu} from 'react-icons/im';
 import {
   Button,
-  Header,
-  HeaderMenuItem,
-  IconButton,
-  Popover,
-  PopoverContent,
-  // SideNav,
-  // SideNavItems,
-  // SideNavMenuItem,
+  SideNav,
+  SideNavItems,
+  SideNavLink,
+  SideNavMenuItem,
   Theme,
 } from '@carbon/react';
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
 import {
   fetchStreamItems,
-  handleIsProfileOpen,
   handleSelectStreamType,
 } from '../../../Redux/slices/navSlice';
-import AuthContext from '../../../Store/Auth-Context.jsx';
 import UseDropdown from '../UseDropdown/UseDropdown';
 
 import styles from './NavigationBar.module.scss';
 const {
-  wbeContent,
-  wbeHeader,
-  hMenuItemContainer,
-  hMenuItem,
-  wbeHeaderContainer,
-  popoverContent,
-  profile,
-  userContainer,
+  wbeSideNav,
   topContentContainer,
   fileContainer,
   fileName,
+  sidebarLink,
+  dropdownStyle,
 } = styles;
 
 const WbeTopNav = () => {
-  const authCtx = useContext(AuthContext);
-  const { isProfileOpen, linksStream, linksStreamItems } = useSelector(
+  const {  linksStream, linksStreamItems } = useSelector(
     (state) => state.nav,
   );
-  const { sourceDataList } = useSelector((state) => state.links);
+  const { sourceDataList, configuration_aware } = useSelector((state) => state.links);
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const dispatch = useDispatch();
+  const [isSideNav, setIsSideNav]=useState(false);
 
   useEffect(() => {
     // get link_types dropdown items
@@ -57,138 +48,76 @@ const WbeTopNav = () => {
     dispatch(handleSelectStreamType(selectedItem));
   };
 
-  const handleLogout = () => {
-    dispatch(handleIsProfileOpen(!isProfileOpen));
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'You wont to logout!',
-      icon: 'warning',
-      cancelButtonColor: '#d33',
-      confirmButtonColor: '#3085d6',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, !',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        authCtx.logout();
-        Swal.fire({
-          title: 'Logged out',
-          icon: 'success',
-          timer: 1500,
-        });
-        navigate('/login', { replace: true });
-      }
-    });
-  };
-
   return (
-    <Theme theme="white">
-      <Header aria-label="" id={wbeHeader}>
-        <div className={topContentContainer}>
+    <>
+      <div className='mainContainer'>
+        <div 
+          className={topContentContainer}>
           <div className={fileContainer}>
             <h5 className={fileName}>
               Links For: <span>{sourceDataList?.title}</span>
             </h5>
 
             <Button size="sm" kind="primary" onClick={() => navigate('/wbe/new-link')}>
-              New link
+              Create link
             </Button>
           </div>
-
-          <UseDropdown
-            onChange={streamTypeChange}
-            items={linksStreamItems}
-            title="GCM Configuration Context"
-            label={linksStream.text ? linksStream.text : linksStreamItems[0]?.text}
-            id="links_stream"
-            className={''}
-          />
         </div>
 
-        <div className={`${'mainContainer'}`}>
-          <div className={wbeHeaderContainer}>
-            <div className={hMenuItemContainer}>
-              <HeaderMenuItem
-                isCurrentPage={pathname === '/wbe'}
-                onClick={() => navigate('/wbe')}
-                className={hMenuItem}
-              >
-                <p>Links</p>
-              </HeaderMenuItem>
-              <HeaderMenuItem
-                isCurrentPage={pathname === '/wbe/graph-view'}
-                onClick={() => navigate('/wbe/graph-view')}
-                className={hMenuItem}
-              >
-                <p>Graph View</p>
-              </HeaderMenuItem>
-            </div>
-
-            {/* --- User popover --- */}
-            <Popover
-              open={isProfileOpen}
-              highContrast={false}
-              dropShadow
-              caret={false}
-              align="bottom-right"
-              className={profile}
-            >
-              <IconButton
-                kind="ghost"
-                label=""
-                onClick={() => dispatch(handleIsProfileOpen(!isProfileOpen))}
-              >
-                <UserAvatarFilledAlt size={30} />
-              </IconButton>
-              <PopoverContent className={popoverContent}>
-                <div className={wbeContent}>
-                  <div className={userContainer}>
-                    <h5>User Name</h5>
-                    <span>
-                      <UserAvatarFilledAlt size={25} />
-                    </span>
-                  </div>
-                  {/* <p>Item option 1</p>
-                <p>Item option 2</p> */}
-                </div>
-                <Button
-                  onClick={handleLogout}
-                  renderIcon={Logout}
-                  size="md"
-                  kind="danger"
-                >
-                  Logout
-                </Button>
-              </PopoverContent>
-            </Popover>
+        {
+          configuration_aware && <div className={`${topContentContainer}`}>
+            <UseDropdown
+              onChange={streamTypeChange}
+              items={linksStreamItems}
+              title="GCM Configuration Context"
+              label={linksStream.name ? linksStream.name : linksStreamItems[0]?.name}
+              id="links_stream"
+              className={dropdownStyle}
+            />
           </div>
-        </div>
-      </Header>
+        }
+      </div>
 
-      {/* <SideNav aria-label="" 
-         
-        isChildOfHeader={false}
-        isRail={true}
-      >
-        <SideNavItems>
-          <hr />
-          <SideNavMenuItem
-            className={'sidebarLink'}
-            onClick={() => navigate('/wbe')}
-            // isActive={pathname === '/'}
-          >
+      {/* ----------------------  */}
+
+      <Theme theme="g100">
+        <SideNav style={{ width: isSideNav? '200px':'55px'}} 
+          id={wbeSideNav}
+          className='.cds--side-nav__overlay-active'
+          aria-label="" 
+          isPersistent={true} 
+          isChildOfHeader={false}
+        >
+          <SideNavItems>
+            <SideNavMenuItem 
+              style={{margin:'0 0 20px -5px'}}
+              className={sidebarLink}
+              onClick={() =>setIsSideNav(!isSideNav) }
+            >
+              <ImMenu size={30}/>
+            </SideNavMenuItem>
+
+            <SideNavLink
+              renderIcon={()=><FaLink size={40}/>}
+              className={sidebarLink}
+              onClick={() => navigate('/wbe')}
+              isActive={pathname === '/wbe'}
+            >
                 Links
-          </SideNavMenuItem>
+            </SideNavLink>
 
-          <SideNavMenuItem
-            className={'sidebarLink'}
-            onClick={() => navigate('/wbe/graph-view')}
-            // isActive={pathname === '/graph-view'}
-          >
+            <SideNavLink
+              renderIcon={()=><FaShareAlt size={40}/>}
+              className={sidebarLink}
+              onClick={() => navigate('/wbe/graph-view')}
+              isActive={pathname === '/wbe/graph-view'}
+            >
                 Graph View
-          </SideNavMenuItem>
-        </SideNavItems>
-      </SideNav> */}
-    </Theme>
+            </SideNavLink>
+          </SideNavItems>
+        </SideNav>
+      </Theme>
+    </>
   );
 };
 

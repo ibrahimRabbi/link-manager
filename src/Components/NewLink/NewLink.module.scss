@@ -4,9 +4,8 @@
 .sourceContainer {
   padding: 10px 1vw;
   margin-bottom: 15px;
-  background-color: colors.$white;
+  box-shadow: 0 0 5px 1px lightgray;
   border-radius: 5px;
-  // box-shadow: 0 0px 2px rgb(0 0 0 / 0.2);
 }
 
 .sourceGrid {
@@ -31,7 +30,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: colors.$white;
+  box-shadow: 0 0 5px 1px lightgray;
   padding: 10px 1vw;
   margin-bottom: 15px;
   gap: 10px;
@@ -40,7 +39,7 @@
 
 .targetContainer {
   // border: 1px solid colors.$gray-30;
-  background-color: colors.$white;
+  box-shadow: 0 0 5px 1px lightgray;
   padding: 10px 1vw;
   min-height: 50vh;
   border-radius: 5px;

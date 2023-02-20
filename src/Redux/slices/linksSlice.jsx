@@ -21,8 +21,21 @@ export const fetchCreateLink = createAsyncThunk(
             return data;
           });
         } else {
-          Swal.fire({ title: res.status, text: res.statusText, icon: 'info' });
-          return null;
+          console.log(res);
+          if (res.status === 304) {
+            Swal.fire({
+              icon: 'info',
+              title: 'Failed',
+              text: 'links could not be created because it already exists.',
+            });
+          } else {
+            Swal.fire({
+              icon: 'info',
+              title: 'Failed',
+              text: 'Link could not be created',
+            });
+          }
+          return 'Link creating Failed';
         }
       })
       .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
@@ -67,7 +80,10 @@ export const fetchLinksData = createAsyncThunk(
   },
 );
 
+const gcmAware = JSON.parse(process.env.REACT_APP_CONFIGURATION_AWARE);
+
 const initialState = {
+  configuration_aware: gcmAware,
   sourceDataList: {},
   isWbe: false,
   oslcResponse: null,
@@ -222,11 +238,11 @@ export const linksSlice = createSlice({
     builder.addCase(fetchCreateLink.pending, (state) => {
       state.linkCreateLoading = true;
       state.oslcResponse = false;
+      state.targetDataArr = [];
       state.linkType = null;
       state.streamType = null;
       state.projectType = null;
       state.resourceType = null;
-      state.targetDataArr = [];
       state.isLinkEdit = false;
     });
 
