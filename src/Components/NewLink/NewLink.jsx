@@ -47,6 +47,9 @@ const headers = [
 ];
 
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
+const jiraDialogURL = process.env.REACT_APP_JIRA_DIALOG_URL;
+const gitlabDialogURL = process.env.REACT_APP_GITLAB_DIALOG_URL;
+const glideDialogURL = process.env.REACT_APP_GLIDE_DIALOG_URL;
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const {
@@ -163,17 +166,17 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       if (jiraApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          `https://jira-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0&gc_context=${streamType}`,
+          `${jiraDialogURL}/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0&gc_context=${streamType}`,
         );
       } else if (gitlabApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          `https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/selector?provider_id=${'42854970'}&gc_context=${'st-develop'}`,
+          `${gitlabDialogURL}/oslc/provider/selector?provider_id=${'42854970'}&gc_context=${'st-develop'}`,
         );
       } else if (glideApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          `https://glide-oslc-api-dev.koneksys.com/oslc/provider/selector?gc_context=${streamType}`,
+          `${glideDialogURL}/oslc/provider/selector?gc_context=${streamType}`,
         );
       }
     }

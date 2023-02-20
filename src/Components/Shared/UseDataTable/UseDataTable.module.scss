@@ -1,9 +1,17 @@
 @use '@carbon/colors';
 @use '@carbon/type';
 
+.tableContainer,
+.tableHeader,
+.pagination {
+  background-color: white !important;
+  font-size: type.type-scale(3);
+}
+
 .tableCell {
   width: 200px;
   font-size: type.type-scale(3);
+  background-color: white !important;
 
   span {
     width: 250px;

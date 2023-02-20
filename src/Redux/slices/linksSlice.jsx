@@ -80,9 +80,10 @@ export const fetchLinksData = createAsyncThunk(
   },
 );
 
+const gcmAware = JSON.parse(process.env.REACT_APP_CONFIGURATION_AWARE);
 
 const initialState = {
-  configuration_aware: false,
+  configuration_aware: gcmAware,
   sourceDataList: {},
   isWbe: false,
   oslcResponse: null,

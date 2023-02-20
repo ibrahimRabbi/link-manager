@@ -4,7 +4,7 @@
 .sourceContainer {
   padding: 10px 1vw;
   margin-bottom: 15px;
-  background-color: #eeeeee;
+  box-shadow: 0 0 5px 1px lightgray;
   border-radius: 5px;
 }
 
@@ -30,7 +30,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #eeeeee;
+  box-shadow: 0 0 5px 1px lightgray;
   padding: 10px 1vw;
   margin-bottom: 15px;
   gap: 10px;
@@ -39,7 +39,7 @@
 
 .targetContainer {
   // border: 1px solid colors.$gray-30;
-  background-color: #eeeeee;
+  box-shadow: 0 0 5px 1px lightgray;
   padding: 10px 1vw;
   min-height: 50vh;
   border-radius: 5px;

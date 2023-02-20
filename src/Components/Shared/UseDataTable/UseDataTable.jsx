@@ -13,6 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  
 } from '@carbon/react';
 import React, { useState } from 'react';
 import { AiFillCheckCircle } from 'react-icons/ai';
@@ -31,6 +32,12 @@ import {
 
 import styles from './UseDataTable.module.scss';
 const {
+  tableContainer, 
+  table, 
+  tableHead,
+  tableHeader,
+  tableRow,
+  pagination,
   actionMenu,
   boxCell,
   menuItem,
@@ -86,12 +93,12 @@ const UseDataTable = ({
   };
 
   return (
-    <TableContainer title="">
-      <Table size="md">
-        <TableHead>
-          <TableRow>
+    <TableContainer title="" className={tableContainer}>
+      <Table size="md"  className={table}>
+        <TableHead className={tableHead}>
+          <TableRow  className={tableRow}>
             {headers?.map((header, i) => (
-              <TableHeader key={i}>{header?.header}</TableHeader>
+              <TableHeader key={i} className={tableHeader}>{header?.header}</TableHeader>
             ))}
           </TableRow>
         </TableHead>
@@ -126,7 +133,7 @@ const UseDataTable = ({
 
                   {/* new link checkbox  */}
                   {!isChecked && (
-                    <TableCell className={boxCell}>
+                    <TableCell ba className={boxCell}>
                       <Checkbox
                         onClick={(e) =>
                           dispatch(
@@ -261,7 +268,7 @@ const UseDataTable = ({
         </TableBody>
       </Table>
       {/* --- Pagination --- */}
-      <Pagination
+      <Pagination className={pagination}
         backwardText="Previous page"
         forwardText="Next page"
         itemsPerPageText="Items per page:"

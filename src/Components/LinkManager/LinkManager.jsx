@@ -98,6 +98,8 @@ const LinkManager = () => {
     });
   };
 
+  // display conditionally Search and dropdown 0
+  const isSearchBox = false;
   return (
     <>
       {/* WBE Nav bar  */}
@@ -126,32 +128,35 @@ const LinkManager = () => {
             )}
 
             <div className={tableContainer}>
-              <div className={searchBox}>
-                <UseDropdown
-                  onChange={handleShowItem}
-                  items={tableDropdownItems}
-                  id={'linkManager_showAll'}
-                  label="Show all"
-                  className={dropdownStyle}
-                />
+              
+              {
+                isSearchBox && <div className={searchBox}>
+                  <UseDropdown
+                    onChange={handleShowItem}
+                    items={tableDropdownItems}
+                    id={'linkManager_showAll'}
+                    label="Show all"
+                    className={dropdownStyle}
+                  />
 
-                <div className={searchContainer}>
-                  <div className={inputContainer}>
-                    <Search
-                      id=""
-                      labelText=""
-                      className={searchInput}
-                      placeholder="Search by identifier or name"
-                      onChange={function noRefCheck() {}}
-                      onKeyDown={function noRefCheck() {}}
-                      size="sm"
-                    />
-                  </div>
-                  <Button kind="primary" size="sm">
+                  <div className={searchContainer}>
+                    <div className={inputContainer}>
+                      <Search
+                        id=""
+                        labelText=""
+                        className={searchInput}
+                        placeholder="Search by identifier or name"
+                        onChange={function noRefCheck() {}}
+                        onKeyDown={function noRefCheck() {}}
+                        size="sm"
+                      />
+                    </div>
+                    <Button kind="primary" size="sm">
                     Search
-                  </Button>
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              }
 
               {isLoading && <ProgressBar label="" />}
               <UseDataTable
