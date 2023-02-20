@@ -50,7 +50,7 @@ const ProtectedRoute = ({ children }) => {
     const source = sessionStorage.getItem('sourceData');
     if (source) dispatch(handleGetSources(JSON.parse(source)));
   }, []);
-  
+
   if (authCtx.isLoggedIn) {
     return children;
   }

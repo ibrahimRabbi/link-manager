@@ -55,6 +55,7 @@ export const fetchLinksData = createAsyncThunk(
       },
     })
       .then((res) => {
+        console.log('fetchLinksData ->', res);
         if (res.ok) {
           if (res.status !== 204) {
             return res.json();
@@ -224,6 +225,7 @@ export const linksSlice = createSlice({
 
     builder.addCase(fetchLinksData.fulfilled, (state, { payload }) => {
       state.isLoading = false;
+      console.log('fetchLinksData -> payload', payload);
       if (payload) {
         if (payload?.isConfirmed) state.linksData = [];
         else {
