@@ -13,7 +13,6 @@ import LoginPage from './Pages/Login';
 import WbeDashboard from './Pages/WbeDashboard';
 
 function App() {
-  console.log('App');
   return (
     <div className="App">
       <Routes>

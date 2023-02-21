@@ -55,7 +55,6 @@ export const fetchLinksData = createAsyncThunk(
       },
     })
       .then((res) => {
-        console.log('fetchLinksData ->', res);
         if (res.ok) {
           if (res.status !== 204) {
             return res.json();
@@ -229,7 +228,7 @@ export const linksSlice = createSlice({
       if (payload) {
         if (payload?.isConfirmed) state.linksData = [];
         else {
-          state.linksData = payload.data;
+          state.linksData = payload.data.items;
         }
       } else {
         state.linksData = [];

@@ -38,7 +38,6 @@ const tableDropdownItems = [
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 
 const LinkManager = () => {
-  console.log('LinkManager');
   const { sourceDataList, linksData, isLoading, configuration_aware } = useSelector(
     (state) => state.links,
   );
