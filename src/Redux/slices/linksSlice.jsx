@@ -224,10 +224,11 @@ export const linksSlice = createSlice({
 
     builder.addCase(fetchLinksData.fulfilled, (state, { payload }) => {
       state.isLoading = false;
+      console.log(payload);
       if (payload) {
         if (payload?.isConfirmed) state.linksData = [];
         else {
-          state.linksData = payload.data;
+          state.linksData = payload.data.items;
         }
       } else {
         state.linksData = [];

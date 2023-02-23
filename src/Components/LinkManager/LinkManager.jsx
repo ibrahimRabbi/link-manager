@@ -1,5 +1,5 @@
 import { Button, ProgressBar, Search } from '@carbon/react';
-import React, { useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -56,6 +56,18 @@ const LinkManager = () => {
   useEffect(() => {
     dispatch(handleIsWbe(wbePath));
   }, [location]);
+
+  // Handle pagination for the links table
+  // Pagination
+  const [currPage, setCurrPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const handlePagination = (values) => {
+    setPageSize(values.pageSize);
+    setCurrPage(values.page);
+  };
+
+  console.log(currPage);
+  console.log(pageSize);
 
   useEffect(() => {
     (async () => {
@@ -122,7 +134,7 @@ const LinkManager = () => {
                   size="md"
                   kind="primary"
                 >
-                  New link
+                  Create Link 
                 </Button>
               </div>
             )}
@@ -163,6 +175,9 @@ const LinkManager = () => {
                 headers={headers}
                 tableData={linksData}
                 openTargetLink={handleOpenTargetLink}
+                handlePagination={handlePagination}
+                currPage={currPage}
+                pageSize={pageSize}
               />
             </div>
           </div>

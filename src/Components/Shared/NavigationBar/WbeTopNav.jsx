@@ -59,7 +59,7 @@ const WbeTopNav = () => {
             </h5>
 
             <Button size="sm" kind="primary" onClick={() => navigate('/wbe/new-link')}>
-              Create link
+              Create Link
             </Button>
           </div>
         </div>

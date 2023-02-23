@@ -34,7 +34,7 @@ const {
   sourceProp,
   sourceValue,
   targetContainer,
-  // streamDD,
+  targetIframe,
   targetSearchContainer,
 } = styles;
 
@@ -223,6 +223,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     function (event) {
       let message = event.data;
       if (!message.source && !oslcResponse) {
+        console.log(message);
         if (message.toString()?.startsWith('oslc-response')) {
           const response = JSON.parse(message?.substr('oslc-response:'?.length));
           const results = response['oslc:results'];
@@ -357,8 +358,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           <div className="linkFileContainer">
             <h5>Links For: <span>{sourceDataList?.title}</span></h5>
 
-            <Button size="sm" kind="primary" onClick={() => navigate('/wbe')}>
-              {' '}
+            <Button size="sm" kind="primary" 
+              onClick={() => {
+                navigate('/wbe');
+                dispatch(handleCancelLink());
+              }}>
               Cancel
             </Button>
           </div>
@@ -431,7 +435,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
               {/* Show the selection dialogs */}
               {projectFrameSrc && (
-                <iframe src={projectFrameSrc} height="600px" width="100%" />
+                <iframe 
+                  className={targetIframe} 
+                  src={projectFrameSrc} />
               )}
 
               {isGlide && isJIRA && (
