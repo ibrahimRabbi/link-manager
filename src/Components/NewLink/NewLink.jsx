@@ -337,32 +337,37 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     dispatch(handleCancelLink());
     isWbe ? navigate('/wbe') : navigate('/');
   };
-  
+
   // eslint-disable-next-line max-len
   // GCM Config_Aware This value manages the GCM context dropdown and conditional rendering.
   const [withConfigAware, setWith] = useState(false);
   const [withoutConfigAware, setWithout] = useState(false);
 
-  useEffect(()=>{
-    if(configuration_aware){
-      if(streamType && linkType && projectType)setWith(true);
-    }else{
-      if(linkType && projectType)  setWithout(true);
+  useEffect(() => {
+    if (configuration_aware) {
+      if (streamType && linkType && projectType) setWith(true);
+    } else {
+      if (linkType && projectType) setWithout(true);
     }
-  },[configuration_aware, linkType, projectType, streamType]);
+  }, [configuration_aware, linkType, projectType, streamType]);
 
   return (
     <div className="mainContainer">
       <div className="container">
         {wbePath && (
           <div className="linkFileContainer">
-            <h5>Links For: <span>{sourceDataList?.title}</span></h5>
+            <h5>
+              Links For: <span>{sourceDataList?.title}</span>
+            </h5>
 
-            <Button size="sm" kind="primary" 
+            <Button
+              size="sm"
+              kind="primary"
               onClick={() => {
                 navigate('/wbe');
                 dispatch(handleCancelLink());
-              }}>
+              }}
+            >
               Cancel
             </Button>
           </div>
@@ -379,8 +384,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         </div>
 
         <div className={linkTypeContainer}>
-          {
-            configuration_aware && 
+          {configuration_aware && (
             <UseDropdown
               onChange={handleStreamChange}
               items={streamItems}
@@ -390,8 +394,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               id="newLink_stream"
               className={dropdownStyle}
             />
-          }
-          
+          )}
 
           <UseDropdown
             onChange={handleLinkTypeChange}
@@ -428,92 +431,87 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
         {linkCreateLoading && <ProgressBar label="" />}
         {/* --- After selected link type ---  */}
-        {
-          (withConfigAware || withoutConfigAware) && (
-            <div className={targetContainer}>
-              <h5>Target</h5>
+        {(withConfigAware || withoutConfigAware) && (
+          <div className={targetContainer}>
+            <h5>Target</h5>
 
-              {/* Show the selection dialogs */}
-              {projectFrameSrc && (
-                <iframe 
-                  className={targetIframe} 
-                  src={projectFrameSrc} />
-              )}
+            {/* Show the selection dialogs */}
+            {projectFrameSrc && <iframe className={targetIframe} src={projectFrameSrc} />}
 
-              {isGlide && isJIRA && (
-                <>
-                  <div className={targetSearchContainer}>
-                    <form
-                      onSubmit={handleSubmit(handleSearchData)}
-                      className={searchContainer}
-                    >
-                      <div className={inputContainer}>
-                        <Search
-                          id=""
-                          labelText=""
-                          className={searchInput}
-                          type="text"
-                          placeholder="Search by identifier or name"
-                          {...register('searchText')}
-                          size="md"
-                        />
-                      </div>
-                      <Button kind="primary" size="md" type="submit">
-                      Search
-                      </Button>
-                    </form>
-                  </div>
-
-                  {((searchText && displayTableData[0]) || isEditLinkPage) && (
-                    <div className={newLinkTable}>
-                      <UseDataTable
-                        headers={headers}
-                        tableData={displayTableData}
-                        isCheckBox={true}
-                        isChecked={editLinkData?.targetData?.identifier}
-                        editTargetData={editTargetData}
-                        isPagination={displayTableData[0] ? true : false}
-                        selectedData={handleSelectedData}
+            {isGlide && isJIRA && (
+              <>
+                <div className={targetSearchContainer}>
+                  <form
+                    onSubmit={handleSubmit(handleSearchData)}
+                    className={searchContainer}
+                  >
+                    <div className={inputContainer}>
+                      <Search
+                        id=""
+                        labelText=""
+                        className={searchInput}
+                        type="text"
+                        placeholder="Search by identifier or name"
+                        {...register('searchText')}
+                        size="md"
                       />
                     </div>
-                  )}
-                  {searchText && !displayTableData[0] && (
-                    <h2 className={emptySearchWarning}>
+                    <Button kind="primary" size="md" type="submit">
+                      Search
+                    </Button>
+                  </form>
+                </div>
+
+                {((searchText && displayTableData[0]) || isEditLinkPage) && (
+                  <div className={newLinkTable}>
+                    <UseDataTable
+                      headers={headers}
+                      tableData={displayTableData}
+                      isCheckBox={true}
+                      isChecked={editLinkData?.targetData?.identifier}
+                      editTargetData={editTargetData}
+                      isPagination={displayTableData[0] ? true : false}
+                      selectedData={handleSelectedData}
+                    />
+                  </div>
+                )}
+                {searchText && !displayTableData[0] && (
+                  <h2 className={emptySearchWarning}>
                     Please search by valid identifier or name
-                    </h2>
-                  )}
-                </>
-              )}
+                  </h2>
+                )}
+              </>
+            )}
 
-              {targetDataArr[0] && (
-                <>
-                  {/* // new link btn  */}
-                  {projectType && resourceType && !isEditLinkPage && (
-                    <div className={btnContainer}>
-                      <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
+            {targetDataArr[0] && (
+              <>
+                {/* // new link btn  */}
+                {projectType && resourceType && !isEditLinkPage && (
+                  <div className={btnContainer}>
+                    <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
                       Cancel
-                      </Button>
-                      <Button kind="primary" onClick={handleSaveLink} size="md">
+                    </Button>
+                    <Button kind="primary" onClick={handleSaveLink} size="md">
                       Save
-                      </Button>
-                    </div>
-                  )}
+                    </Button>
+                  </div>
+                )}
 
-                  {/* // edit link btn  */}
-                  {isEditLinkPage && editLinkData?.id && (
-                    <div className={btnContainer}>
-                      <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
+                {/* // edit link btn  */}
+                {isEditLinkPage && editLinkData?.id && (
+                  <div className={btnContainer}>
+                    <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
                       Cancel
-                      </Button>
-                      <Button kind="primary" onClick={handleLinkUpdate} size="md">
+                    </Button>
+                    <Button kind="primary" onClick={handleLinkUpdate} size="md">
                       Save
-                      </Button>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          )}
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -13,7 +13,6 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  
 } from '@carbon/react';
 import React, { useState } from 'react';
 import { AiFillCheckCircle } from 'react-icons/ai';
@@ -32,8 +31,8 @@ import {
 
 import styles from './UseDataTable.module.scss';
 const {
-  tableContainer, 
-  table, 
+  tableContainer,
+  table,
   tableHead,
   tableHeader,
   tableRow,
@@ -63,6 +62,7 @@ const UseDataTable = ({
   currPage,
   pageSize,
 }) => {
+  console.log('tableData ->', tableData);
   const { isWbe, sourceDataList } = useSelector((state) => state.links);
   const [isOpen, setIsOpen] = useState(null);
   // const [currPage, setCurrPage] = useState(1);
@@ -97,11 +97,13 @@ const UseDataTable = ({
 
   return (
     <TableContainer title="" className={tableContainer}>
-      <Table size="md"  className={table}>
+      <Table size="md" className={table}>
         <TableHead className={tableHead}>
-          <TableRow  className={tableRow}>
+          <TableRow className={tableRow}>
             {headers?.map((header, i) => (
-              <TableHeader key={i} className={tableHeader}>{header?.header}</TableHeader>
+              <TableHeader key={i} className={tableHeader}>
+                {header?.header}
+              </TableHeader>
             ))}
           </TableRow>
         </TableHead>
@@ -271,7 +273,8 @@ const UseDataTable = ({
         </TableBody>
       </Table>
       {/* --- Pagination --- */}
-      <Pagination className={pagination}
+      <Pagination
+        className={pagination}
         backwardText="Previous page"
         forwardText="Next page"
         itemsPerPageText="Items per page:"
@@ -281,7 +284,7 @@ const UseDataTable = ({
         pageSizes={[10, 20, 30, 40, 50]}
         size="lg"
         totalItems={200}
-        // pagesUnknown 
+        // pagesUnknown
       />
     </TableContainer>
   );

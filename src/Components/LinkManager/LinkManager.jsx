@@ -38,11 +38,10 @@ const tableDropdownItems = [
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 
 const LinkManager = () => {
-  const { 
-    sourceDataList, 
-    linksData, isLoading, 
-    configuration_aware, 
-  } = useSelector((state) => state.links);
+  const { sourceDataList, linksData, isLoading, configuration_aware } = useSelector(
+    (state) => state.links,
+  );
+  console.log('linksData ->', linksData);
   const { linksStream, isProfileOpen } = useSelector((state) => state.nav);
   const location = useLocation();
   const wbePath = location.pathname?.includes('wbe');
@@ -134,15 +133,14 @@ const LinkManager = () => {
                   size="md"
                   kind="primary"
                 >
-                  Create Link 
+                  Create Link
                 </Button>
               </div>
             )}
 
             <div className={tableContainer}>
-              
-              {
-                isSearchBox && <div className={searchBox}>
+              {isSearchBox && (
+                <div className={searchBox}>
                   <UseDropdown
                     onChange={handleShowItem}
                     items={tableDropdownItems}
@@ -164,11 +162,11 @@ const LinkManager = () => {
                       />
                     </div>
                     <Button kind="primary" size="sm">
-                    Search
+                      Search
                     </Button>
                   </div>
                 </div>
-              }
+              )}
 
               {isLoading && <ProgressBar label="" />}
               <UseDataTable

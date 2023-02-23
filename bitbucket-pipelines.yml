@@ -21,6 +21,10 @@ pipelines:
           - touch .env
           - echo "NODE_ENV=development" >> .env
           - echo "REACT_APP_LM_REST_API_URL=https://lm-api-dev.koneksys.com/api/v1" >> .env
+          - echo "REACT_APP_CONFIGURATION_AWARE=false" >> .env
+          - echo "REACT_APP_JIRA_DIALOG_URL=https://jira-oslc-api-dev.koneksys.com" >> .env
+          - echo "REACT_APP_GITLAB_DIALOG_URL=https://gitlab-oslc-api-dev.koneksys.com" >> .env
+          - echo "REACT_APP_GLIDE_DIALOG_URL=https://glide-oslc-api-dev.koneksys.com" >> .env
           - yarn install
           - yarn build
         artifacts:
