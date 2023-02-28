@@ -24,6 +24,12 @@ spec:
           env:
             - name: REACT_APP_LM_REST_API_URL
               value: LM_API_URL
+            - name: REACT_APP_JIRA_DIALOG_URL
+              value: JIRA_OSLC_API
+            - name: REACT_APP_GITLAB_DIALOG_URL
+              value: GITLAB_OSLC_API
+            - name: REACT_APP_GLIDE_DIALOG_URL
+              value: GLIDE_OSLC_API
             - name: NODE_ENV
               value: development
             - name: WDS_SOCKET_PORT
