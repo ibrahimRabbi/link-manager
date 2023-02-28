@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: main
-          image: hemlatasharma/kiwi-demo:test1
+          image: axelr340/link-manager:lm-ui
           imagePullPolicy: Always
           env:
             - name: REACT_APP_LM_REST_API_URL
@@ -30,6 +30,8 @@ spec:
               value: "0"
           ports:
             - containerPort: 3000
+      imagePullSecrets:
+        - name: regcred
 ---
 ##################################################################################################
 # Link Manager UI Service
