@@ -30,10 +30,6 @@ spec:
               value: GITLAB_OSLC_API
             - name: REACT_APP_GLIDE_DIALOG_URL
               value: GLIDE_OSLC_API
-            - name: NODE_ENV
-              value: development
-            - name: WDS_SOCKET_PORT
-              value: "0"
           ports:
             - containerPort: 3000
       imagePullSecrets:
