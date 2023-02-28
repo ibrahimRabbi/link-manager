@@ -3,9 +3,9 @@
 
 .sourceContainer {
   padding: 10px 1vw;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   box-shadow: 0 0 5px 1px lightgray;
-  border-radius: 5px;
+  border-radius: 10px;
 }
 
 .sourceGrid {
@@ -32,9 +32,9 @@
   justify-content: space-between;
   box-shadow: 0 0 5px 1px lightgray;
   padding: 10px 1vw;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   gap: 10px;
-  border-radius: 5px;
+  border-radius: 10px;
 }
 
 .targetContainer {
@@ -42,13 +42,13 @@
   box-shadow: 0 0 5px 1px lightgray;
   padding: 10px 1vw;
   min-height: 50vh;
-  border-radius: 5px;
+  max-height: 100%;
+  border-radius: 10px;
 }
 
 .targetIframe {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
+  min-height: 850px;
 }
 
 .projectContainer {
