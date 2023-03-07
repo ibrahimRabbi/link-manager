@@ -49,6 +49,7 @@ const {
   tableCell,
   targetCell,
   validIcon,
+  // sourceIdEl,
 } = styles;
 
 const UseDataTable = ({
@@ -62,8 +63,7 @@ const UseDataTable = ({
   currPage,
   pageSize,
 }) => {
-  console.log('tableData ->', tableData);
-  const { isWbe, sourceDataList } = useSelector((state) => state.links);
+  const { isWbe} = useSelector((state) => state.links);
   const [isOpen, setIsOpen] = useState(null);
   // const [currPage, setCurrPage] = useState(1);
   // const [pageSize, setPageSize] = useState(10);
@@ -169,9 +169,9 @@ const UseDataTable = ({
                   <TableCell className={tableCell}>
                     <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> Valid
                   </TableCell>
-                  <TableCell className={tableCell}>
-                    <p>{sourceDataList?.title}</p>
-                  </TableCell>
+                  {/* <TableCell className={tableCell}>
+                    <p className={sourceIdEl}>{sourceDataList?.title}</p>
+                  </TableCell> */}
                   <TableCell className={tableCell}>{row?.link_type}</TableCell>
 
                   {/* --- Table data with modal ---  */}
@@ -283,7 +283,7 @@ const UseDataTable = ({
         pageSize={pageSize}
         pageSizes={[10, 20, 30, 40, 50]}
         size="lg"
-        totalItems={200}
+        totalItems={tableData?.length}
         // pagesUnknown
       />
     </TableContainer>

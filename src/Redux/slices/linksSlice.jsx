@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import Swal from 'sweetalert2';
 
-// Fetch Create New link
+// Create New link
 export const fetchCreateLink = createAsyncThunk(
   'links/fetchCreateLink',
   async ({ url, token, bodyData }) => {
@@ -14,31 +14,58 @@ export const fetchCreateLink = createAsyncThunk(
       body: JSON.stringify(bodyData),
     })
       .then((res) => {
-        console.log(res);
         if (res.ok) {
           return res.json().then((data) => {
             Swal.fire({ title: data.status, text: data.message, icon: 'success' });
             return data;
           });
-        } else {
-          console.log(res);
-          if (res.status === 304) {
-            Swal.fire({
-              icon: 'info',
-              title: 'Failed',
-              text: 'links could not be created because it already exists.',
-            });
-          } else {
-            Swal.fire({
-              icon: 'info',
-              title: 'Failed',
-              text: 'Link could not be created',
-            });
-          }
-          return 'Link creating Failed';
+        } 
+        else if (res.status === 304 ){
+          console.log('304', res.status, res.status);
         }
+        else if (res.status === 400 ){
+          console.log('400', res.status, res.status);
+        }
+        else if (res.status === 401 ){
+          console.log('401', res.status, res.status);
+        }
+        else if (res.status === 404 ){
+          console.log('404', res.status, res.status);
+        }
+        else if (res.status === 408 ){
+          console.log('408', res.status, res.status);
+        }
+        else if (res.status === 500 ){
+          console.log('408', res.status, res.status);
+        }
+        else{
+          console.log(res.status, res.status);
+        }
+        
+        // else {
+        //   console.log(res);
+        //   if (res.status === 304) {
+        //     Swal.fire({
+        //       icon: 'info',
+        //       title: 'Failed',
+        //       text: 'links could not be created because it already exists.',
+        //     });
+        //   } else {
+        //     Swal.fire({
+        //       icon: 'info',
+        //       title: 'Failed',
+        //       text: 'Link could not be created',
+        //     });
+        //   }
+        //   return 'Link creating Failed';
+        // }
       })
-      .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
+      .catch((err) => {
+        console.log(err);
+        Swal.fire({ 
+          title: ' ',
+          text: 'Unable to connect to the server' });
+      });
     return response;
   },
 );
@@ -64,18 +91,42 @@ export const fetchLinksData = createAsyncThunk(
               icon: 'info',
             });
           }
-        } else {
-          res.json().then((data) => {
-            let errorMessage = 'Loading links failed: ';
-            if (data && data.message) {
-              Swal.fire({ text: data.message, icon: 'info' });
-            } else {
-              Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
-            }
-          });
+        } 
+        // else {
+        //   res.json().then((data) => {
+        //     let errorMessage = 'Loading links failed: ';
+        //     if (data && data.message) {
+        //       Swal.fire({ text: data.message, icon: 'info' });
+        //     } else {
+        //       Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
+        //     }
+        //   });
+        // }
+        else if (res.status === 400 ){
+          console.log('400', res.status, res.status);
+        }
+        else if (res.status === 401 ){
+          console.log('401', res.status, res.status);
+        }
+        else if (res.status === 404 ){
+          console.log('404', res.status, res.status);
+        }
+        else if (res.status === 408 ){
+          console.log('408', res.status, res.status);
+        }
+        else if (res.status === 500 ){
+          console.log('408', res.status, res.status);
+        }
+        else{
+          console.log(res.status, res.status);
         }
       })
-      .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
+      .catch((err) => {
+        console.log(err);
+        Swal.fire({ 
+          title: ' ',
+          text: 'Unable to connect to the server' });
+      });
     return response;
   },
 );
@@ -83,6 +134,7 @@ export const fetchLinksData = createAsyncThunk(
 const gcmAware = JSON.parse(process.env.REACT_APP_CONFIGURATION_AWARE);
 
 const initialState = {
+  isTargetModalOpen: false,
   configuration_aware: gcmAware,
   sourceDataList: {},
   isWbe: false,
@@ -110,6 +162,9 @@ export const linksSlice = createSlice({
   reducers: {
     handleIsWbe: (state, { payload }) => {
       state.isWbe = payload;
+    },
+    handleIsTargetModalOpen: (state, { payload }) => {
+      state.isTargetModalOpen = payload;
     },
     handleIsLoading: (state, { payload }) => {
       state.isLoading = payload;
@@ -189,6 +244,7 @@ export const linksSlice = createSlice({
 
     // new link and edit link cancel btn
     handleCancelLink: (state) => {
+      state.isTargetModalOpen = false;
       state.linkType = null;
       state.projectType = null;
       state.resourceType = null;
@@ -272,6 +328,7 @@ export const {
   handleSetStatus,
   handleDeleteLink,
   handleCancelLink,
+  handleIsTargetModalOpen,
 } = linksSlice.actions;
 
 export default linksSlice.reducer;

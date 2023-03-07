@@ -8,6 +8,7 @@ import {
   SideNavLink,
   SideNavMenuItem,
   Theme,
+  Tooltip,
 } from '@carbon/react';
 import React, { useEffect } from 'react';
 import { useState } from 'react';
@@ -43,14 +44,32 @@ const WbeTopNav = () => {
     dispatch(handleSelectStreamType(selectedItem));
   };
 
+  console.log(sourceDataList);
   return (
     <>
       <div className="mainContainer">
         <div className={topContentContainer}>
           <div className={fileContainer}>
-            <h5 className={fileName}>
+            {
+              sourceDataList?.titleLabel ? 
+                <Tooltip
+                  align="bottom-right"
+                  label={<p>{sourceDataList.title}</p>}
+                  tabIndex={0}
+                  triggerText="Tooltip label"
+                >
+                  <button className="tooltip-trigger" type="button">
+                    <h5 className={fileName}>
+                       Links For: <span>{sourceDataList?.titleLabel}</span>
+                    </h5>
+                  </button>
+                </Tooltip>
+                :
+                <h5 className={fileName}>
               Links For: <span>{sourceDataList?.title}</span>
-            </h5>
+                </h5>
+            }
+            
 
             <Button size="sm" kind="primary" onClick={() => navigate('/wbe/new-link')}>
               Create Link

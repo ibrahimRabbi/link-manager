@@ -54,9 +54,15 @@
 .fileName {
   span {
     margin-left: 10px;
+    margin-bottom: -10px;
     background-color: #84ffff;
     padding: 2px 10px;
     border-radius: 10px;
+    max-width: 600px;
+    overflow: hidden;
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
@@ -188,6 +194,6 @@
   cursor: pointer;
 }
 
-.linkFileContainer > h5 {
+.linkFileContainer>h5 {
   color: colors.$gray-90;
 }

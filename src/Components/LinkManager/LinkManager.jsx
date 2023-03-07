@@ -22,7 +22,7 @@ const {
 
 const headers = [
   { key: 'status', header: 'Status' },
-  { key: 'sourceId', header: 'Source ID' },
+  // { key: 'sourceId', header: 'Source ID' },
   { key: 'linkType', header: 'Link type' },
   { key: 'target', header: 'Target' },
   { key: 'actions', header: 'Actions' },
