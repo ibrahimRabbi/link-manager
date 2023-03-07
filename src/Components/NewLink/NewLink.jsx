@@ -79,7 +79,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const dispatch = useDispatch();
   const wbePath = location.pathname?.includes('wbe');
   const authCtx = useContext(AuthContext);
-  const isJIRA = sourceDataList?.appName?.includes('atlassian');
+  const isJIRA = sourceDataList?.appName?.includes('jira');
   const isGitlab = sourceDataList?.appName?.includes('gitlab');
   const isGlide = sourceDataList?.appName?.includes('glide');
 
@@ -311,13 +311,18 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         target_provider: 'JIRA',
       };
     });
-
+    let appNameTwo = '';
+    if (appName === null) {
+      appNameTwo = 'JIRA';
+    } else {
+      appNameTwo = appName;
+    }
     const linkObj = {
       stream: streamType,
       source_type: title,
       source_title: title,
       source_project: projectName,
-      source_provider: appName,
+      source_provider: appNameTwo,
       source_id: uri,
       relation: linkType,
       status: 'active',
