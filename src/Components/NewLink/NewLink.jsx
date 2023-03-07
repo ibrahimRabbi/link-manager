@@ -79,7 +79,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const dispatch = useDispatch();
   const wbePath = location.pathname?.includes('wbe');
   const authCtx = useContext(AuthContext);
-  const isJIRA = sourceDataList?.appName?.includes('jira');
+  const isJIRA = sourceDataList?.appName?.includes('atlassian');
   const isGitlab = sourceDataList?.appName?.includes('gitlab');
   const isGlide = sourceDataList?.appName?.includes('glide');
 
