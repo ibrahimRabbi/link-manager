@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { MixpanelProvider } from 'react-mixpanel-browser';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
@@ -10,13 +11,15 @@ import { AuthContextProvider } from './Store/Auth-Context.jsx';
 
 ReactDOM.render(
   <React.StrictMode>
-    <AuthContextProvider>
-      <Provider store={store}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </Provider>
-    </AuthContextProvider>
+    <MixpanelProvider>
+      <AuthContextProvider>
+        <Provider store={store}>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </Provider>
+      </AuthContextProvider>
+    </MixpanelProvider>
   </React.StrictMode>,
   document.getElementById('root'),
 );

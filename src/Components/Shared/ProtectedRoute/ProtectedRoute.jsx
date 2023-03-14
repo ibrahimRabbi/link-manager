@@ -16,6 +16,7 @@ const ProtectedRoute = ({ children }) => {
   const appName = searchParams.get('appName'); // glide, gitlab, jira, github <-- from wbe
   const sourceType = searchParams.get('sourceType');
   const title = searchParams.get('title');
+  const titleLabel = searchParams.get('titleLabel');
   const origin = searchParams.get('origin');
   const uri = searchParams.get('uri');
   const projectName = searchParams.get('project');
@@ -32,6 +33,7 @@ const ProtectedRoute = ({ children }) => {
       const sources = {
         projectName,
         title,
+        titleLabel,
         uri,
         branch,
         commit,

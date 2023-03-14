@@ -38,6 +38,9 @@
   padding: 10px 1vw;
   margin-bottom: 15px;
   border-radius: 5px;
+}
+
+.marginLeft {
   margin-left: 50px;
 }
 
@@ -51,13 +54,25 @@
   }
 }
 
+.titleDiv {
+  display: flex;
+  align-items: center;
+  max-width: 80%;
+}
+
 .fileName {
-  span {
-    margin-left: 10px;
-    background-color: #84ffff;
-    padding: 2px 10px;
-    border-radius: 10px;
-  }
+  margin-left: 5px;
+  color: #9e0732;
+  // background-color: #b4ffff;
+  // padding: 5px 10px;
+  border-radius: 12px;
+}
+
+.seeMLBtn {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: -10px;
+  cursor: pointer;
 }
 
 .hMenuItemContainer {

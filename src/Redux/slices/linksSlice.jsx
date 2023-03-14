@@ -1,7 +1,72 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import Swal from 'sweetalert2';
 
-// Fetch Create New link
+// handle report us message
+const handleReportUs = async () => {
+  Swal.fire({
+    title: 'Sent',
+    icon: 'success',
+    confirmButtonColor: '#3085d6',
+    // eslint-disable-next-line max-len
+    text: 'Your message has been sent to our support team who will try to resolve your issue shortly',
+  });
+};
+
+// reduce duplication code for message
+const clientMessages = ({ isErrCatch, error, status, message }) => {
+  if (isErrCatch) {
+    Swal.fire({
+      icon: 'error',
+      title: error.message,
+      showCancelButton: true,
+      cancelButtonColor: '#d33',
+      confirmButtonColor: '#3085d6',
+      confirmButtonText: 'Report us',
+      // eslint-disable-next-line max-len
+      text: 'Your request failed. Please try to solve this issue or report to us to solve the problem',
+    }).then((result) => {
+      if (result.isConfirmed) handleReportUs();
+    });
+  }
+
+  if (status === 400) {
+    Swal.fire({
+      title: message,
+      icon: 'warning',
+      // eslint-disable-next-line max-len
+      text: 'Please check There is some data missing from the data required to create the link or you can report to us to resolve the issue.',
+      showCancelButton: true,
+      confirmButtonText: 'Report us',
+      cancelButtonColor: '#d33',
+      confirmButtonColor: '#3085d6',
+    }).then((result) => {
+      if (result.isConfirmed) handleReportUs();
+    });
+  } else if (status === 401) {
+    Swal.fire({
+      title: message,
+      icon: 'question',
+      confirmButtonColor: '#3085d6',
+      // eslint-disable-next-line max-len
+      text: 'Sorry, you do not have access to create links. Please make sure you have permission to create links',
+    });
+  } else if (status === 500) {
+    Swal.fire({
+      title: message,
+      icon: 'error',
+      // eslint-disable-next-line max-len
+      text: 'Failed to connect to the server due to some issue please check it or you can report it to us to solve this issue.',
+      showCancelButton: true,
+      cancelButtonColor: '#d33',
+      confirmButtonColor: '#3085d6',
+      confirmButtonText: 'Report us',
+    }).then((result) => {
+      if (result.isConfirmed) handleReportUs();
+    });
+  }
+};
+
+// Create New link
 export const fetchCreateLink = createAsyncThunk(
   'links/fetchCreateLink',
   async ({ url, token, bodyData }) => {
@@ -14,31 +79,44 @@ export const fetchCreateLink = createAsyncThunk(
       body: JSON.stringify(bodyData),
     })
       .then((res) => {
+        // console.log(response);
+        // const res = {status: 500, ok: false};
         console.log(res);
         if (res.ok) {
           return res.json().then((data) => {
-            Swal.fire({ title: data.status, text: data.message, icon: 'success' });
+            Swal.fire({
+              title: 'Success',
+              icon: 'success',
+              text: data.message,
+              confirmButtonColor: '#3085d6',
+            });
             return data;
           });
         } else {
-          console.log(res);
           if (res.status === 304) {
             Swal.fire({
+              title: 'Already exists',
               icon: 'info',
-              title: 'Failed',
-              text: 'links could not be created because it already exists.',
+              text: `This link is already exists. please select a different source 
+              or target and try to create the link again.`,
+              confirmButtonColor: '#3085d6',
             });
-          } else {
-            Swal.fire({
-              icon: 'info',
-              title: 'Failed',
-              text: 'Link could not be created',
-            });
+          } else if (res.status === 400) {
+            clientMessages({ status: res.status, message: res.statusText });
+          } else if (res.status === 401) {
+            clientMessages({ status: res.status, message: res.statusText });
+          } else if (res.status === 403) {
+            console.log(res.status, res.statusText);
+          } else if (res.status === 409) {
+            console.log(res.status, res.statusText);
+          } else if (res.status === 500) {
+            clientMessages({ status: res.status, message: res.statusText });
           }
-          return 'Link creating Failed';
         }
+        // if links not created we need return a value
+        return 'Link creating Failed';
       })
-      .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
+      .catch((error) => clientMessages({ isErrCatch: true, error }));
     return response;
   },
 );
@@ -59,23 +137,33 @@ export const fetchLinksData = createAsyncThunk(
           if (res.status !== 204) {
             return res.json();
           } else {
-            Swal.fire({
-              text: 'No Links Created for this source',
-              icon: 'info',
-            });
+            // Swal.fire({
+            //   text: 'No Links Created for this resource',
+            //   icon: 'info',
+            //   confirmButtonColor: '#3085d6',
+            // });
           }
         } else {
-          res.json().then((data) => {
-            let errorMessage = 'Loading links failed: ';
-            if (data && data.message) {
-              Swal.fire({ text: data.message, icon: 'info' });
-            } else {
-              Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
-            }
-          });
+          if (res.status === 400) {
+            clientMessages({ status: res.status, message: res.statusText });
+          } else if (res.status === 401) {
+            clientMessages({ status: res.status, message: res.statusText });
+          } else if (res.status === 403) {
+            console.log(res.status, res.status);
+          } else if (res.status === 500) {
+            clientMessages({ status: res.status, message: res.statusText });
+          }
+          // res.json().then((data) => {
+          //   let errorMessage = 'Loading links failed: ';
+          //   if (data && data.message) {
+          //     Swal.fire({ text: data.message, icon: 'info' });
+          //   } else {
+          //     Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
+          //   }
+          // });
         }
       })
-      .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
+      .catch((error) => clientMessages({ isErrCatch: true, error }));
     return response;
   },
 );
@@ -83,6 +171,7 @@ export const fetchLinksData = createAsyncThunk(
 const gcmAware = JSON.parse(process.env.REACT_APP_CONFIGURATION_AWARE);
 
 const initialState = {
+  isTargetModalOpen: false,
   configuration_aware: gcmAware,
   sourceDataList: {},
   isWbe: false,
@@ -110,6 +199,9 @@ export const linksSlice = createSlice({
   reducers: {
     handleIsWbe: (state, { payload }) => {
       state.isWbe = payload;
+    },
+    handleIsTargetModalOpen: (state, { payload }) => {
+      state.isTargetModalOpen = payload;
     },
     handleIsLoading: (state, { payload }) => {
       state.isLoading = payload;
@@ -189,6 +281,7 @@ export const linksSlice = createSlice({
 
     // new link and edit link cancel btn
     handleCancelLink: (state) => {
+      state.isTargetModalOpen = false;
       state.linkType = null;
       state.projectType = null;
       state.resourceType = null;
@@ -272,6 +365,7 @@ export const {
   handleSetStatus,
   handleDeleteLink,
   handleCancelLink,
+  handleIsTargetModalOpen,
 } = linksSlice.actions;
 
 export default linksSlice.reducer;
