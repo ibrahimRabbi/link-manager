@@ -324,13 +324,18 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         target_provider: 'JIRA',
       };
     });
-
+    let appNameTwo = '';
+    if (appName === null) {
+      appNameTwo = 'JIRA';
+    } else {
+      appNameTwo = appName;
+    }
     const linkObj = {
       stream: streamType,
       source_type: title,
       source_title: title,
       source_project: projectName,
-      source_provider: appName,
+      source_provider: appNameTwo,
       source_id: uri,
       relation: linkType,
       status: 'active',
