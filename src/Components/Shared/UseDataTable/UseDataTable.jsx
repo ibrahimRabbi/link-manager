@@ -63,7 +63,7 @@ const UseDataTable = ({
   currPage,
   pageSize,
 }) => {
-  const { isWbe} = useSelector((state) => state.links);
+  const { isWbe } = useSelector((state) => state.links);
   const [isOpen, setIsOpen] = useState(null);
   // const [currPage, setCurrPage] = useState(1);
   // const [pageSize, setPageSize] = useState(10);
@@ -281,7 +281,7 @@ const UseDataTable = ({
         onChange={handlePagination}
         page={currPage}
         pageSize={pageSize}
-        pageSizes={[10, 20, 30, 40, 50]}
+        pageSizes={[5, 10, 20, 50, 100]}
         size="lg"
         totalItems={tableData?.length}
         // pagesUnknown

@@ -41,7 +41,7 @@ const LinkManager = () => {
   const { sourceDataList, linksData, isLoading, configuration_aware } = useSelector(
     (state) => state.links,
   );
-  console.log('linksData ->', linksData);
+  // console.log('linksData ->', linksData);
   const { linksStream, isProfileOpen } = useSelector((state) => state.nav);
   const location = useLocation();
   const wbePath = location.pathname?.includes('wbe');
@@ -65,8 +65,8 @@ const LinkManager = () => {
     setCurrPage(values.page);
   };
 
-  console.log(currPage);
-  console.log(pageSize);
+  // console.log(currPage);
+  // console.log(pageSize);
 
   useEffect(() => {
     (async () => {

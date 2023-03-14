@@ -1,5 +1,4 @@
 import { FaLink, FaShareAlt } from 'react-icons/fa';
-// import {GrClose} from 'react-icons/gr';
 import { ImMenu } from 'react-icons/im';
 import {
   Button,
@@ -8,10 +7,9 @@ import {
   SideNavLink,
   SideNavMenuItem,
   Theme,
-  Tooltip,
+  // Tooltip,
 } from '@carbon/react';
-import React, { useEffect } from 'react';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { fetchStreamItems, handleSelectStreamType } from '../../../Redux/slices/navSlice';
@@ -25,15 +23,20 @@ const {
   fileName,
   sidebarLink,
   dropdownStyle,
+  marginLeft,
+  titleDiv,
+  seeMLBtn,
 } = styles;
 
 const WbeTopNav = () => {
   const { linksStream, linksStreamItems } = useSelector((state) => state.nav);
   const { sourceDataList, configuration_aware } = useSelector((state) => state.links);
+  const [showMore, setShowMore] = useState(false);
+  const [isSideNav, setIsSideNav] = useState(false);
+  const [title, setTitle] = useState('');
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const dispatch = useDispatch();
-  const [isSideNav, setIsSideNav] = useState(false);
 
   useEffect(() => {
     // get link_types dropdown items
@@ -44,17 +47,32 @@ const WbeTopNav = () => {
     dispatch(handleSelectStreamType(selectedItem));
   };
 
-  console.log(sourceDataList);
+  // handle see more and see less control
+  useEffect(() => {
+    if (showMore) setTitle(sourceDataList?.title?.slice(25, 99999));
+    else {
+      setTitle('');
+    }
+  }, [showMore]);
+
+  const toggleTitle = () => {
+    setShowMore(!showMore);
+  };
+
   return (
     <>
       <div className="mainContainer">
-        <div className={topContentContainer}>
+        <div
+          className={`${topContentContainer} 
+        ${(pathname === '/wbe' || pathname === '/wbe/graph-view') && marginLeft}`}
+        >
           <div className={fileContainer}>
-            {
+            {/* with hover tooltip show title */}
+            {/* {
               sourceDataList?.titleLabel ? 
                 <Tooltip
                   align="bottom-right"
-                  label={<p>{sourceDataList.title}</p>}
+                  label={<p>{sourceDataList?.title}</p>}
                   tabIndex={0}
                   triggerText="Tooltip label"
                 >
@@ -68,12 +86,30 @@ const WbeTopNav = () => {
                 <h5 className={fileName}>
               Links For: <span>{sourceDataList?.title}</span>
                 </h5>
-            }
-            
+            } */}
 
-            <Button size="sm" kind="primary" onClick={() => navigate('/wbe/new-link')}>
-              Create Link
-            </Button>
+            {/* with see more and see less btn show title */}
+            <div className={titleDiv}>
+              <h5>
+                Links For:{' '}
+                <span className={fileName}>
+                  {sourceDataList?.title?.slice(0, 25)}
+                  {showMore ? <span>t{title}</span> : ''}
+                  {sourceDataList?.title?.length > 25 && !showMore ? '...' : ''}
+                </span>
+                {sourceDataList?.title?.length > 25 && (
+                  <span className={seeMLBtn} onClick={toggleTitle}>
+                    {showMore ? 'See Less' : 'See More'}
+                  </span>
+                )}
+              </h5>
+            </div>
+
+            {pathname !== '/wbe/new-link' && (
+              <Button size="sm" kind="primary" onClick={() => navigate('/wbe/new-link')}>
+                Create Link
+              </Button>
+            )}
           </div>
         </div>
 
@@ -93,44 +129,46 @@ const WbeTopNav = () => {
 
       {/* ----------------------  */}
 
-      <Theme theme="g100">
-        <SideNav
-          style={{ width: isSideNav ? '200px' : '55px' }}
-          id={wbeSideNav}
-          className=".cds--side-nav__overlay-active"
-          aria-label=""
-          isPersistent={true}
-          isChildOfHeader={false}
-        >
-          <SideNavItems>
-            <SideNavMenuItem
-              style={{ margin: '0 0 20px -5px' }}
-              className={sidebarLink}
-              onClick={() => setIsSideNav(!isSideNav)}
-            >
-              <ImMenu size={30} />
-            </SideNavMenuItem>
+      {(pathname === '/wbe' || pathname === '/wbe/graph-view') && (
+        <Theme theme="g100">
+          <SideNav
+            style={{ width: isSideNav ? '200px' : '55px' }}
+            id={wbeSideNav}
+            className=".cds--side-nav__overlay-active"
+            aria-label=""
+            isPersistent={true}
+            isChildOfHeader={false}
+          >
+            <SideNavItems>
+              <SideNavMenuItem
+                style={{ margin: '0 0 20px -5px' }}
+                className={sidebarLink}
+                onClick={() => setIsSideNav(!isSideNav)}
+              >
+                <ImMenu size={30} />
+              </SideNavMenuItem>
 
-            <SideNavLink
-              renderIcon={() => <FaLink size={40} />}
-              className={sidebarLink}
-              onClick={() => navigate('/wbe')}
-              isActive={pathname === '/wbe'}
-            >
-              Links
-            </SideNavLink>
+              <SideNavLink
+                renderIcon={() => <FaLink size={40} />}
+                className={sidebarLink}
+                onClick={() => navigate('/wbe')}
+                isActive={pathname === '/wbe'}
+              >
+                Links
+              </SideNavLink>
 
-            <SideNavLink
-              renderIcon={() => <FaShareAlt size={40} />}
-              className={sidebarLink}
-              onClick={() => navigate('/wbe/graph-view')}
-              isActive={pathname === '/wbe/graph-view'}
-            >
-              Graph View
-            </SideNavLink>
-          </SideNavItems>
-        </SideNav>
-      </Theme>
+              <SideNavLink
+                renderIcon={() => <FaShareAlt size={40} />}
+                className={sidebarLink}
+                onClick={() => navigate('/wbe/graph-view')}
+                isActive={pathname === '/wbe/graph-view'}
+              >
+                Graph View
+              </SideNavLink>
+            </SideNavItems>
+          </SideNav>
+        </Theme>
+      )}
     </>
   );
 };

@@ -1,7 +1,11 @@
-import { Accordion, AccordionItem, Button, 
+import {
+  Accordion,
+  AccordionItem,
+  Button,
   Checkbox,
-  ProgressBar, 
-  Search, 
+  ProgressBar,
+  Search,
+  // Tooltip,
 } from '@carbon/react';
 import React, { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -21,6 +25,7 @@ import {
 } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
+import WbeTopNav from '../Shared/NavigationBar/WbeTopNav';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 
@@ -86,7 +91,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  const wbePath = location.pathname?.includes('wbe');
+  // const wbePath = location.pathname?.includes('wbe');
   const authCtx = useContext(AuthContext);
   const isJIRA = sourceDataList?.appName?.includes('jira');
   const isGitlab = sourceDataList?.appName?.includes('gitlab');
@@ -366,33 +371,14 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   }, [linkType, projectType]);
 
   return (
-    <div className="mainContainer">
-      <div className="container">
-        {/* { !isTargetModalOpen && <> */}
-        {wbePath && (
-          <div className="linkFileContainer">
-            <h5>
-              Links For: <span>{sourceDataList?.title}</span>
-            </h5>
-
-            <Button
-              size="sm"
-              kind="secondary"
-              onClick={() => {
-                navigate('/wbe');
-                dispatch(handleCancelLink());
-              }}
-            >
-              Cancel
-            </Button>
-          </div>
-        )}
-
-        <Accordion>
-          {/* Source accordion  */}
-          <AccordionItem title={<h5>Source</h5>} className={accordionItem}>
+    <>
+      <WbeTopNav />
+      <div className="mainContainer">
+        <div className="container">
+          <Accordion>
+            {/* <AccordionItem open={true}
+            title={<h5>Source</h5>} className={accordionItem}>
             <div className={sourceContainer}>
-              {/* <h5>Source</h5> */}
               {sourceTitles.map((properties, index) => (
                 <div className={sourceGrid} key={properties}>
                   <p className={sourceProp}>{properties} :</p>
@@ -400,165 +386,201 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                 </div>
               ))}
             </div>
-          </AccordionItem>
-          {/* Link type accordion  */}
-          <AccordionItem title={<h5>Select link type and target project</h5>}
-            className={accordionItem}>
-            <div className={linkTypeContainer}>
-              {configuration_aware && (
+          </AccordionItem> */}
+
+            <AccordionItem
+              open={true}
+              title={<h5>Sources link types and target projects</h5>}
+              className={accordionItem}
+            >
+              <div className={sourceContainer}>
+                {sourceTitles.map((properties, index) => (
+                  <div className={sourceGrid} key={properties}>
+                    <p className={sourceProp}>{properties} :</p>
+                    <p className={sourceValue}>{Object.values(sourceValues)[index]}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* ------------------ */}
+
+              <div className={linkTypeContainer}>
+                {configuration_aware && (
+                  <UseDropdown
+                    onChange={handleStreamChange}
+                    items={streamItems}
+                    title="GCM Configuration Context"
+                    selectedValue={editLinkData?.linkType}
+                    label={'Select GCM Configuration Context'}
+                    id="newLink_stream"
+                    className={dropdownStyle}
+                  />
+                )}
+
                 <UseDropdown
-                  onChange={handleStreamChange}
-                  items={streamItems}
-                  title="GCM Configuration Context"
+                  onChange={handleLinkTypeChange}
+                  items={linkTypeItems}
+                  title="Link type"
                   selectedValue={editLinkData?.linkType}
-                  label={'Select GCM Configuration Context'}
-                  id="newLink_stream"
+                  label={'Select link type'}
+                  id="newLink_linkTypes"
                   className={dropdownStyle}
                 />
+
+                <UseDropdown
+                  onChange={handleTargetProject}
+                  items={targetProjectItems}
+                  title="Target project"
+                  label={'Select target project'}
+                  selectedValue={editLinkData?.projectType}
+                  id="target-project-dropdown"
+                  className={dropdownStyle}
+                />
+
+                {/*{linkType && !isJiraDialog && !isGitlabDialog && !isGlideDialog && (*/}
+                {/*  <UseDropdown*/}
+                {/*    items={targetResourceItems}*/}
+                {/*    onChange={handleTargetResource}*/}
+                {/*    title="Target resource type"*/}
+                {/*    selectedValue={editLinkData?.resource}*/}
+                {/*    label={'Select target resource type'}*/}
+                {/*    id="resourceType-dropdown"*/}
+                {/*    className={dropdownStyle}*/}
+                {/*  />*/}
+                {/*)}*/}
+              </div>
+            </AccordionItem>
+            <AccordionItem
+              open={true}
+              title={<h5>Target Projects</h5>}
+              className={accordionItem}
+            >
+              {linkCreateLoading && <ProgressBar label="" />}
+              {/* --- After selected link type ---  */}
+              {(!linkType || !projectType) && (
+                <h3 style={{ textAlign: 'center', color: 'gray' }}>
+                  Please select link type and target project
+                </h3>
               )}
+              {(withConfigAware || withoutConfigAware) && (
+                <div className={targetContainer}>
+                  {/* Show the selection dialogs */}
+                  {projectFrameSrc && (
+                    <iframe className={targetIframe} src={projectFrameSrc} />
+                  )}
 
-              <UseDropdown
-                onChange={handleLinkTypeChange}
-                items={linkTypeItems}
-                title="Link type"
-                selectedValue={editLinkData?.linkType}
-                label={'Select link type'}
-                id="newLink_linkTypes"
-                className={dropdownStyle}
-              />
+                  {isGlide && isJIRA && (
+                    <>
+                      <div className={targetSearchContainer}>
+                        <form
+                          onSubmit={handleSubmit(handleSearchData)}
+                          className={searchContainer}
+                        >
+                          <div className={inputContainer}>
+                            <Search
+                              id=""
+                              labelText=""
+                              className={searchInput}
+                              type="text"
+                              placeholder="Search by identifier or name"
+                              {...register('searchText')}
+                              size="md"
+                            />
+                          </div>
+                          <Button kind="primary" size="md" type="submit">
+                            Search
+                          </Button>
+                        </form>
+                      </div>
 
-              <UseDropdown
-                onChange={handleTargetProject}
-                items={targetProjectItems}
-                title="Target project"
-                label={'Select target project'}
-                selectedValue={editLinkData?.projectType}
-                id="target-project-dropdown"
-                className={dropdownStyle}
-              />
-
-              {/*{linkType && !isJiraDialog && !isGitlabDialog && !isGlideDialog && (*/}
-              {/*  <UseDropdown*/}
-              {/*    items={targetResourceItems}*/}
-              {/*    onChange={handleTargetResource}*/}
-              {/*    title="Target resource type"*/}
-              {/*    selectedValue={editLinkData?.resource}*/}
-              {/*    label={'Select target resource type'}*/}
-              {/*    id="resourceType-dropdown"*/}
-              {/*    className={dropdownStyle}*/}
-              {/*  />*/}
-              {/*)}*/}
-            </div>
-          </AccordionItem>
-          <AccordionItem title={<h5>Target Projects</h5>}
-            className={accordionItem}>
-
-            {linkCreateLoading && <ProgressBar label="" />}
-            {/* --- After selected link type ---  */}
-            {
-              (!linkType || !projectType) && 
-              <h5 style={{textAlign:'center'}}
-              >Please Make sure you have selected link type and target project</h5>
-            }
-            {(withConfigAware || withoutConfigAware) && (
-              <div className={targetContainer}>
-
-                {/* Show the selection dialogs */}
-                {
-                  projectFrameSrc && 
-                   <iframe className={targetIframe} src={projectFrameSrc} />
-                }
-
-                {isGlide && isJIRA && (
-                  <>
-                    <div className={targetSearchContainer}>
-                      <form
-                        onSubmit={handleSubmit(handleSearchData)}
-                        className={searchContainer}
-                      >
-                        <div className={inputContainer}>
-                          <Search
-                            id=""
-                            labelText=""
-                            className={searchInput}
-                            type="text"
-                            placeholder="Search by identifier or name"
-                            {...register('searchText')}
-                            size="md"
+                      {((searchText && displayTableData[0]) || isEditLinkPage) && (
+                        <div className={newLinkTable}>
+                          <UseDataTable
+                            headers={headers}
+                            tableData={displayTableData}
+                            isCheckBox={true}
+                            isChecked={editLinkData?.targetData?.identifier}
+                            editTargetData={editTargetData}
+                            isPagination={displayTableData[0] ? true : false}
+                            selectedData={handleSelectedData}
                           />
                         </div>
-                        <Button kind="primary" size="md" type="submit">
-                          Search
-                        </Button>
-                      </form>
-                    </div>
+                      )}
+                      {searchText && !displayTableData[0] && (
+                        <h2 className={emptySearchWarning}>
+                          Please search by valid identifier or name
+                        </h2>
+                      )}
+                    </>
+                  )}
 
-                    {((searchText && displayTableData[0]) || isEditLinkPage) && (
-                      <div className={newLinkTable}>
-                        <UseDataTable
-                          headers={headers}
-                          tableData={displayTableData}
-                          isCheckBox={true}
-                          isChecked={editLinkData?.targetData?.identifier}
-                          editTargetData={editTargetData}
-                          isPagination={displayTableData[0] ? true : false}
-                          selectedData={handleSelectedData}
-                        />
-                      </div>
-                    )}
-                    {searchText && !displayTableData[0] && (
-                      <h2 className={emptySearchWarning}>
-                       Please search by valid identifier or name
-                      </h2>
-                    )}
-                  </>
-                )}
-
-                {targetDataArr[0] && (
-                  <>
-                    {/* // new link btn  */}
-                    {projectType && resourceType && !isEditLinkPage && (
-                      <div className={btnContainer}>
-                        <Button kind="secondary" 
-                          onClick={handleCancelOpenedLink} size="md">
-                             Cancel
-                        </Button>
-                        <Button kind="primary" onClick={handleSaveLink} size="md">
-                            Save
-                        </Button>
-                      </div>
-                    )}
-
-                    {/* // edit link btn  */}
-                    {isEditLinkPage && editLinkData?.id && (
-                      <div className={btnContainer}>
-                        <Button kind="secondary" 
-                          onClick={handleCancelOpenedLink} size="md">
+                  {targetDataArr[0] && (
+                    <>
+                      {/* // new link btn  */}
+                      {projectType && resourceType && !isEditLinkPage && (
+                        <div className={btnContainer}>
+                          <Button
+                            kind="secondary"
+                            onClick={handleCancelOpenedLink}
+                            size="md"
+                          >
                             Cancel
-                        </Button>
-                        <Button kind="primary" onClick={handleLinkUpdate} size="md">
+                          </Button>
+                          <Button kind="primary" onClick={handleSaveLink} size="md">
                             Save
-                        </Button>
-                      </div>
-                    )}
-                  </>
-                )}
+                          </Button>
+                        </div>
+                      )}
 
-                {/* Target Cancel button  */}
-                <div className={targetBtnContainer}>
-                  <Button kind="secondary"
-                    onClick={()=>{
-                      dispatch(handleCancelLink());
+                      {/* // edit link btn  */}
+                      {isEditLinkPage && editLinkData?.id && (
+                        <div className={btnContainer}>
+                          <Button
+                            kind="secondary"
+                            onClick={handleCancelOpenedLink}
+                            size="md"
+                          >
+                            Cancel
+                          </Button>
+                          <Button kind="primary" onClick={handleLinkUpdate} size="md">
+                            Save
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {/* Target Cancel button  */}
+                  {/* <div className={targetBtnContainer}>
+                    <Button kind="secondary"
+                      onClick={()=>{
+                        dispatch(handleCancelLink());
                       // isWbe ? navigate('/wbe') : navigate('/');
-                    }}
-                    size="md" type="submit">Cancel</Button>
+                      }}
+                      size="md" type="submit">Cancel</Button>
+                  </div> */}
                 </div>
-              </div>
-            )}
-          </AccordionItem>
-        </Accordion>
+              )}
+            </AccordionItem>
+          </Accordion>
+
+          {/* Target Cancel button  */}
+          <div className={targetBtnContainer}>
+            <Button
+              kind="secondary"
+              onClick={() => {
+                dispatch(handleCancelLink());
+                isWbe ? navigate('/wbe') : navigate('/');
+              }}
+              size="md"
+              type="submit"
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
