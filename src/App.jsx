@@ -8,6 +8,7 @@ import NewLink from './Components/NewLink/NewLink';
 import ProtectedRoute from './Components/Shared/ProtectedRoute/ProtectedRoute';
 import './GlobalStyle.scss';
 import NotFound from './Pages/404';
+import AdminDashboard from './Pages/AdminDashboard';
 import Dashboard from './Pages/Dashboard';
 import LoginPage from './Pages/Login';
 import WbeDashboard from './Pages/WbeDashboard';
@@ -46,6 +47,18 @@ function App() {
           <Route path="/details/:id" element={<LinkDetails />} />
           <Route path="/graph-view" element={<GraphView />} />
           <Route path="/" element={<LinkManager />} />
+        </Route>
+
+        {/* This is admin dashboard  */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        >
+          {/* Child components  */}
         </Route>
 
         <Route path="/login" element={<LoginPage />} />

@@ -1,4 +1,5 @@
 import { FaLink, FaShareAlt } from 'react-icons/fa';
+import { MdExpandMore, MdExpandLess } from 'react-icons/md';
 import { ImMenu } from 'react-icons/im';
 import {
   Button,
@@ -26,6 +27,7 @@ const {
   marginLeft,
   titleDiv,
   seeMLBtn,
+  arIcon,
 } = styles;
 
 const WbeTopNav = () => {
@@ -94,12 +96,16 @@ const WbeTopNav = () => {
                 Links For:{' '}
                 <span className={fileName}>
                   {sourceDataList?.title?.slice(0, 25)}
-                  {showMore ? <span>t{title}</span> : ''}
+                  {showMore ? <span>{title}</span> : ''}
                   {sourceDataList?.title?.length > 25 && !showMore ? '...' : ''}
                 </span>
                 {sourceDataList?.title?.length > 25 && (
                   <span className={seeMLBtn} onClick={toggleTitle}>
-                    {showMore ? 'See Less' : 'See More'}
+                    {showMore ? (
+                      <MdExpandLess className={arIcon} />
+                    ) : (
+                      <MdExpandMore className={arIcon} />
+                    )}
                   </span>
                 )}
               </h5>
