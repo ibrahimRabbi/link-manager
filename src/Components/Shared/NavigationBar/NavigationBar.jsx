@@ -143,6 +143,14 @@ const NavigationBar = () => {
               >
                 Graph View
               </SideNavMenuItem>
+
+              <SideNavMenuItem
+                className={sidebarLink}
+                onClick={() => navigate('/admin')}
+                isActive={pathname === '/admin'}
+              >
+                Dashboard
+              </SideNavMenuItem>
             </SideNavItems>
           </SideNav>
         )}
