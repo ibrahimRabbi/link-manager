@@ -1,0 +1,51 @@
+@use '@carbon/colors';
+@use '@carbon/type';
+
+.mhContainer {
+    height: 50px;
+
+    h4 {
+        text-align: center;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+}
+
+#modalBody {
+    margin-bottom: 0px;
+}
+
+.formContainer {
+    padding: 1vw;
+
+    p {
+        margin-bottom: 10px;
+    }
+
+    label {
+        color: colors.$gray-30;
+        font-size: type.type-scale(2);
+    }
+}
+
+.flNameContainer {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.modalBtnCon {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+
+    button {
+        border-radius: 5px;
+    }
+}
+
+.errText {
+    color: red;
+}

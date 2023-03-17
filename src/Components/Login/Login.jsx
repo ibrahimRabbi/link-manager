@@ -36,9 +36,8 @@ const Login = () => {
     setIsLoading(true);
 
     //track who try to login
-    mixpanel.track({
-      trackEvent: 'Try to login',
-      userName: data.userName,
+    mixpanel.track('Trying to login.', {
+      username: data.userName,
     });
 
     const authData = window.btoa(data.userName + ':' + data.password);
@@ -51,9 +50,9 @@ const Login = () => {
     })
       .then((res) => {
         if (res.ok) {
-          mixpanel.track({
-            trackEvent: 'Successfully logged in',
-            userName: data.userName,
+          //track who try to login
+          mixpanel.track('Successfully logged in.', {
+            username: data.userName,
           });
           return res.json();
         } else {

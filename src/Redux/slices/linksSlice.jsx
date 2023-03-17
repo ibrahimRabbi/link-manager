@@ -3,44 +3,37 @@ import Swal from 'sweetalert2';
 
 // handle report us message
 const handleReportUs = async () => {
-  Swal.fire({
-    title: 'Sent',
-    icon: 'success',
-    confirmButtonColor: '#3085d6',
-    // eslint-disable-next-line max-len
-    text: 'Your message has been sent to our support team who will try to resolve your issue shortly',
-  });
+  // Swal.fire({
+  //   title: 'Sent',
+  //   icon: 'success',
+  //   confirmButtonColor: '#3085d6',
+  //   // eslint-disable-next-line max-len
+  //   text: 'Your message has been sent to our support team who
+  // will try to resolve your issue shortly',
+  // });
 };
 
 // reduce duplication code for message
 const clientMessages = ({ isErrCatch, error, status, message }) => {
   if (isErrCatch) {
+    handleReportUs();
     Swal.fire({
       icon: 'error',
       title: error.message,
-      showCancelButton: true,
-      cancelButtonColor: '#d33',
       confirmButtonColor: '#3085d6',
-      confirmButtonText: 'Report us',
       // eslint-disable-next-line max-len
       text: 'Your request failed. Please try to solve this issue or report to us to solve the problem',
-    }).then((result) => {
-      if (result.isConfirmed) handleReportUs();
     });
   }
 
   if (status === 400) {
+    handleReportUs();
     Swal.fire({
       title: message,
       icon: 'warning',
       // eslint-disable-next-line max-len
       text: 'Please check There is some data missing from the data required to create the link or you can report to us to resolve the issue.',
-      showCancelButton: true,
-      confirmButtonText: 'Report us',
-      cancelButtonColor: '#d33',
       confirmButtonColor: '#3085d6',
-    }).then((result) => {
-      if (result.isConfirmed) handleReportUs();
     });
   } else if (status === 401) {
     Swal.fire({
@@ -48,20 +41,16 @@ const clientMessages = ({ isErrCatch, error, status, message }) => {
       icon: 'question',
       confirmButtonColor: '#3085d6',
       // eslint-disable-next-line max-len
-      text: 'Sorry, you do not have access to create links. Please make sure you have permission to create links',
+      text: 'Sorry, you do not have access to use this API. Please make sure you have permission to use this API',
     });
   } else if (status === 500) {
+    handleReportUs();
     Swal.fire({
       title: message,
       icon: 'error',
       // eslint-disable-next-line max-len
       text: 'Failed to connect to the server due to some issue please check it or you can report it to us to solve this issue.',
-      showCancelButton: true,
-      cancelButtonColor: '#d33',
       confirmButtonColor: '#3085d6',
-      confirmButtonText: 'Report us',
-    }).then((result) => {
-      if (result.isConfirmed) handleReportUs();
     });
   }
 };

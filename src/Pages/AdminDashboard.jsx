@@ -1,41 +1,31 @@
 import {
-  Button,
   SideNav,
   SideNavItems,
   SideNavLink,
-  SideNavMenu,
   SideNavMenuItem,
   Theme,
 } from '@carbon/react';
 import React, { useState } from 'react';
-import { FaUserTie } from 'react-icons/fa';
+import { FaUsers } from 'react-icons/fa';
+import { TiArrowBackOutline } from 'react-icons/ti';
 import { SlOrganization } from 'react-icons/sl';
 import { ImMenu } from 'react-icons/im';
-import {
-  //  useLocation,
-  useNavigate,
-} from 'react-router-dom';
-import UseTable from '../Components/AdminDasComponents/UseTable';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const [isSideNav, setIsSideNav] = useState(false);
   const navigate = useNavigate();
-  //   const {pathname} = useLocation();
+  const { pathname } = useLocation();
   return (
     <>
       <div
         style={{
           marginLeft: isSideNav ? '250px' : '55px',
           transition: 'all 0.2s',
-          padding: '0 1vw',
+          padding: '0 1vw 2vh',
         }}
       >
-        <h2>This is admin dashboard</h2>
-        <Button size="md" kind="primary" onClick={() => navigate('/')}>
-          Back
-        </Button>
-
-        <UseTable />
+        <Outlet />
       </div>
       <Theme theme="g100">
         <SideNav
@@ -48,54 +38,37 @@ const AdminDashboard = () => {
           <SideNavItems>
             <SideNavMenuItem
               style={{ margin: '0 0 20px -5px' }}
-              // className={sidebarLink}
+              className={'aDashboardLink'}
               onClick={() => setIsSideNav(!isSideNav)}
             >
-              <ImMenu size={30} />
+              <ImMenu style={{ cursor: 'pointer' }} size={30} />
             </SideNavMenuItem>
 
             <SideNavLink
-              renderIcon={() => <FaUserTie size={40} />}
-              //   className={sidebarLink}
-              //   onClick={() => navigate('/admin/user')}
-              //   isActive={pathname === '/admin/user'}
+              renderIcon={() => <FaUsers />}
+              className={'aDashboardLink'}
+              onClick={() => navigate('/admin/users')}
+              isActive={pathname === '/admin/users'}
             >
-              {' '}
-              User
+              Users
             </SideNavLink>
 
-            <SideNavMenu
-              title="Organization"
-              renderIcon={() => <SlOrganization size={30} />}
-              //   className={sidebarLink}
-              //   onClick={() => navigate('/admin/Organization')}
-              //   isActive={pathname === '/admin/Organization'}
+            <SideNavLink
+              renderIcon={() => <SlOrganization />}
+              className={'aDashboardLink'}
+              onClick={() => navigate('/admin/organization')}
+              isActive={pathname === '/admin/organization'}
             >
-              <SideNavMenuItem>General Setting</SideNavMenuItem>
-              <SideNavMenuItem>Team</SideNavMenuItem>
-            </SideNavMenu>
+              Organization
+            </SideNavLink>
 
-            <SideNavMenu
-              title="Customers"
-              renderIcon={() => <SlOrganization size={30} />}
-              //   className={sidebarLink}
-              //   onClick={() => navigate('/admin/Organization')}
-              //   isActive={pathname === '/admin/Organization'}
+            <SideNavLink
+              renderIcon={() => <TiArrowBackOutline />}
+              className={'aDashboardLink'}
+              onClick={() => navigate('/')}
             >
-              <SideNavMenuItem>Customers 1</SideNavMenuItem>
-              <SideNavMenuItem>Customers 2</SideNavMenuItem>
-            </SideNavMenu>
-
-            <SideNavMenu
-              title="Documentation"
-              renderIcon={() => <SlOrganization size={30} />}
-              //   className={sidebarLink}
-              //   onClick={() => navigate('/admin/Organization')}
-              //   isActive={pathname === '/admin/Organization'}
-            >
-              <SideNavMenuItem>Documentation 1</SideNavMenuItem>
-              <SideNavMenuItem>Documentation 2</SideNavMenuItem>
-            </SideNavMenu>
+              Back to home
+            </SideNavLink>
           </SideNavItems>
         </SideNav>
       </Theme>

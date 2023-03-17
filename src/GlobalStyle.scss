@@ -70,7 +70,7 @@
   }
 }
 
-.linkFileContainer > h5 {
+.linkFileContainer>h5 {
   span {
     margin-left: 10px;
     margin-bottom: -10px;
@@ -111,4 +111,9 @@
 
 .cds--accordion__content {
   padding: 0 !important;
+}
+
+.aDashboardLink {
+  cursor: pointer;
+  margin-bottom: 5px;
 }
