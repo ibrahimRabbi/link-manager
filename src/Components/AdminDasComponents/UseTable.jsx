@@ -1,7 +1,12 @@
-import { Download, Save, TrashCan } from '@carbon/icons-react';
+import {
+  // Download,
+  Edit,
+  TrashCan,
+} from '@carbon/icons-react';
 import {
   Button,
   DataTable,
+  Pagination,
   Table,
   TableBatchAction,
   TableBatchActions,
@@ -14,99 +19,36 @@ import {
   TableSelectAll,
   TableSelectRow,
   TableToolbar,
-  TableToolbarAction,
+  // TableToolbarAction,
   TableToolbarContent,
-  TableToolbarMenu,
+  // TableToolbarMenu,
   TableToolbarSearch,
 } from '@carbon/react';
 import React from 'react';
 
-// demo data
-const headerData = [
-  {
-    header: 'Name',
-    key: 'name',
-  },
-  {
-    header: 'Protocol',
-    key: 'protocol',
-  },
-  {
-    header: 'Port',
-    key: 'port',
-  },
-  {
-    header: 'Rule',
-    key: 'rule',
-  },
-  {
-    header: 'Attached Groups',
-    key: 'attached_groups',
-  },
-  {
-    header: 'Status',
-    key: 'status',
-  },
-];
+const UseTable = ({ props }) => {
+  const {
+    title,
+    headerData,
+    rowData,
+    handleEdit,
+    handleDelete,
+    handleAddNew,
+    handlePagination,
+    totalItems,
+    totalPages,
+    page,
+  } = props;
 
-const rowData = [
-  {
-    attached_groups: 'Kevins VM Groups',
-    id: 'a',
-    name: 'Load Balancer 3',
-    port: 3000,
-    protocol: 'HTTP',
-    rule: 'Round robin',
-    status: 'Disabled',
-  },
-  {
-    attached_groups: 'Maureens VM Groups',
-    id: 'b',
-    name: 'Load Balancer 1',
-    port: 443,
-    protocol: 'HTTP',
-    rule: 'Round robin',
-    status: 'Starting',
-  },
-  {
-    attached_groups: 'Andrews VM Groups',
-    id: 'c',
-    name: 'Load Balancer 2',
-    port: 80,
-    protocol: 'HTTP',
-    rule: 'DNS delegation',
-    status: 'Active',
-  },
-  {
-    attached_groups: 'Marcs VM Groups',
-    id: 'd',
-    name: 'Load Balancer 6',
-    port: 3000,
-    protocol: 'HTTP',
-    rule: 'Round robin',
-    status: 'Disabled',
-  },
-  {
-    attached_groups: 'Mels VM Groups',
-    id: 'e',
-    name: 'Load Balancer 4',
-    port: 443,
-    protocol: 'HTTP',
-    rule: 'Round robin',
-    status: 'Starting',
-  },
-  {
-    attached_groups: 'Ronjas VM Groups',
-    id: 'f',
-    name: 'Load Balancer 5',
-    port: 80,
-    protocol: 'HTTP',
-    rule: 'DNS delegation',
-    status: 'Active',
-  },
-];
-
-const UseTable = () => {
+  console.log(
+    'totalItems: ',
+    totalItems,
+    ', totalPages: ',
+    totalPages,
+    ', page: ',
+    page,
+    rowData,
+  );
   return (
     <div>
       <DataTable rows={rowData} headers={headerData}>
@@ -119,84 +61,128 @@ const UseTable = () => {
           getBatchActionProps,
           onInputChange,
           selectedRows,
-        }) => (
-          <TableContainer title="DataTable with batch actions">
-            <TableToolbar>
-              <TableBatchActions {...getBatchActionProps()}>
-                <TableBatchAction
-                  tabIndex={getBatchActionProps().shouldShowBatchActions ? 0 : -1}
-                  renderIcon={TrashCan}
-                  onClick={() => console.log(selectedRows)}
-                >
-                  Delete
-                </TableBatchAction>
-                <TableBatchAction
-                  tabIndex={getBatchActionProps().shouldShowBatchActions ? 0 : -1}
-                  renderIcon={Save}
-                  onClick={() => console.log(selectedRows)}
-                >
-                  Save
-                </TableBatchAction>
-                <TableBatchAction
+        }) => {
+          // convert from table DS to original DS
+          selectedRows = selectedRows?.reduce((acc, curr) => {
+            const value = curr.cells.reduce((ac, cr) => {
+              ac[cr.info.header] = cr.value;
+              return ac;
+            }, {});
+            acc.push({ ...value, id: curr.id });
+            return acc;
+          }, []);
+
+          return (
+            <TableContainer title={title}>
+              <TableToolbar>
+                <TableBatchActions {...getBatchActionProps()}>
+                  <TableBatchAction
+                    tabIndex={getBatchActionProps().shouldShowBatchActions ? 0 : -1}
+                    renderIcon={TrashCan}
+                    onClick={() => handleDelete(selectedRows)}
+                  >
+                    Delete
+                  </TableBatchAction>
+
+                  <TableBatchAction
+                    tabIndex={getBatchActionProps().shouldShowBatchActions ? 0 : -1}
+                    renderIcon={Edit}
+                    onClick={() => handleEdit(selectedRows)}
+                  >
+                    Edit
+                  </TableBatchAction>
+
+                  {/* <TableBatchAction
                   tabIndex={getBatchActionProps().shouldShowBatchActions ? 0 : -1}
                   renderIcon={Download}
-                  onClick={() => console.log(selectedRows)}
+                  onClick={() => handleDelete(selectedRows)}
                 >
-                  Download
-                </TableBatchAction>
-              </TableBatchActions>
-              <TableToolbarContent>
-                <TableToolbarSearch
-                  tabIndex={getBatchActionProps().shouldShowBatchActions ? -1 : 0}
-                  onChange={onInputChange}
-                />
-                <TableToolbarMenu
+                Download
+                </TableBatchAction> */}
+                </TableBatchActions>
+                <TableToolbarContent>
+                  <TableToolbarSearch
+                    placeholder="Search User"
+                    tabIndex={getBatchActionProps().shouldShowBatchActions ? -1 : 0}
+                    onChange={onInputChange}
+                  />
+
+                  {/* <TableToolbarMenu
                   tabIndex={getBatchActionProps().shouldShowBatchActions ? -1 : 0}
                 >
                   <TableToolbarAction onClick={() => console.log('Action 1')}>
-                    Action 1
+                  Action 1
                   </TableToolbarAction>
                   <TableToolbarAction onClick={() => console.log('Action 2')}>
-                    Action 2
+                  Action 2
                   </TableToolbarAction>
                   <TableToolbarAction onClick={() => console.log('Action 3')}>
-                    Action 3
+                  Action 3
                   </TableToolbarAction>
-                </TableToolbarMenu>
-                <Button
-                  tabIndex={getBatchActionProps().shouldShowBatchActions ? -1 : 0}
-                  onClick={() => console.log(selectedRows)}
-                  size="md"
-                  kind="primary"
-                >
-                  Add new
-                </Button>
-              </TableToolbarContent>
-            </TableToolbar>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableSelectAll {...getSelectionProps()} />
-                  {headers.map((header) => (
-                    <TableHeader key={''} {...getHeaderProps({ header })}>
-                      {header.header}
-                    </TableHeader>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.map((row) => (
-                  <TableRow key={''} {...getRowProps({ row })}>
-                    <TableSelectRow {...getSelectionProps({ row })} />
-                    {row.cells.map((cell) => (
-                      <TableCell key={cell.id}>{cell.value}</TableCell>
+                </TableToolbarMenu> */}
+
+                  <Button
+                    tabIndex={getBatchActionProps().shouldShowBatchActions ? -1 : 0}
+                    onClick={() => handleAddNew()}
+                    size="md"
+                    kind="primary"
+                  >
+                    Add New
+                  </Button>
+                </TableToolbarContent>
+              </TableToolbar>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableSelectAll {...getSelectionProps()} />
+                    {headers.map((header) => (
+                      <TableHeader key={''} {...getHeaderProps({ header })}>
+                        {header.header}
+                      </TableHeader>
                     ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
+                </TableHead>
+                <TableBody>
+                  {rows?.map((row, i) => (
+                    <TableRow key={i} {...getRowProps({ row })}>
+                      <TableSelectRow {...getSelectionProps({ row })} />
+                      {row?.cells?.map((cell) => (
+                        <TableCell key={cell.id}>{cell.value}</TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+
+                  {/* {
+                rowData?.map((row)=>{
+                  console.log(row);
+                  return <TableRow key={row.user_id} {...getRowProps({ row })}>
+                    <TableSelectRow {...getSelectionProps({ row })} />
+                    <TableCell>{row?.user_id}</TableCell>
+                    <TableCell>{row?.username}</TableCell>
+                    <TableCell>{row?.email}</TableCell>
+                    <TableCell>{row?.link}</TableCell>
+                  </TableRow>;
+                })
+              } */}
+                </TableBody>
+              </Table>
+              {/* --- Pagination --- */}
+              <Pagination
+                // className={pagination}
+                backwardText="Previous page"
+                forwardText="Next page"
+                itemsPerPageText="Items per page:"
+                onChange={handlePagination}
+                // page={page}
+                // pageSize={page}
+                pageSizes={[5, 10, 20, 50, 100]}
+                size="lg"
+                totalItems={totalItems}
+                isLastPage={false}
+              />
+            </TableContainer>
+          );
+        }}
       </DataTable>
     </div>
   );

@@ -45,7 +45,6 @@ const {
   sourceValue,
   targetContainer,
   targetIframe,
-  // targetModalDiv,
   targetBtnContainer,
   targetSearchContainer,
   accordionItem,
@@ -242,11 +241,14 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           const results = response['oslc:results'];
           const targetArray = [];
           results?.forEach((v, i) => {
+            const koatlUri = results[i]['koatl:apiUrl'];
+            const content = results[i]['oslc:content'];
             const label = results[i]['oslc:label'];
             const uri = results[i]['rdf:resource'];
             const type = results[i]['rdf:type'];
-            targetArray.push({ uri, label, type });
+            targetArray.push({ uri, label, type, koatlUri, content });
           });
+          console.log(targetArray);
           dispatch(handleOslcResponse(true));
           dispatch(handleTargetDataArr([...targetArray]));
         }

@@ -60,7 +60,6 @@ const WbeTopNav = () => {
   const toggleTitle = () => {
     setShowMore(!showMore);
   };
-
   return (
     <>
       <div className="mainContainer">
@@ -93,7 +92,8 @@ const WbeTopNav = () => {
             {/* with see more and see less btn show title */}
             <div className={titleDiv}>
               <h5>
-                Links For:{' '}
+                Links for {sourceDataList?.appName}
+                <span> {sourceDataList?.sourceType}</span> :
                 <span className={fileName}>
                   {sourceDataList?.title?.slice(0, 25)}
                   {showMore ? <span>{title}</span> : ''}

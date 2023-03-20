@@ -1,5 +1,7 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
+import Organization from './Components/AdminDasComponents/Organization/Organization';
+import Users from './Components/AdminDasComponents/Users/Users';
 import EditLink from './Components/EditLink/EditLink';
 import GraphView from './Components/GraphView/GraphView';
 import LinkDetails from './Components/LinkDetails/LinkDetails';
@@ -58,7 +60,9 @@ function App() {
             </ProtectedRoute>
           }
         >
-          {/* Child components  */}
+          <Route path="/admin/users" element={<Users />} />
+          <Route path="/admin/organization" element={<Organization />} />
+          <Route path="/admin" element={<Users />} />
         </Route>
 
         <Route path="/login" element={<LoginPage />} />
