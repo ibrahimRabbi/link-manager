@@ -1,8 +1,4 @@
-import {
-  // Download,
-  Edit,
-  TrashCan,
-} from '@carbon/icons-react';
+import { Add, Edit, TrashCan } from '@carbon/icons-react';
 import {
   Button,
   DataTable,
@@ -37,6 +33,7 @@ const UseTable = ({ props }) => {
     handlePagination,
     totalItems,
     totalPages,
+    pageSize,
     page,
   } = props;
 
@@ -76,14 +73,7 @@ const UseTable = ({ props }) => {
             <TableContainer title={title}>
               <TableToolbar>
                 <TableBatchActions {...getBatchActionProps()}>
-                  <TableBatchAction
-                    tabIndex={getBatchActionProps().shouldShowBatchActions ? 0 : -1}
-                    renderIcon={TrashCan}
-                    onClick={() => handleDelete(selectedRows)}
-                  >
-                    Delete
-                  </TableBatchAction>
-
+                  {/* Edit  */}
                   <TableBatchAction
                     tabIndex={getBatchActionProps().shouldShowBatchActions ? 0 : -1}
                     renderIcon={Edit}
@@ -92,13 +82,14 @@ const UseTable = ({ props }) => {
                     Edit
                   </TableBatchAction>
 
-                  {/* <TableBatchAction
-                  tabIndex={getBatchActionProps().shouldShowBatchActions ? 0 : -1}
-                  renderIcon={Download}
-                  onClick={() => handleDelete(selectedRows)}
-                >
-                Download
-                </TableBatchAction> */}
+                  {/* Delete  */}
+                  <TableBatchAction
+                    tabIndex={getBatchActionProps().shouldShowBatchActions ? 0 : -1}
+                    renderIcon={TrashCan}
+                    onClick={() => handleDelete(selectedRows)}
+                  >
+                    Delete
+                  </TableBatchAction>
                 </TableBatchActions>
                 <TableToolbarContent>
                   <TableToolbarSearch
@@ -122,6 +113,7 @@ const UseTable = ({ props }) => {
                 </TableToolbarMenu> */}
 
                   <Button
+                    renderIcon={Add}
                     tabIndex={getBatchActionProps().shouldShowBatchActions ? -1 : 0}
                     onClick={() => handleAddNew()}
                     size="md"
@@ -168,17 +160,14 @@ const UseTable = ({ props }) => {
               </Table>
               {/* --- Pagination --- */}
               <Pagination
-                // className={pagination}
                 backwardText="Previous page"
                 forwardText="Next page"
                 itemsPerPageText="Items per page:"
+                pageSize={pageSize}
                 onChange={handlePagination}
-                // page={page}
-                // pageSize={page}
-                pageSizes={[5, 10, 20, 50, 100]}
+                pageSizes={[5, 10, 25, 50, 100]}
                 size="lg"
-                totalItems={totalItems}
-                isLastPage={false}
+                totalItems={totalItems ? totalItems : 0}
               />
             </TableContainer>
           );

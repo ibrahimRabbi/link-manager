@@ -2,81 +2,146 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import Swal from 'sweetalert2';
 import clientMessages from './responseMsg';
 
+//  reduce api calling codes for get response
+const callAPI = async ({ url, header }) => {
+  // check is need to send body data or not
+  // Call API
+  const response = await fetch(url, header)
+    .then((res) => {
+      console.log(res);
+      if (res.ok) {
+        if (res.status === 201) return res.json();
+        else if (res.status !== 204) {
+          return res.json().then((data) => {
+            if (data.message) {
+              Swal.fire({
+                title: data.status,
+                icon: 'success',
+                text: data.message,
+                confirmButtonColor: '#3085d6',
+              });
+            }
+            return data;
+          });
+        }
+      } else {
+        if (res.status === 304) {
+          Swal.fire({
+            title: 'Already exists',
+            icon: 'info',
+            text: 'This User is already exists. please try to create another user',
+            confirmButtonColor: '#3085d6',
+          });
+        } else if (res.status === 400) {
+          // clientMessages({ status: res.status, message: res.statusText });
+          console.log(res.status);
+        } else if (res.status === 401) {
+          // clientMessages({ status: res.status, message: res.statusText });
+          console.log(res.status);
+        } else if (res.status === 403) {
+          console.log(res.status, res.statusText);
+        } else if (res.status === 409) {
+          console.log(res.status, res.statusText);
+        } else if (res.status === 500) {
+          // clientMessages({ status: res.status, message: res.statusText });
+          console.log(res.status);
+        }
+      }
+    })
+    .catch((err) => console.log(err));
+  return response;
+};
+
 // Fetch get all users
 export const fetchUsers = createAsyncThunk('users/fetchUsers', async ({ url, token }) => {
-  const response = await fetch(url, {
+  const header = {
     method: 'GET',
     headers: {
       accept: 'application/json',
       authorization: 'Bearer ' + token,
     },
-  })
-    .then((res) => {
-      if (res.ok) return res.json();
-
-      console.log(res);
-    })
-    .catch((err) => console.log(err));
-  return response;
+  };
+  const res = callAPI({ url, header });
+  return res;
 });
 
 // Create New User
 export const fetchCreateUser = createAsyncThunk(
   'users/fetchCreateUser',
   async ({ url, token, bodyData, reset }) => {
-    const response = await fetch(`${url}`, {
+    const header = {
       method: 'POST',
       headers: {
-        'Content-type': 'application/json',
+        accept: 'application/json',
         authorization: 'Bearer ' + token,
       },
       body: JSON.stringify(bodyData),
-    })
-      .then((res) => {
-        reset();
-        if (res.ok) {
-          return res.json().then((data) => {
-            Swal.fire({
-              title: 'Success',
-              icon: 'success',
-              text: data.message,
-              confirmButtonColor: '#3085d6',
-            });
-            return data;
-          });
-        } else {
-          if (res.status === 304) {
-            Swal.fire({
-              title: 'Already exists',
-              icon: 'info',
-              text: 'This User is already exists. please try to create another user',
-              confirmButtonColor: '#3085d6',
-            });
-          } else if (res.status === 400) {
-            clientMessages({ status: res.status, message: res.statusText });
-          } else if (res.status === 401) {
-            clientMessages({ status: res.status, message: res.statusText });
-          } else if (res.status === 403) {
-            console.log(res.status, res.statusText);
-          } else if (res.status === 409) {
-            console.log(res.status, res.statusText);
-          } else if (res.status === 500) {
-            clientMessages({ status: res.status, message: res.statusText });
-          }
-        }
-        // if links not created we need return a value
-        return 'Link creating Failed';
-      })
-      .catch((error) => clientMessages({ isErrCatch: true, error }));
-    return response;
+    };
+    const res = callAPI({ url, header });
+    reset();
+    return res;
+
+    // const response = await fetch(`${url}`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-type': 'application/json',
+    //     authorization: 'Bearer ' + token,
+    //   },
+    //   body: JSON.stringify(bodyData),
+    // })
+    //   .then((res) => {
+    //     reset();
+    //     if (res.ok) {
+    //       return res.json().then((data) => {
+    //         console.log(data);
+    //         Swal.fire({
+    //           title: 'Success',
+    //           icon: 'success',
+    //           text: data.message,
+    //           confirmButtonColor: '#3085d6',
+    //         });
+    //         return data;
+    //       });
+    //     } else {
+    //       if (res.status === 304) {
+    //         Swal.fire({
+    //           title: 'Already exists',
+    //           icon: 'info',
+    //           text: 'This User is already exists. please try to create another user',
+    //           confirmButtonColor: '#3085d6',
+    //         });
+    //       } else if (res.status === 400) {
+    //         clientMessages({ status: res.status, message: res.statusText });
+    //       } else if (res.status === 401) {
+    //         clientMessages({ status: res.status, message: res.statusText });
+    //       } else if (res.status === 403) {
+    //         console.log(res.status, res.statusText);
+    //       } else if (res.status === 409) {
+    //         console.log(res.status, res.statusText);
+    //       } else if (res.status === 500) {
+    //         clientMessages({ status: res.status, message: res.statusText });
+    //       }
+    //     }
+    //     // if links not created we need return a value
+    //     return 'Link creating Failed';
+    //   })
+    //   .catch((error) => clientMessages({ isErrCatch: true, error }));
+    // return response;
   },
 );
-// Create New User
+// Delete User
 export const fetchDeleteUser = createAsyncThunk(
   'users/fetchDeleteUser',
   async ({ url, token }) => {
+    // const res = callAPI({
+    //   method:'DELETE',
+    //   url,
+    //   token,
+    // });
+    // console.log(res);
+    // return res;
     const response = await fetch(`${url}`, {
-      method: 'POST',
+      method: 'DELETE',
       headers: {
         'Content-type': 'application/json',
         authorization: 'Bearer ' + token,
@@ -143,6 +208,7 @@ export const usersSlice = createSlice({
     });
     builder.addCase(fetchUsers.fulfilled, (state, { payload }) => {
       state.usersLoading = false;
+      console.log(payload);
       if (payload?.items) {
         // just showing purpose i am using this structure when api will
         //  be updated then i will remove it
@@ -152,7 +218,7 @@ export const usersSlice = createSlice({
             enabled: curr.enabled,
             first_name: curr.first_name,
             last_name: curr.last_name,
-            id: curr.user_id.toString(),
+            id: curr.user_id?.toString(),
             link: curr.link,
             username: curr.username,
           });
