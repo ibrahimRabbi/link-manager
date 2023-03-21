@@ -2,6 +2,7 @@ import {
   SideNav,
   SideNavItems,
   SideNavLink,
+  // SideNavMenu,
   SideNavMenuItem,
   Theme,
 } from '@carbon/react';
@@ -43,6 +44,21 @@ const AdminDashboard = () => {
             >
               <ImMenu style={{ cursor: 'pointer' }} size={30} />
             </SideNavMenuItem>
+
+            {/* <SideNavMenu title="Users"
+              renderIcon={() => <FaUsers />}>
+              <SideNavMenuItem
+                className={'aDashboardLink'}
+                onClick={() => navigate('/admin/users')}
+                isActive={pathname === '/admin/users'}
+              > Active Users</SideNavMenuItem>
+
+              <SideNavMenuItem
+                className={'aDashboardLink'}
+                onClick={() => navigate('/admin/users')}
+                isActive={pathname === '/admin/users'}
+              > ALL Users</SideNavMenuItem>
+            </SideNavMenu> */}
 
             <SideNavLink
               renderIcon={() => <FaUsers />}

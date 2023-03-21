@@ -243,10 +243,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           results?.forEach((v, i) => {
             const koatlUri = results[i]['koatl:apiUrl'];
             const content = results[i]['oslc:content'];
+            const contentLine = results[i]['oslc:contentLine'];
             const label = results[i]['oslc:label'];
             const uri = results[i]['rdf:resource'];
             const type = results[i]['rdf:type'];
-            targetArray.push({ uri, label, type, koatlUri, content });
+            targetArray.push({ uri, label, type, koatlUri, content, contentLine });
           });
           console.log(targetArray);
           dispatch(handleOslcResponse(true));

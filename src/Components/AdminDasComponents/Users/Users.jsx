@@ -1,5 +1,6 @@
 import {
   Button,
+  Checkbox,
   ComposedModal,
   ModalBody,
   ModalHeader,
@@ -33,6 +34,14 @@ const headerData = [
     key: 'id',
   },
   {
+    header: 'First Name',
+    key: 'first_name',
+  },
+  {
+    header: 'Last Name',
+    key: 'last_name',
+  },
+  {
     header: 'User Name',
     key: 'username',
   },
@@ -40,14 +49,16 @@ const headerData = [
     header: 'Email',
     key: 'email',
   },
-  {
-    header: 'Link',
-    key: 'link',
-  },
+  // {
+  //   header: 'Link',
+  //   key: 'link',
+  // },
 ];
 
 const Users = () => {
-  const { allUsers, usersLoading, isUserCreated } = useSelector((state) => state.users);
+  const { allUsers, usersLoading, isUserCreated, isUserDeleted } = useSelector(
+    (state) => state.users,
+  );
   const [isAddModal, setIsAddModal] = useState(false);
   const [editData, setEditData] = useState({});
   const [currPage, setCurrPage] = useState(1);
@@ -66,59 +77,79 @@ const Users = () => {
     setIsAddModal(true);
   };
   const addModalClose = () => {
+    setEditData({});
     setIsAddModal(false);
     reset();
   };
 
-  // create user form submit
+  // create user and edit user form submit
   const handleAddUser = (data) => {
     setIsAddModal(false);
-    data.enabled = true;
     console.log(data);
-    const postUrl = `${lmApiUrl}/user`;
-    dispatch(
-      fetchCreateUser({
-        url: postUrl,
-        token: authCtx.token,
-        bodyData: data,
-        reset,
-      }),
-    );
+    if (editData?.email) {
+      console.log(data);
+    } else {
+      const postUrl = `${lmApiUrl}/user`;
+      dispatch(
+        fetchCreateUser({
+          url: postUrl,
+          token: authCtx.token,
+          bodyData: data,
+          reset,
+        }),
+      );
+    }
   };
 
   // Pagination
   const handlePagination = (values) => {
-    console.log(values);
     setPageSize(values.pageSize);
     setCurrPage(values.page);
   };
 
   // console.log(allUsers);
   useEffect(() => {
+    console.log('Api called');
     const getUrl = `${lmApiUrl}/user?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchUsers({ url: getUrl, token: authCtx.token }));
-  }, [isUserCreated]);
+  }, [isUserCreated, isUserDeleted, pageSize, currPage]);
 
   // handle delete user
   const handleDelete = (data) => {
-    const id = data[0]?.id;
-    if (data.length === 1) {
-      const deleteUrl = `${lmApiUrl}/user?user_id=${Number(id)}`;
-      dispatch(fetchDeleteUser({ url: deleteUrl, token: authCtx.token }));
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry!!',
-        icon: 'info',
-        text: 'You can not delete more than 1 user at the same time',
-      });
-    }
+    // const id = data[0]?.id;
+    const idList = data?.map((v) => Number(v.id));
+    // console.log(ids);
+    // if (data.length === 1) {
+    Swal.fire({
+      title: 'Are you sure',
+      icon: 'info',
+      text: 'Do you want to delete the users!!',
+      cancelButtonColor: 'red',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#3085d6',
+      reverseButtons: true,
+    }).then((value) => {
+      if (value.isConfirmed) {
+        const deleteUrl = `${lmApiUrl}/user?id_list=${idList}`;
+        dispatch(fetchDeleteUser({ url: deleteUrl, token: authCtx.token }));
+      }
+    });
+    // }
+    // else if (data.length > 1) {
+    //   Swal.fire({
+    //     title: 'Sorry!!',
+    //     icon: 'info',
+    //     text: 'You can not delete more than 1 user at the same time',
+    //   });
+    // }
   };
   // handle Edit user
   const handleEdit = (data) => {
     if (data.length === 1) {
       setIsAddModal(true);
-      const d = data[0];
-      setEditData({ ...d, title: 'Edit A User' });
+      const data1 = data[0];
+      setEditData(data1);
     } else if (data.length > 1) {
       Swal.fire({
         title: 'Sorry!!',
@@ -128,7 +159,7 @@ const Users = () => {
     }
   };
 
-  console.log('Edit data: ', editData);
+  // console.log('Edit data: ', editData);
 
   // send props in the batch action table
   const tableProps = {
@@ -141,6 +172,7 @@ const Users = () => {
     handlePagination,
     totalItems: allUsers?.total_items,
     totalPages: allUsers?.total_pages,
+    pageSize,
     page: allUsers?.page,
   };
 
@@ -150,7 +182,7 @@ const Users = () => {
       <Theme theme="g10">
         <ComposedModal open={isAddModal} onClose={addModalClose}>
           <div className={mhContainer}>
-            <h4>Add New User</h4>
+            <h4>{editData?.email ? 'Edit User' : 'Add New User'}</h4>
             <ModalHeader onClick={addModalClose} />
           </div>
 
@@ -161,6 +193,7 @@ const Users = () => {
                 <div className={flNameContainer}>
                   <div>
                     <TextInput
+                      defaultValue={editData?.first_name}
                       type="text"
                       id="first_name"
                       labelText="First Name"
@@ -173,6 +206,7 @@ const Users = () => {
                   {/* last name  */}
                   <div>
                     <TextInput
+                      defaultValue={editData?.last_name}
                       type="text"
                       id="last_name"
                       labelText="Last Name"
@@ -186,6 +220,7 @@ const Users = () => {
                 {/* username  */}
                 <span>
                   <TextInput
+                    defaultValue={editData?.username}
                     type="text"
                     id="userName"
                     labelText="Username"
@@ -198,6 +233,7 @@ const Users = () => {
                 {/* email  */}
                 <span>
                   <TextInput
+                    defaultValue={editData?.email}
                     type="email"
                     id="email"
                     labelText="Email"
@@ -207,12 +243,19 @@ const Users = () => {
                   <p className={errText}>{errors.email && 'Invalid Email'}</p>
                 </span>
 
+                <Checkbox
+                  labelText="Enabled"
+                  id="checkbox-enabled"
+                  defaultChecked={editData?.enabled}
+                  {...register('enabled')}
+                />
+
                 <div className={modalBtnCon}>
                   <Button kind="secondary" size="md" onClick={addModalClose}>
                     Cancel
                   </Button>
                   <Button kind="primary" size="md" type="submit">
-                    Create
+                    {editData?.email ? 'Save' : 'Ok'}
                   </Button>
                 </div>
               </Stack>
