@@ -11,6 +11,7 @@ import { FaUsers } from 'react-icons/fa';
 import { TiArrowBackOutline } from 'react-icons/ti';
 import { SlOrganization } from 'react-icons/sl';
 import { ImMenu } from 'react-icons/im';
+import { GrAppsRounded } from 'react-icons/gr';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
@@ -61,25 +62,34 @@ const AdminDashboard = () => {
             </SideNavMenu> */}
 
             <SideNavLink
-              renderIcon={() => <FaUsers />}
+              renderIcon={FaUsers}
               className={'aDashboardLink'}
               onClick={() => navigate('/admin/users')}
-              isActive={pathname === '/admin/users'}
+              isActive={pathname === '/admin' || pathname === '/admin/users'}
             >
               Users
             </SideNavLink>
 
             <SideNavLink
-              renderIcon={() => <SlOrganization />}
+              renderIcon={SlOrganization}
               className={'aDashboardLink'}
-              onClick={() => navigate('/admin/organization')}
-              isActive={pathname === '/admin/organization'}
+              onClick={() => navigate('/admin/organizations')}
+              isActive={pathname === '/admin/organizations'}
             >
-              Organization
+              Organizations
             </SideNavLink>
 
             <SideNavLink
-              renderIcon={() => <TiArrowBackOutline />}
+              renderIcon={GrAppsRounded}
+              className={'aDashboardLink'}
+              onClick={() => navigate('/admin/applications')}
+              isActive={pathname === '/admin/applications'}
+            >
+              Applications
+            </SideNavLink>
+
+            <SideNavLink
+              renderIcon={TiArrowBackOutline}
               className={'aDashboardLink'}
               onClick={() => navigate('/')}
             >

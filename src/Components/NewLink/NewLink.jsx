@@ -249,7 +249,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             const type = results[i]['rdf:type'];
             targetArray.push({ uri, label, type, koatlUri, content, contentLine });
           });
-          console.log(targetArray);
           dispatch(handleOslcResponse(true));
           dispatch(handleTargetDataArr([...targetArray]));
         }
@@ -319,10 +318,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     // console.log('NewLink.jsx -> handleSaveLink -> targetDataArr', targetDataArr);
     const targetsData = targetDataArr?.map((data) => {
       // console.log('NewLink.jsx -> handleSaveLink -> targetDataArr -> data', data);
+      const id = data?.contentLine ? data.uri + '#' + data?.contentLine : data.uri;
       return {
         target_type: data.type,
         target_title: data.label,
-        target_id: data.uri,
+        target_id: id,
         target_project: projectType,
         target_provider: 'JIRA',
       };
@@ -344,6 +344,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       status: 'active',
       target_data: targetsData,
     };
+    console.log(linkObj);
     dispatch(
       fetchCreateLink({
         url: apiURL,

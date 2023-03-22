@@ -1,6 +1,5 @@
 import {
   Button,
-  Checkbox,
   ComposedModal,
   ModalBody,
   ModalHeader,
@@ -34,6 +33,10 @@ const headerData = [
     key: 'id',
   },
   {
+    header: 'User Name',
+    key: 'username',
+  },
+  {
     header: 'First Name',
     key: 'first_name',
   },
@@ -42,17 +45,9 @@ const headerData = [
     key: 'last_name',
   },
   {
-    header: 'User Name',
-    key: 'username',
-  },
-  {
     header: 'Email',
     key: 'email',
   },
-  // {
-  //   header: 'Link',
-  //   key: 'link',
-  // },
 ];
 
 const Users = () => {
@@ -85,7 +80,7 @@ const Users = () => {
   // create user and edit user form submit
   const handleAddUser = (data) => {
     setIsAddModal(false);
-    console.log(data);
+    data.enabled = true;
     if (editData?.email) {
       console.log(data);
     } else {
@@ -109,7 +104,6 @@ const Users = () => {
 
   // console.log(allUsers);
   useEffect(() => {
-    console.log('Api called');
     const getUrl = `${lmApiUrl}/user?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchUsers({ url: getUrl, token: authCtx.token }));
   }, [isUserCreated, isUserDeleted, pageSize, currPage]);
@@ -117,9 +111,7 @@ const Users = () => {
   // handle delete user
   const handleDelete = (data) => {
     // const id = data[0]?.id;
-    const idList = data?.map((v) => Number(v.id));
-    // console.log(ids);
-    // if (data.length === 1) {
+    const idList = data?.map((v) => v.id);
     Swal.fire({
       title: 'Are you sure',
       icon: 'info',
@@ -242,13 +234,6 @@ const Users = () => {
                   />
                   <p className={errText}>{errors.email && 'Invalid Email'}</p>
                 </span>
-
-                <Checkbox
-                  labelText="Enabled"
-                  id="checkbox-enabled"
-                  defaultChecked={editData?.enabled}
-                  {...register('enabled')}
-                />
 
                 <div className={modalBtnCon}>
                   <Button kind="secondary" size="md" onClick={addModalClose}>

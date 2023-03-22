@@ -51,7 +51,8 @@ const NavigationBar = () => {
       cancelButtonColor: '#d33',
       confirmButtonColor: '#3085d6',
       showCancelButton: true,
-      confirmButtonText: 'Yes, !',
+      confirmButtonText: 'Yes!',
+      reverseButtons: true,
     }).then((result) => {
       if (result.isConfirmed) {
         authCtx.logout();
