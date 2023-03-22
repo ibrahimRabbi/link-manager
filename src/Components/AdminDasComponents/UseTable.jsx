@@ -129,7 +129,7 @@ const UseTable = ({ props }) => {
                     <TableSelectAll {...getSelectionProps()} />
                     {headers.map((header) => (
                       <TableHeader key={''} {...getHeaderProps({ header })}>
-                        {header.header}
+                        <h5>{header.header}</h5>
                       </TableHeader>
                     ))}
                   </TableRow>
@@ -139,23 +139,12 @@ const UseTable = ({ props }) => {
                     <TableRow key={i} {...getRowProps({ row })}>
                       <TableSelectRow {...getSelectionProps({ row })} />
                       {row?.cells?.map((cell) => (
-                        <TableCell key={cell.id}>{cell.value}</TableCell>
+                        <TableCell key={cell?.id}>
+                          <p>{cell?.value?.toString()}</p>
+                        </TableCell>
                       ))}
                     </TableRow>
                   ))}
-
-                  {/* {
-                rowData?.map((row)=>{
-                  console.log(row);
-                  return <TableRow key={row.user_id} {...getRowProps({ row })}>
-                    <TableSelectRow {...getSelectionProps({ row })} />
-                    <TableCell>{row?.user_id}</TableCell>
-                    <TableCell>{row?.username}</TableCell>
-                    <TableCell>{row?.email}</TableCell>
-                    <TableCell>{row?.link}</TableCell>
-                  </TableRow>;
-                })
-              } */}
                 </TableBody>
               </Table>
               {/* --- Pagination --- */}

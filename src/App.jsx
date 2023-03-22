@@ -1,5 +1,6 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
+import Application from './Components/AdminDasComponents/Application/Application';
 import Organization from './Components/AdminDasComponents/Organization/Organization';
 import Users from './Components/AdminDasComponents/Users/Users';
 import EditLink from './Components/EditLink/EditLink';
@@ -61,7 +62,8 @@ function App() {
           }
         >
           <Route path="/admin/users" element={<Users />} />
-          <Route path="/admin/organization" element={<Organization />} />
+          <Route path="/admin/organizations" element={<Organization />} />
+          <Route path="/admin/applications" element={<Application />} />
           <Route path="/admin" element={<Users />} />
         </Route>
 
