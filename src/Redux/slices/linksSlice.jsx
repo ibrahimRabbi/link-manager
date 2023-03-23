@@ -1,22 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import Swal from 'sweetalert2';
 
-// handle report us message
-const handleReportUs = async () => {
-  // Swal.fire({
-  //   title: 'Sent',
-  //   icon: 'success',
-  //   confirmButtonColor: '#3085d6',
-  //   // eslint-disable-next-line max-len
-  //   text: 'Your message has been sent to our support team who
-  // will try to resolve your issue shortly',
-  // });
-};
-
 // reduce duplication code for message
 const clientMessages = ({ isErrCatch, error, status, message }) => {
+  console.log(isErrCatch, error, status, message);
   if (isErrCatch) {
-    handleReportUs();
+    // handleReportUs();
     Swal.fire({
       icon: 'error',
       title: error.message,
@@ -27,7 +16,7 @@ const clientMessages = ({ isErrCatch, error, status, message }) => {
   }
 
   if (status === 400) {
-    handleReportUs();
+    // handleReportUs();
     Swal.fire({
       title: message,
       icon: 'warning',
@@ -44,7 +33,7 @@ const clientMessages = ({ isErrCatch, error, status, message }) => {
       text: 'Sorry, you do not have access to use this API. Please make sure you have permission to use this API',
     });
   } else if (status === 500) {
-    handleReportUs();
+    // handleReportUs();
     Swal.fire({
       title: message,
       icon: 'error',
@@ -114,6 +103,7 @@ export const fetchCreateLink = createAsyncThunk(
 export const fetchLinksData = createAsyncThunk(
   'links/fetchLinksData',
   async ({ url, token }) => {
+    console.log('fetchLinksData', url, token);
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -122,6 +112,7 @@ export const fetchLinksData = createAsyncThunk(
       },
     })
       .then((res) => {
+        console.log('fetchLinksData --> res: ', res);
         if (res.ok) {
           if (res.status !== 204) {
             return res.json();
@@ -152,7 +143,10 @@ export const fetchLinksData = createAsyncThunk(
           // });
         }
       })
-      .catch((error) => clientMessages({ isErrCatch: true, error }));
+      .catch((error) => {
+        console.log('fetchLinksData --> error: ', error);
+        clientMessages({ isErrCatch: true, error });
+      });
     return response;
   },
 );
