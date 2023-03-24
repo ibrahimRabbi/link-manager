@@ -9,6 +9,26 @@ import projectsReducer from './slices/projectSlice';
 import linkTypesReducer from './slices/linkTypeSlice';
 import linkConsReducer from './slices/linkConstraintSlice';
 import componentsReducer from './slices/componentSlice';
+import * as Sentry from '@sentry/react';
+
+const sentryReduxEnhancer = Sentry.createReduxEnhancer({
+  // Optionally pass options listed below
+  actionTransformer: (action) => {
+    if (action.type === 'GOVERNMENT_SECRETS') {
+      // Return null to not log the action to Sentry
+      return null;
+    }
+    if (action.type === 'SET_PASSWORD') {
+      // Return a transformed action to remove sensitive information
+      return {
+        ...action,
+        password: null,
+      };
+    }
+
+    return action;
+  },
+});
 
 const store = configureStore({
   reducer: {
@@ -24,5 +44,6 @@ const store = configureStore({
     linkConstraints: linkConsReducer,
     components: componentsReducer,
   },
+  sentryReduxEnhancer,
 });
 export default store;

@@ -13,6 +13,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
+import getAPI from '../../../Redux/apiRequests/getAPI';
 import {
   fetchApplications,
   fetchCreateApp,
@@ -72,6 +73,11 @@ const Application = () => {
   } = useForm();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const res = getAPI({ token: authCtx.token, url: `${lmApiUrl}/organization` });
+    console.log(res);
+  }, []);
 
   // handle open add user modal
   const handleAddNew = () => {
