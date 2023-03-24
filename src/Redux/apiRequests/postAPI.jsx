@@ -11,7 +11,7 @@ export default async function postAPI({ url, token, bodyData, reset }) {
     body: JSON.stringify(bodyData),
   })
     .then((res) => {
-      reset();
+      if (reset) reset();
       if (res.ok) {
         return res.json().then((data) => {
           Swal.fire({

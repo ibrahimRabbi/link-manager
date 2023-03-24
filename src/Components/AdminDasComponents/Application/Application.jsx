@@ -13,10 +13,12 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
+import getAPI from '../../../Redux/apiRequests/getAPI';
 import {
   fetchApplications,
   fetchCreateApp,
   fetchDeleteApp,
+  fetchUpdateApp,
 } from '../../../Redux/slices/applicationSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import UseTable from '../UseTable';
@@ -56,9 +58,8 @@ const headerData = [
 ];
 
 const Application = () => {
-  const { allApplications, isAppLoading, isAppCreated, isAppDeleted } = useSelector(
-    (state) => state.applications,
-  );
+  const { allApplications, isAppLoading, isAppUpdated, isAppCreated, isAppDeleted } =
+    useSelector((state) => state.applications);
   const [isAddModal, setIsAddModal] = useState(false);
   const [appDescription, setAppDescription] = useState('');
   const [editData, setEditData] = useState({});
@@ -73,28 +74,49 @@ const Application = () => {
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    const res = getAPI({ token: authCtx.token, url: `${lmApiUrl}/organization` });
+    console.log(res);
+  }, []);
+
   // handle open add user modal
   const handleAddNew = () => {
     setIsAddModal(true);
   };
   const addModalClose = () => {
     setEditData({});
+    setAppDescription('');
     setIsAddModal(false);
     reset();
   };
 
-  // create user and edit user form submit
+  // create and edit application form submit
   const handleAddUser = (data) => {
-    data.description = appDescription;
-    console.log(data);
     setIsAddModal(false);
+    // update application
     if (editData?.name) {
-      data.name = data.name ? data.name : editData?.name;
-      data.oslc_domain = data.oslc_domain ? data.oslc_domain : editData?.oslc_domain;
-      data.url = data.url ? data.url : editData?.url;
-      data.description = appDescription ? appDescription : editData?.description;
-      console.log(data);
-    } else {
+      data = {
+        name: data?.name ? data?.name : editData?.name,
+        url: data.url ? data.url : editData?.url,
+        description: appDescription ? appDescription : editData?.description,
+        oslc_domain: data.oslc_domain ? data.oslc_domain : editData?.oslc_domain,
+        organization_id: data?.organization_id
+          ? data?.organization_id
+          : editData?.organization_id,
+      };
+      const putUrl = `${lmApiUrl}/application/${editData?.id}`;
+      dispatch(
+        fetchUpdateApp({
+          url: putUrl,
+          token: authCtx.token,
+          bodyData: data,
+          reset,
+        }),
+      );
+    }
+    // Create application
+    else {
+      data.description = appDescription;
       const postUrl = `${lmApiUrl}/application`;
       dispatch(
         fetchCreateApp({
@@ -113,13 +135,12 @@ const Application = () => {
     setCurrPage(values.page);
   };
 
-  // console.log(allUsers);
   useEffect(() => {
     const getUrl = `${lmApiUrl}/application?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchApplications({ url: getUrl, token: authCtx.token }));
-  }, [isAppCreated, isAppDeleted, pageSize, currPage]);
+  }, [isAppCreated, isAppUpdated, isAppDeleted, pageSize, currPage]);
 
-  // handle delete user
+  // handle delete application
   const handleDelete = (data) => {
     // const idList = data?.map((v) => v.id);
     if (data.length === 1) {
@@ -143,12 +164,12 @@ const Application = () => {
       Swal.fire({
         title: 'Sorry',
         icon: 'info',
-        text: 'You can not delete multiple Application at the same time!!',
+        text: 'You can not delete multiple application at the same time!!',
         confirmButtonColor: '#3085d6',
       });
     }
   };
-  // handle Edit user
+  // handle Edit application
   const handleEdit = (data) => {
     if (data.length === 1) {
       setIsAddModal(true);
@@ -158,7 +179,7 @@ const Application = () => {
       Swal.fire({
         title: 'Sorry!!',
         icon: 'info',
-        text: 'You can not edit more than 1 user at the same time',
+        text: 'You can not edit more than 1 application at the same time',
       });
     }
   };
@@ -180,18 +201,18 @@ const Application = () => {
 
   return (
     <div>
-      {/* -- add User Modal -- */}
+      {/* -- add application Modal -- */}
       <Theme theme="g10">
         <ComposedModal open={isAddModal} onClose={addModalClose}>
           <div className={mhContainer}>
-            <h4>{editData?.email ? 'Edit Application' : 'Add New Application'}</h4>
+            <h4>{editData?.name ? 'Edit Application' : 'Add New Application'}</h4>
             <ModalHeader onClick={addModalClose} />
           </div>
 
           <ModalBody id={modalBody}>
             <form onSubmit={handleSubmit(handleAddUser)} className={formContainer}>
               <Stack gap={7}>
-                {/* first name  */}
+                {/* Application name  */}
                 <div className={flNameContainer}>
                   <div>
                     <TextInput
@@ -202,10 +223,10 @@ const Application = () => {
                       placeholder="Please enter application name"
                       {...register('name', { required: editData?.name ? false : true })}
                     />
-                    <p className={errText}>{errors.name && 'Invalid First Name'}</p>
+                    <p className={errText}>{errors.name && 'Invalid Name'}</p>
                   </div>
 
-                  {/* last name  */}
+                  {/* application URL  */}
                   <div>
                     <TextInput
                       defaultValue={editData?.url}
@@ -215,7 +236,7 @@ const Application = () => {
                       placeholder="Please enter Application Url"
                       {...register('url', { required: editData?.url ? false : true })}
                     />
-                    <p className={errText}>{errors.url && 'Invalid Last Name'}</p>
+                    <p className={errText}>{errors.url && 'Invalid url'}</p>
                   </div>
                 </div>
 
@@ -234,6 +255,7 @@ const Application = () => {
                   <p className={errText}>{errors.oslc_domain && 'Invalid Domain'}</p>
                 </div>
 
+                {/* organization id */}
                 <div>
                   <TextInput
                     defaultValue={editData?.organization_id}
@@ -257,11 +279,7 @@ const Application = () => {
                     onChange={(e) => setAppDescription(e.target.value)}
                     labelText="Application description"
                     placeholder="Please enter Description"
-                    // {...register('description')}
                   />
-                  {/* <p className={errText}>
-                    {errors.description && 'Invalid description'}
-                  </p> */}
                 </div>
 
                 <div className={modalBtnCon}>

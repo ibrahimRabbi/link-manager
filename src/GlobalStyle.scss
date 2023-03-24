@@ -3,11 +3,11 @@
 
 .App {
   h1 {
-    font-size: type.type-scale(12);
+    font-size: type.type-scale(10);
   }
 
   h2 {
-    font-size: type.type-scale(9);
+    font-size: type.type-scale(8);
   }
 
   h3 {
@@ -20,6 +20,7 @@
 
   h5 {
     font-size: type.type-scale(4);
+    font-weight: 400;
   }
 
   h6 {
