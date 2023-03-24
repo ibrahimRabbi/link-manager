@@ -15,6 +15,7 @@ import Swal from 'sweetalert2';
 import {
   fetchCreateUser,
   fetchDeleteUser,
+  fetchUpdateUser,
   fetchUsers,
 } from '../../../Redux/slices/usersSlice';
 import AuthContext from '../../../Store/Auth-Context';
@@ -80,10 +81,28 @@ const Users = () => {
   // create user and edit user form submit
   const handleAddUser = (data) => {
     setIsAddModal(false);
-    data.enabled = true;
+    // Update user
     if (editData?.email) {
+      data = {
+        first_name: data?.first_name ? data?.first_name : editData?.first_name,
+        last_name: data?.lsat_name ? data?.last_name : editData?.last_name,
+        username: data?.username ? data?.username : editData?.username,
+        email: data?.email ? data?.email : editData?.email,
+      };
+      const putUrl = `${lmApiUrl}/user/${editData?.id}`;
+      dispatch(
+        fetchUpdateUser({
+          url: putUrl,
+          token: authCtx.token,
+          bodyData: data,
+          reset,
+        }),
+      );
       console.log(data);
-    } else {
+    }
+    // Create User
+    else {
+      data.enabled = true;
       const postUrl = `${lmApiUrl}/user`;
       dispatch(
         fetchCreateUser({
@@ -127,15 +146,8 @@ const Users = () => {
         dispatch(fetchDeleteUser({ url: deleteUrl, token: authCtx.token }));
       }
     });
-    // }
-    // else if (data.length > 1) {
-    //   Swal.fire({
-    //     title: 'Sorry!!',
-    //     icon: 'info',
-    //     text: 'You can not delete more than 1 user at the same time',
-    //   });
-    // }
   };
+
   // handle Edit user
   const handleEdit = (data) => {
     if (data.length === 1) {
@@ -150,8 +162,6 @@ const Users = () => {
       });
     }
   };
-
-  // console.log('Edit data: ', editData);
 
   // send props in the batch action table
   const tableProps = {
@@ -190,7 +200,9 @@ const Users = () => {
                       id="first_name"
                       labelText="First Name"
                       placeholder="Please enter first name"
-                      {...register('first_name', { required: true })}
+                      {...register('first_name', {
+                        required: editData?.first_name ? false : true,
+                      })}
                     />
                     <p className={errText}>{errors.first_name && 'Invalid First Name'}</p>
                   </div>
@@ -203,7 +215,9 @@ const Users = () => {
                       id="last_name"
                       labelText="Last Name"
                       placeholder="Please enter last name"
-                      {...register('last_name', { required: true })}
+                      {...register('last_name', {
+                        required: editData?.last_name ? false : true,
+                      })}
                     />
                     <p className={errText}>{errors.last_name && 'Invalid Last Name'}</p>
                   </div>
@@ -217,7 +231,9 @@ const Users = () => {
                     id="userName"
                     labelText="Username"
                     placeholder="Please enter username"
-                    {...register('username', { required: true })}
+                    {...register('username', {
+                      required: editData?.username ? false : true,
+                    })}
                   />
                   <p className={errText}>{errors.username && 'Invalid Username'}</p>
                 </span>
@@ -230,7 +246,7 @@ const Users = () => {
                     id="email"
                     labelText="Email"
                     placeholder="Please enter email"
-                    {...register('email', { required: true })}
+                    {...register('email', { required: editData?.email ? false : true })}
                   />
                   <p className={errText}>{errors.email && 'Invalid Email'}</p>
                 </span>

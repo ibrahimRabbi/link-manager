@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import deleteAPI from '../apiRequests/deleteAPI';
 import getAPI from '../apiRequests/getAPI';
 import postAPI from '../apiRequests/postAPI';
+import putAPI from '../apiRequests/putAPI';
 
 // Fetch get all users
 export const fetchUsers = createAsyncThunk('users/fetchUsers', async ({ url, token }) => {
@@ -14,6 +15,15 @@ export const fetchCreateUser = createAsyncThunk(
   'users/fetchCreateUser',
   async ({ url, token, bodyData, reset }) => {
     const res = postAPI({ url, token, bodyData, reset });
+    return res;
+  },
+);
+
+// Update user
+export const fetchUpdateUser = createAsyncThunk(
+  'users/fetchUpdateUser',
+  async ({ url, token, bodyData, reset }) => {
+    const res = putAPI({ url, token, bodyData, reset });
     return res;
   },
 );
@@ -35,6 +45,7 @@ export const fetchDeleteUser = createAsyncThunk(
 const initialState = {
   allUsers: {},
   isUserCreated: false,
+  isUserUpdated: false,
   isUserDeleted: false,
   usersLoading: false,
 };
@@ -52,6 +63,7 @@ export const usersSlice = createSlice({
     builder.addCase(fetchUsers.pending, (state) => {
       state.isUserDeleted = false;
       state.isUserCreated = false;
+      state.isUserUpdated = false;
       state.usersLoading = true;
     });
     // Get all users fulfilled
@@ -83,6 +95,21 @@ export const usersSlice = createSlice({
     });
 
     builder.addCase(fetchCreateUser.rejected, (state) => {
+      state.usersLoading = false;
+    });
+
+    // Update user
+    builder.addCase(fetchUpdateUser.pending, (state) => {
+      state.usersLoading = true;
+    });
+
+    builder.addCase(fetchUpdateUser.fulfilled, (state, { payload }) => {
+      state.usersLoading = false;
+      console.log('User Updating: ', payload);
+      state.isUserUpdated = true;
+    });
+
+    builder.addCase(fetchUpdateUser.rejected, (state) => {
       state.usersLoading = false;
     });
 

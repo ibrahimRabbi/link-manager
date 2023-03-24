@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import deleteAPI from '../apiRequests/deleteAPI';
 import getAPI from '../apiRequests/getAPI';
 import postAPI from '../apiRequests/postAPI';
+import putAPI from '../apiRequests/putAPI';
 
 // Fetch get all organizations
 export const fetchOrganizations = createAsyncThunk(
@@ -14,9 +15,18 @@ export const fetchOrganizations = createAsyncThunk(
 
 // Create New organization
 export const fetchCreateOrg = createAsyncThunk(
-  'users/fetchCreateOrg',
+  'organizations/fetchCreateOrg',
   async ({ url, token, bodyData, reset }) => {
     const res = postAPI({ url, token, bodyData, reset });
+    return res;
+  },
+);
+
+// Update organization
+export const fetchUpdateOrg = createAsyncThunk(
+  'organizations/fetchUpdateOrg',
+  async ({ url, token, bodyData, reset }) => {
+    const res = putAPI({ url, token, bodyData, reset });
     return res;
   },
 );
@@ -35,6 +45,7 @@ export const fetchDeleteOrg = createAsyncThunk(
 const initialState = {
   allOrganizations: {},
   isOrgCreated: false,
+  isOrgUpdated: false,
   isOrgDeleted: false,
   isOrgLoading: false,
 };
@@ -48,34 +59,30 @@ export const organizationSlice = createSlice({
   },
   //----------------------\\
   extraReducers: (builder) => {
-    // Get all users pending
+    // Get all Organization
     builder.addCase(fetchOrganizations.pending, (state) => {
       state.isOrgCreated = false;
       state.isOrgDeleted = false;
+      state.isOrgUpdated = false;
       state.isOrgLoading = true;
     });
-    // Get all users fulfilled
     builder.addCase(fetchOrganizations.fulfilled, (state, { payload }) => {
       state.isOrgLoading = false;
       if (payload?.items) {
         // id as string is required in the table
         const items = payload.items?.reduce((acc, curr) => {
-          acc.push({
-            ...curr,
-            id: curr?.id?.toString(),
-            // active: curr?.active?.toString(),
-          });
+          acc.push({ ...curr, id: curr?.id?.toString() });
           return acc;
         }, []);
         state.allOrganizations = { ...payload, items };
       }
     });
-    // Get all users request rejected
+
     builder.addCase(fetchOrganizations.rejected, (state) => {
       state.isOrgLoading = false;
     });
 
-    // Create new user
+    // Create new org
     builder.addCase(fetchCreateOrg.pending, (state) => {
       state.isOrgLoading = true;
     });
@@ -90,7 +97,22 @@ export const organizationSlice = createSlice({
       state.isOrgLoading = false;
     });
 
-    // Delete user
+    // Update org
+    builder.addCase(fetchUpdateOrg.pending, (state) => {
+      state.isOrgLoading = true;
+    });
+
+    builder.addCase(fetchUpdateOrg.fulfilled, (state, { payload }) => {
+      state.isOrgLoading = false;
+      console.log('Org Updating: ', payload);
+      state.isOrgUpdated = true;
+    });
+
+    builder.addCase(fetchUpdateOrg.rejected, (state) => {
+      state.isOrgLoading = false;
+    });
+
+    // Delete org
     builder.addCase(fetchDeleteOrg.pending, (state) => {
       state.isOrgLoading = true;
     });

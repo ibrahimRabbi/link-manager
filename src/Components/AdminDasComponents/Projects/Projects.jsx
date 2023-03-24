@@ -14,14 +14,14 @@ import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import {
-  fetchUpdateOrg,
-  fetchDeleteOrg,
-  fetchOrganizations,
-  fetchCreateOrg,
-} from '../../../Redux/slices/organizationSlice';
+  fetchCreateProj,
+  fetchDeleteProj,
+  fetchProjects,
+  fetchUpdateProj,
+} from '../../../Redux/slices/projectSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import UseTable from '../UseTable';
-import styles from './Organization.module.scss';
+import styles from './Projects.module.scss';
 
 const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
 
@@ -34,7 +34,7 @@ const headerData = [
     key: 'id',
   },
   {
-    header: 'Organization',
+    header: 'Project',
     key: 'name',
   },
   {
@@ -42,20 +42,16 @@ const headerData = [
     key: 'active',
   },
   {
-    header: 'URL',
-    key: 'url',
-  },
-  {
     header: 'Description',
     key: 'description',
   },
 ];
 
-const Organization = () => {
-  const { allOrganizations, isOrgLoading, isOrgCreated, isOrgDeleted, isOrgUpdated } =
-    useSelector((state) => state.organizations);
+const Projects = () => {
+  const { allProjects, isProjLoading, isProjCreated, isProjUpdated, isProjDeleted } =
+    useSelector((state) => state.projects);
   const [isAddModal, setIsAddModal] = useState(false);
-  const [orgDescription, setOrgDescription] = useState('');
+  const [projectDescription, setProjectDescription] = useState('');
   const [editData, setEditData] = useState({});
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -74,7 +70,7 @@ const Organization = () => {
     setCurrPage(values.page);
   };
 
-  // handle open add org modal
+  // handle open add user modal
   const handleAddNew = () => {
     setIsAddModal(true);
   };
@@ -85,19 +81,18 @@ const Organization = () => {
     reset();
   };
 
-  // create and edit org form submit
-  const handleAddOrg = (data) => {
+  // create and edit project form submit
+  const handleAddUser = (data) => {
     setIsAddModal(false);
-    // Edit Organization
+    // update project
     if (editData?.name) {
       data = {
         name: data?.name ? data?.name : editData?.name,
-        url: data?.url ? data?.url : editData?.url,
-        description: orgDescription ? orgDescription : editData?.description,
+        description: projectDescription ? projectDescription : editData?.description,
       };
-      const putUrl = `${lmApiUrl}/organization/${editData?.id}`;
+      const putUrl = `${lmApiUrl}/project/${editData?.id}`;
       dispatch(
-        fetchUpdateOrg({
+        fetchUpdateProj({
           url: putUrl,
           token: authCtx.token,
           bodyData: data,
@@ -105,12 +100,12 @@ const Organization = () => {
         }),
       );
     }
-    // Create organization
+    // create project
     else {
-      data.description = orgDescription;
-      const postUrl = `${lmApiUrl}/organization`;
+      data.description = projectDescription;
+      const postUrl = `${lmApiUrl}/project`;
       dispatch(
-        fetchCreateOrg({
+        fetchCreateProj({
           url: postUrl,
           token: authCtx.token,
           bodyData: data,
@@ -120,12 +115,13 @@ const Organization = () => {
     }
   };
 
+  // get all projects
   useEffect(() => {
-    const getUrl = `${lmApiUrl}/organization?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchOrganizations({ url: getUrl, token: authCtx.token }));
-  }, [isOrgCreated, isOrgUpdated, isOrgDeleted, pageSize, currPage]);
+    const getUrl = `${lmApiUrl}/project?page=${currPage}&per_page=${pageSize}`;
+    dispatch(fetchProjects({ url: getUrl, token: authCtx.token }));
+  }, [isProjCreated, isProjUpdated, isProjDeleted, pageSize, currPage]);
 
-  // handle delete Org
+  // handle delete project
   const handleDelete = (data) => {
     // const idList = data?.map((v) => v.id);
     if (data.length === 1) {
@@ -133,7 +129,7 @@ const Organization = () => {
       Swal.fire({
         title: 'Are you sure',
         icon: 'info',
-        text: 'Do you want to delete the organization!!',
+        text: 'Do you want to delete the project!!',
         cancelButtonColor: 'red',
         showCancelButton: true,
         confirmButtonText: 'Delete',
@@ -141,20 +137,20 @@ const Organization = () => {
         reverseButtons: true,
       }).then((value) => {
         if (value.isConfirmed) {
-          const deleteUrl = `${lmApiUrl}/organization/${id}`;
-          dispatch(fetchDeleteOrg({ url: deleteUrl, token: authCtx.token }));
+          const deleteUrl = `${lmApiUrl}/project/${id}`;
+          dispatch(fetchDeleteProj({ url: deleteUrl, token: authCtx.token }));
         }
       });
     } else if (data.length > 1) {
       Swal.fire({
         title: 'Sorry',
         icon: 'info',
-        text: 'You can not delete more then 1 organization at the same time',
+        text: 'You can not delete more then 1 project at the same time',
         confirmButtonColor: '#3085d6',
       });
     }
   };
-  // handle Edit org
+  // handle Edit project
   const handleEdit = (data) => {
     if (data.length === 1) {
       setIsAddModal(true);
@@ -164,72 +160,59 @@ const Organization = () => {
       Swal.fire({
         title: 'Sorry!!',
         icon: 'info',
-        text: 'You can not edit more than 1 organization at the same time',
+        text: 'You can not edit more than 1 project at the same time',
       });
     }
   };
 
   // send props in the batch action table
   const tableProps = {
-    title: 'Organizations',
-    rowData: allOrganizations?.items?.length ? allOrganizations?.items : [],
+    title: 'Projects',
+    rowData: allProjects?.items?.length ? allProjects?.items : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
-    totalItems: allOrganizations?.total_items,
-    totalPages: allOrganizations?.total_pages,
+    totalItems: allProjects?.total_items,
+    totalPages: allProjects?.total_pages,
     pageSize,
-    page: allOrganizations?.page,
+    page: allProjects?.page,
   };
 
   return (
     <div>
-      {/* -- add org Modal -- */}
+      {/* -- add User Modal -- */}
       <Theme theme="g10">
         <ComposedModal open={isAddModal} onClose={addModalClose}>
           <div className={mhContainer}>
-            <h4>{editData?.email ? 'Edit Organization' : 'Add New Organization'}</h4>
+            <h4>{editData?.email ? 'Edit Project' : 'Add New Project'}</h4>
             <ModalHeader onClick={addModalClose} />
           </div>
 
           <ModalBody id={modalBody}>
-            <form onSubmit={handleSubmit(handleAddOrg)} className={formContainer}>
+            <form onSubmit={handleSubmit(handleAddUser)} className={formContainer}>
               <Stack gap={7}>
-                {/* first name  */}
+                {/* Project name  */}
                 <div>
                   <TextInput
                     defaultValue={editData?.name}
                     type="text"
-                    id="org_name"
-                    labelText="Organization Name"
-                    placeholder="Please enter organization name"
+                    id="project_name"
+                    labelText="Project name"
+                    placeholder="Please enter project name"
                     {...register('name', { required: editData?.name ? false : true })}
                   />
-                  <p className={errText}>{errors.name && 'Invalid Organization Name'}</p>
+                  <p className={errText}>{errors.name && 'Invalid Name'}</p>
                 </div>
 
-                {/* org url  */}
-                <div>
-                  <TextInput
-                    defaultValue={editData?.url}
-                    type="text"
-                    id="organization_url"
-                    labelText="Organization URL"
-                    placeholder="Please enter Organization URL"
-                    {...register('url', { required: editData?.url ? false : true })}
-                  />
-                  <p className={errText}>{errors.url && 'Invalid url'}</p>
-                </div>
-
-                {/* org description  */}
+                {/* project description  */}
                 <div>
                   <TextArea
                     defaultValue={editData?.description}
-                    id="org_description"
+                    id="project_description"
                     required={editData?.description ? false : true}
-                    onChange={(e) => setOrgDescription(e.target.value)}
+                    onChange={(e) => setProjectDescription(e.target.value)}
                     labelText="Organization description"
                     placeholder="Please enter organization description"
                   />
@@ -249,10 +232,10 @@ const Organization = () => {
         </ComposedModal>
       </Theme>
 
-      {isOrgLoading && <ProgressBar label="" />}
+      {isProjLoading && <ProgressBar label="" />}
       <UseTable props={tableProps} />
     </div>
   );
 };
 
-export default Organization;
+export default Projects;

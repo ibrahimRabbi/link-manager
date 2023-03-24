@@ -59,13 +59,13 @@ const UseTable = ({ props }) => {
           onInputChange,
           selectedRows,
         }) => {
-          // convert from table DS to original DS
+          // get original data from selected rows
           selectedRows = selectedRows?.reduce((acc, curr) => {
-            const value = curr.cells.reduce((ac, cr) => {
-              ac[cr.info.header] = cr.value;
+            const value = rowData?.reduce((ac, cr) => {
+              if (cr?.id === curr?.id) ac = cr;
               return ac;
             }, {});
-            acc.push({ ...value, id: curr.id });
+            acc.push(value);
             return acc;
           }, []);
 

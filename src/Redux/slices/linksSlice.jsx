@@ -1,111 +1,12 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import Swal from 'sweetalert2';
-
-// handle report us message
-const handleReportUs = async () => {
-  // Swal.fire({
-  //   title: 'Sent',
-  //   icon: 'success',
-  //   confirmButtonColor: '#3085d6',
-  //   // eslint-disable-next-line max-len
-  //   text: 'Your message has been sent to our support team who
-  // will try to resolve your issue shortly',
-  // });
-};
-
-// reduce duplication code for message
-const clientMessages = ({ isErrCatch, error, status, message }) => {
-  if (isErrCatch) {
-    handleReportUs();
-    Swal.fire({
-      icon: 'error',
-      title: error.message,
-      confirmButtonColor: '#3085d6',
-      // eslint-disable-next-line max-len
-      text: 'Your request failed. Please try to solve this issue or report to us to solve the problem',
-    });
-  }
-
-  if (status === 400) {
-    handleReportUs();
-    Swal.fire({
-      title: message,
-      icon: 'warning',
-      // eslint-disable-next-line max-len
-      text: 'Please check There is some data missing from the data required to create the link or you can report to us to resolve the issue.',
-      confirmButtonColor: '#3085d6',
-    });
-  } else if (status === 401) {
-    Swal.fire({
-      title: message,
-      icon: 'question',
-      confirmButtonColor: '#3085d6',
-      // eslint-disable-next-line max-len
-      text: 'Sorry, you do not have access to use this API. Please make sure you have permission to use this API',
-    });
-  } else if (status === 500) {
-    handleReportUs();
-    Swal.fire({
-      title: message,
-      icon: 'error',
-      // eslint-disable-next-line max-len
-      text: 'Failed to connect to the server due to some issue please check it or you can report it to us to solve this issue.',
-      confirmButtonColor: '#3085d6',
-    });
-  }
-};
+import getAPI from '../apiRequests/getAPI';
+import postAPI from '../apiRequests/postAPI';
 
 // Create New link
 export const fetchCreateLink = createAsyncThunk(
   'links/fetchCreateLink',
   async ({ url, token, bodyData }) => {
-    const response = await fetch(`${url}`, {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-        authorization: 'Bearer ' + token,
-      },
-      body: JSON.stringify(bodyData),
-    })
-      .then((res) => {
-        // console.log(response);
-        // const res = {status: 500, ok: false};
-        console.log(res);
-        if (res.ok) {
-          return res.json().then((data) => {
-            Swal.fire({
-              title: 'Success',
-              icon: 'success',
-              text: data.message,
-              confirmButtonColor: '#3085d6',
-            });
-            return data;
-          });
-        } else {
-          if (res.status === 304) {
-            Swal.fire({
-              title: 'Already exists',
-              icon: 'info',
-              text: `This link is already exists. please select a different source 
-              or target and try to create the link again.`,
-              confirmButtonColor: '#3085d6',
-            });
-          } else if (res.status === 400) {
-            clientMessages({ status: res.status, message: res.statusText });
-          } else if (res.status === 401) {
-            clientMessages({ status: res.status, message: res.statusText });
-          } else if (res.status === 403) {
-            console.log(res.status, res.statusText);
-          } else if (res.status === 409) {
-            console.log(res.status, res.statusText);
-          } else if (res.status === 500) {
-            clientMessages({ status: res.status, message: res.statusText });
-          }
-        }
-        // if links not created we need return a value
-        return 'Link creating Failed';
-      })
-      .catch((error) => clientMessages({ isErrCatch: true, error }));
+    const response = postAPI({ url, token, bodyData });
     return response;
   },
 );
@@ -114,45 +15,7 @@ export const fetchCreateLink = createAsyncThunk(
 export const fetchLinksData = createAsyncThunk(
   'links/fetchLinksData',
   async ({ url, token }) => {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json',
-        authorization: 'Bearer ' + token,
-      },
-    })
-      .then((res) => {
-        if (res.ok) {
-          if (res.status !== 204) {
-            return res.json();
-          } else {
-            // Swal.fire({
-            //   text: 'No Links Created for this resource',
-            //   icon: 'info',
-            //   confirmButtonColor: '#3085d6',
-            // });
-          }
-        } else {
-          if (res.status === 400) {
-            clientMessages({ status: res.status, message: res.statusText });
-          } else if (res.status === 401) {
-            clientMessages({ status: res.status, message: res.statusText });
-          } else if (res.status === 403) {
-            console.log(res.status, res.status);
-          } else if (res.status === 500) {
-            clientMessages({ status: res.status, message: res.statusText });
-          }
-          // res.json().then((data) => {
-          //   let errorMessage = 'Loading links failed: ';
-          //   if (data && data.message) {
-          //     Swal.fire({ text: data.message, icon: 'info' });
-          //   } else {
-          //     Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
-          //   }
-          // });
-        }
-      })
-      .catch((error) => clientMessages({ isErrCatch: true, error }));
+    const response = getAPI({ url, token });
     return response;
   },
 );

@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import deleteAPI from '../apiRequests/deleteAPI';
 import getAPI from '../apiRequests/getAPI';
 import postAPI from '../apiRequests/postAPI';
+import putAPI from '../apiRequests/putAPI';
 
 // Fetch get all applications
 export const fetchApplications = createAsyncThunk(
@@ -12,7 +13,7 @@ export const fetchApplications = createAsyncThunk(
   },
 );
 
-// Create New User
+// Create New app
 export const fetchCreateApp = createAsyncThunk(
   'applications/fetchCreateApp',
   async ({ url, token, bodyData, reset }) => {
@@ -21,7 +22,16 @@ export const fetchCreateApp = createAsyncThunk(
   },
 );
 
-// Delete User
+// Update app
+export const fetchUpdateApp = createAsyncThunk(
+  'applications/fetchUpdateApp',
+  async ({ url, token, bodyData, reset }) => {
+    const res = putAPI({ url, token, bodyData, reset });
+    return res;
+  },
+);
+
+// Delete app
 export const fetchDeleteApp = createAsyncThunk(
   'applications/fetchDeleteApp',
   async ({ url, token }) => {
@@ -34,6 +44,7 @@ export const fetchDeleteApp = createAsyncThunk(
 const initialState = {
   allApplications: {},
   isAppCreated: false,
+  isAppUpdated: false,
   isAppDeleted: false,
   isAppLoading: false,
 };
@@ -51,6 +62,7 @@ export const applicationSlice = createSlice({
     builder.addCase(fetchApplications.pending, (state) => {
       state.isAppCreated = false;
       state.isAppDeleted = false;
+      state.isAppUpdated = false;
       state.isAppLoading = true;
     });
     // Get all application fulfilled
@@ -65,12 +77,12 @@ export const applicationSlice = createSlice({
         state.allApplications = { ...payload, items };
       }
     });
-    // Get all users request rejected
+
     builder.addCase(fetchApplications.rejected, (state) => {
       state.isAppLoading = false;
     });
 
-    // Create new user
+    // Create new application
     builder.addCase(fetchCreateApp.pending, (state) => {
       state.isAppLoading = true;
     });
@@ -85,7 +97,22 @@ export const applicationSlice = createSlice({
       state.isAppLoading = false;
     });
 
-    // Delete user
+    // update application
+    builder.addCase(fetchUpdateApp.pending, (state) => {
+      state.isAppLoading = true;
+    });
+
+    builder.addCase(fetchUpdateApp.fulfilled, (state, { payload }) => {
+      state.isAppLoading = false;
+      console.log('App Updating: ', payload);
+      state.isAppUpdated = true;
+    });
+
+    builder.addCase(fetchUpdateApp.rejected, (state) => {
+      state.isAppLoading = false;
+    });
+
+    // Delete application
     builder.addCase(fetchDeleteApp.pending, (state) => {
       state.isAppLoading = true;
     });

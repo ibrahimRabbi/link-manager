@@ -12,7 +12,9 @@ import { TiArrowBackOutline } from 'react-icons/ti';
 import { SlOrganization } from 'react-icons/sl';
 import { ImMenu } from 'react-icons/im';
 import { GrAppsRounded } from 'react-icons/gr';
+import { VscProject } from 'react-icons/vsc';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { TextLink, Unlink } from '@carbon/icons-react';
 
 const AdminDashboard = () => {
   const [isSideNav, setIsSideNav] = useState(false);
@@ -61,6 +63,7 @@ const AdminDashboard = () => {
               > ALL Users</SideNavMenuItem>
             </SideNavMenu> */}
 
+            {/* Users  */}
             <SideNavLink
               renderIcon={FaUsers}
               className={'aDashboardLink'}
@@ -70,6 +73,7 @@ const AdminDashboard = () => {
               Users
             </SideNavLink>
 
+            {/* Organizations  */}
             <SideNavLink
               renderIcon={SlOrganization}
               className={'aDashboardLink'}
@@ -79,6 +83,7 @@ const AdminDashboard = () => {
               Organizations
             </SideNavLink>
 
+            {/* Applications */}
             <SideNavLink
               renderIcon={GrAppsRounded}
               className={'aDashboardLink'}
@@ -86,6 +91,36 @@ const AdminDashboard = () => {
               isActive={pathname === '/admin/applications'}
             >
               Applications
+            </SideNavLink>
+
+            {/* Projects  */}
+            <SideNavLink
+              renderIcon={VscProject}
+              className={'aDashboardLink'}
+              onClick={() => navigate('/admin/projects')}
+              isActive={pathname === '/admin/projects'}
+            >
+              Projects
+            </SideNavLink>
+
+            {/* Link types  */}
+            <SideNavLink
+              renderIcon={TextLink}
+              className={'aDashboardLink'}
+              onClick={() => navigate('/admin/link-types')}
+              isActive={pathname === '/admin/link-types'}
+            >
+              Link Types
+            </SideNavLink>
+
+            {/* link-constraint  */}
+            <SideNavLink
+              renderIcon={Unlink}
+              className={'aDashboardLink'}
+              onClick={() => navigate('/admin/link-constraint')}
+              isActive={pathname === '/admin/link-constraint'}
+            >
+              Link Constraint
             </SideNavLink>
 
             <SideNavLink
