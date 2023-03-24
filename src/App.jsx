@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import Application from './Components/AdminDasComponents/Application/Application';
 // eslint-disable-next-line max-len
 import LinkConstraint from './Components/AdminDasComponents/LinkConstraint/LinkConstraint';
+import Components from './Components/AdminDasComponents/Components/Components';
 import LinkTypes from './Components/AdminDasComponents/LinkType/LinkTypes';
 import Organization from './Components/AdminDasComponents/Organization/Organization';
 import Projects from './Components/AdminDasComponents/Projects/Projects';
@@ -71,6 +72,7 @@ function App() {
           <Route path="/admin/projects" element={<Projects />} />
           <Route path="/admin/link-types" element={<LinkTypes />} />
           <Route path="/admin/link-constraint" element={<LinkConstraint />} />
+          <Route path="/admin/components" element={<Components />} />
           <Route path="/admin" element={<Users />} />
         </Route>
 

@@ -35,20 +35,16 @@ const headerData = [
     key: 'id',
   },
   {
-    header: 'Application',
+    header: 'Link Constraint',
     key: 'name',
   },
   {
-    header: 'Active',
-    key: 'active',
+    header: 'Source Url',
+    key: 'source_url',
   },
   {
-    header: 'OSLC Domain',
-    key: 'oslc_domain',
-  },
-  {
-    header: 'URL',
-    key: 'url',
+    header: 'Target Url',
+    key: 'target_url',
   },
   {
     header: 'Description',
@@ -97,12 +93,13 @@ const LinkConstraint = () => {
       console.log(data);
       data = {
         name: data?.name ? data?.name : editData?.name,
-        url: data.url ? data.url : editData?.url,
+        source_url: data.source_url ? data.source_url : editData?.source_url,
+        target_url: data.target_url ? data.target_url : editData?.target_url,
+        link_type_id: data?.link_type_id ? data?.link_type_id : editData?.link_type_id,
+        application_id: data?.application_id
+          ? data?.application_id
+          : editData?.application_id,
         description: linkConsDesc ? linkConsDesc : editData?.description,
-        oslc_domain: data.oslc_domain ? data.oslc_domain : editData?.oslc_domain,
-        organization_id: data?.organization_id
-          ? data?.organization_id
-          : editData?.organization_id,
       };
       const putUrl = `${lmApiUrl}/link-constraint/${editData?.id}`;
       dispatch(
@@ -206,9 +203,7 @@ const LinkConstraint = () => {
       <Theme theme="g10">
         <ComposedModal open={isAddModal} onClose={addModalClose}>
           <div className={mhContainer}>
-            <h4>
-              {editData?.email ? 'Edit link constraint' : 'Add New link constraint'}
-            </h4>
+            <h4>{editData?.name ? 'Edit link constraint' : 'Add New link constraint'}</h4>
             <ModalHeader onClick={addModalClose} />
           </div>
 

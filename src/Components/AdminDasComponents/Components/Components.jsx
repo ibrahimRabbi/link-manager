@@ -14,14 +14,14 @@ import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import {
-  fetchUpdateOrg,
-  fetchDeleteOrg,
-  fetchOrganizations,
-  fetchCreateOrg,
-} from '../../../Redux/slices/organizationSlice';
+  fetchComponents,
+  fetchCreateComp,
+  fetchDeleteComp,
+  fetchUpdateComp,
+} from '../../../Redux/slices/componentSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import UseTable from '../UseTable';
-import styles from './Organization.module.scss';
+import styles from './Components.module.scss';
 
 const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
 
@@ -34,16 +34,20 @@ const headerData = [
     key: 'id',
   },
   {
-    header: 'Organization',
+    header: 'Name',
     key: 'name',
   },
   {
-    header: 'Active',
-    key: 'active',
+    header: 'Component',
+    key: 'component',
   },
   {
-    header: 'URL',
-    key: 'url',
+    header: 'Type',
+    key: 'type_',
+  },
+  {
+    header: 'Domain',
+    key: 'domain',
   },
   {
     header: 'Description',
@@ -51,11 +55,11 @@ const headerData = [
   },
 ];
 
-const Organization = () => {
-  const { allOrganizations, isOrgLoading, isOrgCreated, isOrgDeleted, isOrgUpdated } =
-    useSelector((state) => state.organizations);
+const Application = () => {
+  const { allComponents, isCompLoading, isCompUpdated, isCompCreated, isCompDeleted } =
+    useSelector((state) => state.components);
   const [isAddModal, setIsAddModal] = useState(false);
-  const [orgDescription, setOrgDescription] = useState('');
+  const [componentDesc, setComponentDesc] = useState('');
   const [editData, setEditData] = useState({});
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -68,36 +72,30 @@ const Organization = () => {
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
-  // Pagination
-  const handlePagination = (values) => {
-    setPageSize(values.pageSize);
-    setCurrPage(values.page);
-  };
-
-  // handle open add org modal
+  // handle open add component modal
   const handleAddNew = () => {
     setIsAddModal(true);
   };
-  // add modal close
   const addModalClose = () => {
     setEditData({});
+    setComponentDesc('');
     setIsAddModal(false);
     reset();
   };
 
-  // create and edit org form submit
-  const handleAddOrg = (data) => {
+  // create and edit component form submit
+  const handleAddUser = (data) => {
     setIsAddModal(false);
-    // Edit Organization
+    // update component
     if (editData?.name) {
       data = {
         name: data?.name ? data?.name : editData?.name,
-        url: data?.url ? data?.url : editData?.url,
-        description: orgDescription ? orgDescription : editData?.description,
+        project_id: data.project_id ? data.project_id : editData?.project_id,
+        description: componentDesc ? componentDesc : editData?.description,
       };
-      const putUrl = `${lmApiUrl}/organization/${editData?.id}`;
+      const putUrl = `${lmApiUrl}/component/${editData?.id}`;
       dispatch(
-        fetchUpdateOrg({
+        fetchUpdateComp({
           url: putUrl,
           token: authCtx.token,
           bodyData: data,
@@ -105,12 +103,12 @@ const Organization = () => {
         }),
       );
     }
-    // Create organization
+    // Create component
     else {
-      data.description = orgDescription;
-      const postUrl = `${lmApiUrl}/organization`;
+      data.description = componentDesc;
+      const postUrl = `${lmApiUrl}/component`;
       dispatch(
-        fetchCreateOrg({
+        fetchCreateComp({
           url: postUrl,
           token: authCtx.token,
           bodyData: data,
@@ -120,12 +118,18 @@ const Organization = () => {
     }
   };
 
-  useEffect(() => {
-    const getUrl = `${lmApiUrl}/organization?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchOrganizations({ url: getUrl, token: authCtx.token }));
-  }, [isOrgCreated, isOrgUpdated, isOrgDeleted, pageSize, currPage]);
+  // Pagination
+  const handlePagination = (values) => {
+    setPageSize(values.pageSize);
+    setCurrPage(values.page);
+  };
 
-  // handle delete Org
+  useEffect(() => {
+    const getUrl = `${lmApiUrl}/component?page=${currPage}&per_page=${pageSize}`;
+    dispatch(fetchComponents({ url: getUrl, token: authCtx.token }));
+  }, [isCompCreated, isCompUpdated, isCompDeleted, pageSize, currPage]);
+
+  // handle delete component
   const handleDelete = (data) => {
     // const idList = data?.map((v) => v.id);
     if (data.length === 1) {
@@ -133,7 +137,7 @@ const Organization = () => {
       Swal.fire({
         title: 'Are you sure',
         icon: 'info',
-        text: 'Do you want to delete the organization!!',
+        text: 'Do you want to delete the Application!!',
         cancelButtonColor: 'red',
         showCancelButton: true,
         confirmButtonText: 'Delete',
@@ -141,20 +145,20 @@ const Organization = () => {
         reverseButtons: true,
       }).then((value) => {
         if (value.isConfirmed) {
-          const deleteUrl = `${lmApiUrl}/organization/${id}`;
-          dispatch(fetchDeleteOrg({ url: deleteUrl, token: authCtx.token }));
+          const deleteUrl = `${lmApiUrl}/component/${id}`;
+          dispatch(fetchDeleteComp({ url: deleteUrl, token: authCtx.token }));
         }
       });
     } else if (data.length > 1) {
       Swal.fire({
         title: 'Sorry',
         icon: 'info',
-        text: 'You can not delete more then 1 organization at the same time',
+        text: 'You can not delete multiple application at the same time!!',
         confirmButtonColor: '#3085d6',
       });
     }
   };
-  // handle Edit org
+  // handle Edit component
   const handleEdit = (data) => {
     if (data.length === 1) {
       setIsAddModal(true);
@@ -164,74 +168,78 @@ const Organization = () => {
       Swal.fire({
         title: 'Sorry!!',
         icon: 'info',
-        text: 'You can not edit more than 1 organization at the same time',
+        text: 'You can not edit more than 1 application at the same time',
       });
     }
   };
 
   // send props in the batch action table
   const tableProps = {
-    title: 'Organizations',
-    rowData: allOrganizations?.items?.length ? allOrganizations?.items : [],
+    title: 'Applications',
+    rowData: allComponents?.items?.length ? allComponents?.items : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
-    totalItems: allOrganizations?.total_items,
-    totalPages: allOrganizations?.total_pages,
+    totalItems: allComponents?.total_items,
+    totalPages: allComponents?.total_pages,
     pageSize,
-    page: allOrganizations?.page,
+    page: allComponents?.page,
   };
 
   return (
     <div>
-      {/* -- add org Modal -- */}
+      {/* -- add application Modal -- */}
       <Theme theme="g10">
         <ComposedModal open={isAddModal} onClose={addModalClose}>
           <div className={mhContainer}>
-            <h4>{editData?.name ? 'Edit Organization' : 'Add New Organization'}</h4>
+            <h4>{editData?.name ? 'Edit Link Constraint' : 'Add New Link Constraint'}</h4>
             <ModalHeader onClick={addModalClose} />
           </div>
 
           <ModalBody id={modalBody}>
-            <form onSubmit={handleSubmit(handleAddOrg)} className={formContainer}>
+            <form onSubmit={handleSubmit(handleAddUser)} className={formContainer}>
               <Stack gap={7}>
-                {/* first name  */}
+                {/* Component name  */}
                 <div>
                   <TextInput
                     defaultValue={editData?.name}
                     type="text"
-                    id="org_name"
-                    labelText="Organization Name"
-                    placeholder="Please enter organization name"
-                    {...register('name', { required: editData?.name ? false : true })}
+                    id="component_name"
+                    labelText="Component Name"
+                    placeholder="Please enter component name"
+                    {...register('name', {
+                      required: editData?.name ? false : true,
+                    })}
                   />
-                  <p className={errText}>{errors.name && 'Invalid Organization Name'}</p>
+                  <p className={errText}>{errors.name && 'Invalid name'}</p>
                 </div>
 
-                {/* org url  */}
+                {/* project id */}
                 <div>
                   <TextInput
-                    defaultValue={editData?.url}
+                    defaultValue={editData?.project_id}
                     type="text"
-                    id="organization_url"
-                    labelText="Organization URL"
-                    placeholder="Please enter Organization URL"
-                    {...register('url', { required: editData?.url ? false : true })}
+                    id="component_project_id"
+                    labelText="Project Id"
+                    placeholder="Please enter project id"
+                    {...register('project_id', {
+                      required: editData?.project_id ? false : true,
+                    })}
                   />
-                  <p className={errText}>{errors.url && 'Invalid url'}</p>
+                  <p className={errText}>{errors.project_id && 'Invalid Project Id'}</p>
                 </div>
 
-                {/* org description  */}
+                {/* Description  */}
                 <div>
                   <TextArea
                     defaultValue={editData?.description}
-                    id="org_description"
+                    id="component_description"
                     required={editData?.description ? false : true}
-                    onChange={(e) => setOrgDescription(e.target.value)}
-                    labelText="Organization description"
-                    placeholder="Please enter organization description"
+                    onChange={(e) => setComponentDesc(e.target.value)}
+                    labelText="Application description"
+                    placeholder="Please enter Description"
                   />
                 </div>
 
@@ -240,7 +248,7 @@ const Organization = () => {
                     Cancel
                   </Button>
                   <Button kind="primary" size="md" type="submit">
-                    {editData?.email ? 'Save' : 'Ok'}
+                    {editData?.name ? 'Save' : 'Ok'}
                   </Button>
                 </div>
               </Stack>
@@ -249,10 +257,10 @@ const Organization = () => {
         </ComposedModal>
       </Theme>
 
-      {isOrgLoading && <ProgressBar label="" />}
+      {isCompLoading && <ProgressBar label="" />}
       <UseTable props={tableProps} />
     </div>
   );
 };
 
-export default Organization;
+export default Application;

@@ -8,6 +8,7 @@ import applicationsReducer from './slices/applicationSlice';
 import projectsReducer from './slices/projectSlice';
 import linkTypesReducer from './slices/linkTypeSlice';
 import linkConsReducer from './slices/linkConstraintSlice';
+import componentsReducer from './slices/componentSlice';
 
 const store = configureStore({
   reducer: {
@@ -21,6 +22,7 @@ const store = configureStore({
     projects: projectsReducer,
     linkTypes: linkTypesReducer,
     linkConstraints: linkConsReducer,
+    components: componentsReducer,
   },
 });
 export default store;

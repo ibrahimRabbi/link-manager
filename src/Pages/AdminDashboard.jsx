@@ -7,14 +7,14 @@ import {
   Theme,
 } from '@carbon/react';
 import React, { useState } from 'react';
-import { FaUsers } from 'react-icons/fa';
+import { FaUsers, FaLink } from 'react-icons/fa';
 import { TiArrowBackOutline } from 'react-icons/ti';
 import { SlOrganization } from 'react-icons/sl';
+import { SiWebcomponentsdotorg } from 'react-icons/si';
 import { ImMenu } from 'react-icons/im';
 import { GrAppsRounded } from 'react-icons/gr';
 import { VscProject } from 'react-icons/vsc';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { TextLink, Unlink } from '@carbon/icons-react';
 
 const AdminDashboard = () => {
   const [isSideNav, setIsSideNav] = useState(false);
@@ -105,7 +105,7 @@ const AdminDashboard = () => {
 
             {/* Link types  */}
             <SideNavLink
-              renderIcon={TextLink}
+              renderIcon={FaLink}
               className={'aDashboardLink'}
               onClick={() => navigate('/admin/link-types')}
               isActive={pathname === '/admin/link-types'}
@@ -115,12 +115,22 @@ const AdminDashboard = () => {
 
             {/* link-constraint  */}
             <SideNavLink
-              renderIcon={Unlink}
+              renderIcon={FaLink}
               className={'aDashboardLink'}
               onClick={() => navigate('/admin/link-constraint')}
               isActive={pathname === '/admin/link-constraint'}
             >
               Link Constraint
+            </SideNavLink>
+
+            {/* Components  */}
+            <SideNavLink
+              renderIcon={SiWebcomponentsdotorg}
+              className={'aDashboardLink'}
+              onClick={() => navigate('/admin/components')}
+              isActive={pathname === '/admin/components'}
+            >
+              Components
             </SideNavLink>
 
             <SideNavLink

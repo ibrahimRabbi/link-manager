@@ -210,7 +210,7 @@ const LinkTypes = () => {
       <Theme theme="g10">
         <ComposedModal open={isAddModal} onClose={addModalClose}>
           <div className={mhContainer}>
-            <h4>{editData?.email ? 'Edit Link Type' : 'Add New Link Type'}</h4>
+            <h4>{editData?.name ? 'Edit Link Type' : 'Add New Link Type'}</h4>
             <ModalHeader onClick={addModalClose} />
           </div>
 

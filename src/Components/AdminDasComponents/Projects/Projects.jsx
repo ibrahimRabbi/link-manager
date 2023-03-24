@@ -186,7 +186,7 @@ const Projects = () => {
       <Theme theme="g10">
         <ComposedModal open={isAddModal} onClose={addModalClose}>
           <div className={mhContainer}>
-            <h4>{editData?.email ? 'Edit Project' : 'Add New Project'}</h4>
+            <h4>{editData?.name ? 'Edit Project' : 'Add New Project'}</h4>
             <ModalHeader onClick={addModalClose} />
           </div>
 
