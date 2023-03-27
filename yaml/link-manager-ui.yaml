@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: main
-          image: axelr340/link-manager:lm-ui
+          image: axelr340/link-manager-ui:v1.0.0
           imagePullPolicy: Always
           env:
             - name: REACT_APP_LM_REST_API_URL
