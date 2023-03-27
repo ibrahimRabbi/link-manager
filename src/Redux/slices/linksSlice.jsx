@@ -1,44 +1,12 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import Swal from 'sweetalert2';
+import getAPI from '../apiRequests/getAPI';
+import postAPI from '../apiRequests/postAPI';
 
-// Fetch Create New link
+// Create New link
 export const fetchCreateLink = createAsyncThunk(
   'links/fetchCreateLink',
   async ({ url, token, bodyData }) => {
-    const response = await fetch(`${url}`, {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-        authorization: 'Bearer ' + token,
-      },
-      body: JSON.stringify(bodyData),
-    })
-      .then((res) => {
-        console.log(res);
-        if (res.ok) {
-          return res.json().then((data) => {
-            Swal.fire({ title: data.status, text: data.message, icon: 'success' });
-            return data;
-          });
-        } else {
-          console.log(res);
-          if (res.status === 304) {
-            Swal.fire({
-              icon: 'info',
-              title: 'Failed',
-              text: 'links could not be created because it already exists.',
-            });
-          } else {
-            Swal.fire({
-              icon: 'info',
-              title: 'Failed',
-              text: 'Link could not be created',
-            });
-          }
-          return 'Link creating Failed';
-        }
-      })
-      .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
+    const response = postAPI({ url, token, bodyData });
     return response;
   },
 );
@@ -47,35 +15,7 @@ export const fetchCreateLink = createAsyncThunk(
 export const fetchLinksData = createAsyncThunk(
   'links/fetchLinksData',
   async ({ url, token }) => {
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json',
-        authorization: 'Bearer ' + token,
-      },
-    })
-      .then((res) => {
-        if (res.ok) {
-          if (res.status !== 204) {
-            return res.json();
-          } else {
-            Swal.fire({
-              text: 'No Links Created for this source',
-              icon: 'info',
-            });
-          }
-        } else {
-          res.json().then((data) => {
-            let errorMessage = 'Loading links failed: ';
-            if (data && data.message) {
-              Swal.fire({ text: data.message, icon: 'info' });
-            } else {
-              Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
-            }
-          });
-        }
-      })
-      .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
+    const response = getAPI({ url, token });
     return response;
   },
 );
@@ -83,6 +23,7 @@ export const fetchLinksData = createAsyncThunk(
 const gcmAware = JSON.parse(process.env.REACT_APP_CONFIGURATION_AWARE);
 
 const initialState = {
+  isTargetModalOpen: false,
   configuration_aware: gcmAware,
   sourceDataList: {},
   isWbe: false,
@@ -110,6 +51,9 @@ export const linksSlice = createSlice({
   reducers: {
     handleIsWbe: (state, { payload }) => {
       state.isWbe = payload;
+    },
+    handleIsTargetModalOpen: (state, { payload }) => {
+      state.isTargetModalOpen = payload;
     },
     handleIsLoading: (state, { payload }) => {
       state.isLoading = payload;
@@ -189,6 +133,7 @@ export const linksSlice = createSlice({
 
     // new link and edit link cancel btn
     handleCancelLink: (state) => {
+      state.isTargetModalOpen = false;
       state.linkType = null;
       state.projectType = null;
       state.resourceType = null;
@@ -272,6 +217,7 @@ export const {
   handleSetStatus,
   handleDeleteLink,
   handleCancelLink,
+  handleIsTargetModalOpen,
 } = linksSlice.actions;
 
 export default linksSlice.reducer;

@@ -49,6 +49,7 @@ const {
   tableCell,
   targetCell,
   validIcon,
+  // sourceIdEl,
 } = styles;
 
 const UseDataTable = ({
@@ -58,21 +59,23 @@ const UseDataTable = ({
   isCheckBox = false,
   isChecked,
   editTargetData,
+  handlePagination,
+  currPage,
+  pageSize,
 }) => {
-  console.log('tableData ->', tableData);
-  const { isWbe, sourceDataList } = useSelector((state) => state.links);
+  const { isWbe } = useSelector((state) => state.links);
   const [isOpen, setIsOpen] = useState(null);
-  const [currPage, setCurrPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  // const [currPage, setCurrPage] = useState(1);
+  // const [pageSize, setPageSize] = useState(10);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   // Pagination
-  const handlePagination = (values) => {
-    setPageSize(values.pageSize);
-    setCurrPage(values.page);
-  };
-  const currTableData = tableData?.slice((currPage - 1) * pageSize, currPage * pageSize);
+  // const handlePagination = (values) => {
+  //   setPageSize(values.pageSize);
+  //   setCurrPage(values.page);
+  // };
+  // const currTableData =tableData?.slice((currPage - 1)*pageSize, currPage * pageSize);
 
   // Delete link
   const handleDeleteCreatedLink = (data) => {
@@ -109,7 +112,7 @@ const UseDataTable = ({
             // --- New link Table and edit link ---
             isCheckBox &&
               tableData[0] &&
-              currTableData?.map((row) => (
+              tableData?.map((row) => (
                 <TableRow key={row?.identifier}>
                   <TableCell className={`${tableCell} ${newLinkCell1}`}>
                     {row?.identifier}
@@ -161,14 +164,14 @@ const UseDataTable = ({
             // Link Manager Table
             !isCheckBox &&
               tableData[0] &&
-              currTableData?.map((row, i) => (
+              tableData?.map((row, i) => (
                 <TableRow key={i}>
                   <TableCell className={tableCell}>
                     <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> Valid
                   </TableCell>
-                  <TableCell className={tableCell}>
-                    <p>{sourceDataList?.title}</p>
-                  </TableCell>
+                  {/* <TableCell className={tableCell}>
+                    <p className={sourceIdEl}>{sourceDataList?.title}</p>
+                  </TableCell> */}
                   <TableCell className={tableCell}>{row?.link_type}</TableCell>
 
                   {/* --- Table data with modal ---  */}
@@ -278,9 +281,10 @@ const UseDataTable = ({
         onChange={handlePagination}
         page={currPage}
         pageSize={pageSize}
-        pageSizes={[10, 20, 30, 40, 50]}
+        pageSizes={[5, 10, 20, 50, 100]}
         size="lg"
         totalItems={tableData?.length}
+        // pagesUnknown
       />
     </TableContainer>
   );

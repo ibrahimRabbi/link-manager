@@ -51,7 +51,8 @@ const NavigationBar = () => {
       cancelButtonColor: '#d33',
       confirmButtonColor: '#3085d6',
       showCancelButton: true,
-      confirmButtonText: 'Yes, !',
+      confirmButtonText: 'Yes!',
+      reverseButtons: true,
     }).then((result) => {
       if (result.isConfirmed) {
         authCtx.logout();
@@ -142,6 +143,14 @@ const NavigationBar = () => {
                 isActive={pathname === '/graph-view'}
               >
                 Graph View
+              </SideNavMenuItem>
+
+              <SideNavMenuItem
+                className={sidebarLink}
+                onClick={() => navigate('/admin')}
+                isActive={pathname === '/admin'}
+              >
+                Dashboard
               </SideNavMenuItem>
             </SideNavItems>
           </SideNav>

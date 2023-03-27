@@ -8,26 +8,38 @@ import Swal from 'sweetalert2';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import style from './Login.module.scss';
 import { useSelector } from 'react-redux';
+import { useMixpanel } from 'react-mixpanel-browser';
 
 const { main, container, title, formContainer, btnContainer, titleSpan, errText } = style;
 const loginURL = `${process.env.REACT_APP_LM_REST_API_URL}/auth/login`;
+
+// const mixpanelToken= process.env.REACT_APP_MIXPANEL_TOKEN;
 
 const Login = () => {
   const { isWbe } = useSelector((state) => state.links);
   const [isLoading, setIsLoading] = useState(false);
   const authCtx = useContext(AuthContext);
   const location = useLocation();
-
+  const navigate = useNavigate();
   const {
     handleSubmit,
     register,
     formState: { errors },
   } = useForm();
-  const navigate = useNavigate();
+
+  // React mixpanel browser
+  const mixpanel = useMixpanel();
+  mixpanel.init('197a3508675e32adcdfee4563c0e0595', { debug: true });
 
   // handle form submit
   const onSubmit = (data) => {
     setIsLoading(true);
+
+    //track who try to login
+    mixpanel.track('Trying to login.', {
+      username: data.userName,
+    });
+
     const authData = window.btoa(data.userName + ':' + data.password);
     fetch(loginURL, {
       method: 'POST',
@@ -38,6 +50,10 @@ const Login = () => {
     })
       .then((res) => {
         if (res.ok) {
+          //track who try to login
+          mixpanel.track('Successfully logged in.', {
+            username: data.userName,
+          });
           return res.json();
         } else {
           res.json().then((data) => {

@@ -13,16 +13,20 @@
   font-size: type.type-scale(3);
   background-color: white !important;
 
-  span {
-    width: 250px;
+  .sourceIdEl {
+    width: 150px;
     overflow: hidden;
     display: inline-block;
     text-overflow: ellipsis;
     white-space: nowrap;
-    cursor: pointer;
   }
 
   a {
+    width: 350px;
+    overflow: hidden;
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     text-decoration: none;
   }
 }
