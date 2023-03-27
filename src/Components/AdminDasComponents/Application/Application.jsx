@@ -5,11 +5,6 @@ import {
   ModalBody,
   ModalHeader,
   ProgressBar,
-  // Select,
-  // SelectItem,
-  // Dropdown,
-  // Select,
-  // SelectItem,
   Stack,
   TextArea,
   TextInput,
@@ -92,18 +87,7 @@ const Application = () => {
   // get organizations for create application
   useEffect(() => {
     dispatch(fetchOrg({ url: `${lmApiUrl}/organization`, token: authCtx.token }));
-    // setOrgData({});
-    // const resp= getAPI({url: `${lmApiUrl}/organization`, token:authCtx.token});
-    // resp.then(data=>{
-    //   console.log('organizations: ',data);
-    //   const items = data.items?.reduce((acc, curr) => {
-    //     acc.push({ ...curr, id: curr?.id?.toString()});
-    //     return acc;
-    //   }, []);
-    //   setOrgData({...data, items});
-    // });
   }, []);
-  // console.log('org data: ', orgData);
 
   // handle open add user modal
   const handleAddNew = () => {
