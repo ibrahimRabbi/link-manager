@@ -243,11 +243,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           results?.forEach((v, i) => {
             const koatlUri = results[i]['koatl:apiUrl'];
             const content = results[i]['oslc:content'];
-            const contentLine = results[i]['oslc:contentLine'];
+            const content_lines = results[i]['oslc:contentLine'];
             const label = results[i]['oslc:label'];
             const uri = results[i]['rdf:resource'];
             const type = results[i]['rdf:type'];
-            targetArray.push({ uri, label, type, koatlUri, content, contentLine });
+            targetArray.push({ uri, label, type, koatlUri, content, content_lines });
           });
           dispatch(handleOslcResponse(true));
           dispatch(handleTargetDataArr([...targetArray]));
@@ -318,8 +318,10 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     // console.log('NewLink.jsx -> handleSaveLink -> targetDataArr', targetDataArr);
     const targetsData = targetDataArr?.map((data) => {
       // console.log('NewLink.jsx -> handleSaveLink -> targetDataArr -> data', data);
-      const id = data?.contentLine ? data.uri + '#' + data?.contentLine : data.uri;
+      const id = data?.content_lines ? data.uri + '#' + data?.content_lines : data.uri;
       return {
+        content_lines: data.content_lines,
+        content: data.content,
         target_type: data.type,
         target_title: data.label,
         target_id: id,

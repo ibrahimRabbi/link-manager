@@ -4,6 +4,15 @@ import getAPI from '../apiRequests/getAPI';
 import postAPI from '../apiRequests/postAPI';
 import putAPI from '../apiRequests/putAPI';
 
+// Fetch get all organizations for create application
+export const fetchOrg = createAsyncThunk(
+  'applications/fetchOrg',
+  async ({ url, token }) => {
+    const response = getAPI({ url, token });
+    return response;
+  },
+);
+
 // Fetch get all applications
 export const fetchApplications = createAsyncThunk(
   'applications/fetchApplications',
@@ -43,6 +52,7 @@ export const fetchDeleteApp = createAsyncThunk(
 /// All user states
 const initialState = {
   allApplications: {},
+  organizationList: {},
   isAppCreated: false,
   isAppUpdated: false,
   isAppDeleted: false,
@@ -125,6 +135,18 @@ export const applicationSlice = createSlice({
 
     builder.addCase(fetchDeleteApp.rejected, (state) => {
       state.isAppLoading = false;
+    });
+
+    // Get all organizations for crate applications
+    builder.addCase(fetchOrg.fulfilled, (state, { payload }) => {
+      if (payload?.items) {
+        // id as string is required in the table
+        const items = payload.items?.reduce((acc, curr) => {
+          acc.push({ ...curr, id: curr?.id?.toString() });
+          return acc;
+        }, []);
+        state.organizationList = { ...payload, items };
+      }
     });
   },
 });

@@ -1,5 +1,6 @@
 import {
   Button,
+  ComboBox,
   ComposedModal,
   ModalBody,
   ModalHeader,
@@ -10,14 +11,14 @@ import {
   Theme,
 } from '@carbon/react';
 import React, { useState, useContext, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-import getAPI from '../../../Redux/apiRequests/getAPI';
 import {
   fetchApplications,
   fetchCreateApp,
   fetchDeleteApp,
+  fetchOrg,
   fetchUpdateApp,
 } from '../../../Redux/slices/applicationSlice';
 import AuthContext from '../../../Store/Auth-Context';
@@ -58,25 +59,34 @@ const headerData = [
 ];
 
 const Application = () => {
-  const { allApplications, isAppLoading, isAppUpdated, isAppCreated, isAppDeleted } =
-    useSelector((state) => state.applications);
+  const {
+    allApplications,
+    organizationList,
+    isAppLoading,
+    isAppUpdated,
+    isAppCreated,
+    isAppDeleted,
+  } = useSelector((state) => state.applications);
   const [isAddModal, setIsAddModal] = useState(false);
   const [appDescription, setAppDescription] = useState('');
+  const [selectedItem, setSelectedItem] = useState({});
+  const [filInput, setFilInput] = useState('');
   const [editData, setEditData] = useState({});
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const {
     handleSubmit,
     register,
+    control,
     reset,
     formState: { errors },
-  } = useForm();
+  } = useForm({ defaultValues: { organization_id: {} } });
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
+  // get organizations for create application
   useEffect(() => {
-    const res = getAPI({ token: authCtx.token, url: `${lmApiUrl}/organization` });
-    console.log(res);
+    dispatch(fetchOrg({ url: `${lmApiUrl}/organization`, token: authCtx.token }));
   }, []);
 
   // handle open add user modal
@@ -91,7 +101,7 @@ const Application = () => {
   };
 
   // create and edit application form submit
-  const handleAddUser = (data) => {
+  const handleAddApplication = (data) => {
     setIsAddModal(false);
     // update application
     if (editData?.name) {
@@ -100,10 +110,9 @@ const Application = () => {
         url: data.url ? data.url : editData?.url,
         description: appDescription ? appDescription : editData?.description,
         oslc_domain: data.oslc_domain ? data.oslc_domain : editData?.oslc_domain,
-        organization_id: data?.organization_id
-          ? data?.organization_id
-          : editData?.organization_id,
+        organization_id: selectedItem?.id ? selectedItem?.id : editData?.organization_id,
       };
+      console.log('edit submit: ', data);
       const putUrl = `${lmApiUrl}/application/${editData?.id}`;
       dispatch(
         fetchUpdateApp({
@@ -116,17 +125,27 @@ const Application = () => {
     }
     // Create application
     else {
-      data.description = appDescription;
+      const appData = {
+        name: data.name,
+        url: data.url,
+        description: appDescription,
+        oslc_domain: data.oslc_domain,
+        organization_id: selectedItem?.id,
+      };
+      console.log('app submit: ', appData);
       const postUrl = `${lmApiUrl}/application`;
       dispatch(
         fetchCreateApp({
           url: postUrl,
           token: authCtx.token,
-          bodyData: data,
+          bodyData: appData,
           reset,
         }),
       );
     }
+    setFilInput('');
+    setSelectedItem({});
+    // setOrgData({});
   };
 
   // Pagination
@@ -210,7 +229,7 @@ const Application = () => {
           </div>
 
           <ModalBody id={modalBody}>
-            <form onSubmit={handleSubmit(handleAddUser)} className={formContainer}>
+            <form onSubmit={handleSubmit(handleAddApplication)} className={formContainer}>
               <Stack gap={7}>
                 {/* Application name  */}
                 <div className={flNameContainer}>
@@ -257,17 +276,59 @@ const Application = () => {
 
                 {/* organization id */}
                 <div>
-                  <TextInput
-                    defaultValue={editData?.organization_id}
-                    type="text"
-                    id="organization_id"
-                    labelText="Organization Id"
-                    placeholder="Please enter Organization Id"
-                    {...register('organization_id', {
-                      required: editData?.organization_id ? false : true,
-                    })}
+                  {/* <Controller
+                    name="select"
+                    control={control}
+                    render={({ field }) => <Select
+                      defaultValue={editData?.organization_id}
+                      id="organization_id_select"
+                      size="md"
+                      labelText="Select Organization"
+                      onChange={(e)=>{
+                        console.log(e.target.value);
+                      }}
+                      {...register('select', {
+                        required: editData?.organization_id ? false : true,
+                      })}
+                      {...field} 
+                    >
+                      <SelectItem text='Select Organization' hidden/>
+                      {
+                        orgData?.items?.map(v=><SelectItem key={v.id}
+                          text={v?.name} value={v?.id}
+                        />)
+                      }
+                    </Select>}
                   />
-                  <p className={errText}>{errors.organization_id && 'Invalid Org Id'}</p>
+                  <p className={errText}>{errors.select &&
+                   'Invalid organization'}</p>
+                </div> */}
+
+                  {/* --- test ---  */}
+                  <Controller
+                    name="select"
+                    control={control}
+                    render={({ field }) => (
+                      <ComboBox
+                        {...field}
+                        {...register('select', {
+                          required: editData?.organization_id ? false : true,
+                        })}
+                        downshiftProps={selectedItem}
+                        placeholder="Please search or select organization"
+                        value={filInput}
+                        id="carbon-combobox-example"
+                        items={organizationList?.items ? organizationList?.items : []}
+                        label="Combo box menu options"
+                        titleText="Organization"
+                        onInputChange={(e) => setFilInput(e)}
+                        onChange={(v) => setSelectedItem(v.selectedItem)}
+                        itemToString={(item) => (item ? item?.name : '')}
+                        itemToElement={(item) => (item ? <p>{item?.name}</p> : '')}
+                      />
+                    )}
+                  />
+                  <p className={errText}>{errors.select && 'Invalid organization'}</p>
                 </div>
 
                 {/* Description  */}
