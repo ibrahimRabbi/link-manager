@@ -16,7 +16,14 @@ const SENTRY_DSN = `${process.env.REACT_APP_SENTRY_DSN}`;
 Sentry.init({
   // eslint-disable-next-line max-len
   dsn: SENTRY_DSN,
-  integrations: [new BrowserTracing(), new Sentry.Replay()],
+  integrations: [
+    new BrowserTracing(),
+    new Sentry.Replay({
+      // Additional SDK configuration goes in here, for example:
+      maskAllText: true,
+      blockAllMedia: true,
+    }),
+  ],
 
   // We recommend adjusting this value in production, or using tracesSampler
   // for finer control
