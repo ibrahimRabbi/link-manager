@@ -195,6 +195,7 @@ const LinkConstraint = () => {
     totalPages: allLinkConstraints?.total_pages,
     pageSize,
     page: allLinkConstraints?.page,
+    inpPlaceholder: 'Search Link Constraint',
   };
 
   return (

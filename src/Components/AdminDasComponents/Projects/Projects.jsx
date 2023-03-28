@@ -178,6 +178,7 @@ const Projects = () => {
     totalPages: allProjects?.total_pages,
     pageSize,
     page: allProjects?.page,
+    inpPlaceholder: 'Search Project',
   };
 
   return (

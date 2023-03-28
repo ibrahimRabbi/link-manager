@@ -35,6 +35,7 @@ const UseTable = ({ props }) => {
     totalPages,
     pageSize,
     page,
+    inpPlaceholder,
   } = props;
 
   console.log(
@@ -93,7 +94,7 @@ const UseTable = ({ props }) => {
                 </TableBatchActions>
                 <TableToolbarContent>
                   <TableToolbarSearch
-                    placeholder="Search User"
+                    placeholder={inpPlaceholder}
                     tabIndex={getBatchActionProps().shouldShowBatchActions ? -1 : 0}
                     onChange={onInputChange}
                   />

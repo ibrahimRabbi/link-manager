@@ -86,7 +86,12 @@ const Application = () => {
 
   // get organizations for create application
   useEffect(() => {
-    dispatch(fetchOrg({ url: `${lmApiUrl}/organization`, token: authCtx.token }));
+    dispatch(
+      fetchOrg({
+        url: `${lmApiUrl}/organization?page=${'1'}&per_page=${'50'}`,
+        token: authCtx.token,
+      }),
+    );
   }, []);
 
   // handle open add user modal
@@ -216,6 +221,7 @@ const Application = () => {
     totalPages: allApplications?.total_pages,
     pageSize,
     page: allApplications?.page,
+    inpPlaceholder: 'Search Application',
   };
 
   return (
@@ -274,37 +280,8 @@ const Application = () => {
                   <p className={errText}>{errors.oslc_domain && 'Invalid Domain'}</p>
                 </div>
 
-                {/* organization id */}
+                {/* --- Select organization ---  */}
                 <div>
-                  {/* <Controller
-                    name="select"
-                    control={control}
-                    render={({ field }) => <Select
-                      defaultValue={editData?.organization_id}
-                      id="organization_id_select"
-                      size="md"
-                      labelText="Select Organization"
-                      onChange={(e)=>{
-                        console.log(e.target.value);
-                      }}
-                      {...register('select', {
-                        required: editData?.organization_id ? false : true,
-                      })}
-                      {...field} 
-                    >
-                      <SelectItem text='Select Organization' hidden/>
-                      {
-                        orgData?.items?.map(v=><SelectItem key={v.id}
-                          text={v?.name} value={v?.id}
-                        />)
-                      }
-                    </Select>}
-                  />
-                  <p className={errText}>{errors.select &&
-                   'Invalid organization'}</p>
-                </div> */}
-
-                  {/* --- test ---  */}
                   <Controller
                     name="select"
                     control={control}

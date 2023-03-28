@@ -202,6 +202,7 @@ const LinkTypes = () => {
     totalPages: allLinkTypes?.total_pages,
     pageSize,
     page: allLinkTypes?.page,
+    inpPlaceholder: 'Search Link Type',
   };
 
   return (
