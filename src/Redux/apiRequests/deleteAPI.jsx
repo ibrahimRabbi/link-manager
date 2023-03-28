@@ -37,6 +37,5 @@ export default async function deleteAPI({ url, token }) {
       return 'Link delete Failed';
     })
     .catch((error) => clientMessages({ isErrCatch: true, error }));
-  console.log(response);
   return response;
 }

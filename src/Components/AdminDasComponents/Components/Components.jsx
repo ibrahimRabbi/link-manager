@@ -186,6 +186,7 @@ const Application = () => {
     totalPages: allComponents?.total_pages,
     pageSize,
     page: allComponents?.page,
+    inpPlaceholder: 'Search Component',
   };
 
   return (

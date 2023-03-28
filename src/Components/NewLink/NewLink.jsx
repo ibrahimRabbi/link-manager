@@ -249,6 +249,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             const type = results[i]['rdf:type'];
             targetArray.push({ uri, label, type, koatlUri, content, content_lines });
           });
+          console.log(targetArray);
           dispatch(handleOslcResponse(true));
           dispatch(handleTargetDataArr([...targetArray]));
         }

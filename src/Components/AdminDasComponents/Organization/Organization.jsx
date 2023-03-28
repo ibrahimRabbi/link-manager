@@ -182,6 +182,7 @@ const Organization = () => {
     totalPages: allOrganizations?.total_pages,
     pageSize,
     page: allOrganizations?.page,
+    inpPlaceholder: 'Search Organization',
   };
 
   return (
