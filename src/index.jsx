@@ -9,21 +9,14 @@ import store from './Redux/store.jsx';
 import reportWebVitals from './reportWebVitals';
 import { AuthContextProvider } from './Store/Auth-Context.jsx';
 import * as Sentry from '@sentry/react';
-import { BrowserTracing } from '@sentry/react';
+import { BrowserTracing, Replay } from '@sentry/react';
 
 const SENTRY_DSN = `${process.env.REACT_APP_SENTRY_DSN}`;
 
 Sentry.init({
   // eslint-disable-next-line max-len
   dsn: SENTRY_DSN,
-  integrations: [
-    new BrowserTracing(),
-    new Sentry.Replay({
-      // Additional SDK configuration goes in here, for example:
-      maskAllText: true,
-      blockAllMedia: true,
-    }),
-  ],
+  integrations: [new BrowserTracing(), new Replay()],
 
   // We recommend adjusting this value in production, or using tracesSampler
   // for finer control
@@ -32,7 +25,7 @@ Sentry.init({
 
   // This sets the sample rate to be 10%. You may want this to be 100% while
   // in development and sample at a lower rate in production
-  replaysSessionSampleRate: 0.1,
+  replaysSessionSampleRate: 1.0,
   // If the entire session is not sampled, use the below sample rate to sample
   // sessions when an error occurs.
   replaysOnErrorSampleRate: 1.0,
