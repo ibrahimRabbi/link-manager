@@ -175,7 +175,7 @@ const Application = () => {
 
   // send props in the batch action table
   const tableProps = {
-    title: 'Applications',
+    title: 'Components',
     rowData: allComponents?.items?.length ? allComponents?.items : [],
     headerData,
     handleEdit,

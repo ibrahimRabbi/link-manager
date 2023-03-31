@@ -46,12 +46,12 @@ const NavigationBar = () => {
     dispatch(handleIsProfileOpen(!isProfileOpen));
     Swal.fire({
       title: 'Are you sure?',
-      text: 'You wont to logout!',
+      text: 'You want to logout!',
       icon: 'warning',
       cancelButtonColor: '#d33',
       confirmButtonColor: '#3085d6',
       showCancelButton: true,
-      confirmButtonText: 'Yes!',
+      confirmButtonText: 'Yes',
       reverseButtons: true,
     }).then((result) => {
       if (result.isConfirmed) {
