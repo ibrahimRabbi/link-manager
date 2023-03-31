@@ -212,10 +212,28 @@ const UseDataTable = ({
                           onMouseEnter={() =>
                             setIsPopoverOpen({ id: row?.id, value: true })
                           }
-                          // onMouseLeave={() =>setIsPopoverOpen({id: '',value: false})}
+                        >
+                          {row?.content_lines
+                            ? row?.name.length > 15
+                              ? row?.name.slice(0, 15 - 1) +
+                                '...' +
+                                ' [' +
+                                row.content_lines +
+                                ']'
+                              : row?.name + ' [' + row.content_lines + ']'
+                            : row?.name}
+                        </a>
+
+                        {/* <a
+                          href={row?.id}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onMouseEnter={() =>
+                            setIsPopoverOpen({ id: row?.id, value: true })
+                          }
                         >
                           {row?.name}
-                        </a>
+                        </a> */}
                       </Popover>
                     </TableCell>
 
