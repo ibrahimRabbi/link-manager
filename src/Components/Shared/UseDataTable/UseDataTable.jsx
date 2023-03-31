@@ -177,7 +177,15 @@ const UseDataTable = ({
                   {/* --- Table data with modal ---  */}
                   <TableCell className={`${tableCell} ${targetCell}`}>
                     <a href={row?.id} target="_blank" rel="noopener noreferrer">
-                      {row?.name}
+                      {row?.content_lines
+                        ? row?.name.length > 15
+                          ? row?.name.slice(0, 15 - 1) +
+                            '...' +
+                            ' [' +
+                            row.content_lines +
+                            ']'
+                          : row?.name + ' [' + row.content_lines + ']'
+                        : row?.name}
                     </a>
 
                     <ComposedModal
