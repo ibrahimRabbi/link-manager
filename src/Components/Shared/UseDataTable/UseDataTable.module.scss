@@ -53,6 +53,27 @@
   width: 35%;
 }
 
+.popoverContentStyle {
+  position: relative;
+  background-color: white;
+  box-shadow: 0 0 15px lightgray;
+  padding: 35px 0 0;
+
+  iframe {
+    width: 600px;
+    height: 400px;
+  }
+}
+
+.closeIcon {
+  position: absolute;
+  top: 5px;
+  color: lightgray;
+  right: 5px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
 .actionContainer {
   display: flex;
   flex-direction: column;

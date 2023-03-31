@@ -224,6 +224,10 @@ const Application = () => {
     inpPlaceholder: 'Search Application',
   };
 
+  const handleScroll = (e) => {
+    console.log(e.target);
+  };
+
   return (
     <div>
       {/* -- add application Modal -- */}
@@ -234,8 +238,12 @@ const Application = () => {
             <ModalHeader onClick={addModalClose} />
           </div>
 
-          <ModalBody id={modalBody}>
-            <form onSubmit={handleSubmit(handleAddApplication)} className={formContainer}>
+          <ModalBody id={modalBody} onScroll={(e) => handleScroll(e)}>
+            <form
+              onSubmit={handleSubmit(handleAddApplication)}
+              className={formContainer}
+              onScroll={(e) => handleScroll(e)}
+            >
               <Stack gap={7}>
                 {/* Application name  */}
                 <div className={flNameContainer}>
@@ -287,6 +295,7 @@ const Application = () => {
                     control={control}
                     render={({ field }) => (
                       <ComboBox
+                        onScroll={(e) => handleScroll(e)}
                         {...field}
                         {...register('select', {
                           required: editData?.organization_id ? false : true,
@@ -294,7 +303,7 @@ const Application = () => {
                         downshiftProps={selectedItem}
                         placeholder="Please search or select organization"
                         value={filInput}
-                        id="carbon-combobox-example"
+                        id="organization_id_dropdown"
                         items={organizationList?.items ? organizationList?.items : []}
                         label="Combo box menu options"
                         titleText="Organization"

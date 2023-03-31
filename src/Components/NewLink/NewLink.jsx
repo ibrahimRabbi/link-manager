@@ -25,7 +25,6 @@ import {
 } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
-import WbeTopNav from '../Shared/NavigationBar/WbeTopNav';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 
@@ -33,6 +32,7 @@ import styles from './NewLink.module.scss';
 const {
   btnContainer,
   dropdownStyle,
+  dropdownStyle2,
   emptySearchWarning,
   inputContainer,
   linkTypeContainer,
@@ -239,6 +239,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         if (message.toString()?.startsWith('oslc-response')) {
           const response = JSON.parse(message?.substr('oslc-response:'?.length));
           const results = response['oslc:results'];
+          console.log(results);
           const targetArray = [];
           results?.forEach((v, i) => {
             const koatlUri = results[i]['koatl:apiUrl'];
@@ -249,7 +250,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             const type = results[i]['rdf:type'];
             targetArray.push({ uri, label, type, koatlUri, content, content_lines });
           });
-          console.log(targetArray);
           dispatch(handleOslcResponse(true));
           dispatch(handleTargetDataArr([...targetArray]));
         }
@@ -384,7 +384,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   return (
     <>
-      <WbeTopNav />
+      {/* <WbeTopNav /> */}
       <div className="mainContainer">
         <div className="container">
           <Accordion>
@@ -401,8 +401,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           </AccordionItem> */}
 
             <AccordionItem
-              open={true}
-              title={<h5>Sources link types and target projects</h5>}
+              open={linkType && projectType ? false : true}
+              title={<h5>Sources</h5>}
               className={accordionItem}
             >
               <div className={sourceContainer}>
@@ -436,7 +436,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                   selectedValue={editLinkData?.linkType}
                   label={'Select link type'}
                   id="newLink_linkTypes"
-                  className={dropdownStyle}
+                  className={configuration_aware ? dropdownStyle : dropdownStyle2}
                 />
 
                 <UseDropdown
@@ -446,7 +446,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                   label={'Select target project'}
                   selectedValue={editLinkData?.projectType}
                   id="target-project-dropdown"
-                  className={dropdownStyle}
+                  className={configuration_aware ? dropdownStyle : dropdownStyle2}
                 />
 
                 {/*{linkType && !isJiraDialog && !isGitlabDialog && !isGlideDialog && (*/}
@@ -463,7 +463,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               </div>
             </AccordionItem>
             <AccordionItem
-              open={true}
+              open={linkType && projectType ? true : false}
               title={<h5>Target Projects</h5>}
               className={accordionItem}
             >
