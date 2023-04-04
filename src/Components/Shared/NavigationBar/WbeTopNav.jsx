@@ -1,6 +1,7 @@
 import { FaLink, FaShareAlt } from 'react-icons/fa';
 import { MdExpandMore, MdExpandLess } from 'react-icons/md';
 import { ImMenu } from 'react-icons/im';
+import { RxSlash } from 'react-icons/rx';
 import {
   Button,
   SideNav,
@@ -21,13 +22,13 @@ const {
   wbeSideNav,
   topContentContainer,
   fileContainer,
-  fileName,
   sidebarLink,
   dropdownStyle,
   marginLeft,
   titleDiv,
   seeMLBtn,
   arIcon,
+  icon,
 } = styles;
 
 const WbeTopNav = () => {
@@ -60,6 +61,7 @@ const WbeTopNav = () => {
   const toggleTitle = () => {
     setShowMore(!showMore);
   };
+
   return (
     <>
       <div className="mainContainer">
@@ -91,9 +93,15 @@ const WbeTopNav = () => {
 
             {/* with see more and see less btn show title */}
             <div className={titleDiv}>
-              <h5>
-                Links For {sourceDataList?.appName?.toUpperCase()} :
-                <span className={fileName}>
+              <h3>Source: </h3>
+              <p>
+                {sourceDataList?.projectName}
+                {sourceDataList?.projectName && <RxSlash className={icon} />}
+                {sourceDataList?.sourceType}
+                {sourceDataList?.sourceType && <RxSlash className={icon} />}
+                {sourceDataList?.titleLabel}
+                {sourceDataList?.titleLabel && <RxSlash className={icon} />}
+                <span>
                   {sourceDataList?.title?.slice(0, 25)}
                   {showMore ? <span>{title}</span> : ''}
                   {sourceDataList?.title?.length > 25 && !showMore ? '...' : ''}
@@ -107,7 +115,7 @@ const WbeTopNav = () => {
                     )}
                   </span>
                 )}
-              </h5>
+              </p>
             </div>
 
             {pathname !== '/wbe/new-link' && (

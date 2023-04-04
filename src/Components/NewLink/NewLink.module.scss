@@ -46,6 +46,33 @@
   border-radius: 10px;
 }
 
+.linkContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+
+  h3 {
+    width: 150px;
+  }
+}
+
+.applicationContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+
+  h3 {
+    width: 150px;
+  }
+
+  .appAndProjectContainer {
+    display: flex;
+    align-items: center;
+    gap: 10%;
+  }
+}
+
+
 .targetModalDiv {
   position: absolute;
   top: 0;
@@ -55,10 +82,10 @@
 }
 
 .targetContainer {
-  border-top: 1px solid lightgray;
-  // box-shadow: 0 0 5px 1px lightgray;
+  // border-top: 1px solid lightgray;
+  box-shadow: 0 0 5px 1px lightgray;
   padding: 10px 1vw;
-  // border-radius: 10px;
+  border-radius: 10px;
 }
 
 .targetIframe {
@@ -95,11 +122,11 @@
 }
 
 .dropdownStyle {
-  min-width: 32%;
+  min-width: 350px;
 }
 
 .dropdownStyle2 {
-  min-width: 49%;
+  min-width: 350px;
 }
 
 .streamDD {

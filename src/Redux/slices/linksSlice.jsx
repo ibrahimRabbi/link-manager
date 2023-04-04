@@ -39,6 +39,7 @@ const initialState = {
   linkedData: {},
   editLinkData: {},
   linkType: null,
+  applicationType: null,
   streamType: null,
   projectType: null,
   resourceType: null,
@@ -119,6 +120,10 @@ export const linksSlice = createSlice({
       state.linkType = payload;
     },
 
+    handleApplicationType: (state, { payload }) => {
+      state.applicationType = payload;
+    },
+
     handleStreamType: (state, { payload }) => {
       state.streamType = payload;
     },
@@ -135,6 +140,7 @@ export const linksSlice = createSlice({
     handleCancelLink: (state) => {
       state.isTargetModalOpen = false;
       state.linkType = null;
+      state.applicationType = null;
       state.projectType = null;
       state.resourceType = null;
       state.editTargetData = {};
@@ -211,6 +217,7 @@ export const {
   handleEditTargetData,
   handleUpdateCreatedLink,
   handleLinkType,
+  handleApplicationType,
   handleStreamType,
   handleProjectType,
   handleResourceType,
