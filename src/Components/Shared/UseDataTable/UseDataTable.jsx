@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '@carbon/react';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { AiFillCheckCircle } from 'react-icons/ai';
 import { FiSettings } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
@@ -60,9 +60,56 @@ const UseDataTable = ({
   pageSize,
 }) => {
   const { isWbe } = useSelector((state) => state.links);
-  const [isPopoverOpen, setIsPopoverOpen] = useState({});
+  const [isPopoverOpen, setIsPopoverOpen] = useState(null);
+  const [cursorInPopoverContent, setCursorInPopoverContent] = useState(false);
+  const [shouldClosePopover, setShouldClosePopover] = useState(false);
+  const popoverContentRef = useRef(null);
+  const closeTimeoutRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // control popover via mouse enter and mouse leave
+  const handlePopoverOpen = (index) => {
+    if (index === isPopoverOpen) {
+      setIsPopoverOpen(null);
+    } else {
+      if (isPopoverOpen !== null) {
+        setIsPopoverOpen(null);
+        setShouldClosePopover(false);
+        clearTimeout(closeTimeoutRef.current);
+      }
+      setIsPopoverOpen(index);
+    }
+  };
+
+  const handlePopoverClose = () => {
+    if (!cursorInPopoverContent && !shouldClosePopover) {
+      setShouldClosePopover(true);
+      closeTimeoutRef.current = setTimeout(() => {
+        setIsPopoverOpen(null);
+        setShouldClosePopover(false);
+      }, 100);
+    }
+  };
+
+  const handlePopoverContentEnter = () => {
+    setCursorInPopoverContent(true);
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  };
+
+  const handlePopoverContentLeave = () => {
+    setCursorInPopoverContent(false);
+    if (isPopoverOpen !== null) {
+      setShouldClosePopover(true);
+      closeTimeoutRef.current = setTimeout(() => {
+        setIsPopoverOpen(null);
+        setShouldClosePopover(false);
+      }, 100);
+    }
+  };
 
   // Delete link
   const handleDeleteCreatedLink = (data) => {
@@ -151,9 +198,9 @@ const UseDataTable = ({
             // Link Manager Table
             !isCheckBox &&
               tableData[0] &&
-              tableData?.map((row, i) => {
+              tableData?.map((row, index) => {
                 return (
-                  <TableRow key={i}>
+                  <TableRow key={index}>
                     <TableCell className={tableCell}>
                       <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> Valid
                     </TableCell>
@@ -163,8 +210,8 @@ const UseDataTable = ({
                     <TableCell className={`${tableCell} ${targetCell}`}>
                       <Popover
                         id={row?.id}
-                        isOpen={row?.id === isPopoverOpen?.id ? true : false}
-                        onClickOutside={() => setIsPopoverOpen({})}
+                        isOpen={isPopoverOpen === index}
+                        onClickOutside={() => handlePopoverClose()}
                         positions={['bottom', 'top', 'left']}
                         content={({ position, childRect, popoverRect }) => (
                           <ArrowContainer
@@ -179,23 +226,19 @@ const UseDataTable = ({
                           >
                             <div
                               className={popoverContentStyle}
-                              onMouseEnter={() =>
-                                setIsPopoverOpen({ id: row?.id, value: true })
-                              }
-                              // mouse leave event
-                              onMouseLeave={() => setIsPopoverOpen({})}
+                              ref={popoverContentRef}
+                              onMouseEnter={handlePopoverContentEnter}
+                              onMouseLeave={handlePopoverContentLeave}
                             >
                               {/* --- close popover ---  */}
                               <GrClose
                                 className={closeIcon}
-                                onClick={() => setIsPopoverOpen({})}
+                                onClick={() => handlePopoverClose(null)}
                               />
-                              {/* <h5>{row?.name}</h5>
-                        <h6>{row?.link_type}</h6>
-                        <p>{row?.project}</p> */}
+
                               <iframe
                                 src={
-                                  /* eslint-disable-next-line max-len */
+                                  // eslint-disable-next-line max-len
                                   'https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/42854970/resources/files/7f1d9abe39a958aaac2a04d6e4e03ac9a908c34c/smallPreview?file_lines=1-9&file_content=6c58744a370a4e3be225ba36caac24d3e03791b846eb4ddebdf40f1f6432fcb2&file_path=GUI/background.js'
                                 }
                                 width="100%"
@@ -209,9 +252,8 @@ const UseDataTable = ({
                           href={row?.id}
                           target="_blank"
                           rel="noopener noreferrer"
-                          onMouseEnter={() =>
-                            setIsPopoverOpen({ id: row?.id, value: true })
-                          }
+                          onMouseEnter={() => handlePopoverOpen(index)}
+                          onMouseLeave={() => handlePopoverClose()}
                         >
                           {row?.content_lines
                             ? row?.name.length > 15
@@ -223,17 +265,6 @@ const UseDataTable = ({
                               : row?.name + ' [' + row.content_lines + ']'
                             : row?.name}
                         </a>
-
-                        {/* <a
-                          href={row?.id}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onMouseEnter={() =>
-                            setIsPopoverOpen({ id: row?.id, value: true })
-                          }
-                        >
-                          {row?.name}
-                        </a> */}
                       </Popover>
                     </TableCell>
 
@@ -308,10 +339,9 @@ const UseDataTable = ({
         onChange={handlePagination}
         page={currPage}
         pageSize={pageSize}
-        pageSizes={[5, 10, 20, 50, 100]}
+        pageSizes={[5, 10, 25, 50, 100]}
         size="lg"
         totalItems={tableData?.length}
-        // pagesUnknown
       />
     </TableContainer>
   );

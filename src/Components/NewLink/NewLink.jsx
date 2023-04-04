@@ -5,7 +5,6 @@ import {
   Checkbox,
   ProgressBar,
   Search,
-  // Tooltip,
 } from '@carbon/react';
 import React, { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -64,6 +63,7 @@ const gitlabDialogURL = process.env.REACT_APP_GITLAB_DIALOG_URL;
 const glideDialogURL = process.env.REACT_APP_GLIDE_DIALOG_URL;
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
+  // links states
   const {
     configuration_aware,
     isWbe,
@@ -78,7 +78,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     editTargetData,
     createLinkRes,
     linkCreateLoading,
-    // isTargetModalOpen,
   } = useSelector((state) => state.links);
   const { register, handleSubmit } = useForm();
   const [searchText, setSearchText] = useState(null);
@@ -90,7 +89,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  // const wbePath = location.pathname?.includes('wbe');
   const authCtx = useContext(AuthContext);
   const isJIRA = sourceDataList?.appName?.includes('jira');
   const isGitlab = sourceDataList?.appName?.includes('gitlab');
@@ -239,7 +237,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         if (message.toString()?.startsWith('oslc-response')) {
           const response = JSON.parse(message?.substr('oslc-response:'?.length));
           const results = response['oslc:results'];
-          console.log(results);
+          console.log('dialog response: ', results);
           const targetArray = [];
           results?.forEach((v, i) => {
             const koatlUri = results[i]['koatl:apiUrl'];
@@ -316,9 +314,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const handleSaveLink = () => {
     const { projectName, title, uri, appName } = sourceDataList;
 
-    // console.log('NewLink.jsx -> handleSaveLink -> targetDataArr', targetDataArr);
     const targetsData = targetDataArr?.map((data) => {
-      // console.log('NewLink.jsx -> handleSaveLink -> targetDataArr -> data', data);
       const id = data?.content_lines ? data.uri + '#' + data?.content_lines : data.uri;
       return {
         content_lines: data.content_lines,
@@ -347,6 +343,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       status: 'active',
       target_data: targetsData,
     };
+    console.log('app name', appName);
     console.log(linkObj);
     dispatch(
       fetchCreateLink({
@@ -384,22 +381,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   return (
     <>
-      {/* <WbeTopNav /> */}
       <div className="mainContainer">
         <div className="container">
           <Accordion>
-            {/* <AccordionItem open={true}
-            title={<h5>Source</h5>} className={accordionItem}>
-            <div className={sourceContainer}>
-              {sourceTitles.map((properties, index) => (
-                <div className={sourceGrid} key={properties}>
-                  <p className={sourceProp}>{properties} :</p>
-                  <p className={sourceValue}>{Object.values(sourceValues)[index]}</p>
-                </div>
-              ))}
-            </div>
-          </AccordionItem> */}
-
             <AccordionItem
               open={linkType && projectType ? false : true}
               title={<h5>Sources</h5>}

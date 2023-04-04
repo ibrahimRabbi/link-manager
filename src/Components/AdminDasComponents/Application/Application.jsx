@@ -224,10 +224,6 @@ const Application = () => {
     inpPlaceholder: 'Search Application',
   };
 
-  const handleScroll = (e) => {
-    console.log(e.target);
-  };
-
   return (
     <div>
       {/* -- add application Modal -- */}
@@ -238,12 +234,8 @@ const Application = () => {
             <ModalHeader onClick={addModalClose} />
           </div>
 
-          <ModalBody id={modalBody} onScroll={(e) => handleScroll(e)}>
-            <form
-              onSubmit={handleSubmit(handleAddApplication)}
-              className={formContainer}
-              onScroll={(e) => handleScroll(e)}
-            >
+          <ModalBody id={modalBody}>
+            <form onSubmit={handleSubmit(handleAddApplication)} className={formContainer}>
               <Stack gap={7}>
                 {/* Application name  */}
                 <div className={flNameContainer}>
@@ -295,7 +287,6 @@ const Application = () => {
                     control={control}
                     render={({ field }) => (
                       <ComboBox
-                        onScroll={(e) => handleScroll(e)}
                         {...field}
                         {...register('select', {
                           required: editData?.organization_id ? false : true,
