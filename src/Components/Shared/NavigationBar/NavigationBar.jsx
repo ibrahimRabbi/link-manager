@@ -8,13 +8,17 @@ import {
   SideNav,
   SideNavItems,
   SideNavMenuItem,
-  Theme,
+  // Theme,
 } from '@carbon/react';
 import React, { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleIsProfileOpen, handleIsSidebarOpen } from '../../../Redux/slices/navSlice';
+import {
+  handleIsDarkMode,
+  handleIsProfileOpen,
+  handleIsSidebarOpen,
+} from '../../../Redux/slices/navSlice';
 import AuthContext from '../../../Store/Auth-Context.jsx';
 
 import koneksysLogo from './koneksys_logo.png';
@@ -35,7 +39,7 @@ const {
 
 const NavigationBar = () => {
   const authCtx = useContext(AuthContext);
-  const { currPageTitle, isSidebarOpen, isProfileOpen } = useSelector(
+  const { currPageTitle, isSidebarOpen, isProfileOpen, isDark } = useSelector(
     (state) => state.nav,
   );
   const navigate = useNavigate();
@@ -68,94 +72,101 @@ const NavigationBar = () => {
 
   return (
     <div className={`${'container'} ${main}`}>
-      <Theme theme="g100">
-        <Header aria-label="" id={header}>
-          <div className={headerContainer}>
+      {/* <Theme theme="g100"> */}
+      <Header aria-label="" id={header}>
+        <div className={headerContainer}>
+          <IconButton
+            kind="ghost"
+            label=""
+            onClick={() => dispatch(handleIsSidebarOpen(!isSidebarOpen))}
+          >
+            {isSidebarOpen ? <Close size={30} /> : <Menu size={30} />}
+          </IconButton>
+
+          <img src={koneksysLogo} height="40px" alt="logo" />
+          <h5 className={projectTitle}>Link manager</h5>
+          <h6 className={pageTitle}>{currPageTitle}</h6>
+
+          {/* --- User popover --- */}
+          <Popover
+            open={isProfileOpen}
+            highContrast={false}
+            dropShadow
+            caret={false}
+            align="bottom-right"
+            className={profile}
+          >
             <IconButton
               kind="ghost"
               label=""
-              onClick={() => dispatch(handleIsSidebarOpen(!isSidebarOpen))}
+              onClick={() => dispatch(handleIsProfileOpen(!isProfileOpen))}
             >
-              {isSidebarOpen ? <Close size={30} /> : <Menu size={30} />}
+              <UserAvatarFilledAlt size={30} />
             </IconButton>
 
-            <img src={koneksysLogo} height="40px" alt="logo" />
-            <h5 className={projectTitle}>Link manager</h5>
-            <h6 className={pageTitle}>{currPageTitle}</h6>
-
-            {/* --- User popover --- */}
-            <Popover
-              open={isProfileOpen}
-              highContrast={false}
-              dropShadow
-              caret={false}
-              align="bottom-right"
-              className={profile}
-            >
-              <IconButton
-                kind="ghost"
-                label=""
-                onClick={() => dispatch(handleIsProfileOpen(!isProfileOpen))}
-              >
-                <UserAvatarFilledAlt size={30} />
-              </IconButton>
-
-              <PopoverContent className={popoverContent}>
-                <div className={content}>
-                  <div className={userContainer}>
-                    <h5>User Name</h5>
-                    <span>
-                      <UserAvatarFilledAlt size={25} />
-                    </span>
-                  </div>
-                  <p>Item option 1</p>
-                  <p>Item option 2</p>
+            <PopoverContent className={popoverContent}>
+              <div className={content}>
+                <div className={userContainer}>
+                  <h5>User Name</h5>
+                  <span>
+                    <UserAvatarFilledAlt size={25} />
+                  </span>
                 </div>
-                <Button
-                  onClick={handleLogout}
-                  renderIcon={Logout}
-                  size="md"
-                  kind="secondary"
-                >
-                  Logout
-                </Button>
-              </PopoverContent>
-            </Popover>
-          </div>
-        </Header>
-
-        {/* --------- Side nav ---------   */}
-        {isSidebarOpen && (
-          <SideNav id={sidebar} aria-label="" isPersistent={true} isChildOfHeader={false}>
-            <SideNavItems>
-              <hr />
-              <SideNavMenuItem
-                className={sidebarLink}
-                onClick={() => navigate('/')}
-                isActive={pathname === '/'}
+                <p>Item option 1</p>
+                <p>Item option 2</p>
+              </div>
+              <Button
+                onClick={handleLogout}
+                renderIcon={Logout}
+                size="md"
+                kind="secondary"
               >
-                Links
-              </SideNavMenuItem>
+                Logout
+              </Button>
+            </PopoverContent>
+          </Popover>
+        </div>
+      </Header>
 
-              <SideNavMenuItem
-                className={sidebarLink}
-                onClick={() => navigate('/graph-view')}
-                isActive={pathname === '/graph-view'}
-              >
-                Graph View
-              </SideNavMenuItem>
+      {/* --------- Side nav ---------   */}
+      {isSidebarOpen && (
+        <SideNav id={sidebar} aria-label="" isPersistent={true} isChildOfHeader={false}>
+          <SideNavItems>
+            <hr />
+            <SideNavMenuItem
+              className={sidebarLink}
+              onClick={() => navigate('/')}
+              isActive={pathname === '/'}
+            >
+              Links
+            </SideNavMenuItem>
 
-              <SideNavMenuItem
-                className={sidebarLink}
-                onClick={() => navigate('/admin')}
-                isActive={pathname === '/admin'}
-              >
-                Dashboard
-              </SideNavMenuItem>
-            </SideNavItems>
-          </SideNav>
-        )}
-      </Theme>
+            <SideNavMenuItem
+              className={sidebarLink}
+              onClick={() => navigate('/graph-view')}
+              isActive={pathname === '/graph-view'}
+            >
+              Graph View
+            </SideNavMenuItem>
+
+            <SideNavMenuItem
+              className={sidebarLink}
+              onClick={() => navigate('/admin')}
+              isActive={pathname === '/admin'}
+            >
+              Dashboard
+            </SideNavMenuItem>
+
+            <SideNavMenuItem
+              className={sidebarLink}
+              onClick={() => dispatch(handleIsDarkMode())}
+            >
+              {isDark == 'dark' ? 'Light' : isDark == 'light' ? 'Dark ' : 'Dark'}
+            </SideNavMenuItem>
+          </SideNavItems>
+        </SideNav>
+      )}
+      {/* </Theme> */}
     </div>
   );
 };

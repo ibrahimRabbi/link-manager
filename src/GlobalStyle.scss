@@ -2,6 +2,8 @@
 @use '@carbon/type';
 
 .App {
+  min-height: 100vh;
+
   h1 {
     font-size: type.type-scale(10);
   }
@@ -62,9 +64,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 1vw;
-  margin-bottom: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 5px 1px lightgray;
+  margin-bottom: 15px;
+  // border-radius: 10px;
+  // box-shadow: 0 0 5px 1px lightgray;
 
   button {
     border-radius: 5px;

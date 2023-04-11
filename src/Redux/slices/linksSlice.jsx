@@ -177,12 +177,12 @@ export const linksSlice = createSlice({
       state.isLoading = false;
       console.log('fetchLinksData -> payload', payload);
       if (payload) {
-        if (payload?.isConfirmed) state.linksData = [];
+        if (payload?.isConfirmed) state.linksData = {};
         else {
-          state.linksData = payload.data.items;
+          state.linksData = payload.data;
         }
       } else {
-        state.linksData = [];
+        state.linksData = {};
       }
     });
 

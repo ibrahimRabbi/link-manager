@@ -2,7 +2,6 @@ import { Button, ProgressBar, Search } from '@carbon/react';
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import Swal from 'sweetalert2';
 import { fetchLinksData, handleIsWbe } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle, handleIsProfileOpen } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
@@ -20,9 +19,8 @@ const {
   tableContainer,
 } = styles;
 
-const headers = [
+const headerData = [
   { key: 'status', header: 'Status' },
-  // { key: 'sourceId', header: 'Source ID' },
   { key: 'linkType', header: 'Link type' },
   { key: 'target', header: 'Target' },
   { key: 'actions', header: 'Actions' },
@@ -65,9 +63,6 @@ const LinkManager = () => {
     setCurrPage(values.page);
   };
 
-  // console.log(currPage);
-  // console.log(pageSize);
-
   useEffect(() => {
     (async () => {
       dispatch(handleIsProfileOpen(isProfileOpen && false));
@@ -86,31 +81,34 @@ const LinkManager = () => {
       if (sourceFileURL) {
         dispatch(
           fetchLinksData({
+            // eslint-disable-next-line max-len
             url: `${apiURL}?stream=${stream}&resource_id=${encodeURIComponent(
               sourceFileURL,
-            )}`,
+            )}&page=${currPage}&per_page=${pageSize}`,
             token: authCtx.token,
           }),
         );
       }
     })();
-  }, [linksStream]);
+  }, [linksStream, pageSize, currPage]);
 
   // Link manager dropdown options
   const handleShowItem = () => {};
 
-  const handleOpenTargetLink = () => {
-    Swal.fire({
-      title: 'Opening Jira Application',
-      timer: 2000,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
-  };
-
   // display conditionally Search and dropdown 0
   const isSearchBox = false;
+
+  const tableProps = {
+    rowData: linksData?.items?.length ? linksData?.items : [],
+    headerData,
+    handlePagination,
+    totalItems: linksData?.total_items,
+    totalPages: linksData?.total_pages,
+    pageSize,
+    page: linksData?.page,
+    inpPlaceholder: 'Search Organization',
+  };
+
   return (
     <>
       {/* WBE Nav bar  */}
@@ -169,14 +167,7 @@ const LinkManager = () => {
               )}
 
               {isLoading && <ProgressBar label="" />}
-              <UseDataTable
-                headers={headers}
-                tableData={linksData}
-                openTargetLink={handleOpenTargetLink}
-                handlePagination={handlePagination}
-                currPage={currPage}
-                pageSize={pageSize}
-              />
+              <UseDataTable props={tableProps} />
             </div>
           </div>
         </div>

@@ -39,6 +39,7 @@ const {
   linkContainer,
   applicationContainer,
   appAndProjectContainer,
+  cancelMargin,
 } = styles;
 
 // Table header
@@ -241,13 +242,32 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           console.log('dialog response: ', results);
           const targetArray = [];
           results?.forEach((v, i) => {
-            const koatlUri = results[i]['koatl:apiUrl'];
+            const koatl_path = results[i]['koatl:apiPath'];
+            const koatl_uri = results[i]['koatl:apiUrl'];
+            const branch_name = results[i]['oslc:branchName'];
             const content = results[i]['oslc:content'];
             const content_lines = results[i]['oslc:contentLine'];
+            const provider_id = results[i]['oslc:providerId'];
+            const resource_id = results[i]['oslc:resourceId'];
+            const resource_type = results[i]['oslc:resourceType'];
+            const selected_lines = results[i]['oslc:selectedLines'];
             const label = results[i]['oslc:label'];
             const uri = results[i]['rdf:resource'];
             const type = results[i]['rdf:type'];
-            targetArray.push({ uri, label, type, koatlUri, content, content_lines });
+            targetArray.push({
+              koatl_uri,
+              koatl_path,
+              branch_name,
+              provider_id,
+              resource_id,
+              resource_type,
+              content_lines,
+              selected_lines,
+              uri,
+              label,
+              type,
+              content,
+            });
           });
           dispatch(handleOslcResponse(true));
           dispatch(handleTargetDataArr([...targetArray]));
@@ -321,12 +341,47 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const handleSaveLink = () => {
     const { projectName, title, uri, appName } = sourceDataList;
 
+    // koatl_uri,
+    // koatl_path,
+    // branch_name,
+    // provider_id,
+    // resource_id,
+    // resource_type,
+    // content_lines,
+    // selected_lines,
+    // uri,
+    // label,
+    // type,
+    // content,
+
+    // koatl_uri: 'string',
+    // koatl_path: 'string',
+    // content_lines: 'string',
+    // selected_lines: 'string',
+    // content: 'string',
+    // branch_name: 'string',
+    // provider_id: 'string',
+    // resource_id: 'string',
+    // resource_type: 'string',
+    // target_type: 'string',
+    // target_title: 'string',
+    // target_id: 'string',
+    // target_project: 'string',
+    // target_provider: 'string',
+
     const targetsData = targetDataArr?.map((data) => {
-      const id = data?.content_lines ? data.uri + '#' + data?.content_lines : data.uri;
+      const id = data?.selected_lines ? data.uri + '#' + data?.selected_lines : data.uri;
       return {
+        koatl_uri: data.koatl_uri,
+        koatl_path: data.koatl_path,
         content_lines: data.content_lines,
+        selected_lines: data.selected_lines,
+        branch_name: data.branch_name,
+        provider_id: data.provider_id,
+        resource_id: data.resource_id,
+        resource_type: data.type,
         content: data.content,
-        target_type: data.type,
+        target_type: data.resource_type,
         target_title: data.label,
         target_id: id,
         target_project: projectType,
@@ -542,7 +597,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           )}
 
           {/* Target Cancel button  */}
-          <div className={targetBtnContainer}>
+          <div className={`${targetBtnContainer} ${projectFrameSrc ? '' : cancelMargin}`}>
             <Button
               kind="secondary"
               onClick={() => {

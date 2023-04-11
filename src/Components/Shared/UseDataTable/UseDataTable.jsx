@@ -13,7 +13,6 @@ import {
 } from '@carbon/react';
 import React, { useRef, useState } from 'react';
 import { AiFillCheckCircle } from 'react-icons/ai';
-import { FiSettings } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { ArrowContainer, Popover } from 'react-tiny-popover';
@@ -26,89 +25,59 @@ import {
   handleTargetDataArr,
   handleViewLinkDetails,
 } from '../../../Redux/slices/linksSlice';
-import { GrClose } from 'react-icons/gr';
 
 import styles from './UseDataTable.module.scss';
+import { Settings } from '@carbon/icons-react';
 const {
   tableContainer,
   table,
   tableHead,
   tableHeader,
   tableRow,
-  pagination,
   actionMenu,
   boxCell,
   menuItem,
   newLinkCell1,
   newLinkCell2,
   statusIcon,
-  closeIcon,
   tableCell,
   targetCell,
   validIcon,
+  pagination,
   popoverContentStyle,
 } = styles;
 
-const UseDataTable = ({
-  tableData,
-  headers,
-  isCheckBox = false,
-  isChecked,
-  editTargetData,
-  handlePagination,
-  currPage,
-  pageSize,
-}) => {
+const UseDataTable = ({ isCheckBox = false, isChecked, editTargetData, props }) => {
+  const { headerData, rowData, handlePagination, totalItems, pageSize } = props;
+
   const { isWbe } = useSelector((state) => state.links);
-  const [isPopoverOpen, setIsPopoverOpen] = useState(null);
-  const [cursorInPopoverContent, setCursorInPopoverContent] = useState(false);
-  const [shouldClosePopover, setShouldClosePopover] = useState(false);
-  const popoverContentRef = useRef(null);
-  const closeTimeoutRef = useRef(null);
+  const [openPopover, setOpenPopover] = useState(null);
+  const [isPopoverHovered, setIsPopoverHovered] = useState(false);
+  const timeoutRef = useRef(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // control popover via mouse enter and mouse leave
-  const handlePopoverOpen = (index) => {
-    if (index === isPopoverOpen) {
-      setIsPopoverOpen(null);
-    } else {
-      if (isPopoverOpen !== null) {
-        setIsPopoverOpen(null);
-        setShouldClosePopover(false);
-        clearTimeout(closeTimeoutRef.current);
-      }
-      setIsPopoverOpen(index);
+  // Control popover opening and closing
+  const handleLabelMouseEnter = (index) => {
+    timeoutRef.current = setTimeout(() => setOpenPopover(index), 700);
+  };
+
+  const handleLabelMouseLeave = () => {
+    clearTimeout(timeoutRef.current);
+    if (!isPopoverHovered) {
+      timeoutRef.current = setTimeout(() => setOpenPopover(null), 700);
     }
   };
 
-  const handlePopoverClose = () => {
-    if (!cursorInPopoverContent && !shouldClosePopover) {
-      setShouldClosePopover(true);
-      closeTimeoutRef.current = setTimeout(() => {
-        setIsPopoverOpen(null);
-        setShouldClosePopover(false);
-      }, 100);
-    }
+  const handlePopoverMouseEnter = () => {
+    setIsPopoverHovered(true);
   };
 
-  const handlePopoverContentEnter = () => {
-    setCursorInPopoverContent(true);
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
-      closeTimeoutRef.current = null;
-    }
-  };
-
-  const handlePopoverContentLeave = () => {
-    setCursorInPopoverContent(false);
-    if (isPopoverOpen !== null) {
-      setShouldClosePopover(true);
-      closeTimeoutRef.current = setTimeout(() => {
-        setIsPopoverOpen(null);
-        setShouldClosePopover(false);
-      }, 100);
-    }
+  const handlePopoverMouseLeave = () => {
+    setIsPopoverHovered(false);
+    setTimeout(() => {
+      setOpenPopover(null);
+    }, 700);
   };
 
   // Delete link
@@ -134,7 +103,7 @@ const UseDataTable = ({
       <Table size="md" className={table}>
         <TableHead className={tableHead}>
           <TableRow className={tableRow}>
-            {headers?.map((header, i) => (
+            {headerData?.map((header, i) => (
               <TableHeader key={i} className={tableHeader}>
                 {header?.header}
               </TableHeader>
@@ -145,8 +114,8 @@ const UseDataTable = ({
           {
             // --- New link Table and edit link ---
             isCheckBox &&
-              tableData[0] &&
-              tableData?.map((row) => (
+              rowData[0] &&
+              rowData?.map((row) => (
                 <TableRow key={row?.identifier}>
                   <TableCell className={`${tableCell} ${newLinkCell1}`}>
                     {row?.identifier}
@@ -197,8 +166,11 @@ const UseDataTable = ({
           {
             // Link Manager Table
             !isCheckBox &&
-              tableData[0] &&
-              tableData?.map((row, index) => {
+              rowData[0] &&
+              rowData?.map((row, index) => {
+                // if content_lines available
+                const lines = row?.content_lines ? row?.content_lines?.split('L') : null;
+
                 return (
                   <TableRow key={index}>
                     <TableCell className={tableCell}>
@@ -207,11 +179,14 @@ const UseDataTable = ({
                     <TableCell className={tableCell}>{row?.link_type}</TableCell>
 
                     {/* --- Table data with Popover ---  */}
-                    <TableCell className={`${tableCell} ${targetCell}`}>
+                    <TableCell
+                      className={`${tableCell} ${targetCell}`}
+                      onMouseEnter={() => handleLabelMouseEnter(index)}
+                      onMouseLeave={handleLabelMouseLeave}
+                    >
                       <Popover
                         id={row?.id}
-                        isOpen={isPopoverOpen === index}
-                        onClickOutside={() => handlePopoverClose()}
+                        isOpen={openPopover === index}
                         positions={['bottom', 'top', 'left']}
                         content={({ position, childRect, popoverRect }) => (
                           <ArrowContainer
@@ -226,20 +201,22 @@ const UseDataTable = ({
                           >
                             <div
                               className={popoverContentStyle}
-                              ref={popoverContentRef}
-                              onMouseEnter={handlePopoverContentEnter}
-                              onMouseLeave={handlePopoverContentLeave}
+                              ref={timeoutRef}
+                              onMouseEnter={handlePopoverMouseEnter}
+                              onMouseLeave={handlePopoverMouseLeave}
                             >
-                              {/* --- close popover ---  */}
-                              <GrClose
-                                className={closeIcon}
-                                onClick={() => handlePopoverClose(null)}
-                              />
-
                               <iframe
                                 src={
                                   // eslint-disable-next-line max-len
-                                  'https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/42854970/resources/files/7f1d9abe39a958aaac2a04d6e4e03ac9a908c34c/smallPreview?file_lines=1-9&file_content=6c58744a370a4e3be225ba36caac24d3e03791b846eb4ddebdf40f1f6432fcb2&file_path=GUI/background.js'
+                                  `https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/${
+                                    row?.provider_id
+                                  }/resources/${row?.Type}/${
+                                    row?.resource_id
+                                  }/smallPreview?file_lines=${
+                                    lines ? lines[1] + lines[2] : ''
+                                  }&file_content=${row?.content}&file_path=${
+                                    row?.koatl_path
+                                  }`
                                 }
                                 width="100%"
                                 height="auto"
@@ -248,13 +225,7 @@ const UseDataTable = ({
                           </ArrowContainer>
                         )}
                       >
-                        <a
-                          href={row?.id}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onMouseEnter={() => handlePopoverOpen(index)}
-                          onMouseLeave={() => handlePopoverClose()}
-                        >
+                        <a href={row?.id} target="_blank" rel="noopener noreferrer">
                           {row?.content_lines
                             ? row?.name.length > 15
                               ? row?.name.slice(0, 15 - 1) +
@@ -272,7 +243,7 @@ const UseDataTable = ({
                       <OverflowMenu
                         menuOptionsClass={actionMenu}
                         menuOffset={{ left: -55 }}
-                        renderIcon={() => <FiSettings />}
+                        renderIcon={Settings}
                         size="md"
                         ariaLabel=""
                       >
@@ -333,15 +304,11 @@ const UseDataTable = ({
       {/* --- Pagination --- */}
       <Pagination
         className={pagination}
-        backwardText="Previous page"
-        forwardText="Next page"
-        itemsPerPageText="Items per page:"
-        onChange={handlePagination}
-        page={currPage}
         pageSize={pageSize}
+        onChange={handlePagination}
         pageSizes={[5, 10, 25, 50, 100]}
-        size="lg"
-        totalItems={tableData?.length}
+        size="md"
+        totalItems={totalItems ? totalItems : 0}
       />
     </TableContainer>
   );

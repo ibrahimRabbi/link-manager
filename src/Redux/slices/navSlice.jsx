@@ -14,6 +14,7 @@ export const fetchStreamItems = createAsyncThunk(
 const initialState = {
   isProfileOpen: false,
   isSidebarOpen: false,
+  isDark: null,
   currPageTitle: '',
   linksStreamItems: [],
   linksStream: {},
@@ -24,6 +25,26 @@ export const navSlice = createSlice({
   initialState,
 
   reducers: {
+    // sidebar controller
+    handleIsDarkMode: (state, { payload }) => {
+      const isDarkMode = localStorage.getItem('isDarkMode');
+      if (payload) {
+        state.isDark = payload;
+      } else {
+        if (isDarkMode) {
+          if (isDarkMode === 'dark') {
+            localStorage.setItem('isDarkMode', 'light');
+            state.isDark = 'light';
+          } else if (isDarkMode === 'light') {
+            localStorage.setItem('isDarkMode', 'dark');
+            state.isDark = 'dark';
+          }
+        } else {
+          localStorage.setItem('isDarkMode', 'light');
+        }
+      }
+    },
+
     // sidebar controller
     handleIsSidebarOpen: (state, { payload }) => {
       state.isSidebarOpen = payload;
@@ -53,6 +74,7 @@ export const navSlice = createSlice({
 
 // Action creators are generated for each case reducer function
 export const {
+  handleIsDarkMode,
   handleIsSidebarOpen,
   handleCurrPageTitle,
   handleIsProfileOpen,
