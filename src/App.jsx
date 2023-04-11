@@ -26,7 +26,7 @@ import { useEffect } from 'react';
 import { handleIsDarkMode } from './Redux/slices/navSlice';
 
 function App() {
-  const { isDarkMode } = useSelector((state) => state.nav);
+  const { isDark } = useSelector((state) => state.nav);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -35,9 +35,7 @@ function App() {
   }, []);
 
   return (
-    <Theme
-      theme={isDarkMode === 'dark' ? 'g100' : isDarkMode === 'light' ? 'white' : 'white'}
-    >
+    <Theme theme={isDark === 'dark' ? 'g100' : isDark === 'light' ? 'white' : 'white'}>
       <div className="App">
         <Routes>
           {/* This is WBE dashboard */}

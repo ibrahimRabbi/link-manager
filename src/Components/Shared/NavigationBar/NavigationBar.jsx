@@ -130,7 +130,13 @@ const NavigationBar = () => {
 
       {/* --------- Side nav ---------   */}
       {isSidebarOpen && (
-        <SideNav id={sidebar} aria-label="" isPersistent={true} isChildOfHeader={false}>
+        <SideNav
+          id={sidebar}
+          style={{ borderRight: '1px solid gray' }}
+          aria-label=""
+          isPersistent={true}
+          isChildOfHeader={false}
+        >
           <SideNavItems>
             <hr />
             <SideNavMenuItem
