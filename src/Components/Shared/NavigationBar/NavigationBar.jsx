@@ -1,4 +1,10 @@
-import { Close, Logout, Menu, UserAvatarFilledAlt } from '@carbon/icons-react';
+import {
+  BrightnessContrast,
+  Close,
+  Logout,
+  Menu,
+  UserAvatarFilledAlt,
+} from '@carbon/icons-react';
 import {
   Button,
   Header,
@@ -72,7 +78,6 @@ const NavigationBar = () => {
 
   return (
     <div className={`${'container'} ${main}`}>
-      {/* <Theme theme="g100"> */}
       <Header aria-label="" id={header}>
         <div className={headerContainer}>
           <IconButton
@@ -112,14 +117,20 @@ const NavigationBar = () => {
                     <UserAvatarFilledAlt size={25} />
                   </span>
                 </div>
-                <p>Item option 1</p>
-                <p>Item option 2</p>
+                <Button
+                  onClick={() => dispatch(handleIsDarkMode())}
+                  renderIcon={BrightnessContrast}
+                  size="md"
+                  kind={isDark == 'dark' ? 'secondary' : 'ghost'}
+                >
+                  {isDark == 'dark' ? 'Light ' : isDark == 'light' ? 'Dark ' : 'Dark'}
+                </Button>
               </div>
               <Button
                 onClick={handleLogout}
                 renderIcon={Logout}
                 size="md"
-                kind="secondary"
+                kind={isDark == 'dark' ? 'secondary' : 'ghost'}
               >
                 Logout
               </Button>
@@ -162,17 +173,9 @@ const NavigationBar = () => {
             >
               Dashboard
             </SideNavMenuItem>
-
-            <SideNavMenuItem
-              className={sidebarLink}
-              onClick={() => dispatch(handleIsDarkMode())}
-            >
-              {isDark == 'dark' ? 'Light' : isDark == 'light' ? 'Dark ' : 'Dark'}
-            </SideNavMenuItem>
           </SideNavItems>
         </SideNav>
       )}
-      {/* </Theme> */}
     </div>
   );
 };

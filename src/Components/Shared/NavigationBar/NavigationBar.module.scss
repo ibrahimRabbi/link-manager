@@ -120,7 +120,7 @@
   .content {
     min-height: 10vh;
     padding: 5px 0;
-    background-color: colors.$gray-90;
+    // background-color: colors.$gray-90;
 
     .userContainer {
       display: flex;
@@ -130,7 +130,7 @@
       padding: 0 15px;
 
       span {
-        background-color: colors.$gray-70;
+        // background-color: colors.$gray-70;
         border-radius: 50%;
         width: 35px;
         height: 35px;
@@ -210,6 +210,10 @@
 
 .sidebarLink {
   cursor: pointer;
+}
+
+.darkModeStyle {
+  margin-bottom: 20px;
 }
 
 .linkFileContainer > h5 {

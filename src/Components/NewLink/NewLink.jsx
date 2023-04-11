@@ -81,6 +81,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const [applicationTypeItems, setApplicationTypeItems] = useState([]);
   const [projectTypeItems, setProjectTypeItems] = useState([]);
   const [projectFrameSrc, setProjectFrameSrc] = useState('');
+  const [projectId, setProjectId] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -184,7 +185,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       } else if (gitlabApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          `${gitlabDialogURL}/oslc/provider/selector?provider_id=${'42854970'}&gc_context=${'st-develop'}`,
+          `${gitlabDialogURL}/oslc/provider/selector?provider_id=${projectId}&gc_context=${'st-develop'}`,
         );
       } else if (glideApp) {
         setProjectFrameSrc(
@@ -314,6 +315,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // Project type dropdown
   const handleTargetProject = ({ selectedItem }) => {
     dispatch(handleProjectType(selectedItem.name));
+    setProjectId(selectedItem?.id);
   };
 
   // Resource type dropdown
@@ -340,34 +342,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // Create new link
   const handleSaveLink = () => {
     const { projectName, title, uri, appName } = sourceDataList;
-
-    // koatl_uri,
-    // koatl_path,
-    // branch_name,
-    // provider_id,
-    // resource_id,
-    // resource_type,
-    // content_lines,
-    // selected_lines,
-    // uri,
-    // label,
-    // type,
-    // content,
-
-    // koatl_uri: 'string',
-    // koatl_path: 'string',
-    // content_lines: 'string',
-    // selected_lines: 'string',
-    // content: 'string',
-    // branch_name: 'string',
-    // provider_id: 'string',
-    // resource_id: 'string',
-    // resource_type: 'string',
-    // target_type: 'string',
-    // target_title: 'string',
-    // target_id: 'string',
-    // target_project: 'string',
-    // target_provider: 'string',
 
     const targetsData = targetDataArr?.map((data) => {
       const id = data?.selected_lines ? data.uri + '#' + data?.selected_lines : data.uri;

@@ -27,6 +27,7 @@ const {
   topContentContainer,
   fileContainer,
   sidebarLink,
+  darkModeStyle,
   dropdownStyle,
   marginLeft,
   titleDiv,
@@ -36,7 +37,11 @@ const {
 } = styles;
 
 const WbeTopNav = () => {
-  const { linksStream, linksStreamItems, isDark } = useSelector((state) => state.nav);
+  const {
+    linksStream,
+    linksStreamItems,
+    // isDark
+  } = useSelector((state) => state.nav);
   const { sourceDataList, configuration_aware } = useSelector((state) => state.links);
   const [showMore, setShowMore] = useState(false);
   const [isSideNav, setIsSideNav] = useState(false);
@@ -160,15 +165,16 @@ const WbeTopNav = () => {
             >
               Graph View
             </SideNavLink>
-
-            <SideNavLink
-              renderIcon={BrightnessContrast}
-              className={sidebarLink}
-              onClick={() => dispatch(handleIsDarkMode())}
-            >
-              {isDark == 'dark' ? 'Light' : isDark == 'light' ? 'Dark ' : 'Dark'}
-            </SideNavLink>
           </SideNavItems>
+
+          {/* --- Dark mode option ---    */}
+          <SideNavLink
+            renderIcon={BrightnessContrast}
+            className={`${sidebarLink} ${darkModeStyle}`}
+            onClick={() => dispatch(handleIsDarkMode())}
+          >
+            {/* {isDark == 'dark' ? 'Light' : isDark == 'light' ? 'Dark ' : 'Dark'} */}
+          </SideNavLink>
         </SideNav>
       )}
     </>
