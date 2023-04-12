@@ -12,6 +12,7 @@ import * as Sentry from '@sentry/react';
 import { BrowserTracing, Replay } from '@sentry/react';
 
 const SENTRY_DSN = `${process.env.REACT_APP_SENTRY_DSN}`;
+const ENVIRONMENT = `${process.env.NODE_ENV}`;
 
 Sentry.init({
   // eslint-disable-next-line max-len
@@ -29,6 +30,7 @@ Sentry.init({
   // If the entire session is not sampled, use the below sample rate to sample
   // sessions when an error occurs.
   replaysOnErrorSampleRate: 1.0,
+  environment: ENVIRONMENT,
 });
 
 ReactDOM.render(
