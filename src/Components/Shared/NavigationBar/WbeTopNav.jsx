@@ -1,15 +1,9 @@
 import { FaLink, FaShareAlt } from 'react-icons/fa';
 import { MdExpandMore, MdExpandLess } from 'react-icons/md';
 import { ImMenu } from 'react-icons/im';
-import { RxSlash } from 'react-icons/rx';
-import {
-  Button,
-  SideNav,
-  SideNavItems,
-  SideNavLink,
-  SideNavMenuItem,
-  // Tooltip,
-} from '@carbon/react';
+// import AddOutlineIcon from '@rsuite/icons/AddOutline';
+import { SideNav, SideNavItems, SideNavLink, SideNavMenuItem } from '@carbon/react';
+import { Breadcrumb, Button, FlexboxGrid } from 'rsuite';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -25,15 +19,12 @@ import { BrightnessContrast } from '@carbon/icons-react';
 const {
   wbeSideNav,
   topContentContainer,
-  fileContainer,
   sidebarLink,
   darkModeStyle,
   dropdownStyle,
   marginLeft,
-  titleDiv,
   seeMLBtn,
   arIcon,
-  icon,
 } = styles;
 
 const WbeTopNav = () => {
@@ -75,43 +66,55 @@ const WbeTopNav = () => {
     <>
       <div className="mainContainer">
         <div
-          className={`${topContentContainer} 
+          className={`${topContentContainer}
         ${(pathname === '/wbe' || pathname === '/wbe/graph-view') && marginLeft}`}
         >
-          <div className={fileContainer}>
-            {/* with see more and see less btn show title */}
-            <div className={titleDiv}>
+          <FlexboxGrid style={{ marginTop: '10px' }} align="middle">
+            <FlexboxGrid.Item colspan={3} style={{ padding: '0' }}>
               <h3>Source: </h3>
-              <p>
-                {sourceDataList?.projectName}
-                {sourceDataList?.projectName && <RxSlash className={icon} />}
-                {sourceDataList?.sourceType}
-                {sourceDataList?.sourceType && <RxSlash className={icon} />}
-                {sourceDataList?.titleLabel}
-                {sourceDataList?.titleLabel && <RxSlash className={icon} />}
-                <span>
-                  {sourceDataList?.title?.slice(0, 25)}
-                  {showMore ? <span>{title}</span> : ''}
-                  {sourceDataList?.title?.length > 25 && !showMore ? '...' : ''}
-                </span>
-                {sourceDataList?.title?.length > 25 && (
-                  <span className={seeMLBtn} onClick={toggleTitle}>
-                    {showMore ? (
-                      <MdExpandLess className={arIcon} />
-                    ) : (
-                      <MdExpandMore className={arIcon} />
-                    )}
-                  </span>
-                )}
-              </p>
-            </div>
+            </FlexboxGrid.Item>
 
+            <FlexboxGrid.Item colspan={pathname !== '/wbe/new-link' ? 17 : 21}>
+              <Breadcrumb style={{ fontSize: '22px', marginBottom: '-1px' }}>
+                <Breadcrumb.Item>{sourceDataList?.projectName}</Breadcrumb.Item>
+                <Breadcrumb.Item>{sourceDataList?.sourceType}</Breadcrumb.Item>
+                <Breadcrumb.Item>{sourceDataList?.titleLabel}</Breadcrumb.Item>
+                <Breadcrumb.Item>
+                  <span>
+                    {sourceDataList?.title?.slice(0, 25)}
+                    {showMore ? <span>{title}</span> : ''}
+                    {sourceDataList?.title?.length > 25 && !showMore ? '...' : ''}
+                  </span>
+
+                  {sourceDataList?.title?.length > 25 && (
+                    <span className={seeMLBtn} onClick={toggleTitle}>
+                      {showMore ? (
+                        <MdExpandLess className={arIcon} />
+                      ) : (
+                        <MdExpandMore className={arIcon} />
+                      )}
+                    </span>
+                  )}
+                </Breadcrumb.Item>
+              </Breadcrumb>
+            </FlexboxGrid.Item>
+
+            {/* -- create link button --  */}
             {pathname !== '/wbe/new-link' && (
-              <Button size="sm" kind="primary" onClick={() => navigate('/wbe/new-link')}>
-                Create Link
-              </Button>
+              <FlexboxGrid.Item colspan={4}>
+                <Button
+                  onClick={() => navigate('/wbe/new-link')}
+                  color="blue"
+                  appearance="primary"
+                  active
+                  // endIcon={< AddOutlineIcon/>}
+                >
+                  {' '}
+                  Create Link{' '}
+                </Button>
+              </FlexboxGrid.Item>
             )}
-          </div>
+          </FlexboxGrid>
         </div>
 
         {configuration_aware && (
@@ -173,7 +176,7 @@ const WbeTopNav = () => {
             className={`${sidebarLink} ${darkModeStyle}`}
             onClick={() => dispatch(handleIsDarkMode())}
           >
-            {/* {isDark == 'dark' ? 'Light' : isDark == 'light' ? 'Dark ' : 'Dark'} */}
+            {' '}
           </SideNavLink>
         </SideNav>
       )}

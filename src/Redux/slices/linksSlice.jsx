@@ -117,11 +117,22 @@ export const linksSlice = createSlice({
     },
 
     handleLinkType: (state, { payload }) => {
-      state.linkType = payload;
+      if (payload) {
+        state.linkType = payload;
+      } else {
+        state.linkType = null;
+        state.applicationType = null;
+        state.projectType = null;
+      }
     },
 
     handleApplicationType: (state, { payload }) => {
-      state.applicationType = payload;
+      if (payload) {
+        state.applicationType = payload;
+      } else {
+        state.applicationType = null;
+        state.projectType = null;
+      }
     },
 
     handleStreamType: (state, { payload }) => {
@@ -129,7 +140,11 @@ export const linksSlice = createSlice({
     },
 
     handleProjectType: (state, { payload }) => {
-      state.projectType = payload;
+      if (payload) {
+        state.projectType = payload;
+      } else {
+        state.projectType = null;
+      }
     },
 
     handleResourceType: (state, { payload }) => {

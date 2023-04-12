@@ -1,4 +1,5 @@
-import { Button, Checkbox, ProgressBar, Search } from '@carbon/react';
+import { Checkbox, ProgressBar, Search } from '@carbon/react';
+import { Button } from 'rsuite';
 import React, { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
@@ -19,16 +20,16 @@ import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import WbeTopNav from '../Shared/NavigationBar/WbeTopNav';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
-import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 
 import styles from './NewLink.module.scss';
+import UseSelectPicker from '../Shared/UseDropdown/UseSelectPicker';
+import { FlexboxGrid, Col } from 'rsuite';
 const {
   btnContainer,
-  dropdownStyle,
-  dropdownStyle2,
+  // dropdownStyle,
+  // dropdownStyle2,
   emptySearchWarning,
   inputContainer,
-  // linkTypeContainer,
   newLinkTable,
   searchContainer,
   searchInput,
@@ -36,9 +37,8 @@ const {
   targetIframe,
   targetBtnContainer,
   targetSearchContainer,
-  linkContainer,
-  applicationContainer,
-  appAndProjectContainer,
+  // applicationContainer,
+  // appAndProjectContainer,
   cancelMargin,
 } = styles;
 
@@ -292,14 +292,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   }, [createLinkRes]);
 
   // Link type dropdown
-  const handleLinkTypeChange = ({ selectedItem }) => {
-    dispatch(handleLinkType(selectedItem.name));
+  const handleLinkTypeChange = (selectedItem) => {
+    dispatch(handleLinkType(selectedItem?.name));
   };
 
   // Link type dropdown
-  const handleApplicationChange = ({ selectedItem }) => {
-    dispatch(handleApplicationType(selectedItem.name));
-    console.log('application: ', selectedItem);
+  const handleApplicationChange = (selectedItem) => {
+    dispatch(handleApplicationType(selectedItem?.name));
   };
 
   // stream type dropdown
@@ -313,8 +312,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   //   linkType === 'constrainedBy' ? ['Document (PLM)', 'Part (PLM)'] : resourceItems;
 
   // Project type dropdown
-  const handleTargetProject = ({ selectedItem }) => {
-    dispatch(handleProjectType(selectedItem.name));
+  const handleTargetProject = (selectedItem) => {
+    dispatch(handleProjectType(selectedItem?.name));
     setProjectId(selectedItem?.id);
   };
 
@@ -420,19 +419,21 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
       <div className="mainContainer">
         <div className="container">
-          <div className={linkContainer}>
-            <h3>Link: </h3>
-            <UseDropdown
-              onChange={handleLinkTypeChange}
-              items={linkTypeItems}
-              title=""
-              selectedValue={editLinkData?.linkType}
-              label={'Select link type'}
-              id="newLink_linkTypes"
-              className={dropdownStyle}
-            />
-            <p></p>
-          </div>
+          {/* --- Link types --- */}
+          <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+            <FlexboxGrid.Item colspan={3}>
+              <h3>Link: </h3>
+            </FlexboxGrid.Item>
+
+            <FlexboxGrid.Item colspan={21}>
+              <UseSelectPicker
+                placeholder="Choose Link Type"
+                onChange={handleLinkTypeChange}
+                items={linkTypeItems}
+                // className={dropdownStyle}
+              />
+            </FlexboxGrid.Item>
+          </FlexboxGrid>
 
           {/* {configuration_aware && (
               <UseDropdown
@@ -446,34 +447,43 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               />
             )} */}
 
+          {/* --- Application and project types --- */}
           {linkType && (
-            <div className={applicationContainer}>
-              <h3>Target: </h3>
+            <>
+              <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+                <FlexboxGrid.Item colspan={3}>
+                  <h3>Target: </h3>
+                </FlexboxGrid.Item>
 
-              <div className={appAndProjectContainer}>
-                <UseDropdown
-                  onChange={handleApplicationChange}
-                  items={applicationTypeItems}
-                  title=""
-                  selectedValue={editLinkData?.applicationType}
-                  label={'Select application'}
-                  id="newLink_applicationTypes"
-                  className={dropdownStyle2}
-                />
+                <FlexboxGrid.Item colspan={21}>
+                  <FlexboxGrid justify="start">
+                    {/* --- Application dropdown ---   */}
+                    <FlexboxGrid.Item as={Col} colspan={11} style={{ paddingLeft: '0' }}>
+                      <UseSelectPicker
+                        placeholder="Choose Application"
+                        onChange={handleApplicationChange}
+                        items={applicationTypeItems}
+                      />
+                    </FlexboxGrid.Item>
 
-                {applicationType && (
-                  <UseDropdown
-                    onChange={handleTargetProject}
-                    items={targetProjectItems}
-                    title=""
-                    label={'Select project'}
-                    selectedValue={editLinkData?.projectType}
-                    id="target-project-dropdown"
-                    className={dropdownStyle2}
-                  />
-                )}
-              </div>
-            </div>
+                    {/* --- Project dropdown ---   */}
+                    {applicationType && (
+                      <FlexboxGrid.Item
+                        as={Col}
+                        colspan={11}
+                        style={{ paddingRight: '0', marginLeft: 'auto' }}
+                      >
+                        <UseSelectPicker
+                          placeholder="Choose Project"
+                          onChange={handleTargetProject}
+                          items={targetProjectItems}
+                        />
+                      </FlexboxGrid.Item>
+                    )}
+                  </FlexboxGrid>
+                </FlexboxGrid.Item>
+              </FlexboxGrid>
+            </>
           )}
 
           {linkCreateLoading && <ProgressBar label="" />}
@@ -481,7 +491,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
           {(withConfigAware || withoutConfigAware) && (
             <div className={targetContainer}>
-              {projectFrameSrc && (
+              {linkType && applicationType && projectType && projectFrameSrc && (
                 <iframe className={targetIframe} src={projectFrameSrc} />
               )}
 
@@ -535,10 +545,14 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                   {/* // new link btn  */}
                   {projectType && resourceType && !isEditLinkPage && (
                     <div className={btnContainer}>
-                      <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
+                      <Button
+                        appearance="default"
+                        onClick={handleCancelOpenedLink}
+                        size="md"
+                      >
                         Cancel
                       </Button>
-                      <Button kind="primary" onClick={handleSaveLink} size="md">
+                      <Button appearance="primary" onClick={handleSaveLink} size="md">
                         Save
                       </Button>
                     </div>
@@ -547,10 +561,14 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                   {/* // edit link btn  */}
                   {isEditLinkPage && editLinkData?.id && (
                     <div className={btnContainer}>
-                      <Button kind="secondary" onClick={handleCancelOpenedLink} size="md">
+                      <Button
+                        appearance="default"
+                        onClick={handleCancelOpenedLink}
+                        size="md"
+                      >
                         Cancel
                       </Button>
-                      <Button kind="primary" onClick={handleLinkUpdate} size="md">
+                      <Button appearance="primary" onClick={handleLinkUpdate} size="md">
                         Save
                       </Button>
                     </div>
@@ -573,7 +591,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           {/* Target Cancel button  */}
           <div className={`${targetBtnContainer} ${projectFrameSrc ? '' : cancelMargin}`}>
             <Button
-              kind="secondary"
+              appearance="default"
               onClick={() => {
                 dispatch(handleCancelLink());
                 isWbe ? navigate('/wbe') : navigate('/');

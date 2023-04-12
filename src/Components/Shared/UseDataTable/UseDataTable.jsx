@@ -11,11 +11,10 @@ import {
   TableHeader,
   TableRow,
 } from '@carbon/react';
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import { AiFillCheckCircle } from 'react-icons/ai';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { ArrowContainer, Popover } from 'react-tiny-popover';
 import Swal from 'sweetalert2';
 import {
   handleDeleteLink,
@@ -28,6 +27,7 @@ import {
 
 import styles from './UseDataTable.module.scss';
 import { Settings } from '@carbon/icons-react';
+import { Whisper, Popover } from 'rsuite';
 const {
   tableContainer,
   table,
@@ -44,41 +44,15 @@ const {
   targetCell,
   validIcon,
   pagination,
-  popoverContentStyle,
 } = styles;
 
 const UseDataTable = ({ isCheckBox = false, isChecked, editTargetData, props }) => {
   const { headerData, rowData, handlePagination, totalItems, pageSize } = props;
 
   const { isWbe } = useSelector((state) => state.links);
-  const [openPopover, setOpenPopover] = useState(null);
-  const [isPopoverHovered, setIsPopoverHovered] = useState(false);
-  const timeoutRef = useRef(null);
+  const [popData, setPopData] = React.useState({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  // Control popover opening and closing
-  const handleLabelMouseEnter = (index) => {
-    timeoutRef.current = setTimeout(() => setOpenPopover(index), 700);
-  };
-
-  const handleLabelMouseLeave = () => {
-    clearTimeout(timeoutRef.current);
-    if (!isPopoverHovered) {
-      timeoutRef.current = setTimeout(() => setOpenPopover(null), 700);
-    }
-  };
-
-  const handlePopoverMouseEnter = () => {
-    setIsPopoverHovered(true);
-  };
-
-  const handlePopoverMouseLeave = () => {
-    setIsPopoverHovered(false);
-    setTimeout(() => {
-      setOpenPopover(null);
-    }, 700);
-  };
 
   // Delete link
   const handleDeleteCreatedLink = (data) => {
@@ -97,6 +71,27 @@ const UseDataTable = ({ isCheckBox = false, isChecked, editTargetData, props }) 
       }
     });
   };
+
+  const lines = popData?.content_lines ? popData?.content_lines?.split('L') : '';
+  const speaker = (
+    <Popover
+      title={popData?.koatl_path + popData?.content_lines}
+      style={{ width: '500px' }}
+    >
+      <iframe
+        src={
+          // eslint-disable-next-line max-len
+          `https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/${
+            popData?.provider_id
+          }/resources/${popData?.Type}/${popData?.resource_id}/smallPreview?file_lines=${
+            lines ? lines[1] + lines[2] : ''
+          }&file_content=${popData?.content}&file_path=${popData?.koatl_path}`
+        }
+        width="100%"
+        height="auto"
+      ></iframe>
+    </Popover>
+  );
 
   return (
     <TableContainer title="" className={tableContainer}>
@@ -168,9 +163,6 @@ const UseDataTable = ({ isCheckBox = false, isChecked, editTargetData, props }) 
             !isCheckBox &&
               rowData[0] &&
               rowData?.map((row, index) => {
-                // if content_lines available
-                const lines = row?.content_lines ? row?.content_lines?.split('L') : null;
-
                 return (
                   <TableRow key={index}>
                     <TableCell className={tableCell}>
@@ -179,53 +171,20 @@ const UseDataTable = ({ isCheckBox = false, isChecked, editTargetData, props }) 
                     <TableCell className={tableCell}>{row?.link_type}</TableCell>
 
                     {/* --- Table data with Popover ---  */}
-                    <TableCell
-                      className={`${tableCell} ${targetCell}`}
-                      onMouseEnter={() => handleLabelMouseEnter(index)}
-                      onMouseLeave={handleLabelMouseLeave}
-                    >
-                      <Popover
-                        id={row?.id}
-                        isOpen={openPopover === index}
-                        positions={['bottom', 'top', 'left']}
-                        content={({ position, childRect, popoverRect }) => (
-                          <ArrowContainer
-                            position={position}
-                            childRect={childRect}
-                            popoverRect={popoverRect}
-                            arrowColor={'gray'}
-                            arrowSize={12}
-                            arrowStyle={{}}
-                            className="popover-arrow-container"
-                            arrowClassName="popover-arrow"
-                          >
-                            <div
-                              className={popoverContentStyle}
-                              ref={timeoutRef}
-                              onMouseEnter={handlePopoverMouseEnter}
-                              onMouseLeave={handlePopoverMouseLeave}
-                            >
-                              <iframe
-                                src={
-                                  // eslint-disable-next-line max-len
-                                  `https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/${
-                                    row?.provider_id
-                                  }/resources/${row?.Type}/${
-                                    row?.resource_id
-                                  }/smallPreview?file_lines=${
-                                    lines ? lines[1] + lines[2] : ''
-                                  }&file_content=${row?.content}&file_path=${
-                                    row?.koatl_path
-                                  }`
-                                }
-                                width="100%"
-                                height="auto"
-                              ></iframe>
-                            </div>
-                          </ArrowContainer>
-                        )}
+                    <TableCell className={`${tableCell} ${targetCell}`}>
+                      <Whisper
+                        placement="bottom"
+                        trigger="hover"
+                        controlId="control-id-hover-enterable"
+                        speaker={speaker}
+                        enterable
                       >
-                        <a href={row?.id} target="_blank" rel="noopener noreferrer">
+                        <a
+                          href={row?.id}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onMouseEnter={() => setPopData(row)}
+                        >
                           {row?.content_lines
                             ? row?.name.length > 15
                               ? row?.name.slice(0, 15 - 1) +
@@ -236,7 +195,7 @@ const UseDataTable = ({ isCheckBox = false, isChecked, editTargetData, props }) 
                               : row?.name + ' [' + row.content_lines + ']'
                             : row?.name}
                         </a>
-                      </Popover>
+                      </Whisper>
                     </TableCell>
 
                     <TableCell className={`${tableCell} ${'cds--table-column-menu'}`}>

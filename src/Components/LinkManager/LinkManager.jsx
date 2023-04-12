@@ -1,4 +1,5 @@
-import { Button, ProgressBar, Search } from '@carbon/react';
+import { ProgressBar, Search } from '@carbon/react';
+import { Button } from 'rsuite';
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -8,6 +9,7 @@ import AuthContext from '../../Store/Auth-Context.jsx';
 import WbeTopNav from '../Shared/NavigationBar/WbeTopNav';
 import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
+import AddOutlineIcon from '@rsuite/icons/AddOutline';
 
 import styles from './LinkManager.module.scss';
 const {
@@ -125,11 +127,10 @@ const LinkManager = () => {
                 <h5>Links For: {sourceDataList?.title}</h5>
 
                 <Button
-                  onClick={() => {
-                    wbePath ? navigate('/wbe/new-link') : navigate('/new-link');
-                  }}
-                  size="md"
-                  kind="primary"
+                  onClick={() => navigate('/new-link')}
+                  color="cyan"
+                  appearance="primary"
+                  endIcon={<AddOutlineIcon />}
                 >
                   Create Link
                 </Button>

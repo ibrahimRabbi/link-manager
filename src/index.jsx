@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import './index.scss';
+// import './index.less';
 import store from './Redux/store.jsx';
 import reportWebVitals from './reportWebVitals';
 import { AuthContextProvider } from './Store/Auth-Context.jsx';

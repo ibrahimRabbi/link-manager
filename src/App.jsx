@@ -20,10 +20,12 @@ import AdminDashboard from './Pages/AdminDashboard';
 import Dashboard from './Pages/Dashboard';
 import LoginPage from './Pages/Login';
 import WbeDashboard from './Pages/WbeDashboard';
-import { Theme } from '@carbon/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { handleIsDarkMode } from './Redux/slices/navSlice';
+import { CustomProvider } from 'rsuite';
+import 'rsuite/dist/rsuite.min.css';
+import 'rsuite/styles/index.less';
 
 function App() {
   const { isDark } = useSelector((state) => state.nav);
@@ -35,7 +37,9 @@ function App() {
   }, []);
 
   return (
-    <Theme theme={isDark === 'dark' ? 'g100' : isDark === 'light' ? 'white' : 'white'}>
+    <CustomProvider theme={isDark}>
+      {/* <Theme theme={isDark === 'dark' 
+    ? 'g100' : isDark === 'light' ? 'white' : 'white'}> */}
       <div className="App">
         <Routes>
           {/* This is WBE dashboard */}
@@ -93,7 +97,8 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
-    </Theme>
+      {/* </Theme> */}
+    </CustomProvider>
   );
 }
 
