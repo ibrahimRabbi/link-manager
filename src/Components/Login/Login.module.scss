@@ -2,12 +2,11 @@
 @use '@carbon/type';
 
 .main {
-  background-image: url('./dark_bg.jpg');
-  background-position: center;
+  // background-image: url('./dark_bg.jpg');
   background-repeat: no-repeat;
+  background-position: center;
   background-size: cover;
   min-height: 100vh;
-  color: colors.$gray-20;
   padding: 15vh 5vh;
 }
 
