@@ -6,14 +6,13 @@ import { useLocation } from 'react-router-dom';
 import { fetchGraphData } from '../../Redux/slices/graphSlice';
 import { handleCurrPageTitle, handleIsProfileOpen } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context';
-import WbeTopNav from '../Shared/NavigationBar/WbeTopNav';
 
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/visualize/staged`;
 
 const GraphView = () => {
   const { graphData, graphLoading } = useSelector((state) => state.graph);
   const { sourceDataList } = useSelector((state) => state.links);
-  const { isProfileOpen } = useSelector((state) => state.nav);
+  const { isProfileOpen, isWbeNavOpen } = useSelector((state) => state.nav);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
   const location = useLocation();
@@ -32,12 +31,8 @@ const GraphView = () => {
     }
   }, [sourceDataList]);
 
-  console.log(graphData);
-
   return (
-    <>
-      {wbePath && <WbeTopNav />}
-
+    <div style={{ marginLeft: isWbeNavOpen ? '200px' : '55px' }}>
       <div
         onClick={() => dispatch(handleIsProfileOpen(isProfileOpen && false))}
         className={wbePath ? 'wbeNavSpace' : ''}
@@ -59,7 +54,7 @@ const GraphView = () => {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

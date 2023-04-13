@@ -1,184 +1,126 @@
-import { FaLink, FaShareAlt } from 'react-icons/fa';
-import { MdExpandMore, MdExpandLess } from 'react-icons/md';
-import { ImMenu } from 'react-icons/im';
-// import AddOutlineIcon from '@rsuite/icons/AddOutline';
-import { SideNav, SideNavItems, SideNavLink, SideNavMenuItem } from '@carbon/react';
-import { Breadcrumb, Button, FlexboxGrid } from 'rsuite';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
-import {
-  fetchStreamItems,
-  handleIsDarkMode,
-  handleSelectStreamType,
-} from '../../../Redux/slices/navSlice';
-import UseDropdown from '../UseDropdown/UseDropdown';
+import './NavigationBar.module.scss';
+import { ImBrightnessContrast } from 'react-icons/im';
+import { BiLogOut } from 'react-icons/bi';
 
-import styles from './NavigationBar.module.scss';
-import { BrightnessContrast } from '@carbon/icons-react';
-const {
-  wbeSideNav,
-  topContentContainer,
-  sidebarLink,
-  darkModeStyle,
-  dropdownStyle,
-  marginLeft,
-  seeMLBtn,
-  arIcon,
-} = styles;
+import { Sidebar, Sidenav, Navbar, Nav, Divider } from 'rsuite';
+import CogIcon from '@rsuite/icons/legacy/Cog';
+import ShareOutlineIcon from '@rsuite/icons/ShareOutline';
+import TableColumnIcon from '@rsuite/icons/TableColumn';
+import Swal from 'sweetalert2';
+import AuthContext from '../../../Store/Auth-Context';
+import { handleIsDarkMode, handleIsWbeNavOpen } from '../../../Redux/slices/navSlice';
+import MenuIcon from '@rsuite/icons/Menu';
+import CloseIcon from '@rsuite/icons/Close';
 
 const WbeTopNav = () => {
-  const {
-    linksStream,
-    linksStreamItems,
-    // isDark
-  } = useSelector((state) => state.nav);
-  const { sourceDataList, configuration_aware } = useSelector((state) => state.links);
-  const [showMore, setShowMore] = useState(false);
-  const [isSideNav, setIsSideNav] = useState(false);
-  const [title, setTitle] = useState('');
+  const { isDark, isWbeNavOpen } = useSelector((state) => state.nav);
   const navigate = useNavigate();
-  const { pathname } = useLocation();
   const dispatch = useDispatch();
+  const { pathname } = useLocation();
 
-  useEffect(() => {
-    // get link_types dropdown items
-    dispatch(fetchStreamItems('.././gcm_context.json'));
-  }, []);
-
-  const streamTypeChange = ({ selectedItem }) => {
-    dispatch(handleSelectStreamType(selectedItem));
-  };
-
-  // handle see more and see less control
-  useEffect(() => {
-    if (showMore) setTitle(sourceDataList?.title?.slice(25, 99999));
-    else {
-      setTitle('');
-    }
-  }, [showMore]);
-
-  const toggleTitle = () => {
-    setShowMore(!showMore);
+  const handleLogout = () => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You want to logout!',
+      icon: 'warning',
+      cancelButtonColor: '#d33',
+      confirmButtonColor: '#3085d6',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        AuthContext.logout();
+        Swal.fire({
+          title: 'Logged out successful',
+          icon: 'success',
+        });
+        navigate('/login', { replace: true });
+      }
+    });
   };
 
   return (
     <>
-      <div className="mainContainer">
-        <div
-          className={`${topContentContainer}
-        ${(pathname === '/wbe' || pathname === '/wbe/graph-view') && marginLeft}`}
-        >
-          <FlexboxGrid style={{ marginTop: '10px' }} align="middle">
-            <FlexboxGrid.Item colspan={3} style={{ padding: '0' }}>
-              <h3>Source: </h3>
-            </FlexboxGrid.Item>
-
-            <FlexboxGrid.Item colspan={pathname !== '/wbe/new-link' ? 17 : 21}>
-              <Breadcrumb style={{ fontSize: '22px', marginBottom: '-1px' }}>
-                <Breadcrumb.Item>{sourceDataList?.projectName}</Breadcrumb.Item>
-                <Breadcrumb.Item>{sourceDataList?.sourceType}</Breadcrumb.Item>
-                <Breadcrumb.Item>{sourceDataList?.titleLabel}</Breadcrumb.Item>
-                <Breadcrumb.Item>
-                  <span>
-                    {sourceDataList?.title?.slice(0, 25)}
-                    {showMore ? <span>{title}</span> : ''}
-                    {sourceDataList?.title?.length > 25 && !showMore ? '...' : ''}
-                  </span>
-
-                  {sourceDataList?.title?.length > 25 && (
-                    <span className={seeMLBtn} onClick={toggleTitle}>
-                      {showMore ? (
-                        <MdExpandLess className={arIcon} />
-                      ) : (
-                        <MdExpandMore className={arIcon} />
-                      )}
-                    </span>
-                  )}
-                </Breadcrumb.Item>
-              </Breadcrumb>
-            </FlexboxGrid.Item>
-
-            {/* -- create link button --  */}
-            {pathname !== '/wbe/new-link' && (
-              <FlexboxGrid.Item colspan={4}>
-                <Button
-                  onClick={() => navigate('/wbe/new-link')}
-                  color="blue"
-                  appearance="primary"
-                  active
-                  // endIcon={< AddOutlineIcon/>}
-                >
-                  {' '}
-                  Create Link{' '}
-                </Button>
-              </FlexboxGrid.Item>
-            )}
-          </FlexboxGrid>
-        </div>
-
-        {configuration_aware && (
-          <div className={`${topContentContainer}`}>
-            <UseDropdown
-              onChange={streamTypeChange}
-              items={linksStreamItems}
-              title="GCM Configuration Context"
-              label={linksStream.name ? linksStream.name : linksStreamItems[0]?.name}
-              id="links_stream"
-              className={dropdownStyle}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* ----------------------  */}
-
       {(pathname === '/wbe' || pathname === '/wbe/graph-view') && (
-        <SideNav
-          style={{ width: isSideNav ? '200px' : '55px', borderRight: '1px solid gray' }}
-          id={wbeSideNav}
-          className=".cds--side-nav__overlay-active"
-          aria-label=""
-          isPersistent={true}
-          isChildOfHeader={false}
+        <Sidebar
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '100vh',
+            boxShadow: `2px 2px 5px ${isDark == 'light' ? 'lightgray' : '#292D33'}`,
+          }}
+          width={isWbeNavOpen ? 200 : 56}
+          collapsible
         >
-          <SideNavItems>
-            <SideNavMenuItem
-              style={{ margin: '0 0 20px -5px' }}
-              className={sidebarLink}
-              onClick={() => setIsSideNav(!isSideNav)}
-            >
-              <ImMenu size={30} />
-            </SideNavMenuItem>
+          <Sidenav.Header>
+            <Nav pullRight>
+              <Nav.Item
+                onClick={() => dispatch(handleIsWbeNavOpen(!isWbeNavOpen))}
+                style={{ width: '100%' }}
+              >
+                <h3>{isWbeNavOpen ? <CloseIcon /> : <MenuIcon />}</h3>
+              </Nav.Item>
+            </Nav>
+          </Sidenav.Header>
+          <Divider style={{ marginTop: '0' }} />
+          <Sidenav expanded={isWbeNavOpen} defaultOpenKeys={['3']} appearance="subtle">
+            <Sidenav.Body>
+              <Nav>
+                <Nav.Item
+                  eventKey="1"
+                  active={pathname === '/wbe'}
+                  icon={<TableColumnIcon />}
+                  onClick={() => navigate('/wbe')}
+                >
+                  Links
+                </Nav.Item>
+                <Nav.Item
+                  eventKey="2"
+                  active={pathname === '/wbe/graph-view'}
+                  icon={<ShareOutlineIcon />}
+                  onClick={() => navigate('/wbe/graph-view')}
+                >
+                  Graph View
+                </Nav.Item>
+              </Nav>
+            </Sidenav.Body>
+          </Sidenav>
 
-            <SideNavLink
-              renderIcon={() => <FaLink size={40} />}
-              className={sidebarLink}
-              onClick={() => navigate('/wbe')}
-              isActive={pathname === '/wbe'}
-            >
-              Links
-            </SideNavLink>
-
-            <SideNavLink
-              renderIcon={() => <FaShareAlt size={40} />}
-              className={sidebarLink}
-              onClick={() => navigate('/wbe/graph-view')}
-              isActive={pathname === '/wbe/graph-view'}
-            >
-              Graph View
-            </SideNavLink>
-          </SideNavItems>
-
-          {/* --- Dark mode option ---    */}
-          <SideNavLink
-            renderIcon={BrightnessContrast}
-            className={`${sidebarLink} ${darkModeStyle}`}
-            onClick={() => dispatch(handleIsDarkMode())}
+          <Navbar
+            style={{ marginTop: 'auto' }}
+            appearance="subtle"
+            className="nav-toggle"
           >
-            {' '}
-          </SideNavLink>
-        </SideNav>
+            <Nav>
+              <Nav.Menu
+                noCaret
+                placement="topStart"
+                trigger="click"
+                title={<CogIcon style={{ width: 20, height: 20 }} size="lg" />}
+              >
+                <Nav.Item
+                  style={{ width: '45px' }}
+                  onClick={() => dispatch(handleIsDarkMode())}
+                >
+                  <h5>
+                    <ImBrightnessContrast />
+                  </h5>
+                </Nav.Item>
+
+                <Nav.Item onClick={() => handleLogout()}>
+                  {' '}
+                  <h5>
+                    <BiLogOut />
+                  </h5>{' '}
+                </Nav.Item>
+              </Nav.Menu>
+            </Nav>
+          </Navbar>
+        </Sidebar>
       )}
     </>
   );

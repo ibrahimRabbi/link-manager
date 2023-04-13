@@ -2,16 +2,20 @@ import { ProgressBar, Search } from '@carbon/react';
 import { Button } from 'rsuite';
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { fetchLinksData, handleIsWbe } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle, handleIsProfileOpen } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
-import WbeTopNav from '../Shared/NavigationBar/WbeTopNav';
-import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
-import AddOutlineIcon from '@rsuite/icons/AddOutline';
-
 import styles from './LinkManager.module.scss';
+import SourceSection from '../SourceSection';
+import LinksDataTable from '../Shared/UseDataTable/LinksDataTable';
+
+// import AddOutlineIcon from '@rsuite/icons/AddOutline';
+// import WbeTopNav from '../Shared/NavigationBar/WbeTopNav';
+// import LinksTable from '../Shared/UseDataTable/LinksTable';
+// import UseDataTable from '../Shared/UseDataTable/UseDataTable';
+
 const {
   dropdownStyle,
   inputContainer,
@@ -23,7 +27,7 @@ const {
 
 const headerData = [
   { key: 'status', header: 'Status' },
-  { key: 'linkType', header: 'Link type' },
+  { key: 'link_type', header: 'Link type' },
   { key: 'target', header: 'Target' },
   { key: 'actions', header: 'Actions' },
 ];
@@ -42,10 +46,9 @@ const LinkManager = () => {
     (state) => state.links,
   );
   // console.log('linksData ->', linksData);
-  const { linksStream, isProfileOpen } = useSelector((state) => state.nav);
+  const { linksStream, isProfileOpen, isWbeNavOpen } = useSelector((state) => state.nav);
   const location = useLocation();
   const wbePath = location.pathname?.includes('wbe');
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
   const [searchParams] = useSearchParams();
@@ -60,9 +63,14 @@ const LinkManager = () => {
   // Pagination
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const handlePagination = (values) => {
-    setPageSize(values.pageSize);
-    setCurrPage(values.page);
+
+  const handlePagination = (value) => {
+    setCurrPage(value);
+  };
+
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
   };
 
   useEffect(() => {
@@ -99,30 +107,29 @@ const LinkManager = () => {
 
   // display conditionally Search and dropdown 0
   const isSearchBox = false;
-
+  console.log(linksData?.items);
   const tableProps = {
     rowData: linksData?.items?.length ? linksData?.items : [],
     headerData,
     handlePagination,
+    handleChangeLimit,
     totalItems: linksData?.total_items,
     totalPages: linksData?.total_pages,
+    setCurrPage,
     pageSize,
     page: linksData?.page,
-    inpPlaceholder: 'Search Organization',
   };
 
   return (
-    <>
-      {/* WBE Nav bar  */}
-      {wbePath && <WbeTopNav />}
-
+    <div style={{ marginLeft: isWbeNavOpen ? '200px' : '55px' }}>
+      <SourceSection />
       <div
         onClick={() => dispatch(handleIsProfileOpen(isProfileOpen && false))}
         className={wbePath ? 'wbeNavSpace' : ''}
       >
         <div className="mainContainer">
           <div className="container">
-            {!wbePath && (
+            {/* {!wbePath && (
               <div className="linkFileContainer">
                 <h5>Links For: {sourceDataList?.title}</h5>
 
@@ -135,7 +142,7 @@ const LinkManager = () => {
                   Create Link
                 </Button>
               </div>
-            )}
+            )} */}
 
             <div className={tableContainer}>
               {isSearchBox && (
@@ -168,12 +175,22 @@ const LinkManager = () => {
               )}
 
               {isLoading && <ProgressBar label="" />}
-              <UseDataTable props={tableProps} />
+              {/* {
+                location.pathname === '/' || '/wbe' &&
+                <UseDataTable props={tableProps} />
+              } */}
+              {location.pathname === '/' ||
+                ('/wbe' && <LinksDataTable props={tableProps} />)}
+
+              {/* {
+                linksData?.items?.length && 
+              <LinksTable props={tableProps} rowsData={linksData?.items}/>
+              } */}
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 export default LinkManager;

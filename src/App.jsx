@@ -26,6 +26,7 @@ import { handleIsDarkMode } from './Redux/slices/navSlice';
 import { CustomProvider } from 'rsuite';
 import 'rsuite/dist/rsuite.min.css';
 import 'rsuite/styles/index.less';
+import Suite from './Components/Suite';
 
 function App() {
   const { isDark } = useSelector((state) => state.nav);
@@ -93,6 +94,7 @@ function App() {
             <Route path="/admin" element={<Users />} />
           </Route>
 
+          <Route path="/suite" element={<Suite />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -14,7 +14,8 @@ export const fetchStreamItems = createAsyncThunk(
 const initialState = {
   isProfileOpen: false,
   isSidebarOpen: false,
-  isDark: null,
+  isWbeNavOpen: false,
+  isDark: 'light',
   currPageTitle: '',
   linksStreamItems: [],
   linksStream: {},
@@ -49,6 +50,9 @@ export const navSlice = createSlice({
     handleIsSidebarOpen: (state, { payload }) => {
       state.isSidebarOpen = payload;
     },
+    handleIsWbeNavOpen: (state, { payload }) => {
+      state.isWbeNavOpen = payload;
+    },
 
     // top navbar page title
     handleIsProfileOpen: (state, { payload }) => {
@@ -75,6 +79,7 @@ export const navSlice = createSlice({
 // Action creators are generated for each case reducer function
 export const {
   handleIsDarkMode,
+  handleIsWbeNavOpen,
   handleIsSidebarOpen,
   handleCurrPageTitle,
   handleIsProfileOpen,
