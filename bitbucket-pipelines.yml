@@ -1,19 +1,24 @@
-# This is an example Starter pipeline configuration
-# Use a skeleton to build, test and deploy using manual and parallel steps
-# -----
-# You can specify a custom docker image from Docker Hub as your build environment.
+# Bitbucket Pipeline for deploying LM-UI to staging and production
 
 image: node:18.10.0-alpine
 
-pipelines:
-  default:
-    - step:
+definitions:
+  caches:
+    node: node_modules
+
+  variables:
+    SENTRY_DSN: $SENTRY_DSN
+
+  steps:
+    - step: &lint
         name: 'Lint'
+        caches:
+          - node
         script:
           - yarn install
           - yarn run lint src/
 
-    - step:
+    - step: &build
         name: 'Build'
         caches:
           - node
@@ -31,20 +36,45 @@ pipelines:
         artifacts:
           - build/**
 
-    # The following deployment steps will be executed for each pipeline run. To configure your steps and conditionally deploy see https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/
-    - step:
-        name: 'Deployment to Staging'
-        deployment: staging
+    - step: &docker-build
+        name: 'Docker Build'
         script:
-          - pipe: atlassian/rsync-deploy:0.8.1
-            variables:
-              USER: $SERVER_USER
-              SERVER: $SERVER_IP
-              REMOTE_PATH: '/var/www/lm-dev'
-              LOCAL_PATH: 'build/**'
-    - step:
-        name: 'Deployment to Production'
-        deployment: production
-        trigger: 'manual'
-        script:
-          - echo "Your deployment to production script goes here..."
+          - docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PASS
+          - docker build -t $DOCKER_HUB_USER/link-manager:lm-ui .
+          - docker push $DOCKER_HUB_USER/link-manager:lm-ui
+
+pipelines:
+  default:
+    - step: *lint
+
+    - step: *build
+
+  branches:
+    develop:
+      - step:
+          <<: *docker-build
+          name: 'Docker Build on Develop'
+
+      # The following deployment steps will be executed for each pipeline run. To configure your steps and conditionally deploy see https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/
+      - step:
+          name: 'Deployment to Staging'
+          deployment: staging
+          script:
+            - pipe: atlassian/rsync-deploy:0.8.1
+              variables:
+                USER: $SERVER_USER
+                SERVER: $SERVER_IP
+                REMOTE_PATH: '/var/www/lm-dev'
+                LOCAL_PATH: 'build/**'
+
+    main:
+      - step:
+          name: 'Deployment to Production'
+          deployment: production
+          trigger: 'manual'
+          script:
+            - echo "Your deployment to production script goes here..."
+
+
+options:
+  docker: true
