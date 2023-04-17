@@ -55,6 +55,8 @@ pipelines:
           <<: *docker-build
           name: 'Docker Build on Develop'
 
+      - step: *build
+
       # The following deployment steps will be executed for each pipeline run. To configure your steps and conditionally deploy see https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/
       - step:
           name: 'Deployment to Staging'
