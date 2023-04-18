@@ -1,14 +1,18 @@
-import { ComposedModal, ModalBody, ModalHeader, ProgressBar, Theme } from '@carbon/react';
+// import { ComposedModal, ModalBody, ModalHeader,
+// ProgressBar, Theme } from '@carbon/react';
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import { fetchDeleteUser, fetchUsers } from '../../../Redux/slices/usersSlice';
 import AuthContext from '../../../Store/Auth-Context';
-import UseTable from '../UseTable';
-import AddUser from './AddUser';
-import styles from './Users.module.scss';
+// import AddUser from './AddUser';
+// import styles from './Users.module.scss';
+import { handleCurrPageTitle } from '../../../Redux/slices/navSlice';
+import AdminDataTable from '../AdminDataTable';
+import { FlexboxGrid, Loader } from 'rsuite';
 
-const { modalBody, mhContainer } = styles;
+// const { modalBody, mhContainer } = styles;
+// import UseTable from '../UseTable';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -40,8 +44,8 @@ const Users = () => {
   const { allUsers, usersLoading, isUserCreated, isUserDeleted } = useSelector(
     (state) => state.users,
   );
-  const [isAddModal, setIsAddModal] = useState(false);
-  const [editData, setEditData] = useState({});
+  // const [isAddModal, setIsAddModal] = useState(false);
+  // const [editData, setEditData] = useState({});
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const authCtx = useContext(AuthContext);
@@ -49,21 +53,27 @@ const Users = () => {
 
   // handle open add user modal
   const handleAddNew = () => {
-    setIsAddModal(true);
+    // setIsAddModal(true);
   };
-  const addModalClose = () => {
-    setEditData({});
-    setIsAddModal(false);
-  };
+  // const addModalClose = () => {
+  //   setEditData({});
+  //   setIsAddModal(false);
+  // };
 
   // Pagination
-  const handlePagination = (values) => {
-    setPageSize(values.pageSize);
-    setCurrPage(values.page);
+  const handlePagination = (value) => {
+    setCurrPage(value);
+  };
+
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
   };
 
   // console.log(allUsers);
   useEffect(() => {
+    dispatch(handleCurrPageTitle('Users'));
+
     const getUrl = `${lmApiUrl}/user?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchUsers({ url: getUrl, token: authCtx.token }));
   }, [isUserCreated, isUserDeleted, pageSize, currPage]);
@@ -92,9 +102,9 @@ const Users = () => {
   // handle Edit user
   const handleEdit = (data) => {
     if (data.length === 1) {
-      setIsAddModal(true);
-      const data1 = data[0];
-      setEditData(data1);
+      // setIsAddModal(true);
+      // const data1 = data[0];
+      // setEditData(data1);
     } else if (data.length > 1) {
       Swal.fire({
         title: 'Sorry!!',
@@ -113,6 +123,7 @@ const Users = () => {
     handleDelete,
     handleAddNew,
     handlePagination,
+    handleChangeLimit,
     totalItems: allUsers?.total_items,
     totalPages: allUsers?.total_pages,
     pageSize,
@@ -122,7 +133,7 @@ const Users = () => {
 
   return (
     <div>
-      <Theme theme="g10">
+      {/* <Theme theme="g10">
         <ComposedModal open={isAddModal} onClose={addModalClose}>
           <div className={mhContainer}>
             <h4>{editData?.email ? 'Edit User' : 'Add New User'}</h4>
@@ -130,7 +141,6 @@ const Users = () => {
           </div>
 
           <ModalBody id={modalBody}>
-            {/* --- Create new user reusable component ---  */}
             <AddUser
               editData={editData}
               setIsAddModal={setIsAddModal}
@@ -138,10 +148,15 @@ const Users = () => {
             />
           </ModalBody>
         </ComposedModal>
-      </Theme>
+      </Theme> */}
 
-      {usersLoading && <ProgressBar label="" />}
-      <UseTable props={tableProps} />
+      {usersLoading && (
+        <FlexboxGrid justify="center">
+          <Loader size="md" label="" />
+        </FlexboxGrid>
+      )}
+      {/* <UseTable props={tableProps} /> */}
+      <AdminDataTable props={tableProps} />
     </div>
   );
 };

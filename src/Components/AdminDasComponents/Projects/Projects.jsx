@@ -3,7 +3,6 @@ import {
   ComposedModal,
   ModalBody,
   ModalHeader,
-  ProgressBar,
   Stack,
   TextArea,
   TextInput,
@@ -22,6 +21,8 @@ import {
 import AuthContext from '../../../Store/Auth-Context';
 import UseTable from '../UseTable';
 import styles from './Projects.module.scss';
+import { handleCurrPageTitle } from '../../../Redux/slices/navSlice';
+import { FlexboxGrid, Loader } from 'rsuite';
 
 const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
 
@@ -117,6 +118,8 @@ const Projects = () => {
 
   // get all projects
   useEffect(() => {
+    dispatch(handleCurrPageTitle('Projects'));
+
     const getUrl = `${lmApiUrl}/project?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchProjects({ url: getUrl, token: authCtx.token }));
   }, [isProjCreated, isProjUpdated, isProjDeleted, pageSize, currPage]);
@@ -233,7 +236,11 @@ const Projects = () => {
         </ComposedModal>
       </Theme>
 
-      {isProjLoading && <ProgressBar label="" />}
+      {isProjLoading && (
+        <FlexboxGrid justify="center">
+          <Loader size="md" label="" />
+        </FlexboxGrid>
+      )}
       <UseTable props={tableProps} />
     </div>
   );

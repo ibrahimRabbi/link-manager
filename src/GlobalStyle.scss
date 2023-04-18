@@ -43,6 +43,10 @@
   padding: 0 1vw;
 }
 
+.adminContainer {
+  padding: 0 1vw;
+}
+
 .container {
   position: relative;
   padding-bottom: 30px;
@@ -50,6 +54,14 @@
 
 .show_nav {
   margin-left: 200px;
+  width: 100%;
+  transition: all 0.3s;
+}
+
+.hide_nav {
+  width: 100%;
+  margin-left: 56px;
+  transition: all 0.3s;
 }
 
 .wbeDashboardContainer {
@@ -131,4 +143,8 @@
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+.adminDasIcon {
+  margin: 0 20px 0 -35px;
 }

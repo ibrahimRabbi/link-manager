@@ -22,6 +22,7 @@ import {
 import AuthContext from '../../../Store/Auth-Context';
 import UseTable from '../UseTable';
 import styles from './LinkConstraint.module.scss';
+import { handleCurrPageTitle } from '../../../Redux/slices/navSlice';
 
 const { errText, formContainer, modalBtnCon, modalBody, mhContainer, flNameContainer } =
   styles;
@@ -134,6 +135,8 @@ const LinkConstraint = () => {
   };
 
   useEffect(() => {
+    dispatch(handleCurrPageTitle('Link Constraint'));
+
     const getUrl = `${lmApiUrl}/link-constraint?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchApplications({ url: getUrl, token: authCtx.token }));
   }, [isLinkConsCreated, isLinkConsUpdated, isLinkConsDeleted, pageSize, currPage]);

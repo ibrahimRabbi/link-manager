@@ -1,5 +1,5 @@
-import { ProgressBar, Search } from '@carbon/react';
-import { Button } from 'rsuite';
+import { Search } from '@carbon/react';
+import { Button, FlexboxGrid, Loader } from 'rsuite';
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
@@ -46,9 +46,9 @@ const LinkManager = () => {
     (state) => state.links,
   );
   // console.log('linksData ->', linksData);
-  const { linksStream, isProfileOpen, isWbeNavOpen } = useSelector((state) => state.nav);
+  const { linksStream, isProfileOpen } = useSelector((state) => state.nav);
   const location = useLocation();
-  const wbePath = location.pathname?.includes('wbe');
+  const isWbe = location.pathname?.includes('wbe');
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
   const [searchParams] = useSearchParams();
@@ -56,7 +56,7 @@ const LinkManager = () => {
   const sourceFileURL = uri || sourceDataList?.uri;
 
   useEffect(() => {
-    dispatch(handleIsWbe(wbePath));
+    dispatch(handleIsWbe(isWbe));
   }, [location]);
 
   // Handle pagination for the links table
@@ -107,7 +107,6 @@ const LinkManager = () => {
 
   // display conditionally Search and dropdown 0
   const isSearchBox = false;
-  console.log(linksData?.items);
   const tableProps = {
     rowData: linksData?.items?.length ? linksData?.items : [],
     headerData,
@@ -121,29 +120,14 @@ const LinkManager = () => {
   };
 
   return (
-    <div style={{ marginLeft: isWbeNavOpen ? '200px' : '55px' }}>
+    <div>
       <SourceSection />
       <div
         onClick={() => dispatch(handleIsProfileOpen(isProfileOpen && false))}
-        className={wbePath ? 'wbeNavSpace' : ''}
+        className={isWbe ? 'wbeNavSpace' : ''}
       >
         <div className="mainContainer">
           <div className="container">
-            {/* {!wbePath && (
-              <div className="linkFileContainer">
-                <h5>Links For: {sourceDataList?.title}</h5>
-
-                <Button
-                  onClick={() => navigate('/new-link')}
-                  color="cyan"
-                  appearance="primary"
-                  endIcon={<AddOutlineIcon />}
-                >
-                  Create Link
-                </Button>
-              </div>
-            )} */}
-
             <div className={tableContainer}>
               {isSearchBox && (
                 <div className={searchBox}>
@@ -174,13 +158,19 @@ const LinkManager = () => {
                 </div>
               )}
 
-              {isLoading && <ProgressBar label="" />}
+              {isLoading && (
+                <FlexboxGrid style={{ marginBottom: '10px' }} justify="center">
+                  <Loader size="md" />
+                </FlexboxGrid>
+              )}
               {/* {
                 location.pathname === '/' || '/wbe' &&
                 <UseDataTable props={tableProps} />
               } */}
-              {location.pathname === '/' ||
-                ('/wbe' && <LinksDataTable props={tableProps} />)}
+              {/* {location.pathname === '/' || '/wbe' &&  */}
+              <LinksDataTable props={tableProps} />
+
+              {/* } */}
 
               {/* {
                 linksData?.items?.length && 

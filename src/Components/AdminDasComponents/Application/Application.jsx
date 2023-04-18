@@ -1,32 +1,37 @@
-import {
-  Button,
-  ComboBox,
-  ComposedModal,
-  ModalBody,
-  ModalHeader,
-  ProgressBar,
-  Stack,
-  TextArea,
-  TextInput,
-  Theme,
-} from '@carbon/react';
+// import {
+//   Button,
+//   ComboBox,
+//   ComposedModal,
+//   ModalBody,
+//   ModalHeader,
+//   ProgressBar,
+//   Stack,
+//   TextArea,
+//   TextInput,
+//   Theme,
+// } from '@carbon/react';
 import React, { useState, useContext, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+// import { useForm, Controller } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import {
   fetchApplications,
-  fetchCreateApp,
+  // fetchCreateApp,
   fetchDeleteApp,
   fetchOrg,
-  fetchUpdateApp,
+  // fetchUpdateApp,
 } from '../../../Redux/slices/applicationSlice';
 import AuthContext from '../../../Store/Auth-Context';
-import UseTable from '../UseTable';
-import styles from './Application.module.scss';
+// import UseTable from '../UseTable';
+import { handleCurrPageTitle, handleIsAddNewModal } from '../../../Redux/slices/navSlice';
+import AddNewModal from '../AddNewModal';
+import { FlexboxGrid, Form, Loader } from 'rsuite';
+import AdminDataTable from '../AdminDataTable';
+// import styles from './Application.module.scss';
 
-const { errText, formContainer, modalBtnCon, modalBody, mhContainer, flNameContainer } =
-  styles;
+// const { errText, formContainer, modalBtnCon,
+// modalBody, mhContainer, flNameContainer } =
+//   styles;
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -61,26 +66,26 @@ const headerData = [
 const Application = () => {
   const {
     allApplications,
-    organizationList,
+    // organizationList,
     isAppLoading,
     isAppUpdated,
     isAppCreated,
     isAppDeleted,
   } = useSelector((state) => state.applications);
-  const [isAddModal, setIsAddModal] = useState(false);
-  const [appDescription, setAppDescription] = useState('');
-  const [selectedItem, setSelectedItem] = useState({});
-  const [filInput, setFilInput] = useState('');
-  const [editData, setEditData] = useState({});
+  // const [isAddModal, setIsAddModal] = useState(false);
+  // const [appDescription, setAppDescription] = useState('');
+  // const [selectedItem, setSelectedItem] = useState({});
+  // const [filInput, setFilInput] = useState('');
+  // const [editData, setEditData] = useState({});
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const {
-    handleSubmit,
-    register,
-    control,
-    reset,
-    formState: { errors },
-  } = useForm({ defaultValues: { organization_id: {} } });
+  // const {
+  // handleSubmit,
+  // register,
+  // control,
+  // reset,
+  // formState: { errors },
+  // } = useForm({ defaultValues: { organization_id: {} } });
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
@@ -96,62 +101,63 @@ const Application = () => {
 
   // handle open add user modal
   const handleAddNew = () => {
-    setIsAddModal(true);
+    // setIsAddModal(true);
+    dispatch(handleIsAddNewModal(true));
   };
-  const addModalClose = () => {
-    setEditData({});
-    setAppDescription('');
-    setIsAddModal(false);
-    reset();
-  };
+  // const addModalClose = () => {
+  //   setEditData({});
+  //   setAppDescription('');
+  //   setIsAddModal(false);
+  //   reset();
+  // };
 
   // create and edit application form submit
-  const handleAddApplication = (data) => {
-    setIsAddModal(false);
-    // update application
-    if (editData?.name) {
-      data = {
-        name: data?.name ? data?.name : editData?.name,
-        url: data.url ? data.url : editData?.url,
-        description: appDescription ? appDescription : editData?.description,
-        oslc_domain: data.oslc_domain ? data.oslc_domain : editData?.oslc_domain,
-        organization_id: selectedItem?.id ? selectedItem?.id : editData?.organization_id,
-      };
-      console.log('edit submit: ', data);
-      const putUrl = `${lmApiUrl}/application/${editData?.id}`;
-      dispatch(
-        fetchUpdateApp({
-          url: putUrl,
-          token: authCtx.token,
-          bodyData: data,
-          reset,
-        }),
-      );
-    }
-    // Create application
-    else {
-      const appData = {
-        name: data.name,
-        url: data.url,
-        description: appDescription,
-        oslc_domain: data.oslc_domain,
-        organization_id: selectedItem?.id,
-      };
-      console.log('app submit: ', appData);
-      const postUrl = `${lmApiUrl}/application`;
-      dispatch(
-        fetchCreateApp({
-          url: postUrl,
-          token: authCtx.token,
-          bodyData: appData,
-          reset,
-        }),
-      );
-    }
-    setFilInput('');
-    setSelectedItem({});
-    // setOrgData({});
-  };
+  // const handleAddApplication = (data) => {
+  //   setIsAddModal(false);
+  // update application
+  // if (editData?.name) {
+  //   data = {
+  //     name: data?.name ? data?.name : editData?.name,
+  //     url: data.url ? data.url : editData?.url,
+  //     description: appDescription ? appDescription : editData?.description,
+  //     oslc_domain: data.oslc_domain ? data.oslc_domain : editData?.oslc_domain,
+  //     organization_id: selectedItem?.id ? selectedItem?.id : editData?.organization_id,
+  //   };
+  //   console.log('edit submit: ', data);
+  //   const putUrl = `${lmApiUrl}/application/${editData?.id}`;
+  //   dispatch(
+  //     fetchUpdateApp({
+  //       url: putUrl,
+  //       token: authCtx.token,
+  //       bodyData: data,
+  // reset,
+  //     }),
+  //   );
+  // }
+  //   // Create application
+  //   else {
+  //     const appData = {
+  //       name: data.name,
+  //       url: data.url,
+  //       description: appDescription,
+  //       oslc_domain: data.oslc_domain,
+  //       organization_id: selectedItem?.id,
+  //     };
+  //     console.log('app submit: ', appData);
+  //     const postUrl = `${lmApiUrl}/application`;
+  //     dispatch(
+  //       fetchCreateApp({
+  //         url: postUrl,
+  //         token: authCtx.token,
+  //         bodyData: appData,
+  //         reset,
+  //       }),
+  //     );
+  //   }
+  //   setFilInput('');
+  //   setSelectedItem({});
+  //   // setOrgData({});
+  // };
 
   // Pagination
   const handlePagination = (values) => {
@@ -160,6 +166,8 @@ const Application = () => {
   };
 
   useEffect(() => {
+    dispatch(handleCurrPageTitle('Applications'));
+
     const getUrl = `${lmApiUrl}/application?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchApplications({ url: getUrl, token: authCtx.token }));
   }, [isAppCreated, isAppUpdated, isAppDeleted, pageSize, currPage]);
@@ -196,9 +204,9 @@ const Application = () => {
   // handle Edit application
   const handleEdit = (data) => {
     if (data.length === 1) {
-      setIsAddModal(true);
-      const data1 = data[0];
-      setEditData(data1);
+      // setIsAddModal(true);
+      // const data1 = data[0];
+      // setEditData(data1);
     } else if (data.length > 1) {
       Swal.fire({
         title: 'Sorry!!',
@@ -224,10 +232,50 @@ const Application = () => {
     inpPlaceholder: 'Search Application',
   };
 
+  const [formValue, setFormValue] = useState({
+    name: '',
+    url: '',
+    description: '',
+  });
+  console.log(console.log(formValue));
+
+  const handleSubmitAdd = () => {
+    setFormValue({
+      name: '',
+      url: '',
+      url2: '',
+      description: '',
+    });
+    console.log('submitted');
+  };
   return (
     <div>
+      <AddNewModal handleSubmit={handleSubmitAdd}>
+        <Form fluid onChange={setFormValue} formValue={formValue}>
+          <Form.Group controlId="application">
+            <Form.ControlLabel>Organization Name</Form.ControlLabel>
+            <Form.Control name="name" />
+            <Form.HelpText>Required</Form.HelpText>
+          </Form.Group>
+          <Form.Group controlId="orgUrl">
+            <Form.ControlLabel>application URL</Form.ControlLabel>
+            <Form.Control name="url" />
+            <Form.HelpText>Required</Form.HelpText>
+          </Form.Group>
+          <Form.Group controlId="orgUrl2">
+            <Form.ControlLabel>application URL</Form.ControlLabel>
+            <Form.Control name="url2" />
+            <Form.HelpText>Required</Form.HelpText>
+          </Form.Group>
+          <Form.Group controlId="orgDesc">
+            <Form.ControlLabel>application Description</Form.ControlLabel>
+            <Form.Control rows={5} name="description" />
+          </Form.Group>
+        </Form>
+      </AddNewModal>
+
       {/* -- add application Modal -- */}
-      <Theme theme="g10">
+      {/* <Theme theme="g10">
         <ComposedModal open={isAddModal} onClose={addModalClose}>
           <div className={mhContainer}>
             <h4>{editData?.name ? 'Edit Application' : 'Add New Application'}</h4>
@@ -237,7 +285,6 @@ const Application = () => {
           <ModalBody id={modalBody}>
             <form onSubmit={handleSubmit(handleAddApplication)} className={formContainer}>
               <Stack gap={7}>
-                {/* Application name  */}
                 <div className={flNameContainer}>
                   <div>
                     <TextInput
@@ -251,7 +298,6 @@ const Application = () => {
                     <p className={errText}>{errors.name && 'Invalid Name'}</p>
                   </div>
 
-                  {/* application URL  */}
                   <div>
                     <TextInput
                       defaultValue={editData?.url}
@@ -265,7 +311,6 @@ const Application = () => {
                   </div>
                 </div>
 
-                {/* Oslc domain  */}
                 <div>
                   <TextInput
                     defaultValue={editData?.oslc_domain}
@@ -280,7 +325,6 @@ const Application = () => {
                   <p className={errText}>{errors.oslc_domain && 'Invalid Domain'}</p>
                 </div>
 
-                {/* --- Select organization ---  */}
                 <div>
                   <Controller
                     name="select"
@@ -308,7 +352,6 @@ const Application = () => {
                   <p className={errText}>{errors.select && 'Invalid organization'}</p>
                 </div>
 
-                {/* Description  */}
                 <div>
                   <TextArea
                     defaultValue={editData?.description}
@@ -332,10 +375,15 @@ const Application = () => {
             </form>
           </ModalBody>
         </ComposedModal>
-      </Theme>
+      </Theme> */}
 
-      {isAppLoading && <ProgressBar label="" />}
-      <UseTable props={tableProps} />
+      {isAppLoading && (
+        <FlexboxGrid justify="center">
+          <Loader size="md" label="" />
+        </FlexboxGrid>
+      )}
+      {/* <UseTable props={tableProps} /> */}
+      <AdminDataTable props={tableProps} />
     </div>
   );
 };

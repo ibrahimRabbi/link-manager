@@ -14,7 +14,8 @@ export const fetchStreamItems = createAsyncThunk(
 const initialState = {
   isProfileOpen: false,
   isSidebarOpen: false,
-  isWbeNavOpen: false,
+  isAdminSidebarOpen: false,
+  isAddNewModalOpen: false,
   isDark: 'light',
   currPageTitle: '',
   linksStreamItems: [],
@@ -50,19 +51,25 @@ export const navSlice = createSlice({
     handleIsSidebarOpen: (state, { payload }) => {
       state.isSidebarOpen = payload;
     },
-    handleIsWbeNavOpen: (state, { payload }) => {
-      state.isWbeNavOpen = payload;
+    handleIsAdminSidebarOpen: (state, { payload }) => {
+      state.isAdminSidebarOpen = payload;
     },
 
-    // top navbar page title
+    // admin add new modal
+    handleIsAddNewModal: (state, { payload }) => {
+      state.isAddNewModalOpen = payload;
+    },
+
+    // isProfile open
     handleIsProfileOpen: (state, { payload }) => {
       state.isProfileOpen = payload;
     },
+
     // top navbar page title
     handleCurrPageTitle: (state, { payload }) => {
       state.currPageTitle = payload;
     },
-    // top navbar page title
+    // link stream
     handleSelectStreamType: (state, { payload }) => {
       state.linksStream = payload;
     },
@@ -79,11 +86,12 @@ export const navSlice = createSlice({
 // Action creators are generated for each case reducer function
 export const {
   handleIsDarkMode,
-  handleIsWbeNavOpen,
+  handleIsAdminSidebarOpen,
   handleIsSidebarOpen,
   handleCurrPageTitle,
   handleIsProfileOpen,
   handleSelectStreamType,
+  handleIsAddNewModal,
 } = navSlice.actions;
 
 export default navSlice.reducer;

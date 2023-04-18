@@ -22,6 +22,7 @@ import {
 import AuthContext from '../../../Store/Auth-Context';
 import UseTable from '../UseTable';
 import styles from './Components.module.scss';
+import { handleCurrPageTitle } from '../../../Redux/slices/navSlice';
 
 const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
 
@@ -125,6 +126,8 @@ const Application = () => {
   };
 
   useEffect(() => {
+    dispatch(handleCurrPageTitle('Components'));
+
     const getUrl = `${lmApiUrl}/component?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchComponents({ url: getUrl, token: authCtx.token }));
   }, [isCompCreated, isCompUpdated, isCompDeleted, pageSize, currPage]);
@@ -195,7 +198,7 @@ const Application = () => {
       <Theme theme="g10">
         <ComposedModal open={isAddModal} onClose={addModalClose}>
           <div className={mhContainer}>
-            <h4>{editData?.name ? 'Edit Link Constraint' : 'Add New Link Constraint'}</h4>
+            <h4>{editData?.name ? 'Edit Component' : 'Add New Component'}</h4>
             <ModalHeader onClick={addModalClose} />
           </div>
 

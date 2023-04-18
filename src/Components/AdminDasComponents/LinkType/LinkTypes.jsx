@@ -22,6 +22,7 @@ import {
 import AuthContext from '../../../Store/Auth-Context';
 import UseTable from '../UseTable';
 import styles from './LinkTypes.module.scss';
+import { handleCurrPageTitle } from '../../../Redux/slices/navSlice';
 
 const { errText, formContainer, modalBtnCon, modalBody, mhContainer, flNameContainer } =
   styles;
@@ -141,6 +142,8 @@ const LinkTypes = () => {
 
   // get all link types
   useEffect(() => {
+    dispatch(handleCurrPageTitle('Link Types'));
+
     const getUrl = `${lmApiUrl}/link-type?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchLinkTypes({ url: getUrl, token: authCtx.token }));
   }, [isLinkTypeCreated, isLinkTypeUpdated, isLinkTypeDeleted, pageSize, currPage]);

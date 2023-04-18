@@ -7,10 +7,11 @@ import AuthContext from '../../Store/Auth-Context.jsx';
 import style from './Login.module.scss';
 import { useSelector } from 'react-redux';
 import { useMixpanel } from 'react-mixpanel-browser';
-import { ButtonToolbar, FlexboxGrid, Button, Form, Panel } from 'rsuite';
+import { ButtonToolbar, FlexboxGrid, Button, Panel, Col, Loader } from 'rsuite';
 
 const {
   // formContainer, btnContainer,
+  form,
   titleSpan,
   main,
   title,
@@ -89,39 +90,14 @@ const Login = () => {
   return (
     <>
       <div className={main}>
-        {/* <form onSubmit={handleSubmit(onSubmit)} className={formContainer}>
-            <TextInput
-              type="text"
-              id="userName"
-              labelText="User name"
-              placeholder="Enter user name"
-              {...register('userName', { required: true })}
-            />
-            <p className={errText}>{errors.userName && 'Invalid User'}</p>
+        {isLoading && (
+          <h5 style={{ textAlign: 'center' }}>
+            <Loader size="md" />
+          </h5>
+        )}
 
-            <PasswordInput
-              type="password"
-              id="login_password_id"
-              labelText="Password"
-              placeholder="Enter your password"
-              autoComplete="on"
-              {...register('password', { required: true, minLength: 5 })}
-            />
-            <p className={errText}>
-              {errors.password && 'Password should include at least 5 characters'}
-            </p>
-            {isLoading && <ProgressBar label="" />}
-            <div className={btnContainer}>
-              <Button color='blue'
-                appearance="primary" type="submit">
-              Sign in
-              </Button>
-            </div>
-          </form> */}
-
-        {isLoading && <h5 style={{ textAlign: 'center' }}>Loading...</h5>}
         <FlexboxGrid justify="center" align="middle">
-          <FlexboxGrid.Item colspan={12}>
+          <FlexboxGrid.Item as={Col} colspan={16} md={14} lg={12} xl={8}>
             <Panel
               header={
                 <h3 className={title}>
@@ -131,36 +107,30 @@ const Login = () => {
               }
               bordered
             >
-              <Form fluid onSubmit={handleSubmit(onSubmit)}>
-                <Form.Group>
-                  <Form.Control
-                    name="username"
-                    placeholder="User Name"
-                    {...register('userName', { required: true })}
-                  />
-                  <p className={errText}>{errors.userName && 'Invalid User Name'}</p>
-                </Form.Group>
+              <form className={form} onSubmit={handleSubmit(onSubmit)}>
+                <input
+                  name="userName"
+                  placeholder="User Name"
+                  {...register('userName', { required: true })}
+                />
+                <p className={errText}>{errors.userName && 'Invalid User Name'}</p>
 
-                <Form.Group>
-                  <Form.Control
-                    name="password"
-                    type="password"
-                    placeholder="Password"
-                    {...register('password', { required: true, minLength: 5 })}
-                  />
-                  <p className={errText}>
-                    {errors.password && 'Password should include at least 5 characters'}
-                  </p>
-                </Form.Group>
+                <input
+                  name="password"
+                  type="password"
+                  placeholder="Password"
+                  {...register('password', { required: true, minLength: 4 })}
+                />
+                <p className={errText}>
+                  {errors.password && 'Password should include at least 5 characters'}
+                </p>
 
-                <Form.Group>
-                  <ButtonToolbar>
-                    <Button color="blue" block appearance="primary" type="submit">
-                      Sign in
-                    </Button>
-                  </ButtonToolbar>
-                </Form.Group>
-              </Form>
+                <ButtonToolbar>
+                  <Button color="blue" block appearance="primary" type="submit">
+                    Sign in
+                  </Button>
+                </ButtonToolbar>
+              </form>
             </Panel>
           </FlexboxGrid.Item>
         </FlexboxGrid>

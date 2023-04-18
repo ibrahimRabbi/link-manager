@@ -10,6 +10,19 @@
   padding: 15vh 5vh;
 }
 
+.form {
+  input {
+    width: 100%;
+    border: 1px solid lightgray;
+    border-radius: 5px;
+    padding: 10px;
+  }
+
+  input:focus {
+    outline: none;
+  }
+}
+
 .container {
   background-color: colors.$gray-90;
   max-width: 500px;

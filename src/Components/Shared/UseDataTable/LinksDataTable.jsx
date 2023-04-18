@@ -4,7 +4,8 @@ import { Table, Pagination, Whisper, IconButton, Popover, Dropdown } from 'rsuit
 const { Column, HeaderCell, Cell } = Table;
 import styles from './UseDataTable.module.scss';
 import { useEffect } from 'react';
-const { tableContainerDiv } = styles;
+import { AiFillCheckCircle } from 'react-icons/ai';
+const { tableContainerDiv, validIcon, statusIcon } = styles;
 
 // Action table cell control
 const renderMenu = ({ onClose, left, top, className }, ref) => {
@@ -67,7 +68,13 @@ const NameCell = ({ rowData, ...props }) => {
 
   return (
     <Cell {...props} style={{ cursor: 'pointer' }}>
-      <Whisper enterable placement="auto" speaker={speaker}>
+      <Whisper
+        enterable
+        placement="auto"
+        speaker={speaker}
+        delayOpen={700}
+        delayClose={700}
+      >
         <p>
           <a href={rowData?.id} target="_blank" rel="noopener noreferrer">
             {rowData?.content_lines
@@ -98,13 +105,17 @@ const LinkTypeCell = ({ rowData, ...props }) => {
 const StatusCell = ({ ...props }) => {
   return (
     <Cell {...props}>
-      <p>Valid</p>
+      <p>
+        {' '}
+        <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> Valid
+      </p>
     </Cell>
   );
 };
 
 const LinksDataTable = ({ props }) => {
   const { rowData, handlePagination, handleChangeLimit, totalItems, pageSize } = props;
+
   const [page, setPage] = React.useState(1);
 
   useEffect(() => {
@@ -113,7 +124,7 @@ const LinksDataTable = ({ props }) => {
   return (
     <div className={tableContainerDiv}>
       <Table data={rowData} autoHeight bordered headerHeight={50}>
-        <Column width={150} fullText>
+        <Column width={120} fullText>
           <HeaderCell>
             <h6>Status</h6>
           </HeaderCell>
@@ -143,16 +154,15 @@ const LinksDataTable = ({ props }) => {
       </Table>
 
       <Pagination
-        style={{ margin: '0', padding: '5px 10px' }}
         prev
         next
         first
         last
         ellipsis
         boundaryLinks
-        maxButtons={3}
-        size="xs"
-        layout={['total', '-', 'limit', '|', 'pager', 'skip']}
+        maxButtons={2}
+        size="lg"
+        layout={['-', 'total', '|', 'limit', 'pager']}
         total={totalItems}
         limitOptions={[5, 10, 25, 50, 100]}
         limit={pageSize}
@@ -160,7 +170,6 @@ const LinksDataTable = ({ props }) => {
         onChangePage={setPage}
         onChangeLimit={(v) => handleChangeLimit(v)}
       />
-      <div></div>
     </div>
   );
 };

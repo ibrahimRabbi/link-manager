@@ -53,7 +53,7 @@ const UseSelectPicker = ({ items, onChange, placeholder, className }) => {
             ) : (
               ''
             )}
-            <p>{label}</p>
+            <p style={{ fontSize: '17px' }}>{label}</p>
           </div>
         );
       }}
