@@ -421,7 +421,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       <div className="mainContainer">
         <div className="container">
           {/* --- Link types --- */}
-          <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+          <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
             <FlexboxGrid.Item colspan={3}>
               <h3>Link: </h3>
             </FlexboxGrid.Item>

@@ -1,17 +1,4 @@
-// import {
-//   Button,
-//   ComboBox,
-//   ComposedModal,
-//   ModalBody,
-//   ModalHeader,
-//   ProgressBar,
-//   Stack,
-//   TextArea,
-//   TextInput,
-//   Theme,
-// } from '@carbon/react';
-import React, { useState, useContext, useEffect } from 'react';
-// import { useForm, Controller } from 'react-hook-form';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import {
@@ -22,16 +9,13 @@ import {
   // fetchUpdateApp,
 } from '../../../Redux/slices/applicationSlice';
 import AuthContext from '../../../Store/Auth-Context';
-// import UseTable from '../UseTable';
 import { handleCurrPageTitle, handleIsAddNewModal } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
-import { FlexboxGrid, Form, Loader } from 'rsuite';
+import { FlexboxGrid, Form, Loader, Schema, SelectPicker } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
+import TextField from '../TextField';
+import SelectField from '../SelectField';
 // import styles from './Application.module.scss';
-
-// const { errText, formContainer, modalBtnCon,
-// modalBody, mhContainer, flNameContainer } =
-//   styles;
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -44,10 +28,6 @@ const headerData = [
   {
     header: 'Application',
     key: 'name',
-  },
-  {
-    header: 'Active',
-    key: 'active',
   },
   {
     header: 'OSLC Domain',
@@ -63,10 +43,35 @@ const headerData = [
   },
 ];
 
+const CustomSelect = React.forwardRef((props, ref) => {
+  const { options, onChange, ...rest } = props;
+
+  const data = options?.map((item) => ({
+    label: item.name,
+    value: item.id,
+  }));
+
+  return (
+    <SelectPicker block ref={ref} {...rest} data={data} onChange={(v) => onChange(v)} />
+  );
+});
+
+CustomSelect.displayName = 'CustomSelect';
+
+const { StringType } = Schema.Types;
+
+const model = Schema.Model({
+  name: StringType().isRequired('This field is required.'),
+  url: StringType().isRequired('This field is required.'),
+  oslc_domain: StringType().isRequired('This field is required.'),
+  organization_id: StringType().isRequired('This field is required.'),
+  description: StringType().isRequired('This field is required.'),
+});
+
 const Application = () => {
   const {
     allApplications,
-    // organizationList,
+    organizationList,
     isAppLoading,
     isAppUpdated,
     isAppCreated,
@@ -79,13 +84,15 @@ const Application = () => {
   // const [editData, setEditData] = useState({});
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  // const {
-  // handleSubmit,
-  // register,
-  // control,
-  // reset,
-  // formState: { errors },
-  // } = useForm({ defaultValues: { organization_id: {} } });
+  const [formError, setFormError] = useState({});
+  const [formValue, setFormValue] = useState({
+    name: '',
+    url: '',
+    oslc_domain: '',
+    organization_id: '',
+    description: '',
+  });
+  const appFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
@@ -93,7 +100,7 @@ const Application = () => {
   useEffect(() => {
     dispatch(
       fetchOrg({
-        url: `${lmApiUrl}/organization?page=${'1'}&per_page=${'50'}`,
+        url: `${lmApiUrl}/organization?page=${'1'}&per_page=${'100'}`,
         token: authCtx.token,
       }),
     );
@@ -101,9 +108,26 @@ const Application = () => {
 
   // handle open add user modal
   const handleAddNew = () => {
-    // setIsAddModal(true);
     dispatch(handleIsAddNewModal(true));
   };
+
+  const handleAddApplication = () => {
+    if (!appFormRef.current.check()) {
+      console.error('Form Error', formError);
+      return;
+    }
+
+    console.log(formValue);
+    setFormValue({
+      name: '',
+      url: '',
+      oslc_domain: '',
+      organization_id: '',
+      description: '',
+    });
+    dispatch(handleIsAddNewModal(false));
+  };
+
   // const addModalClose = () => {
   //   setEditData({});
   //   setAppDescription('');
@@ -232,150 +256,49 @@ const Application = () => {
     inpPlaceholder: 'Search Application',
   };
 
-  const [formValue, setFormValue] = useState({
-    name: '',
-    url: '',
-    description: '',
-  });
-  console.log(console.log(formValue));
-
-  const handleSubmitAdd = () => {
-    setFormValue({
-      name: '',
-      url: '',
-      url2: '',
-      description: '',
-    });
-    console.log('submitted');
-  };
   return (
     <div>
-      <AddNewModal handleSubmit={handleSubmitAdd}>
-        <Form fluid onChange={setFormValue} formValue={formValue}>
-          <Form.Group controlId="application">
-            <Form.ControlLabel>Organization Name</Form.ControlLabel>
-            <Form.Control name="name" />
-            <Form.HelpText>Required</Form.HelpText>
-          </Form.Group>
-          <Form.Group controlId="orgUrl">
-            <Form.ControlLabel>application URL</Form.ControlLabel>
-            <Form.Control name="url" />
-            <Form.HelpText>Required</Form.HelpText>
-          </Form.Group>
-          <Form.Group controlId="orgUrl2">
-            <Form.ControlLabel>application URL</Form.ControlLabel>
-            <Form.Control name="url2" />
-            <Form.HelpText>Required</Form.HelpText>
-          </Form.Group>
-          <Form.Group controlId="orgDesc">
-            <Form.ControlLabel>application Description</Form.ControlLabel>
-            <Form.Control rows={5} name="description" />
-          </Form.Group>
-        </Form>
+      <AddNewModal handleSubmit={handleAddApplication} title="Add New Application">
+        <div className="show-grid">
+          <Form
+            fluid
+            ref={appFormRef}
+            onChange={setFormValue}
+            onCheck={setFormError}
+            formValue={formValue}
+            model={model}
+          >
+            <FlexboxGrid justify="space-between">
+              <FlexboxGrid.Item colspan={11}>
+                <TextField name="name" label="Application Name" />
+              </FlexboxGrid.Item>
+
+              <FlexboxGrid.Item colspan={11}>
+                <TextField name="url" label="Application URL" />
+              </FlexboxGrid.Item>
+
+              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                <TextField name="oslc_domain" label="OSLC Domain" />
+              </FlexboxGrid.Item>
+
+              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                <SelectField
+                  name="organization_id"
+                  label="Organization ID"
+                  accepter={CustomSelect}
+                  options={organizationList?.items ? organizationList?.items : []}
+                  error={formError.organization_id}
+                />
+                {/* <TextField name="organization_id" label="Organization ID" /> */}
+              </FlexboxGrid.Item>
+
+              <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0' }}>
+                <TextField name="description" label="Description" />
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          </Form>
+        </div>
       </AddNewModal>
-
-      {/* -- add application Modal -- */}
-      {/* <Theme theme="g10">
-        <ComposedModal open={isAddModal} onClose={addModalClose}>
-          <div className={mhContainer}>
-            <h4>{editData?.name ? 'Edit Application' : 'Add New Application'}</h4>
-            <ModalHeader onClick={addModalClose} />
-          </div>
-
-          <ModalBody id={modalBody}>
-            <form onSubmit={handleSubmit(handleAddApplication)} className={formContainer}>
-              <Stack gap={7}>
-                <div className={flNameContainer}>
-                  <div>
-                    <TextInput
-                      defaultValue={editData?.name}
-                      type="text"
-                      id="application_name"
-                      labelText="Application Name"
-                      placeholder="Please enter application name"
-                      {...register('name', { required: editData?.name ? false : true })}
-                    />
-                    <p className={errText}>{errors.name && 'Invalid Name'}</p>
-                  </div>
-
-                  <div>
-                    <TextInput
-                      defaultValue={editData?.url}
-                      type="text"
-                      id="application_url"
-                      labelText="Application Url"
-                      placeholder="Please enter Application Url"
-                      {...register('url', { required: editData?.url ? false : true })}
-                    />
-                    <p className={errText}>{errors.url && 'Invalid url'}</p>
-                  </div>
-                </div>
-
-                <div>
-                  <TextInput
-                    defaultValue={editData?.oslc_domain}
-                    type="text"
-                    id="organization_id"
-                    labelText="OSLC Domain"
-                    placeholder="Please enter OSLC domain"
-                    {...register('oslc_domain', {
-                      required: editData?.oslc_domain ? false : true,
-                    })}
-                  />
-                  <p className={errText}>{errors.oslc_domain && 'Invalid Domain'}</p>
-                </div>
-
-                <div>
-                  <Controller
-                    name="select"
-                    control={control}
-                    render={({ field }) => (
-                      <ComboBox
-                        {...field}
-                        {...register('select', {
-                          required: editData?.organization_id ? false : true,
-                        })}
-                        downshiftProps={selectedItem}
-                        placeholder="Please search or select organization"
-                        value={filInput}
-                        id="organization_id_dropdown"
-                        items={organizationList?.items ? organizationList?.items : []}
-                        label="Combo box menu options"
-                        titleText="Organization"
-                        onInputChange={(e) => setFilInput(e)}
-                        onChange={(v) => setSelectedItem(v.selectedItem)}
-                        itemToString={(item) => (item ? item?.name : '')}
-                        itemToElement={(item) => (item ? <p>{item?.name}</p> : '')}
-                      />
-                    )}
-                  />
-                  <p className={errText}>{errors.select && 'Invalid organization'}</p>
-                </div>
-
-                <div>
-                  <TextArea
-                    defaultValue={editData?.description}
-                    id="application_description"
-                    required={editData?.description ? false : true}
-                    onChange={(e) => setAppDescription(e.target.value)}
-                    labelText="Application description"
-                    placeholder="Please enter Description"
-                  />
-                </div>
-
-                <div className={modalBtnCon}>
-                  <Button kind="secondary" size="md" onClick={addModalClose}>
-                    Cancel
-                  </Button>
-                  <Button kind="primary" size="md" type="submit">
-                    {editData?.name ? 'Save' : 'Ok'}
-                  </Button>
-                </div>
-              </Stack>
-            </form>
-          </ModalBody>
-        </ComposedModal>
-      </Theme> */}
 
       {isAppLoading && (
         <FlexboxGrid justify="center">

@@ -1,31 +1,21 @@
-import {
-  Button,
-  ComposedModal,
-  ModalBody,
-  ModalHeader,
-  ProgressBar,
-  Stack,
-  TextArea,
-  TextInput,
-  Theme,
-} from '@carbon/react';
 import React, { useState, useContext, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import {
   fetchApplications,
-  fetchCreateApp,
   fetchDeleteApp,
-  fetchUpdateApp,
+  // fetchCreateApp,
+  // fetchUpdateApp,
 } from '../../../Redux/slices/applicationSlice';
 import AuthContext from '../../../Store/Auth-Context';
-import UseTable from '../UseTable';
-import styles from './LinkConstraint.module.scss';
-import { handleCurrPageTitle } from '../../../Redux/slices/navSlice';
+import { handleCurrPageTitle, handleIsAddNewModal } from '../../../Redux/slices/navSlice';
+import { FlexboxGrid, Loader } from 'rsuite';
+import AdminDataTable from '../AdminDataTable';
+import AddNewModal from '../AddNewModal';
 
-const { errText, formContainer, modalBtnCon, modalBody, mhContainer, flNameContainer } =
-  styles;
+// import styles from './LinkConstraint.module.scss';
+// const { errText, formContainer, modalBtnCon,
+//  modalBody, mhContainer, flNameContainer } =styles;
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -61,72 +51,57 @@ const LinkConstraint = () => {
     isLinkConsCreated,
     isLinkConsDeleted,
   } = useSelector((state) => state.linkConstraints);
-  const [isAddModal, setIsAddModal] = useState(false);
-  const [linkConsDesc, setLinkConsDesc] = useState('');
-  const [editData, setEditData] = useState({});
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const {
-    handleSubmit,
-    register,
-    reset,
-    formState: { errors },
-  } = useForm();
+
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
   // handle open add user modal
   const handleAddNew = () => {
-    setIsAddModal(true);
-  };
-  const addModalClose = () => {
-    setEditData({});
-    setLinkConsDesc('');
-    setIsAddModal(false);
-    reset();
+    dispatch(handleIsAddNewModal(true));
   };
 
   // create and edit link cons form submit
-  const handleAddLinkCons = (data) => {
-    setIsAddModal(false);
-    // update link cons
-    if (editData?.name) {
-      console.log(data);
-      data = {
-        name: data?.name ? data?.name : editData?.name,
-        source_url: data.source_url ? data.source_url : editData?.source_url,
-        target_url: data.target_url ? data.target_url : editData?.target_url,
-        link_type_id: data?.link_type_id ? data?.link_type_id : editData?.link_type_id,
-        application_id: data?.application_id
-          ? data?.application_id
-          : editData?.application_id,
-        description: linkConsDesc ? linkConsDesc : editData?.description,
-      };
-      const putUrl = `${lmApiUrl}/link-constraint/${editData?.id}`;
-      dispatch(
-        fetchUpdateApp({
-          url: putUrl,
-          token: authCtx.token,
-          bodyData: data,
-          reset,
-        }),
-      );
-    }
-    // Create LinkConstraint
-    else {
-      data.description = linkConsDesc;
-      console.log(data);
-      const postUrl = `${lmApiUrl}/link-constraint`;
-      dispatch(
-        fetchCreateApp({
-          url: postUrl,
-          token: authCtx.token,
-          bodyData: data,
-          reset,
-        }),
-      );
-    }
-  };
+  // const handleAddLinkCons = (data) => {
+  //   // update link cons
+  //   if (editData?.name) {
+  //     console.log(data);
+  //     data = {
+  //       name: data?.name ? data?.name : editData?.name,
+  //       source_url: data.source_url ? data.source_url : editData?.source_url,
+  //       target_url: data.target_url ? data.target_url : editData?.target_url,
+  //       link_type_id: data?.link_type_id ? data?.link_type_id : editData?.link_type_id,
+  //       application_id: data?.application_id
+  //         ? data?.application_id
+  //         : editData?.application_id,
+  //       description: linkConsDesc ? linkConsDesc : editData?.description,
+  //     };
+  //     const putUrl = `${lmApiUrl}/link-constraint/${editData?.id}`;
+  //     dispatch(
+  //       fetchUpdateApp({
+  //         url: putUrl,
+  //         token: authCtx.token,
+  //         bodyData: data,
+  //         reset,
+  //       }),
+  //     );
+  //   }
+  //   // Create LinkConstraint
+  //   else {
+  //     data.description = linkConsDesc;
+  //     console.log(data);
+  //     const postUrl = `${lmApiUrl}/link-constraint`;
+  //     dispatch(
+  //       fetchCreateApp({
+  //         url: postUrl,
+  //         token: authCtx.token,
+  //         bodyData: data,
+  //         reset,
+  //       }),
+  //     );
+  //   }
+  // };
 
   // Pagination
   const handlePagination = (values) => {
@@ -171,18 +146,18 @@ const LinkConstraint = () => {
     }
   };
   // handle Edit LinkConstraint
-  const handleEdit = (data) => {
-    if (data.length === 1) {
-      setIsAddModal(true);
-      const data1 = data[0];
-      setEditData(data1);
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry!!',
-        icon: 'info',
-        text: 'You can not edit more than 1 link constraint at the same time',
-      });
-    }
+  const handleEdit = () => {
+    // if (data.length === 1) {
+    //   setIsAddModal(true);
+    //   const data1 = data[0];
+    //   setEditData(data1);
+    // } else if (data.length > 1) {
+    //   Swal.fire({
+    //     title: 'Sorry!!',
+    //     icon: 'info',
+    //     text: 'You can not edit more than 1 link constraint at the same time',
+    //   });
+    // }
   };
 
   // send props in the batch action table
@@ -201,10 +176,16 @@ const LinkConstraint = () => {
     inpPlaceholder: 'Search Link Constraint',
   };
 
+  const handleSubmit = () => {};
   return (
     <div>
+      <AddNewModal
+        title="Add New Link Constraint"
+        handleSubmit={handleSubmit}
+      ></AddNewModal>
+
       {/* -- add LinkConstraint Modal -- */}
-      <Theme theme="g10">
+      {/* <Theme theme="g10">
         <ComposedModal open={isAddModal} onClose={addModalClose}>
           <div className={mhContainer}>
             <h4>{editData?.name ? 'Edit link constraint' : 'Add New link constraint'}</h4>
@@ -214,7 +195,6 @@ const LinkConstraint = () => {
           <ModalBody id={modalBody}>
             <form onSubmit={handleSubmit(handleAddLinkCons)} className={formContainer}>
               <Stack gap={7}>
-                {/* LinkConstraint name  */}
                 <div>
                   <TextInput
                     defaultValue={editData?.name}
@@ -228,7 +208,6 @@ const LinkConstraint = () => {
                 </div>
 
                 <div className={flNameContainer}>
-                  {/* application_id  */}
                   <div>
                     <TextInput
                       defaultValue={editData?.application_id}
@@ -245,7 +224,6 @@ const LinkConstraint = () => {
                     </p>
                   </div>
 
-                  {/*  link_type_id  */}
                   <div>
                     <TextInput
                       defaultValue={editData?.link_type_id}
@@ -262,7 +240,6 @@ const LinkConstraint = () => {
                 </div>
 
                 <div className={flNameContainer}>
-                  {/* source_url  */}
                   <div>
                     <TextInput
                       defaultValue={editData?.source_url}
@@ -277,7 +254,6 @@ const LinkConstraint = () => {
                     <p className={errText}>{errors.source_url && 'Invalid source url'}</p>
                   </div>
 
-                  {/*  target_url  */}
                   <div>
                     <TextInput
                       defaultValue={editData?.target_url}
@@ -295,7 +271,6 @@ const LinkConstraint = () => {
                   </div>
                 </div>
 
-                {/* Description  */}
                 <div>
                   <TextArea
                     defaultValue={editData?.description}
@@ -319,10 +294,14 @@ const LinkConstraint = () => {
             </form>
           </ModalBody>
         </ComposedModal>
-      </Theme>
+      </Theme> */}
 
-      {isLinkConsLoading && <ProgressBar label="" />}
-      <UseTable props={tableProps} />
+      {isLinkConsLoading && (
+        <FlexboxGrid justify="center">
+          <Loader size="md" label="" />
+        </FlexboxGrid>
+      )}
+      <AdminDataTable props={tableProps} />
     </div>
   );
 };

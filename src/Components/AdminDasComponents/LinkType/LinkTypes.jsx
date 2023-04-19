@@ -1,31 +1,26 @@
-import {
-  Button,
-  ComposedModal,
-  ModalBody,
-  ModalHeader,
-  ProgressBar,
-  Stack,
-  TextArea,
-  TextInput,
-  Theme,
-} from '@carbon/react';
 import React, { useState, useContext, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import {
-  fetchCreateLinkType,
   fetchDeleteLinkType,
   fetchLinkTypes,
-  fetchUpdateLinkType,
+  // fetchCreateLinkType,
+  // fetchUpdateLinkType,
 } from '../../../Redux/slices/linkTypeSlice';
 import AuthContext from '../../../Store/Auth-Context';
-import UseTable from '../UseTable';
-import styles from './LinkTypes.module.scss';
-import { handleCurrPageTitle } from '../../../Redux/slices/navSlice';
+import { handleCurrPageTitle, handleIsAddNewModal } from '../../../Redux/slices/navSlice';
+import AdminDataTable from '../AdminDataTable';
+import { FlexboxGrid, Form, Loader, Schema, SelectPicker } from 'rsuite';
+import TextField from '../TextField';
+import AddNewModal from '../AddNewModal';
+import { useRef } from 'react';
+import SelectField from '../SelectField';
+import { fetchApplications } from '../../../Redux/slices/applicationSlice';
 
-const { errText, formContainer, modalBtnCon, modalBody, mhContainer, flNameContainer } =
-  styles;
+// import styles from './LinkTypes.module.scss';
+// const { errText, formContainer,
+// modalBtnCon, modalBody, mhContainer, flNameContainer } =
+//   styles;
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -57,25 +52,54 @@ const headerData = [
   },
 ];
 
+const CustomSelect = React.forwardRef((props, ref) => {
+  const { options, onChange, ...rest } = props;
+
+  const data = options?.map((item) => ({
+    label: item.name,
+    value: item.id,
+  }));
+
+  return (
+    <SelectPicker block ref={ref} {...rest} data={data} onChange={(v) => onChange(v)} />
+  );
+});
+
+CustomSelect.displayName = 'CustomSelect';
+
+const { StringType } = Schema.Types;
+
+const model = Schema.Model({
+  name: StringType().isRequired('This field is required.'),
+  url: StringType().isRequired('This field is required.'),
+  application_id: StringType().isRequired('This field is required.'),
+  incoming_label: StringType().isRequired('This field is required.'),
+  outgoing_label: StringType().isRequired('This field is required.'),
+  description: StringType().isRequired('This field is required.'),
+});
+
 const LinkTypes = () => {
   const {
     allLinkTypes,
+    applicationList,
     isLinkTypeLoading,
     isLinkTypeCreated,
     isLinkTypeUpdated,
     isLinkTypeDeleted,
   } = useSelector((state) => state.linkTypes);
-  const [isAddModal, setIsAddModal] = useState(false);
-  const [linkDesc, setLinkDesc] = useState('');
-  const [editData, setEditData] = useState({});
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const {
-    handleSubmit,
-    register,
-    reset,
-    formState: { errors },
-  } = useForm();
+  const [formError, setFormError] = useState({});
+  const [formValue, setFormValue] = useState({
+    name: '',
+    url: '',
+    application_id: '',
+    incoming_label: '',
+    outgoing_label: '',
+    description: '',
+  });
+
+  const linkTypeFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
@@ -87,58 +111,82 @@ const LinkTypes = () => {
 
   // handle open add modal
   const handleAddNew = () => {
-    setIsAddModal(true);
-  };
-  // add modal close
-  const addModalClose = () => {
-    setEditData({});
-    setIsAddModal(false);
-    reset();
+    dispatch(handleIsAddNewModal(true));
   };
 
-  // create and edit link type form submit
-  const handleAddLinkType = (data) => {
-    // update link type
-    setIsAddModal(false);
-    if (editData?.name) {
-      data = {
-        name: data?.name ? data?.name : editData?.name,
-        url: data?.url ? data?.url : editData?.url,
-        application_id: data?.application_id
-          ? data?.application_id
-          : editData?.application_id,
-        incoming_label: data?.incoming_label
-          ? data?.incoming_label
-          : editData?.incoming_label,
-        outgoing_label: data?.outgoing_label
-          ? data?.outgoing_label
-          : editData?.outgoing_label,
-        description: linkDesc ? linkDesc : editData?.description,
-      };
-      const putUrl = `${lmApiUrl}/link-type/${editData?.id}`;
-      dispatch(
-        fetchUpdateLinkType({
-          url: putUrl,
-          token: authCtx.token,
-          bodyData: data,
-          reset,
-        }),
-      );
+  const handleAddApplication = () => {
+    if (!linkTypeFormRef.current.check()) {
+      console.error('Form Error', formError);
+      return;
     }
-    // create link type
-    else {
-      data.description = linkDesc;
-      const postUrl = `${lmApiUrl}/link-type`;
-      dispatch(
-        fetchCreateLinkType({
-          url: postUrl,
-          token: authCtx.token,
-          bodyData: data,
-          reset,
-        }),
-      );
-    }
+
+    console.log(formValue);
+    setFormValue({
+      name: '',
+      description: '',
+    });
+    dispatch(handleIsAddNewModal(false));
   };
+
+  // add modal close
+  // const addModalClose = () => {
+  //   setEditData({});
+  //   setIsAddModal(false);
+  //   reset();
+  // };
+
+  // create and edit link type form submit
+  // const handleAddLinkType = (data) => {
+  //   // update link type
+  //   setIsAddModal(false);
+  //   if (editData?.name) {
+  //     data = {
+  //       name: data?.name ? data?.name : editData?.name,
+  //       url: data?.url ? data?.url : editData?.url,
+  //       application_id: data?.application_id
+  //         ? data?.application_id
+  //         : editData?.application_id,
+  //       incoming_label: data?.incoming_label
+  //         ? data?.incoming_label
+  //         : editData?.incoming_label,
+  //       outgoing_label: data?.outgoing_label
+  //         ? data?.outgoing_label
+  //         : editData?.outgoing_label,
+  //       description: linkDesc ? linkDesc : editData?.description,
+  //     };
+  //     const putUrl = `${lmApiUrl}/link-type/${editData?.id}`;
+  //     dispatch(
+  //       fetchUpdateLinkType({
+  //         url: putUrl,
+  //         token: authCtx.token,
+  //         bodyData: data,
+  //         reset,
+  //       }),
+  //     );
+  //   }
+  //   // create link type
+  //   else {
+  //     data.description = linkDesc;
+  //     const postUrl = `${lmApiUrl}/link-type`;
+  //     dispatch(
+  //       fetchCreateLinkType({
+  //         url: postUrl,
+  //         token: authCtx.token,
+  //         bodyData: data,
+  //         reset,
+  //       }),
+  //     );
+  //   }
+  // };
+
+  useEffect(() => {
+    dispatch(
+      fetchApplications({
+        url: `${lmApiUrl}/application?page=${'1'}&per_page=${'100'}`,
+        token: authCtx.token,
+      }),
+    );
+  }, []);
 
   // get all link types
   useEffect(() => {
@@ -178,18 +226,18 @@ const LinkTypes = () => {
     }
   };
   // handle Edit link type
-  const handleEdit = (data) => {
-    if (data.length === 1) {
-      setIsAddModal(true);
-      const data1 = data[0];
-      setEditData(data1);
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry!!',
-        icon: 'info',
-        text: 'You can not edit more than 1 link type at the same time',
-      });
-    }
+  const handleEdit = () => {
+    // if (data.length === 1) {
+    //   setIsAddModal(true);
+    //   const data1 = data[0];
+    //   setEditData(data1);
+    // } else if (data.length > 1) {
+    //   Swal.fire({
+    //     title: 'Sorry!!',
+    //     icon: 'info',
+    //     text: 'You can not edit more than 1 link type at the same time',
+    //   });
+    // }
   };
 
   // send props in the batch action table
@@ -210,126 +258,58 @@ const LinkTypes = () => {
 
   return (
     <div>
-      {/* -- add Link type Modal -- */}
-      <Theme theme="g10">
-        <ComposedModal open={isAddModal} onClose={addModalClose}>
-          <div className={mhContainer}>
-            <h4>{editData?.name ? 'Edit Link Type' : 'Add New Link Type'}</h4>
-            <ModalHeader onClick={addModalClose} />
-          </div>
+      <AddNewModal handleSubmit={handleAddApplication} title="Add New Link Type">
+        <div className="show-grid">
+          <Form
+            fluid
+            ref={linkTypeFormRef}
+            onChange={setFormValue}
+            onCheck={setFormError}
+            formValue={formValue}
+            model={model}
+          >
+            <FlexboxGrid justify="space-between">
+              <FlexboxGrid.Item colspan={11}>
+                <TextField name="name" label="Link Type Name" />
+              </FlexboxGrid.Item>
 
-          <ModalBody id={modalBody}>
-            <form onSubmit={handleSubmit(handleAddLinkType)} className={formContainer}>
-              <Stack gap={7}>
-                <div className={flNameContainer}>
-                  {/* link type name  */}
-                  <div>
-                    <TextInput
-                      defaultValue={editData?.name}
-                      type="text"
-                      id="Link_type_name"
-                      labelText="Link Type Name"
-                      placeholder="Please enter link type name"
-                      {...register('name', { required: editData?.name ? false : true })}
-                    />
-                    <p className={errText}>{errors.name && 'Invalid link type Name'}</p>
-                  </div>
+              <FlexboxGrid.Item colspan={11}>
+                <TextField name="url" label="Link Type URL" />
+              </FlexboxGrid.Item>
 
-                  {/* link type url  */}
-                  <div>
-                    <TextInput
-                      defaultValue={editData?.url}
-                      type="text"
-                      id="link_type_url"
-                      labelText="Link Type URL"
-                      placeholder="Please enter link type URL"
-                      {...register('url', { required: editData?.url ? false : true })}
-                    />
-                    <p className={errText}>{errors.url && 'Invalid url'}</p>
-                  </div>
-                </div>
+              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
+                <TextField name="incoming_label" label="Incoming Label" />
+              </FlexboxGrid.Item>
 
-                <div className={flNameContainer}>
-                  {/* link type incoming label  */}
-                  <div>
-                    <TextInput
-                      defaultValue={editData?.incoming_label}
-                      type="text"
-                      id="Link_type_incoming"
-                      labelText="Incoming Label"
-                      placeholder="Please enter incoming label"
-                      {...register('incoming_label', {
-                        required: editData?.incoming_label ? false : true,
-                      })}
-                    />
-                    <p className={errText}>
-                      {errors.incoming_label && 'Invalid incoming label'}
-                    </p>
-                  </div>
+              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
+                <TextField name="outgoing_label" label="Outgoing Label" />
+              </FlexboxGrid.Item>
 
-                  {/* link type outgoing label  */}
-                  <div>
-                    <TextInput
-                      defaultValue={editData?.outgoing_label}
-                      type="text"
-                      id="link_type_outgoing"
-                      labelText="Outgoing Label"
-                      placeholder="Please enter outgoing label"
-                      {...register('outgoing_label', {
-                        required: editData?.outgoing_label ? false : true,
-                      })}
-                    />
-                    <p className={errText}>
-                      {errors.outgoing_label && 'Invalid Outgoing Label'}
-                    </p>
-                  </div>
-                </div>
+              <FlexboxGrid.Item colspan={24}>
+                <SelectField
+                  name="application_id"
+                  label="Application ID"
+                  accepter={CustomSelect}
+                  options={applicationList?.items ? applicationList?.items : []}
+                  error={formError.organization_id}
+                />
+              </FlexboxGrid.Item>
 
-                {/* link type application_id */}
-                <div>
-                  <TextInput
-                    defaultValue={editData?.application_id}
-                    type="text"
-                    id="link_type_application_id"
-                    labelText="Application Id"
-                    placeholder="Please enter application id"
-                    {...register('application_id', {
-                      required: editData?.application_id ? false : true,
-                    })}
-                  />
-                  <p className={errText}>
-                    {errors.application_id && 'Invalid application_id'}
-                  </p>
-                </div>
+              <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0' }}>
+                <TextField name="description" label="Description" />
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          </Form>
+        </div>
+      </AddNewModal>
 
-                {/* link type description  */}
-                <div>
-                  <TextArea
-                    defaultValue={editData?.description}
-                    id="link_type_description"
-                    required={editData?.description ? false : true}
-                    onChange={(e) => setLinkDesc(e.target.value)}
-                    labelText="Link Type Description"
-                    placeholder="Please enter link type description"
-                  />
-                </div>
-
-                <div className={modalBtnCon}>
-                  <Button kind="secondary" size="md" onClick={addModalClose}>
-                    Cancel
-                  </Button>
-                  <Button kind="primary" size="md" type="submit">
-                    {editData?.email ? 'Save' : 'Ok'}
-                  </Button>
-                </div>
-              </Stack>
-            </form>
-          </ModalBody>
-        </ComposedModal>
-      </Theme>
-
-      {isLinkTypeLoading && <ProgressBar label="" />}
-      <UseTable props={tableProps} />
+      {isLinkTypeLoading && (
+        <FlexboxGrid justify="center">
+          <Loader size="md" label="" />
+        </FlexboxGrid>
+      )}
+      {/* <UseTable props={tableProps} /> */}
+      <AdminDataTable props={tableProps} />
     </div>
   );
 };

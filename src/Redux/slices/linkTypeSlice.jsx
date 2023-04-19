@@ -5,6 +5,15 @@ import postAPI from '../apiRequests/postAPI';
 import putAPI from '../apiRequests/putAPI';
 
 // Fetch get all link type
+export const fetchApplicationList = createAsyncThunk(
+  'linkTypes/fetchApplicationList',
+  async ({ url, token }) => {
+    const response = getAPI({ url, token });
+    return response;
+  },
+);
+
+// Fetch get all link type
 export const fetchLinkTypes = createAsyncThunk(
   'linkTypes/fetchLinkTypes',
   async ({ url, token }) => {
@@ -43,6 +52,7 @@ export const fetchDeleteLinkType = createAsyncThunk(
 /// All link type states
 const initialState = {
   allLinkTypes: {},
+  applicationList: {},
   isLinkTypeCreated: false,
   isLinkTypeUpdated: false,
   isLinkTypeDeleted: false,
@@ -124,6 +134,18 @@ export const linkTypeSlice = createSlice({
 
     builder.addCase(fetchDeleteLinkType.rejected, (state) => {
       state.isLinkTypeLoading = false;
+    });
+
+    // Get all applications for crate link types
+    builder.addCase(fetchApplicationList.fulfilled, (state, { payload }) => {
+      if (payload?.items) {
+        // id as string is required in the table
+        const items = payload.items?.reduce((acc, curr) => {
+          acc.push({ ...curr, id: curr?.id?.toString() });
+          return acc;
+        }, []);
+        state.applicationList = { ...payload, items };
+      }
     });
   },
 });

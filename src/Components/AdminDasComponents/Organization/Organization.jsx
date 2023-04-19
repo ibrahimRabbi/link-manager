@@ -24,7 +24,8 @@ import AuthContext from '../../../Store/Auth-Context';
 import { handleCurrPageTitle, handleIsAddNewModal } from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
-import { FlexboxGrid, Form, Loader } from 'rsuite';
+import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
+import TextField from '../TextField';
 // import UseTable from '../UseTable';
 
 // const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
@@ -55,9 +56,34 @@ const headerData = [
   },
 ];
 
+const { StringType } = Schema.Types;
+
+const model = Schema.Model({
+  name: StringType().isRequired('This field is required.'),
+  url: StringType().isRequired('This field is required.'),
+  description: StringType().isRequired('This field is required.'),
+});
+
 const Organization = () => {
   const { allOrganizations, isOrgLoading, isOrgCreated, isOrgDeleted, isOrgUpdated } =
     useSelector((state) => state.organizations);
+  const [formError, setFormError] = React.useState({});
+  const [formValue, setFormValue] = React.useState({
+    name: '',
+    url: '',
+    description: '',
+  });
+
+  const orgFormRef = React.useRef();
+
+  const handleAddOrg = () => {
+    if (!orgFormRef.current.check()) {
+      console.error('Form Error', formError);
+      return;
+    }
+    console.log(formValue);
+    dispatch(handleIsAddNewModal(false));
+  };
   // const [isAddModal, setIsAddModal] = useState(false);
   // const [orgDescription, setOrgDescription] = useState('');
   // const [editData, setEditData] = useState({});
@@ -138,6 +164,7 @@ const Organization = () => {
 
   // handle delete Org
   const handleDelete = (data) => {
+    console.log('delete data', data);
     // const idList = data?.map((v) => v.id);
     if (data.length === 1) {
       const id = data[0]?.id;
@@ -167,6 +194,7 @@ const Organization = () => {
   };
   // handle Edit org
   const handleEdit = (data) => {
+    console.log('edit data', data);
     if (data.length === 1) {
       // setIsAddModal(true);
       // const data1 = data[0];
@@ -197,101 +225,34 @@ const Organization = () => {
     inpPlaceholder: 'Search Organization',
   };
 
-  const [formValue, setFormValue] = useState({
-    name: '',
-    url: '',
-    description: '',
-  });
-  console.log(console.log(formValue));
-
-  const handleSubmitAdd = () => {
-    setFormValue({
-      name: '',
-      url: '',
-      description: '',
-    });
-    console.log('submitted');
-  };
   return (
     <div>
-      <AddNewModal handleSubmit={handleSubmitAdd}>
-        <Form fluid onChange={setFormValue} formValue={formValue}>
-          <Form.Group controlId="orgName">
-            <Form.ControlLabel>Organization Name</Form.ControlLabel>
-            <Form.Control name="name" />
-            <Form.HelpText>Required</Form.HelpText>
-          </Form.Group>
-          <Form.Group controlId="orgUrl">
-            <Form.ControlLabel>Organization URL</Form.ControlLabel>
-            <Form.Control name="url" />
-            <Form.HelpText>Required</Form.HelpText>
-          </Form.Group>
-          <Form.Group controlId="orgDesc">
-            <Form.ControlLabel>Organization Description</Form.ControlLabel>
-            <Form.Control rows={5} name="description" />
-          </Form.Group>
-        </Form>
+      <AddNewModal title={'Add New Organization'} handleSubmit={handleAddOrg}>
+        <div className="show-grid">
+          <Form
+            fluid
+            ref={orgFormRef}
+            onChange={setFormValue}
+            onCheck={setFormError}
+            formValue={formValue}
+            // formDefaultValue={}
+            model={model}
+          >
+            <FlexboxGrid justify="space-between">
+              <FlexboxGrid.Item colspan={11}>
+                <TextField name="name" label="Organization Name" />
+              </FlexboxGrid.Item>
+
+              <FlexboxGrid.Item colspan={11}>
+                <TextField name="url" label="Organization URL" />
+              </FlexboxGrid.Item>
+              <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0' }}>
+                <TextField name="description" label="Organization Description" />
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          </Form>
+        </div>
       </AddNewModal>
-
-      {/* -- add org Modal -- */}
-      {/* <Theme theme="g10">
-        <ComposedModal open={isAddModal} onClose={addModalClose}>
-          <div className={mhContainer}>
-            <h4>{editData?.name ? 'Edit Organization' : 'Add New Organization'}</h4>
-            <ModalHeader onClick={addModalClose} />
-          </div>
-
-          <ModalBody id={modalBody}>
-            <form onSubmit={handleSubmit(handleAddOrg)} className={formContainer}>
-              <Stack gap={7}>
-                <div>
-                  <TextInput
-                    defaultValue={editData?.name}
-                    type="text"
-                    id="org_name"
-                    labelText="Organization Name"
-                    placeholder="Please enter organization name"
-                    {...register('name', { required: editData?.name ? false : true })}
-                  />
-                  <p className={errText}>{errors.name && 'Invalid Organization Name'}</p>
-                </div>
-
-                <div>
-                  <TextInput
-                    defaultValue={editData?.url}
-                    type="text"
-                    id="organization_url"
-                    labelText="Organization URL"
-                    placeholder="Please enter Organization URL"
-                    {...register('url', { required: editData?.url ? false : true })}
-                  />
-                  <p className={errText}>{errors.url && 'Invalid url'}</p>
-                </div>
-
-                <div>
-                  <TextArea
-                    defaultValue={editData?.description}
-                    id="org_description"
-                    required={editData?.description ? false : true}
-                    onChange={(e) => setOrgDescription(e.target.value)}
-                    labelText="Organization description"
-                    placeholder="Please enter organization description"
-                  />
-                </div>
-
-                <div className={modalBtnCon}>
-                  <Button kind="secondary" size="md" onClick={addModalClose}>
-                    Cancel
-                  </Button>
-                  <Button kind="primary" size="md" type="submit">
-                    {editData?.email ? 'Save' : 'Ok'}
-                  </Button>
-                </div>
-              </Stack>
-            </form>
-          </ModalBody>
-        </ComposedModal>
-      </Theme> */}
 
       {isOrgLoading && (
         <FlexboxGrid justify="center">

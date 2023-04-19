@@ -22,6 +22,8 @@ const AdminDataTable = ({ props }) => {
     handlePagination,
     handleChangeLimit,
     handleAddNew,
+    handleEdit,
+    handleDelete,
     totalItems,
     pageSize,
   } = props;
@@ -55,16 +57,16 @@ const AdminDataTable = ({ props }) => {
     setCheckedKeys(keys);
   };
 
+  const [selectedData, setSelectedData] = useState([]);
   useEffect(() => {
-    const selectedData = checkedKeys?.reduce((acc, curr) => {
+    const selectedRows = checkedKeys?.reduce((acc, curr) => {
       if (curr) {
         const selected = rowData?.find((v) => v.id == curr);
         acc.push(selected);
       }
       return acc;
     }, []);
-
-    console.log('selected ', selectedData);
+    setSelectedData(selectedRows);
   }, [checkedKeys]);
 
   return (
@@ -72,13 +74,21 @@ const AdminDataTable = ({ props }) => {
       <FlexboxGrid justify="end">
         {checkedKeys.length > 0 ? (
           <Stack divider={<Divider vertical />}>
-            <Button appearance="primary" color="blue">
+            <Button
+              onClick={() => handleEdit(selectedData)}
+              appearance="primary"
+              color="blue"
+            >
               Edit
             </Button>
-            <Button appearance="primary" color="blue">
+            <Button
+              onClick={() => handleDelete(selectedData)}
+              appearance="primary"
+              color="blue"
+            >
               Delete
             </Button>
-            <Button appearance="default" color="blue">
+            <Button appearance="default" onClick={() => setCheckedKeys([])}>
               Cancel
             </Button>
           </Stack>
@@ -94,7 +104,7 @@ const AdminDataTable = ({ props }) => {
       <Table autoHeight bordered headerHeight={50} data={rowData} id="admin-table">
         <Column width={50} align="center">
           <HeaderCell style={{ padding: 0 }}>
-            <div style={{ lineHeight: '40px' }}>
+            <div style={{ lineHeight: '48px' }}>
               <Checkbox
                 inline
                 checked={checked}
@@ -107,9 +117,11 @@ const AdminDataTable = ({ props }) => {
         </Column>
 
         {headerData?.map((header, i) => (
-          <Column key={i} width={header?.width || 150} fullText>
-            <HeaderCell>{header?.header}</HeaderCell>
-            <Cell dataKey={header?.key}></Cell>
+          <Column key={i} width={70} flexGrow={header?.header === 'ID' ? 0 : 1} fullText>
+            <HeaderCell>
+              <h5>{header?.header}</h5>
+            </HeaderCell>
+            <Cell style={{ fontSize: '17px' }} dataKey={header?.key}></Cell>
           </Column>
         ))}
       </Table>

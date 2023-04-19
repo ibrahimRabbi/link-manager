@@ -1,52 +1,62 @@
 import React, { useContext, useState } from 'react';
 // import {PasswordInput, ProgressBar, TextInput } from '@carbon/react';
-import { useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import style from './Login.module.scss';
 import { useSelector } from 'react-redux';
 import { useMixpanel } from 'react-mixpanel-browser';
-import { ButtonToolbar, FlexboxGrid, Button, Panel, Col, Loader } from 'rsuite';
+import { FlexboxGrid, Button, Panel, Col, Loader, Schema, Form } from 'rsuite';
+import TextField from '../AdminDasComponents/TextField.jsx';
 
-const {
-  // formContainer, btnContainer,
-  form,
-  titleSpan,
-  main,
-  title,
-  errText,
-} = style;
+const { titleSpan, main, title } = style;
 const loginURL = `${process.env.REACT_APP_LM_REST_API_URL}/auth/login`;
+
+const { StringType } = Schema.Types;
+
+const model = Schema.Model({
+  userName: StringType().isRequired('Username is required.'),
+  password: StringType()
+    .addRule((value) => {
+      if (value.length < 5) {
+        return false;
+      }
+      return true;
+    }, 'Password should include at least 5 characters')
+    .isRequired('Password is required.'),
+});
 
 // const mixpanelToken= process.env.REACT_APP_MIXPANEL_TOKEN;
 const Login = () => {
   const { isWbe } = useSelector((state) => state.links);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [formError, setFormError] = React.useState({});
+  const [formValue, setFormValue] = React.useState({
+    userName: '',
+    password: '',
+  });
+  const loginFormRef = React.useRef();
   const authCtx = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
-  const {
-    handleSubmit,
-    register,
-    formState: { errors },
-  } = useForm();
 
   // React mixpanel browser
   const mixpanel = useMixpanel();
   mixpanel.init('197a3508675e32adcdfee4563c0e0595', { debug: true });
 
   // handle form submit
-  const onSubmit = (data) => {
+  const onSubmit = () => {
+    if (!loginFormRef.current.check()) {
+      console.error('Form Error', formError);
+      return;
+    }
     setIsLoading(true);
-
     //track who try to login
     mixpanel.track('Trying to login.', {
-      username: data.userName,
+      username: formValue.userName,
     });
 
-    const authData = window.btoa(data.userName + ':' + data.password);
+    const authData = window.btoa(formValue.userName + ':' + formValue.password);
     fetch(loginURL, {
       method: 'POST',
       headers: {
@@ -58,7 +68,7 @@ const Login = () => {
         if (res.ok) {
           //track who try to login
           mixpanel.track('Successfully logged in.', {
-            username: data.userName,
+            username: formValue.userName,
           });
           return res.json();
         } else {
@@ -107,30 +117,27 @@ const Login = () => {
               }
               bordered
             >
-              <form className={form} onSubmit={handleSubmit(onSubmit)}>
-                <input
-                  name="userName"
-                  placeholder="User Name"
-                  {...register('userName', { required: true })}
-                />
-                <p className={errText}>{errors.userName && 'Invalid User Name'}</p>
+              <Form
+                fluid
+                ref={loginFormRef}
+                onChange={setFormValue}
+                onCheck={setFormError}
+                formValue={formValue}
+                model={model}
+              >
+                <TextField name="userName" label="User Name" />
+                <TextField name="password" label="Password" />
 
-                <input
-                  name="password"
-                  type="password"
-                  placeholder="Password"
-                  {...register('password', { required: true, minLength: 4 })}
-                />
-                <p className={errText}>
-                  {errors.password && 'Password should include at least 5 characters'}
-                </p>
-
-                <ButtonToolbar>
-                  <Button color="blue" block appearance="primary" type="submit">
-                    Sign in
-                  </Button>
-                </ButtonToolbar>
-              </form>
+                <Button
+                  color="blue"
+                  block
+                  type="submit"
+                  appearance="primary"
+                  onClick={onSubmit}
+                >
+                  Sign in
+                </Button>
+              </Form>
             </Panel>
           </FlexboxGrid.Item>
         </FlexboxGrid>

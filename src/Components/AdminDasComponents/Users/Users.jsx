@@ -9,7 +9,8 @@ import AuthContext from '../../../Store/Auth-Context';
 // import styles from './Users.module.scss';
 import { handleCurrPageTitle } from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Loader } from 'rsuite';
+import { FlexboxGrid, Loader, Modal } from 'rsuite';
+import AddUser from './AddUser';
 
 // const { modalBody, mhContainer } = styles;
 // import UseTable from '../UseTable';
@@ -44,16 +45,19 @@ const Users = () => {
   const { allUsers, usersLoading, isUserCreated, isUserDeleted } = useSelector(
     (state) => state.users,
   );
-  // const [isAddModal, setIsAddModal] = useState(false);
+  const [isAddModal, setIsAddModal] = useState(false);
   // const [editData, setEditData] = useState({});
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
+  const handleClose = () => setIsAddModal(false);
+
   // handle open add user modal
   const handleAddNew = () => {
-    // setIsAddModal(true);
+    setIsAddModal(true);
   };
   // const addModalClose = () => {
   //   setEditData({});
@@ -133,22 +137,16 @@ const Users = () => {
 
   return (
     <div>
-      {/* <Theme theme="g10">
-        <ComposedModal open={isAddModal} onClose={addModalClose}>
-          <div className={mhContainer}>
-            <h4>{editData?.email ? 'Edit User' : 'Add New User'}</h4>
-            <ModalHeader onClick={addModalClose} />
-          </div>
+      <Modal backdrop={'true'} keyboard={false} open={isAddModal} onClose={handleClose}>
+        <Modal.Header>
+          <Modal.Title style={{ fontSize: '20px' }}>Add New User</Modal.Title>
+        </Modal.Header>
 
-          <ModalBody id={modalBody}>
-            <AddUser
-              editData={editData}
-              setIsAddModal={setIsAddModal}
-              addModalClose={addModalClose}
-            />
-          </ModalBody>
-        </ComposedModal>
-      </Theme> */}
+        <Modal.Body>
+          <AddUser handleClose={handleClose} isUserSection={true} />
+        </Modal.Body>
+        <Modal.Footer></Modal.Footer>
+      </Modal>
 
       {usersLoading && (
         <FlexboxGrid justify="center">

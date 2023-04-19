@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import MoreIcon from '@rsuite/icons/legacy/More';
 import { Table, Pagination, Whisper, IconButton, Popover, Dropdown } from 'rsuite';
 const { Column, HeaderCell, Cell } = Table;
@@ -46,36 +46,70 @@ const ActionCell = ({ ...props }) => {
   );
 };
 
-// target name table cell control
-const NameCell = ({ rowData, ...props }) => {
-  const lines = rowData?.content_lines ? rowData?.content_lines?.split('L') : '';
-  const speaker = (
-    <Popover title="Preview">
-      <iframe
-        src={
-          // eslint-disable-next-line max-len
-          `https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/${
-            rowData?.provider_id
-          }/resources/${rowData?.Type}/${rowData?.resource_id}/smallPreview?file_lines=${
-            lines ? lines[1] + lines[2] : ''
-          }&file_content=${rowData?.content}&file_path=${rowData?.koatl_path}`
-        }
-        width="400"
-        height="250"
-      ></iframe>
-    </Popover>
-  );
-
+// link type table cell control
+// const LinkTypeCell = ({ rowData, ...props }) => {
+//   return (
+//     <Cell {...props}>
+//       <p>{rowData?.link_type}</p>
+//     </Cell>
+//   );
+// };
+// status table cell control
+const StatusCell = ({ ...props }) => {
   return (
-    <Cell {...props} style={{ cursor: 'pointer' }}>
-      <Whisper
-        enterable
-        placement="auto"
-        speaker={speaker}
-        delayOpen={700}
-        delayClose={700}
-      >
-        <p>
+    <Cell {...props} style={{ fontSize: '17px' }}>
+      {' '}
+      <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> Valid
+    </Cell>
+  );
+};
+
+const LinksDataTable = ({ props }) => {
+  const { handlePagination, handleChangeLimit, totalItems, pageSize } = props;
+  const [page, setPage] = useState(1);
+  // const [isLargePreview, setIsLargePreview]= useState(false);
+
+  useEffect(() => {
+    handlePagination(page);
+  }, [page]);
+
+  // target name table cell control
+  const NameCell = ({ rowData, ...props }) => {
+    const lines = rowData?.content_lines ? rowData?.content_lines?.split('L') : '';
+
+    const speaker = (
+      <Popover title="Preview">
+        <iframe
+          src={
+            // eslint-disable-next-line max-len
+            `https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/${
+              rowData?.provider_id
+            }/resources/${rowData?.Type}/${
+              rowData?.resource_id
+            }/smallPreview?branch_name=${rowData?.branch_name}&file_content=${
+              rowData?.content
+            }&file_lines=${lines ? lines[1] + lines[2] : ''}&file_path=${
+              rowData?.koatl_path
+            }`
+          }
+          width="400"
+          height="250"
+        ></iframe>
+        {/* <p onClick={()=>setIsLargePreview(!isLargePreview)}>
+          {isLargePreview? 'See Less': 'See More'}
+        </p> */}
+      </Popover>
+    );
+
+    return (
+      <Cell {...props} style={{ cursor: 'pointer', fontSize: '17px' }}>
+        <Whisper
+          enterable
+          placement="auto"
+          speaker={speaker}
+          delayOpen={700}
+          delayClose={700}
+        >
           <a href={rowData?.id} target="_blank" rel="noopener noreferrer">
             {rowData?.content_lines
               ? rowData?.name.length > 15
@@ -87,67 +121,38 @@ const NameCell = ({ rowData, ...props }) => {
                 : rowData?.name + ' [' + rowData.content_lines + ']'
               : rowData?.name}
           </a>
-        </p>
-      </Whisper>
-    </Cell>
-  );
-};
+        </Whisper>
+      </Cell>
+    );
+  };
 
-// link type table cell control
-const LinkTypeCell = ({ rowData, ...props }) => {
-  return (
-    <Cell {...props}>
-      <p>{rowData?.link_type}</p>
-    </Cell>
-  );
-};
-// status table cell control
-const StatusCell = ({ ...props }) => {
-  return (
-    <Cell {...props}>
-      <p>
-        {' '}
-        <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> Valid
-      </p>
-    </Cell>
-  );
-};
-
-const LinksDataTable = ({ props }) => {
-  const { rowData, handlePagination, handleChangeLimit, totalItems, pageSize } = props;
-
-  const [page, setPage] = React.useState(1);
-
-  useEffect(() => {
-    handlePagination(page);
-  }, [page]);
   return (
     <div className={tableContainerDiv}>
-      <Table data={rowData} autoHeight bordered headerHeight={50}>
-        <Column width={120} fullText>
+      <Table data={props?.rowData} autoHeight bordered headerHeight={50}>
+        <Column width={150} fullText>
           <HeaderCell>
-            <h6>Status</h6>
+            <h5>Status</h5>
           </HeaderCell>
           <StatusCell dataKey={''} />
         </Column>
 
         <Column width={250} fullText>
           <HeaderCell>
-            <h6>Link Type</h6>
+            <h5>Link Type</h5>
           </HeaderCell>
-          <LinkTypeCell dataKey="link_type" />
+          <Cell style={{ fontSize: '17px' }} dataKey="link_type" />
         </Column>
 
-        <Column width={500} fullText>
+        <Column width={300} flexGrow={1} fullText>
           <HeaderCell>
-            <h6>Target</h6>
+            <h5>Target</h5>
           </HeaderCell>
           <NameCell dataKey="name" />
         </Column>
 
         <Column width={100} align="center">
           <HeaderCell>
-            <h6>Action</h6>
+            <h5>Action</h5>
           </HeaderCell>
           <ActionCell dataKey="id" />
         </Column>

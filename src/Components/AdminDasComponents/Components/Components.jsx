@@ -1,30 +1,20 @@
-import {
-  Button,
-  ComposedModal,
-  ModalBody,
-  ModalHeader,
-  ProgressBar,
-  Stack,
-  TextArea,
-  TextInput,
-  Theme,
-} from '@carbon/react';
 import React, { useState, useContext, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import {
   fetchComponents,
-  fetchCreateComp,
   fetchDeleteComp,
-  fetchUpdateComp,
+  // fetchCreateComp,
+  // fetchUpdateComp,
 } from '../../../Redux/slices/componentSlice';
 import AuthContext from '../../../Store/Auth-Context';
-import UseTable from '../UseTable';
-import styles from './Components.module.scss';
-import { handleCurrPageTitle } from '../../../Redux/slices/navSlice';
+import { handleCurrPageTitle, handleIsAddNewModal } from '../../../Redux/slices/navSlice';
+import AddNewModal from '../AddNewModal';
+import AdminDataTable from '../AdminDataTable';
+import { FlexboxGrid, Loader } from 'rsuite';
 
-const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
+// import styles from './Components.module.scss';
+// const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -59,65 +49,52 @@ const headerData = [
 const Application = () => {
   const { allComponents, isCompLoading, isCompUpdated, isCompCreated, isCompDeleted } =
     useSelector((state) => state.components);
-  const [isAddModal, setIsAddModal] = useState(false);
-  const [componentDesc, setComponentDesc] = useState('');
-  const [editData, setEditData] = useState({});
+
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const {
-    handleSubmit,
-    register,
-    reset,
-    formState: { errors },
-  } = useForm();
+
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
   // handle open add component modal
   const handleAddNew = () => {
-    setIsAddModal(true);
-  };
-  const addModalClose = () => {
-    setEditData({});
-    setComponentDesc('');
-    setIsAddModal(false);
-    reset();
+    dispatch(handleIsAddNewModal(true));
   };
 
   // create and edit component form submit
-  const handleAddUser = (data) => {
-    setIsAddModal(false);
-    // update component
-    if (editData?.name) {
-      data = {
-        name: data?.name ? data?.name : editData?.name,
-        project_id: data.project_id ? data.project_id : editData?.project_id,
-        description: componentDesc ? componentDesc : editData?.description,
-      };
-      const putUrl = `${lmApiUrl}/component/${editData?.id}`;
-      dispatch(
-        fetchUpdateComp({
-          url: putUrl,
-          token: authCtx.token,
-          bodyData: data,
-          reset,
-        }),
-      );
-    }
-    // Create component
-    else {
-      data.description = componentDesc;
-      const postUrl = `${lmApiUrl}/component`;
-      dispatch(
-        fetchCreateComp({
-          url: postUrl,
-          token: authCtx.token,
-          bodyData: data,
-          reset,
-        }),
-      );
-    }
-  };
+  // const handleAddUser = (data) => {
+  //   setIsAddModal(false);
+  //   // update component
+  //   if (editData?.name) {
+  //     data = {
+  //       name: data?.name ? data?.name : editData?.name,
+  //       project_id: data.project_id ? data.project_id : editData?.project_id,
+  //       description: componentDesc ? componentDesc : editData?.description,
+  //     };
+  //     const putUrl = `${lmApiUrl}/component/${editData?.id}`;
+  //     dispatch(
+  //       fetchUpdateComp({
+  //         url: putUrl,
+  //         token: authCtx.token,
+  //         bodyData: data,
+  //         reset,
+  //       }),
+  //     );
+  //   }
+  //   // Create component
+  //   else {
+  //     data.description = componentDesc;
+  //     const postUrl = `${lmApiUrl}/component`;
+  //     dispatch(
+  //       fetchCreateComp({
+  //         url: postUrl,
+  //         token: authCtx.token,
+  //         bodyData: data,
+  //         reset,
+  //       }),
+  //     );
+  //   }
+  // };
 
   // Pagination
   const handlePagination = (values) => {
@@ -162,18 +139,18 @@ const Application = () => {
     }
   };
   // handle Edit component
-  const handleEdit = (data) => {
-    if (data.length === 1) {
-      setIsAddModal(true);
-      const data1 = data[0];
-      setEditData(data1);
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry!!',
-        icon: 'info',
-        text: 'You can not edit more than 1 application at the same time',
-      });
-    }
+  const handleEdit = () => {
+    // if (data.length === 1) {
+    //   setIsAddModal(true);
+    //   const data1 = data[0];
+    //   setEditData(data1);
+    // } else if (data.length > 1) {
+    //   Swal.fire({
+    //     title: 'Sorry!!',
+    //     icon: 'info',
+    //     text: 'You can not edit more than 1 application at the same time',
+    //   });
+    // }
   };
 
   // send props in the batch action table
@@ -192,77 +169,17 @@ const Application = () => {
     inpPlaceholder: 'Search Component',
   };
 
+  const handleSubmit = () => {};
   return (
     <div>
-      {/* -- add application Modal -- */}
-      <Theme theme="g10">
-        <ComposedModal open={isAddModal} onClose={addModalClose}>
-          <div className={mhContainer}>
-            <h4>{editData?.name ? 'Edit Component' : 'Add New Component'}</h4>
-            <ModalHeader onClick={addModalClose} />
-          </div>
+      <AddNewModal title="Add New Component" handleSubmit={handleSubmit}></AddNewModal>
 
-          <ModalBody id={modalBody}>
-            <form onSubmit={handleSubmit(handleAddUser)} className={formContainer}>
-              <Stack gap={7}>
-                {/* Component name  */}
-                <div>
-                  <TextInput
-                    defaultValue={editData?.name}
-                    type="text"
-                    id="component_name"
-                    labelText="Component Name"
-                    placeholder="Please enter component name"
-                    {...register('name', {
-                      required: editData?.name ? false : true,
-                    })}
-                  />
-                  <p className={errText}>{errors.name && 'Invalid name'}</p>
-                </div>
-
-                {/* project id */}
-                <div>
-                  <TextInput
-                    defaultValue={editData?.project_id}
-                    type="text"
-                    id="component_project_id"
-                    labelText="Project Id"
-                    placeholder="Please enter project id"
-                    {...register('project_id', {
-                      required: editData?.project_id ? false : true,
-                    })}
-                  />
-                  <p className={errText}>{errors.project_id && 'Invalid Project Id'}</p>
-                </div>
-
-                {/* Description  */}
-                <div>
-                  <TextArea
-                    defaultValue={editData?.description}
-                    id="component_description"
-                    required={editData?.description ? false : true}
-                    onChange={(e) => setComponentDesc(e.target.value)}
-                    labelText="Application description"
-                    placeholder="Please enter Description"
-                  />
-                </div>
-
-                <div className={modalBtnCon}>
-                  <Button kind="secondary" size="md" onClick={addModalClose}>
-                    Cancel
-                  </Button>
-                  <Button kind="primary" size="md" type="submit">
-                    {editData?.name ? 'Save' : 'Ok'}
-                  </Button>
-                </div>
-              </Stack>
-            </form>
-          </ModalBody>
-        </ComposedModal>
-      </Theme>
-
-      {isCompLoading && <ProgressBar label="" />}
-      <UseTable props={tableProps} />
+      {isCompLoading && (
+        <FlexboxGrid justify="center">
+          <Loader size="md" label="" />
+        </FlexboxGrid>
+      )}
+      <AdminDataTable props={tableProps} />
     </div>
   );
 };
