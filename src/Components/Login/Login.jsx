@@ -125,8 +125,8 @@ const Login = () => {
                 formValue={formValue}
                 model={model}
               >
-                <TextField name="userName" label="User Name" />
-                <TextField name="password" label="Password" />
+                <TextField name="userName" type="text" label="User Name" />
+                <TextField name="password" type="password" label="Password" />
 
                 <Button
                   color="blue"

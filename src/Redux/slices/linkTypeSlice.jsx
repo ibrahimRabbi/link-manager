@@ -79,12 +79,7 @@ export const linkTypeSlice = createSlice({
     builder.addCase(fetchLinkTypes.fulfilled, (state, { payload }) => {
       state.isLinkTypeLoading = false;
       if (payload?.items) {
-        // id as string is required in the table
-        const items = payload.items?.reduce((acc, curr) => {
-          acc.push({ ...curr, id: curr?.id?.toString() });
-          return acc;
-        }, []);
-        state.allLinkTypes = { ...payload, items };
+        state.allLinkTypes = payload;
       }
     });
     builder.addCase(fetchLinkTypes.rejected, (state) => {
@@ -139,12 +134,7 @@ export const linkTypeSlice = createSlice({
     // Get all applications for crate link types
     builder.addCase(fetchApplicationList.fulfilled, (state, { payload }) => {
       if (payload?.items) {
-        // id as string is required in the table
-        const items = payload.items?.reduce((acc, curr) => {
-          acc.push({ ...curr, id: curr?.id?.toString() });
-          return acc;
-        }, []);
-        state.applicationList = { ...payload, items };
+        state.applicationList = payload;
       }
     });
   },

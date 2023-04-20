@@ -4,8 +4,12 @@ import { Form } from 'rsuite';
 const SelectField = React.forwardRef((props, ref) => {
   const { name, message, label, accepter, error, ...rest } = props;
   return (
-    <Form.Group ref={ref} className={error ? 'has-error' : ''}>
-      <Form.ControlLabel>{label} </Form.ControlLabel>
+    <Form.Group
+      ref={ref}
+      className={error ? 'has-error' : ''}
+      style={{ fontSize: '17px' }}
+    >
+      <Form.ControlLabel style={{ fontSize: '17px' }}>{label} </Form.ControlLabel>
       <Form.Control name={name} accepter={accepter} errorMessage={error} {...rest} />
       <Form.HelpText>{message}</Form.HelpText>
     </Form.Group>

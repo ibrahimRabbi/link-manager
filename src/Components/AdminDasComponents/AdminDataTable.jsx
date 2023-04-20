@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Checkbox, Pagination, FlexboxGrid, Button, Stack, Divider } from 'rsuite';
+import { useSelector } from 'react-redux';
+import {
+  Table,
+  Checkbox,
+  Pagination,
+  FlexboxGrid,
+  Button,
+  Stack,
+  Divider,
+  // InputGroup, Input
+} from 'rsuite';
+// import SearchIcon from '@rsuite/icons/Search';
 const { Column, HeaderCell, Cell } = Table;
 
 const CheckCell = ({ rowData, onChange, checkedKeys, dataKey, ...props }) => (
@@ -16,13 +27,13 @@ const CheckCell = ({ rowData, onChange, checkedKeys, dataKey, ...props }) => (
 );
 
 const AdminDataTable = ({ props }) => {
+  const { isDark } = useSelector((state) => state.nav);
   const {
     rowData,
     headerData,
     handlePagination,
     handleChangeLimit,
     handleAddNew,
-    handleEdit,
     handleDelete,
     totalItems,
     pageSize,
@@ -69,36 +80,56 @@ const AdminDataTable = ({ props }) => {
     setSelectedData(selectedRows);
   }, [checkedKeys]);
 
+  // // filter table
+  // const [tableFilterValue, setTableFilterValue]=useState('');
+  // const handleFilterTableData=(v)=>{
+  //   setTableFilterValue(v);
+  // };
+
   return (
-    <div style={{ marginTop: '20px', padding: '5px 0' }}>
-      <FlexboxGrid justify="end">
-        {checkedKeys.length > 0 ? (
-          <Stack divider={<Divider vertical />}>
-            <Button
-              onClick={() => handleEdit(selectedData)}
-              appearance="primary"
-              color="blue"
-            >
-              Edit
-            </Button>
-            <Button
-              onClick={() => handleDelete(selectedData)}
-              appearance="primary"
-              color="blue"
-            >
-              Delete
-            </Button>
-            <Button appearance="default" onClick={() => setCheckedKeys([])}>
-              Cancel
-            </Button>
-          </Stack>
-        ) : (
-          <>
-            <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
-              Add New
-            </Button>
-          </>
-        )}
+    <div>
+      <FlexboxGrid
+        justify="space-between"
+        style={{
+          backgroundColor: isDark == 'dark' ? '#1a1d24' : 'white',
+          marginTop: '20px',
+          padding: '10px 10px 20px',
+        }}
+      >
+        <FlexboxGrid.Item>
+          {checkedKeys.length > 0 ? (
+            <Stack divider={<Divider vertical />}>
+              <Button
+                onClick={() => handleDelete(selectedData)}
+                appearance="primary"
+                color="blue"
+              >
+                Delete
+              </Button>
+              <Button appearance="subtle" onClick={() => setCheckedKeys([])}>
+                Cancel
+              </Button>
+            </Stack>
+          ) : (
+            <>
+              <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
+                Add New
+              </Button>
+            </>
+          )}
+        </FlexboxGrid.Item>
+
+        <FlexboxGrid.Item>
+          {/* <InputGroup size='lg' inside style={{}}>
+            <Input placeholder={'Search Table Item'} 
+              value={tableFilterValue}
+              onChange={handleFilterTableData}
+            />
+            <InputGroup.Button>
+              <SearchIcon />
+            </InputGroup.Button>
+          </InputGroup> */}
+        </FlexboxGrid.Item>
       </FlexboxGrid>
 
       <Table autoHeight bordered headerHeight={50} data={rowData} id="admin-table">
@@ -127,6 +158,7 @@ const AdminDataTable = ({ props }) => {
       </Table>
 
       <Pagination
+        style={{ backgroundColor: isDark == 'dark' ? '#1a1d24' : 'white' }}
         prev
         next
         first

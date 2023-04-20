@@ -17,7 +17,6 @@ const NavigationBar = () => {
   const authCtx = useContext(AuthContext);
   const { currPageTitle, isDark, isProfileOpen } = useSelector((state) => state.nav);
   const navigate = useNavigate();
-  // const { pathname } = useLocation();
   const dispatch = useDispatch();
 
   const handleLogout = () => {
@@ -69,7 +68,6 @@ const NavigationBar = () => {
         appearance="default"
       >
         <ImBrightnessContrast />
-        {/* eslint-disable-next-line max-len */}
         <p>{darkModeText}</p>
       </Button>
 
@@ -87,8 +85,12 @@ const NavigationBar = () => {
   );
 
   return (
-    <div>
-      <Navbar>
+    <>
+      <Navbar
+        style={{
+          backgroundColor: isDark == 'dark' ? '' : 'white',
+        }}
+      >
         <Navbar.Brand
           onClick={() => navigate('/')}
           style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}
@@ -116,7 +118,7 @@ const NavigationBar = () => {
           </Whisper>
         </Nav>
       </Navbar>
-    </div>
+    </>
   );
 };
 

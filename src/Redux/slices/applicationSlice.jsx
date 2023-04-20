@@ -79,12 +79,7 @@ export const applicationSlice = createSlice({
     builder.addCase(fetchApplications.fulfilled, (state, { payload }) => {
       state.isAppLoading = false;
       if (payload?.items) {
-        // id as string is required in the table
-        const items = payload.items?.reduce((acc, curr) => {
-          acc.push({ ...curr, id: curr?.id?.toString() });
-          return acc;
-        }, []);
-        state.allApplications = { ...payload, items };
+        state.allApplications = payload;
       }
     });
 
@@ -140,12 +135,7 @@ export const applicationSlice = createSlice({
     // Get all organizations for crate applications
     builder.addCase(fetchOrg.fulfilled, (state, { payload }) => {
       if (payload?.items) {
-        // id as string is required in the table
-        const items = payload.items?.reduce((acc, curr) => {
-          acc.push({ ...curr, id: curr?.id?.toString() });
-          return acc;
-        }, []);
-        state.organizationList = { ...payload, items };
+        state.organizationList = payload;
       }
     });
   },

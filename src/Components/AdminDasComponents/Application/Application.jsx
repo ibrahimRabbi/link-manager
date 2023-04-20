@@ -11,10 +11,11 @@ import {
 import AuthContext from '../../../Store/Auth-Context';
 import { handleCurrPageTitle, handleIsAddNewModal } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
-import { FlexboxGrid, Form, Loader, Schema, SelectPicker } from 'rsuite';
+import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import TextField from '../TextField';
 import SelectField from '../SelectField';
+import CustomSelect from '../CustomSelect';
 // import styles from './Application.module.scss';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
@@ -43,28 +44,13 @@ const headerData = [
   },
 ];
 
-const CustomSelect = React.forwardRef((props, ref) => {
-  const { options, onChange, ...rest } = props;
-
-  const data = options?.map((item) => ({
-    label: item.name,
-    value: item.id,
-  }));
-
-  return (
-    <SelectPicker block ref={ref} {...rest} data={data} onChange={(v) => onChange(v)} />
-  );
-});
-
-CustomSelect.displayName = 'CustomSelect';
-
-const { StringType } = Schema.Types;
+const { StringType, NumberType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
   url: StringType().isRequired('This field is required.'),
   oslc_domain: StringType().isRequired('This field is required.'),
-  organization_id: StringType().isRequired('This field is required.'),
+  organization_id: NumberType().isRequired('This field is required.'),
   description: StringType().isRequired('This field is required.'),
 });
 

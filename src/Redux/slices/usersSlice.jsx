@@ -70,12 +70,7 @@ export const usersSlice = createSlice({
     builder.addCase(fetchUsers.fulfilled, (state, { payload }) => {
       state.usersLoading = false;
       if (payload?.items) {
-        // id as string is required in the table
-        const items = payload.items?.reduce((acc, curr) => {
-          acc.push({ ...curr, id: curr?.id?.toString() });
-          return acc;
-        }, []);
-        state.allUsers = { ...payload, items };
+        state.allUsers = payload;
       }
     });
     // Get all users request rejected

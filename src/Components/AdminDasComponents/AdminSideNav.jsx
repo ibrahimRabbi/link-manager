@@ -27,6 +27,7 @@ const AdminSideNav = () => {
           flexDirection: 'column',
           minHeight: '100vh',
           boxShadow: `2px 2px 5px ${isDark == 'light' ? 'lightgray' : '#292D33'}`,
+          backgroundColor: isDark == 'dark' ? '#1a1d24' : 'white',
         }}
         width={isAdminSidebarOpen ? 200 : 56}
         collapsible

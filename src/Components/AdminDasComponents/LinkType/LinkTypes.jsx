@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import {
+  fetchApplicationList,
   fetchDeleteLinkType,
   fetchLinkTypes,
   // fetchCreateLinkType,
@@ -10,12 +11,12 @@ import {
 import AuthContext from '../../../Store/Auth-Context';
 import { handleCurrPageTitle, handleIsAddNewModal } from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Form, Loader, Schema, SelectPicker } from 'rsuite';
+import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
 import TextField from '../TextField';
 import AddNewModal from '../AddNewModal';
 import { useRef } from 'react';
 import SelectField from '../SelectField';
-import { fetchApplications } from '../../../Redux/slices/applicationSlice';
+import CustomSelect from '../CustomSelect';
 
 // import styles from './LinkTypes.module.scss';
 // const { errText, formContainer,
@@ -52,27 +53,12 @@ const headerData = [
   },
 ];
 
-const CustomSelect = React.forwardRef((props, ref) => {
-  const { options, onChange, ...rest } = props;
-
-  const data = options?.map((item) => ({
-    label: item.name,
-    value: item.id,
-  }));
-
-  return (
-    <SelectPicker block ref={ref} {...rest} data={data} onChange={(v) => onChange(v)} />
-  );
-});
-
-CustomSelect.displayName = 'CustomSelect';
-
-const { StringType } = Schema.Types;
+const { StringType, NumberType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
   url: StringType().isRequired('This field is required.'),
-  application_id: StringType().isRequired('This field is required.'),
+  application_id: NumberType().isRequired('This field is required.'),
   incoming_label: StringType().isRequired('This field is required.'),
   outgoing_label: StringType().isRequired('This field is required.'),
   description: StringType().isRequired('This field is required.'),
@@ -114,7 +100,7 @@ const LinkTypes = () => {
     dispatch(handleIsAddNewModal(true));
   };
 
-  const handleAddApplication = () => {
+  const handleAddLinkType = () => {
     if (!linkTypeFormRef.current.check()) {
       console.error('Form Error', formError);
       return;
@@ -123,6 +109,10 @@ const LinkTypes = () => {
     console.log(formValue);
     setFormValue({
       name: '',
+      url: '',
+      application_id: '',
+      incoming_label: '',
+      outgoing_label: '',
       description: '',
     });
     dispatch(handleIsAddNewModal(false));
@@ -181,7 +171,7 @@ const LinkTypes = () => {
 
   useEffect(() => {
     dispatch(
-      fetchApplications({
+      fetchApplicationList({
         url: `${lmApiUrl}/application?page=${'1'}&per_page=${'100'}`,
         token: authCtx.token,
       }),
@@ -258,7 +248,7 @@ const LinkTypes = () => {
 
   return (
     <div>
-      <AddNewModal handleSubmit={handleAddApplication} title="Add New Link Type">
+      <AddNewModal handleSubmit={handleAddLinkType} title="Add New Link Type">
         <div className="show-grid">
           <Form
             fluid

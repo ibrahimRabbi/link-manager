@@ -69,12 +69,7 @@ export const organizationSlice = createSlice({
     builder.addCase(fetchOrganizations.fulfilled, (state, { payload }) => {
       state.isOrgLoading = false;
       if (payload?.items) {
-        // id as string is required in the table
-        const items = payload.items?.reduce((acc, curr) => {
-          acc.push({ ...curr, id: curr?.id?.toString() });
-          return acc;
-        }, []);
-        state.allOrganizations = { ...payload, items };
+        state.allOrganizations = payload;
       }
     });
 

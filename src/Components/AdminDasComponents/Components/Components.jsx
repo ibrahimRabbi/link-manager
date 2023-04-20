@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import {
   fetchComponents,
   fetchDeleteComp,
+  fetchProjectList,
   // fetchCreateComp,
   // fetchUpdateComp,
 } from '../../../Redux/slices/componentSlice';
@@ -11,7 +12,11 @@ import AuthContext from '../../../Store/Auth-Context';
 import { handleCurrPageTitle, handleIsAddNewModal } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Loader } from 'rsuite';
+import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
+import TextField from '../TextField';
+import SelectField from '../SelectField';
+import { useRef } from 'react';
+import CustomSelect from '../CustomSelect';
 
 // import styles from './Components.module.scss';
 // const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
@@ -46,19 +51,58 @@ const headerData = [
   },
 ];
 
-const Application = () => {
-  const { allComponents, isCompLoading, isCompUpdated, isCompCreated, isCompDeleted } =
-    useSelector((state) => state.components);
+const { StringType, NumberType } = Schema.Types;
+
+const model = Schema.Model({
+  name: StringType().isRequired('This field is required.'),
+  project_id: NumberType().isRequired('This field is required.'),
+  description: StringType().isRequired('This field is required.'),
+});
+
+const Components = () => {
+  const {
+    allComponents,
+    isCompLoading,
+    isCompUpdated,
+    isCompCreated,
+    isCompDeleted,
+    projectList,
+  } = useSelector((state) => state.components);
 
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [formError, setFormError] = useState({});
+  const [formValue, setFormValue] = useState({
+    name: '',
+    project_id: '',
+    description: '',
+  });
 
+  const componentFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
   // handle open add component modal
   const handleAddNew = () => {
     dispatch(handleIsAddNewModal(true));
+  };
+
+  const handleAddLinkComponent = () => {
+    if (!componentFormRef.current.check()) {
+      console.error('Form Error', formError);
+      return;
+    }
+
+    console.log(formValue);
+    setFormValue({
+      name: '',
+      source_url: '',
+      target_url: '',
+      application_id: '',
+      link_type_id: '',
+      description: '',
+    });
+    dispatch(handleIsAddNewModal(false));
   };
 
   // create and edit component form submit
@@ -101,6 +145,15 @@ const Application = () => {
     setPageSize(values.pageSize);
     setCurrPage(values.page);
   };
+
+  useEffect(() => {
+    dispatch(
+      fetchProjectList({
+        url: `${lmApiUrl}/project?page=${'1'}&per_page=${'100'}`,
+        token: authCtx.token,
+      }),
+    );
+  }, []);
 
   useEffect(() => {
     dispatch(handleCurrPageTitle('Components'));
@@ -169,10 +222,41 @@ const Application = () => {
     inpPlaceholder: 'Search Component',
   };
 
-  const handleSubmit = () => {};
   return (
     <div>
-      <AddNewModal title="Add New Component" handleSubmit={handleSubmit}></AddNewModal>
+      <AddNewModal title="Add New Component" handleSubmit={handleAddLinkComponent}>
+        <div className="show-grid">
+          <Form
+            fluid
+            ref={componentFormRef}
+            onChange={setFormValue}
+            onCheck={setFormError}
+            formValue={formValue}
+            model={model}
+          >
+            <FlexboxGrid justify="space-between">
+              <FlexboxGrid.Item colspan={24}>
+                <TextField name="name" label="Link Component Name" />
+              </FlexboxGrid.Item>
+
+              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                <SelectField
+                  placeholder="Select project"
+                  name="project_id"
+                  label="Project"
+                  accepter={CustomSelect}
+                  options={projectList?.items ? projectList?.items : []}
+                  error={formError.project_id}
+                />
+              </FlexboxGrid.Item>
+
+              <FlexboxGrid.Item colspan={24} style={{ marginBottom: '30px' }}>
+                <TextField name="description" label="Description" />
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          </Form>
+        </div>
+      </AddNewModal>
 
       {isCompLoading && (
         <FlexboxGrid justify="center">
@@ -184,4 +268,4 @@ const Application = () => {
   );
 };
 
-export default Application;
+export default Components;

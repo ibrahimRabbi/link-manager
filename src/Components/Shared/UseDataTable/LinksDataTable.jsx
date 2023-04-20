@@ -5,6 +5,7 @@ const { Column, HeaderCell, Cell } = Table;
 import styles from './UseDataTable.module.scss';
 import { useEffect } from 'react';
 import { AiFillCheckCircle } from 'react-icons/ai';
+import { useSelector } from 'react-redux';
 const { tableContainerDiv, validIcon, statusIcon } = styles;
 
 // Action table cell control
@@ -66,8 +67,8 @@ const StatusCell = ({ ...props }) => {
 
 const LinksDataTable = ({ props }) => {
   const { handlePagination, handleChangeLimit, totalItems, pageSize } = props;
+  const { isDark } = useSelector((state) => state.nav);
   const [page, setPage] = useState(1);
-  // const [isLargePreview, setIsLargePreview]= useState(false);
 
   useEffect(() => {
     handlePagination(page);
@@ -95,9 +96,6 @@ const LinksDataTable = ({ props }) => {
           width="400"
           height="250"
         ></iframe>
-        {/* <p onClick={()=>setIsLargePreview(!isLargePreview)}>
-          {isLargePreview? 'See Less': 'See More'}
-        </p> */}
       </Popover>
     );
 
@@ -159,6 +157,7 @@ const LinksDataTable = ({ props }) => {
       </Table>
 
       <Pagination
+        style={{ backgroundColor: isDark == 'dark' ? '#1a1d24' : 'white' }}
         prev
         next
         first

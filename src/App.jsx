@@ -38,9 +38,10 @@ function App() {
 
   return (
     <CustomProvider theme={isDark}>
-      {/* <Theme theme={isDark === 'dark' 
-    ? 'g100' : isDark === 'light' ? 'white' : 'white'}> */}
-      <div className="App">
+      <div
+        className="App"
+        style={{ backgroundColor: isDark == 'dark' ? '#0f131a' : '#f5f8fa' }}
+      >
         <Routes>
           {/* This is WBE dashboard */}
           <Route

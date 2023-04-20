@@ -69,12 +69,7 @@ export const linkConstraintSlice = createSlice({
     builder.addCase(fetchLinkConstraints.fulfilled, (state, { payload }) => {
       state.isLinkConsLoading = false;
       if (payload?.items) {
-        // id as string is required in the table
-        const items = payload.items?.reduce((acc, curr) => {
-          acc.push({ ...curr, id: curr?.id?.toString() });
-          return acc;
-        }, []);
-        state.AllLinkCons = { ...payload, items };
+        state.AllLinkCons = payload;
       }
     });
 
