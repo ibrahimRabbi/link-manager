@@ -229,7 +229,7 @@ const Organization = () => {
               <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0 10px' }}>
                 <TextField
                   name="description"
-                  label="Organization Description"
+                  label="Description"
                   accepter={TextArea}
                   rows={5}
                   reqText="Description is Required"

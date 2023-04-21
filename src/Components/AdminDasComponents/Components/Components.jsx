@@ -225,7 +225,7 @@ const Components = () => {
               <FlexboxGrid.Item colspan={24}>
                 <TextField
                   name="name"
-                  label="Link Component Name"
+                  label="Component Name"
                   reqText="Component name is required"
                 />
               </FlexboxGrid.Item>

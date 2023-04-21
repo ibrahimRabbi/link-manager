@@ -207,7 +207,7 @@ const Projects = () => {
           <div style={{ margin: '30px 0 10px' }}>
             <TextField
               name="description"
-              label="Project Description"
+              label="Description"
               accepter={TextArea}
               rows={5}
               reqText="Project description is required"
