@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 import clientMessages from './responseMsg';
 
-export default async function putAPI({ url, token, bodyData, reset }) {
+export default async function putAPI({ url, token, bodyData }) {
   const response = await fetch(`${url}`, {
     method: 'PUT',
     headers: {
@@ -11,7 +11,6 @@ export default async function putAPI({ url, token, bodyData, reset }) {
     body: JSON.stringify(bodyData),
   })
     .then((res) => {
-      reset();
       if (res.ok) {
         return res.json().then((data) => {
           Swal.fire({

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import {
   fetchApplications,
+  fetchCreateApp,
   // fetchCreateApp,
   fetchDeleteApp,
   fetchOrg,
@@ -16,6 +17,7 @@ import AdminDataTable from '../AdminDataTable';
 import TextField from '../TextField';
 import SelectField from '../SelectField';
 import CustomSelect from '../CustomSelect';
+import TextArea from '../TextArea';
 // import styles from './Application.module.scss';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
@@ -63,10 +65,8 @@ const Application = () => {
     isAppCreated,
     isAppDeleted,
   } = useSelector((state) => state.applications);
-  // const [isAddModal, setIsAddModal] = useState(false);
-  // const [appDescription, setAppDescription] = useState('');
-  // const [selectedItem, setSelectedItem] = useState({});
-  // const [filInput, setFilInput] = useState('');
+  const { refreshData } = useSelector((state) => state.nav);
+
   // const [editData, setEditData] = useState({});
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -103,14 +103,14 @@ const Application = () => {
       return;
     }
 
-    console.log(formValue);
-    setFormValue({
-      name: '',
-      url: '',
-      oslc_domain: '',
-      organization_id: '',
-      description: '',
-    });
+    const postUrl = `${lmApiUrl}/application`;
+    dispatch(
+      fetchCreateApp({
+        url: postUrl,
+        token: authCtx.token,
+        bodyData: formValue,
+      }),
+    );
     dispatch(handleIsAddNewModal(false));
   };
 
@@ -170,9 +170,13 @@ const Application = () => {
   // };
 
   // Pagination
-  const handlePagination = (values) => {
-    setPageSize(values.pageSize);
-    setCurrPage(values.page);
+  const handlePagination = (value) => {
+    setCurrPage(value);
+  };
+
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
   };
 
   useEffect(() => {
@@ -180,50 +184,29 @@ const Application = () => {
 
     const getUrl = `${lmApiUrl}/application?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchApplications({ url: getUrl, token: authCtx.token }));
-  }, [isAppCreated, isAppUpdated, isAppDeleted, pageSize, currPage]);
+  }, [isAppCreated, isAppUpdated, isAppDeleted, pageSize, currPage, refreshData]);
 
   // handle delete application
   const handleDelete = (data) => {
-    // const idList = data?.map((v) => v.id);
-    if (data.length === 1) {
-      const id = data[0]?.id;
-      Swal.fire({
-        title: 'Are you sure',
-        icon: 'info',
-        text: 'Do you want to delete the Application!!',
-        cancelButtonColor: 'red',
-        showCancelButton: true,
-        confirmButtonText: 'Delete',
-        confirmButtonColor: '#3085d6',
-        reverseButtons: true,
-      }).then((value) => {
-        if (value.isConfirmed) {
-          const deleteUrl = `${lmApiUrl}/application/${id}`;
-          dispatch(fetchDeleteApp({ url: deleteUrl, token: authCtx.token }));
-        }
-      });
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry',
-        icon: 'info',
-        text: 'You can not delete multiple application at the same time!!',
-        confirmButtonColor: '#3085d6',
-      });
-    }
+    Swal.fire({
+      title: 'Are you sure',
+      icon: 'info',
+      text: 'Do you want to delete the Application!!',
+      cancelButtonColor: 'red',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#3085d6',
+      reverseButtons: true,
+    }).then((value) => {
+      if (value.isConfirmed) {
+        const deleteUrl = `${lmApiUrl}/application/${data?.id}`;
+        dispatch(fetchDeleteApp({ url: deleteUrl, token: authCtx.token }));
+      }
+    });
   };
   // handle Edit application
   const handleEdit = (data) => {
-    if (data.length === 1) {
-      // setIsAddModal(true);
-      // const data1 = data[0];
-      // setEditData(data1);
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry!!',
-        icon: 'info',
-        text: 'You can not edit more than 1 application at the same time',
-      });
-    }
+    console.log(data);
   };
 
   // send props in the batch action table
@@ -235,6 +218,7 @@ const Application = () => {
     handleDelete,
     handleAddNew,
     handlePagination,
+    handleChangeLimit,
     totalItems: allApplications?.total_items,
     totalPages: allApplications?.total_pages,
     pageSize,
@@ -256,15 +240,27 @@ const Application = () => {
           >
             <FlexboxGrid justify="space-between">
               <FlexboxGrid.Item colspan={11}>
-                <TextField name="name" label="Application Name" />
+                <TextField
+                  name="name"
+                  label="Application Name"
+                  reqText="Application name is required"
+                />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item colspan={11}>
-                <TextField name="url" label="Application URL" />
+                <TextField
+                  name="url"
+                  label="Application URL"
+                  reqText="Application URL is required"
+                />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                <TextField name="oslc_domain" label="OSLC Domain" />
+                <TextField
+                  name="oslc_domain"
+                  label="OSLC Domain"
+                  reqText="OSLC domain is required"
+                />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
@@ -274,12 +270,18 @@ const Application = () => {
                   accepter={CustomSelect}
                   options={organizationList?.items ? organizationList?.items : []}
                   error={formError.organization_id}
+                  reqText="Organization Id is required"
                 />
-                {/* <TextField name="organization_id" label="Organization ID" /> */}
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0' }}>
-                <TextField name="description" label="Description" />
+              <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0 10px' }}>
+                <TextField
+                  name="description"
+                  label="Description"
+                  accepter={TextArea}
+                  rows={5}
+                  reqText="application description is required"
+                />
               </FlexboxGrid.Item>
             </FlexboxGrid>
           </Form>
@@ -291,6 +293,7 @@ const Application = () => {
           <Loader size="md" label="" />
         </FlexboxGrid>
       )}
+
       {/* <UseTable props={tableProps} /> */}
       <AdminDataTable props={tableProps} />
     </div>

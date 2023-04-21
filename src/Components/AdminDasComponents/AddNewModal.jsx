@@ -11,11 +11,15 @@ const AddNewModal = ({ children, handleSubmit, title }) => {
     handleSubmit();
   };
   return (
-    <Modal open={isAddNewModalOpen} onClose={() => dispatch(handleIsAddNewModal(false))}>
+    <Modal
+      open={isAddNewModalOpen}
+      size="md"
+      onClose={() => dispatch(handleIsAddNewModal(false))}
+    >
       <Modal.Header>
         <Modal.Title style={{ fontSize: '20px' }}>{title}</Modal.Title>
       </Modal.Header>
-      <Modal.Body>{children}</Modal.Body>
+      <Modal.Body style={{ padding: '10px' }}>{children}</Modal.Body>
       <Modal.Footer>
         <Button onClick={handleOk} appearance="primary">
           Ok

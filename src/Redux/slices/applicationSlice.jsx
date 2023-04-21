@@ -25,8 +25,8 @@ export const fetchApplications = createAsyncThunk(
 // Create New app
 export const fetchCreateApp = createAsyncThunk(
   'applications/fetchCreateApp',
-  async ({ url, token, bodyData, reset }) => {
-    const res = postAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData }) => {
+    const res = postAPI({ url, token, bodyData });
     return res;
   },
 );
@@ -34,8 +34,8 @@ export const fetchCreateApp = createAsyncThunk(
 // Update app
 export const fetchUpdateApp = createAsyncThunk(
   'applications/fetchUpdateApp',
-  async ({ url, token, bodyData, reset }) => {
-    const res = putAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData }) => {
+    const res = putAPI({ url, token, bodyData });
     return res;
   },
 );
@@ -93,9 +93,9 @@ export const applicationSlice = createSlice({
     });
 
     builder.addCase(fetchCreateApp.fulfilled, (state, { payload }) => {
+      state.isAppCreated = true;
       state.isAppLoading = false;
       console.log('App Creating: ', payload);
-      state.isAppCreated = true;
     });
 
     builder.addCase(fetchCreateApp.rejected, (state) => {
@@ -108,9 +108,9 @@ export const applicationSlice = createSlice({
     });
 
     builder.addCase(fetchUpdateApp.fulfilled, (state, { payload }) => {
+      state.isAppUpdated = true;
       state.isAppLoading = false;
       console.log('App Updating: ', payload);
-      state.isAppUpdated = true;
     });
 
     builder.addCase(fetchUpdateApp.rejected, (state) => {
@@ -123,8 +123,8 @@ export const applicationSlice = createSlice({
     });
 
     builder.addCase(fetchDeleteApp.fulfilled, (state, { payload }) => {
-      state.isAppLoading = false;
       state.isAppDeleted = true;
+      state.isAppLoading = false;
       console.log('App Deleting: ', payload);
     });
 

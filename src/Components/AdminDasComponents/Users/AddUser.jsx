@@ -14,6 +14,7 @@ import TextField from '../TextField';
 import { useContext } from 'react';
 import { useDispatch } from 'react-redux';
 import { fetchCreateUser } from '../../../Redux/slices/usersSlice';
+import { useEffect } from 'react';
 
 const { StringType } = Schema.Types;
 
@@ -26,7 +27,7 @@ const model = Schema.Model({
     .isRequired('This field is required.'),
 });
 
-const AddUser = ({ isUserSection, handleClose }) => {
+const AddUser = ({ isUserSection, handleClose, editData }) => {
   const [formError, setFormError] = React.useState({});
   const [formValue, setFormValue] = React.useState({
     first_name: '',
@@ -38,6 +39,17 @@ const AddUser = ({ isUserSection, handleClose }) => {
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    if (editData?.id) {
+      setFormValue({
+        first_name: editData?.first_name,
+        last_name: editData?.last_name,
+        username: editData?.username,
+        email: editData?.email,
+      });
+    }
+  }, [editData]);
+
   const handleSubmit = () => {
     if (!userFormRef.current.check()) {
       console.error('Form Error', formError);
@@ -45,14 +57,19 @@ const AddUser = ({ isUserSection, handleClose }) => {
     }
 
     const postUrl = `${lmApiUrl}/user`;
-    dispatch(
-      fetchCreateUser({
-        url: postUrl,
-        token: authCtx.token,
-        bodyData: { ...formValue, enabled: true },
-      }),
-    );
 
+    if (editData?.id) {
+      // handle edit
+    } else {
+      // handle create
+      dispatch(
+        fetchCreateUser({
+          url: postUrl,
+          token: authCtx.token,
+          bodyData: { ...formValue, enabled: true },
+        }),
+      );
+    }
     // close modal
     if (handleClose) handleClose();
   };
@@ -119,22 +136,30 @@ const AddUser = ({ isUserSection, handleClose }) => {
       >
         <FlexboxGrid justify="space-between">
           <FlexboxGrid.Item colspan={11}>
-            <TextField name="first_name" label="First Name" />
+            <TextField
+              name="first_name"
+              label="First Name"
+              reqText="First name is required"
+            />
           </FlexboxGrid.Item>
 
           <FlexboxGrid.Item colspan={11}>
-            <TextField name="last_name" label="Last Name" />
+            <TextField
+              name="last_name"
+              label="Last Name"
+              reqText="Last name is required"
+            />
           </FlexboxGrid.Item>
           <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0' }}>
-            <TextField name="username" label="User name" />
+            <TextField name="username" label="User name" reqText="Username is required" />
           </FlexboxGrid.Item>
           <FlexboxGrid.Item colspan={24}>
-            <TextField name="email" label="Email" />
+            <TextField name="email" label="Email" reqText="Email is required" />
           </FlexboxGrid.Item>
         </FlexboxGrid>
 
         {isUserSection ? (
-          <FlexboxGrid justify="end" style={{ marginTop: '30px' }}>
+          <FlexboxGrid justify="end" style={{ marginTop: '20px' }}>
             <Button
               style={{ marginRight: '15px' }}
               onClick={handleSubmit}

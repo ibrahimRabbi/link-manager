@@ -1,19 +1,12 @@
-// import { ComposedModal, ModalBody, ModalHeader,
-// ProgressBar, Theme } from '@carbon/react';
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import { fetchDeleteUser, fetchUsers } from '../../../Redux/slices/usersSlice';
 import AuthContext from '../../../Store/Auth-Context';
-// import AddUser from './AddUser';
-// import styles from './Users.module.scss';
 import { handleCurrPageTitle } from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
 import { FlexboxGrid, Loader, Modal } from 'rsuite';
 import AddUser from './AddUser';
-
-// const { modalBody, mhContainer } = styles;
-// import UseTable from '../UseTable';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -45,8 +38,9 @@ const Users = () => {
   const { allUsers, usersLoading, isUserCreated, isUserDeleted } = useSelector(
     (state) => state.users,
   );
+  const { refreshData } = useSelector((state) => state.nav);
   const [isAddModal, setIsAddModal] = useState(false);
-  // const [editData, setEditData] = useState({});
+  const [editData, setEditData] = useState({});
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -59,10 +53,6 @@ const Users = () => {
   const handleAddNew = () => {
     setIsAddModal(true);
   };
-  // const addModalClose = () => {
-  //   setEditData({});
-  //   setIsAddModal(false);
-  // };
 
   // Pagination
   const handlePagination = (value) => {
@@ -80,12 +70,10 @@ const Users = () => {
 
     const getUrl = `${lmApiUrl}/user?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchUsers({ url: getUrl, token: authCtx.token }));
-  }, [isUserCreated, isUserDeleted, pageSize, currPage]);
+  }, [isUserCreated, isUserDeleted, pageSize, currPage, refreshData]);
 
   // handle delete user
   const handleDelete = (data) => {
-    // const id = data[0]?.id;
-    const idList = data?.map((v) => v.id);
     Swal.fire({
       title: 'Are you sure',
       icon: 'info',
@@ -97,7 +85,7 @@ const Users = () => {
       reverseButtons: true,
     }).then((value) => {
       if (value.isConfirmed) {
-        const deleteUrl = `${lmApiUrl}/user?id_list=${idList}`;
+        const deleteUrl = `${lmApiUrl}/user?user_id=${data?.id}`;
         dispatch(fetchDeleteUser({ url: deleteUrl, token: authCtx.token }));
       }
     });
@@ -105,17 +93,8 @@ const Users = () => {
 
   // handle Edit user
   const handleEdit = (data) => {
-    if (data.length === 1) {
-      // setIsAddModal(true);
-      // const data1 = data[0];
-      // setEditData(data1);
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry!!',
-        icon: 'info',
-        text: 'You can not edit more than 1 user at the same time',
-      });
-    }
+    setEditData(data);
+    setIsAddModal(true);
   };
 
   // send props in the batch action table
@@ -143,7 +122,7 @@ const Users = () => {
         </Modal.Header>
 
         <Modal.Body>
-          <AddUser handleClose={handleClose} isUserSection={true} />
+          <AddUser editData={editData} handleClose={handleClose} isUserSection={true} />
         </Modal.Body>
         <Modal.Footer></Modal.Footer>
       </Modal>

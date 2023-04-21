@@ -30,12 +30,15 @@ export default async function deleteAPI({ url, token }) {
         } else if (res.status === 409) {
           console.log(res.status, res.statusText);
         } else if (res.status === 500) {
-          clientMessages({ status: res.status, message: res.statusText });
+          // clientMessages({ status: res.status, message: res.statusText });
         }
       }
       // if links not created we need return a value
       return 'Link delete Failed';
     })
-    .catch((error) => clientMessages({ isErrCatch: true, error }));
+    .catch((error) => {
+      console.log(error);
+      // clientMessages({ isErrCatch: true, error });
+    });
   return response;
 }

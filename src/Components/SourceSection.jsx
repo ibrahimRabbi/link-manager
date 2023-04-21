@@ -9,7 +9,7 @@ const { seeMLBtn, arIcon } = styles;
 
 const SourceSection = () => {
   const { isDark } = useSelector((state) => state.nav);
-  const { sourceDataList } = useSelector((state) => state.links);
+  const { sourceDataList, isWbe } = useSelector((state) => state.links);
   const [showMore, setShowMore] = useState(false);
   const [title, setTitle] = useState('');
   const navigate = useNavigate();
@@ -74,7 +74,9 @@ const SourceSection = () => {
           {pathname !== '/wbe/new-link' && (
             <FlexboxGrid.Item colspan={4}>
               <Button
-                onClick={() => navigate('/wbe/new-link')}
+                onClick={() =>
+                  isWbe ? navigate('/wbe/new-link') : navigate('/new-link')
+                }
                 color="blue"
                 appearance="primary"
                 active

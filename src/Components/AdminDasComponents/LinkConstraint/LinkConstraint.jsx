@@ -10,6 +10,7 @@ import TextField from '../TextField';
 import { useRef } from 'react';
 import SelectField from '../SelectField';
 import {
+  fetchCreateLinkCons,
   fetchDeleteLinkCons,
   fetchLinkConstraints,
 } from '../../../Redux/slices/linkConstraintSlice';
@@ -18,6 +19,7 @@ import {
   fetchLinkTypes,
 } from '../../../Redux/slices/linkTypeSlice';
 import CustomSelect from '../CustomSelect';
+import TextArea from '../TextArea';
 
 // import styles from './LinkConstraint.module.scss';
 // const { errText, formContainer, modalBtnCon,
@@ -69,6 +71,7 @@ const LinkConstraint = () => {
     isLinkConsDeleted,
   } = useSelector((state) => state.linkConstraints);
   const { applicationList, allLinkTypes } = useSelector((state) => state.linkTypes);
+  const { refreshData } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
@@ -97,14 +100,14 @@ const LinkConstraint = () => {
     }
 
     console.log(formValue);
-    setFormValue({
-      name: '',
-      source_url: '',
-      target_url: '',
-      application_id: '',
-      link_type_id: '',
-      description: '',
-    });
+    const postUrl = `${lmApiUrl}/link-constraint`;
+    dispatch(
+      fetchCreateLinkCons({
+        url: postUrl,
+        token: authCtx.token,
+        bodyData: formValue,
+      }),
+    );
     dispatch(handleIsAddNewModal(false));
   };
 
@@ -150,9 +153,13 @@ const LinkConstraint = () => {
   // };
 
   // Pagination
-  const handlePagination = (values) => {
-    setPageSize(values.pageSize);
-    setCurrPage(values.page);
+  const handlePagination = (value) => {
+    setCurrPage(value);
+  };
+
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
   };
 
   // fetch application list for create link constraint
@@ -178,50 +185,37 @@ const LinkConstraint = () => {
 
     const getUrl = `${lmApiUrl}/link-constraint?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchLinkConstraints({ url: getUrl, token: authCtx.token }));
-  }, [isLinkConsCreated, isLinkConsUpdated, isLinkConsDeleted, pageSize, currPage]);
+  }, [
+    isLinkConsCreated,
+    isLinkConsUpdated,
+    isLinkConsDeleted,
+    pageSize,
+    currPage,
+    refreshData,
+  ]);
 
   // handle delete LinkConstraint
   const handleDelete = (data) => {
-    // const idList = data?.map((v) => v.id);
-    if (data.length === 1) {
-      const id = data[0]?.id;
-      Swal.fire({
-        title: 'Are you sure',
-        icon: 'info',
-        text: 'Do you want to delete the this link constraint!!',
-        cancelButtonColor: 'red',
-        showCancelButton: true,
-        confirmButtonText: 'Delete',
-        confirmButtonColor: '#3085d6',
-        reverseButtons: true,
-      }).then((value) => {
-        if (value.isConfirmed) {
-          const deleteUrl = `${lmApiUrl}/link-constraint/${id}`;
-          dispatch(fetchDeleteLinkCons({ url: deleteUrl, token: authCtx.token }));
-        }
-      });
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry',
-        icon: 'info',
-        text: 'You can not delete multiple link constraint at the same time!!',
-        confirmButtonColor: '#3085d6',
-      });
-    }
+    Swal.fire({
+      title: 'Are you sure',
+      icon: 'info',
+      text: 'Do you want to delete the this link constraint!!',
+      cancelButtonColor: 'red',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#3085d6',
+      reverseButtons: true,
+    }).then((value) => {
+      if (value.isConfirmed) {
+        const deleteUrl = `${lmApiUrl}/link-constraint/${data?.id}`;
+        dispatch(fetchDeleteLinkCons({ url: deleteUrl, token: authCtx.token }));
+      }
+    });
   };
+
   // handle Edit LinkConstraint
-  const handleEdit = () => {
-    // if (data.length === 1) {
-    //   setIsAddModal(true);
-    //   const data1 = data[0];
-    //   setEditData(data1);
-    // } else if (data.length > 1) {
-    //   Swal.fire({
-    //     title: 'Sorry!!',
-    //     icon: 'info',
-    //     text: 'You can not edit more than 1 link constraint at the same time',
-    //   });
-    // }
+  const handleEdit = (data) => {
+    console.log(data);
   };
 
   // send props in the batch action table
@@ -233,6 +227,7 @@ const LinkConstraint = () => {
     handleDelete,
     handleAddNew,
     handlePagination,
+    handleChangeLimit,
     totalItems: allLinkConstraints?.total_items,
     totalPages: allLinkConstraints?.total_pages,
     pageSize,
@@ -253,19 +248,31 @@ const LinkConstraint = () => {
             model={model}
           >
             <FlexboxGrid justify="space-between">
-              <FlexboxGrid.Item colspan={11}>
-                <TextField name="source_url" label="Source URL" />
+              <FlexboxGrid.Item style={{ marginBottom: '30px' }} colspan={24}>
+                <TextField
+                  name="name"
+                  label="Link Constraint Name"
+                  reqText="Link constraint name is required"
+                />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item colspan={11}>
-                <TextField name="target_url" label="Target URL" />
+                <TextField
+                  name="source_url"
+                  label="Source URL"
+                  reqText="Source url is required"
+                />
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                <TextField name="name" label="Link Constraint Name" />
+              <FlexboxGrid.Item colspan={11}>
+                <TextField
+                  name="target_url"
+                  label="Target URL"
+                  reqText="Target url is required"
+                />
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={24}>
+              <FlexboxGrid.Item style={{ marginTop: '30px' }} colspan={24}>
                 <SelectField
                   placeholder="Select application id"
                   name="application_id"
@@ -273,6 +280,7 @@ const LinkConstraint = () => {
                   accepter={CustomSelect}
                   options={applicationList?.items ? applicationList?.items : []}
                   error={formError.organization_id}
+                  reqText="Application ID is required"
                 />
               </FlexboxGrid.Item>
 
@@ -284,128 +292,23 @@ const LinkConstraint = () => {
                   accepter={CustomSelect}
                   options={allLinkTypes?.items ? allLinkTypes?.items : []}
                   error={formError.organization_id}
+                  reqText="Link type ID is required"
                 />
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={24} style={{ marginBottom: '30px' }}>
-                <TextField name="description" label="Description" />
+              <FlexboxGrid.Item colspan={24} style={{ marginBottom: '10px' }}>
+                <TextField
+                  name="description"
+                  label="Description"
+                  accepter={TextArea}
+                  rows={5}
+                  reqText="Link constraint description is required"
+                />
               </FlexboxGrid.Item>
             </FlexboxGrid>
           </Form>
         </div>
       </AddNewModal>
-
-      {/* -- add LinkConstraint Modal -- */}
-      {/* <Theme theme="g10">
-        <ComposedModal open={isAddModal} onClose={addModalClose}>
-          <div className={mhContainer}>
-            <h4>{editData?.name ? 'Edit link constraint' : 'Add New link constraint'}</h4>
-            <ModalHeader onClick={addModalClose} />
-          </div>
-
-          <ModalBody id={modalBody}>
-            <form onSubmit={handleSubmit(handleAddLinkCons)} className={formContainer}>
-              <Stack gap={7}>
-                <div>
-                  <TextInput
-                    defaultValue={editData?.name}
-                    type="text"
-                    id="link-constraint_name"
-                    labelText="Link Constraint Name"
-                    placeholder="Please enter link constraint name"
-                    {...register('name', { required: editData?.name ? false : true })}
-                  />
-                  <p className={errText}>{errors.name && 'Invalid Name'}</p>
-                </div>
-
-                <div className={flNameContainer}>
-                  <div>
-                    <TextInput
-                      defaultValue={editData?.application_id}
-                      type="number"
-                      id="link-constraint_application_id"
-                      labelText="Application Id"
-                      placeholder="Please enter link application id"
-                      {...register('application_id', {
-                        required: editData?.application_id ? false : true,
-                      })}
-                    />
-                    <p className={errText}>
-                      {errors.application_id && 'Invalid application id'}
-                    </p>
-                  </div>
-
-                  <div>
-                    <TextInput
-                      defaultValue={editData?.link_type_id}
-                      type="number"
-                      id="link_cons_link_type_id"
-                      labelText="Link Type Id"
-                      placeholder="Please enter link type id"
-                      {...register('link_type_id', {
-                        required: editData?.link_type_id ? false : true,
-                      })}
-                    />
-                    <p className={errText}>{errors.url && 'Invalid link type id'}</p>
-                  </div>
-                </div>
-
-                <div className={flNameContainer}>
-                  <div>
-                    <TextInput
-                      defaultValue={editData?.source_url}
-                      type="text"
-                      id="link-constraint_source_url"
-                      labelText="Source Url"
-                      placeholder="Please enter link source url"
-                      {...register('source_url', {
-                        required: editData?.source_url ? false : true,
-                      })}
-                    />
-                    <p className={errText}>{errors.source_url && 'Invalid source url'}</p>
-                  </div>
-
-                  <div>
-                    <TextInput
-                      defaultValue={editData?.target_url}
-                      type="text"
-                      id="link_cons_target_url"
-                      labelText="Target Url"
-                      placeholder="Please enter target url"
-                      {...register('target_url', {
-                        required: editData?.target_url ? false : true,
-                      })}
-                    />
-                    <p className={errText}>
-                      {errors.target_url && 'Invalid link type id'}
-                    </p>
-                  </div>
-                </div>
-
-                <div>
-                  <TextArea
-                    defaultValue={editData?.description}
-                    id="linkCons_description"
-                    required={editData?.description ? false : true}
-                    onChange={(e) => setLinkConsDesc(e.target.value)}
-                    labelText="Application description"
-                    placeholder="Please enter Description"
-                  />
-                </div>
-
-                <div className={modalBtnCon}>
-                  <Button kind="secondary" size="md" onClick={addModalClose}>
-                    Cancel
-                  </Button>
-                  <Button kind="primary" size="md" type="submit">
-                    {editData?.name ? 'Save' : 'Ok'}
-                  </Button>
-                </div>
-              </Stack>
-            </form>
-          </ModalBody>
-        </ComposedModal>
-      </Theme> */}
 
       {isLinkConsLoading && (
         <FlexboxGrid justify="center">

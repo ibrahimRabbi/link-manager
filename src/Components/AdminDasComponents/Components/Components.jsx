@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import {
   fetchComponents,
+  fetchCreateComp,
   fetchDeleteComp,
   fetchProjectList,
   // fetchCreateComp,
@@ -17,6 +18,7 @@ import TextField from '../TextField';
 import SelectField from '../SelectField';
 import { useRef } from 'react';
 import CustomSelect from '../CustomSelect';
+import TextArea from '../TextArea';
 
 // import styles from './Components.module.scss';
 // const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
@@ -68,6 +70,7 @@ const Components = () => {
     isCompDeleted,
     projectList,
   } = useSelector((state) => state.components);
+  const { refreshData } = useSelector((state) => state.nav);
 
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -94,14 +97,14 @@ const Components = () => {
     }
 
     console.log(formValue);
-    setFormValue({
-      name: '',
-      source_url: '',
-      target_url: '',
-      application_id: '',
-      link_type_id: '',
-      description: '',
-    });
+    const postUrl = `${lmApiUrl}/component`;
+    dispatch(
+      fetchCreateComp({
+        url: postUrl,
+        token: authCtx.token,
+        bodyData: formValue,
+      }),
+    );
     dispatch(handleIsAddNewModal(false));
   };
 
@@ -141,9 +144,13 @@ const Components = () => {
   // };
 
   // Pagination
-  const handlePagination = (values) => {
-    setPageSize(values.pageSize);
-    setCurrPage(values.page);
+  const handlePagination = (value) => {
+    setCurrPage(value);
+  };
+
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
   };
 
   useEffect(() => {
@@ -160,50 +167,29 @@ const Components = () => {
 
     const getUrl = `${lmApiUrl}/component?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchComponents({ url: getUrl, token: authCtx.token }));
-  }, [isCompCreated, isCompUpdated, isCompDeleted, pageSize, currPage]);
+  }, [isCompCreated, isCompUpdated, isCompDeleted, pageSize, currPage, refreshData]);
 
   // handle delete component
   const handleDelete = (data) => {
-    // const idList = data?.map((v) => v.id);
-    if (data.length === 1) {
-      const id = data[0]?.id;
-      Swal.fire({
-        title: 'Are you sure',
-        icon: 'info',
-        text: 'Do you want to delete the Application!!',
-        cancelButtonColor: 'red',
-        showCancelButton: true,
-        confirmButtonText: 'Delete',
-        confirmButtonColor: '#3085d6',
-        reverseButtons: true,
-      }).then((value) => {
-        if (value.isConfirmed) {
-          const deleteUrl = `${lmApiUrl}/component/${id}`;
-          dispatch(fetchDeleteComp({ url: deleteUrl, token: authCtx.token }));
-        }
-      });
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry',
-        icon: 'info',
-        text: 'You can not delete multiple application at the same time!!',
-        confirmButtonColor: '#3085d6',
-      });
-    }
+    Swal.fire({
+      title: 'Are you sure',
+      icon: 'info',
+      text: 'Do you want to delete the Application!!',
+      cancelButtonColor: 'red',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#3085d6',
+      reverseButtons: true,
+    }).then((value) => {
+      if (value.isConfirmed) {
+        const deleteUrl = `${lmApiUrl}/component/${data?.id}`;
+        dispatch(fetchDeleteComp({ url: deleteUrl, token: authCtx.token }));
+      }
+    });
   };
   // handle Edit component
-  const handleEdit = () => {
-    // if (data.length === 1) {
-    //   setIsAddModal(true);
-    //   const data1 = data[0];
-    //   setEditData(data1);
-    // } else if (data.length > 1) {
-    //   Swal.fire({
-    //     title: 'Sorry!!',
-    //     icon: 'info',
-    //     text: 'You can not edit more than 1 application at the same time',
-    //   });
-    // }
+  const handleEdit = (data) => {
+    console.log(data);
   };
 
   // send props in the batch action table
@@ -215,6 +201,7 @@ const Components = () => {
     handleDelete,
     handleAddNew,
     handlePagination,
+    handleChangeLimit,
     totalItems: allComponents?.total_items,
     totalPages: allComponents?.total_pages,
     pageSize,
@@ -236,7 +223,11 @@ const Components = () => {
           >
             <FlexboxGrid justify="space-between">
               <FlexboxGrid.Item colspan={24}>
-                <TextField name="name" label="Link Component Name" />
+                <TextField
+                  name="name"
+                  label="Link Component Name"
+                  reqText="Component name is required"
+                />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
@@ -247,11 +238,18 @@ const Components = () => {
                   accepter={CustomSelect}
                   options={projectList?.items ? projectList?.items : []}
                   error={formError.project_id}
+                  reqText="Project ID is required"
                 />
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={24} style={{ marginBottom: '30px' }}>
-                <TextField name="description" label="Description" />
+              <FlexboxGrid.Item colspan={24} style={{ marginBottom: '10px' }}>
+                <TextField
+                  name="description"
+                  label="Description"
+                  accepter={TextArea}
+                  rows={5}
+                  reqText="Component description is required"
+                />
               </FlexboxGrid.Item>
             </FlexboxGrid>
           </Form>

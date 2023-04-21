@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './NavigationBar.module.scss';
@@ -20,6 +20,7 @@ const SideNavBar = ({ isWbe }) => {
   const { isDark, isSidebarOpen } = useSelector((state) => state.nav);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const authCtx = useContext(AuthContext);
   const { pathname } = useLocation();
 
   const handleLogout = () => {
@@ -34,7 +35,7 @@ const SideNavBar = ({ isWbe }) => {
       reverseButtons: true,
     }).then((result) => {
       if (result.isConfirmed) {
-        AuthContext.logout();
+        authCtx.logout();
         Swal.fire({
           title: 'Logged out successful',
           icon: 'success',

@@ -8,71 +8,57 @@ import { AiFillCheckCircle } from 'react-icons/ai';
 import { useSelector } from 'react-redux';
 const { tableContainerDiv, validIcon, statusIcon } = styles;
 
-// Action table cell control
-const renderMenu = ({ onClose, left, top, className }, ref) => {
-  const handleSelect = (eventKey) => {
-    onClose();
-    console.log(eventKey);
-  };
-  return (
-    <Popover ref={ref} className={className} style={{ left, top }} full>
-      <Dropdown.Menu onSelect={handleSelect}>
-        <Dropdown.Item eventKey={1}>
-          <p>Details</p>
-        </Dropdown.Item>
-        <Dropdown.Item eventKey={2}>
-          <p>Edit</p>
-        </Dropdown.Item>
-        <Dropdown.Item eventKey={3}>
-          <p>Set Status - Valid</p>
-        </Dropdown.Item>
-        <Dropdown.Item eventKey={4}>
-          <p>Set Status - Invalid</p>
-        </Dropdown.Item>
-        <Dropdown.Item eventKey={5}>
-          <p>Remove</p>
-        </Dropdown.Item>
-      </Dropdown.Menu>
-    </Popover>
-  );
-};
-
-const ActionCell = ({ ...props }) => {
-  return (
-    <Cell {...props} className="link-group">
-      <Whisper placement="auto" trigger="click" speaker={renderMenu}>
-        <IconButton appearance="subtle" icon={<MoreIcon />} />
-      </Whisper>
-    </Cell>
-  );
-};
-
-// link type table cell control
-// const LinkTypeCell = ({ rowData, ...props }) => {
-//   return (
-//     <Cell {...props}>
-//       <p>{rowData?.link_type}</p>
-//     </Cell>
-//   );
-// };
-// status table cell control
-const StatusCell = ({ ...props }) => {
-  return (
-    <Cell {...props} style={{ fontSize: '17px' }}>
-      {' '}
-      <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> Valid
-    </Cell>
-  );
-};
-
 const LinksDataTable = ({ props }) => {
   const { handlePagination, handleChangeLimit, totalItems, pageSize } = props;
   const { isDark } = useSelector((state) => state.nav);
   const [page, setPage] = useState(1);
+  const [actionData, setActionData] = useState({});
 
   useEffect(() => {
     handlePagination(page);
   }, [page]);
+
+  // Action table cell control
+  const renderMenu = ({ onClose, left, top, className }, ref) => {
+    const handleSelect = () => {
+      onClose();
+    };
+    console.log('action', actionData);
+    return (
+      <Popover ref={ref} className={className} style={{ left, top }} full>
+        <Dropdown.Menu onSelect={handleSelect}>
+          <Dropdown.Item eventKey={1}>
+            <p>Details</p>
+          </Dropdown.Item>
+
+          <Dropdown.Item eventKey={2}>
+            <p>Edit</p>
+          </Dropdown.Item>
+
+          <Dropdown.Item eventKey={3}>
+            <p>Set Status - Valid</p>
+          </Dropdown.Item>
+
+          <Dropdown.Item eventKey={4}>
+            <p>Set Status - Invalid</p>
+          </Dropdown.Item>
+
+          <Dropdown.Item eventKey={5}>
+            <p>Remove</p>
+          </Dropdown.Item>
+        </Dropdown.Menu>
+      </Popover>
+    );
+  };
+
+  const StatusCell = ({ ...props }) => {
+    return (
+      <Cell {...props} style={{ fontSize: '17px' }}>
+        {' '}
+        <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> Valid
+      </Cell>
+    );
+  };
 
   // target name table cell control
   const NameCell = ({ rowData, ...props }) => {
@@ -152,7 +138,17 @@ const LinksDataTable = ({ props }) => {
           <HeaderCell>
             <h5>Action</h5>
           </HeaderCell>
-          <ActionCell dataKey="id" />
+          <Cell className="link-group">
+            {(rowData) => (
+              <Whisper placement="auto" trigger="click" speaker={renderMenu}>
+                <IconButton
+                  appearance="subtle"
+                  icon={<MoreIcon />}
+                  onClick={() => setActionData(rowData)}
+                />
+              </Whisper>
+            )}
+          </Cell>
         </Column>
       </Table>
 

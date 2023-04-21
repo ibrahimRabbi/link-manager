@@ -63,8 +63,8 @@ export const projectSlice = createSlice({
     builder.addCase(fetchProjects.pending, (state) => {
       state.isProjCreated = false;
       state.isProjDeleted = false;
-      state.isProjLoading = true;
       state.isProjUpdated = false;
+      state.isProjLoading = true;
     });
 
     builder.addCase(fetchProjects.fulfilled, (state, { payload }) => {
@@ -84,8 +84,8 @@ export const projectSlice = createSlice({
 
     builder.addCase(fetchCreateProj.fulfilled, (state, { payload }) => {
       state.isProjLoading = false;
-      console.log('Project Creating: ', payload);
       state.isProjCreated = true;
+      console.log('Project Creating: ', payload);
     });
 
     builder.addCase(fetchCreateProj.rejected, (state) => {

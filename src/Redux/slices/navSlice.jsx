@@ -14,6 +14,7 @@ export const fetchStreamItems = createAsyncThunk(
 const initialState = {
   isProfileOpen: false,
   isSidebarOpen: false,
+  refreshData: false,
   isAdminSidebarOpen: false,
   isAddNewModalOpen: false,
   isDark: 'light',
@@ -60,6 +61,11 @@ export const navSlice = createSlice({
       state.isAddNewModalOpen = payload;
     },
 
+    // refresh Data
+    handleRefreshData: (state, { payload }) => {
+      state.refreshData = payload;
+    },
+
     // isProfile open
     handleIsProfileOpen: (state, { payload }) => {
       state.isProfileOpen = payload;
@@ -91,6 +97,7 @@ export const {
   handleCurrPageTitle,
   handleIsProfileOpen,
   handleSelectStreamType,
+  handleRefreshData,
   handleIsAddNewModal,
 } = navSlice.actions;
 

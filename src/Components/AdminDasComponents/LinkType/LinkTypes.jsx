@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import {
   fetchApplicationList,
+  fetchCreateLinkType,
   fetchDeleteLinkType,
   fetchLinkTypes,
   // fetchCreateLinkType,
@@ -17,6 +18,7 @@ import AddNewModal from '../AddNewModal';
 import { useRef } from 'react';
 import SelectField from '../SelectField';
 import CustomSelect from '../CustomSelect';
+import TextArea from '../TextArea';
 
 // import styles from './LinkTypes.module.scss';
 // const { errText, formContainer,
@@ -73,6 +75,7 @@ const LinkTypes = () => {
     isLinkTypeUpdated,
     isLinkTypeDeleted,
   } = useSelector((state) => state.linkTypes);
+  const { refreshData } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
@@ -90,9 +93,13 @@ const LinkTypes = () => {
   const dispatch = useDispatch();
 
   // Pagination
-  const handlePagination = (values) => {
-    setPageSize(values.pageSize);
-    setCurrPage(values.page);
+  const handlePagination = (value) => {
+    setCurrPage(value);
+  };
+
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
   };
 
   // handle open add modal
@@ -106,15 +113,14 @@ const LinkTypes = () => {
       return;
     }
 
-    console.log(formValue);
-    setFormValue({
-      name: '',
-      url: '',
-      application_id: '',
-      incoming_label: '',
-      outgoing_label: '',
-      description: '',
-    });
+    const postUrl = `${lmApiUrl}/link-type`;
+    dispatch(
+      fetchCreateLinkType({
+        url: postUrl,
+        token: authCtx.token,
+        bodyData: formValue,
+      }),
+    );
     dispatch(handleIsAddNewModal(false));
   };
 
@@ -184,50 +190,36 @@ const LinkTypes = () => {
 
     const getUrl = `${lmApiUrl}/link-type?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchLinkTypes({ url: getUrl, token: authCtx.token }));
-  }, [isLinkTypeCreated, isLinkTypeUpdated, isLinkTypeDeleted, pageSize, currPage]);
+  }, [
+    isLinkTypeCreated,
+    isLinkTypeUpdated,
+    isLinkTypeDeleted,
+    pageSize,
+    currPage,
+    refreshData,
+  ]);
 
   // handle delete link type
   const handleDelete = (data) => {
-    // const idList = data?.map((v) => v.id);
-    if (data.length === 1) {
-      const id = data[0]?.id;
-      Swal.fire({
-        title: 'Are you sure',
-        icon: 'info',
-        text: 'Do you want to delete the link type!!',
-        cancelButtonColor: 'red',
-        showCancelButton: true,
-        confirmButtonText: 'Delete',
-        confirmButtonColor: '#3085d6',
-        reverseButtons: true,
-      }).then((value) => {
-        if (value.isConfirmed) {
-          const deleteUrl = `${lmApiUrl}/link-type/${id}`;
-          dispatch(fetchDeleteLinkType({ url: deleteUrl, token: authCtx.token }));
-        }
-      });
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry',
-        icon: 'info',
-        text: 'You can not delete more then 1 link type at the same time',
-        confirmButtonColor: '#3085d6',
-      });
-    }
+    Swal.fire({
+      title: 'Are you sure',
+      icon: 'info',
+      text: 'Do you want to delete the link type!!',
+      cancelButtonColor: 'red',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#3085d6',
+      reverseButtons: true,
+    }).then((value) => {
+      if (value.isConfirmed) {
+        const deleteUrl = `${lmApiUrl}/link-type/${data?.id}`;
+        dispatch(fetchDeleteLinkType({ url: deleteUrl, token: authCtx.token }));
+      }
+    });
   };
   // handle Edit link type
-  const handleEdit = () => {
-    // if (data.length === 1) {
-    //   setIsAddModal(true);
-    //   const data1 = data[0];
-    //   setEditData(data1);
-    // } else if (data.length > 1) {
-    //   Swal.fire({
-    //     title: 'Sorry!!',
-    //     icon: 'info',
-    //     text: 'You can not edit more than 1 link type at the same time',
-    //   });
-    // }
+  const handleEdit = (data) => {
+    console.log(data);
   };
 
   // send props in the batch action table
@@ -239,6 +231,7 @@ const LinkTypes = () => {
     handleDelete,
     handleAddNew,
     handlePagination,
+    handleChangeLimit,
     totalItems: allLinkTypes?.total_items,
     totalPages: allLinkTypes?.total_pages,
     pageSize,
@@ -260,19 +253,35 @@ const LinkTypes = () => {
           >
             <FlexboxGrid justify="space-between">
               <FlexboxGrid.Item colspan={11}>
-                <TextField name="name" label="Link Type Name" />
+                <TextField
+                  name="name"
+                  label="Link Type Name"
+                  reqText="Link type name is required"
+                />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item colspan={11}>
-                <TextField name="url" label="Link Type URL" />
+                <TextField
+                  name="url"
+                  label="Link Type URL"
+                  reqText="Link type URL is required"
+                />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
-                <TextField name="incoming_label" label="Incoming Label" />
+                <TextField
+                  name="incoming_label"
+                  label="Incoming Label"
+                  reqText="Incoming label is required"
+                />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
-                <TextField name="outgoing_label" label="Outgoing Label" />
+                <TextField
+                  name="outgoing_label"
+                  label="Outgoing Label"
+                  reqText="Outgoing label is required"
+                />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item colspan={24}>
@@ -282,11 +291,18 @@ const LinkTypes = () => {
                   accepter={CustomSelect}
                   options={applicationList?.items ? applicationList?.items : []}
                   error={formError.organization_id}
+                  reqText="Application Id is required"
                 />
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0' }}>
-                <TextField name="description" label="Description" />
+              <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0 10px' }}>
+                <TextField
+                  name="description"
+                  label="Description"
+                  accepter={TextArea}
+                  rows={5}
+                  reqText="Link type description is required"
+                />
               </FlexboxGrid.Item>
             </FlexboxGrid>
           </Form>

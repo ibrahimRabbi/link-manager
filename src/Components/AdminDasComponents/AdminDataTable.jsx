@@ -1,90 +1,131 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { HiRefresh } from 'react-icons/hi';
 import {
   Table,
-  Checkbox,
   Pagination,
   FlexboxGrid,
   Button,
-  Stack,
-  Divider,
+  // Checkbox,
+  // Stack,
+  // Divider,
+  Whisper,
+  IconButton,
+  Dropdown,
+  Popover,
   // InputGroup, Input
 } from 'rsuite';
 // import SearchIcon from '@rsuite/icons/Search';
+import MoreIcon from '@rsuite/icons/legacy/More';
+import { handleRefreshData } from '../../Redux/slices/navSlice';
+
 const { Column, HeaderCell, Cell } = Table;
 
-const CheckCell = ({ rowData, onChange, checkedKeys, dataKey, ...props }) => (
-  <Cell {...props} style={{ padding: 0 }}>
-    <div style={{ lineHeight: '46px' }}>
-      <Checkbox
-        value={rowData[dataKey]}
-        inline
-        onChange={onChange}
-        checked={checkedKeys.some((item) => item === rowData[dataKey])}
-      />
-    </div>
-  </Cell>
-);
-
 const AdminDataTable = ({ props }) => {
-  const { isDark } = useSelector((state) => state.nav);
   const {
     rowData,
     headerData,
     handlePagination,
     handleChangeLimit,
     handleAddNew,
+    handleEdit,
     handleDelete,
     totalItems,
     pageSize,
   } = props;
-
+  const { isDark, refreshData } = useSelector((state) => state.nav);
+  const [actionData, setActionData] = useState({});
   const [page, setPage] = useState(1);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     handlePagination(page);
   }, [page]);
 
-  const [checkedKeys, setCheckedKeys] = useState([]);
-  let checked = false;
-  let indeterminate = false;
+  // // handle check oll rows
+  // const CheckCell = ({ rowData, onChange, checkedKeys, dataKey, ...props }) => (
+  //   <Cell {...props} style={{ padding: 0 }}>
+  //     <div style={{ lineHeight: '46px' }}>
+  //       <Checkbox
+  //         value={rowData[dataKey]}
+  //         inline
+  //         onChange={onChange}
+  //         checked={checkedKeys.some((item) => item === rowData[dataKey])}
+  //       />
+  //     </div>
+  //   </Cell>
+  // );
 
-  if (checkedKeys.length === rowData.length) {
-    checked = true;
-  } else if (checkedKeys.length === 0) {
-    checked = false;
-  } else if (checkedKeys.length > 0 && checkedKeys.length < rowData.length) {
-    indeterminate = true;
-  }
+  // // handle check rows
+  // const [checkedKeys, setCheckedKeys] = useState([]);
+  // let checked = false;
+  // let indeterminate = false;
 
-  const handleCheckAll = (value, checked) => {
-    const keys = checked ? rowData?.map((item) => item.id) : [];
-    setCheckedKeys(keys);
-  };
-  const handleCheck = (value, checked) => {
-    const keys = checked
-      ? [...checkedKeys, value]
-      : checkedKeys.filter((item) => item !== value);
-    setCheckedKeys(keys);
-  };
+  // if (checkedKeys.length === rowData.length) {
+  //   checked = true;
+  // } else if (checkedKeys.length === 0) {
+  //   checked = false;
+  // } else if (checkedKeys.length > 0 && checkedKeys.length < rowData.length) {
+  //   indeterminate = true;
+  // }
 
-  const [selectedData, setSelectedData] = useState([]);
-  useEffect(() => {
-    const selectedRows = checkedKeys?.reduce((acc, curr) => {
-      if (curr) {
-        const selected = rowData?.find((v) => v.id == curr);
-        acc.push(selected);
-      }
-      return acc;
-    }, []);
-    setSelectedData(selectedRows);
-  }, [checkedKeys]);
+  // const handleCheckAll = (value, checked) => {
+  //   const keys = checked ? rowData?.map((item) => item.id) : [];
+  //   setCheckedKeys(keys);
+  // };
+  // const handleCheck = (value, checked) => {
+  //   const keys = checked
+  //     ? [...checkedKeys, value]
+  //     : checkedKeys.filter((item) => item !== value);
+  //   setCheckedKeys(keys);
+  // };
+
+  // const [selectedData, setSelectedData] = useState([]);
+  // useEffect(() => {
+  //   const selectedRows = checkedKeys?.reduce((acc, curr) => {
+  //     if (curr) {
+  //       const selected = rowData?.find((v) => v.id == curr);
+  //       acc.push(selected);
+  //     }
+  //     return acc;
+  //   }, []);
+  //   console.log(selectedRows);
+  //   setSelectedData(selectedRows);
+  // }, [checkedKeys]);
 
   // // filter table
   // const [tableFilterValue, setTableFilterValue]=useState('');
   // const handleFilterTableData=(v)=>{
   //   setTableFilterValue(v);
   // };
+
+  // Action cell
+  // Action table cell control
+  const renderMenu = ({ onClose, left, top, className }, ref) => {
+    const handleSelect = (eventKey) => {
+      if (eventKey === 1) {
+        handleEdit(actionData);
+      } else if (eventKey === 2) {
+        handleDelete(actionData);
+      }
+      onClose();
+      setActionData({});
+    };
+
+    return (
+      <Popover ref={ref} className={className} style={{ left, top }} full>
+        <Dropdown.Menu onSelect={handleSelect}>
+          <Dropdown.Item eventKey={1}>
+            <p>Edit</p>
+          </Dropdown.Item>
+
+          <Dropdown.Item eventKey={2}>
+            <p>Delete</p>
+          </Dropdown.Item>
+        </Dropdown.Menu>
+      </Popover>
+    );
+  };
 
   return (
     <div>
@@ -97,7 +138,7 @@ const AdminDataTable = ({ props }) => {
         }}
       >
         <FlexboxGrid.Item>
-          {checkedKeys.length > 0 ? (
+          {/* {checkedKeys.length > 0 ? (
             <Stack divider={<Divider vertical />}>
               <Button
                 onClick={() => handleDelete(selectedData)}
@@ -111,12 +152,12 @@ const AdminDataTable = ({ props }) => {
               </Button>
             </Stack>
           ) : (
-            <>
-              <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
-                Add New
-              </Button>
-            </>
-          )}
+            <> */}
+          <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
+            Add New
+          </Button>
+          {/* </>
+          )} */}
         </FlexboxGrid.Item>
 
         <FlexboxGrid.Item>
@@ -129,11 +170,21 @@ const AdminDataTable = ({ props }) => {
               <SearchIcon />
             </InputGroup.Button>
           </InputGroup> */}
+
+          <Button
+            appearance="default"
+            onClick={() => dispatch(handleRefreshData(!refreshData))}
+            color="blue"
+          >
+            <HiRefresh size={25} />
+          </Button>
         </FlexboxGrid.Item>
       </FlexboxGrid>
 
       <Table autoHeight bordered headerHeight={50} data={rowData} id="admin-table">
-        <Column width={50} align="center">
+        {/* --- check rows cell --- */}
+
+        {/* <Column width={50} align="center">
           <HeaderCell style={{ padding: 0 }}>
             <div style={{ lineHeight: '48px' }}>
               <Checkbox
@@ -145,7 +196,7 @@ const AdminDataTable = ({ props }) => {
             </div>
           </HeaderCell>
           <CheckCell dataKey="id" checkedKeys={checkedKeys} onChange={handleCheck} />
-        </Column>
+        </Column> */}
 
         {headerData?.map((header, i) => (
           <Column key={i} width={70} flexGrow={header?.header === 'ID' ? 0 : 1} fullText>
@@ -155,6 +206,25 @@ const AdminDataTable = ({ props }) => {
             <Cell style={{ fontSize: '17px' }} dataKey={header?.key}></Cell>
           </Column>
         ))}
+
+        {/* -- action --  */}
+
+        <Column width={100} align="center">
+          <HeaderCell>
+            <h5>Action</h5>
+          </HeaderCell>
+          <Cell className="link-group">
+            {(rowData) => (
+              <Whisper placement="auto" trigger="click" speaker={renderMenu}>
+                <IconButton
+                  appearance="subtle"
+                  icon={<MoreIcon />}
+                  onClick={() => setActionData(rowData)}
+                />
+              </Whisper>
+            )}
+          </Cell>
+        </Column>
       </Table>
 
       <Pagination

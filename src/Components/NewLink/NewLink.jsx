@@ -246,6 +246,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             const koatl_path = results[i]['koatl:apiPath'];
             const koatl_uri = results[i]['koatl:apiUrl'];
             const branch_name = results[i]['oslc:branchName'];
+            const target_provider = results[i]['oslc:api'];
             const content = results[i]['oslc:content'];
             const content_lines = results[i]['oslc:contentLine'];
             const provider_id = results[i]['oslc:providerId'];
@@ -259,6 +260,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               koatl_uri,
               koatl_path,
               branch_name,
+              target_provider,
               provider_id,
               resource_id,
               resource_type,
@@ -358,7 +360,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         target_title: data.label,
         target_id: id,
         target_project: projectType,
-        target_provider: 'JIRA',
+        target_provider: data.target_provider,
       };
     });
     let appNameTwo = '';

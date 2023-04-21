@@ -45,7 +45,7 @@ const Login = () => {
   mixpanel.init('197a3508675e32adcdfee4563c0e0595', { debug: true });
 
   // handle form submit
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (!loginFormRef.current.check()) {
       console.error('Form Error', formError);
       return;
@@ -57,7 +57,7 @@ const Login = () => {
     });
 
     const authData = window.btoa(formValue.userName + ':' + formValue.password);
-    fetch(loginURL, {
+    await fetch(loginURL, {
       method: 'POST',
       headers: {
         'Content-type': 'application/json',

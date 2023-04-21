@@ -70,8 +70,8 @@ export const linkTypeSlice = createSlice({
   extraReducers: (builder) => {
     // Get all link type pending
     builder.addCase(fetchLinkTypes.pending, (state) => {
-      state.isLinkTypeCreated = false;
       state.isLinkTypeDeleted = false;
+      state.isLinkTypeCreated = false;
       state.isLinkTypeUpdated = false;
       state.isLinkTypeLoading = true;
     });
@@ -122,8 +122,8 @@ export const linkTypeSlice = createSlice({
     });
 
     builder.addCase(fetchDeleteLinkType.fulfilled, (state, { payload }) => {
-      state.isLinkTypeLoading = false;
       state.isLinkTypeDeleted = true;
+      state.isLinkTypeLoading = false;
       console.log('link type Deleting: ', payload);
     });
 

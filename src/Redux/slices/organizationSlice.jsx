@@ -113,8 +113,8 @@ export const organizationSlice = createSlice({
     });
 
     builder.addCase(fetchDeleteOrg.fulfilled, (state) => {
-      state.isOrgLoading = false;
       state.isOrgDeleted = true;
+      state.isOrgLoading = false;
     });
 
     builder.addCase(fetchDeleteOrg.rejected, (state) => {

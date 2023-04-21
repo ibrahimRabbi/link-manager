@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import {
+  fetchCreateProj,
   fetchDeleteProj,
   fetchProjects,
   // fetchCreateProj,
@@ -13,6 +14,7 @@ import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
 import TextField from '../TextField';
+import TextArea from '../TextArea';
 
 // import UseTable from '../UseTable';
 // import styles from './Projects.module.scss';
@@ -46,6 +48,7 @@ const model = Schema.Model({
 const Projects = () => {
   const { allProjects, isProjLoading, isProjCreated, isProjUpdated, isProjDeleted } =
     useSelector((state) => state.projects);
+  const { refreshData } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
@@ -59,9 +62,13 @@ const Projects = () => {
   const dispatch = useDispatch();
 
   // Pagination
-  const handlePagination = (values) => {
-    setPageSize(values.pageSize);
-    setCurrPage(values.page);
+  const handlePagination = (value) => {
+    setCurrPage(value);
+  };
+
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
   };
 
   // handle open add user modal
@@ -76,6 +83,15 @@ const Projects = () => {
     }
 
     console.log(formValue);
+    const postUrl = `${lmApiUrl}/project`;
+    dispatch(
+      fetchCreateProj({
+        url: postUrl,
+        token: authCtx.token,
+        bodyData: formValue,
+      }),
+    );
+
     setFormValue({
       name: '',
       description: '',
@@ -130,50 +146,29 @@ const Projects = () => {
 
     const getUrl = `${lmApiUrl}/project?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchProjects({ url: getUrl, token: authCtx.token }));
-  }, [isProjCreated, isProjUpdated, isProjDeleted, pageSize, currPage]);
+  }, [isProjCreated, isProjUpdated, isProjDeleted, pageSize, currPage, refreshData]);
 
   // handle delete project
   const handleDelete = (data) => {
-    // const idList = data?.map((v) => v.id);
-    if (data.length === 1) {
-      const id = data[0]?.id;
-      Swal.fire({
-        title: 'Are you sure',
-        icon: 'info',
-        text: 'Do you want to delete the project!!',
-        cancelButtonColor: 'red',
-        showCancelButton: true,
-        confirmButtonText: 'Delete',
-        confirmButtonColor: '#3085d6',
-        reverseButtons: true,
-      }).then((value) => {
-        if (value.isConfirmed) {
-          const deleteUrl = `${lmApiUrl}/project/${id}`;
-          dispatch(fetchDeleteProj({ url: deleteUrl, token: authCtx.token }));
-        }
-      });
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry',
-        icon: 'info',
-        text: 'You can not delete more then 1 project at the same time',
-        confirmButtonColor: '#3085d6',
-      });
-    }
+    Swal.fire({
+      title: 'Are you sure',
+      icon: 'info',
+      text: 'Do you want to delete the project!!',
+      cancelButtonColor: 'red',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#3085d6',
+      reverseButtons: true,
+    }).then((value) => {
+      if (value.isConfirmed) {
+        const deleteUrl = `${lmApiUrl}/project/${data?.id}`;
+        dispatch(fetchDeleteProj({ url: deleteUrl, token: authCtx.token }));
+      }
+    });
   };
   // handle Edit project
-  const handleEdit = () => {
-    // if (data.length === 1) {
-    //   setIsAddModal(true);
-    //   const data1 = data[0];
-    //   setEditData(data1);
-    // } else if (data.length > 1) {
-    //   Swal.fire({
-    //     title: 'Sorry!!',
-    //     icon: 'info',
-    //     text: 'You can not edit more than 1 project at the same time',
-    //   });
-    // }
+  const handleEdit = (data) => {
+    console.log(data);
   };
 
   // send props in the batch action table
@@ -185,6 +180,7 @@ const Projects = () => {
     handleDelete,
     handleAddNew,
     handlePagination,
+    handleChangeLimit,
     totalItems: allProjects?.total_items,
     totalPages: allProjects?.total_pages,
     pageSize,
@@ -203,9 +199,19 @@ const Projects = () => {
           formValue={formValue}
           model={model}
         >
-          <TextField name="name" label="Project Name" />
-          <div style={{ margin: '30px 0' }}>
-            <TextField name="description" label="Project Description" />
+          <TextField
+            name="name"
+            label="Project Name"
+            reqText="Project name is required"
+          />
+          <div style={{ margin: '30px 0 10px' }}>
+            <TextField
+              name="description"
+              label="Project Description"
+              accepter={TextArea}
+              rows={5}
+              reqText="Project description is required"
+            />
           </div>
         </Form>
       </AddNewModal>
