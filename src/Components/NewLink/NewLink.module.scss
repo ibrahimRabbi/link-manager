@@ -1,12 +1,20 @@
 @use '@carbon/colors';
 @use '@carbon/type';
 
+.accordionItem {
+  margin-bottom: 15px;
+  border: 0;
+  box-shadow: 0 0 5px 1px lightgray;
+  border-radius: 10px;
+}
+
 .sourceContainer {
   padding: 10px 1vw;
-  margin-bottom: 15px;
-  background-color: colors.$white;
-  border-radius: 5px;
-  // box-shadow: 0 0px 2px rgb(0 0 0 / 0.2);
+  border-top: 1px solid lightgray;
+
+  // margin-bottom: 20px;
+  // box-shadow: 0 0 5px 1px lightgray;
+  // border-radius: 10px;
 }
 
 .sourceGrid {
@@ -31,25 +39,43 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: colors.$white;
+  // box-shadow: 0 0 5px 1px lightgray;
   padding: 10px 1vw;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   gap: 10px;
-  border-radius: 5px;
+  border-radius: 10px;
+}
+
+.targetModalDiv {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }
 
 .targetContainer {
-  // border: 1px solid colors.$gray-30;
-  background-color: colors.$white;
+  border-top: 1px solid lightgray;
+  // box-shadow: 0 0 5px 1px lightgray;
   padding: 10px 1vw;
-  min-height: 50vh;
-  border-radius: 5px;
+  // border-radius: 10px;
 }
 
 .targetIframe {
+  width: 100%;
+  height: 800px;
+  border-radius: 10px;
+}
+
+.targetBtnContainer {
+  margin-top: 10px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
+
+  button {
+    border-radius: 5px;
+  }
 }
 
 .projectContainer {
@@ -69,7 +95,11 @@
 }
 
 .dropdownStyle {
-  min-width: 40%;
+  min-width: 32%;
+}
+
+.dropdownStyle2 {
+  min-width: 49%;
 }
 
 .streamDD {

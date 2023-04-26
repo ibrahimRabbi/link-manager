@@ -1,5 +1,13 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
+import Application from './Components/AdminDasComponents/Application/Application';
+// eslint-disable-next-line max-len
+import LinkConstraint from './Components/AdminDasComponents/LinkConstraint/LinkConstraint';
+import Components from './Components/AdminDasComponents/Components/Components';
+import LinkTypes from './Components/AdminDasComponents/LinkType/LinkTypes';
+import Organization from './Components/AdminDasComponents/Organization/Organization';
+import Projects from './Components/AdminDasComponents/Projects/Projects';
+import Users from './Components/AdminDasComponents/Users/Users';
 import EditLink from './Components/EditLink/EditLink';
 import GraphView from './Components/GraphView/GraphView';
 import LinkDetails from './Components/LinkDetails/LinkDetails';
@@ -8,6 +16,7 @@ import NewLink from './Components/NewLink/NewLink';
 import ProtectedRoute from './Components/Shared/ProtectedRoute/ProtectedRoute';
 import './GlobalStyle.scss';
 import NotFound from './Pages/404';
+import AdminDashboard from './Pages/AdminDashboard';
 import Dashboard from './Pages/Dashboard';
 import LoginPage from './Pages/Login';
 import WbeDashboard from './Pages/WbeDashboard';
@@ -46,6 +55,25 @@ function App() {
           <Route path="/details/:id" element={<LinkDetails />} />
           <Route path="/graph-view" element={<GraphView />} />
           <Route path="/" element={<LinkManager />} />
+        </Route>
+
+        {/* This is admin dashboard  */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/admin/users" element={<Users />} />
+          <Route path="/admin/organizations" element={<Organization />} />
+          <Route path="/admin/applications" element={<Application />} />
+          <Route path="/admin/projects" element={<Projects />} />
+          <Route path="/admin/link-types" element={<LinkTypes />} />
+          <Route path="/admin/link-constraint" element={<LinkConstraint />} />
+          <Route path="/admin/components" element={<Components />} />
+          <Route path="/admin" element={<Users />} />
         </Route>
 
         <Route path="/login" element={<LoginPage />} />

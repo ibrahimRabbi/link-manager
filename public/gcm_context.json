@@ -1,0 +1,14 @@
+[
+    {
+        "name": "GCM Initial Stream",
+        "key": "st-main"
+    },
+    {
+        "name": "GCM Develop Stream",
+        "key": "st-develop"
+    },
+    {
+        "name": "GCM Staging Stream",
+        "key": "st-staging"
+    }
+]

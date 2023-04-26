@@ -1,0 +1,23 @@
+[
+    {
+        "name": "affectedBy"
+    },
+    {
+        "name": "implementedBy"
+    },
+    {
+        "name": "trackedBy"
+    },
+    {
+        "name": "constrainedBy"
+    },
+    {
+        "name": "decomposedBy"
+    },
+    {
+        "name": "elaboratedBy"
+    },
+    {
+        "name": "satisfiedBy"
+    }
+]

@@ -1,5 +1,5 @@
 import { Button, ProgressBar, Search } from '@carbon/react';
-import React, { useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -22,23 +22,26 @@ const {
 
 const headers = [
   { key: 'status', header: 'Status' },
-  { key: 'sourceId', header: 'Source ID' },
+  // { key: 'sourceId', header: 'Source ID' },
   { key: 'linkType', header: 'Link type' },
   { key: 'target', header: 'Target' },
   { key: 'actions', header: 'Actions' },
 ];
 
 const tableDropdownItems = [
-  { text: 'Link type' },
-  { text: 'Project type' },
-  { text: 'Status' },
-  { text: 'Target' },
+  { name: 'Link type' },
+  { name: 'Project type' },
+  { name: 'Status' },
+  { name: 'Target' },
 ];
 
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 
 const LinkManager = () => {
-  const { sourceDataList, linksData, isLoading } = useSelector((state) => state.links);
+  const { sourceDataList, linksData, isLoading, configuration_aware } = useSelector(
+    (state) => state.links,
+  );
+  // console.log('linksData ->', linksData);
   const { linksStream, isProfileOpen } = useSelector((state) => state.nav);
   const location = useLocation();
   const wbePath = location.pathname?.includes('wbe');
@@ -53,23 +56,44 @@ const LinkManager = () => {
     dispatch(handleIsWbe(wbePath));
   }, [location]);
 
-  useEffect(() => {
-    dispatch(handleIsProfileOpen(isProfileOpen && false));
-    dispatch(handleCurrPageTitle('Links'));
+  // Handle pagination for the links table
+  // Pagination
+  const [currPage, setCurrPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const handlePagination = (values) => {
+    setPageSize(values.pageSize);
+    setCurrPage(values.page);
+  };
 
-    let stream = linksStream ? linksStream : 'GCM Initial Stream';
-    // Create link
-    if (sourceFileURL && stream) {
-      dispatch(
-        fetchLinksData({
-          // eslint-disable-next-line max-len
-          url: `${apiURL}?stream=${stream}&resource_id=${encodeURIComponent(
-            sourceFileURL,
-          )}`,
-          token: authCtx.token,
-        }),
-      );
-    }
+  // console.log(currPage);
+  // console.log(pageSize);
+
+  useEffect(() => {
+    (async () => {
+      dispatch(handleIsProfileOpen(isProfileOpen && false));
+      dispatch(handleCurrPageTitle('Links'));
+
+      let streamRes = [];
+      if (configuration_aware && !linksStream.key) {
+        streamRes = await fetch('.././gcm_context.json')
+          .then((res) => res.json())
+          .catch((err) => console.log(err));
+      }
+
+      let stream = linksStream.key ? linksStream.key : streamRes[0]?.key;
+
+      // Create link
+      if (sourceFileURL) {
+        dispatch(
+          fetchLinksData({
+            url: `${apiURL}?stream=${stream}&resource_id=${encodeURIComponent(
+              sourceFileURL,
+            )}`,
+            token: authCtx.token,
+          }),
+        );
+      }
+    })();
   }, [linksStream]);
 
   // Link manager dropdown options
@@ -85,6 +109,8 @@ const LinkManager = () => {
     });
   };
 
+  // display conditionally Search and dropdown 0
+  const isSearchBox = false;
   return (
     <>
       {/* WBE Nav bar  */}
@@ -107,44 +133,49 @@ const LinkManager = () => {
                   size="md"
                   kind="primary"
                 >
-                  New link
+                  Create Link
                 </Button>
               </div>
             )}
 
             <div className={tableContainer}>
-              <div className={searchBox}>
-                <UseDropdown
-                  onChange={handleShowItem}
-                  items={tableDropdownItems}
-                  id={'linkManager_showAll'}
-                  label="Show all"
-                  className={dropdownStyle}
-                />
+              {isSearchBox && (
+                <div className={searchBox}>
+                  <UseDropdown
+                    onChange={handleShowItem}
+                    items={tableDropdownItems}
+                    id={'linkManager_showAll'}
+                    label="Show all"
+                    className={dropdownStyle}
+                  />
 
-                <div className={searchContainer}>
-                  <div className={inputContainer}>
-                    <Search
-                      id=""
-                      labelText=""
-                      className={searchInput}
-                      placeholder="Search by identifier or name"
-                      onChange={function noRefCheck() {}}
-                      onKeyDown={function noRefCheck() {}}
-                      size="sm"
-                    />
+                  <div className={searchContainer}>
+                    <div className={inputContainer}>
+                      <Search
+                        id=""
+                        labelText=""
+                        className={searchInput}
+                        placeholder="Search by identifier or name"
+                        onChange={function noRefCheck() {}}
+                        onKeyDown={function noRefCheck() {}}
+                        size="sm"
+                      />
+                    </div>
+                    <Button kind="primary" size="sm">
+                      Search
+                    </Button>
                   </div>
-                  <Button kind="primary" size="sm">
-                    Search
-                  </Button>
                 </div>
-              </div>
+              )}
 
               {isLoading && <ProgressBar label="" />}
               <UseDataTable
                 headers={headers}
                 tableData={linksData}
                 openTargetLink={handleOpenTargetLink}
+                handlePagination={handlePagination}
+                currPage={currPage}
+                pageSize={pageSize}
               />
             </div>
           </div>

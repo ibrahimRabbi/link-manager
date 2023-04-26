@@ -1,17 +1,33 @@
 @use '@carbon/colors';
 @use '@carbon/type';
 
+.tableContainer,
+.tableHeader,
+.pagination {
+  background-color: white !important;
+  font-size: type.type-scale(3);
+}
+
 .tableCell {
   width: 200px;
   font-size: type.type-scale(3);
+  background-color: white !important;
 
-  span {
-    width: 250px;
+  .sourceIdEl {
+    width: 150px;
     overflow: hidden;
     display: inline-block;
     text-overflow: ellipsis;
     white-space: nowrap;
-    cursor: pointer;
+  }
+
+  a {
+    width: 350px;
+    overflow: hidden;
+    display: inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-decoration: none;
   }
 }
 
@@ -35,6 +51,27 @@
 
 .targetCell {
   width: 35%;
+}
+
+.popoverContentStyle {
+  position: relative;
+  background-color: white;
+  box-shadow: 0 0 15px lightgray;
+  padding: 35px 0 0;
+
+  iframe {
+    width: 600px;
+    height: 400px;
+  }
+}
+
+.closeIcon {
+  position: absolute;
+  top: 5px;
+  color: lightgray;
+  right: 5px;
+  font-size: 20px;
+  cursor: pointer;
 }
 
 .actionContainer {

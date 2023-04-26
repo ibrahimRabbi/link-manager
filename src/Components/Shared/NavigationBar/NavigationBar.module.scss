@@ -34,21 +34,51 @@
 }
 
 .topContentContainer {
-  padding: 10px 3vw 0 2vw;
+  box-shadow: 0 0 5px 1px lightgray;
+  padding: 10px 1vw;
+  margin-bottom: 15px;
+  border-radius: 5px;
+}
+
+.marginLeft {
+  margin-left: 50px;
 }
 
 .fileContainer {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  button {
+    border-radius: 5px;
+  }
+}
+
+.titleDiv {
+  display: flex;
+  align-items: center;
+  max-width: 80%;
 }
 
 .fileName {
-  span {
-    margin-left: 10px;
-    font-size: 22px;
-    text-decoration: underline;
-  }
+  margin-left: 5px;
+  color: #9e0732;
+  // background-color: #b4ffff;
+  // padding: 5px 10px;
+  border-radius: 12px;
+}
+
+.seeMLBtn {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: -10px;
+  cursor: pointer;
+}
+
+.arIcon {
+  font-size: 25px;
+  margin-bottom: -12px;
+  margin-left: -5px;
 }
 
 .hMenuItemContainer {

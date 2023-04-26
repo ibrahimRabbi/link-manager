@@ -1,164 +1,180 @@
-import { Logout, UserAvatarFilledAlt } from '@carbon/icons-react';
+import { FaLink, FaShareAlt } from 'react-icons/fa';
+import { MdExpandMore, MdExpandLess } from 'react-icons/md';
+import { ImMenu } from 'react-icons/im';
 import {
   Button,
-  Header,
-  HeaderMenuItem,
-  IconButton,
-  Popover,
-  PopoverContent,
+  SideNav,
+  SideNavItems,
+  SideNavLink,
+  SideNavMenuItem,
   Theme,
+  // Tooltip,
 } from '@carbon/react';
-import React, { useContext } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
-import {
-  handleIsProfileOpen,
-  handleSelectStreamType,
-} from '../../../Redux/slices/navSlice';
-import AuthContext from '../../../Store/Auth-Context.jsx';
+import { fetchStreamItems, handleSelectStreamType } from '../../../Redux/slices/navSlice';
 import UseDropdown from '../UseDropdown/UseDropdown';
 
 import styles from './NavigationBar.module.scss';
 const {
-  wbeContent,
-  wbeHeader,
-  hMenuItemContainer,
-  hMenuItem,
-  wbeHeaderContainer,
-  popoverContent,
-  profile,
-  userContainer,
+  wbeSideNav,
   topContentContainer,
   fileContainer,
   fileName,
+  sidebarLink,
+  dropdownStyle,
+  marginLeft,
+  titleDiv,
+  seeMLBtn,
+  arIcon,
 } = styles;
 
-const streamItems = [
-  { text: 'GCM Initial Stream' },
-  { text: 'GCM Develop Stream' },
-  { text: 'GCM Staging Stream' },
-];
-
 const WbeTopNav = () => {
-  const authCtx = useContext(AuthContext);
-  const { isProfileOpen, linksStream } = useSelector((state) => state.nav);
-  const { sourceDataList } = useSelector((state) => state.links);
+  const { linksStream, linksStreamItems } = useSelector((state) => state.nav);
+  const { sourceDataList, configuration_aware } = useSelector((state) => state.links);
+  const [showMore, setShowMore] = useState(false);
+  const [isSideNav, setIsSideNav] = useState(false);
+  const [title, setTitle] = useState('');
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const dispatch = useDispatch();
 
-  const handleLogout = () => {
-    dispatch(handleIsProfileOpen(!isProfileOpen));
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'You wont to logout!',
-      icon: 'warning',
-      cancelButtonColor: '#d33',
-      confirmButtonColor: '#3085d6',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, !',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        authCtx.logout();
-        Swal.fire({
-          title: 'Logged out',
-          icon: 'success',
-          timer: 1500,
-        });
-        navigate('/login', { replace: true });
-      }
-    });
-  };
+  useEffect(() => {
+    // get link_types dropdown items
+    dispatch(fetchStreamItems('.././gcm_context.json'));
+  }, []);
 
   const streamTypeChange = ({ selectedItem }) => {
-    dispatch(handleSelectStreamType(selectedItem.text));
+    dispatch(handleSelectStreamType(selectedItem));
   };
 
+  // handle see more and see less control
+  useEffect(() => {
+    if (showMore) setTitle(sourceDataList?.title?.slice(25, 99999));
+    else {
+      setTitle('');
+    }
+  }, [showMore]);
+
+  const toggleTitle = () => {
+    setShowMore(!showMore);
+  };
   return (
-    <Theme theme="white">
-      <Header aria-label="" id={wbeHeader}>
-        <div className={topContentContainer}>
+    <>
+      <div className="mainContainer">
+        <div
+          className={`${topContentContainer} 
+        ${(pathname === '/wbe' || pathname === '/wbe/graph-view') && marginLeft}`}
+        >
           <div className={fileContainer}>
-            <h5 className={fileName}>
+            {/* with hover tooltip show title */}
+            {/* {
+              sourceDataList?.titleLabel ? 
+                <Tooltip
+                  align="bottom-right"
+                  label={<p>{sourceDataList?.title}</p>}
+                  tabIndex={0}
+                  triggerText="Tooltip label"
+                >
+                  <button className="tooltip-trigger" type="button">
+                    <h5 className={fileName}>
+                       Links For: <span>{sourceDataList?.titleLabel}</span>
+                    </h5>
+                  </button>
+                </Tooltip>
+                :
+                <h5 className={fileName}>
               Links For: <span>{sourceDataList?.title}</span>
-            </h5>
+                </h5>
+            } */}
 
-            <Button size="sm" kind="primary" onClick={() => navigate('/wbe/new-link')}>
-              New link
-            </Button>
-          </div>
-
-          <UseDropdown
-            onChange={streamTypeChange}
-            items={streamItems}
-            title="Target Container"
-            label={linksStream ? linksStream : streamItems[0]?.text}
-            id="links_stream"
-            className={''}
-          />
-        </div>
-
-        <div className={`${'mainContainer'}`}>
-          <div className={wbeHeaderContainer}>
-            <div className={hMenuItemContainer}>
-              <HeaderMenuItem
-                isCurrentPage={pathname === '/wbe'}
-                onClick={() => navigate('/wbe')}
-                className={hMenuItem}
-              >
-                <p>Links</p>
-              </HeaderMenuItem>
-              <HeaderMenuItem
-                isCurrentPage={pathname === '/wbe/graph-view'}
-                onClick={() => navigate('/wbe/graph-view')}
-                className={hMenuItem}
-              >
-                <p>Graph View</p>
-              </HeaderMenuItem>
+            {/* with see more and see less btn show title */}
+            <div className={titleDiv}>
+              <h5>
+                Links For {sourceDataList?.appName?.toUpperCase()} :
+                <span className={fileName}>
+                  {sourceDataList?.title?.slice(0, 25)}
+                  {showMore ? <span>{title}</span> : ''}
+                  {sourceDataList?.title?.length > 25 && !showMore ? '...' : ''}
+                </span>
+                {sourceDataList?.title?.length > 25 && (
+                  <span className={seeMLBtn} onClick={toggleTitle}>
+                    {showMore ? (
+                      <MdExpandLess className={arIcon} />
+                    ) : (
+                      <MdExpandMore className={arIcon} />
+                    )}
+                  </span>
+                )}
+              </h5>
             </div>
 
-            {/* --- User popover --- */}
-            <Popover
-              open={isProfileOpen}
-              highContrast={false}
-              dropShadow
-              caret={false}
-              align="bottom-right"
-              className={profile}
-            >
-              <IconButton
-                kind="ghost"
-                label=""
-                onClick={() => dispatch(handleIsProfileOpen(!isProfileOpen))}
-              >
-                <UserAvatarFilledAlt size={30} />
-              </IconButton>
-              <PopoverContent className={popoverContent}>
-                <div className={wbeContent}>
-                  <div className={userContainer}>
-                    <h5>User Name</h5>
-                    <span>
-                      <UserAvatarFilledAlt size={25} />
-                    </span>
-                  </div>
-                  {/* <p>Item option 1</p>
-                <p>Item option 2</p> */}
-                </div>
-                <Button
-                  onClick={handleLogout}
-                  renderIcon={Logout}
-                  size="md"
-                  kind="danger"
-                >
-                  Logout
-                </Button>
-              </PopoverContent>
-            </Popover>
+            {pathname !== '/wbe/new-link' && (
+              <Button size="sm" kind="primary" onClick={() => navigate('/wbe/new-link')}>
+                Create Link
+              </Button>
+            )}
           </div>
         </div>
-      </Header>
-    </Theme>
+
+        {configuration_aware && (
+          <div className={`${topContentContainer}`}>
+            <UseDropdown
+              onChange={streamTypeChange}
+              items={linksStreamItems}
+              title="GCM Configuration Context"
+              label={linksStream.name ? linksStream.name : linksStreamItems[0]?.name}
+              id="links_stream"
+              className={dropdownStyle}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* ----------------------  */}
+
+      {(pathname === '/wbe' || pathname === '/wbe/graph-view') && (
+        <Theme theme="g100">
+          <SideNav
+            style={{ width: isSideNav ? '200px' : '55px' }}
+            id={wbeSideNav}
+            className=".cds--side-nav__overlay-active"
+            aria-label=""
+            isPersistent={true}
+            isChildOfHeader={false}
+          >
+            <SideNavItems>
+              <SideNavMenuItem
+                style={{ margin: '0 0 20px -5px' }}
+                className={sidebarLink}
+                onClick={() => setIsSideNav(!isSideNav)}
+              >
+                <ImMenu size={30} />
+              </SideNavMenuItem>
+
+              <SideNavLink
+                renderIcon={() => <FaLink size={40} />}
+                className={sidebarLink}
+                onClick={() => navigate('/wbe')}
+                isActive={pathname === '/wbe'}
+              >
+                Links
+              </SideNavLink>
+
+              <SideNavLink
+                renderIcon={() => <FaShareAlt size={40} />}
+                className={sidebarLink}
+                onClick={() => navigate('/wbe/graph-view')}
+                isActive={pathname === '/wbe/graph-view'}
+              >
+                Graph View
+              </SideNavLink>
+            </SideNavItems>
+          </SideNav>
+        </Theme>
+      )}
+    </>
   );
 };
 

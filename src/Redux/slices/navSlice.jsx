@@ -1,10 +1,22 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+
+// Fetch Create New link
+export const fetchStreamItems = createAsyncThunk(
+  'links/fetchStreamItems',
+  async (url) => {
+    const response = await fetch(url)
+      .then((res) => res.json())
+      .catch((err) => console.log(err));
+    return response;
+  },
+);
 
 const initialState = {
   isProfileOpen: false,
   isSidebarOpen: false,
   currPageTitle: '',
-  linksStream: '',
+  linksStreamItems: [],
+  linksStream: {},
 };
 
 export const navSlice = createSlice({
@@ -29,6 +41,13 @@ export const navSlice = createSlice({
     handleSelectStreamType: (state, { payload }) => {
       state.linksStream = payload;
     },
+  },
+  //----------------------\\
+  extraReducers: (builder) => {
+    // stream items
+    builder.addCase(fetchStreamItems.fulfilled, (state, { payload }) => {
+      state.linksStreamItems = payload;
+    });
   },
 });
 
