@@ -1,6 +1,3 @@
-@use '@carbon/colors';
-@use '@carbon/type';
-
 .accordionItem {
   margin-bottom: 15px;
   border: 0;
@@ -11,10 +8,6 @@
 .sourceContainer {
   padding: 10px 1vw;
   border-top: 1px solid lightgray;
-
-  // margin-bottom: 20px;
-  // box-shadow: 0 0 5px 1px lightgray;
-  // border-radius: 10px;
 }
 
 .sourceGrid {
@@ -46,23 +39,45 @@
   border-radius: 10px;
 }
 
-.targetModalDiv {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
+.linkContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+
+  h4 {
+    width: 10%;
+  }
 }
 
-.targetContainer {
-  border-top: 1px solid lightgray;
-  // box-shadow: 0 0 5px 1px lightgray;
-  padding: 10px 1vw;
-  // border-radius: 10px;
+.dropdownStyle {
+  width: 90%;
+}
+
+.applicationContainer {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+
+  h4 {
+    width: 10%;
+  }
+
+  .appAndProjectContainer {
+    width: 90%;
+    display: flex;
+    align-items: center;
+    gap: 1.3333%;
+  }
+}
+
+.dropdownStyle2 {
+  width: 32%;
 }
 
 .targetIframe {
   width: 100%;
+  border: 0;
   height: 800px;
   border-radius: 10px;
 }
@@ -78,6 +93,10 @@
   }
 }
 
+.cancelMargin {
+  margin-top: 70vh;
+}
+
 .projectContainer {
   display: flex;
   align-items: center;
@@ -87,19 +106,12 @@
 .resourceTypeContainer {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 10px;
 }
 
 .dropDownLabel {
-  width: 130px;
-}
-
-.dropdownStyle {
-  min-width: 32%;
-}
-
-.dropdownStyle2 {
-  min-width: 49%;
+  width: 10%;
 }
 
 .streamDD {
@@ -136,12 +148,12 @@
   align-items: center;
   justify-content: flex-end;
   gap: 20px;
-  background-color: colors.$white;
+  background-color: white;
 }
 
 .emptySearchWarning {
   text-align: center;
   margin-top: 2vw;
   font-weight: bold;
-  color: colors.$gray-30;
+  color: lightgray;
 }

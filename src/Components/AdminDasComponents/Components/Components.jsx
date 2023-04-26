@@ -1,29 +1,30 @@
-import {
-  Button,
-  ComposedModal,
-  ModalBody,
-  ModalHeader,
-  ProgressBar,
-  Stack,
-  TextArea,
-  TextInput,
-  Theme,
-} from '@carbon/react';
 import React, { useState, useContext, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import {
   fetchComponents,
   fetchCreateComp,
   fetchDeleteComp,
+  fetchProjectList,
   fetchUpdateComp,
 } from '../../../Redux/slices/componentSlice';
 import AuthContext from '../../../Store/Auth-Context';
-import UseTable from '../UseTable';
-import styles from './Components.module.scss';
+import {
+  handleCurrPageTitle,
+  handleIsAddNewModal,
+  handleIsAdminEditing,
+} from '../../../Redux/slices/navSlice';
+import AddNewModal from '../AddNewModal';
+import AdminDataTable from '../AdminDataTable';
+import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
+import TextField from '../TextField';
+import SelectField from '../SelectField';
+import { useRef } from 'react';
+import CustomSelect from '../CustomSelect';
+import TextArea from '../TextArea';
 
-const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
+// import styles from './Components.module.scss';
+// const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -55,122 +56,136 @@ const headerData = [
   },
 ];
 
-const Application = () => {
-  const { allComponents, isCompLoading, isCompUpdated, isCompCreated, isCompDeleted } =
-    useSelector((state) => state.components);
-  const [isAddModal, setIsAddModal] = useState(false);
-  const [componentDesc, setComponentDesc] = useState('');
-  const [editData, setEditData] = useState({});
+const { StringType, NumberType } = Schema.Types;
+
+const model = Schema.Model({
+  name: StringType().isRequired('This field is required.'),
+  project_id: NumberType().isRequired('This field is required.'),
+  description: StringType().isRequired('This field is required.'),
+});
+
+const Components = () => {
+  const {
+    allComponents,
+    isCompLoading,
+    isCompUpdated,
+    isCompCreated,
+    isCompDeleted,
+    projectList,
+  } = useSelector((state) => state.components);
+  const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
+
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const {
-    handleSubmit,
-    register,
-    reset,
-    formState: { errors },
-  } = useForm();
+  const [formError, setFormError] = useState({});
+  const [editData, setEditData] = useState({});
+  const [formValue, setFormValue] = useState({
+    name: '',
+    project_id: '',
+    description: '',
+  });
+
+  const componentFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
-  // handle open add component modal
-  const handleAddNew = () => {
-    setIsAddModal(true);
-  };
-  const addModalClose = () => {
-    setEditData({});
-    setComponentDesc('');
-    setIsAddModal(false);
-    reset();
+  // Pagination
+  const handlePagination = (value) => {
+    setCurrPage(value);
   };
 
-  // create and edit component form submit
-  const handleAddUser = (data) => {
-    setIsAddModal(false);
-    // update component
-    if (editData?.name) {
-      data = {
-        name: data?.name ? data?.name : editData?.name,
-        project_id: data.project_id ? data.project_id : editData?.project_id,
-        description: componentDesc ? componentDesc : editData?.description,
-      };
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
+  };
+
+  // handle open add component modal
+  const handleAddNew = () => {
+    handleResetForm();
+    dispatch(handleIsAddNewModal(true));
+  };
+
+  const handleAddLinkComponent = () => {
+    if (!componentFormRef.current.check()) {
+      console.error('Form Error', formError);
+      return;
+    } else if (isAdminEditing) {
       const putUrl = `${lmApiUrl}/component/${editData?.id}`;
       dispatch(
         fetchUpdateComp({
           url: putUrl,
           token: authCtx.token,
-          bodyData: data,
-          reset,
+          bodyData: formValue,
         }),
       );
-    }
-    // Create component
-    else {
-      data.description = componentDesc;
+    } else {
       const postUrl = `${lmApiUrl}/component`;
       dispatch(
         fetchCreateComp({
           url: postUrl,
           token: authCtx.token,
-          bodyData: data,
-          reset,
+          bodyData: formValue,
         }),
       );
     }
+    dispatch(handleIsAddNewModal(false));
+    if (isAdminEditing) dispatch(handleIsAdminEditing(false));
   };
 
-  // Pagination
-  const handlePagination = (values) => {
-    setPageSize(values.pageSize);
-    setCurrPage(values.page);
+  // reset form
+  const handleResetForm = () => {
+    setEditData({});
+    setFormValue({
+      name: '',
+      project_id: '',
+      description: '',
+    });
   };
 
   useEffect(() => {
+    dispatch(
+      fetchProjectList({
+        url: `${lmApiUrl}/project?page=${'1'}&per_page=${'100'}`,
+        token: authCtx.token,
+      }),
+    );
+  }, []);
+
+  useEffect(() => {
+    dispatch(handleCurrPageTitle('Components'));
+
     const getUrl = `${lmApiUrl}/component?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchComponents({ url: getUrl, token: authCtx.token }));
-  }, [isCompCreated, isCompUpdated, isCompDeleted, pageSize, currPage]);
+  }, [isCompCreated, isCompUpdated, isCompDeleted, pageSize, currPage, refreshData]);
 
   // handle delete component
   const handleDelete = (data) => {
-    // const idList = data?.map((v) => v.id);
-    if (data.length === 1) {
-      const id = data[0]?.id;
-      Swal.fire({
-        title: 'Are you sure',
-        icon: 'info',
-        text: 'Do you want to delete the Application!!',
-        cancelButtonColor: 'red',
-        showCancelButton: true,
-        confirmButtonText: 'Delete',
-        confirmButtonColor: '#3085d6',
-        reverseButtons: true,
-      }).then((value) => {
-        if (value.isConfirmed) {
-          const deleteUrl = `${lmApiUrl}/component/${id}`;
-          dispatch(fetchDeleteComp({ url: deleteUrl, token: authCtx.token }));
-        }
-      });
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry',
-        icon: 'info',
-        text: 'You can not delete multiple application at the same time!!',
-        confirmButtonColor: '#3085d6',
-      });
-    }
+    Swal.fire({
+      title: 'Are you sure',
+      icon: 'info',
+      text: 'Do you want to delete the Application!!',
+      cancelButtonColor: 'red',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#3085d6',
+      reverseButtons: true,
+    }).then((value) => {
+      if (value.isConfirmed) {
+        const deleteUrl = `${lmApiUrl}/component/${data?.id}`;
+        dispatch(fetchDeleteComp({ url: deleteUrl, token: authCtx.token }));
+      }
+    });
   };
   // handle Edit component
   const handleEdit = (data) => {
-    if (data.length === 1) {
-      setIsAddModal(true);
-      const data1 = data[0];
-      setEditData(data1);
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry!!',
-        icon: 'info',
-        text: 'You can not edit more than 1 application at the same time',
-      });
-    }
+    setEditData(data);
+    dispatch(handleIsAdminEditing(true));
+    setFormValue({
+      name: data?.name,
+      project_id: data?.project_id,
+      description: data?.description,
+    });
+    dispatch(handleIsAddNewModal(true));
   };
 
   // send props in the batch action table
@@ -182,6 +197,7 @@ const Application = () => {
     handleDelete,
     handleAddNew,
     handlePagination,
+    handleChangeLimit,
     totalItems: allComponents?.total_items,
     totalPages: allComponents?.total_pages,
     pageSize,
@@ -191,77 +207,63 @@ const Application = () => {
 
   return (
     <div>
-      {/* -- add application Modal -- */}
-      <Theme theme="g10">
-        <ComposedModal open={isAddModal} onClose={addModalClose}>
-          <div className={mhContainer}>
-            <h4>{editData?.name ? 'Edit Link Constraint' : 'Add New Link Constraint'}</h4>
-            <ModalHeader onClick={addModalClose} />
-          </div>
+      <AddNewModal
+        title={isAdminEditing ? 'Edit Component' : 'Add New Component'}
+        handleSubmit={handleAddLinkComponent}
+        handleReset={handleResetForm}
+      >
+        <div className="show-grid">
+          <Form
+            fluid
+            ref={componentFormRef}
+            onChange={setFormValue}
+            onCheck={setFormError}
+            formValue={formValue}
+            model={model}
+          >
+            <FlexboxGrid justify="space-between">
+              <FlexboxGrid.Item colspan={24}>
+                <TextField
+                  name="name"
+                  label="Component Name"
+                  reqText="Component name is required"
+                />
+              </FlexboxGrid.Item>
 
-          <ModalBody id={modalBody}>
-            <form onSubmit={handleSubmit(handleAddUser)} className={formContainer}>
-              <Stack gap={7}>
-                {/* Component name  */}
-                <div>
-                  <TextInput
-                    defaultValue={editData?.name}
-                    type="text"
-                    id="component_name"
-                    labelText="Component Name"
-                    placeholder="Please enter component name"
-                    {...register('name', {
-                      required: editData?.name ? false : true,
-                    })}
-                  />
-                  <p className={errText}>{errors.name && 'Invalid name'}</p>
-                </div>
+              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                <SelectField
+                  placeholder="Select project"
+                  name="project_id"
+                  label="Project"
+                  accepter={CustomSelect}
+                  options={projectList?.items ? projectList?.items : []}
+                  error={formError.project_id}
+                  reqText="Project ID is required"
+                />
+              </FlexboxGrid.Item>
 
-                {/* project id */}
-                <div>
-                  <TextInput
-                    defaultValue={editData?.project_id}
-                    type="text"
-                    id="component_project_id"
-                    labelText="Project Id"
-                    placeholder="Please enter project id"
-                    {...register('project_id', {
-                      required: editData?.project_id ? false : true,
-                    })}
-                  />
-                  <p className={errText}>{errors.project_id && 'Invalid Project Id'}</p>
-                </div>
+              <FlexboxGrid.Item colspan={24} style={{ marginBottom: '10px' }}>
+                <TextField
+                  name="description"
+                  label="Description"
+                  accepter={TextArea}
+                  rows={5}
+                  reqText="Component description is required"
+                />
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          </Form>
+        </div>
+      </AddNewModal>
 
-                {/* Description  */}
-                <div>
-                  <TextArea
-                    defaultValue={editData?.description}
-                    id="component_description"
-                    required={editData?.description ? false : true}
-                    onChange={(e) => setComponentDesc(e.target.value)}
-                    labelText="Application description"
-                    placeholder="Please enter Description"
-                  />
-                </div>
-
-                <div className={modalBtnCon}>
-                  <Button kind="secondary" size="md" onClick={addModalClose}>
-                    Cancel
-                  </Button>
-                  <Button kind="primary" size="md" type="submit">
-                    {editData?.name ? 'Save' : 'Ok'}
-                  </Button>
-                </div>
-              </Stack>
-            </form>
-          </ModalBody>
-        </ComposedModal>
-      </Theme>
-
-      {isCompLoading && <ProgressBar label="" />}
-      <UseTable props={tableProps} />
+      {isCompLoading && (
+        <FlexboxGrid justify="center">
+          <Loader size="md" label="" />
+        </FlexboxGrid>
+      )}
+      <AdminDataTable props={tableProps} />
     </div>
   );
 };
 
-export default Application;
+export default Components;

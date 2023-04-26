@@ -1,29 +1,26 @@
-import {
-  Button,
-  ComposedModal,
-  ModalBody,
-  ModalHeader,
-  ProgressBar,
-  Stack,
-  TextArea,
-  TextInput,
-  Theme,
-} from '@carbon/react';
 import React, { useState, useContext, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import {
-  fetchUpdateOrg,
+  fetchCreateOrg,
   fetchDeleteOrg,
   fetchOrganizations,
-  fetchCreateOrg,
+  fetchUpdateOrg,
 } from '../../../Redux/slices/organizationSlice';
 import AuthContext from '../../../Store/Auth-Context';
-import UseTable from '../UseTable';
-import styles from './Organization.module.scss';
+import {
+  handleCurrPageTitle,
+  handleIsAddNewModal,
+  handleIsAdminEditing,
+} from '../../../Redux/slices/navSlice';
+import AdminDataTable from '../AdminDataTable';
+import AddNewModal from '../AddNewModal';
+import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
+import TextField from '../TextField';
+import TextArea from '../TextArea';
 
-const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
+// import styles from './Organization.module.scss';
+// const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -32,141 +29,146 @@ const headerData = [
   {
     header: 'ID',
     key: 'id',
+    width: 100,
   },
   {
     header: 'Organization',
     key: 'name',
-  },
-  {
-    header: 'Active',
-    key: 'active',
+    width: 200,
   },
   {
     header: 'URL',
     key: 'url',
+    width: 200,
   },
   {
     header: 'Description',
     key: 'description',
+    width: 300,
   },
 ];
+
+const { StringType } = Schema.Types;
+
+const model = Schema.Model({
+  name: StringType().isRequired('This field is required.'),
+  url: StringType().isRequired('This field is required.'),
+  description: StringType().isRequired('This field is required.'),
+});
 
 const Organization = () => {
   const { allOrganizations, isOrgLoading, isOrgCreated, isOrgDeleted, isOrgUpdated } =
     useSelector((state) => state.organizations);
-  const [isAddModal, setIsAddModal] = useState(false);
-  const [orgDescription, setOrgDescription] = useState('');
-  const [editData, setEditData] = useState({});
+  const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const {
-    handleSubmit,
-    register,
-    reset,
-    formState: { errors },
-  } = useForm();
+  const [formError, setFormError] = useState({});
+  const [editData, setEditData] = useState({});
+  const [formValue, setFormValue] = useState({
+    name: '',
+    url: '',
+    description: '',
+  });
+
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
+  const orgFormRef = React.useRef();
 
-  // Pagination
-  const handlePagination = (values) => {
-    setPageSize(values.pageSize);
-    setCurrPage(values.page);
-  };
-
-  // handle open add org modal
-  const handleAddNew = () => {
-    setIsAddModal(true);
-  };
-  // add modal close
-  const addModalClose = () => {
-    setEditData({});
-    setIsAddModal(false);
-    reset();
-  };
-
-  // create and edit org form submit
-  const handleAddOrg = (data) => {
-    setIsAddModal(false);
-    // Edit Organization
-    if (editData?.name) {
-      data = {
-        name: data?.name ? data?.name : editData?.name,
-        url: data?.url ? data?.url : editData?.url,
-        description: orgDescription ? orgDescription : editData?.description,
-      };
+  const handleAddOrg = () => {
+    // throw form validation error
+    if (!orgFormRef.current.check()) {
+      console.error('Form Error', formError);
+      return;
+    }
+    // editing org
+    else if (isAdminEditing) {
       const putUrl = `${lmApiUrl}/organization/${editData?.id}`;
       dispatch(
         fetchUpdateOrg({
           url: putUrl,
           token: authCtx.token,
-          bodyData: data,
-          reset,
+          bodyData: formValue,
         }),
       );
     }
-    // Create organization
+    // creating org
     else {
-      data.description = orgDescription;
       const postUrl = `${lmApiUrl}/organization`;
       dispatch(
         fetchCreateOrg({
           url: postUrl,
           token: authCtx.token,
-          bodyData: data,
-          reset,
+          bodyData: formValue,
         }),
       );
     }
+    dispatch(handleIsAddNewModal(false));
+    if (isAdminEditing) dispatch(handleIsAdminEditing(false));
   };
 
+  // reset form
+  const handleResetForm = () => {
+    setEditData({});
+    setFormValue({
+      name: '',
+      url: '',
+      description: '',
+    });
+  };
+
+  // Pagination
+  const handlePagination = (value) => {
+    setCurrPage(value);
+  };
+
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
+  };
+
+  // handle open add org modal
+  const handleAddNew = () => {
+    handleResetForm();
+    dispatch(handleIsAddNewModal(true));
+  };
+
+  // load table data
   useEffect(() => {
+    dispatch(handleCurrPageTitle('Organizations'));
+
     const getUrl = `${lmApiUrl}/organization?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchOrganizations({ url: getUrl, token: authCtx.token }));
-  }, [isOrgCreated, isOrgUpdated, isOrgDeleted, pageSize, currPage]);
+  }, [isOrgCreated, isOrgUpdated, isOrgDeleted, pageSize, currPage, refreshData]);
 
   // handle delete Org
   const handleDelete = (data) => {
-    // const idList = data?.map((v) => v.id);
-    if (data.length === 1) {
-      const id = data[0]?.id;
-      Swal.fire({
-        title: 'Are you sure',
-        icon: 'info',
-        text: 'Do you want to delete the organization!!',
-        cancelButtonColor: 'red',
-        showCancelButton: true,
-        confirmButtonText: 'Delete',
-        confirmButtonColor: '#3085d6',
-        reverseButtons: true,
-      }).then((value) => {
-        if (value.isConfirmed) {
-          const deleteUrl = `${lmApiUrl}/organization/${id}`;
-          dispatch(fetchDeleteOrg({ url: deleteUrl, token: authCtx.token }));
-        }
-      });
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry',
-        icon: 'info',
-        text: 'You can not delete more then 1 organization at the same time',
-        confirmButtonColor: '#3085d6',
-      });
-    }
+    Swal.fire({
+      title: 'Are you sure',
+      icon: 'info',
+      text: 'Do you want to delete the organization!!',
+      cancelButtonColor: 'red',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#3085d6',
+      reverseButtons: true,
+    }).then((value) => {
+      if (value.isConfirmed) {
+        const deleteUrl = `${lmApiUrl}/organization/${data?.id}`;
+        dispatch(fetchDeleteOrg({ url: deleteUrl, token: authCtx.token }));
+      }
+    });
   };
+
   // handle Edit org
   const handleEdit = (data) => {
-    if (data.length === 1) {
-      setIsAddModal(true);
-      const data1 = data[0];
-      setEditData(data1);
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry!!',
-        icon: 'info',
-        text: 'You can not edit more than 1 organization at the same time',
-      });
-    }
+    setEditData(data);
+    dispatch(handleIsAdminEditing(true));
+    setFormValue({
+      name: data?.name,
+      url: data?.url,
+      description: data?.description,
+    });
+    dispatch(handleIsAddNewModal(true));
   };
 
   // send props in the batch action table
@@ -178,6 +180,7 @@ const Organization = () => {
     handleDelete,
     handleAddNew,
     handlePagination,
+    handleChangeLimit,
     totalItems: allOrganizations?.total_items,
     totalPages: allOrganizations?.total_pages,
     pageSize,
@@ -187,71 +190,57 @@ const Organization = () => {
 
   return (
     <div>
-      {/* -- add org Modal -- */}
-      <Theme theme="g10">
-        <ComposedModal open={isAddModal} onClose={addModalClose}>
-          <div className={mhContainer}>
-            <h4>{editData?.name ? 'Edit Organization' : 'Add New Organization'}</h4>
-            <ModalHeader onClick={addModalClose} />
-          </div>
+      <AddNewModal
+        title={isAdminEditing ? 'Edit Organization' : 'Add New Organization'}
+        handleSubmit={handleAddOrg}
+        handleReset={handleResetForm}
+      >
+        <div className="show-grid">
+          <Form
+            fluid
+            ref={orgFormRef}
+            onChange={setFormValue}
+            onCheck={setFormError}
+            formValue={formValue}
+            model={model}
+          >
+            <FlexboxGrid justify="space-between">
+              <FlexboxGrid.Item colspan={11}>
+                <TextField
+                  name="name"
+                  label="Organization Name"
+                  reqText="Name is Required"
+                />
+              </FlexboxGrid.Item>
 
-          <ModalBody id={modalBody}>
-            <form onSubmit={handleSubmit(handleAddOrg)} className={formContainer}>
-              <Stack gap={7}>
-                {/* first name  */}
-                <div>
-                  <TextInput
-                    defaultValue={editData?.name}
-                    type="text"
-                    id="org_name"
-                    labelText="Organization Name"
-                    placeholder="Please enter organization name"
-                    {...register('name', { required: editData?.name ? false : true })}
-                  />
-                  <p className={errText}>{errors.name && 'Invalid Organization Name'}</p>
-                </div>
+              <FlexboxGrid.Item colspan={11}>
+                <TextField
+                  name="url"
+                  label="Organization URL"
+                  reqText="URL is Required"
+                />
+              </FlexboxGrid.Item>
+              <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0 10px' }}>
+                <TextField
+                  name="description"
+                  label="Description"
+                  accepter={TextArea}
+                  rows={5}
+                  reqText="Description is Required"
+                />
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          </Form>
+        </div>
+      </AddNewModal>
 
-                {/* org url  */}
-                <div>
-                  <TextInput
-                    defaultValue={editData?.url}
-                    type="text"
-                    id="organization_url"
-                    labelText="Organization URL"
-                    placeholder="Please enter Organization URL"
-                    {...register('url', { required: editData?.url ? false : true })}
-                  />
-                  <p className={errText}>{errors.url && 'Invalid url'}</p>
-                </div>
-
-                {/* org description  */}
-                <div>
-                  <TextArea
-                    defaultValue={editData?.description}
-                    id="org_description"
-                    required={editData?.description ? false : true}
-                    onChange={(e) => setOrgDescription(e.target.value)}
-                    labelText="Organization description"
-                    placeholder="Please enter organization description"
-                  />
-                </div>
-
-                <div className={modalBtnCon}>
-                  <Button kind="secondary" size="md" onClick={addModalClose}>
-                    Cancel
-                  </Button>
-                  <Button kind="primary" size="md" type="submit">
-                    {editData?.email ? 'Save' : 'Ok'}
-                  </Button>
-                </div>
-              </Stack>
-            </form>
-          </ModalBody>
-        </ComposedModal>
-      </Theme>
-
-      {isOrgLoading && <ProgressBar label="" />}
-      <UseTable props={tableProps} />
+      {isOrgLoading && (
+        <FlexboxGrid justify="center">
+          <Loader size="md" label="" />
+        </FlexboxGrid>
+      )}
+      {/* <UseTable props={tableProps} /> */}
+      <AdminDataTable props={tableProps} />
     </div>
   );
 };

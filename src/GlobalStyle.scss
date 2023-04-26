@@ -2,41 +2,48 @@
 @use '@carbon/type';
 
 .App {
+  min-height: 100vh;
+
   h1 {
-    font-size: type.type-scale(10);
+    font-size: 40px;
   }
 
   h2 {
-    font-size: type.type-scale(8);
+    font-size: 30px;
   }
 
   h3 {
-    font-size: type.type-scale(6);
+    font-size: 22px;
   }
 
   h4 {
-    font-size: type.type-scale(5);
+    font-size: 20px;
   }
 
   h5 {
-    font-size: type.type-scale(4);
-    font-weight: 400;
+    font-size: 19px;
   }
 
   h6 {
-    font-size: type.type-scale(3);
+    font-size: 18px;
   }
 
   p,
   button,
-  input {
-    font-size: type.type-scale(3);
+  input,
+  input::selection,
+  input::placeholder {
+    font-size: 18px !important;
   }
 }
 
 .mainContainer {
-  max-width: 1300px;
+  max-width: 1600px;
   margin: 0 auto;
+  padding: 0 1vw;
+}
+
+.adminContainer {
   padding: 0 1vw;
 }
 
@@ -47,6 +54,14 @@
 
 .show_nav {
   margin-left: 200px;
+  width: 100%;
+  transition: all 0.3s;
+}
+
+.hide_nav {
+  width: 100%;
+  margin-left: 56px;
+  transition: all 0.3s;
 }
 
 .wbeDashboardContainer {
@@ -62,16 +77,16 @@
   align-items: center;
   justify-content: space-between;
   padding: 10px 1vw;
-  margin-bottom: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 5px 1px lightgray;
+  margin-bottom: 15px;
+  // border-radius: 10px;
+  // box-shadow: 0 0 5px 1px lightgray;
 
   button {
     border-radius: 5px;
   }
 }
 
-.linkFileContainer > h5 {
+.linkFileContainer>h5 {
   span {
     margin-left: 10px;
     margin-bottom: -10px;
@@ -92,8 +107,8 @@
 }
 
 .wbeNavSpace {
-  margin-top: 20px;
-  margin-left: 50px;
+  margin-top: 15px;
+  margin-left: 5px;
 }
 
 .dropdown-text {
@@ -117,4 +132,25 @@
 .aDashboardLink {
   cursor: pointer;
   margin-bottom: 5px;
+}
+
+// Use select picker
+.selectPicker {
+  font-size: 18px !important;
+}
+
+.selectPickerMenu {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.adminDasIcon {
+  margin: 0 20px 0 -35px;
+}
+
+.adminModalTitle {
+  font-size: 20px !important;
+  font-weight: bold !important;
+  text-align: center !important;
 }

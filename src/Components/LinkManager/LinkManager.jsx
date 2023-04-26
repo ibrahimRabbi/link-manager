@@ -1,16 +1,16 @@
-import { Button, ProgressBar, Search } from '@carbon/react';
+import { Search } from '@carbon/react';
+import { Button, FlexboxGrid, Loader } from 'rsuite';
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import Swal from 'sweetalert2';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import { fetchLinksData, handleIsWbe } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle, handleIsProfileOpen } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
-import WbeTopNav from '../Shared/NavigationBar/WbeTopNav';
-import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 import UseDropdown from '../Shared/UseDropdown/UseDropdown';
-
 import styles from './LinkManager.module.scss';
+import SourceSection from '../SourceSection';
+import LinksDataTable from '../Shared/UseDataTable/LinksDataTable';
+
 const {
   dropdownStyle,
   inputContainer,
@@ -20,10 +20,9 @@ const {
   tableContainer,
 } = styles;
 
-const headers = [
+const headerData = [
   { key: 'status', header: 'Status' },
-  // { key: 'sourceId', header: 'Source ID' },
-  { key: 'linkType', header: 'Link type' },
+  { key: 'link_type', header: 'Link type' },
   { key: 'target', header: 'Target' },
   { key: 'actions', header: 'Actions' },
 ];
@@ -44,8 +43,7 @@ const LinkManager = () => {
   // console.log('linksData ->', linksData);
   const { linksStream, isProfileOpen } = useSelector((state) => state.nav);
   const location = useLocation();
-  const wbePath = location.pathname?.includes('wbe');
-  const navigate = useNavigate();
+  const isWbe = location.pathname?.includes('wbe');
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
   const [searchParams] = useSearchParams();
@@ -53,20 +51,22 @@ const LinkManager = () => {
   const sourceFileURL = uri || sourceDataList?.uri;
 
   useEffect(() => {
-    dispatch(handleIsWbe(wbePath));
+    dispatch(handleIsWbe(isWbe));
   }, [location]);
 
   // Handle pagination for the links table
   // Pagination
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const handlePagination = (values) => {
-    setPageSize(values.pageSize);
-    setCurrPage(values.page);
+
+  const handlePagination = (value) => {
+    setCurrPage(value);
   };
 
-  // console.log(currPage);
-  // console.log(pageSize);
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
+  };
 
   useEffect(() => {
     (async () => {
@@ -86,58 +86,43 @@ const LinkManager = () => {
       if (sourceFileURL) {
         dispatch(
           fetchLinksData({
+            // eslint-disable-next-line max-len
             url: `${apiURL}?stream=${stream}&resource_id=${encodeURIComponent(
               sourceFileURL,
-            )}`,
+            )}&page=${currPage}&per_page=${pageSize}`,
             token: authCtx.token,
           }),
         );
       }
     })();
-  }, [linksStream]);
+  }, [linksStream, pageSize, currPage]);
 
   // Link manager dropdown options
   const handleShowItem = () => {};
 
-  const handleOpenTargetLink = () => {
-    Swal.fire({
-      title: 'Opening Jira Application',
-      timer: 2000,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
-  };
-
   // display conditionally Search and dropdown 0
   const isSearchBox = false;
-  return (
-    <>
-      {/* WBE Nav bar  */}
-      {wbePath && <WbeTopNav />}
+  const tableProps = {
+    rowData: linksData?.items?.length ? linksData?.items : [],
+    headerData,
+    handlePagination,
+    handleChangeLimit,
+    totalItems: linksData?.total_items,
+    totalPages: linksData?.total_pages,
+    setCurrPage,
+    pageSize,
+    page: linksData?.page,
+  };
 
+  return (
+    <div>
+      <SourceSection />
       <div
         onClick={() => dispatch(handleIsProfileOpen(isProfileOpen && false))}
-        className={wbePath ? 'wbeNavSpace' : ''}
+        className={isWbe ? 'wbeNavSpace' : ''}
       >
         <div className="mainContainer">
           <div className="container">
-            {!wbePath && (
-              <div className="linkFileContainer">
-                <h5>Links For: {sourceDataList?.title}</h5>
-
-                <Button
-                  onClick={() => {
-                    wbePath ? navigate('/wbe/new-link') : navigate('/new-link');
-                  }}
-                  size="md"
-                  kind="primary"
-                >
-                  Create Link
-                </Button>
-              </div>
-            )}
-
             <div className={tableContainer}>
               {isSearchBox && (
                 <div className={searchBox}>
@@ -168,20 +153,18 @@ const LinkManager = () => {
                 </div>
               )}
 
-              {isLoading && <ProgressBar label="" />}
-              <UseDataTable
-                headers={headers}
-                tableData={linksData}
-                openTargetLink={handleOpenTargetLink}
-                handlePagination={handlePagination}
-                currPage={currPage}
-                pageSize={pageSize}
-              />
+              {isLoading && (
+                <FlexboxGrid style={{ marginBottom: '10px' }} justify="center">
+                  <Loader size="md" />
+                </FlexboxGrid>
+              )}
+
+              <LinksDataTable props={tableProps} />
             </div>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 export default LinkManager;

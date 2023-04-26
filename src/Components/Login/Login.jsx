@@ -1,47 +1,63 @@
 import React, { useContext, useState } from 'react';
-
-import { ArrowRight } from '@carbon/icons-react';
-import { Button, PasswordInput, ProgressBar, TextInput } from '@carbon/react';
-import { useForm } from 'react-hook-form';
+// import {PasswordInput, ProgressBar, TextInput } from '@carbon/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import style from './Login.module.scss';
 import { useSelector } from 'react-redux';
 import { useMixpanel } from 'react-mixpanel-browser';
+import { FlexboxGrid, Button, Panel, Col, Loader, Schema, Form } from 'rsuite';
+import TextField from '../AdminDasComponents/TextField.jsx';
 
-const { main, container, title, formContainer, btnContainer, titleSpan, errText } = style;
+const { titleSpan, main, title } = style;
 const loginURL = `${process.env.REACT_APP_LM_REST_API_URL}/auth/login`;
 
-// const mixpanelToken= process.env.REACT_APP_MIXPANEL_TOKEN;
+const { StringType } = Schema.Types;
 
+const model = Schema.Model({
+  userName: StringType().isRequired('Username is required.'),
+  password: StringType()
+    .addRule((value) => {
+      if (value.length < 5) {
+        return false;
+      }
+      return true;
+    }, 'Password should include at least 5 characters')
+    .isRequired('Password is required.'),
+});
+
+// const mixpanelToken= process.env.REACT_APP_MIXPANEL_TOKEN;
 const Login = () => {
   const { isWbe } = useSelector((state) => state.links);
   const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = React.useState({});
+  const [formValue, setFormValue] = React.useState({
+    userName: '',
+    password: '',
+  });
+  const loginFormRef = React.useRef();
   const authCtx = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
-  const {
-    handleSubmit,
-    register,
-    formState: { errors },
-  } = useForm();
 
   // React mixpanel browser
   const mixpanel = useMixpanel();
   mixpanel.init('197a3508675e32adcdfee4563c0e0595', { debug: true });
 
   // handle form submit
-  const onSubmit = (data) => {
+  const onSubmit = async () => {
+    if (!loginFormRef.current.check()) {
+      console.error('Form Error', formError);
+      return;
+    }
     setIsLoading(true);
-
     //track who try to login
     mixpanel.track('Trying to login.', {
-      username: data.userName,
+      username: formValue.userName,
     });
 
-    const authData = window.btoa(data.userName + ':' + data.password);
-    fetch(loginURL, {
+    const authData = window.btoa(formValue.userName + ':' + formValue.password);
+    await fetch(loginURL, {
       method: 'POST',
       headers: {
         'Content-type': 'application/json',
@@ -52,7 +68,7 @@ const Login = () => {
         if (res.ok) {
           //track who try to login
           mixpanel.track('Successfully logged in.', {
-            username: data.userName,
+            username: formValue.userName,
           });
           return res.json();
         } else {
@@ -82,43 +98,51 @@ const Login = () => {
   };
 
   return (
-    <div className={main}>
-      <div className={container}>
-        <h3 className={title}>
-          Link Manager Application <br />
-          <span className={titleSpan}>Please Login</span>
-        </h3>
+    <>
+      <div className={main}>
+        {isLoading && (
+          <h5 style={{ textAlign: 'center' }}>
+            <Loader size="md" />
+          </h5>
+        )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className={formContainer}>
-          <TextInput
-            type="text"
-            id="userName"
-            labelText="User name"
-            placeholder="Enter user name"
-            {...register('userName', { required: true })}
-          />
-          <p className={errText}>{errors.userName && 'Invalid User'}</p>
+        <FlexboxGrid justify="center" align="middle">
+          <FlexboxGrid.Item as={Col} colspan={16} md={14} lg={12} xl={8}>
+            <Panel
+              header={
+                <h3 className={title}>
+                  Link Manager Application <br />
+                  <span className={titleSpan}>Please Login</span>
+                </h3>
+              }
+              bordered
+            >
+              <Form
+                fluid
+                ref={loginFormRef}
+                onChange={setFormValue}
+                onCheck={setFormError}
+                formValue={formValue}
+                model={model}
+              >
+                <TextField name="userName" type="text" label="User Name" />
+                <TextField name="password" type="password" label="Password" />
 
-          <PasswordInput
-            type="password"
-            id="login_password_id"
-            labelText="Password"
-            placeholder="Enter your password"
-            autoComplete="on"
-            {...register('password', { required: true, minLength: 5 })}
-          />
-          <p className={errText}>
-            {errors.password && 'Password should include at least 5 characters'}
-          </p>
-          {isLoading && <ProgressBar label="" />}
-          <div className={btnContainer}>
-            <Button renderIcon={ArrowRight} size="lg" kind="primary" type="submit">
-              Sign in
-            </Button>
-          </div>
-        </form>
+                <Button
+                  color="blue"
+                  block
+                  type="submit"
+                  appearance="primary"
+                  onClick={onSubmit}
+                >
+                  Sign in
+                </Button>
+              </Form>
+            </Panel>
+          </FlexboxGrid.Item>
+        </FlexboxGrid>
       </div>
-    </div>
+    </>
   );
 };
 

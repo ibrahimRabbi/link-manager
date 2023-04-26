@@ -5,6 +5,15 @@ import postAPI from '../apiRequests/postAPI';
 import putAPI from '../apiRequests/putAPI';
 
 // Fetch get all link type
+export const fetchApplicationList = createAsyncThunk(
+  'linkTypes/fetchApplicationList',
+  async ({ url, token }) => {
+    const response = getAPI({ url, token });
+    return response;
+  },
+);
+
+// Fetch get all link type
 export const fetchLinkTypes = createAsyncThunk(
   'linkTypes/fetchLinkTypes',
   async ({ url, token }) => {
@@ -43,6 +52,7 @@ export const fetchDeleteLinkType = createAsyncThunk(
 /// All link type states
 const initialState = {
   allLinkTypes: {},
+  applicationList: {},
   isLinkTypeCreated: false,
   isLinkTypeUpdated: false,
   isLinkTypeDeleted: false,
@@ -60,8 +70,8 @@ export const linkTypeSlice = createSlice({
   extraReducers: (builder) => {
     // Get all link type pending
     builder.addCase(fetchLinkTypes.pending, (state) => {
-      state.isLinkTypeCreated = false;
       state.isLinkTypeDeleted = false;
+      state.isLinkTypeCreated = false;
       state.isLinkTypeUpdated = false;
       state.isLinkTypeLoading = true;
     });
@@ -69,12 +79,7 @@ export const linkTypeSlice = createSlice({
     builder.addCase(fetchLinkTypes.fulfilled, (state, { payload }) => {
       state.isLinkTypeLoading = false;
       if (payload?.items) {
-        // id as string is required in the table
-        const items = payload.items?.reduce((acc, curr) => {
-          acc.push({ ...curr, id: curr?.id?.toString() });
-          return acc;
-        }, []);
-        state.allLinkTypes = { ...payload, items };
+        state.allLinkTypes = payload;
       }
     });
     builder.addCase(fetchLinkTypes.rejected, (state) => {
@@ -117,13 +122,20 @@ export const linkTypeSlice = createSlice({
     });
 
     builder.addCase(fetchDeleteLinkType.fulfilled, (state, { payload }) => {
-      state.isLinkTypeLoading = false;
       state.isLinkTypeDeleted = true;
+      state.isLinkTypeLoading = false;
       console.log('link type Deleting: ', payload);
     });
 
     builder.addCase(fetchDeleteLinkType.rejected, (state) => {
       state.isLinkTypeLoading = false;
+    });
+
+    // Get all applications for crate link types
+    builder.addCase(fetchApplicationList.fulfilled, (state, { payload }) => {
+      if (payload?.items) {
+        state.applicationList = payload;
+      }
     });
   },
 });

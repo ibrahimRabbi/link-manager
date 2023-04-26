@@ -16,8 +16,8 @@ export const fetchLinkConstraints = createAsyncThunk(
 // Create New linkConstraint
 export const fetchCreateLinkCons = createAsyncThunk(
   'linkConstraint/fetchCreateLinkCons',
-  async ({ url, token, bodyData, reset }) => {
-    const res = postAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData }) => {
+    const res = postAPI({ url, token, bodyData });
     return res;
   },
 );
@@ -25,8 +25,8 @@ export const fetchCreateLinkCons = createAsyncThunk(
 // Update linkConstraint
 export const fetchUpdateLinkCons = createAsyncThunk(
   'linkConstraint/fetchUpdateLinkCons',
-  async ({ url, token, bodyData, reset }) => {
-    const res = putAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData }) => {
+    const res = putAPI({ url, token, bodyData });
     return res;
   },
 );
@@ -69,12 +69,7 @@ export const linkConstraintSlice = createSlice({
     builder.addCase(fetchLinkConstraints.fulfilled, (state, { payload }) => {
       state.isLinkConsLoading = false;
       if (payload?.items) {
-        // id as string is required in the table
-        const items = payload.items?.reduce((acc, curr) => {
-          acc.push({ ...curr, id: curr?.id?.toString() });
-          return acc;
-        }, []);
-        state.AllLinkCons = { ...payload, items };
+        state.AllLinkCons = payload;
       }
     });
 

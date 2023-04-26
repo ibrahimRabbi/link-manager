@@ -39,6 +39,7 @@ const initialState = {
   linkedData: {},
   editLinkData: {},
   linkType: null,
+  applicationType: null,
   streamType: null,
   projectType: null,
   resourceType: null,
@@ -116,7 +117,22 @@ export const linksSlice = createSlice({
     },
 
     handleLinkType: (state, { payload }) => {
-      state.linkType = payload;
+      if (payload) {
+        state.linkType = payload;
+      } else {
+        state.linkType = null;
+        state.applicationType = null;
+        state.projectType = null;
+      }
+    },
+
+    handleApplicationType: (state, { payload }) => {
+      if (payload) {
+        state.applicationType = payload;
+      } else {
+        state.applicationType = null;
+        state.projectType = null;
+      }
     },
 
     handleStreamType: (state, { payload }) => {
@@ -124,7 +140,11 @@ export const linksSlice = createSlice({
     },
 
     handleProjectType: (state, { payload }) => {
-      state.projectType = payload;
+      if (payload) {
+        state.projectType = payload;
+      } else {
+        state.projectType = null;
+      }
     },
 
     handleResourceType: (state, { payload }) => {
@@ -135,6 +155,7 @@ export const linksSlice = createSlice({
     handleCancelLink: (state) => {
       state.isTargetModalOpen = false;
       state.linkType = null;
+      state.applicationType = null;
       state.projectType = null;
       state.resourceType = null;
       state.editTargetData = {};
@@ -171,12 +192,12 @@ export const linksSlice = createSlice({
       state.isLoading = false;
       console.log('fetchLinksData -> payload', payload);
       if (payload) {
-        if (payload?.isConfirmed) state.linksData = [];
+        if (payload?.isConfirmed) state.linksData = {};
         else {
-          state.linksData = payload.data.items;
+          state.linksData = payload.data;
         }
       } else {
-        state.linksData = [];
+        state.linksData = {};
       }
     });
 
@@ -211,6 +232,7 @@ export const {
   handleEditTargetData,
   handleUpdateCreatedLink,
   handleLinkType,
+  handleApplicationType,
   handleStreamType,
   handleProjectType,
   handleResourceType,

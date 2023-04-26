@@ -1,30 +1,34 @@
-import {
-  Button,
-  ComposedModal,
-  ModalBody,
-  ModalHeader,
-  ProgressBar,
-  Stack,
-  TextArea,
-  TextInput,
-  Theme,
-} from '@carbon/react';
 import React, { useState, useContext, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-import {
-  fetchApplications,
-  fetchCreateApp,
-  fetchDeleteApp,
-  fetchUpdateApp,
-} from '../../../Redux/slices/applicationSlice';
 import AuthContext from '../../../Store/Auth-Context';
-import UseTable from '../UseTable';
-import styles from './LinkConstraint.module.scss';
+import {
+  handleCurrPageTitle,
+  handleIsAddNewModal,
+  handleIsAdminEditing,
+} from '../../../Redux/slices/navSlice';
+import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
+import AdminDataTable from '../AdminDataTable';
+import AddNewModal from '../AddNewModal';
+import TextField from '../TextField';
+import { useRef } from 'react';
+import SelectField from '../SelectField';
+import {
+  fetchCreateLinkCons,
+  fetchDeleteLinkCons,
+  fetchLinkConstraints,
+  fetchUpdateLinkCons,
+} from '../../../Redux/slices/linkConstraintSlice';
+import {
+  fetchApplicationList,
+  fetchLinkTypes,
+} from '../../../Redux/slices/linkTypeSlice';
+import CustomSelect from '../CustomSelect';
+import TextArea from '../TextArea';
 
-const { errText, formContainer, modalBtnCon, modalBody, mhContainer, flNameContainer } =
-  styles;
+// import styles from './LinkConstraint.module.scss';
+// const { errText, formContainer, modalBtnCon,
+//  modalBody, mhContainer, flNameContainer } =styles;
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -52,6 +56,17 @@ const headerData = [
   },
 ];
 
+const { StringType, NumberType } = Schema.Types;
+
+const model = Schema.Model({
+  name: StringType().isRequired('This field is required.'),
+  source_url: StringType().isRequired('This field is required.'),
+  target_url: StringType().isRequired('This field is required.'),
+  application_id: NumberType().isRequired('This field is required.'),
+  link_type_id: NumberType().isRequired('This field is required.'),
+  description: StringType().isRequired('This field is required.'),
+});
+
 const LinkConstraint = () => {
   const {
     allLinkConstraints,
@@ -60,126 +75,146 @@ const LinkConstraint = () => {
     isLinkConsCreated,
     isLinkConsDeleted,
   } = useSelector((state) => state.linkConstraints);
-  const [isAddModal, setIsAddModal] = useState(false);
-  const [linkConsDesc, setLinkConsDesc] = useState('');
-  const [editData, setEditData] = useState({});
+  const { applicationList, allLinkTypes } = useSelector((state) => state.linkTypes);
+  const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const {
-    handleSubmit,
-    register,
-    reset,
-    formState: { errors },
-  } = useForm();
+  const [formError, setFormError] = useState({});
+  const [editData, setEditData] = useState({});
+  const [formValue, setFormValue] = useState({
+    name: '',
+    source_url: '',
+    target_url: '',
+    application_id: '',
+    link_type_id: '',
+    description: '',
+  });
+
+  const linkConstFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
+  // Pagination
+  const handlePagination = (value) => {
+    setCurrPage(value);
+  };
+
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
+  };
+
   // handle open add user modal
   const handleAddNew = () => {
-    setIsAddModal(true);
-  };
-  const addModalClose = () => {
-    setEditData({});
-    setLinkConsDesc('');
-    setIsAddModal(false);
-    reset();
+    handleResetForm();
+    dispatch(handleIsAddNewModal(true));
   };
 
-  // create and edit link cons form submit
-  const handleAddLinkCons = (data) => {
-    setIsAddModal(false);
-    // update link cons
-    if (editData?.name) {
-      console.log(data);
-      data = {
-        name: data?.name ? data?.name : editData?.name,
-        source_url: data.source_url ? data.source_url : editData?.source_url,
-        target_url: data.target_url ? data.target_url : editData?.target_url,
-        link_type_id: data?.link_type_id ? data?.link_type_id : editData?.link_type_id,
-        application_id: data?.application_id
-          ? data?.application_id
-          : editData?.application_id,
-        description: linkConsDesc ? linkConsDesc : editData?.description,
-      };
+  const handleAddLinkConstraint = () => {
+    if (!linkConstFormRef.current.check()) {
+      console.error('Form Error', formError);
+      return;
+    } else if (isAdminEditing) {
       const putUrl = `${lmApiUrl}/link-constraint/${editData?.id}`;
       dispatch(
-        fetchUpdateApp({
+        fetchUpdateLinkCons({
           url: putUrl,
           token: authCtx.token,
-          bodyData: data,
-          reset,
+          bodyData: formValue,
         }),
       );
-    }
-    // Create LinkConstraint
-    else {
-      data.description = linkConsDesc;
-      console.log(data);
+    } else {
       const postUrl = `${lmApiUrl}/link-constraint`;
       dispatch(
-        fetchCreateApp({
+        fetchCreateLinkCons({
           url: postUrl,
           token: authCtx.token,
-          bodyData: data,
-          reset,
+          bodyData: formValue,
         }),
       );
     }
+    dispatch(handleIsAddNewModal(false));
+    if (isAdminEditing) dispatch(handleIsAdminEditing(false));
   };
 
-  // Pagination
-  const handlePagination = (values) => {
-    setPageSize(values.pageSize);
-    setCurrPage(values.page);
+  // reset form
+  const handleResetForm = () => {
+    setEditData({});
+    setFormValue({
+      name: '',
+      url: '',
+      application_id: '',
+      incoming_label: '',
+      outgoing_label: '',
+      description: '',
+    });
   };
+
+  // fetch application list for create link constraint
+  useEffect(() => {
+    // get application list
+    dispatch(
+      fetchApplicationList({
+        url: `${lmApiUrl}/application?page=${'1'}&per_page=${'100'}`,
+        token: authCtx.token,
+      }),
+    );
+    // get link type list
+    dispatch(
+      fetchLinkTypes({
+        url: `${lmApiUrl}/link-type?page=${'1'}&per_page=${'100'}`,
+        token: authCtx.token,
+      }),
+    );
+  }, []);
 
   useEffect(() => {
+    dispatch(handleCurrPageTitle('Link Constraint'));
+
     const getUrl = `${lmApiUrl}/link-constraint?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchApplications({ url: getUrl, token: authCtx.token }));
-  }, [isLinkConsCreated, isLinkConsUpdated, isLinkConsDeleted, pageSize, currPage]);
+    dispatch(fetchLinkConstraints({ url: getUrl, token: authCtx.token }));
+  }, [
+    isLinkConsCreated,
+    isLinkConsUpdated,
+    isLinkConsDeleted,
+    pageSize,
+    currPage,
+    refreshData,
+  ]);
 
   // handle delete LinkConstraint
   const handleDelete = (data) => {
-    // const idList = data?.map((v) => v.id);
-    if (data.length === 1) {
-      const id = data[0]?.id;
-      Swal.fire({
-        title: 'Are you sure',
-        icon: 'info',
-        text: 'Do you want to delete the this link constraint!!',
-        cancelButtonColor: 'red',
-        showCancelButton: true,
-        confirmButtonText: 'Delete',
-        confirmButtonColor: '#3085d6',
-        reverseButtons: true,
-      }).then((value) => {
-        if (value.isConfirmed) {
-          const deleteUrl = `${lmApiUrl}/link-constraint/${id}`;
-          dispatch(fetchDeleteApp({ url: deleteUrl, token: authCtx.token }));
-        }
-      });
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry',
-        icon: 'info',
-        text: 'You can not delete multiple link constraint at the same time!!',
-        confirmButtonColor: '#3085d6',
-      });
-    }
+    Swal.fire({
+      title: 'Are you sure',
+      icon: 'info',
+      text: 'Do you want to delete the this link constraint!!',
+      cancelButtonColor: 'red',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#3085d6',
+      reverseButtons: true,
+    }).then((value) => {
+      if (value.isConfirmed) {
+        const deleteUrl = `${lmApiUrl}/link-constraint/${data?.id}`;
+        dispatch(fetchDeleteLinkCons({ url: deleteUrl, token: authCtx.token }));
+      }
+    });
   };
+
   // handle Edit LinkConstraint
   const handleEdit = (data) => {
-    if (data.length === 1) {
-      setIsAddModal(true);
-      const data1 = data[0];
-      setEditData(data1);
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry!!',
-        icon: 'info',
-        text: 'You can not edit more than 1 link constraint at the same time',
-      });
-    }
+    setEditData(data);
+    dispatch(handleIsAdminEditing(true));
+    setFormValue({
+      name: data?.name,
+      source_url: data?.source_url,
+      target_url: data?.target_url,
+      application_id: data?.application_id,
+      link_type_id: data?.link_type_id,
+      description: data?.description,
+    });
+
+    dispatch(handleIsAddNewModal(true));
   };
 
   // send props in the batch action table
@@ -191,6 +226,7 @@ const LinkConstraint = () => {
     handleDelete,
     handleAddNew,
     handlePagination,
+    handleChangeLimit,
     totalItems: allLinkConstraints?.total_items,
     totalPages: allLinkConstraints?.total_pages,
     pageSize,
@@ -200,126 +236,89 @@ const LinkConstraint = () => {
 
   return (
     <div>
-      {/* -- add LinkConstraint Modal -- */}
-      <Theme theme="g10">
-        <ComposedModal open={isAddModal} onClose={addModalClose}>
-          <div className={mhContainer}>
-            <h4>{editData?.name ? 'Edit link constraint' : 'Add New link constraint'}</h4>
-            <ModalHeader onClick={addModalClose} />
-          </div>
+      <AddNewModal
+        title={isAdminEditing ? 'Edit Link Constraint' : 'Add New Link Constraint'}
+        handleSubmit={handleAddLinkConstraint}
+        handleReset={handleResetForm}
+      >
+        <div className="show-grid">
+          <Form
+            fluid
+            ref={linkConstFormRef}
+            onChange={setFormValue}
+            onCheck={setFormError}
+            formValue={formValue}
+            model={model}
+          >
+            <FlexboxGrid justify="space-between">
+              <FlexboxGrid.Item style={{ marginBottom: '30px' }} colspan={24}>
+                <TextField
+                  name="name"
+                  label="Link Constraint Name"
+                  reqText="Link constraint name is required"
+                />
+              </FlexboxGrid.Item>
 
-          <ModalBody id={modalBody}>
-            <form onSubmit={handleSubmit(handleAddLinkCons)} className={formContainer}>
-              <Stack gap={7}>
-                {/* LinkConstraint name  */}
-                <div>
-                  <TextInput
-                    defaultValue={editData?.name}
-                    type="text"
-                    id="link-constraint_name"
-                    labelText="Link Constraint Name"
-                    placeholder="Please enter link constraint name"
-                    {...register('name', { required: editData?.name ? false : true })}
-                  />
-                  <p className={errText}>{errors.name && 'Invalid Name'}</p>
-                </div>
+              <FlexboxGrid.Item colspan={11}>
+                <TextField
+                  name="source_url"
+                  label="Source URL"
+                  reqText="Source url is required"
+                />
+              </FlexboxGrid.Item>
 
-                <div className={flNameContainer}>
-                  {/* application_id  */}
-                  <div>
-                    <TextInput
-                      defaultValue={editData?.application_id}
-                      type="number"
-                      id="link-constraint_application_id"
-                      labelText="Application Id"
-                      placeholder="Please enter link application id"
-                      {...register('application_id', {
-                        required: editData?.application_id ? false : true,
-                      })}
-                    />
-                    <p className={errText}>
-                      {errors.application_id && 'Invalid application id'}
-                    </p>
-                  </div>
+              <FlexboxGrid.Item colspan={11}>
+                <TextField
+                  name="target_url"
+                  label="Target URL"
+                  reqText="Target url is required"
+                />
+              </FlexboxGrid.Item>
 
-                  {/*  link_type_id  */}
-                  <div>
-                    <TextInput
-                      defaultValue={editData?.link_type_id}
-                      type="number"
-                      id="link_cons_link_type_id"
-                      labelText="Link Type Id"
-                      placeholder="Please enter link type id"
-                      {...register('link_type_id', {
-                        required: editData?.link_type_id ? false : true,
-                      })}
-                    />
-                    <p className={errText}>{errors.url && 'Invalid link type id'}</p>
-                  </div>
-                </div>
+              <FlexboxGrid.Item style={{ marginTop: '30px' }} colspan={24}>
+                <SelectField
+                  placeholder="Select application id"
+                  name="application_id"
+                  label="Application ID"
+                  accepter={CustomSelect}
+                  options={applicationList?.items ? applicationList?.items : []}
+                  error={formError.organization_id}
+                  reqText="Application ID is required"
+                />
+              </FlexboxGrid.Item>
 
-                <div className={flNameContainer}>
-                  {/* source_url  */}
-                  <div>
-                    <TextInput
-                      defaultValue={editData?.source_url}
-                      type="text"
-                      id="link-constraint_source_url"
-                      labelText="Source Url"
-                      placeholder="Please enter link source url"
-                      {...register('source_url', {
-                        required: editData?.source_url ? false : true,
-                      })}
-                    />
-                    <p className={errText}>{errors.source_url && 'Invalid source url'}</p>
-                  </div>
+              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                <SelectField
+                  placeholder="Select link type id"
+                  name="link_type_id"
+                  label="Link Type ID"
+                  accepter={CustomSelect}
+                  options={allLinkTypes?.items ? allLinkTypes?.items : []}
+                  error={formError.organization_id}
+                  reqText="Link type ID is required"
+                />
+              </FlexboxGrid.Item>
 
-                  {/*  target_url  */}
-                  <div>
-                    <TextInput
-                      defaultValue={editData?.target_url}
-                      type="text"
-                      id="link_cons_target_url"
-                      labelText="Target Url"
-                      placeholder="Please enter target url"
-                      {...register('target_url', {
-                        required: editData?.target_url ? false : true,
-                      })}
-                    />
-                    <p className={errText}>
-                      {errors.target_url && 'Invalid link type id'}
-                    </p>
-                  </div>
-                </div>
+              <FlexboxGrid.Item colspan={24} style={{ marginBottom: '10px' }}>
+                <TextField
+                  name="description"
+                  label="Description"
+                  accepter={TextArea}
+                  rows={5}
+                  reqText="Link constraint description is required"
+                />
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          </Form>
+        </div>
+      </AddNewModal>
 
-                {/* Description  */}
-                <div>
-                  <TextArea
-                    defaultValue={editData?.description}
-                    id="linkCons_description"
-                    required={editData?.description ? false : true}
-                    onChange={(e) => setLinkConsDesc(e.target.value)}
-                    labelText="Application description"
-                    placeholder="Please enter Description"
-                  />
-                </div>
-
-                <div className={modalBtnCon}>
-                  <Button kind="secondary" size="md" onClick={addModalClose}>
-                    Cancel
-                  </Button>
-                  <Button kind="primary" size="md" type="submit">
-                    {editData?.name ? 'Save' : 'Ok'}
-                  </Button>
-                </div>
-              </Stack>
-            </form>
-          </ModalBody>
-        </ComposedModal>
-      </Theme>
-
-      {isLinkConsLoading && <ProgressBar label="" />}
-      <UseTable props={tableProps} />
+      {isLinkConsLoading && (
+        <FlexboxGrid justify="center">
+          <Loader size="md" label="" />
+        </FlexboxGrid>
+      )}
+      <AdminDataTable props={tableProps} />
     </div>
   );
 };
