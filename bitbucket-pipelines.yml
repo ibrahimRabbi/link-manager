@@ -8,6 +8,11 @@ definitions:
 
   variables:
     SENTRY_DSN: $SENTRY_DSN
+    LM_REST_API_URL: $LM_REST_API_URL
+    JIRA_OSLC_API_URL: $JIRA_OSLC_API_URL
+    GITLAB_OSLC_API_URL: $GITLAB_OSLC_API_URL
+    GLIDE_OSLC_API_URL: $GLIDE_OSLC_API_URL
+
 
   steps:
     - step: &lint
@@ -25,11 +30,11 @@ definitions:
         script:
           - touch .env
           - echo "NODE_ENV=development" >> .env
-          - echo "REACT_APP_LM_REST_API_URL=https://lm-api-dev.koneksys.com/api/v1" >> .env
+          - echo "REACT_APP_LM_REST_API_URL=$LM_REST_API_URL" >> .env
           - echo "REACT_APP_CONFIGURATION_AWARE=false" >> .env
-          - echo "REACT_APP_JIRA_DIALOG_URL=https://jira-oslc-api-dev.koneksys.com" >> .env
-          - echo "REACT_APP_GITLAB_DIALOG_URL=https://gitlab-oslc-api-dev.koneksys.com" >> .env
-          - echo "REACT_APP_GLIDE_DIALOG_URL=https://glide-oslc-api-dev.koneksys.com" >> .env
+          - echo "REACT_APP_JIRA_DIALOG_URL=$JIRA_OSLC_API_URL" >> .env
+          - echo "REACT_APP_GITLAB_DIALOG_URL=$GITLAB_OSLC_API_URL" >> .env
+          - echo "REACT_APP_GLIDE_DIALOG_URL=$GLIDE_OSLC_API_URL" >> .env
           - echo "REACT_APP_SENTRY_DSN=$SENTRY_DSN" >> .env
           - yarn install
           - yarn build
