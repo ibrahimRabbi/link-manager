@@ -57,6 +57,10 @@ pipelines:
 
       - step: *build
 
+      - step:
+          <<: *docker-build
+          name: 'Docker Build on Production'
+
       # The following deployment steps will be executed for each pipeline run. To configure your steps and conditionally deploy see https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/
       - step:
           name: 'Deployment to Staging'
@@ -70,6 +74,12 @@ pipelines:
                 LOCAL_PATH: 'build/**'
 
     main:
+      - step:
+          <<: *docker-build
+          name: 'Docker Build on Production'
+
+      - step: *build
+
       - step:
           name: 'Deployment to Production'
           deployment: production
