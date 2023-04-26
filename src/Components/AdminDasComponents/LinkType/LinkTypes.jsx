@@ -6,11 +6,16 @@ import {
   fetchCreateLinkType,
   fetchDeleteLinkType,
   fetchLinkTypes,
+  fetchUpdateLinkType,
   // fetchCreateLinkType,
   // fetchUpdateLinkType,
 } from '../../../Redux/slices/linkTypeSlice';
 import AuthContext from '../../../Store/Auth-Context';
-import { handleCurrPageTitle, handleIsAddNewModal } from '../../../Redux/slices/navSlice';
+import {
+  handleCurrPageTitle,
+  handleIsAddNewModal,
+  handleIsAdminEditing,
+} from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
 import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
 import TextField from '../TextField';
@@ -75,10 +80,11 @@ const LinkTypes = () => {
     isLinkTypeUpdated,
     isLinkTypeDeleted,
   } = useSelector((state) => state.linkTypes);
-  const { refreshData } = useSelector((state) => state.nav);
+  const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
+  const [editData, setEditData] = useState({});
   const [formValue, setFormValue] = useState({
     name: '',
     url: '',
@@ -104,6 +110,7 @@ const LinkTypes = () => {
 
   // handle open add modal
   const handleAddNew = () => {
+    handleResetForm();
     dispatch(handleIsAddNewModal(true));
   };
 
@@ -111,69 +118,41 @@ const LinkTypes = () => {
     if (!linkTypeFormRef.current.check()) {
       console.error('Form Error', formError);
       return;
+    } else if (isAdminEditing) {
+      const putUrl = `${lmApiUrl}/link-type/${editData?.id}`;
+      dispatch(
+        fetchUpdateLinkType({
+          url: putUrl,
+          token: authCtx.token,
+          bodyData: formValue,
+        }),
+      );
+    } else {
+      const postUrl = `${lmApiUrl}/link-type`;
+      dispatch(
+        fetchCreateLinkType({
+          url: postUrl,
+          token: authCtx.token,
+          bodyData: formValue,
+        }),
+      );
     }
-
-    const postUrl = `${lmApiUrl}/link-type`;
-    dispatch(
-      fetchCreateLinkType({
-        url: postUrl,
-        token: authCtx.token,
-        bodyData: formValue,
-      }),
-    );
     dispatch(handleIsAddNewModal(false));
+    if (isAdminEditing) dispatch(handleIsAdminEditing(false));
   };
 
-  // add modal close
-  // const addModalClose = () => {
-  //   setEditData({});
-  //   setIsAddModal(false);
-  //   reset();
-  // };
-
-  // create and edit link type form submit
-  // const handleAddLinkType = (data) => {
-  //   // update link type
-  //   setIsAddModal(false);
-  //   if (editData?.name) {
-  //     data = {
-  //       name: data?.name ? data?.name : editData?.name,
-  //       url: data?.url ? data?.url : editData?.url,
-  //       application_id: data?.application_id
-  //         ? data?.application_id
-  //         : editData?.application_id,
-  //       incoming_label: data?.incoming_label
-  //         ? data?.incoming_label
-  //         : editData?.incoming_label,
-  //       outgoing_label: data?.outgoing_label
-  //         ? data?.outgoing_label
-  //         : editData?.outgoing_label,
-  //       description: linkDesc ? linkDesc : editData?.description,
-  //     };
-  //     const putUrl = `${lmApiUrl}/link-type/${editData?.id}`;
-  //     dispatch(
-  //       fetchUpdateLinkType({
-  //         url: putUrl,
-  //         token: authCtx.token,
-  //         bodyData: data,
-  //         reset,
-  //       }),
-  //     );
-  //   }
-  //   // create link type
-  //   else {
-  //     data.description = linkDesc;
-  //     const postUrl = `${lmApiUrl}/link-type`;
-  //     dispatch(
-  //       fetchCreateLinkType({
-  //         url: postUrl,
-  //         token: authCtx.token,
-  //         bodyData: data,
-  //         reset,
-  //       }),
-  //     );
-  //   }
-  // };
+  // reset form
+  const handleResetForm = () => {
+    setEditData({});
+    setFormValue({
+      name: '',
+      url: '',
+      application_id: '',
+      incoming_label: '',
+      outgoing_label: '',
+      description: '',
+    });
+  };
 
   useEffect(() => {
     dispatch(
@@ -219,7 +198,17 @@ const LinkTypes = () => {
   };
   // handle Edit link type
   const handleEdit = (data) => {
-    console.log(data);
+    setEditData(data);
+    dispatch(handleIsAdminEditing(true));
+    setFormValue({
+      name: data?.name,
+      url: data?.url,
+      application_id: data?.application_id,
+      incoming_label: data?.incoming_label,
+      outgoing_label: data?.outgoing_label,
+      description: data?.description,
+    });
+    dispatch(handleIsAddNewModal(true));
   };
 
   // send props in the batch action table
@@ -241,7 +230,11 @@ const LinkTypes = () => {
 
   return (
     <div>
-      <AddNewModal handleSubmit={handleAddLinkType} title="Add New Link Type">
+      <AddNewModal
+        title={isAdminEditing ? 'Edit Link Type' : 'Add New Link Type'}
+        handleSubmit={handleAddLinkType}
+        handleReset={handleResetForm}
+      >
         <div className="show-grid">
           <Form
             fluid

@@ -11,11 +11,6 @@ import styles from './LinkManager.module.scss';
 import SourceSection from '../SourceSection';
 import LinksDataTable from '../Shared/UseDataTable/LinksDataTable';
 
-// import AddOutlineIcon from '@rsuite/icons/AddOutline';
-// import WbeTopNav from '../Shared/NavigationBar/WbeTopNav';
-// import LinksTable from '../Shared/UseDataTable/LinksTable';
-// import UseDataTable from '../Shared/UseDataTable/UseDataTable';
-
 const {
   dropdownStyle,
   inputContainer,
@@ -163,19 +158,8 @@ const LinkManager = () => {
                   <Loader size="md" />
                 </FlexboxGrid>
               )}
-              {/* {
-                location.pathname === '/' || '/wbe' &&
-                <UseDataTable props={tableProps} />
-              } */}
-              {/* {location.pathname === '/' || '/wbe' &&  */}
+
               <LinksDataTable props={tableProps} />
-
-              {/* } */}
-
-              {/* {
-                linksData?.items?.length && 
-              <LinksTable props={tableProps} rowsData={linksData?.items}/>
-              } */}
             </div>
           </div>
         </div>

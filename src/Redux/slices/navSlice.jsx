@@ -12,6 +12,7 @@ export const fetchStreamItems = createAsyncThunk(
 );
 
 const initialState = {
+  isAdminEditing: false,
   isProfileOpen: false,
   isSidebarOpen: false,
   refreshData: false,
@@ -52,8 +53,13 @@ export const navSlice = createSlice({
     handleIsSidebarOpen: (state, { payload }) => {
       state.isSidebarOpen = payload;
     },
+
     handleIsAdminSidebarOpen: (state, { payload }) => {
       state.isAdminSidebarOpen = payload;
+    },
+
+    handleIsAdminEditing: (state, { payload }) => {
+      state.isAdminEditing = payload;
     },
 
     // admin add new modal
@@ -92,6 +98,7 @@ export const navSlice = createSlice({
 // Action creators are generated for each case reducer function
 export const {
   handleIsDarkMode,
+  handleIsAdminEditing,
   handleIsAdminSidebarOpen,
   handleIsSidebarOpen,
   handleCurrPageTitle,

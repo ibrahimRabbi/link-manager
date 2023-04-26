@@ -5,11 +5,14 @@ import {
   fetchCreateProj,
   fetchDeleteProj,
   fetchProjects,
-  // fetchCreateProj,
-  // fetchUpdateProj,
+  fetchUpdateProj,
 } from '../../../Redux/slices/projectSlice';
 import AuthContext from '../../../Store/Auth-Context';
-import { handleCurrPageTitle, handleIsAddNewModal } from '../../../Redux/slices/navSlice';
+import {
+  handleCurrPageTitle,
+  handleIsAddNewModal,
+  handleIsAdminEditing,
+} from '../../../Redux/slices/navSlice';
 import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
@@ -48,10 +51,11 @@ const model = Schema.Model({
 const Projects = () => {
   const { allProjects, isProjLoading, isProjCreated, isProjUpdated, isProjDeleted } =
     useSelector((state) => state.projects);
-  const { refreshData } = useSelector((state) => state.nav);
+  const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
+  const [editData, setEditData] = useState({});
   const [formValue, setFormValue] = useState({
     name: '',
     description: '',
@@ -71,74 +75,42 @@ const Projects = () => {
     setPageSize(dataKey);
   };
 
-  // handle open add user modal
-  const handleAddNew = () => {
-    dispatch(handleIsAddNewModal(true));
-  };
-
   const handleAddProject = () => {
     if (!projectFormRef.current.check()) {
       console.error('Form Error', formError);
       return;
+    } else if (isAdminEditing) {
+      const putUrl = `${lmApiUrl}/project/${editData?.id}`;
+      dispatch(
+        fetchUpdateProj({
+          url: putUrl,
+          token: authCtx.token,
+          bodyData: formValue,
+        }),
+      );
+    } else {
+      const postUrl = `${lmApiUrl}/project`;
+      dispatch(
+        fetchCreateProj({
+          url: postUrl,
+          token: authCtx.token,
+          bodyData: formValue,
+        }),
+      );
     }
 
-    console.log(formValue);
-    const postUrl = `${lmApiUrl}/project`;
-    dispatch(
-      fetchCreateProj({
-        url: postUrl,
-        token: authCtx.token,
-        bodyData: formValue,
-      }),
-    );
+    dispatch(handleIsAddNewModal(false));
+    if (isAdminEditing) dispatch(handleIsAdminEditing(false));
+  };
 
+  // reset form
+  const handleResetForm = () => {
+    setEditData({});
     setFormValue({
       name: '',
       description: '',
     });
-    dispatch(handleIsAddNewModal(false));
   };
-
-  // add modal close
-  // const addModalClose = () => {
-  //   setEditData({});
-  //   setIsAddModal(false);
-  //   reset();
-  // };
-
-  // create and edit project form submit
-  // const handleAddUser = (data) => {
-  //   setIsAddModal(false);
-  //   // update project
-  //   if (editData?.name) {
-  //     data = {
-  //       name: data?.name ? data?.name : editData?.name,
-  //       description: projectDescription ? projectDescription : editData?.description,
-  //     };
-  //     const putUrl = `${lmApiUrl}/project/${editData?.id}`;
-  //     dispatch(
-  //       fetchUpdateProj({
-  //         url: putUrl,
-  //         token: authCtx.token,
-  //         bodyData: data,
-  //         reset,
-  //       }),
-  //     );
-  //   }
-  //   // create project
-  //   else {
-  //     data.description = projectDescription;
-  //     const postUrl = `${lmApiUrl}/project`;
-  //     dispatch(
-  //       fetchCreateProj({
-  //         url: postUrl,
-  //         token: authCtx.token,
-  //         bodyData: data,
-  //         reset,
-  //       }),
-  //     );
-  //   }
-  // };
 
   // get all projects
   useEffect(() => {
@@ -147,6 +119,12 @@ const Projects = () => {
     const getUrl = `${lmApiUrl}/project?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchProjects({ url: getUrl, token: authCtx.token }));
   }, [isProjCreated, isProjUpdated, isProjDeleted, pageSize, currPage, refreshData]);
+
+  // handle open add user modal
+  const handleAddNew = () => {
+    handleResetForm();
+    dispatch(handleIsAddNewModal(true));
+  };
 
   // handle delete project
   const handleDelete = (data) => {
@@ -168,7 +146,14 @@ const Projects = () => {
   };
   // handle Edit project
   const handleEdit = (data) => {
-    console.log(data);
+    setEditData(data);
+    dispatch(handleIsAdminEditing(true));
+    setFormValue({
+      name: data?.name,
+      description: data?.description,
+    });
+
+    dispatch(handleIsAddNewModal(true));
   };
 
   // send props in the batch action table
@@ -190,7 +175,11 @@ const Projects = () => {
 
   return (
     <div>
-      <AddNewModal title="Add New Project" handleSubmit={handleAddProject}>
+      <AddNewModal
+        title={isAdminEditing ? 'Edit Project' : 'Add New Project'}
+        handleSubmit={handleAddProject}
+        handleReset={handleResetForm}
+      >
         <Form
           fluid
           ref={projectFormRef}

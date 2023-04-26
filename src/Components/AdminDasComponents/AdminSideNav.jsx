@@ -12,6 +12,8 @@ import { SlOrganization } from 'react-icons/sl';
 import { SiWebcomponentsdotorg } from 'react-icons/si';
 import { TbApps } from 'react-icons/tb';
 import { VscProject } from 'react-icons/vsc';
+import { CgLink } from 'react-icons/cg';
+import { darkColor, lightBgColor } from '../../App';
 
 const AdminSideNav = () => {
   const { isDark, isAdminSidebarOpen } = useSelector((state) => state.nav);
@@ -27,7 +29,7 @@ const AdminSideNav = () => {
           flexDirection: 'column',
           minHeight: '100vh',
           boxShadow: `2px 2px 5px ${isDark == 'light' ? 'lightgray' : '#292D33'}`,
-          backgroundColor: isDark == 'dark' ? '#1a1d24' : 'white',
+          backgroundColor: isDark == 'dark' ? darkColor : lightBgColor,
         }}
         width={isAdminSidebarOpen ? 200 : 56}
         collapsible
@@ -73,7 +75,11 @@ const AdminSideNav = () => {
                 active={pathname === '/admin/applications'}
                 onClick={() => navigate('/admin/applications')}
               >
-                <TbApps className="adminDasIcon" />
+                <TbApps
+                  className="adminDasIcon"
+                  size={20}
+                  style={{ marginLeft: '-37px' }}
+                />
                 Applications
               </Nav.Item>
 
@@ -82,7 +88,11 @@ const AdminSideNav = () => {
                 active={pathname === '/admin/projects'}
                 onClick={() => navigate('/admin/projects')}
               >
-                <VscProject className="adminDasIcon" />
+                <VscProject
+                  className="adminDasIcon"
+                  size={18}
+                  style={{ marginLeft: '-36px' }}
+                />
                 Projects
               </Nav.Item>
 
@@ -100,7 +110,11 @@ const AdminSideNav = () => {
                 active={pathname === '/admin/link-constraint'}
                 onClick={() => navigate('/admin/link-constraint')}
               >
-                <FaLink className="adminDasIcon" />
+                <CgLink
+                  size={22}
+                  style={{ marginLeft: '-39px' }}
+                  className="adminDasIcon"
+                />
                 Link Constraint
               </Nav.Item>
 
@@ -118,7 +132,11 @@ const AdminSideNav = () => {
                 active={pathname === '/'}
                 onClick={() => navigate('/')}
               >
-                <TiArrowBackOutline className="adminDasIcon" />
+                <TiArrowBackOutline
+                  size={21}
+                  style={{ marginLeft: '-36px' }}
+                  className="adminDasIcon"
+                />
                 Back To Home
               </Nav.Item>
             </Nav>

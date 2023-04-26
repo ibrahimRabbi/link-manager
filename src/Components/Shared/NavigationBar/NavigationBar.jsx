@@ -13,6 +13,7 @@ import { BiUserCircle, BiLogOut } from 'react-icons/bi';
 const { userContainer, content, popButton } = styles;
 
 import { ImBrightnessContrast } from 'react-icons/im';
+import { darkColor, lightBgColor } from '../../../App';
 const NavigationBar = () => {
   const authCtx = useContext(AuthContext);
   const { currPageTitle, isDark, isProfileOpen } = useSelector((state) => state.nav);
@@ -88,7 +89,8 @@ const NavigationBar = () => {
     <>
       <Navbar
         style={{
-          backgroundColor: isDark == 'dark' ? '' : 'white',
+          backgroundColor: isDark == 'dark' ? darkColor : lightBgColor,
+          boxShadow: `2px 2px 5px ${isDark == 'light' ? 'lightgray' : '#292D33'}`,
         }}
       >
         <Navbar.Brand

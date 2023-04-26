@@ -1,4 +1,3 @@
-import { ProgressBar } from '@carbon/react';
 import React, { useContext, useEffect } from 'react';
 import ReactGraph from 'react-graph';
 import { useDispatch, useSelector } from 'react-redux';
@@ -6,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { fetchGraphData } from '../../Redux/slices/graphSlice';
 import { handleCurrPageTitle, handleIsProfileOpen } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context';
+import { FlexboxGrid, Loader } from 'rsuite';
 
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/visualize/staged`;
 
@@ -38,7 +38,9 @@ const GraphView = () => {
         className={wbePath ? 'wbeNavSpace' : ''}
       >
         {graphLoading ? (
-          <ProgressBar label="" />
+          <FlexboxGrid justify="center">
+            <Loader size="md" label="" />
+          </FlexboxGrid>
         ) : (
           <div className="graphContainer">
             <ReactGraph

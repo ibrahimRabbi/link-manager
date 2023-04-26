@@ -15,6 +15,7 @@ import { handleIsDarkMode, handleIsSidebarOpen } from '../../../Redux/slices/nav
 import MenuIcon from '@rsuite/icons/Menu';
 import CloseIcon from '@rsuite/icons/Close';
 import DashboardIcon from '@rsuite/icons/Dashboard';
+import { darkColor, lightBgColor } from '../../../App';
 
 const SideNavBar = ({ isWbe }) => {
   const { isDark, isSidebarOpen } = useSelector((state) => state.nav);
@@ -53,7 +54,7 @@ const SideNavBar = ({ isWbe }) => {
           flexDirection: 'column',
           minHeight: isWbe ? '100vh' : '94vh',
           boxShadow: `2px 2px 5px ${isDark == 'light' ? 'lightgray' : '#292D33'}`,
-          backgroundColor: isDark == 'dark' ? '#1a1d24' : 'white',
+          backgroundColor: isDark == 'dark' ? darkColor : lightBgColor,
         }}
         width={isSidebarOpen ? 200 : 56}
         collapsible

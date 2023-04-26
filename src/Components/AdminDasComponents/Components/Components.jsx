@@ -6,11 +6,14 @@ import {
   fetchCreateComp,
   fetchDeleteComp,
   fetchProjectList,
-  // fetchCreateComp,
-  // fetchUpdateComp,
+  fetchUpdateComp,
 } from '../../../Redux/slices/componentSlice';
 import AuthContext from '../../../Store/Auth-Context';
-import { handleCurrPageTitle, handleIsAddNewModal } from '../../../Redux/slices/navSlice';
+import {
+  handleCurrPageTitle,
+  handleIsAddNewModal,
+  handleIsAdminEditing,
+} from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import AdminDataTable from '../AdminDataTable';
 import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
@@ -70,11 +73,12 @@ const Components = () => {
     isCompDeleted,
     projectList,
   } = useSelector((state) => state.components);
-  const { refreshData } = useSelector((state) => state.nav);
+  const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
 
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
+  const [editData, setEditData] = useState({});
   const [formValue, setFormValue] = useState({
     name: '',
     project_id: '',
@@ -85,64 +89,6 @@ const Components = () => {
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
-  // handle open add component modal
-  const handleAddNew = () => {
-    dispatch(handleIsAddNewModal(true));
-  };
-
-  const handleAddLinkComponent = () => {
-    if (!componentFormRef.current.check()) {
-      console.error('Form Error', formError);
-      return;
-    }
-
-    console.log(formValue);
-    const postUrl = `${lmApiUrl}/component`;
-    dispatch(
-      fetchCreateComp({
-        url: postUrl,
-        token: authCtx.token,
-        bodyData: formValue,
-      }),
-    );
-    dispatch(handleIsAddNewModal(false));
-  };
-
-  // create and edit component form submit
-  // const handleAddUser = (data) => {
-  //   setIsAddModal(false);
-  //   // update component
-  //   if (editData?.name) {
-  //     data = {
-  //       name: data?.name ? data?.name : editData?.name,
-  //       project_id: data.project_id ? data.project_id : editData?.project_id,
-  //       description: componentDesc ? componentDesc : editData?.description,
-  //     };
-  //     const putUrl = `${lmApiUrl}/component/${editData?.id}`;
-  //     dispatch(
-  //       fetchUpdateComp({
-  //         url: putUrl,
-  //         token: authCtx.token,
-  //         bodyData: data,
-  //         reset,
-  //       }),
-  //     );
-  //   }
-  //   // Create component
-  //   else {
-  //     data.description = componentDesc;
-  //     const postUrl = `${lmApiUrl}/component`;
-  //     dispatch(
-  //       fetchCreateComp({
-  //         url: postUrl,
-  //         token: authCtx.token,
-  //         bodyData: data,
-  //         reset,
-  //       }),
-  //     );
-  //   }
-  // };
-
   // Pagination
   const handlePagination = (value) => {
     setCurrPage(value);
@@ -151,6 +97,49 @@ const Components = () => {
   const handleChangeLimit = (dataKey) => {
     setCurrPage(1);
     setPageSize(dataKey);
+  };
+
+  // handle open add component modal
+  const handleAddNew = () => {
+    handleResetForm();
+    dispatch(handleIsAddNewModal(true));
+  };
+
+  const handleAddLinkComponent = () => {
+    if (!componentFormRef.current.check()) {
+      console.error('Form Error', formError);
+      return;
+    } else if (isAdminEditing) {
+      const putUrl = `${lmApiUrl}/component/${editData?.id}`;
+      dispatch(
+        fetchUpdateComp({
+          url: putUrl,
+          token: authCtx.token,
+          bodyData: formValue,
+        }),
+      );
+    } else {
+      const postUrl = `${lmApiUrl}/component`;
+      dispatch(
+        fetchCreateComp({
+          url: postUrl,
+          token: authCtx.token,
+          bodyData: formValue,
+        }),
+      );
+    }
+    dispatch(handleIsAddNewModal(false));
+    if (isAdminEditing) dispatch(handleIsAdminEditing(false));
+  };
+
+  // reset form
+  const handleResetForm = () => {
+    setEditData({});
+    setFormValue({
+      name: '',
+      project_id: '',
+      description: '',
+    });
   };
 
   useEffect(() => {
@@ -189,7 +178,14 @@ const Components = () => {
   };
   // handle Edit component
   const handleEdit = (data) => {
-    console.log(data);
+    setEditData(data);
+    dispatch(handleIsAdminEditing(true));
+    setFormValue({
+      name: data?.name,
+      project_id: data?.project_id,
+      description: data?.description,
+    });
+    dispatch(handleIsAddNewModal(true));
   };
 
   // send props in the batch action table
@@ -211,7 +207,11 @@ const Components = () => {
 
   return (
     <div>
-      <AddNewModal title="Add New Component" handleSubmit={handleAddLinkComponent}>
+      <AddNewModal
+        title={isAdminEditing ? 'Edit Component' : 'Add New Component'}
+        handleSubmit={handleAddLinkComponent}
+        handleReset={handleResetForm}
+      >
         <div className="show-grid">
           <Form
             fluid

@@ -1,8 +1,4 @@
-// import { Button, Stack, TextInput } from '@carbon/react';
 import React from 'react';
-// import { useForm } from 'react-hook-form';
-// import { useDispatch } from 'react-redux';
-// import { fetchCreateUser, fetchUpdateUser } from '../../../Redux/slices/usersSlice';
 import AuthContext from '../../../Store/Auth-Context';
 
 // import styles from './Users.module.scss';
@@ -13,8 +9,8 @@ import { Form, Button, Schema, FlexboxGrid } from 'rsuite';
 import TextField from '../TextField';
 import { useContext } from 'react';
 import { useDispatch } from 'react-redux';
-import { fetchCreateUser } from '../../../Redux/slices/usersSlice';
-import { useEffect } from 'react';
+import { fetchCreateUser, fetchUpdateUser } from '../../../Redux/slices/usersSlice';
+import { handleIsAdminEditing } from '../../../Redux/slices/navSlice';
 
 const { StringType } = Schema.Types;
 
@@ -27,41 +23,35 @@ const model = Schema.Model({
     .isRequired('This field is required.'),
 });
 
-const AddUser = ({ isUserSection, handleClose, editData }) => {
+const AddUser = ({
+  isUserSection,
+  handleClose,
+  editData,
+  formValue,
+  setFormValue,
+  isAdminEditing,
+}) => {
   const [formError, setFormError] = React.useState({});
-  const [formValue, setFormValue] = React.useState({
-    first_name: '',
-    last_name: '',
-    username: '',
-    email: '',
-  });
+
   const userFormRef = React.useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (editData?.id) {
-      setFormValue({
-        first_name: editData?.first_name,
-        last_name: editData?.last_name,
-        username: editData?.username,
-        email: editData?.email,
-      });
-    }
-  }, [editData]);
 
   const handleSubmit = () => {
     if (!userFormRef.current.check()) {
       console.error('Form Error', formError);
       return;
-    }
-
-    const postUrl = `${lmApiUrl}/user`;
-
-    if (editData?.id) {
-      // handle edit
+    } else if (isAdminEditing) {
+      const putUrl = `${lmApiUrl}/user/${editData?.id}`;
+      dispatch(
+        fetchUpdateUser({
+          url: putUrl,
+          token: authCtx.token,
+          bodyData: formValue,
+        }),
+      );
     } else {
-      // handle create
+      const postUrl = `${lmApiUrl}/user`;
       dispatch(
         fetchCreateUser({
           url: postUrl,
@@ -72,56 +62,8 @@ const AddUser = ({ isUserSection, handleClose, editData }) => {
     }
     // close modal
     if (handleClose) handleClose();
+    if (isAdminEditing) dispatch(handleIsAdminEditing(false));
   };
-
-  // console.log(formValue);
-  // const {
-  //   handleSubmit,
-  //   register,
-  //   reset,
-  //   formState: { errors },
-  // } = useForm();
-  // const dispatch = useDispatch();
-
-  // create user and edit user form submit
-  // const handleAddUser = (data) => {
-  // console.log(data);
-  // console.log('form value', formValue);
-  // setIsAddModal(false);
-  // Update user
-  // if (editData?.email) {
-  //   data = {
-  //     first_name: data?.first_name ? data?.first_name : editData?.first_name,
-  //     last_name: data?.lsat_name ? data?.last_name : editData?.last_name,
-  //     username: data?.username ? data?.username : editData?.username,
-  //     email: data?.email ? data?.email : editData?.email,
-  //   };
-  //   const putUrl = `${lmApiUrl}/user/${editData?.id}`;
-  //   dispatch(
-  //     fetchUpdateUser({
-  //       url: putUrl,
-  //       token: authCtx.token,
-  //       bodyData: data,
-  //       reset,
-  //     }),
-  //   );
-  //   console.log(data);
-  // }
-  // Create User
-  // else {
-  // data.enabled = true;
-  // const postUrl = `${lmApiUrl}/user`;
-  // dispatch(
-  //   fetchCreateUser({
-  //     url: postUrl,
-  //     token: authCtx.token,
-  //     bodyData: data,
-  //     reset,
-  //   }),
-  // );
-  // console.log(data);
-  // }
-  // };
 
   return (
     <div className="show-grid">
@@ -131,7 +73,6 @@ const AddUser = ({ isUserSection, handleClose, editData }) => {
         onChange={setFormValue}
         onCheck={setFormError}
         formValue={formValue}
-        // formDefaultValue={}
         model={model}
       >
         <FlexboxGrid justify="space-between">

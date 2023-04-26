@@ -3,7 +3,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import { fetchDeleteUser, fetchUsers } from '../../../Redux/slices/usersSlice';
 import AuthContext from '../../../Store/Auth-Context';
-import { handleCurrPageTitle } from '../../../Redux/slices/navSlice';
+import {
+  handleCurrPageTitle,
+  handleIsAdminEditing,
+} from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
 import { FlexboxGrid, Loader, Modal } from 'rsuite';
 import AddUser from './AddUser';
@@ -38,20 +41,40 @@ const Users = () => {
   const { allUsers, usersLoading, isUserCreated, isUserDeleted } = useSelector(
     (state) => state.users,
   );
-  const { refreshData } = useSelector((state) => state.nav);
+  const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [isAddModal, setIsAddModal] = useState(false);
   const [editData, setEditData] = useState({});
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [formValue, setFormValue] = React.useState({
+    first_name: '',
+    last_name: '',
+    username: '',
+    email: '',
+  });
 
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
-  const handleClose = () => setIsAddModal(false);
+  const handleClose = () => {
+    setIsAddModal(false);
+    handleResetForm();
+  };
 
   // handle open add user modal
   const handleAddNew = () => {
     setIsAddModal(true);
+  };
+
+  // reset form
+  const handleResetForm = () => {
+    setEditData({});
+    setFormValue({
+      first_name: '',
+      last_name: '',
+      username: '',
+      email: '',
+    });
   };
 
   // Pagination
@@ -94,6 +117,13 @@ const Users = () => {
   // handle Edit user
   const handleEdit = (data) => {
     setEditData(data);
+    setFormValue({
+      first_name: data?.first_name,
+      last_name: data?.last_name,
+      username: data?.username,
+      email: data?.email,
+    });
+    dispatch(handleIsAdminEditing(true));
     setIsAddModal(true);
   };
 
@@ -118,11 +148,19 @@ const Users = () => {
     <div>
       <Modal backdrop={'true'} keyboard={false} open={isAddModal} onClose={handleClose}>
         <Modal.Header>
-          <Modal.Title style={{ fontSize: '20px' }}>Add New User</Modal.Title>
+          <Modal.Title className="adminModalTitle">
+            {isAdminEditing ? 'Edit User' : 'Add New User'}
+          </Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
-          <AddUser editData={editData} handleClose={handleClose} isUserSection={true} />
+          <AddUser
+            formValue={formValue}
+            setFormValue={setFormValue}
+            editData={editData}
+            handleClose={handleClose}
+            isUserSection={true}
+          />
         </Modal.Body>
         <Modal.Footer></Modal.Footer>
       </Modal>

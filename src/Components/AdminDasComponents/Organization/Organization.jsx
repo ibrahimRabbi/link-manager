@@ -5,9 +5,14 @@ import {
   fetchCreateOrg,
   fetchDeleteOrg,
   fetchOrganizations,
+  fetchUpdateOrg,
 } from '../../../Redux/slices/organizationSlice';
 import AuthContext from '../../../Store/Auth-Context';
-import { handleCurrPageTitle, handleIsAddNewModal } from '../../../Redux/slices/navSlice';
+import {
+  handleCurrPageTitle,
+  handleIsAddNewModal,
+  handleIsAdminEditing,
+} from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
 import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
@@ -54,11 +59,11 @@ const model = Schema.Model({
 const Organization = () => {
   const { allOrganizations, isOrgLoading, isOrgCreated, isOrgDeleted, isOrgUpdated } =
     useSelector((state) => state.organizations);
-  const { refreshData } = useSelector((state) => state.nav);
-  const [editData, setEditData] = useState({});
+  const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
+  const [editData, setEditData] = useState({});
   const [formValue, setFormValue] = useState({
     name: '',
     url: '',
@@ -70,19 +75,45 @@ const Organization = () => {
   const orgFormRef = React.useRef();
 
   const handleAddOrg = () => {
+    // throw form validation error
     if (!orgFormRef.current.check()) {
       console.error('Form Error', formError);
       return;
     }
-    const postUrl = `${lmApiUrl}/organization`;
-    dispatch(
-      fetchCreateOrg({
-        url: postUrl,
-        token: authCtx.token,
-        bodyData: formValue,
-      }),
-    );
+    // editing org
+    else if (isAdminEditing) {
+      const putUrl = `${lmApiUrl}/organization/${editData?.id}`;
+      dispatch(
+        fetchUpdateOrg({
+          url: putUrl,
+          token: authCtx.token,
+          bodyData: formValue,
+        }),
+      );
+    }
+    // creating org
+    else {
+      const postUrl = `${lmApiUrl}/organization`;
+      dispatch(
+        fetchCreateOrg({
+          url: postUrl,
+          token: authCtx.token,
+          bodyData: formValue,
+        }),
+      );
+    }
     dispatch(handleIsAddNewModal(false));
+    if (isAdminEditing) dispatch(handleIsAdminEditing(false));
+  };
+
+  // reset form
+  const handleResetForm = () => {
+    setEditData({});
+    setFormValue({
+      name: '',
+      url: '',
+      description: '',
+    });
   };
 
   // Pagination
@@ -97,52 +128,11 @@ const Organization = () => {
 
   // handle open add org modal
   const handleAddNew = () => {
-    // setIsAddModal(true);
+    handleResetForm();
     dispatch(handleIsAddNewModal(true));
   };
 
-  // add modal close
-  // const addModalClose = () => {
-  //   setEditData({});
-  //   setIsAddModal(false);
-  //   reset();
-  // };
-
-  // create and edit org form submit
-  // const handleAddOrg = (data) => {
-  //   setIsAddModal(false);
-  //   // Edit Organization
-  //   if (editData?.name) {
-  //     data = {
-  //       name: data?.name ? data?.name : editData?.name,
-  //       url: data?.url ? data?.url : editData?.url,
-  //       description: orgDescription ? orgDescription : editData?.description,
-  //     };
-  //     const putUrl = `${lmApiUrl}/organization/${editData?.id}`;
-  //     dispatch(
-  //       fetchUpdateOrg({
-  //         url: putUrl,
-  //         token: authCtx.token,
-  //         bodyData: data,
-  //         reset,
-  //       }),
-  //     );
-  //   }
-  //   // Create organization
-  //   else {
-  //     data.description = orgDescription;
-  //     const postUrl = `${lmApiUrl}/organization`;
-  //     dispatch(
-  //       fetchCreateOrg({
-  //         url: postUrl,
-  //         token: authCtx.token,
-  //         bodyData: data,
-  //         reset,
-  //       }),
-  //     );
-  //   }
-  // };
-
+  // load table data
   useEffect(() => {
     dispatch(handleCurrPageTitle('Organizations'));
 
@@ -172,12 +162,13 @@ const Organization = () => {
   // handle Edit org
   const handleEdit = (data) => {
     setEditData(data);
+    dispatch(handleIsAdminEditing(true));
     setFormValue({
-      name: editData?.name,
-      url: editData?.url,
-      description: editData?.description,
+      name: data?.name,
+      url: data?.url,
+      description: data?.description,
     });
-    // dispatch(handleIsAddNewModal(true));
+    dispatch(handleIsAddNewModal(true));
   };
 
   // send props in the batch action table
@@ -199,7 +190,11 @@ const Organization = () => {
 
   return (
     <div>
-      <AddNewModal title={'Add New Organization'} handleSubmit={handleAddOrg}>
+      <AddNewModal
+        title={isAdminEditing ? 'Edit Organization' : 'Add New Organization'}
+        handleSubmit={handleAddOrg}
+        handleReset={handleResetForm}
+      >
         <div className="show-grid">
           <Form
             fluid
@@ -207,7 +202,6 @@ const Organization = () => {
             onChange={setFormValue}
             onCheck={setFormError}
             formValue={formValue}
-            // formDefaultValue={}
             model={model}
           >
             <FlexboxGrid justify="space-between">

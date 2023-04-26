@@ -4,13 +4,17 @@ import Swal from 'sweetalert2';
 import {
   fetchApplications,
   fetchCreateApp,
-  // fetchCreateApp,
   fetchDeleteApp,
   fetchOrg,
+  fetchUpdateApp,
   // fetchUpdateApp,
 } from '../../../Redux/slices/applicationSlice';
 import AuthContext from '../../../Store/Auth-Context';
-import { handleCurrPageTitle, handleIsAddNewModal } from '../../../Redux/slices/navSlice';
+import {
+  handleCurrPageTitle,
+  handleIsAddNewModal,
+  handleIsAdminEditing,
+} from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
@@ -65,12 +69,12 @@ const Application = () => {
     isAppCreated,
     isAppDeleted,
   } = useSelector((state) => state.applications);
-  const { refreshData } = useSelector((state) => state.nav);
+  const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
 
-  // const [editData, setEditData] = useState({});
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
+  const [editData, setEditData] = useState({});
   const [formValue, setFormValue] = useState({
     name: '',
     url: '',
@@ -92,83 +96,6 @@ const Application = () => {
     );
   }, []);
 
-  // handle open add user modal
-  const handleAddNew = () => {
-    dispatch(handleIsAddNewModal(true));
-  };
-
-  const handleAddApplication = () => {
-    if (!appFormRef.current.check()) {
-      console.error('Form Error', formError);
-      return;
-    }
-
-    const postUrl = `${lmApiUrl}/application`;
-    dispatch(
-      fetchCreateApp({
-        url: postUrl,
-        token: authCtx.token,
-        bodyData: formValue,
-      }),
-    );
-    dispatch(handleIsAddNewModal(false));
-  };
-
-  // const addModalClose = () => {
-  //   setEditData({});
-  //   setAppDescription('');
-  //   setIsAddModal(false);
-  //   reset();
-  // };
-
-  // create and edit application form submit
-  // const handleAddApplication = (data) => {
-  //   setIsAddModal(false);
-  // update application
-  // if (editData?.name) {
-  //   data = {
-  //     name: data?.name ? data?.name : editData?.name,
-  //     url: data.url ? data.url : editData?.url,
-  //     description: appDescription ? appDescription : editData?.description,
-  //     oslc_domain: data.oslc_domain ? data.oslc_domain : editData?.oslc_domain,
-  //     organization_id: selectedItem?.id ? selectedItem?.id : editData?.organization_id,
-  //   };
-  //   console.log('edit submit: ', data);
-  //   const putUrl = `${lmApiUrl}/application/${editData?.id}`;
-  //   dispatch(
-  //     fetchUpdateApp({
-  //       url: putUrl,
-  //       token: authCtx.token,
-  //       bodyData: data,
-  // reset,
-  //     }),
-  //   );
-  // }
-  //   // Create application
-  //   else {
-  //     const appData = {
-  //       name: data.name,
-  //       url: data.url,
-  //       description: appDescription,
-  //       oslc_domain: data.oslc_domain,
-  //       organization_id: selectedItem?.id,
-  //     };
-  //     console.log('app submit: ', appData);
-  //     const postUrl = `${lmApiUrl}/application`;
-  //     dispatch(
-  //       fetchCreateApp({
-  //         url: postUrl,
-  //         token: authCtx.token,
-  //         bodyData: appData,
-  //         reset,
-  //       }),
-  //     );
-  //   }
-  //   setFilInput('');
-  //   setSelectedItem({});
-  //   // setOrgData({});
-  // };
-
   // Pagination
   const handlePagination = (value) => {
     setCurrPage(value);
@@ -177,6 +104,52 @@ const Application = () => {
   const handleChangeLimit = (dataKey) => {
     setCurrPage(1);
     setPageSize(dataKey);
+  };
+
+  const handleAddApplication = () => {
+    if (!appFormRef.current.check()) {
+      console.error('Form Error', formError);
+      return;
+    } else if (isAdminEditing) {
+      const putUrl = `${lmApiUrl}/application/${editData?.id}`;
+      dispatch(
+        fetchUpdateApp({
+          url: putUrl,
+          token: authCtx.token,
+          bodyData: formValue,
+        }),
+      );
+    } else {
+      const postUrl = `${lmApiUrl}/application`;
+      dispatch(
+        fetchCreateApp({
+          url: postUrl,
+          token: authCtx.token,
+          bodyData: formValue,
+        }),
+      );
+    }
+
+    dispatch(handleIsAddNewModal(false));
+    if (isAdminEditing) dispatch(handleIsAdminEditing(false));
+  };
+
+  // reset form
+  const handleResetForm = () => {
+    setEditData({});
+    setFormValue({
+      name: '',
+      url: '',
+      oslc_domain: '',
+      organization_id: '',
+      description: '',
+    });
+  };
+
+  // handle open add user modal
+  const handleAddNew = () => {
+    handleResetForm();
+    dispatch(handleIsAddNewModal(true));
   };
 
   useEffect(() => {
@@ -206,7 +179,17 @@ const Application = () => {
   };
   // handle Edit application
   const handleEdit = (data) => {
-    console.log(data);
+    setEditData(data);
+    dispatch(handleIsAdminEditing(true));
+    setFormValue({
+      name: data?.name,
+      url: data?.url,
+      oslc_domain: data?.oslc_domain,
+      organization_id: data?.organization_id,
+      description: data?.description,
+    });
+
+    dispatch(handleIsAddNewModal(true));
   };
 
   // send props in the batch action table
@@ -228,7 +211,11 @@ const Application = () => {
 
   return (
     <div>
-      <AddNewModal handleSubmit={handleAddApplication} title="Add New Application">
+      <AddNewModal
+        title={isAdminEditing ? 'Edit Application' : 'Add New Application'}
+        handleSubmit={handleAddApplication}
+        handleReset={handleResetForm}
+      >
         <div className="show-grid">
           <Form
             fluid

@@ -39,6 +39,7 @@ const UseSelectPicker = ({ items, onChange, placeholder, className }) => {
     <SelectPicker
       placeholder={<p>{placeholder}</p>}
       data={selectItems}
+      size="md"
       block
       onChange={(v) => handleSelect(v)}
       onOpen={updateData}
@@ -81,7 +82,6 @@ const UseSelectPicker = ({ items, onChange, placeholder, className }) => {
           </div>
         );
       }}
-      size="md"
     />
   );
 };

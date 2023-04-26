@@ -18,6 +18,7 @@ import {
 // import SearchIcon from '@rsuite/icons/Search';
 import MoreIcon from '@rsuite/icons/legacy/More';
 import { handleRefreshData } from '../../Redux/slices/navSlice';
+import { darkBgColor, lightBgColor } from '../../App';
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -132,7 +133,7 @@ const AdminDataTable = ({ props }) => {
       <FlexboxGrid
         justify="space-between"
         style={{
-          backgroundColor: isDark == 'dark' ? '#1a1d24' : 'white',
+          backgroundColor: isDark == 'dark' ? darkBgColor : lightBgColor,
           marginTop: '20px',
           padding: '10px 10px 20px',
         }}
@@ -228,7 +229,7 @@ const AdminDataTable = ({ props }) => {
       </Table>
 
       <Pagination
-        style={{ backgroundColor: isDark == 'dark' ? '#1a1d24' : 'white' }}
+        style={{ backgroundColor: isDark == 'dark' ? darkBgColor : lightBgColor }}
         prev
         next
         first

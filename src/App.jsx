@@ -27,6 +27,10 @@ import { CustomProvider } from 'rsuite';
 import 'rsuite/dist/rsuite.min.css';
 import 'rsuite/styles/index.less';
 
+export const darkColor = '#1a1d24';
+export const darkBgColor = '#0f131a';
+export const lightBgColor = 'white';
+
 function App() {
   const { isDark } = useSelector((state) => state.nav);
   const dispatch = useDispatch();
@@ -40,7 +44,7 @@ function App() {
     <CustomProvider theme={isDark}>
       <div
         className="App"
-        style={{ backgroundColor: isDark == 'dark' ? '#0f131a' : '#f5f8fa' }}
+        style={{ backgroundColor: isDark == 'dark' ? darkBgColor : lightBgColor }}
       >
         <Routes>
           {/* This is WBE dashboard */}

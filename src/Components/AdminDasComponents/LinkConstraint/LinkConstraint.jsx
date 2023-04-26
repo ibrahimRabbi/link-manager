@@ -2,7 +2,11 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import AuthContext from '../../../Store/Auth-Context';
-import { handleCurrPageTitle, handleIsAddNewModal } from '../../../Redux/slices/navSlice';
+import {
+  handleCurrPageTitle,
+  handleIsAddNewModal,
+  handleIsAdminEditing,
+} from '../../../Redux/slices/navSlice';
 import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
@@ -13,6 +17,7 @@ import {
   fetchCreateLinkCons,
   fetchDeleteLinkCons,
   fetchLinkConstraints,
+  fetchUpdateLinkCons,
 } from '../../../Redux/slices/linkConstraintSlice';
 import {
   fetchApplicationList,
@@ -71,10 +76,11 @@ const LinkConstraint = () => {
     isLinkConsDeleted,
   } = useSelector((state) => state.linkConstraints);
   const { applicationList, allLinkTypes } = useSelector((state) => state.linkTypes);
-  const { refreshData } = useSelector((state) => state.nav);
+  const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
+  const [editData, setEditData] = useState({});
   const [formValue, setFormValue] = useState({
     name: '',
     source_url: '',
@@ -88,70 +94,6 @@ const LinkConstraint = () => {
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
-  // handle open add user modal
-  const handleAddNew = () => {
-    dispatch(handleIsAddNewModal(true));
-  };
-
-  const handleAddLinkConstraint = () => {
-    if (!linkConstFormRef.current.check()) {
-      console.error('Form Error', formError);
-      return;
-    }
-
-    console.log(formValue);
-    const postUrl = `${lmApiUrl}/link-constraint`;
-    dispatch(
-      fetchCreateLinkCons({
-        url: postUrl,
-        token: authCtx.token,
-        bodyData: formValue,
-      }),
-    );
-    dispatch(handleIsAddNewModal(false));
-  };
-
-  // create and edit link cons form submit
-  // const handleAddLinkCons = (data) => {
-  //   // update link cons
-  //   if (editData?.name) {
-  //     console.log(data);
-  //     data = {
-  //       name: data?.name ? data?.name : editData?.name,
-  //       source_url: data.source_url ? data.source_url : editData?.source_url,
-  //       target_url: data.target_url ? data.target_url : editData?.target_url,
-  //       link_type_id: data?.link_type_id ? data?.link_type_id : editData?.link_type_id,
-  //       application_id: data?.application_id
-  //         ? data?.application_id
-  //         : editData?.application_id,
-  //       description: linkConsDesc ? linkConsDesc : editData?.description,
-  //     };
-  //     const putUrl = `${lmApiUrl}/link-constraint/${editData?.id}`;
-  //     dispatch(
-  //       fetchUpdateApp({
-  //         url: putUrl,
-  //         token: authCtx.token,
-  //         bodyData: data,
-  //         reset,
-  //       }),
-  //     );
-  //   }
-  //   // Create LinkConstraint
-  //   else {
-  //     data.description = linkConsDesc;
-  //     console.log(data);
-  //     const postUrl = `${lmApiUrl}/link-constraint`;
-  //     dispatch(
-  //       fetchCreateApp({
-  //         url: postUrl,
-  //         token: authCtx.token,
-  //         bodyData: data,
-  //         reset,
-  //       }),
-  //     );
-  //   }
-  // };
-
   // Pagination
   const handlePagination = (value) => {
     setCurrPage(value);
@@ -160,6 +102,52 @@ const LinkConstraint = () => {
   const handleChangeLimit = (dataKey) => {
     setCurrPage(1);
     setPageSize(dataKey);
+  };
+
+  // handle open add user modal
+  const handleAddNew = () => {
+    handleResetForm();
+    dispatch(handleIsAddNewModal(true));
+  };
+
+  const handleAddLinkConstraint = () => {
+    if (!linkConstFormRef.current.check()) {
+      console.error('Form Error', formError);
+      return;
+    } else if (isAdminEditing) {
+      const putUrl = `${lmApiUrl}/link-constraint/${editData?.id}`;
+      dispatch(
+        fetchUpdateLinkCons({
+          url: putUrl,
+          token: authCtx.token,
+          bodyData: formValue,
+        }),
+      );
+    } else {
+      const postUrl = `${lmApiUrl}/link-constraint`;
+      dispatch(
+        fetchCreateLinkCons({
+          url: postUrl,
+          token: authCtx.token,
+          bodyData: formValue,
+        }),
+      );
+    }
+    dispatch(handleIsAddNewModal(false));
+    if (isAdminEditing) dispatch(handleIsAdminEditing(false));
+  };
+
+  // reset form
+  const handleResetForm = () => {
+    setEditData({});
+    setFormValue({
+      name: '',
+      url: '',
+      application_id: '',
+      incoming_label: '',
+      outgoing_label: '',
+      description: '',
+    });
   };
 
   // fetch application list for create link constraint
@@ -215,7 +203,18 @@ const LinkConstraint = () => {
 
   // handle Edit LinkConstraint
   const handleEdit = (data) => {
-    console.log(data);
+    setEditData(data);
+    dispatch(handleIsAdminEditing(true));
+    setFormValue({
+      name: data?.name,
+      source_url: data?.source_url,
+      target_url: data?.target_url,
+      application_id: data?.application_id,
+      link_type_id: data?.link_type_id,
+      description: data?.description,
+    });
+
+    dispatch(handleIsAddNewModal(true));
   };
 
   // send props in the batch action table
@@ -237,7 +236,11 @@ const LinkConstraint = () => {
 
   return (
     <div>
-      <AddNewModal title="Add New Link Constraint" handleSubmit={handleAddLinkConstraint}>
+      <AddNewModal
+        title={isAdminEditing ? 'Edit Link Constraint' : 'Add New Link Constraint'}
+        handleSubmit={handleAddLinkConstraint}
+        handleReset={handleResetForm}
+      >
         <div className="show-grid">
           <Form
             fluid

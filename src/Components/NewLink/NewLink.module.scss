@@ -1,6 +1,3 @@
-@use '@carbon/colors';
-@use '@carbon/type';
-
 .accordionItem {
   margin-bottom: 15px;
   border: 0;
@@ -11,10 +8,6 @@
 .sourceContainer {
   padding: 10px 1vw;
   border-top: 1px solid lightgray;
-
-  // margin-bottom: 20px;
-  // box-shadow: 0 0 5px 1px lightgray;
-  // border-radius: 10px;
 }
 
 .sourceGrid {
@@ -82,23 +75,9 @@
   width: 32%;
 }
 
-.targetModalDiv {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
-.targetContainer {
-  // border-top: 1px solid lightgray;
-  // box-shadow: 0 0 5px 1px lightgray;
-  // padding: 10px 1vw;
-  // border-radius: 10px;
-}
-
 .targetIframe {
   width: 100%;
+  border: 0;
   height: 800px;
   border-radius: 10px;
 }
@@ -169,12 +148,12 @@
   align-items: center;
   justify-content: flex-end;
   gap: 20px;
-  background-color: colors.$white;
+  background-color: white;
 }
 
 .emptySearchWarning {
   text-align: center;
   margin-top: 2vw;
   font-weight: bold;
-  color: colors.$gray-30;
+  color: lightgray;
 }

@@ -137,31 +137,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     })();
   }, [sourceDataList]);
 
-  let sourceTitles = [];
-  let sourceValues = {};
-  if (isGlide) {
-    sourceTitles = ['Glide Project', 'Title', 'Resource'];
-    sourceValues = {
-      projectName: sourceDataList['projectName'],
-      title: sourceDataList['title'],
-      sourceType: sourceDataList['sourceType'],
-      uri: sourceDataList['uri'],
-      origin: sourceDataList['origin'],
-    };
-  } else if (isJIRA) {
-    sourceTitles = ['JIRA Project', 'Title', 'Issue Type'];
-    sourceValues = {
-      projectName: sourceDataList['projectName'],
-      title: sourceDataList['title'],
-      sourceType: sourceDataList['sourceType'],
-      uri: sourceDataList['uri'],
-    };
-  } else {
-    sourceTitles = ['GitLab Project', 'Filename'];
-    sourceValues = sourceDataList;
-    console.log(sourceTitles, sourceValues);
-  }
-
   useEffect(() => {
     dispatch(handleCurrPageTitle(isEditLinkPage ? isEditLinkPage : 'New Link'));
   }, []);
