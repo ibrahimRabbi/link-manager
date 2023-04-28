@@ -17,13 +17,14 @@ import {
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
+import { FlexboxGrid, Form, Schema } from 'rsuite';
 import TextField from '../TextField';
 import AddNewModal from '../AddNewModal';
 import { useRef } from 'react';
 import SelectField from '../SelectField';
 import CustomSelect from '../CustomSelect';
 import TextArea from '../TextArea';
+import UseLoader from '../../Shared/UseLoader';
 
 // import styles from './LinkTypes.module.scss';
 // const { errText, formContainer,
@@ -74,7 +75,6 @@ const model = Schema.Model({
 const LinkTypes = () => {
   const {
     allLinkTypes,
-    applicationList,
     isLinkTypeLoading,
     isLinkTypeCreated,
     isLinkTypeUpdated,
@@ -275,7 +275,7 @@ const LinkTypes = () => {
                   label="Application ID"
                   placeholder="Select application ID"
                   accepter={CustomSelect}
-                  options={applicationList?.items ? applicationList?.items : []}
+                  apiURL={`${lmApiUrl}/application`}
                   error={formError.organization_id}
                   reqText="Application Id is required"
                 />
@@ -295,11 +295,7 @@ const LinkTypes = () => {
         </div>
       </AddNewModal>
 
-      {isLinkTypeLoading && (
-        <FlexboxGrid justify="center">
-          <Loader size="md" label="" />
-        </FlexboxGrid>
-      )}
+      {isLinkTypeLoading && <UseLoader />}
       {/* <UseTable props={tableProps} /> */}
       <AdminDataTable props={tableProps} />
     </div>

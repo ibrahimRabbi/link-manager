@@ -57,6 +57,7 @@ const initialState = {
   isAppUpdated: false,
   isAppDeleted: false,
   isAppLoading: false,
+  isDdLoading: false,
 };
 
 export const applicationSlice = createSlice({
@@ -133,10 +134,19 @@ export const applicationSlice = createSlice({
     });
 
     // Get all organizations for crate applications
+    builder.addCase(fetchOrg.pending, (state) => {
+      state.isDdLoading = true;
+    });
+    // Get all organizations for crate applications
     builder.addCase(fetchOrg.fulfilled, (state, { payload }) => {
+      state.isDdLoading = false;
       if (payload?.items) {
         state.organizationList = payload;
       }
+    });
+    // Get all organizations for crate applications
+    builder.addCase(fetchOrg.rejected, (state) => {
+      state.isDdLoading = false;
     });
   },
 });

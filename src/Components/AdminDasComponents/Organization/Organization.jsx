@@ -15,9 +15,10 @@ import {
 } from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
-import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
+import { FlexboxGrid, Form, Schema } from 'rsuite';
 import TextField from '../TextField';
 import TextArea from '../TextArea';
+import UseLoader from '../../Shared/UseLoader';
 
 // import styles from './Organization.module.scss';
 // const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
@@ -226,11 +227,7 @@ const Organization = () => {
         </div>
       </AddNewModal>
 
-      {isOrgLoading && (
-        <FlexboxGrid justify="center">
-          <Loader size="md" label="" />
-        </FlexboxGrid>
-      )}
+      {isOrgLoading && <UseLoader />}
       {/* <UseTable props={tableProps} /> */}
       <AdminDataTable props={tableProps} />
     </div>

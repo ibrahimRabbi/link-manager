@@ -13,11 +13,12 @@ import {
   handleIsAddNewModal,
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
-import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
+import { Form, Schema } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
 import TextField from '../TextField';
 import TextArea from '../TextArea';
+import UseLoader from '../../Shared/UseLoader';
 
 // import UseTable from '../UseTable';
 // import styles from './Projects.module.scss';
@@ -201,11 +202,7 @@ const Projects = () => {
         </Form>
       </AddNewModal>
 
-      {isProjLoading && (
-        <FlexboxGrid justify="center">
-          <Loader size="md" label="" />
-        </FlexboxGrid>
-      )}
+      {isProjLoading && <UseLoader />}
       {/* <UseTable props={tableProps} /> */}
 
       <AdminDataTable props={tableProps} />

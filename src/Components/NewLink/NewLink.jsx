@@ -1,4 +1,3 @@
-import { Button, Loader } from 'rsuite';
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -17,8 +16,9 @@ import AuthContext from '../../Store/Auth-Context.jsx';
 
 import styles from './NewLink.module.scss';
 import UseSelectPicker from '../Shared/UseDropdown/UseSelectPicker';
-import { FlexboxGrid, Col } from 'rsuite';
+import { FlexboxGrid, Col, Button } from 'rsuite';
 import SourceSection from '../SourceSection';
+import UseLoader from '../Shared/UseLoader';
 const { targetContainer, targetIframe, targetBtnContainer, cancelMargin } = styles;
 
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
@@ -366,11 +366,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             </>
           )}
 
-          {linkCreateLoading && (
-            <FlexboxGrid justify="center">
-              <Loader size="md" label="" />
-            </FlexboxGrid>
-          )}
+          {linkCreateLoading && <UseLoader />}
           {/* --- Target Selection dialog ---  */}
 
           {(withConfigAware || withoutConfigAware) && (
@@ -382,7 +378,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           )}
 
           {/* Target Cancel button  */}
-          <div className={`${targetBtnContainer} ${projectFrameSrc ? '' : cancelMargin}`}>
+          <div
+            className={`
+          ${targetBtnContainer} 
+          ${projectFrameSrc && projectType ? '' : cancelMargin}`}
+          >
             <Button
               appearance="default"
               size="md"
