@@ -16,7 +16,7 @@ import {
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
-import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
+import { FlexboxGrid, Form, Loader, Schema, Steps } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import TextField from '../TextField';
 import SelectField from '../SelectField';
@@ -37,27 +37,33 @@ const headerData = [
     key: 'name',
   },
   {
+    header: 'Description',
+    key: 'description',
+  },
+  {
     header: 'OSLC Domain',
     key: 'oslc_domain',
   },
   {
-    header: 'URL',
-    key: 'url',
-  },
-  {
-    header: 'Description',
-    key: 'description',
+    header: 'Rootservices URL',
+    key: 'rootservices_url',
   },
 ];
 
-const { StringType, NumberType } = Schema.Types;
+const { StringType, NumberType, ArrayType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
-  url: StringType().isRequired('This field is required.'),
+  label: StringType().isRequired('This field is required.'),
+  rootservices_url: StringType().isRequired('This field is required.'),
   oslc_domain: StringType().isRequired('This field is required.'),
   organization_id: NumberType().isRequired('This field is required.'),
   description: StringType().isRequired('This field is required.'),
+  client_uri: StringType().isRequired('This field is required.'),
+  grant_types: ArrayType(),
+  redirect_uris: StringType().isRequired('This field is required.'),
+  response_types: ArrayType(),
+  scope: ArrayType(),
 });
 
 const Application = () => {
@@ -75,12 +81,24 @@ const Application = () => {
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
+  const [steps, setSteps] = useState(0);
+
+  const [clientId, setClientId] = useState('');
+  const [clientSecret, setClientSecret] = useState('');
+  const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
+
   const [formValue, setFormValue] = useState({
     name: '',
-    url: '',
+    label: '',
+    rootservices_url: '',
     oslc_domain: '',
     organization_id: '',
     description: '',
+    client_uri: '',
+    grant_types: ['service_provider'],
+    redirect_uris: '',
+    response_types: ['code'],
+    scope: ['oslc_fetch_access'],
   });
   const appFormRef = useRef();
   const authCtx = useContext(AuthContext);
@@ -120,17 +138,60 @@ const Application = () => {
         }),
       );
     } else {
+      console.log('Trying to create new application');
+
+      formValue.scope = ['oslc_fetch_access'];
+      formValue.response_types = ['code'];
+      formValue.grant_types = ['service_provider'];
+      formValue.redirect_uris = [
+        'http://127.0.0.1:5100/api/v1/application/' + 'oauth2-consumer/callback',
+      ];
+
+      console.log('form value', formValue);
+
       const postUrl = `${lmApiUrl}/application`;
+
       dispatch(
         fetchCreateApp({
           url: postUrl,
           token: authCtx.token,
           bodyData: formValue,
         }),
-      );
+      )
+        .then((response) => {
+          console.log('json payload', response.payload);
+          setClientId(response.payload.client_id);
+          setClientSecret(response.payload.client_secret);
+          setSteps(1);
+          let query = `client_id=${response.payload.client_id}`;
+          console.log('scope:' + formValue.scope);
+          console.log('response types:' + formValue.response_types);
+          // loop for including scopes in query
+          formValue.scope.forEach((scope) => {
+            // evaluate if scope is the first element in the array
+            if (formValue.scope.indexOf(scope) === 0) {
+              query += `&scope=${scope}`;
+            } else {
+              query += ` ${scope}`;
+            }
+          }, query);
+          // for loop in array
+          formValue.response_types.forEach((response_type) => {
+            if (formValue.response_types.indexOf(response_type) === 0) {
+              query += `&response_type=${response_type}`;
+            } else {
+              query += ` ${response_type}`;
+            }
+          }, query);
+          query += `&redirect_uri=${formValue.redirect_uris[0]}`;
+
+          const authorizeUri = response.payload.oauth_client_authorize_uri + '?' + query;
+          setAuthorizeFrameSrc(authorizeUri);
+        })
+        .catch((error) => console.error(error));
     }
 
-    dispatch(handleIsAddNewModal(false));
+    dispatch(handleIsAddNewModal(true));
     if (isAdminEditing) dispatch(handleIsAdminEditing(false));
   };
 
@@ -216,7 +277,7 @@ const Application = () => {
         handleSubmit={handleAddApplication}
         handleReset={handleResetForm}
       >
-        <div className="show-grid">
+        <div className="show-grid step-1">
           <Form
             fluid
             ref={appFormRef}
@@ -229,16 +290,32 @@ const Application = () => {
               <FlexboxGrid.Item colspan={11}>
                 <TextField
                   name="name"
-                  label="Application Name"
+                  label="Name"
                   reqText="Application name is required"
                 />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item colspan={11}>
                 <TextField
-                  name="url"
-                  label="Application URL"
-                  reqText="Application URL is required"
+                  name="label"
+                  label="label"
+                  reqText="Application label is required"
+                />
+              </FlexboxGrid.Item>
+
+              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                <TextField
+                  name="rootservices_url"
+                  label="Rootservices URL"
+                  reqText="Rootservices URL of OSLC application is required"
+                />
+              </FlexboxGrid.Item>
+
+              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                <TextField
+                  name="client_uri"
+                  label="Client URI"
+                  reqText="Client URI about OSLC application is required"
                 />
               </FlexboxGrid.Item>
 
@@ -270,8 +347,34 @@ const Application = () => {
                   reqText="application description is required"
                 />
               </FlexboxGrid.Item>
+
+              <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0 10px' }}>
+                <TextField
+                  name="redirect_uris"
+                  label="Redirect URIs"
+                  accepter={TextArea}
+                  rows={5}
+                  reqText="application redirect URIs is/are required"
+                />
+              </FlexboxGrid.Item>
             </FlexboxGrid>
           </Form>
+        </div>
+
+        <div className="show-grid step-2">
+          <h2 style={{ margin: '30px 0 10px' }}>Add Application Roles</h2>
+          <h4> [{clientId}] </h4>
+          <h4> [{clientSecret}] </h4>
+          Please authorize the access for the application by clicking the button below.
+          <iframe className={'authorize-iframe'} src={authorizeFrameSrc} />
+        </div>
+
+        <div className={'add-application-steps'} style={{ margin: '30px 0 10px' }}>
+          <Steps current={steps}>
+            <Steps.Item />
+            <Steps.Item />
+            <Steps.Item />
+          </Steps>
         </div>
       </AddNewModal>
 
