@@ -13,7 +13,7 @@ const SelectField = React.forwardRef((props, ref) => {
       </div>
 
       <Form.Control
-        style={{ marginTop: '5px' }}
+        style={{ marginTop: '5px', fontSize: '17px' }}
         name={name}
         accepter={accepter}
         {...rest}

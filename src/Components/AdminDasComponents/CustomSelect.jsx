@@ -2,7 +2,7 @@ import React from 'react';
 import { SelectPicker } from 'rsuite';
 
 const CustomSelect = React.forwardRef((props, ref) => {
-  const { options, onChange, ...rest } = props;
+  const { options, placeholder, onChange, ...rest } = props;
 
   const data = options?.map((item) => ({
     label: item.name,
@@ -10,7 +10,28 @@ const CustomSelect = React.forwardRef((props, ref) => {
   }));
 
   return (
-    <SelectPicker block ref={ref} {...rest} data={data} onChange={(v) => onChange(v)} />
+    <SelectPicker
+      block
+      ref={ref}
+      {...rest}
+      data={data}
+      onChange={(v) => onChange(v)}
+      placeholder={<p style={{ fontSize: '17px' }}>{placeholder}</p>}
+      renderMenuItem={(label) => {
+        return (
+          <div className="selectPickerMenu">
+            <p style={{ fontSize: '17px' }}>{label}</p>
+          </div>
+        );
+      }}
+      renderMenuGroup={(label) => {
+        return (
+          <div className="selectPickerMenu">
+            <p style={{ fontSize: '17px' }}>{label}</p>
+          </div>
+        );
+      }}
+    />
   );
 });
 

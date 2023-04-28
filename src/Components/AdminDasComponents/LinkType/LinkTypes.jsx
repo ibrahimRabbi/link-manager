@@ -246,19 +246,11 @@ const LinkTypes = () => {
           >
             <FlexboxGrid justify="space-between">
               <FlexboxGrid.Item colspan={11}>
-                <TextField
-                  name="name"
-                  label="Link Type Name"
-                  reqText="Link type name is required"
-                />
+                <TextField name="name" label="Name" reqText="Name is required" />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item colspan={11}>
-                <TextField
-                  name="url"
-                  label="Link Type URL"
-                  reqText="Link type URL is required"
-                />
+                <TextField name="url" label="URL" reqText="URL is required" />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
@@ -281,6 +273,7 @@ const LinkTypes = () => {
                 <SelectField
                   name="application_id"
                   label="Application ID"
+                  placeholder="Select application ID"
                   accepter={CustomSelect}
                   options={applicationList?.items ? applicationList?.items : []}
                   error={formError.organization_id}
@@ -294,7 +287,7 @@ const LinkTypes = () => {
                   label="Description"
                   accepter={TextArea}
                   rows={5}
-                  reqText="Link type description is required"
+                  reqText="Description is required"
                 />
               </FlexboxGrid.Item>
             </FlexboxGrid>

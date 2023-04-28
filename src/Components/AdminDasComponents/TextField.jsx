@@ -12,8 +12,9 @@ const TextField = React.forwardRef((props, ref) => {
 
         {reqText && <Form.HelpText tooltip>{reqText}</Form.HelpText>}
       </div>
+
       <Form.Control
-        style={{ marginTop: '5px' }}
+        style={{ marginTop: '5px', fontSize: '17px' }}
         name={name}
         accepter={accepter}
         {...rest}

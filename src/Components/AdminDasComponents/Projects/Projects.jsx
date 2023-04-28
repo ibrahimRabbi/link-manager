@@ -188,18 +188,14 @@ const Projects = () => {
           formValue={formValue}
           model={model}
         >
-          <TextField
-            name="name"
-            label="Project Name"
-            reqText="Project name is required"
-          />
+          <TextField name="name" label="Name" reqText="Name is required" />
           <div style={{ margin: '30px 0 10px' }}>
             <TextField
               name="description"
               label="Description"
               accepter={TextArea}
               rows={5}
-              reqText="Project description is required"
+              reqText="Description is required"
             />
           </div>
         </Form>

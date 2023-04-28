@@ -252,11 +252,7 @@ const LinkConstraint = () => {
           >
             <FlexboxGrid justify="space-between">
               <FlexboxGrid.Item style={{ marginBottom: '30px' }} colspan={24}>
-                <TextField
-                  name="name"
-                  label="Link Constraint Name"
-                  reqText="Link constraint name is required"
-                />
+                <TextField name="name" label="Name" reqText="Name is required" />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item colspan={11}>
@@ -305,7 +301,7 @@ const LinkConstraint = () => {
                   label="Description"
                   accepter={TextArea}
                   rows={5}
-                  reqText="Link constraint description is required"
+                  reqText="Description is required"
                 />
               </FlexboxGrid.Item>
             </FlexboxGrid>

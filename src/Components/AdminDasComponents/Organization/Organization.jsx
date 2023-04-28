@@ -206,19 +206,11 @@ const Organization = () => {
           >
             <FlexboxGrid justify="space-between">
               <FlexboxGrid.Item colspan={11}>
-                <TextField
-                  name="name"
-                  label="Organization Name"
-                  reqText="Name is Required"
-                />
+                <TextField name="name" label="Name" reqText="Name is Required" />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item colspan={11}>
-                <TextField
-                  name="url"
-                  label="Organization URL"
-                  reqText="URL is Required"
-                />
+                <TextField name="url" label="URL" reqText="URL is Required" />
               </FlexboxGrid.Item>
               <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0 10px' }}>
                 <TextField

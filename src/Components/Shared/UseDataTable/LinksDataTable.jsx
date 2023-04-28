@@ -6,6 +6,7 @@ import styles from './UseDataTable.module.scss';
 import { useEffect } from 'react';
 import { AiFillCheckCircle } from 'react-icons/ai';
 import { useSelector } from 'react-redux';
+import { darkColor, lightBgColor } from '../../../App';
 const { tableContainerDiv, validIcon, statusIcon } = styles;
 
 const LinksDataTable = ({ props }) => {
@@ -153,7 +154,7 @@ const LinksDataTable = ({ props }) => {
       </Table>
 
       <Pagination
-        style={{ backgroundColor: isDark == 'dark' ? '#1a1d24' : 'white' }}
+        style={{ backgroundColor: isDark == 'dark' ? darkColor : lightBgColor }}
         prev
         next
         first

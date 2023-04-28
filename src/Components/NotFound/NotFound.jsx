@@ -1,4 +1,4 @@
-import { Button } from '@carbon/react';
+import { Button } from 'rsuite';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -28,9 +28,13 @@ const NotFound = () => {
             or the page has been moved to another URL. If you think this is an error
             contact support.
           </p>
-          <Button size="md" kind="primary" onClick={handleBackToHome}>
-            {' '}
-            Get back to home page{' '}
+          <Button
+            style={{ width: '300px' }}
+            color="blue"
+            appearance="primary"
+            onClick={handleBackToHome}
+          >
+            Get back to home page
           </Button>
         </div>
       </div>

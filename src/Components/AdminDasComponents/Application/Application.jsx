@@ -227,19 +227,11 @@ const Application = () => {
           >
             <FlexboxGrid justify="space-between">
               <FlexboxGrid.Item colspan={11}>
-                <TextField
-                  name="name"
-                  label="Application Name"
-                  reqText="Application name is required"
-                />
+                <TextField name="name" label="Name" reqText="Name is required" />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item colspan={11}>
-                <TextField
-                  name="url"
-                  label="Application URL"
-                  reqText="Application URL is required"
-                />
+                <TextField name="url" label="URL" reqText="URL is required" />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
@@ -254,6 +246,7 @@ const Application = () => {
                 <SelectField
                   name="organization_id"
                   label="Organization ID"
+                  placeholder="Select Organization ID"
                   accepter={CustomSelect}
                   options={organizationList?.items ? organizationList?.items : []}
                   error={formError.organization_id}
@@ -267,7 +260,7 @@ const Application = () => {
                   label="Description"
                   accepter={TextArea}
                   rows={5}
-                  reqText="application description is required"
+                  reqText="Description is required"
                 />
               </FlexboxGrid.Item>
             </FlexboxGrid>
