@@ -26,6 +26,7 @@ import { handleIsDarkMode } from './Redux/slices/navSlice';
 import { CustomProvider } from 'rsuite';
 import 'rsuite/dist/rsuite.min.css';
 import 'rsuite/styles/index.less';
+import UserVerify from './Components/Login/UserVerify';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -98,6 +99,7 @@ function App() {
             <Route path="/admin" element={<Users />} />
           </Route>
 
+          <Route path="/set-password" element={<UserVerify />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -13,11 +13,12 @@ import {
   handleIsAddNewModal,
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
-import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
+import { Form, Schema } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
 import TextField from '../TextField';
 import TextArea from '../TextArea';
+import UseLoader from '../../Shared/UseLoader';
 
 // import UseTable from '../UseTable';
 // import styles from './Projects.module.scss';
@@ -188,28 +189,20 @@ const Projects = () => {
           formValue={formValue}
           model={model}
         >
-          <TextField
-            name="name"
-            label="Project Name"
-            reqText="Project name is required"
-          />
+          <TextField name="name" label="Name" reqText="Name is required" />
           <div style={{ margin: '30px 0 10px' }}>
             <TextField
               name="description"
               label="Description"
               accepter={TextArea}
               rows={5}
-              reqText="Project description is required"
+              reqText="Description is required"
             />
           </div>
         </Form>
       </AddNewModal>
 
-      {isProjLoading && (
-        <FlexboxGrid justify="center">
-          <Loader size="md" label="" />
-        </FlexboxGrid>
-      )}
+      {isProjLoading && <UseLoader />}
       {/* <UseTable props={tableProps} /> */}
 
       <AdminDataTable props={tableProps} />

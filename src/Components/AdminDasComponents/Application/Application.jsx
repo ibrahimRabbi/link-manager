@@ -5,9 +5,7 @@ import {
   fetchApplications,
   fetchCreateApp,
   fetchDeleteApp,
-  fetchOrg,
   fetchUpdateApp,
-  // fetchUpdateApp,
 } from '../../../Redux/slices/applicationSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import {
@@ -16,12 +14,13 @@ import {
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
-import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
+import { FlexboxGrid, Form, Schema } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import TextField from '../TextField';
 import SelectField from '../SelectField';
 import CustomSelect from '../CustomSelect';
 import TextArea from '../TextArea';
+import UseLoader from '../../Shared/UseLoader';
 // import styles from './Application.module.scss';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
@@ -61,17 +60,12 @@ const model = Schema.Model({
 });
 
 const Application = () => {
-  const {
-    allApplications,
-    organizationList,
-    isAppLoading,
-    isAppUpdated,
-    isAppCreated,
-    isAppDeleted,
-  } = useSelector((state) => state.applications);
+  const { allApplications, isAppLoading, isAppUpdated, isAppCreated, isAppDeleted } =
+    useSelector((state) => state.applications);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
 
   const [currPage, setCurrPage] = useState(1);
+  // const [ddPage, setDdPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
@@ -85,16 +79,6 @@ const Application = () => {
   const appFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
-
-  // get organizations for create application
-  useEffect(() => {
-    dispatch(
-      fetchOrg({
-        url: `${lmApiUrl}/organization?page=${'1'}&per_page=${'100'}`,
-        token: authCtx.token,
-      }),
-    );
-  }, []);
 
   // Pagination
   const handlePagination = (value) => {
@@ -227,19 +211,11 @@ const Application = () => {
           >
             <FlexboxGrid justify="space-between">
               <FlexboxGrid.Item colspan={11}>
-                <TextField
-                  name="name"
-                  label="Application Name"
-                  reqText="Application name is required"
-                />
+                <TextField name="name" label="Name" reqText="Name is required" />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item colspan={11}>
-                <TextField
-                  name="url"
-                  label="Application URL"
-                  reqText="Application URL is required"
-                />
+                <TextField name="url" label="URL" reqText="URL is required" />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
@@ -254,8 +230,9 @@ const Application = () => {
                 <SelectField
                   name="organization_id"
                   label="Organization ID"
+                  placeholder="Select Organization ID"
                   accepter={CustomSelect}
-                  options={organizationList?.items ? organizationList?.items : []}
+                  apiURL={`${lmApiUrl}/organization`}
                   error={formError.organization_id}
                   reqText="Organization Id is required"
                 />
@@ -267,7 +244,7 @@ const Application = () => {
                   label="Description"
                   accepter={TextArea}
                   rows={5}
-                  reqText="application description is required"
+                  reqText="Description is required"
                 />
               </FlexboxGrid.Item>
             </FlexboxGrid>
@@ -275,11 +252,7 @@ const Application = () => {
         </div>
       </AddNewModal>
 
-      {isAppLoading && (
-        <FlexboxGrid justify="center">
-          <Loader size="md" label="" />
-        </FlexboxGrid>
-      )}
+      {isAppLoading && <UseLoader />}
 
       {/* <UseTable props={tableProps} /> */}
       <AdminDataTable props={tableProps} />

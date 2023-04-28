@@ -8,8 +8,9 @@ import {
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Loader, Modal } from 'rsuite';
+import { Modal } from 'rsuite';
 import AddUser from './AddUser';
+import UseLoader from '../../Shared/UseLoader';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -165,11 +166,7 @@ const Users = () => {
         <Modal.Footer></Modal.Footer>
       </Modal>
 
-      {usersLoading && (
-        <FlexboxGrid justify="center">
-          <Loader size="md" label="" />
-        </FlexboxGrid>
-      )}
+      {usersLoading && <UseLoader />}
       {/* <UseTable props={tableProps} /> */}
       <AdminDataTable props={tableProps} />
     </div>

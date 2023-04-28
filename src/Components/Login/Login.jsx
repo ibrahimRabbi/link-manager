@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import { useMixpanel } from 'react-mixpanel-browser';
 import { FlexboxGrid, Button, Panel, Col, Loader, Schema, Form } from 'rsuite';
 import TextField from '../AdminDasComponents/TextField.jsx';
+import PasswordField from '../AdminDasComponents/PasswordField.jsx';
 
 const { titleSpan, main, title } = style;
 const loginURL = `${process.env.REACT_APP_LM_REST_API_URL}/auth/login`;
@@ -98,51 +99,60 @@ const Login = () => {
   };
 
   return (
-    <>
-      <div className={main}>
-        {isLoading && (
-          <h5 style={{ textAlign: 'center' }}>
-            <Loader size="md" />
-          </h5>
-        )}
+    <div className={main}>
+      {isLoading && (
+        <h5 style={{ textAlign: 'center' }}>
+          <Loader size="md" />
+        </h5>
+      )}
 
-        <FlexboxGrid justify="center" align="middle">
-          <FlexboxGrid.Item as={Col} colspan={16} md={14} lg={12} xl={8}>
-            <Panel
-              header={
-                <h3 className={title}>
-                  Link Manager Application <br />
-                  <span className={titleSpan}>Please Login</span>
-                </h3>
-              }
-              bordered
+      <FlexboxGrid justify="center" align="middle">
+        <FlexboxGrid.Item as={Col} colspan={16} md={14} lg={12} xl={10} xxl={8}>
+          <Panel
+            header={
+              <h3 className={title}>
+                Link Manager Application <br />
+                <span className={titleSpan}>Please Login</span>
+              </h3>
+            }
+            bordered
+          >
+            <Form
+              fluid
+              ref={loginFormRef}
+              onChange={setFormValue}
+              onCheck={setFormError}
+              formValue={formValue}
+              model={model}
             >
-              <Form
-                fluid
-                ref={loginFormRef}
-                onChange={setFormValue}
-                onCheck={setFormError}
-                formValue={formValue}
-                model={model}
-              >
-                <TextField name="userName" type="text" label="User Name" />
-                <TextField name="password" type="password" label="Password" />
+              <TextField
+                name="userName"
+                type="text"
+                label="User Name"
+                reqText="User name is required"
+              />
 
-                <Button
-                  color="blue"
-                  block
-                  type="submit"
-                  appearance="primary"
-                  onClick={onSubmit}
-                >
-                  Sign in
-                </Button>
-              </Form>
-            </Panel>
-          </FlexboxGrid.Item>
-        </FlexboxGrid>
-      </div>
-    </>
+              <PasswordField
+                name="password"
+                type="password"
+                label="Password"
+                reqText="Password is required"
+              />
+
+              <Button
+                color="blue"
+                block
+                type="submit"
+                appearance="primary"
+                onClick={onSubmit}
+              >
+                Sign in
+              </Button>
+            </Form>
+          </Panel>
+        </FlexboxGrid.Item>
+      </FlexboxGrid>
+    </div>
   );
 };
 

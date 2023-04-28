@@ -102,26 +102,35 @@ const AddUser = ({
         {isUserSection ? (
           <FlexboxGrid justify="end" style={{ marginTop: '20px' }}>
             <Button
-              style={{ marginRight: '15px' }}
+              onClick={() => handleClose()}
+              className="adminModalFooterBtn"
+              appearance="default"
+              color="blue"
+            >
+              Cancel
+            </Button>
+
+            <Button
+              className="adminModalFooterBtn"
+              style={{ marginLeft: '10px' }}
               onClick={handleSubmit}
               appearance="primary"
               color="blue"
             >
-              Ok
-            </Button>
-
-            <Button onClick={() => handleClose()} appearance="default" color="blue">
-              Cancel
+              Save
             </Button>
           </FlexboxGrid>
         ) : (
-          <Button
-            style={{ margin: '30px 0' }}
-            appearance="primary"
-            onClick={handleSubmit}
-          >
-            Submit
-          </Button>
+          <FlexboxGrid justify="end">
+            <Button
+              className="adminModalFooterBtn"
+              style={{ margin: '30px 0' }}
+              appearance="primary"
+              onClick={handleSubmit}
+            >
+              Submit
+            </Button>
+          </FlexboxGrid>
         )}
       </Form>
     </div>

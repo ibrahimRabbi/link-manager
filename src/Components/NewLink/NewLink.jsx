@@ -1,10 +1,6 @@
-import { Checkbox, ProgressBar, Search } from '@carbon/react';
-import { Button } from 'rsuite';
 import React, { useContext, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
 import {
   fetchCreateLink,
   handleApplicationType,
@@ -14,41 +10,16 @@ import {
   handleOslcResponse,
   handleProjectType,
   handleTargetDataArr,
-  handleUpdateCreatedLink,
 } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
-import UseDataTable from '../Shared/UseDataTable/UseDataTable';
 
 import styles from './NewLink.module.scss';
 import UseSelectPicker from '../Shared/UseDropdown/UseSelectPicker';
-import { FlexboxGrid, Col } from 'rsuite';
+import { FlexboxGrid, Col, Button } from 'rsuite';
 import SourceSection from '../SourceSection';
-const {
-  btnContainer,
-  // dropdownStyle,
-  // dropdownStyle2,
-  emptySearchWarning,
-  inputContainer,
-  newLinkTable,
-  searchContainer,
-  searchInput,
-  targetContainer,
-  targetIframe,
-  targetBtnContainer,
-  targetSearchContainer,
-  // applicationContainer,
-  // appAndProjectContainer,
-  cancelMargin,
-} = styles;
-
-// Table header
-const headers = [
-  { key: 'identifier', header: 'Identifier' },
-  { key: 'name', header: 'Name' },
-  { key: 'description', header: 'Description' },
-  { key: 'checkbox', header: <Checkbox labelText="" id="" /> },
-];
+import UseLoader from '../Shared/UseLoader';
+const { targetContainer, targetIframe, targetBtnContainer, cancelMargin } = styles;
 
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
 const jiraDialogURL = process.env.REACT_APP_JIRA_DIALOG_URL;
@@ -66,17 +37,10 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     applicationType,
     streamType,
     projectType,
-    resourceType,
-    editLinkData,
     targetDataArr,
-    editTargetData,
     createLinkRes,
     linkCreateLoading,
   } = useSelector((state) => state.links);
-  const { register, handleSubmit } = useForm();
-  const [searchText, setSearchText] = useState(null);
-  const [displayTableData, setDisplayTableData] = useState([]);
-  // const [streamItems, setStreamItems] = useState([]);
   const [linkTypeItems, setLinkTypeItems] = useState([]);
   const [applicationTypeItems, setApplicationTypeItems] = useState([]);
   const [projectTypeItems, setProjectTypeItems] = useState([]);
@@ -171,41 +135,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     }
   }, [projectType]);
 
-  // Edit link options start
-  useEffect(() => {
-    if (editTargetData?.identifier) {
-      const string = editTargetData?.description?.split(' ')[0]?.toLowerCase();
-      setSearchText(
-        string === 'document' ? 'document' : string === 'user' ? 'data' : null,
-      );
-    }
-  }, [isEditLinkPage]);
-  // Edit link options end
-
-  // search data or document
-  useEffect(() => {
-    setDisplayTableData([]);
-    // eslint-disable-next-line max-len
-    // const URL = editTargetData?.identifier ? `../../${searchText}.json` : `../../${searchText}.json`;
-    // if(searchText){
-    //   fetch(URL)
-    //     .then(res => res.json())
-    //     .then(data => setDisplayTableData(data))
-    //     .catch(() => { });
-    // }
-  }, [searchText]);
-
-  const handleSearchData = (data) => {
-    dispatch(handleTargetDataArr(null));
-    fetch(
-      // eslint-disable-next-line max-len
-      'https://192.241.220.34:9443/jts/j_security_check?j_username=koneksys&j_password=koneksys',
-    )
-      .then((res) => console.log(res))
-      .catch((err) => console.log(err));
-    setSearchText(data?.searchText);
-  };
-
   //// Get Selection dialog response data
   window.addEventListener(
     'message',
@@ -294,27 +223,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     setProjectId(selectedItem?.id);
   };
 
-  // Resource type dropdown
-  // const handleTargetResource = ({ selectedItem }) => {
-  //   dispatch(handleResourceType(selectedItem));
-  // };
-
-  // Selected target data
-  const handleSelectedData = (data, value) => {
-    dispatch(handleTargetDataArr({ data, value }));
-  };
-
-  // Edit created link
-  const handleLinkUpdate = () => {
-    dispatch(handleUpdateCreatedLink());
-    Swal.fire({
-      icon: 'success',
-      title: 'Link Updated success!',
-      timer: 3000,
-    });
-    isWbe ? navigate('/wbe') : navigate('/');
-  };
-
   // Create new link
   const handleSaveLink = () => {
     const { projectName, title, uri, appName } = sourceDataList;
@@ -363,12 +271,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         bodyData: linkObj,
       }),
     );
-  };
-
-  // cancel create link
-  const handleCancelOpenedLink = () => {
-    dispatch(handleCancelLink());
-    isWbe ? navigate('/wbe') : navigate('/');
   };
 
   // eslint-disable-next-line max-len
@@ -464,7 +366,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             </>
           )}
 
-          {linkCreateLoading && <ProgressBar label="" />}
+          {linkCreateLoading && <UseLoader />}
           {/* --- Target Selection dialog ---  */}
 
           {(withConfigAware || withoutConfigAware) && (
@@ -472,110 +374,23 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               {linkType && applicationType && projectType && projectFrameSrc && (
                 <iframe className={targetIframe} src={projectFrameSrc} />
               )}
-
-              {isGlide && isJIRA && (
-                <>
-                  <div className={targetSearchContainer}>
-                    <form
-                      onSubmit={handleSubmit(handleSearchData)}
-                      className={searchContainer}
-                    >
-                      <div className={inputContainer}>
-                        <Search
-                          id=""
-                          labelText=""
-                          className={searchInput}
-                          type="text"
-                          placeholder="Search by identifier or name"
-                          {...register('searchText')}
-                          size="md"
-                        />
-                      </div>
-                      <Button kind="primary" size="md" type="submit">
-                        Search
-                      </Button>
-                    </form>
-                  </div>
-
-                  {((searchText && displayTableData[0]) || isEditLinkPage) && (
-                    <div className={newLinkTable}>
-                      <UseDataTable
-                        headers={headers}
-                        tableData={displayTableData}
-                        isCheckBox={true}
-                        isChecked={editLinkData?.targetData?.identifier}
-                        editTargetData={editTargetData}
-                        isPagination={displayTableData[0] ? true : false}
-                        selectedData={handleSelectedData}
-                      />
-                    </div>
-                  )}
-                  {searchText && !displayTableData[0] && (
-                    <h2 className={emptySearchWarning}>
-                      Please search by valid identifier or name
-                    </h2>
-                  )}
-                </>
-              )}
-
-              {targetDataArr[0] && (
-                <>
-                  {/* // new link btn  */}
-                  {projectType && resourceType && !isEditLinkPage && (
-                    <div className={btnContainer}>
-                      <Button
-                        appearance="default"
-                        onClick={handleCancelOpenedLink}
-                        size="md"
-                      >
-                        Cancel
-                      </Button>
-                      <Button appearance="primary" onClick={handleSaveLink} size="md">
-                        Save
-                      </Button>
-                    </div>
-                  )}
-
-                  {/* // edit link btn  */}
-                  {isEditLinkPage && editLinkData?.id && (
-                    <div className={btnContainer}>
-                      <Button
-                        appearance="default"
-                        onClick={handleCancelOpenedLink}
-                        size="md"
-                      >
-                        Cancel
-                      </Button>
-                      <Button appearance="primary" onClick={handleLinkUpdate} size="md">
-                        Save
-                      </Button>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* Target Cancel button  */}
-              {/* <div className={targetBtnContainer}>
-                    <Button kind="secondary"
-                      onClick={()=>{
-                        dispatch(handleCancelLink());
-                      // isWbe ? navigate('/wbe') : navigate('/');
-                      }}
-                      size="md" type="submit">Cancel</Button>
-                  </div> */}
             </div>
           )}
 
           {/* Target Cancel button  */}
-          <div className={`${targetBtnContainer} ${projectFrameSrc ? '' : cancelMargin}`}>
+          <div
+            className={`
+          ${targetBtnContainer} 
+          ${projectFrameSrc && projectType ? '' : cancelMargin}`}
+          >
             <Button
               appearance="default"
+              size="md"
+              type="submit"
               onClick={() => {
                 dispatch(handleCancelLink());
                 isWbe ? navigate('/wbe') : navigate('/');
               }}
-              size="md"
-              type="submit"
             >
               Cancel
             </Button>

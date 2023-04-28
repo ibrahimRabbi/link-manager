@@ -66,13 +66,13 @@ const SourceSection = () => {
 
       {(pathname === '/' || pathname === '/wbe') && (
         <FlexboxGrid style={{ marginTop: '20px' }} align="middle" justify="space-between">
-          <FlexboxGrid.Item colspan={3} style={{ padding: '0' }}>
+          <FlexboxGrid.Item colspan={3} style={{ paddingLeft: '0' }}>
             <h3>Links: </h3>
           </FlexboxGrid.Item>
 
           {/* -- create link button --  */}
           {pathname !== '/wbe/new-link' && (
-            <FlexboxGrid.Item colspan={4}>
+            <FlexboxGrid.Item>
               <Button
                 onClick={() =>
                   isWbe ? navigate('/wbe/new-link') : navigate('/new-link')
