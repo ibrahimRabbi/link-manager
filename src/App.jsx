@@ -45,7 +45,7 @@ function App() {
     <CustomProvider theme={isDark}>
       <div
         className="App"
-        style={{ backgroundColor: isDark == 'dark' ? darkBgColor : lightBgColor }}
+        style={{ backgroundColor: isDark === 'dark' ? darkBgColor : lightBgColor }}
       >
         <Routes>
           {/* This is WBE dashboard */}
