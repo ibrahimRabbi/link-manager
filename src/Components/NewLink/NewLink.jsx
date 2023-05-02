@@ -25,6 +25,8 @@ const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
 const jiraDialogURL = process.env.REACT_APP_JIRA_DIALOG_URL;
 const gitlabDialogURL = process.env.REACT_APP_GITLAB_DIALOG_URL;
 const glideDialogURL = process.env.REACT_APP_GLIDE_DIALOG_URL;
+const valispaceDialogURL = process.env.REACT_APP_VALISPACE_DIALOG_URL;
+const codebeamerDialogURL = process.env.REACT_APP_CODEBEAMER_DIALOG_URL;
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // links states
@@ -50,9 +52,18 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const location = useLocation();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
+
+  // Add if and condition to check if app is Jira
+
+
   const isJIRA = sourceDataList?.appName?.includes('jira');
+  const isJIRAProject = sourceDataList?.appName?.includes('jira-projects');
   const isGitlab = sourceDataList?.appName?.includes('gitlab');
   const isGlide = sourceDataList?.appName?.includes('glide');
+  const isValispace = sourceDataList?.appName?.includes('valispace');
+  const isValispaceProject = sourceDataList?.appName?.includes('valispace-projects');
+  const isCodebeamer = sourceDataList?.appName?.includes('codebeamer');
+  const isCodebeamerProject = sourceDataList?.appName?.includes('codebeamer-projects');
 
   // Display project types conditionally by App name
   useEffect(() => {
@@ -82,7 +93,16 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
       // display projects conditionally
       const specificProject = projectsRes?.reduce((acc, curr) => {
-        if (isJIRA) {
+        if (isJIRAProject) {
+          const jiraProject = curr.name.includes('JIRA-PROJECTS');
+          if (!jiraProject && curr.name.includes('-PROJECTS')) acc.push(curr);
+        } else if (isValispaceProject) {
+          const valispaceProject = curr.name.includes('VALISPACE-PROJECTS');
+          if (!valispaceProject && curr.name.includes('-PROJECTS')) acc.push(curr);
+        } else if (isCodebeamerProject) {
+          const codebeamerProject = curr.name.includes('CODEBEAMER-PROJECTS');
+          if (!codebeamerProject && curr.name.includes('-PROJECTS')) acc.push(curr);
+        } else if (isJIRA) {
           const jira = curr.name.includes('JIRA');
           if (!jira) acc.push(curr);
         } else if (isGitlab) {
@@ -91,6 +111,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         } else if (isGlide) {
           const glide = curr.name.includes('GLIDE');
           if (!glide) acc.push(curr);
+        } else if (isValispace) {
+          const valispace = curr.name.includes('VALISPACE');
+          if (!valispace) acc.push(curr);
+        } else if (isCodebeamer) {
+          const codebeamer = curr.name.includes('CODEBEAMER');
+          if (!codebeamer) acc.push(curr);
         } else {
           acc.push(curr);
         }
@@ -115,6 +141,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       const jiraApp = projectType?.includes('(JIRA)');
       const gitlabApp = projectType?.includes('(GITLAB)');
       const glideApp = projectType?.includes('(GLIDE)');
+      const valispaceApp = projectType?.includes('(VALISPACE)');
+      const codebeamerApp = projectType?.includes('(CODEBEAMER)');
+      const jiraProjectApp = projectType?.includes('(JIRA-PROJECTS)');
+      const valispaceProjectApp = projectType?.includes('(VALISPACE-PROJECTS)');
+      const codebeamerProjectApp = projectType?.includes('(CODEBEAMER-PROJECTS)');
 
       if (jiraApp) {
         setProjectFrameSrc(
@@ -131,7 +162,33 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           // eslint-disable-next-line max-len
           `${glideDialogURL}/oslc/provider/selector?gc_context=${streamType}`,
         );
+      } else if (valispaceApp) {
+        setProjectFrameSrc(
+          // eslint-disable-next-line max-len
+          `${valispaceDialogURL}/oslc/provider/selector?gc_context=${streamType}`,
+        );
+      }  else if (codebeamerApp) {
+        setProjectFrameSrc(
+          // eslint-disable-next-line max-len
+          `${codebeamerDialogURL}/oslc/provider/selector?gc_context=${streamType}`,
+        );
+      } else if (jiraProjectApp) {
+        setProjectFrameSrc(
+          // eslint-disable-next-line max-len
+          `${jiraDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
+        );
+      } else if (valispaceProjectApp) {
+        setProjectFrameSrc(
+          // eslint-disable-next-line max-len
+          `${valispaceDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
+        );
+      } else if (codebeamerProjectApp){
+        setProjectFrameSrc(
+          // eslint-disable-next-line max-len
+          `${codebeamerDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
+        );
       }
+
     }
   }, [projectType]);
 
@@ -144,7 +201,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         if (message.toString()?.startsWith('oslc-response')) {
           const response = JSON.parse(message?.substr('oslc-response:'?.length));
           const results = response['oslc:results'];
-          console.log('dialog response: ', results);
+          // console.log('dialog response: ', results);
           const targetArray = [];
           results?.forEach((v, i) => {
             const koatl_path = results[i]['koatl:apiPath'];
@@ -263,7 +320,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       status: 'active',
       target_data: targetsData,
     };
-    console.log('Link Obj: ', linkObj);
+    // console.log('Link Obj: ', linkObj);
     dispatch(
       fetchCreateLink({
         url: apiURL,
