@@ -112,66 +112,68 @@ const LinksDataTable = ({ props }) => {
   };
 
   return (
-    <div className={tableContainerDiv}>
-      <Table data={props?.rowData} autoHeight bordered headerHeight={50}>
-        <Column width={150} fullText>
-          <HeaderCell>
-            <h5>Status</h5>
-          </HeaderCell>
-          <StatusCell dataKey={''} />
-        </Column>
+    <>
+      <div className={tableContainerDiv}>
+        <Table data={props?.rowData} autoHeight bordered headerHeight={50}>
+          <Column width={150} fullText>
+            <HeaderCell>
+              <h5>Status</h5>
+            </HeaderCell>
+            <StatusCell dataKey={''} />
+          </Column>
 
-        <Column width={250} fullText>
-          <HeaderCell>
-            <h5>Link Type</h5>
-          </HeaderCell>
-          <Cell style={{ fontSize: '17px' }} dataKey="link_type" />
-        </Column>
+          <Column width={250} fullText>
+            <HeaderCell>
+              <h5>Link Type</h5>
+            </HeaderCell>
+            <Cell style={{ fontSize: '17px' }} dataKey="link_type" />
+          </Column>
 
-        <Column width={300} flexGrow={1} fullText>
-          <HeaderCell>
-            <h5>Target</h5>
-          </HeaderCell>
-          <NameCell dataKey="name" />
-        </Column>
+          <Column width={300} flexGrow={1} fullText>
+            <HeaderCell>
+              <h5>Target</h5>
+            </HeaderCell>
+            <NameCell dataKey="name" />
+          </Column>
 
-        <Column width={100} align="center">
-          <HeaderCell>
-            <h5>Action</h5>
-          </HeaderCell>
-          <Cell className="link-group">
-            {(rowData) => (
-              <Whisper placement="auto" trigger="click" speaker={renderMenu}>
-                <IconButton
-                  appearance="subtle"
-                  icon={<MoreIcon />}
-                  onClick={() => setActionData(rowData)}
-                />
-              </Whisper>
-            )}
-          </Cell>
-        </Column>
-      </Table>
+          <Column width={100} align="center">
+            <HeaderCell>
+              <h5>Action</h5>
+            </HeaderCell>
+            <Cell className="link-group">
+              {(rowData) => (
+                <Whisper placement="auto" trigger="click" speaker={renderMenu}>
+                  <IconButton
+                    appearance="subtle"
+                    icon={<MoreIcon />}
+                    onClick={() => setActionData(rowData)}
+                  />
+                </Whisper>
+              )}
+            </Cell>
+          </Column>
+        </Table>
 
-      <Pagination
-        style={{ backgroundColor: isDark == 'dark' ? darkColor : lightBgColor }}
-        prev
-        next
-        first
-        last
-        ellipsis
-        boundaryLinks
-        maxButtons={2}
-        size="lg"
-        layout={['-', 'total', '|', 'limit', 'pager']}
-        total={totalItems}
-        limitOptions={[5, 10, 25, 50, 100]}
-        limit={pageSize}
-        activePage={page}
-        onChangePage={setPage}
-        onChangeLimit={(v) => handleChangeLimit(v)}
-      />
-    </div>
+        <Pagination
+          style={{ backgroundColor: isDark == 'dark' ? darkColor : lightBgColor }}
+          prev
+          next
+          first
+          last
+          ellipsis
+          boundaryLinks
+          maxButtons={2}
+          size="lg"
+          layout={['-', 'total', '|', 'limit', 'pager']}
+          total={totalItems}
+          limitOptions={[5, 10, 25, 50, 100]}
+          limit={pageSize}
+          activePage={page}
+          onChangePage={setPage}
+          onChangeLimit={(v) => handleChangeLimit(v)}
+        />
+      </div>
+    </>
   );
 };
 

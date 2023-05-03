@@ -225,8 +225,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Create new link
   const handleSaveLink = () => {
-    const { projectName, title, uri, appName } = sourceDataList;
-
+    const { projectName, sourceType, title, uri, appName } = sourceDataList;
+    console.log('sourceList:', sourceDataList);
     const targetsData = targetDataArr?.map((data) => {
       const id = data?.selected_lines ? data.uri + '#' + data?.selected_lines : data.uri;
       return {
@@ -252,10 +252,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     } else {
       appNameTwo = appName;
     }
+
     const linkObj = {
       stream: streamType,
-      source_type: title,
-      source_title: title,
+      source_type: sourceType ? sourceType : '',
+      source_title: title ? title : '',
       source_project: projectName,
       source_provider: appNameTwo,
       source_id: uri,

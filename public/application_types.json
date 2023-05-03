@@ -13,5 +13,10 @@
         "name": "GLIDE",
         "icon": "https://lm-dev.koneksys.com/glide_logo.png",
         "alt_value": "GLIDE"
+    },
+    {
+        "name": "VALISPACE",
+        "icon": "https://lm-dev.koneksys.com/valispace_logo.png",
+        "alt_value": "VALISPACE"
     }
 ]
