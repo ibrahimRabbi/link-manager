@@ -9,7 +9,6 @@ import {
   Button,
   Panel,
   Col,
-  Loader,
   Schema,
   Form,
   useToaster,
@@ -17,6 +16,7 @@ import {
 } from 'rsuite';
 import TextField from '../AdminDasComponents/TextField.jsx';
 import PasswordField from '../AdminDasComponents/PasswordField.jsx';
+import UseLoader from '../Shared/UseLoader.jsx';
 
 const { titleSpan, main, title } = style;
 const loginURL = `${process.env.REACT_APP_LM_REST_API_URL}/auth/login`;
@@ -118,11 +118,7 @@ const Login = () => {
 
   return (
     <div className={main}>
-      {isLoading && (
-        <h5 style={{ textAlign: 'center' }}>
-          <Loader size="md" />
-        </h5>
-      )}
+      {isLoading && <UseLoader />}
 
       <FlexboxGrid justify="center" align="middle">
         <FlexboxGrid.Item as={Col} colspan={16} md={14} lg={12} xl={10} xxl={8}>

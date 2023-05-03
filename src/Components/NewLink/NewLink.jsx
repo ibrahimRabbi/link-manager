@@ -55,7 +55,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Add if and condition to check if app is Jira
 
-
   const isJIRA = sourceDataList?.appName?.includes('jira');
   const isJIRAProject = sourceDataList?.appName?.includes('jira-projects');
   const isGitlab = sourceDataList?.appName?.includes('gitlab');
@@ -167,7 +166,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           // eslint-disable-next-line max-len
           `${valispaceDialogURL}/oslc/provider/selector?gc_context=${streamType}`,
         );
-      }  else if (codebeamerApp) {
+      } else if (codebeamerApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
           `${codebeamerDialogURL}/oslc/provider/selector?gc_context=${streamType}`,
@@ -182,13 +181,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           // eslint-disable-next-line max-len
           `${valispaceDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
         );
-      } else if (codebeamerProjectApp){
+      } else if (codebeamerProjectApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
           `${codebeamerDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
         );
       }
-
     }
   }, [projectType]);
 
@@ -282,8 +280,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Create new link
   const handleSaveLink = () => {
-    const { projectName, title, uri, appName } = sourceDataList;
-
+    const { projectName, sourceType, title, uri, appName } = sourceDataList;
+    console.log('sourceList:', sourceDataList);
     const targetsData = targetDataArr?.map((data) => {
       const id = data?.selected_lines ? data.uri + '#' + data?.selected_lines : data.uri;
       return {
@@ -309,10 +307,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     } else {
       appNameTwo = appName;
     }
+
     const linkObj = {
       stream: streamType,
-      source_type: title,
-      source_title: title,
+      source_type: sourceType ? sourceType : '',
+      source_title: title ? title : '',
       source_project: projectName,
       source_provider: appNameTwo,
       source_id: uri,

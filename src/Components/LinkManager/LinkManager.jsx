@@ -1,38 +1,26 @@
-import { Search } from '@carbon/react';
-import { Button } from 'rsuite';
+import { Button, FlexboxGrid, Input, InputGroup } from 'rsuite';
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchLinksData, handleIsWbe } from '../../Redux/slices/linksSlice';
-import { handleCurrPageTitle, handleIsProfileOpen } from '../../Redux/slices/navSlice';
+import { handleCurrPageTitle, handleRefreshData } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
-import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import styles from './LinkManager.module.scss';
 import SourceSection from '../SourceSection';
 import LinksDataTable from '../Shared/UseDataTable/LinksDataTable';
 import UseLoader from '../Shared/UseLoader';
+import { HiRefresh } from 'react-icons/hi';
+import SearchIcon from '@rsuite/icons/Search';
+import CloseIcon from '@rsuite/icons/Close';
+import { darkBgColor, lightBgColor } from '../../App';
 
-const {
-  dropdownStyle,
-  inputContainer,
-  searchBox,
-  searchContainer,
-  searchInput,
-  tableContainer,
-} = styles;
+const { tableContainer } = styles;
 
 const headerData = [
   { key: 'status', header: 'Status' },
   { key: 'link_type', header: 'Link type' },
   { key: 'target', header: 'Target' },
   { key: 'actions', header: 'Actions' },
-];
-
-const tableDropdownItems = [
-  { name: 'Link type' },
-  { name: 'Project type' },
-  { name: 'Status' },
-  { name: 'Target' },
 ];
 
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
@@ -42,10 +30,15 @@ const LinkManager = () => {
     (state) => state.links,
   );
   // console.log('linksData ->', linksData);
-  const { linksStream, isProfileOpen } = useSelector((state) => state.nav);
+  const { linksStream, refreshData, isDark } = useSelector((state) => state.nav);
+  const [currPage, setCurrPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [tableFilterValue, setTableFilterValue] = useState('');
+  const [displayTableData, setDisplayTableData] = useState([]);
   const location = useLocation();
   const isWbe = location.pathname?.includes('wbe');
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const authCtx = useContext(AuthContext);
   const [searchParams] = useSearchParams();
   const uri = searchParams.get('uri');
@@ -56,22 +49,17 @@ const LinkManager = () => {
   }, [location]);
 
   // Handle pagination for the links table
-  // Pagination
-  const [currPage, setCurrPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-
   const handlePagination = (value) => {
     setCurrPage(value);
   };
-
   const handleChangeLimit = (dataKey) => {
     setCurrPage(1);
     setPageSize(dataKey);
   };
 
+  // fetch links
   useEffect(() => {
     (async () => {
-      dispatch(handleIsProfileOpen(isProfileOpen && false));
       dispatch(handleCurrPageTitle('Links'));
 
       let streamRes = [];
@@ -96,15 +84,30 @@ const LinkManager = () => {
         );
       }
     })();
-  }, [linksStream, pageSize, currPage]);
+  }, [linksStream, pageSize, currPage, refreshData]);
 
-  // Link manager dropdown options
-  const handleShowItem = () => {};
+  // filter table
+  useEffect(() => {
+    if (tableFilterValue) {
+      const filteredData = linksData?.items?.filter((row) => {
+        // eslint-disable-next-line max-len
+        return Object.values(row)
+          ?.toString()
+          ?.toLowerCase()
+          .includes(tableFilterValue?.toLowerCase());
+      });
+      setDisplayTableData(filteredData);
+    }
+  }, [tableFilterValue]);
 
-  // display conditionally Search and dropdown 0
-  const isSearchBox = false;
   const tableProps = {
-    rowData: linksData?.items?.length ? linksData?.items : [],
+    // eslint-disable-next-line max-len
+    rowData:
+      tableFilterValue === ''
+        ? linksData?.items?.length
+          ? linksData?.items
+          : []
+        : displayTableData,
     headerData,
     handlePagination,
     handleChangeLimit,
@@ -118,43 +121,63 @@ const LinkManager = () => {
   return (
     <div>
       <SourceSection />
-      <div
-        onClick={() => dispatch(handleIsProfileOpen(isProfileOpen && false))}
-        className={isWbe ? 'wbeNavSpace' : ''}
-      >
+      <div className={isWbe ? 'wbeNavSpace' : ''}>
         <div className="mainContainer">
           <div className="container">
             <div className={tableContainer}>
-              {isSearchBox && (
-                <div className={searchBox}>
-                  <UseDropdown
-                    onChange={handleShowItem}
-                    items={tableDropdownItems}
-                    id={'linkManager_showAll'}
-                    label="Show all"
-                    className={dropdownStyle}
-                  />
+              {isLoading && <UseLoader />}
 
-                  <div className={searchContainer}>
-                    <div className={inputContainer}>
-                      <Search
-                        id=""
-                        labelText=""
-                        className={searchInput}
-                        placeholder="Search by identifier or name"
-                        onChange={function noRefCheck() {}}
-                        onKeyDown={function noRefCheck() {}}
-                        size="sm"
-                      />
-                    </div>
-                    <Button kind="primary" size="sm">
-                      Search
+              <FlexboxGrid
+                justify="space-between"
+                style={{
+                  backgroundColor: isDark == 'dark' ? darkBgColor : lightBgColor,
+                  padding: '10px 0',
+                }}
+              >
+                <FlexboxGrid.Item>
+                  <InputGroup size="lg" inside style={{ width: '400px' }}>
+                    <Input
+                      placeholder={'Search Links'}
+                      value={tableFilterValue}
+                      onChange={(v) => setTableFilterValue(v)}
+                    />
+
+                    {tableFilterValue ? (
+                      <InputGroup.Button onClick={() => setTableFilterValue('')}>
+                        <CloseIcon />
+                      </InputGroup.Button>
+                    ) : (
+                      <InputGroup.Button>
+                        <SearchIcon />
+                      </InputGroup.Button>
+                    )}
+                  </InputGroup>
+                </FlexboxGrid.Item>
+
+                <FlexboxGrid.Item>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                    <Button
+                      color="blue"
+                      appearance="primary"
+                      active
+                      onClick={() =>
+                        isWbe ? navigate('/wbe/new-link') : navigate('/new-link')
+                      }
+                    >
+                      {' '}
+                      Create Link
+                    </Button>
+
+                    <Button
+                      appearance="default"
+                      onClick={() => dispatch(handleRefreshData(!refreshData))}
+                      color="blue"
+                    >
+                      <HiRefresh size={25} />
                     </Button>
                   </div>
-                </div>
-              )}
-
-              {isLoading && <UseLoader />}
+                </FlexboxGrid.Item>
+              </FlexboxGrid>
 
               <LinksDataTable props={tableProps} />
             </div>

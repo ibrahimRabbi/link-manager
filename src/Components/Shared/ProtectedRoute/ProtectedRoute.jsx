@@ -29,7 +29,7 @@ const ProtectedRoute = ({ children }) => {
   }, [location]);
 
   useEffect(() => {
-    if (uri && title && projectName) {
+    if (uri || (title && projectName)) {
       const sources = {
         projectName,
         title,
@@ -41,6 +41,7 @@ const ProtectedRoute = ({ children }) => {
         sourceType,
         appName,
       };
+      console.log('Sources: ', sources);
       dispatch(handleGetSources(sources));
       sessionStorage.setItem('sourceData', JSON.stringify(sources));
     }
