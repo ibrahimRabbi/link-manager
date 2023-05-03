@@ -13,9 +13,11 @@ import {
   IconButton,
   Dropdown,
   Popover,
-  // InputGroup, Input
+  InputGroup,
+  Input,
 } from 'rsuite';
-// import SearchIcon from '@rsuite/icons/Search';
+import SearchIcon from '@rsuite/icons/Search';
+import CloseIcon from '@rsuite/icons/Close';
 import MoreIcon from '@rsuite/icons/legacy/More';
 import { handleRefreshData } from '../../Redux/slices/navSlice';
 import { darkBgColor, lightBgColor } from '../../App';
@@ -36,12 +38,28 @@ const AdminDataTable = ({ props }) => {
   } = props;
   const { isDark, refreshData } = useSelector((state) => state.nav);
   const [actionData, setActionData] = useState({});
+  const [tableFilterValue, setTableFilterValue] = useState('');
+  const [displayTableData, setDisplayTableData] = useState([]);
   const [page, setPage] = useState(1);
   const dispatch = useDispatch();
 
   useEffect(() => {
     handlePagination(page);
   }, [page]);
+
+  // filter table
+  useEffect(() => {
+    if (tableFilterValue) {
+      const filteredData = rowData?.filter((row) => {
+        // eslint-disable-next-line max-len
+        return Object.values(row)
+          ?.toString()
+          ?.toLowerCase()
+          .includes(tableFilterValue?.toLowerCase());
+      });
+      setDisplayTableData(filteredData);
+    }
+  }, [tableFilterValue]);
 
   // // handle check oll rows
   // const CheckCell = ({ rowData, onChange, checkedKeys, dataKey, ...props }) => (
@@ -94,12 +112,6 @@ const AdminDataTable = ({ props }) => {
   //   setSelectedData(selectedRows);
   // }, [checkedKeys]);
 
-  // // filter table
-  // const [tableFilterValue, setTableFilterValue]=useState('');
-  // const handleFilterTableData=(v)=>{
-  //   setTableFilterValue(v);
-  // };
-
   // Action cell
   // Action table cell control
   const renderMenu = ({ onClose, left, top, className }, ref) => {
@@ -135,7 +147,7 @@ const AdminDataTable = ({ props }) => {
         style={{
           backgroundColor: isDark == 'dark' ? darkBgColor : lightBgColor,
           marginTop: '20px',
-          padding: '10px 10px 20px',
+          padding: '10px',
         }}
       >
         <FlexboxGrid.Item>
@@ -162,27 +174,42 @@ const AdminDataTable = ({ props }) => {
         </FlexboxGrid.Item>
 
         <FlexboxGrid.Item>
-          {/* <InputGroup size='lg' inside style={{}}>
-            <Input placeholder={'Search Table Item'} 
-              value={tableFilterValue}
-              onChange={handleFilterTableData}
-            />
-            <InputGroup.Button>
-              <SearchIcon />
-            </InputGroup.Button>
-          </InputGroup> */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <InputGroup size="lg" inside style={{ width: '400px' }}>
+              <Input
+                placeholder={'Search Table Item'}
+                value={tableFilterValue}
+                onChange={(v) => setTableFilterValue(v)}
+              />
+              {tableFilterValue ? (
+                <InputGroup.Button onClick={() => setTableFilterValue('')}>
+                  <CloseIcon />
+                </InputGroup.Button>
+              ) : (
+                <InputGroup.Button>
+                  <SearchIcon />
+                </InputGroup.Button>
+              )}
+            </InputGroup>
 
-          <Button
-            appearance="default"
-            onClick={() => dispatch(handleRefreshData(!refreshData))}
-            color="blue"
-          >
-            <HiRefresh size={25} />
-          </Button>
+            <Button
+              appearance="default"
+              onClick={() => dispatch(handleRefreshData(!refreshData))}
+              color="blue"
+            >
+              <HiRefresh size={25} />
+            </Button>
+          </div>
         </FlexboxGrid.Item>
       </FlexboxGrid>
 
-      <Table autoHeight bordered headerHeight={50} data={rowData} id="admin-table">
+      <Table
+        autoHeight
+        bordered
+        headerHeight={50}
+        data={tableFilterValue === '' ? rowData : displayTableData}
+        id="admin-table"
+      >
         {/* --- check rows cell --- */}
 
         {/* <Column width={50} align="center">

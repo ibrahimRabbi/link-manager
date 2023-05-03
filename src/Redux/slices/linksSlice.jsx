@@ -217,6 +217,10 @@ export const linksSlice = createSlice({
       state.linkCreateLoading = false;
       state.createLinkRes = payload;
     });
+
+    builder.addCase(fetchCreateLink.rejected, (state) => {
+      state.linkCreateLoading = false;
+    });
   },
 });
 

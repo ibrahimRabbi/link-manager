@@ -1,14 +1,14 @@
 import React, { useContext, useState } from 'react';
-// import {PasswordInput, ProgressBar, TextInput } from '@carbon/react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import style from './Login.module.scss';
 import { useSelector } from 'react-redux';
 import { useMixpanel } from 'react-mixpanel-browser';
-import { FlexboxGrid, Button, Panel, Col, Loader, Schema, Form } from 'rsuite';
+import { FlexboxGrid, Button, Panel, Col, Schema, Form } from 'rsuite';
 import TextField from '../AdminDasComponents/TextField.jsx';
 import PasswordField from '../AdminDasComponents/PasswordField.jsx';
+import UseLoader from '../Shared/UseLoader.jsx';
 
 const { titleSpan, main, title } = style;
 const loginURL = `${process.env.REACT_APP_LM_REST_API_URL}/auth/login`;
@@ -100,11 +100,7 @@ const Login = () => {
 
   return (
     <div className={main}>
-      {isLoading && (
-        <h5 style={{ textAlign: 'center' }}>
-          <Loader size="md" />
-        </h5>
-      )}
+      {isLoading && <UseLoader />}
 
       <FlexboxGrid justify="center" align="middle">
         <FlexboxGrid.Item as={Col} colspan={16} md={14} lg={12} xl={10} xxl={8}>
