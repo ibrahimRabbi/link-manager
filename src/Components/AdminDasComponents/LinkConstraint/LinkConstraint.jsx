@@ -7,7 +7,7 @@ import {
   handleIsAddNewModal,
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
-import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
+import { FlexboxGrid, Form, Schema } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
 import TextField from '../TextField';
@@ -19,12 +19,9 @@ import {
   fetchLinkConstraints,
   fetchUpdateLinkCons,
 } from '../../../Redux/slices/linkConstraintSlice';
-import {
-  fetchApplicationList,
-  fetchLinkTypes,
-} from '../../../Redux/slices/linkTypeSlice';
 import CustomSelect from '../CustomSelect';
 import TextArea from '../TextArea';
+import UseLoader from '../../Shared/UseLoader';
 
 // import styles from './LinkConstraint.module.scss';
 // const { errText, formContainer, modalBtnCon,
@@ -75,7 +72,6 @@ const LinkConstraint = () => {
     isLinkConsCreated,
     isLinkConsDeleted,
   } = useSelector((state) => state.linkConstraints);
-  const { applicationList, allLinkTypes } = useSelector((state) => state.linkTypes);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -149,24 +145,6 @@ const LinkConstraint = () => {
       description: '',
     });
   };
-
-  // fetch application list for create link constraint
-  useEffect(() => {
-    // get application list
-    dispatch(
-      fetchApplicationList({
-        url: `${lmApiUrl}/application?page=${'1'}&per_page=${'100'}`,
-        token: authCtx.token,
-      }),
-    );
-    // get link type list
-    dispatch(
-      fetchLinkTypes({
-        url: `${lmApiUrl}/link-type?page=${'1'}&per_page=${'100'}`,
-        token: authCtx.token,
-      }),
-    );
-  }, []);
 
   useEffect(() => {
     dispatch(handleCurrPageTitle('Link Constraint'));
@@ -252,11 +230,7 @@ const LinkConstraint = () => {
           >
             <FlexboxGrid justify="space-between">
               <FlexboxGrid.Item style={{ marginBottom: '30px' }} colspan={24}>
-                <TextField
-                  name="name"
-                  label="Link Constraint Name"
-                  reqText="Link constraint name is required"
-                />
+                <TextField name="name" label="Name" reqText="Name is required" />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item colspan={11}>
@@ -281,7 +255,7 @@ const LinkConstraint = () => {
                   name="application_id"
                   label="Application ID"
                   accepter={CustomSelect}
-                  options={applicationList?.items ? applicationList?.items : []}
+                  apiURL={`${lmApiUrl}/application`}
                   error={formError.organization_id}
                   reqText="Application ID is required"
                 />
@@ -293,7 +267,7 @@ const LinkConstraint = () => {
                   name="link_type_id"
                   label="Link Type ID"
                   accepter={CustomSelect}
-                  options={allLinkTypes?.items ? allLinkTypes?.items : []}
+                  apiURL={`${lmApiUrl}/link-type`}
                   error={formError.organization_id}
                   reqText="Link type ID is required"
                 />
@@ -305,7 +279,7 @@ const LinkConstraint = () => {
                   label="Description"
                   accepter={TextArea}
                   rows={5}
-                  reqText="Link constraint description is required"
+                  reqText="Description is required"
                 />
               </FlexboxGrid.Item>
             </FlexboxGrid>
@@ -313,11 +287,7 @@ const LinkConstraint = () => {
         </div>
       </AddNewModal>
 
-      {isLinkConsLoading && (
-        <FlexboxGrid justify="center">
-          <Loader size="md" label="" />
-        </FlexboxGrid>
-      )}
+      {isLinkConsLoading && <UseLoader />}
       <AdminDataTable props={tableProps} />
     </div>
   );

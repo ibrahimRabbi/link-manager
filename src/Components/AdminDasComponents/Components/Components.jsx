@@ -16,15 +16,13 @@ import {
 } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
+import { FlexboxGrid, Form, Schema } from 'rsuite';
 import TextField from '../TextField';
 import SelectField from '../SelectField';
 import { useRef } from 'react';
 import CustomSelect from '../CustomSelect';
 import TextArea from '../TextArea';
-
-// import styles from './Components.module.scss';
-// const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
+import UseLoader from '../../Shared/UseLoader';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -65,14 +63,8 @@ const model = Schema.Model({
 });
 
 const Components = () => {
-  const {
-    allComponents,
-    isCompLoading,
-    isCompUpdated,
-    isCompCreated,
-    isCompDeleted,
-    projectList,
-  } = useSelector((state) => state.components);
+  const { allComponents, isCompLoading, isCompUpdated, isCompCreated, isCompDeleted } =
+    useSelector((state) => state.components);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
 
   const [currPage, setCurrPage] = useState(1);
@@ -223,11 +215,7 @@ const Components = () => {
           >
             <FlexboxGrid justify="space-between">
               <FlexboxGrid.Item colspan={24}>
-                <TextField
-                  name="name"
-                  label="Component Name"
-                  reqText="Component name is required"
-                />
+                <TextField name="name" label="Name" reqText="Name is required" />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
@@ -236,7 +224,7 @@ const Components = () => {
                   name="project_id"
                   label="Project"
                   accepter={CustomSelect}
-                  options={projectList?.items ? projectList?.items : []}
+                  apiURL={`${lmApiUrl}/project`}
                   error={formError.project_id}
                   reqText="Project ID is required"
                 />
@@ -248,7 +236,7 @@ const Components = () => {
                   label="Description"
                   accepter={TextArea}
                   rows={5}
-                  reqText="Component description is required"
+                  reqText="Description is required"
                 />
               </FlexboxGrid.Item>
             </FlexboxGrid>
@@ -256,11 +244,7 @@ const Components = () => {
         </div>
       </AddNewModal>
 
-      {isCompLoading && (
-        <FlexboxGrid justify="center">
-          <Loader size="md" label="" />
-        </FlexboxGrid>
-      )}
+      {isCompLoading && <UseLoader />}
       <AdminDataTable props={tableProps} />
     </div>
   );

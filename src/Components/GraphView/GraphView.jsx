@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { fetchGraphData } from '../../Redux/slices/graphSlice';
 import { handleCurrPageTitle, handleIsProfileOpen } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context';
-import { FlexboxGrid, Loader } from 'rsuite';
+import UseLoader from '../Shared/UseLoader';
 
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/visualize/staged`;
 
@@ -38,9 +38,7 @@ const GraphView = () => {
         className={wbePath ? 'wbeNavSpace' : ''}
       >
         {graphLoading ? (
-          <FlexboxGrid justify="center">
-            <Loader size="md" label="" />
-          </FlexboxGrid>
+          <UseLoader />
         ) : (
           <div className="graphContainer">
             <ReactGraph

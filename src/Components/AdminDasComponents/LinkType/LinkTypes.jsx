@@ -17,13 +17,14 @@ import {
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
+import { FlexboxGrid, Form, Schema } from 'rsuite';
 import TextField from '../TextField';
 import AddNewModal from '../AddNewModal';
 import { useRef } from 'react';
 import SelectField from '../SelectField';
 import CustomSelect from '../CustomSelect';
 import TextArea from '../TextArea';
+import UseLoader from '../../Shared/UseLoader';
 
 // import styles from './LinkTypes.module.scss';
 // const { errText, formContainer,
@@ -74,7 +75,6 @@ const model = Schema.Model({
 const LinkTypes = () => {
   const {
     allLinkTypes,
-    applicationList,
     isLinkTypeLoading,
     isLinkTypeCreated,
     isLinkTypeUpdated,
@@ -246,19 +246,11 @@ const LinkTypes = () => {
           >
             <FlexboxGrid justify="space-between">
               <FlexboxGrid.Item colspan={11}>
-                <TextField
-                  name="name"
-                  label="Link Type Name"
-                  reqText="Link type name is required"
-                />
+                <TextField name="name" label="Name" reqText="Name is required" />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item colspan={11}>
-                <TextField
-                  name="url"
-                  label="Link Type URL"
-                  reqText="Link type URL is required"
-                />
+                <TextField name="url" label="URL" reqText="URL is required" />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
@@ -281,8 +273,9 @@ const LinkTypes = () => {
                 <SelectField
                   name="application_id"
                   label="Application ID"
+                  placeholder="Select application ID"
                   accepter={CustomSelect}
-                  options={applicationList?.items ? applicationList?.items : []}
+                  apiURL={`${lmApiUrl}/application`}
                   error={formError.organization_id}
                   reqText="Application Id is required"
                 />
@@ -294,7 +287,7 @@ const LinkTypes = () => {
                   label="Description"
                   accepter={TextArea}
                   rows={5}
-                  reqText="Link type description is required"
+                  reqText="Description is required"
                 />
               </FlexboxGrid.Item>
             </FlexboxGrid>
@@ -302,11 +295,7 @@ const LinkTypes = () => {
         </div>
       </AddNewModal>
 
-      {isLinkTypeLoading && (
-        <FlexboxGrid justify="center">
-          <Loader size="md" label="" />
-        </FlexboxGrid>
-      )}
+      {isLinkTypeLoading && <UseLoader />}
       {/* <UseTable props={tableProps} /> */}
       <AdminDataTable props={tableProps} />
     </div>

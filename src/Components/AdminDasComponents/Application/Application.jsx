@@ -22,7 +22,10 @@ import TextField from '../TextField';
 import SelectField from '../SelectField';
 import CustomSelect from '../CustomSelect';
 import TextArea from '../TextArea';
+// eslint-disable-next-line max-len
 // import styles from './Application.module.scss';
+// import css file
+import './Application2.scss';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -61,20 +64,14 @@ const model = Schema.Model({
   description: StringType().isRequired('This field is required.'),
   client_uri: StringType().isRequired('This field is required.'),
   grant_types: ArrayType(),
-  redirect_uris: StringType().isRequired('This field is required.'),
+  redirect_uris: ArrayType(),
   response_types: ArrayType(),
-  scope: ArrayType(),
+  scopes: StringType(),
 });
 
 const Application = () => {
-  const {
-    allApplications,
-    organizationList,
-    isAppLoading,
-    isAppUpdated,
-    isAppCreated,
-    isAppDeleted,
-  } = useSelector((state) => state.applications);
+  const { allApplications, isAppLoading, isAppUpdated, isAppCreated, isAppDeleted } =
+    useSelector((state) => state.applications);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
 
   const [currPage, setCurrPage] = useState(1);
@@ -83,8 +80,8 @@ const Application = () => {
   const [editData, setEditData] = useState({});
   const [steps, setSteps] = useState(0);
 
-  const [clientId, setClientId] = useState('');
-  const [clientSecret, setClientSecret] = useState('');
+  // const [clientId, setClientId] = useState('');
+  // const [clientSecret, setClientSecret] = useState('');
   const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
 
   const [formValue, setFormValue] = useState({
@@ -95,12 +92,13 @@ const Application = () => {
     organization_id: '',
     description: '',
     client_uri: '',
-    grant_types: ['service_provider'],
+    grant_types: [],
     redirect_uris: '',
-    response_types: ['code'],
-    scope: ['oslc_fetch_access'],
+    response_types: [],
+    scopes: '',
   });
   const appFormRef = useRef();
+  const iframeRef = useRef(null);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
@@ -140,59 +138,98 @@ const Application = () => {
     } else {
       console.log('Trying to create new application');
 
-      formValue.scope = ['oslc_fetch_access'];
+      formValue.scopes = 'oslc_fetch_access';
       formValue.response_types = ['code'];
-      formValue.grant_types = ['service_provider'];
+      formValue.grant_types = ['service_provider', 'authorization_code'];
       formValue.redirect_uris = [
-        'http://127.0.0.1:5100/api/v1/application/' + 'oauth2-consumer/callback',
+        // eslint-disable-next-line max-len
+        'http://127.0.0.1:5100/api/v1/application/' +
+          'oauth2-consumer/callback?consumer=' +
+          formValue.label,
       ];
 
-      console.log('form value', formValue);
+      // console.log('form value', formValue);
 
       const postUrl = `${lmApiUrl}/application`;
-
       dispatch(
         fetchCreateApp({
           url: postUrl,
           token: authCtx.token,
           bodyData: formValue,
+          sendMsg: false,
         }),
       )
         .then((response) => {
-          console.log('json payload', response.payload);
-          setClientId(response.payload.client_id);
-          setClientSecret(response.payload.client_secret);
-          setSteps(1);
-          let query = `client_id=${response.payload.client_id}`;
-          console.log('scope:' + formValue.scope);
-          console.log('response types:' + formValue.response_types);
-          // loop for including scopes in query
-          formValue.scope.forEach((scope) => {
-            // evaluate if scope is the first element in the array
-            if (formValue.scope.indexOf(scope) === 0) {
-              query += `&scope=${scope}`;
-            } else {
-              query += ` ${scope}`;
-            }
-          }, query);
-          // for loop in array
-          formValue.response_types.forEach((response_type) => {
-            if (formValue.response_types.indexOf(response_type) === 0) {
-              query += `&response_type=${response_type}`;
-            } else {
-              query += ` ${response_type}`;
-            }
-          }, query);
-          query += `&redirect_uri=${formValue.redirect_uris[0]}`;
+          if (response) {
+            // setClientId(response.payload.client_id);
+            // setClientSecret(response.payload.client_secret);
+            setSteps(1);
+            let query = `client_id=${response.payload.client_id}`;
+            query += `&scope=${formValue.scope}`;
 
-          const authorizeUri = response.payload.oauth_client_authorize_uri + '?' + query;
-          setAuthorizeFrameSrc(authorizeUri);
+            formValue.response_types.forEach((response_type) => {
+              if (formValue.response_types.indexOf(response_type) === 0) {
+                query += `&response_type=${response_type}`;
+              } else {
+                query += ` ${response_type}`;
+              }
+            }, query);
+
+            query += `&redirect_uri=${formValue.redirect_uris[0]}`;
+            let authorizeUri = response.payload.oauth_client_authorize_uri + '?' + query;
+            setAuthorizeFrameSrc(authorizeUri);
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Something went wrong!',
+            });
+          }
         })
         .catch((error) => console.error(error));
     }
 
     dispatch(handleIsAddNewModal(true));
     if (isAdminEditing) dispatch(handleIsAdminEditing(false));
+  };
+
+  window.addEventListener(
+    'message',
+    function (event) {
+      let message = event.data;
+      console.log('message' + message);
+      if (!message.source) {
+        if (message.toString()?.startsWith('access-token-data')) {
+          console.log('response' + message);
+          const response = JSON.parse(message?.substr('access-token-data:'?.length));
+
+          localStorage.setItem('access_token', response.access_token);
+          localStorage.setItem('expires_in', response.expires_in);
+          setSteps(2);
+        }
+      }
+    },
+    false,
+  );
+
+  useEffect(() => {
+    if (iframeRef.current) {
+      iframeRef.current.addEventListener('load', handleLoad);
+    }
+    return () => {
+      if (iframeRef.current) {
+        iframeRef.current.removeEventListener('load', handleLoad);
+      }
+    };
+  }, [iframeRef]);
+
+  // Check for changes to the iframe URL when it is loaded
+  const handleLoad = () => {
+    const currentUrl = iframeRef.current.contentWindow.location.href;
+    if (currentUrl !== authorizeFrameSrc) {
+      setAuthorizeFrameSrc(currentUrl);
+      console.log('URL changed:', currentUrl);
+    }
   };
 
   // reset form
@@ -331,8 +368,9 @@ const Application = () => {
                 <SelectField
                   name="organization_id"
                   label="Organization ID"
+                  placeholder="Select Organization ID"
                   accepter={CustomSelect}
-                  options={organizationList?.items ? organizationList?.items : []}
+                  apiURL={`${lmApiUrl}/organization`}
                   error={formError.organization_id}
                   reqText="Organization Id is required"
                 />
@@ -347,29 +385,26 @@ const Application = () => {
                   reqText="application description is required"
                 />
               </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0 10px' }}>
-                <TextField
-                  name="redirect_uris"
-                  label="Redirect URIs"
-                  accepter={TextArea}
-                  rows={5}
-                  reqText="application redirect URIs is/are required"
-                />
-              </FlexboxGrid.Item>
             </FlexboxGrid>
           </Form>
         </div>
 
         <div className="show-grid step-2">
-          <h2 style={{ margin: '30px 0 10px' }}>Add Application Roles</h2>
-          <h4> [{clientId}] </h4>
-          <h4> [{clientSecret}] </h4>
-          Please authorize the access for the application by clicking the button below.
+          <h4 style={{ margin: '30px 0 10px' }}>Authorize the application consumption</h4>
+          Please authorize the access for the application in the window below:
+          {/* eslint-disable-next-line max-len */}
           <iframe className={'authorize-iframe'} src={authorizeFrameSrc} />
         </div>
 
-        <div className={'add-application-steps'} style={{ margin: '30px 0 10px' }}>
+        <div className="show-grid step-3">
+          {/* eslint-disable-next-line max-len */}
+          <h4 style={{ margin: '30px 0 10px' }}>
+            Application has been registered and authorized successfully
+          </h4>
+          Close this window to continue.
+        </div>
+
+        <div className={'application-steps'} style={{ margin: '30px 0 10px' }}>
           <Steps current={steps}>
             <Steps.Item />
             <Steps.Item />

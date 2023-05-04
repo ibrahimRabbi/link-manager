@@ -1,5 +1,5 @@
 import { Search } from '@carbon/react';
-import { Button, FlexboxGrid, Loader } from 'rsuite';
+import { Button } from 'rsuite';
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useSearchParams } from 'react-router-dom';
@@ -10,6 +10,7 @@ import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 import styles from './LinkManager.module.scss';
 import SourceSection from '../SourceSection';
 import LinksDataTable from '../Shared/UseDataTable/LinksDataTable';
+import UseLoader from '../Shared/UseLoader';
 
 const {
   dropdownStyle,
@@ -153,11 +154,7 @@ const LinkManager = () => {
                 </div>
               )}
 
-              {isLoading && (
-                <FlexboxGrid style={{ marginBottom: '10px' }} justify="center">
-                  <Loader size="md" />
-                </FlexboxGrid>
-              )}
+              {isLoading && <UseLoader />}
 
               <LinksDataTable props={tableProps} />
             </div>

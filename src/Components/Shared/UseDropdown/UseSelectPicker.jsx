@@ -1,7 +1,22 @@
 import React, { useState } from 'react';
-
 import { SelectPicker } from 'rsuite';
 import SpinnerIcon from '@rsuite/icons/legacy/Spinner';
+
+const FixedLoader = () => (
+  <h5
+    style={{
+      display: 'flex',
+      justifyContent: 'center',
+      position: 'absolute',
+      bottom: '0',
+      background: '#fff',
+      width: '100%',
+      padding: '4px 0',
+    }}
+  >
+    <SpinnerIcon spin style={{ fontSize: '35px' }} />
+  </h5>
+);
 
 const UseSelectPicker = ({ items, onChange, placeholder, className }) => {
   const [selectItems, setSelectItems] = useState([]);
@@ -20,11 +35,7 @@ const UseSelectPicker = ({ items, onChange, placeholder, className }) => {
 
   const renderMenu = (menu) => {
     if (selectItems.length === 0) {
-      return (
-        <p style={{ padding: 4, color: '#999', textAlign: 'center' }}>
-          <SpinnerIcon spin /> Loading...
-        </p>
-      );
+      return <FixedLoader />;
     }
     return menu;
   };
@@ -39,6 +50,7 @@ const UseSelectPicker = ({ items, onChange, placeholder, className }) => {
     <SelectPicker
       placeholder={<p>{placeholder}</p>}
       data={selectItems}
+      menuMaxHeight={250}
       size="md"
       block
       onChange={(v) => handleSelect(v)}

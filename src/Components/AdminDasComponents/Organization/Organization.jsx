@@ -15,9 +15,10 @@ import {
 } from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
-import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
+import { FlexboxGrid, Form, Schema } from 'rsuite';
 import TextField from '../TextField';
 import TextArea from '../TextArea';
+import UseLoader from '../../Shared/UseLoader';
 
 // import styles from './Organization.module.scss';
 // const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
@@ -206,19 +207,11 @@ const Organization = () => {
           >
             <FlexboxGrid justify="space-between">
               <FlexboxGrid.Item colspan={11}>
-                <TextField
-                  name="name"
-                  label="Organization Name"
-                  reqText="Name is Required"
-                />
+                <TextField name="name" label="Name" reqText="Name is Required" />
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item colspan={11}>
-                <TextField
-                  name="url"
-                  label="Organization URL"
-                  reqText="URL is Required"
-                />
+                <TextField name="url" label="URL" reqText="URL is Required" />
               </FlexboxGrid.Item>
               <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0 10px' }}>
                 <TextField
@@ -234,11 +227,7 @@ const Organization = () => {
         </div>
       </AddNewModal>
 
-      {isOrgLoading && (
-        <FlexboxGrid justify="center">
-          <Loader size="md" label="" />
-        </FlexboxGrid>
-      )}
+      {isOrgLoading && <UseLoader />}
       {/* <UseTable props={tableProps} /> */}
       <AdminDataTable props={tableProps} />
     </div>
