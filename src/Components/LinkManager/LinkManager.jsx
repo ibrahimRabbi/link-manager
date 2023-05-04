@@ -138,6 +138,7 @@ const LinkManager = () => {
                   <InputGroup size="lg" inside style={{ width: '400px' }}>
                     <Input
                       placeholder={'Search Links'}
+                      type="text"
                       value={tableFilterValue}
                       onChange={(v) => setTableFilterValue(v)}
                     />
