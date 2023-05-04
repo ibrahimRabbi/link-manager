@@ -281,7 +281,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // Create new link
   const handleSaveLink = () => {
     const { projectName, sourceType, title, uri, appName } = sourceDataList;
-    console.log('sourceList:', sourceDataList);
+
     const targetsData = targetDataArr?.map((data) => {
       const id = data?.selected_lines ? data.uri + '#' + data?.selected_lines : data.uri;
       return {
@@ -309,7 +309,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     }
 
     const linkObj = {
-      stream: streamType,
+      stream: streamType ? streamType : '',
       source_type: sourceType ? sourceType : '',
       source_title: title ? title : '',
       source_project: projectName,
@@ -319,7 +319,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       status: 'active',
       target_data: targetsData,
     };
-    // console.log('Link Obj: ', linkObj);
+    console.log('Link Obj: ', linkObj);
     dispatch(
       fetchCreateLink({
         url: apiURL,
