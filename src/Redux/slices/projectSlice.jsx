@@ -16,8 +16,8 @@ export const fetchProjects = createAsyncThunk(
 // Create New project
 export const fetchCreateProj = createAsyncThunk(
   'projects/fetchCreateProj',
-  async ({ url, token, bodyData, reset }) => {
-    const res = postAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData, message }) => {
+    const res = postAPI({ url, token, bodyData, message });
     return res;
   },
 );
@@ -25,8 +25,8 @@ export const fetchCreateProj = createAsyncThunk(
 // Update Project
 export const fetchUpdateProj = createAsyncThunk(
   'projects/fetchUpdateProj',
-  async ({ url, token, bodyData, reset }) => {
-    const res = putAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData }) => {
+    const res = putAPI({ url, token, bodyData });
     console.log(res);
     return res;
   },

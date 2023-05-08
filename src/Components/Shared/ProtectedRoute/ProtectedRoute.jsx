@@ -9,18 +9,17 @@ const ProtectedRoute = ({ children }) => {
   let location = useLocation();
   const dispatch = useDispatch();
   const wbePath = location.pathname?.includes('wbe');
-
-  // Get query parameters from the Gitlab
   const [searchParams] = useSearchParams();
 
-  const appName = searchParams.get('appName'); // glide, gitlab, jira, github <-- from wbe
+  // Get query parameters from the WBE
+  // glide, gitlab, jira, github, valispace <-- from wbe
+  const origin = searchParams.get('origin');
+  const appName = searchParams.get('appName');
   const sourceType = searchParams.get('sourceType');
+  const uri = searchParams.get('uri');
   const title = searchParams.get('title');
   const titleLabel = searchParams.get('titleLabel');
-  const origin = searchParams.get('origin');
-  const uri = searchParams.get('uri');
   const projectName = searchParams.get('project');
-
   const branch = searchParams.get('branch');
   const commit = searchParams.get('commit');
 
@@ -29,7 +28,7 @@ const ProtectedRoute = ({ children }) => {
   }, [location]);
 
   useEffect(() => {
-    if (uri || (title && projectName)) {
+    if (uri) {
       const sources = {
         projectName,
         title,
@@ -41,7 +40,7 @@ const ProtectedRoute = ({ children }) => {
         sourceType,
         appName,
       };
-      console.log('Sources: ', sources);
+
       dispatch(handleGetSources(sources));
       sessionStorage.setItem('sourceData', JSON.stringify(sources));
     }

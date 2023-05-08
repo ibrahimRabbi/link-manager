@@ -2,7 +2,11 @@ import { Button, FlexboxGrid, Input, InputGroup } from 'rsuite';
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { fetchLinksData, handleIsWbe } from '../../Redux/slices/linksSlice';
+import {
+  fetchDeleteLink,
+  fetchLinksData,
+  handleIsWbe,
+} from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle, handleRefreshData } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import styles from './LinkManager.module.scss';
@@ -13,6 +17,7 @@ import { HiRefresh } from 'react-icons/hi';
 import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
 import { darkBgColor, lightBgColor } from '../../App';
+import Swal from 'sweetalert2';
 
 const { tableContainer } = styles;
 
@@ -26,9 +31,8 @@ const headerData = [
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 
 const LinkManager = () => {
-  const { sourceDataList, linksData, isLoading, configuration_aware } = useSelector(
-    (state) => state.links,
-  );
+  const { sourceDataList, linksData, isLoading, isLinkDeleting, configuration_aware } =
+    useSelector((state) => state.links);
   // console.log('linksData ->', linksData);
   const { linksStream, refreshData, isDark } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
@@ -57,7 +61,7 @@ const LinkManager = () => {
     setPageSize(dataKey);
   };
 
-  // fetch links
+  // get all links
   useEffect(() => {
     (async () => {
       dispatch(handleCurrPageTitle('Links'));
@@ -71,7 +75,7 @@ const LinkManager = () => {
 
       let stream = linksStream.key ? linksStream.key : streamRes[0]?.key;
 
-      // Create link
+      // Get all links
       if (sourceFileURL) {
         dispatch(
           fetchLinksData({
@@ -84,7 +88,34 @@ const LinkManager = () => {
         );
       }
     })();
-  }, [linksStream, pageSize, currPage, refreshData]);
+  }, [linksStream, pageSize, currPage, isLinkDeleting, refreshData]);
+
+  // handle delete link
+  const handleDeleteLink = (value) => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You want to delete this link!',
+      icon: 'question',
+      cancelButtonColor: '#d33',
+      confirmButtonColor: '#3085d6',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      reverseButtons: true,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        // eslint-disable-next-line max-len
+        const deleteURl = `${apiURL}?source_id=${encodeURIComponent(
+          sourceFileURL,
+        )}&target_id=${encodeURIComponent(value.id)}&link_type=${value?.link_type}`;
+        dispatch(
+          fetchDeleteLink({
+            url: deleteURl,
+            token: authCtx.token,
+          }),
+        );
+      }
+    });
+  };
 
   // filter table
   useEffect(() => {
@@ -111,6 +142,7 @@ const LinkManager = () => {
     headerData,
     handlePagination,
     handleChangeLimit,
+    handleDeleteLink,
     totalItems: linksData?.total_items,
     totalPages: linksData?.total_pages,
     setCurrPage,
@@ -138,6 +170,7 @@ const LinkManager = () => {
                   <InputGroup size="lg" inside style={{ width: '400px' }}>
                     <Input
                       placeholder={'Search Links'}
+                      type="text"
                       value={tableFilterValue}
                       onChange={(v) => setTableFilterValue(v)}
                     />
