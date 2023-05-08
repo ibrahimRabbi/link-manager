@@ -65,7 +65,6 @@ const Application = () => {
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
 
   const [currPage, setCurrPage] = useState(1);
-  // const [ddPage, setDdPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
@@ -110,6 +109,7 @@ const Application = () => {
           url: postUrl,
           token: authCtx.token,
           bodyData: formValue,
+          message: 'application',
         }),
       );
     }

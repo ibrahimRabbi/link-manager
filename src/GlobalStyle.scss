@@ -5,27 +5,27 @@
   min-height: 100vh;
 
   h1 {
-    font-size: 40px;
+    font-size: 40px !important;
   }
 
   h2 {
-    font-size: 30px;
+    font-size: 30px !important;
   }
 
   h3 {
-    font-size: 22px;
+    font-size: 22px !important;
   }
 
   h4 {
-    font-size: 22px;
+    font-size: 22px !important;
   }
 
   h5 {
-    font-size: 19px;
+    font-size: 19px !important;
   }
 
   h6 {
-    font-size: 18px;
+    font-size: 18px !important;
   }
 
   p,
@@ -86,7 +86,7 @@
   }
 }
 
-.linkFileContainer>h5 {
+.linkFileContainer > h5 {
   span {
     margin-left: 10px;
     margin-bottom: -10px;

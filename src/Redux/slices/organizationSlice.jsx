@@ -16,8 +16,8 @@ export const fetchOrganizations = createAsyncThunk(
 // Create New organization
 export const fetchCreateOrg = createAsyncThunk(
   'organizations/fetchCreateOrg',
-  async ({ url, token, bodyData, reset }) => {
-    const res = postAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData, message }) => {
+    const res = postAPI({ url, token, bodyData, message });
     return res;
   },
 );
@@ -25,8 +25,8 @@ export const fetchCreateOrg = createAsyncThunk(
 // Update organization
 export const fetchUpdateOrg = createAsyncThunk(
   'organizations/fetchUpdateOrg',
-  async ({ url, token, bodyData, reset }) => {
-    const res = putAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData }) => {
+    const res = putAPI({ url, token, bodyData });
     return res;
   },
 );

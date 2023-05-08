@@ -1,5 +1,5 @@
 import Swal from 'sweetalert2';
-import clientMessages from './responseMsg';
+// import clientMessages from './responseMsg';
 
 export default async function deleteAPI({ url, token }) {
   const response = await fetch(`${url}`, {
@@ -15,21 +15,24 @@ export default async function deleteAPI({ url, token }) {
           Swal.fire({
             title: 'Deleted',
             icon: 'success',
-            text: 'Your data successfully deleted',
+            text: 'This data successfully deleted',
             confirmButtonColor: '#3085d6',
           });
         }
-        return res;
+        return res.json();
       } else {
         if (res.status === 400) {
-          clientMessages({ status: res.status, message: res.statusText });
+          console.log(res.status, res.statusText);
+          // clientMessages({ status: res.status, message: res.statusText });
         } else if (res.status === 401) {
-          clientMessages({ status: res.status, message: res.statusText });
+          console.log(res.status, res.statusText);
+          // clientMessages({ status: res.status, message: res.statusText });
         } else if (res.status === 403) {
           console.log(res.status, res.statusText);
         } else if (res.status === 409) {
           console.log(res.status, res.statusText);
         } else if (res.status === 500) {
+          console.log(res.status, res.statusText);
           // clientMessages({ status: res.status, message: res.statusText });
         }
       }
