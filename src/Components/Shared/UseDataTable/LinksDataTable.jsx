@@ -70,7 +70,7 @@ const LinksDataTable = ({ props }) => {
         <iframe
           src={
             // eslint-disable-next-line max-len
-            `https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/${
+            `https://${rowData?.provider}-oslc-api-dev.koneksys.com/oslc/provider/${
               rowData?.provider_id
             }/resources/${rowData?.Type}/${
               rowData?.resource_id
