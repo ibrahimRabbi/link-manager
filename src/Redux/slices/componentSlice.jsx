@@ -4,15 +4,6 @@ import getAPI from '../apiRequests/getAPI';
 import postAPI from '../apiRequests/postAPI';
 import putAPI from '../apiRequests/putAPI';
 
-// Fetch get all projects
-export const fetchProjectList = createAsyncThunk(
-  'components/fetchProjectList',
-  async ({ url, token }) => {
-    const response = getAPI({ url, token });
-    return response;
-  },
-);
-
 // Fetch get all components
 export const fetchComponents = createAsyncThunk(
   'components/fetchComponents',
@@ -25,8 +16,8 @@ export const fetchComponents = createAsyncThunk(
 // Create New components
 export const fetchCreateComp = createAsyncThunk(
   'components/fetchCreateComp',
-  async ({ url, token, bodyData, reset }) => {
-    const res = postAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData, message }) => {
+    const res = postAPI({ url, token, bodyData, message });
     return res;
   },
 );
@@ -34,8 +25,8 @@ export const fetchCreateComp = createAsyncThunk(
 // Update components
 export const fetchUpdateComp = createAsyncThunk(
   'components/fetchUpdateComp',
-  async ({ url, token, bodyData, reset }) => {
-    const res = putAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData }) => {
+    const res = putAPI({ url, token, bodyData });
     return res;
   },
 );
@@ -52,7 +43,6 @@ export const fetchDeleteComp = createAsyncThunk(
 /// All components states
 const initialState = {
   allComponents: {},
-  projectList: {},
   isCompCreated: false,
   isCompUpdated: false,
   isCompDeleted: false,
@@ -130,14 +120,6 @@ export const ComponentsSlice = createSlice({
 
     builder.addCase(fetchDeleteComp.rejected, (state) => {
       state.isCompLoading = false;
-    });
-
-    // Get all projects
-    builder.addCase(fetchProjectList.fulfilled, (state, { payload }) => {
-      state.isCompLoading = false;
-      if (payload?.items) {
-        state.projectList = payload;
-      }
     });
   },
 });

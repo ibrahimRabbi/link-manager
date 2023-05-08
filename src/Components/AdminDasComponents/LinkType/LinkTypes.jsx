@@ -2,13 +2,10 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import {
-  fetchApplicationList,
   fetchCreateLinkType,
   fetchDeleteLinkType,
   fetchLinkTypes,
   fetchUpdateLinkType,
-  // fetchCreateLinkType,
-  // fetchUpdateLinkType,
 } from '../../../Redux/slices/linkTypeSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import {
@@ -134,6 +131,7 @@ const LinkTypes = () => {
           url: postUrl,
           token: authCtx.token,
           bodyData: formValue,
+          message: 'link type',
         }),
       );
     }
@@ -153,15 +151,6 @@ const LinkTypes = () => {
       description: '',
     });
   };
-
-  useEffect(() => {
-    dispatch(
-      fetchApplicationList({
-        url: `${lmApiUrl}/application?page=${'1'}&per_page=${'100'}`,
-        token: authCtx.token,
-      }),
-    );
-  }, []);
 
   // get all link types
   useEffect(() => {

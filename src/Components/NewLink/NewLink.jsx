@@ -325,6 +325,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         url: apiURL,
         token: authCtx.token,
         bodyData: linkObj,
+        message: 'link',
       }),
     );
   };

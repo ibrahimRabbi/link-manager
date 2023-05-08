@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 import clientMessages from './responseMsg';
 
-export default async function postAPI({ url, token, bodyData }) {
+export default async function postAPI({ url, token, bodyData, message }) {
   const response = await fetch(`${url}`, {
     method: 'POST',
     headers: {
@@ -26,7 +26,8 @@ export default async function postAPI({ url, token, bodyData }) {
           Swal.fire({
             title: 'Already exists',
             icon: 'info',
-            text: 'This User is already exists. please try to create another user',
+            // eslint-disable-next-line max-len
+            text: `This ${message} is already exists. please try to create another ${message}`,
             confirmButtonColor: '#3085d6',
           });
         } else if (res.status === 400) {

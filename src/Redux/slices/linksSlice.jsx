@@ -1,12 +1,13 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import getAPI from '../apiRequests/getAPI';
 import postAPI from '../apiRequests/postAPI';
+import deleteAPI from '../apiRequests/deleteAPI';
 
 // Create New link
 export const fetchCreateLink = createAsyncThunk(
   'links/fetchCreateLink',
-  async ({ url, token, bodyData }) => {
-    const response = postAPI({ url, token, bodyData });
+  async ({ url, token, bodyData, message }) => {
+    const response = postAPI({ url, token, bodyData, message });
     return response;
   },
 );
@@ -20,6 +21,15 @@ export const fetchLinksData = createAsyncThunk(
   },
 );
 
+// Fetch delete Link from manager table
+export const fetchDeleteLink = createAsyncThunk(
+  'links/fetchDeleteLink',
+  async ({ url, token }) => {
+    const response = await deleteAPI({ url, token });
+    return response;
+  },
+);
+
 const gcmAware = JSON.parse(process.env.REACT_APP_CONFIGURATION_AWARE);
 
 const initialState = {
@@ -29,6 +39,7 @@ const initialState = {
   isWbe: false,
   oslcResponse: null,
   isLinkCreate: false,
+  isLinkDeleting: false,
   isLoading: false,
   linkCreateLoading: false,
   allLinks: [],
@@ -184,6 +195,7 @@ export const linksSlice = createSlice({
   extraReducers: (builder) => {
     // get all links controller
     builder.addCase(fetchLinksData.pending, (state) => {
+      state.isLinkDeleting = false;
       state.createLinkRes = null;
       state.isLoading = true;
     });
@@ -220,6 +232,21 @@ export const linksSlice = createSlice({
 
     builder.addCase(fetchCreateLink.rejected, (state) => {
       state.linkCreateLoading = false;
+    });
+
+    // Delete link controller
+    builder.addCase(fetchDeleteLink.pending, (state) => {
+      state.isLoading = true;
+    });
+
+    builder.addCase(fetchDeleteLink.fulfilled, (state, { payload }) => {
+      state.isLoading = false;
+      console.log('Delete Link: ', payload);
+      state.isLinkDeleting = true;
+    });
+
+    builder.addCase(fetchDeleteLink.rejected, (state) => {
+      state.isLoading = false;
     });
   },
 });

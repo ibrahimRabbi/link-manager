@@ -5,7 +5,6 @@ import {
   fetchComponents,
   fetchCreateComp,
   fetchDeleteComp,
-  fetchProjectList,
   fetchUpdateComp,
 } from '../../../Redux/slices/componentSlice';
 import AuthContext from '../../../Store/Auth-Context';
@@ -117,6 +116,7 @@ const Components = () => {
           url: postUrl,
           token: authCtx.token,
           bodyData: formValue,
+          message: 'component',
         }),
       );
     }
@@ -133,15 +133,6 @@ const Components = () => {
       description: '',
     });
   };
-
-  useEffect(() => {
-    dispatch(
-      fetchProjectList({
-        url: `${lmApiUrl}/project?page=${'1'}&per_page=${'100'}`,
-        token: authCtx.token,
-      }),
-    );
-  }, []);
 
   useEffect(() => {
     dispatch(handleCurrPageTitle('Components'));

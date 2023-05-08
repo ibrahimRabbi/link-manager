@@ -92,6 +92,7 @@ const Projects = () => {
           url: postUrl,
           token: authCtx.token,
           bodyData: formValue,
+          message: 'project',
         }),
       );
     }

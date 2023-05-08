@@ -10,7 +10,8 @@ import { darkColor, lightBgColor } from '../../../App';
 const { tableContainerDiv, validIcon, statusIcon } = styles;
 
 const LinksDataTable = ({ props }) => {
-  const { handlePagination, handleChangeLimit, totalItems, pageSize } = props;
+  const { handlePagination, handleChangeLimit, totalItems, pageSize, handleDeleteLink } =
+    props;
   const { isDark } = useSelector((state) => state.nav);
   const [page, setPage] = useState(1);
   const [actionData, setActionData] = useState({});
@@ -21,32 +22,30 @@ const LinksDataTable = ({ props }) => {
 
   // Action table cell control
   const renderMenu = ({ onClose, left, top, className }, ref) => {
-    const handleSelect = () => {
+    const handleSelect = (key) => {
+      if (key === 1) {
+        console.log('Details');
+      } else if (key === 2) {
+        console.log('Edit');
+      } else if (key === 3) {
+        console.log('Set Status Valid');
+      } else if (key === 4) {
+        console.log('Set Status Invalid');
+      } else if (key === 5) {
+        handleDeleteLink(actionData);
+      }
+
       onClose();
     };
-    console.log('action', actionData);
+
     return (
       <Popover ref={ref} className={className} style={{ left, top }} full>
-        <Dropdown.Menu onSelect={handleSelect}>
-          <Dropdown.Item eventKey={1}>
-            <p>Details</p>
-          </Dropdown.Item>
-
-          <Dropdown.Item eventKey={2}>
-            <p>Edit</p>
-          </Dropdown.Item>
-
-          <Dropdown.Item eventKey={3}>
-            <p>Set Status - Valid</p>
-          </Dropdown.Item>
-
-          <Dropdown.Item eventKey={4}>
-            <p>Set Status - Invalid</p>
-          </Dropdown.Item>
-
-          <Dropdown.Item eventKey={5}>
-            <p>Remove</p>
-          </Dropdown.Item>
+        <Dropdown.Menu onSelect={handleSelect} style={{ fontSize: '17px' }}>
+          <Dropdown.Item eventKey={1}>Details</Dropdown.Item>
+          <Dropdown.Item eventKey={2}>Edit</Dropdown.Item>
+          <Dropdown.Item eventKey={3}>Set Status - Valid </Dropdown.Item>
+          <Dropdown.Item eventKey={4}>Set Status - Invalid</Dropdown.Item>
+          <Dropdown.Item eventKey={5}>Delete</Dropdown.Item>
         </Dropdown.Menu>
       </Popover>
     );

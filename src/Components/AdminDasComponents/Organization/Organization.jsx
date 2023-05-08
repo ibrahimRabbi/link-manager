@@ -100,6 +100,7 @@ const Organization = () => {
           url: postUrl,
           token: authCtx.token,
           bodyData: formValue,
+          message: 'organization',
         }),
       );
     }
