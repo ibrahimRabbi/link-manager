@@ -11,12 +11,12 @@ import {
   Col,
   Schema,
   Form,
+  Loader,
   useToaster,
   Message,
 } from 'rsuite';
 import TextField from '../AdminDasComponents/TextField.jsx';
 import PasswordField from '../AdminDasComponents/PasswordField.jsx';
-import UseLoader from '../Shared/UseLoader.jsx';
 
 const { titleSpan, main, title } = style;
 const loginURL = `${process.env.REACT_APP_LM_REST_API_URL}/auth/login`;
@@ -70,55 +70,64 @@ const Login = () => {
       },
     })
       .then((res) => {
-        console.log(res);
         if (res.ok) {
           //track who try to login
           mixpanel.track('Successfully logged in.', {
             username: formValue.userName,
           });
-          return res.json();
         } else {
-          res
-            .json()
-            .then((data) => {
-              let errorMessage = 'Authentication failed: ';
-              if (data && data.message) {
-                errorMessage += data.message;
-
-                const message = <Message type="error">{errorMessage}</Message>;
-
-                toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
-                // Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
-              }
-            })
-            .then((err) => {
-              console.log(err);
-            });
+          //track who try to login
+          mixpanel.track('Failed to login.', {
+            username: formValue.userName,
+          });
         }
+        return res.json();
       })
       .then((data) => {
-        console.log(`data: ${data}`);
-        const expirationTime = new Date(new Date().getTime() + +data.expires_in * 1000);
-        authCtx.login(data.access_token, expirationTime.toISOString());
-
-        // manage redirect user
-        if (location.state) navigate(location.state.from.pathname);
-        else {
-          isWbe ? navigate('/wbe') : navigate('/');
+        if ('access_token' in data) {
+          const expirationTime = new Date(new Date().getTime() + +data.expires_in * 1000);
+          authCtx.login(data.access_token, expirationTime.toISOString());
+          // manage redirect user
+          if (location.state) navigate(location.state.from.pathname);
+          else {
+            isWbe ? navigate('/wbe') : navigate('/');
+          }
+        } else {
+          let errorMessage = 'Authentication failed: ';
+          if (data && data.message) {
+            errorMessage += data.message;
+            const message = (
+              <Message closable showIcon type="error">
+                {errorMessage}
+              </Message>
+            );
+            toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
+          }
         }
       })
       .catch((err) => {
-        const message = <Message type="error">{err.message}</Message>;
-
+        const message = (
+          <Message closable showIcon type="error">
+            Something went wrong when connecting to the server. ({err.message})
+          </Message>
+        );
         toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
-        // Swal.fire({ title: 'Error', text: err.message, icon: 'error' });
       })
       .finally(() => setIsLoading(false));
   };
 
   return (
     <div className={main}>
-      {isLoading && <UseLoader />}
+      {isLoading && (
+        <Loader
+          backdrop
+          center
+          size="md"
+          vertical
+          content="Authenticating"
+          style={{ zIndex: '10' }}
+        />
+      )}
 
       <FlexboxGrid justify="center" align="middle">
         <FlexboxGrid.Item as={Col} colspan={16} md={14} lg={12} xl={10} xxl={8}>
@@ -136,7 +145,7 @@ const Login = () => {
               fluid
               ref={loginFormRef}
               onChange={setFormValue}
-              onCheck={setFormError}
+              check={setFormError}
               formValue={formValue}
               model={model}
             >
