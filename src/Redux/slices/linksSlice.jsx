@@ -213,6 +213,10 @@ export const linksSlice = createSlice({
       }
     });
 
+    builder.addCase(fetchLinksData.rejected, (state) => {
+      state.isLoading = false;
+    });
+
     // Create new link controller
     builder.addCase(fetchCreateLink.pending, (state) => {
       state.linkCreateLoading = true;
