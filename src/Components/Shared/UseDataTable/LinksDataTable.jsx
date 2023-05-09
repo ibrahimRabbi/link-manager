@@ -9,6 +9,13 @@ import { useSelector } from 'react-redux';
 import { darkColor, lightBgColor } from '../../../App';
 const { tableContainerDiv, validIcon, statusIcon } = styles;
 
+// OSLC API URLs
+const jiraURL = `${process.env.REACT_APP_JIRA_DIALOG_URL}`;
+const gitlabURL = `${process.env.REACT_APP_GITLAB_DIALOG_URL}`;
+const glideURL = `${process.env.REACT_APP_GLIDE_DIALOG_URL}`;
+const valispaceURL = `${process.env.REACT_APP_VALISPACE_DIALOG_URL}`;
+const codebeamerURL = `${process.env.REACT_APP_CODEBEAMER_DIALOG_URL}`;
+
 const LinksDataTable = ({ props }) => {
   const { handlePagination, handleChangeLimit, totalItems, pageSize, handleDeleteLink } =
     props;
@@ -63,21 +70,32 @@ const LinksDataTable = ({ props }) => {
   // target name table cell control
   const NameCell = ({ rowData, ...props }) => {
     const lines = rowData?.content_lines ? rowData?.content_lines?.split('L') : '';
+    // OSLC API URL Receiving conditionally
+    const oslcObj = { URL: '' };
+    if (rowData?.provider?.toLowerCase() == 'jira') {
+      oslcObj['URL'] = jiraURL;
+    } else if (rowData?.provider?.toLowerCase() == 'gitlab') {
+      oslcObj['URL'] = gitlabURL;
+    } else if (rowData?.provider?.toLowerCase() == 'glide') {
+      oslcObj['URL'] = glideURL;
+    } else if (rowData?.provider?.toLowerCase() == 'valispace') {
+      oslcObj['URL'] = valispaceURL;
+    } else if (rowData?.provider?.toLowerCase() == 'codebeamer') {
+      oslcObj['URL'] = codebeamerURL;
+    }
 
     const speaker = (
       <Popover title="Preview">
         <iframe
           src={
             // eslint-disable-next-line max-len
-            `https://${rowData?.provider}-oslc-api-dev.koneksys.com/oslc/provider/${
-              rowData?.provider_id
-            }/resources/${rowData?.Type}/${
-              rowData?.resource_id
-            }/smallPreview?branch_name=${rowData?.branch_name}&file_content=${
-              rowData?.content
-            }&file_lines=${lines ? lines[1] + lines[2] : ''}&file_path=${
-              rowData?.koatl_path
-            }`
+            `${oslcObj?.URL}/oslc/provider/${rowData?.provider_id}/resources/${
+              rowData?.Type
+            }/${rowData?.resource_id}/smallPreview?branch_name=${
+              rowData?.branch_name
+            }&file_content=${rowData?.content}&file_lines=${
+              lines ? lines[1] + lines[2] : ''
+            }&file_path=${rowData?.koatl_path}`
           }
           width="400"
           height="250"
