@@ -72,7 +72,11 @@ const LinksDataTable = ({ props }) => {
     const lines = rowData?.content_lines ? rowData?.content_lines?.split('L') : '';
     // OSLC API URL Receiving conditionally
     const oslcObj = { URL: '' };
-    if (rowData?.provider?.toLowerCase() == 'jira') {
+    // eslint-disable-next-line max-len
+    if (
+      rowData?.provider?.toLowerCase() == 'jira' ||
+      rowData?.provider?.toLowerCase() == 'jira-projects'
+    ) {
       oslcObj['URL'] = jiraURL;
     } else if (rowData?.provider?.toLowerCase() == 'gitlab') {
       oslcObj['URL'] = gitlabURL;
