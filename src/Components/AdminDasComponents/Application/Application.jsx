@@ -15,8 +15,8 @@ import {
   handleIsAddNewModal,
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
-import AddNewModal from '../AddNewModal';
-import { FlexboxGrid, Form, Loader, Schema, Steps } from 'rsuite';
+// import AddNewModal from '../AddNewModal';
+import { Button, FlexboxGrid, Form, Loader, Modal, Schema, Steps } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import TextField from '../TextField';
 import SelectField from '../SelectField';
@@ -78,7 +78,12 @@ const Application = () => {
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
+  const [openModal, setOpenModal] = useState(false);
   const [steps, setSteps] = useState(0);
+  // const [grant_types, set_grant_types] = useState([]);
+  // const [redirect_uris, set_redirect_uris] = useState('');
+  // const [response_types, set_response_types] = useState([]);
+  // const [scopes, set_scopes]=useState('');
 
   // const [clientId, setClientId] = useState('');
   // const [clientSecret, setClientSecret] = useState('');
@@ -88,14 +93,10 @@ const Application = () => {
     name: '',
     label: '',
     rootservices_url: '',
+    client_uri: '',
     oslc_domain: '',
     organization_id: '',
     description: '',
-    client_uri: '',
-    grant_types: [],
-    redirect_uris: '',
-    response_types: [],
-    scopes: '',
   });
   const appFormRef = useRef();
   const iframeRef = useRef(null);
@@ -127,6 +128,7 @@ const Application = () => {
       console.error('Form Error', formError);
       return;
     } else if (isAdminEditing) {
+      // edit application
       const putUrl = `${lmApiUrl}/application/${editData?.id}`;
       dispatch(
         fetchUpdateApp({
@@ -136,6 +138,7 @@ const Application = () => {
         }),
       );
     } else {
+      // create application
       console.log('Trying to create new application');
 
       formValue.scopes = 'oslc_fetch_access';
@@ -189,6 +192,7 @@ const Application = () => {
         .catch((error) => console.error(error));
     }
 
+    setOpenModal(false);
     dispatch(handleIsAddNewModal(true));
     if (isAdminEditing) dispatch(handleIsAdminEditing(false));
   };
@@ -247,7 +251,8 @@ const Application = () => {
   // handle open add user modal
   const handleAddNew = () => {
     handleResetForm();
-    dispatch(handleIsAddNewModal(true));
+    setOpenModal(true);
+    // dispatch(handleIsAddNewModal(true));
   };
 
   useEffect(() => {
@@ -309,109 +314,145 @@ const Application = () => {
 
   return (
     <div>
-      <AddNewModal
-        title={isAdminEditing ? 'Edit Application' : 'Add New Application'}
-        handleSubmit={handleAddApplication}
-        handleReset={handleResetForm}
+      <Modal
+        backdrop={'static'}
+        keyboard={false}
+        size="md"
+        open={openModal}
+        onClose={() => setOpenModal(false)}
       >
-        <div className="show-grid step-1">
-          <Form
-            fluid
-            ref={appFormRef}
-            onChange={setFormValue}
-            onCheck={setFormError}
-            formValue={formValue}
-            model={model}
-          >
-            <FlexboxGrid justify="space-between">
-              <FlexboxGrid.Item colspan={11}>
-                <TextField
-                  name="name"
-                  label="Name"
-                  reqText="Application name is required"
-                />
-              </FlexboxGrid.Item>
+        <Modal.Header>
+          <Modal.Title className="adminModalTitle">
+            {isAdminEditing ? 'Edit Application' : 'Add New Application'}
+          </Modal.Title>
 
-              <FlexboxGrid.Item colspan={11}>
-                <TextField
-                  name="label"
-                  label="label"
-                  reqText="Application label is required"
-                />
-              </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                <TextField
-                  name="rootservices_url"
-                  label="Rootservices URL"
-                  reqText="Rootservices URL of OSLC application is required"
-                />
-              </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                <TextField
-                  name="client_uri"
-                  label="Client URI"
-                  reqText="Client URI about OSLC application is required"
-                />
-              </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                <TextField
-                  name="oslc_domain"
-                  label="OSLC Domain"
-                  reqText="OSLC domain is required"
-                />
-              </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                <SelectField
-                  name="organization_id"
-                  label="Organization ID"
-                  placeholder="Select Organization ID"
-                  accepter={CustomSelect}
-                  apiURL={`${lmApiUrl}/organization`}
-                  error={formError.organization_id}
-                  reqText="Organization Id is required"
-                />
-              </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0 10px' }}>
-                <TextField
-                  name="description"
-                  label="Description"
-                  accepter={TextArea}
-                  rows={5}
-                  reqText="application description is required"
-                />
-              </FlexboxGrid.Item>
-            </FlexboxGrid>
-          </Form>
-        </div>
-
-        <div className="show-grid step-2">
-          <h4 style={{ margin: '30px 0 10px' }}>Authorize the application consumption</h4>
-          Please authorize the access for the application in the window below:
-          {/* eslint-disable-next-line max-len */}
-          <iframe className={'authorize-iframe'} src={authorizeFrameSrc} />
-        </div>
-
-        <div className="show-grid step-3">
-          {/* eslint-disable-next-line max-len */}
-          <h4 style={{ margin: '30px 0 10px' }}>
-            Application has been registered and authorized successfully
-          </h4>
-          Close this window to continue.
-        </div>
-
-        <div className={'application-steps'} style={{ margin: '30px 0 10px' }}>
-          <Steps current={steps}>
+          <Steps current={steps} style={{ margin: '10px 0 0' }}>
             <Steps.Item />
             <Steps.Item />
             <Steps.Item />
           </Steps>
-        </div>
-      </AddNewModal>
+        </Modal.Header>
+
+        <Modal.Body style={{ padding: '10px 10px 30px' }}>
+          <div className="show-grid step-1">
+            <Form
+              fluid
+              ref={appFormRef}
+              onChange={setFormValue}
+              onCheck={setFormError}
+              formValue={formValue}
+              model={model}
+            >
+              <FlexboxGrid justify="space-between">
+                <FlexboxGrid.Item colspan={11}>
+                  <TextField
+                    name="name"
+                    label="Name"
+                    reqText="Application name is required"
+                  />
+                </FlexboxGrid.Item>
+
+                <FlexboxGrid.Item colspan={11}>
+                  <TextField
+                    name="label"
+                    label="label"
+                    reqText="Application label is required"
+                  />
+                </FlexboxGrid.Item>
+
+                <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                  <TextField
+                    name="rootservices_url"
+                    label="Root Services URL"
+                    reqText="Root Services URL of OSLC application is required"
+                  />
+                </FlexboxGrid.Item>
+
+                <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                  <TextField
+                    name="client_uri"
+                    label="Client URI"
+                    reqText="Client URI about OSLC application is required"
+                  />
+                </FlexboxGrid.Item>
+
+                <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                  <TextField
+                    name="oslc_domain"
+                    label="OSLC Domain"
+                    reqText="OSLC domain is required"
+                  />
+                </FlexboxGrid.Item>
+
+                <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                  <SelectField
+                    name="organization_id"
+                    label="Organization ID"
+                    placeholder="Select Organization ID"
+                    accepter={CustomSelect}
+                    apiURL={`${lmApiUrl}/organization`}
+                    error={formError.organization_id}
+                    reqText="Organization Id is required"
+                  />
+                </FlexboxGrid.Item>
+
+                <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0 10px' }}>
+                  <TextField
+                    name="description"
+                    label="Description"
+                    accepter={TextArea}
+                    rows={5}
+                    reqText="application description is required"
+                  />
+                </FlexboxGrid.Item>
+              </FlexboxGrid>
+            </Form>
+          </div>
+
+          <div className="show-grid step-2">
+            <h4 style={{ margin: '30px 0 10px' }}>
+              Authorize the application consumption
+            </h4>
+            Please authorize the access for the application in the window below:
+            {/* eslint-disable-next-line max-len */}
+            <iframe className={'authorize-iframe'} src={authorizeFrameSrc} />
+          </div>
+
+          <div className="show-grid step-3">
+            {/* eslint-disable-next-line max-len */}
+            <h4 style={{ margin: '30px 0 10px' }}>
+              Application has been registered and authorized successfully
+            </h4>
+            Close this window to continue.
+          </div>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button
+            className="adminModalFooterBtn"
+            appearance="default"
+            onClick={() => setOpenModal(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            className="adminModalFooterBtn"
+            appearance="primary"
+            color="blue"
+            onClick={() => handleAddApplication()}
+          >
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* <AddNewModal
+        title={isAdminEditing ? 'Edit Application' : 'Add New Application'}
+        handleSubmit={handleAddApplication}
+        handleReset={handleResetForm}
+      >
+        
+      </AddNewModal> */}
 
       {isAppLoading && (
         <FlexboxGrid justify="center">
