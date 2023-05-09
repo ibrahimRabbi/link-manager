@@ -27,7 +27,7 @@ export default async function postAPI({ url, token, bodyData, message }) {
             title: 'Already exists',
             icon: 'info',
             // eslint-disable-next-line max-len
-            text: `This ${message} is already exists. please try to create another ${message}`,
+            text: `This ${message} already exists.`,
             confirmButtonColor: '#3085d6',
           });
         } else if (res.status === 400) {
