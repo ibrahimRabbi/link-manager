@@ -28,6 +28,7 @@ import 'rsuite/dist/rsuite.min.css';
 import 'rsuite/styles/index.less';
 import UserVerify from './Components/Login/UserVerify';
 import Oauth2Success from './Components/Oauth2/oauth2Success.jsx';
+import Associations from './Components/AdminDasComponents/Associations/Associations';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -93,6 +94,7 @@ function App() {
             <Route path="/admin/users" element={<Users />} />
             <Route path="/admin/organizations" element={<Organization />} />
             <Route path="/admin/applications" element={<Application />} />
+            <Route path="/admin/associations" element={<Associations />} />
             <Route path="/admin/projects" element={<Projects />} />
             <Route path="/admin/link-types" element={<LinkTypes />} />
             <Route path="/admin/link-constraint" element={<LinkConstraint />} />
