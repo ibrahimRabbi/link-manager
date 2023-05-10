@@ -3,23 +3,22 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchEvents,
   fetchCreateEvent,
-  //   fetchDeleteEvent,
+  fetchDeleteEvent,
   fetchUpdateEvent,
 } from '../../../Redux/slices/eventSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
-  //   handleIsAddNewModal,
-  //   handleIsAdminEditing,
+  handleIsAddNewModal,
+  handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import AdminDataTable from '../AdminDataTable';
 import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
 import TextField from '../TextField';
-import SelectField from '../SelectField';
 import { useRef } from 'react';
-import CustomSelect from '../CustomSelect';
 import TextArea from '../TextArea';
+import Swal from 'sweetalert2';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -33,33 +32,25 @@ const headerData = [
     header: 'Name',
     key: 'name',
   },
-  //   {
-  //     header: 'Component',
-  //     key: 'component',
-  //   },
-  //   {
-  //     header: 'Type',
-  //     key: 'type_',
-  //   },
-  //   {
-  //     header: 'Domain',
-  //     key: 'domain',
-  //   },
-  //   {
-  //     header: 'Description',
-  //     key: 'description',
-  //   },
+  {
+    header: 'Trigger Endpoint',
+    key: 'trigger_endpoint',
+  },
+  {
+    header: 'Description',
+    key: 'description',
+  },
 ];
 
-const { StringType, NumberType } = Schema.Types;
+const { StringType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
-  trigger_endpoint: NumberType().isRequired('This field is required.'),
+  trigger_endpoint: StringType().isRequired('This field is required.'),
+  description: StringType().isRequired('This field is required.'),
 });
 
 const Events = () => {
-  // eslint-disable-next-line max-len
   const { allEvents, isEventLoading, isEventUpdated, isEventCreated, isEventDeleted } =
     useSelector((state) => state.events);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
@@ -71,6 +62,7 @@ const Events = () => {
   const [formValue, setFormValue] = useState({
     name: '',
     trigger_endpoint: '',
+    description: '',
   });
 
   const eventFormRef = useRef();
@@ -87,18 +79,18 @@ const Events = () => {
     setPageSize(dataKey);
   };
 
-  //   // handle open add component modal
-  //   const handleAddNew = () => {
-  //     handleResetForm();
-  //     dispatch(handleIsAddNewModal(true));
-  //   };
-  //
+  // handle open add event modal
+  const handleAddNew = () => {
+    handleResetForm();
+    dispatch(handleIsAddNewModal(true));
+  };
+
   const handleAddLinkEvent = () => {
     if (!eventFormRef.current.check()) {
       console.error('Form Error', formError);
       return;
     } else if (isAdminEditing) {
-      const putUrl = `${lmApiUrl}/component/${editData?.id}`;
+      const putUrl = `${lmApiUrl}/pipelines/event/${editData?.id}`;
       dispatch(
         fetchUpdateEvent({
           url: putUrl,
@@ -107,18 +99,18 @@ const Events = () => {
         }),
       );
     } else {
-      const postUrl = `${lmApiUrl}/component`;
+      const postUrl = `${lmApiUrl}/pipelines/event`;
       dispatch(
         fetchCreateEvent({
           url: postUrl,
           token: authCtx.token,
           bodyData: formValue,
-          message: 'component',
+          message: 'event',
         }),
       );
     }
-    //     dispatch(handleIsAddNewModal(false));
-    //     if (isAdminEditing) dispatch(handleIsAdminEditing(false));
+    dispatch(handleIsAddNewModal(false));
+    if (isAdminEditing) dispatch(handleIsAdminEditing(false));
   };
 
   // reset form
@@ -126,7 +118,7 @@ const Events = () => {
     setEditData({});
     setFormValue({
       name: '',
-      project_id: '',
+      trigger_endpoint: '',
       description: '',
     });
   };
@@ -134,55 +126,56 @@ const Events = () => {
   useEffect(() => {
     dispatch(handleCurrPageTitle('Events'));
 
-    const getUrl = `${lmApiUrl}/pipelines/events?page=${currPage}&per_page=${pageSize}`;
+    const getUrl = `${lmApiUrl}/pipelines/event?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchEvents({ url: getUrl, token: authCtx.token }));
   }, [isEventCreated, isEventUpdated, isEventDeleted, pageSize, currPage, refreshData]);
 
-  //   // handle delete component
-  //   const handleDelete = (data) => {
-  //     Swal.fire({
-  //       title: 'Are you sure',
-  //       icon: 'info',
-  //       text: 'Do you want to delete the Application!!',
-  //       cancelButtonColor: 'red',
-  //       showCancelButton: true,
-  //       confirmButtonText: 'Delete',
-  //       confirmButtonColor: '#3085d6',
-  //       reverseButtons: true,
-  //     }).then((value) => {
-  //       if (value.isConfirmed) {
-  //         const deleteUrl = `${lmApiUrl}/component/${data?.id}`;
-  //         dispatch(fetchDeleteComp({ url: deleteUrl, token: authCtx.token }));
-  //       }
-  //     });
-  //   };
-  //   // handle Edit component
-  //   const handleEdit = (data) => {
-  //     setEditData(data);
-  //     dispatch(handleIsAdminEditing(true));
-  //     setFormValue({
-  //       name: data?.name,
-  //       project_id: data?.project_id,
-  //       description: data?.description,
-  //     });
-  //     dispatch(handleIsAddNewModal(true));
-  //  };
+  // handle delete event
+  const handleDelete = (data) => {
+    Swal.fire({
+      title: 'Are you sure',
+      icon: 'info',
+      text: 'Do you want to delete the Event!!',
+      cancelButtonColor: 'red',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#3085d6',
+      reverseButtons: true,
+    }).then((value) => {
+      if (value.isConfirmed) {
+        const deleteUrl = `${lmApiUrl}/pipelines/event/${data?.id}`;
+        dispatch(fetchDeleteEvent({ url: deleteUrl, token: authCtx.token }));
+      }
+    });
+  };
+
+  // handle Edit Event
+  const handleEdit = (data) => {
+    setEditData(data);
+    dispatch(handleIsAdminEditing(true));
+    setFormValue({
+      name: data?.name,
+      trigger_endpoint: data?.trigger_endpoint,
+      description: data?.description,
+    });
+    dispatch(handleIsAddNewModal(true));
+  };
 
   // send props in the batch action table
   const tableProps = {
     title: 'Events',
     rowData: allEvents?.items?.length ? allEvents?.items : [],
     headerData,
-    //     handleEdit,
-    //     handleDelete,
-    //     handleAddNew,
+    handleEdit,
+    handleDelete,
+    handleAddNew,
     handlePagination,
     handleChangeLimit,
     totalItems: allEvents?.total_items,
     totalPages: allEvents?.total_pages,
     pageSize,
     page: allEvents?.page,
-    inpPlaceholder: 'Search Component',
+    inpPlaceholder: 'Search Events',
   };
 
   return (
@@ -206,15 +199,11 @@ const Events = () => {
                 <TextField name="name" label="Name" reqText="Name is required" />
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                <SelectField
-                  placeholder="Select project"
-                  name="project_id"
-                  label="Project"
-                  accepter={CustomSelect}
-                  apiURL={`${lmApiUrl}/project`}
-                  error={formError.project_id}
-                  reqText="Project ID is required"
+              <FlexboxGrid.Item colspan={24}>
+                <TextField
+                  name="trigger_endpoint"
+                  label="Trigger Endpoint"
+                  reqText="Trigger Endpoint is required"
                 />
               </FlexboxGrid.Item>
 
