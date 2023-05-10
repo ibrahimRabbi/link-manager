@@ -9,7 +9,7 @@ import { handleIsAdminSidebarOpen } from '../../Redux/slices/navSlice';
 import { FaUsers, FaLink } from 'react-icons/fa';
 import { TiArrowBackOutline } from 'react-icons/ti';
 import { SlOrganization } from 'react-icons/sl';
-import { SiWebcomponentsdotorg } from 'react-icons/si';
+import { SiAzurepipelines, SiWebcomponentsdotorg } from 'react-icons/si';
 import { TbApps } from 'react-icons/tb';
 import { VscProject } from 'react-icons/vsc';
 import { CgLink } from 'react-icons/cg';
@@ -28,8 +28,8 @@ const AdminSideNav = () => {
           display: 'flex',
           flexDirection: 'column',
           minHeight: '100vh',
-          boxShadow: `2px 2px 5px ${isDark == 'light' ? 'lightgray' : '#292D33'}`,
-          backgroundColor: isDark == 'dark' ? darkColor : lightBgColor,
+          boxShadow: `2px 2px 5px ${isDark === 'light' ? 'lightgray' : '#292D33'}`,
+          backgroundColor: isDark === 'dark' ? darkColor : lightBgColor,
         }}
         width={isAdminSidebarOpen ? 200 : 56}
         collapsible
@@ -129,6 +129,15 @@ const AdminSideNav = () => {
 
               <Nav.Item
                 eventKey="8"
+                active={pathname === '/admin/events'}
+                onClick={() => navigate('/admin/events')}
+              >
+                <SiAzurepipelines className="adminDasIcon" />
+                Events
+              </Nav.Item>
+
+              <Nav.Item
+                eventKey="9"
                 active={pathname === '/'}
                 onClick={() => navigate('/')}
               >

@@ -26,7 +26,6 @@ export default async function postAPI({ url, token, bodyData, message }) {
           Swal.fire({
             title: 'Already exists',
             icon: 'info',
-            // eslint-disable-next-line max-len
             text: `This ${message} already exists.`,
             confirmButtonColor: '#3085d6',
           });
