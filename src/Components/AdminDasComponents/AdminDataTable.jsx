@@ -51,7 +51,6 @@ const AdminDataTable = ({ props }) => {
   useEffect(() => {
     if (tableFilterValue) {
       const filteredData = rowData?.filter((row) => {
-        // eslint-disable-next-line max-len
         return Object.values(row)
           ?.toString()
           ?.toLowerCase()

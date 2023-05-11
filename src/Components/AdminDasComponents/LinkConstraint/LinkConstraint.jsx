@@ -13,19 +13,15 @@ import AddNewModal from '../AddNewModal';
 import TextField from '../TextField';
 import { useRef } from 'react';
 import SelectField from '../SelectField';
-import {
-  fetchCreateLinkCons,
-  fetchDeleteLinkCons,
-  fetchLinkConstraints,
-  fetchUpdateLinkCons,
-} from '../../../Redux/slices/linkConstraintSlice';
 import CustomSelect from '../CustomSelect';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
-
-// import styles from './LinkConstraint.module.scss';
-// const { errText, formContainer, modalBtnCon,
-//  modalBody, mhContainer, flNameContainer } =styles;
+import {
+  fetchCreateData,
+  fetchDeleteData,
+  fetchGetData,
+  fetchUpdateData,
+} from '../../../Redux/slices/useCRUDSlice';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -65,13 +61,10 @@ const model = Schema.Model({
 });
 
 const LinkConstraint = () => {
-  const {
-    allLinkConstraints,
-    isLinkConsLoading,
-    isLinkConsUpdated,
-    isLinkConsCreated,
-    isLinkConsDeleted,
-  } = useSelector((state) => state.linkConstraints);
+  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
+    (state) => state.crud,
+  );
+
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -113,7 +106,7 @@ const LinkConstraint = () => {
     } else if (isAdminEditing) {
       const putUrl = `${lmApiUrl}/link-constraint/${editData?.id}`;
       dispatch(
-        fetchUpdateLinkCons({
+        fetchUpdateData({
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
@@ -122,7 +115,7 @@ const LinkConstraint = () => {
     } else {
       const postUrl = `${lmApiUrl}/link-constraint`;
       dispatch(
-        fetchCreateLinkCons({
+        fetchCreateData({
           url: postUrl,
           token: authCtx.token,
           bodyData: formValue,
@@ -151,15 +144,14 @@ const LinkConstraint = () => {
     dispatch(handleCurrPageTitle('Link Constraint'));
 
     const getUrl = `${lmApiUrl}/link-constraint?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchLinkConstraints({ url: getUrl, token: authCtx.token }));
-  }, [
-    isLinkConsCreated,
-    isLinkConsUpdated,
-    isLinkConsDeleted,
-    pageSize,
-    currPage,
-    refreshData,
-  ]);
+    dispatch(
+      fetchGetData({
+        url: getUrl,
+        token: authCtx.token,
+        stateName: 'allLinkConstraints',
+      }),
+    );
+  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
 
   // handle delete LinkConstraint
   const handleDelete = (data) => {
@@ -175,7 +167,7 @@ const LinkConstraint = () => {
     }).then((value) => {
       if (value.isConfirmed) {
         const deleteUrl = `${lmApiUrl}/link-constraint/${data?.id}`;
-        dispatch(fetchDeleteLinkCons({ url: deleteUrl, token: authCtx.token }));
+        dispatch(fetchDeleteData({ url: deleteUrl, token: authCtx.token }));
       }
     });
   };
@@ -199,17 +191,19 @@ const LinkConstraint = () => {
   // send props in the batch action table
   const tableProps = {
     title: 'Link Constraint',
-    rowData: allLinkConstraints?.items?.length ? allLinkConstraints?.items : [],
+    rowData: crudData?.allLinkConstraints?.items?.length
+      ? crudData?.allLinkConstraints?.items
+      : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: allLinkConstraints?.total_items,
-    totalPages: allLinkConstraints?.total_pages,
+    totalItems: crudData?.allLinkConstraints?.total_items,
+    totalPages: crudData?.allLinkConstraints?.total_pages,
     pageSize,
-    page: allLinkConstraints?.page,
+    page: crudData?.allLinkConstraints?.page,
     inpPlaceholder: 'Search Link Constraint',
   };
 
@@ -288,7 +282,8 @@ const LinkConstraint = () => {
         </div>
       </AddNewModal>
 
-      {isLinkConsLoading && <UseLoader />}
+      {isCrudLoading && <UseLoader />}
+
       <AdminDataTable props={tableProps} />
     </div>
   );

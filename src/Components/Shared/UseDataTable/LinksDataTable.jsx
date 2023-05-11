@@ -72,7 +72,6 @@ const LinksDataTable = ({ props }) => {
     const lines = rowData?.content_lines ? rowData?.content_lines?.split('L') : '';
     // OSLC API URL Receiving conditionally
     const oslcObj = { URL: '' };
-    // eslint-disable-next-line max-len
     if (
       rowData?.provider?.toLowerCase() == 'jira' ||
       rowData?.provider?.toLowerCase() == 'jira-projects'
@@ -91,16 +90,13 @@ const LinksDataTable = ({ props }) => {
     const speaker = (
       <Popover title="Preview">
         <iframe
-          src={
-            // eslint-disable-next-line max-len
-            `${oslcObj?.URL}/oslc/provider/${rowData?.provider_id}/resources/${
-              rowData?.Type
-            }/${rowData?.resource_id}/smallPreview?branch_name=${
-              rowData?.branch_name
-            }&file_content=${rowData?.content}&file_lines=${
-              lines ? lines[1] + lines[2] : ''
-            }&file_path=${rowData?.koatl_path}`
-          }
+          src={`${oslcObj?.URL}/oslc/provider/${rowData?.provider_id}/resources/${
+            rowData?.Type
+          }/${rowData?.resource_id}/smallPreview?branch_name=${
+            rowData?.branch_name
+          }&file_content=${rowData?.content}&file_lines=${
+            lines ? lines[1] + lines[2] : ''
+          }&file_path=${rowData?.koatl_path}`}
           width="400"
           height="250"
         ></iframe>

@@ -1,12 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-import {
-  fetchCreateOrg,
-  fetchDeleteOrg,
-  fetchOrganizations,
-  fetchUpdateOrg,
-} from '../../../Redux/slices/organizationSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
@@ -19,9 +13,12 @@ import { FlexboxGrid, Form, Schema } from 'rsuite';
 import TextField from '../TextField';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
-
-// import styles from './Organization.module.scss';
-// const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
+import {
+  fetchCreateData,
+  fetchDeleteData,
+  fetchGetData,
+  fetchUpdateData,
+} from '../../../Redux/slices/useCRUDSlice';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -58,9 +55,12 @@ const model = Schema.Model({
 });
 
 const Organization = () => {
-  const { allOrganizations, isOrgLoading, isOrgCreated, isOrgDeleted, isOrgUpdated } =
-    useSelector((state) => state.organizations);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
+
+  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
+    (state) => state.crud,
+  );
+
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
@@ -85,7 +85,7 @@ const Organization = () => {
     else if (isAdminEditing) {
       const putUrl = `${lmApiUrl}/organization/${editData?.id}`;
       dispatch(
-        fetchUpdateOrg({
+        fetchUpdateData({
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
@@ -96,7 +96,7 @@ const Organization = () => {
     else {
       const postUrl = `${lmApiUrl}/organization`;
       dispatch(
-        fetchCreateOrg({
+        fetchCreateData({
           url: postUrl,
           token: authCtx.token,
           bodyData: formValue,
@@ -134,13 +134,18 @@ const Organization = () => {
     dispatch(handleIsAddNewModal(true));
   };
 
-  // load table data
   useEffect(() => {
     dispatch(handleCurrPageTitle('Organizations'));
 
     const getUrl = `${lmApiUrl}/organization?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchOrganizations({ url: getUrl, token: authCtx.token }));
-  }, [isOrgCreated, isOrgUpdated, isOrgDeleted, pageSize, currPage, refreshData]);
+    dispatch(
+      fetchGetData({
+        url: getUrl,
+        token: authCtx.token,
+        stateName: 'allOrganizations',
+      }),
+    );
+  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
 
   // handle delete Org
   const handleDelete = (data) => {
@@ -156,7 +161,12 @@ const Organization = () => {
     }).then((value) => {
       if (value.isConfirmed) {
         const deleteUrl = `${lmApiUrl}/organization/${data?.id}`;
-        dispatch(fetchDeleteOrg({ url: deleteUrl, token: authCtx.token }));
+        dispatch(
+          fetchDeleteData({
+            url: deleteUrl,
+            token: authCtx.token,
+          }),
+        );
       }
     });
   };
@@ -176,17 +186,19 @@ const Organization = () => {
   // send props in the batch action table
   const tableProps = {
     title: 'Organizations',
-    rowData: allOrganizations?.items?.length ? allOrganizations?.items : [],
+    rowData: crudData?.allOrganizations?.items?.length
+      ? crudData?.allOrganizations?.items
+      : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: allOrganizations?.total_items,
-    totalPages: allOrganizations?.total_pages,
+    totalItems: crudData?.allOrganizations?.total_items,
+    totalPages: crudData?.allOrganizations?.total_pages,
     pageSize,
-    page: allOrganizations?.page,
+    page: crudData?.allOrganizations?.page,
     inpPlaceholder: 'Search Organization',
   };
 
@@ -228,8 +240,7 @@ const Organization = () => {
         </div>
       </AddNewModal>
 
-      {isOrgLoading && <UseLoader />}
-      {/* <UseTable props={tableProps} /> */}
+      {isCrudLoading && <UseLoader />}
       <AdminDataTable props={tableProps} />
     </div>
   );
