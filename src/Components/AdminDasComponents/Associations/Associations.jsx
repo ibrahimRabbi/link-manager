@@ -18,15 +18,9 @@ import { FlexboxGrid, Form, Schema, SelectPicker } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
 import TextField from '../TextField';
-// import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
 import SelectField from '../SelectField.jsx';
 import CustomSelect from '../CustomSelect.jsx';
-// import clientMessages from '../../../Redux/apiRequests/responseMsg';
-
-// import UseTable from '../UseTable';
-// import styles from './Projects.module.scss';
-// const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -41,16 +35,12 @@ const headerData = [
     key: 'application_id',
   },
   {
-    header: 'Service provider',
-    key: 'service_provider_id',
-  },
-  {
     header: 'Description',
     key: 'service_label',
   },
   {
     header: 'Resource type',
-    key: 'resource_type',
+    key: 'resource_type_id',
   },
 ];
 
@@ -59,12 +49,12 @@ const { StringType, NumberType } = Schema.Types;
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
   application_id: NumberType().isRequired('This field is required.'),
+  project_id: NumberType().isRequired('This field is required.'),
   service_provider_id: StringType().isRequired('This field is required.'),
   selection_dialog_url: StringType().isRequired('This field is required.'),
 });
 
 const Associations = () => {
-  // eslint-disable-next-line max-len
   const {
     allAssociations,
     isAssocLoading,
@@ -87,6 +77,7 @@ const Associations = () => {
     application_id: '',
     service_provider_id: '',
     selection_dialog_url: '',
+    project_id: '',
   });
 
   const associationFormRef = useRef();
@@ -156,7 +147,7 @@ const Associations = () => {
       bodyData['selection_dialog_url'] = selectedSelectionDialog?.value;
       bodyData['height'] = selectedSelectionDialog?.height;
       bodyData['width'] = selectedSelectionDialog?.width;
-      console.log('bodyData: ', bodyData);
+
       const postUrl = `${lmApiUrl}/association`;
       dispatch(
         fetchCreateAssoc({
@@ -179,13 +170,12 @@ const Associations = () => {
       application_id: '',
       service_provider_id: '',
       selection_dialog_url: '',
+      project_id: '',
     });
   };
 
   useEffect(() => {
-    console.log('oslcRootservicesCatalogResponse: ', oslcRootservicesCatalogResponse);
     const consumerToken = localStorage.getItem('consumerToken');
-    console.log('consumerToken: ', consumerToken);
     dispatch(
       fetchOslcResource({
         url: oslcRootservicesCatalogResponse,
@@ -193,14 +183,6 @@ const Associations = () => {
       }),
     );
   }, [oslcRootservicesCatalogResponse]);
-
-  useEffect(() => {
-    // eslint-disable-next-line max-len
-    console.log(
-      'oslcServiceProviderCatalogResponse: ',
-      oslcServiceProviderCatalogResponse,
-    );
-  }, [oslcServiceProviderCatalogResponse]);
 
   // get all associations
   useEffect(() => {
@@ -248,7 +230,7 @@ const Associations = () => {
 
   // send props in the batch action table
   const tableProps = {
-    title: 'Associations',
+    title: 'Integrations',
     rowData: allAssociations?.items?.length ? allAssociations?.items : [],
     headerData,
     handleEdit,
@@ -260,13 +242,13 @@ const Associations = () => {
     totalPages: allAssociations?.total_pages,
     pageSize,
     page: allAssociations?.page,
-    inpPlaceholder: 'Search Association',
+    inpPlaceholder: 'Search Integration',
   };
 
   return (
     <div>
       <AddNewModal
-        title={isAdminEditing ? 'Edit Association' : 'Add association'}
+        title={isAdminEditing ? 'Edit Integration' : 'Add integration to project'}
         handleSubmit={handleAddAssociation}
         handleReset={handleResetForm}
       >
@@ -281,38 +263,49 @@ const Associations = () => {
           <TextField name="name" label="Name" reqText="Name is required" />
           <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
             <SelectField
+              name="project_id"
+              label="Project"
+              placeholder="Select project"
+              accepter={CustomSelect}
+              apiURL={`${lmApiUrl}/project`}
+              error={formError.project_id}
+              reqText="Project to attach integration is required"
+            />
+          </FlexboxGrid.Item>
+          <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+            <SelectField
               name="application"
-              label="Application"
-              placeholder="Select Application ID"
+              label="Integration"
+              placeholder="Select external integration"
               accepter={CustomSelect}
               apiURL={`${lmApiUrl}/application`}
               customSelectValue="rootservices_url"
               customSelectLabel="rootservices_url"
-              error={formError.organization_id}
+              error={formError.application_id}
               onChange={(value) => {
                 fetchOslcServiceProviderCatalog(value);
               }}
-              reqText="Application ID is required"
+              reqText="External integration data is required"
             />
           </FlexboxGrid.Item>
           <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
             <SelectField
               name="service_provider_id"
-              label="Application container"
-              placeholder="Select application container"
+              label="Resource container"
+              placeholder="Select resource container"
               data={oslcServiceProviderCatalogResponse}
               accepter={SelectPicker}
               onChange={(value) => {
                 getServiceProviderResources(value);
               }}
-              reqText="Application container is required"
+              reqText="Resource container is required"
             />
           </FlexboxGrid.Item>
           <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
             <SelectField
               name="selection_dialog_url"
               label="Resource type"
-              placeholder="Select application resource type"
+              placeholder="Select resource type"
               data={oslcServiceProviderResponse}
               accepter={SelectPicker}
               reqText="Resource type is required"

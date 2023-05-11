@@ -2,7 +2,6 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import getOslcAPI from '../oslcRequests/getOslcAPI';
 
 // Fetch get all associations
-// eslint-disable-next-line max-len
 const ROOTSERVICES_CATALOG_TYPE =
   'http://open-services.net/xmlns/rm/1.0/rmServiceProviders';
 const OSLC_CORE = 'http://open-services.net/ns/core#';
@@ -43,7 +42,6 @@ export const oslcResourceSlice = createSlice({
     builder.addCase(fetchOslcResource.fulfilled, (state, { payload }) => {
       state.isOslcResourceLoading = false;
 
-      // console.log('payload: ', payload);
       const { url, response } = payload;
       if (response?.length > 0 && url.includes('/rootservices')) {
         response.every((item) => {
@@ -73,12 +71,6 @@ export const oslcResourceSlice = createSlice({
           if (item['@type'][0] === OSLC_CORE + 'Dialog') {
             let resourceType = item[OSLC_CORE + 'resourceType'][0]['@id'];
             let domain = resourceType.split('#')[0];
-            console.log('domain: ', domain);
-            // console.log('label: ', item[DCTERMS_TITLE][0]['@value']);
-            // console.log('value: ', item[OSLC_CORE + 'dialog'][0]['@id']);
-            // console.log('height: ', item[OSLC_CORE + 'hintHeight'][0]['@value']);
-            // console.log('width: ', item[OSLC_CORE + 'hintWidth'][0]['@value']);
-            // console.log('resourceType: ', item[OSLC_CORE + 'resourceType'][0]['@id']);
 
             selectionDialogData.push({
               value: item[OSLC_CORE + 'dialog'][0]['@id'],
