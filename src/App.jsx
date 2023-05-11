@@ -27,6 +27,7 @@ import { CustomProvider } from 'rsuite';
 import 'rsuite/dist/rsuite.min.css';
 import 'rsuite/styles/index.less';
 import UserVerify from './Components/Login/UserVerify';
+import Events from './Components/AdminDasComponents/Events/Events.jsx';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -96,6 +97,7 @@ function App() {
             <Route path="/admin/link-types" element={<LinkTypes />} />
             <Route path="/admin/link-constraint" element={<LinkConstraint />} />
             <Route path="/admin/components" element={<Components />} />
+            <Route path="/admin/events" element={<Events />} />
             <Route path="/admin" element={<Users />} />
           </Route>
 
