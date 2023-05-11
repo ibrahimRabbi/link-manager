@@ -186,7 +186,7 @@ const Associations = () => {
 
   // get all associations
   useEffect(() => {
-    dispatch(handleCurrPageTitle('Associations'));
+    dispatch(handleCurrPageTitle('Integrations'));
 
     const getUrl = `${lmApiUrl}/association?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchAssociations({ url: getUrl, token: authCtx.token }));
