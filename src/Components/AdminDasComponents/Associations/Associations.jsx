@@ -54,17 +54,13 @@ const headerData = [
   },
 ];
 
-const { StringType } = Schema.Types;
+const { StringType, NumberType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
-  oslc_domain: StringType().isRequired('This field is required.'),
+  application_id: NumberType().isRequired('This field is required.'),
   service_provider_id: StringType().isRequired('This field is required.'),
-  service_label: StringType().isRequired('This field is required.'),
-  resource_type_id: StringType().isRequired('This field is required.'),
   selection_dialog_url: StringType().isRequired('This field is required.'),
-  height: StringType().isRequired('This field is required.'),
-  width: StringType().isRequired('This field is required.'),
 });
 
 const Associations = () => {
@@ -76,8 +72,11 @@ const Associations = () => {
     isAssocUpdated,
     isAssocDeleted,
   } = useSelector((state) => state.associations);
-  const { oslcRootservicesCatalogResponse, oslcServiceProviderCatalogResponse } =
-    useSelector((state) => state.oslcResources);
+  const {
+    oslcRootservicesCatalogResponse,
+    oslcServiceProviderCatalogResponse,
+    oslcServiceProviderResponse,
+  } = useSelector((state) => state.oslcResources);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -85,24 +84,25 @@ const Associations = () => {
   const [editData, setEditData] = useState({});
   const [formValue, setFormValue] = useState({
     name: '',
-    oslc_domain: '',
+    application_id: '',
     service_provider_id: '',
-    service_label: '',
-    resource_type_id: '',
     selection_dialog_url: '',
-    height: '',
-    width: '',
   });
 
   const associationFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
-  const fetchOslcServiceProviderCatalog = (oslcDomain) => {
+  const fetchOslcServiceProviderCatalog = (data) => {
+    const url = data[0];
+    const newFormValue = { ...formValue };
+    newFormValue.application_id = data[1];
+    setFormValue(newFormValue);
+
     const consumerToken = localStorage.getItem('consumerToken');
     dispatch(
       fetchOslcResource({
-        url: oslcDomain,
+        url: url,
         token: 'Bearer ' + consumerToken,
       }),
     );
@@ -142,12 +142,27 @@ const Associations = () => {
         }),
       );
     } else {
+      let bodyData = { ...formValue };
+      const selectedServiceProvider = oslcServiceProviderCatalogResponse?.find(
+        (item) => item.value === formValue.service_provider_id,
+      );
+      const selectedSelectionDialog = oslcServiceProviderResponse?.find(
+        (item) => item.value === formValue.selection_dialog_url,
+      );
+      bodyData['oslc_domain'] = selectedSelectionDialog.domain;
+      bodyData['service_provider_id'] = selectedServiceProvider?.serviceProviderId;
+      bodyData['service_label'] = selectedSelectionDialog?.label;
+      bodyData['resource_type_id'] = selectedSelectionDialog?.resourceType;
+      bodyData['selection_dialog_url'] = selectedSelectionDialog?.value;
+      bodyData['height'] = selectedSelectionDialog?.height;
+      bodyData['width'] = selectedSelectionDialog?.width;
+      console.log('bodyData: ', bodyData);
       const postUrl = `${lmApiUrl}/association`;
       dispatch(
         fetchCreateAssoc({
           url: postUrl,
           token: authCtx.token,
-          bodyData: formValue,
+          bodyData: bodyData,
         }),
       );
     }
@@ -161,13 +176,9 @@ const Associations = () => {
     setEditData({});
     setFormValue({
       name: '',
-      oslc_domain: '',
+      application_id: '',
       service_provider_id: '',
-      service_label: '',
-      resource_type_id: '',
       selection_dialog_url: '',
-      height: '',
-      width: '',
     });
   };
 
@@ -228,14 +239,8 @@ const Associations = () => {
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
     setFormValue({
-      name: data?.name,
-      oslc_domain: data?.oslc_domain,
       service_provider_id: data?.service_provider_id,
-      service_label: data?.service_label,
-      resource_type_id: data?.resource_type_id,
       selection_dialog_url: data?.selection_dialog_url,
-      height: data?.height,
-      width: data?.width,
     });
 
     dispatch(handleIsAddNewModal(true));
@@ -276,13 +281,13 @@ const Associations = () => {
           <TextField name="name" label="Name" reqText="Name is required" />
           <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
             <SelectField
-              name="application_id"
+              name="application"
               label="Application"
               placeholder="Select Application ID"
               accepter={CustomSelect}
               apiURL={`${lmApiUrl}/application`}
-              customExpectedValue="rootservices_url"
-              customExpectedLabel="rootservices_url"
+              customSelectValue="rootservices_url"
+              customSelectLabel="rootservices_url"
               error={formError.organization_id}
               onChange={(value) => {
                 fetchOslcServiceProviderCatalog(value);
@@ -298,10 +303,19 @@ const Associations = () => {
               data={oslcServiceProviderCatalogResponse}
               accepter={SelectPicker}
               onChange={(value) => {
-                console.log('value', value);
                 getServiceProviderResources(value);
               }}
               reqText="Application container is required"
+            />
+          </FlexboxGrid.Item>
+          <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+            <SelectField
+              name="selection_dialog_url"
+              label="Resource type"
+              placeholder="Select application resource type"
+              data={oslcServiceProviderResponse}
+              accepter={SelectPicker}
+              reqText="Resource type is required"
             />
           </FlexboxGrid.Item>
         </Form>

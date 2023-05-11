@@ -124,7 +124,6 @@ const Application = () => {
 
   const handleAddApplication = () => {
     if (!appFormRef.current.check()) {
-      console.error('Form Error', formError);
       return;
     } else if (isAdminEditing) {
       const putUrl = `${lmApiUrl}/application/${editData?.id}`;
@@ -136,8 +135,6 @@ const Application = () => {
         }),
       );
     } else {
-      console.log('Trying to create new application');
-
       formValue.scopes = 'oslc_fetch_access';
       formValue.response_types = ['code'];
       formValue.grant_types = ['service_provider', 'authorization_code'];
@@ -197,10 +194,8 @@ const Application = () => {
     'message',
     function (event) {
       let message = event.data;
-      console.log('message' + message);
       if (!message.source) {
         if (message.toString()?.startsWith('access-token-data')) {
-          console.log('response' + message);
           const response = JSON.parse(message?.substr('access-token-data:'?.length));
 
           localStorage.setItem('access_token', response.access_token);
@@ -228,7 +223,6 @@ const Application = () => {
     const currentUrl = iframeRef.current.contentWindow.location.href;
     if (currentUrl !== authorizeFrameSrc) {
       setAuthorizeFrameSrc(currentUrl);
-      console.log('URL changed:', currentUrl);
     }
   };
 
