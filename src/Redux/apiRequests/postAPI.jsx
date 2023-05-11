@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 import clientMessages from './responseMsg';
 
-export default async function postAPI({ url, token, bodyData, sendMsg }) {
+export default async function postAPI({ url, token, bodyData }) {
   const response = await fetch(`${url}`, {
     method: 'POST',
     headers: {
@@ -13,14 +13,12 @@ export default async function postAPI({ url, token, bodyData, sendMsg }) {
     .then((res) => {
       if (res.ok) {
         return res.json().then((data) => {
-          if (sendMsg) {
-            Swal.fire({
-              title: 'Success',
-              icon: 'success',
-              text: data.message,
-              confirmButtonColor: '#3085d6',
-            });
-          }
+          Swal.fire({
+            title: 'Success',
+            icon: 'success',
+            text: data.message,
+            confirmButtonColor: '#3085d6',
+          });
           return data;
         });
       } else {

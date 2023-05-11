@@ -25,8 +25,8 @@ export const fetchApplications = createAsyncThunk(
 // Create New app
 export const fetchCreateApp = createAsyncThunk(
   'applications/fetchCreateApp',
-  async ({ url, token, bodyData, sendMsg }) => {
-    const res = postAPI({ url, token, bodyData, sendMsg });
+  async ({ url, token, bodyData }) => {
+    const res = postAPI({ url, token, bodyData });
     return res;
   },
 );

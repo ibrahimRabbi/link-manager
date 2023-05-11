@@ -53,20 +53,16 @@ const headerData = [
   },
 ];
 
-const { StringType, NumberType, ArrayType } = Schema.Types;
+const { StringType, NumberType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
   label: StringType().isRequired('This field is required.'),
   rootservices_url: StringType().isRequired('This field is required.'),
+  client_uri: StringType().isRequired('This field is required.'),
   oslc_domain: StringType().isRequired('This field is required.'),
   organization_id: NumberType().isRequired('This field is required.'),
   description: StringType().isRequired('This field is required.'),
-  client_uri: StringType().isRequired('This field is required.'),
-  grant_types: ArrayType(),
-  redirect_uris: ArrayType(),
-  response_types: ArrayType(),
-  scopes: StringType(),
 });
 
 const Application = () => {
@@ -92,7 +88,7 @@ const Application = () => {
   const [formValue, setFormValue] = useState({
     name: '',
     label: '',
-    rootservices_url: '',
+    url: '',
     client_uri: '',
     oslc_domain: '',
     organization_id: '',
@@ -141,36 +137,35 @@ const Application = () => {
       // create application
       console.log('Trying to create new application');
 
-      formValue.scopes = 'oslc_fetch_access';
-      formValue.response_types = ['code'];
-      formValue.grant_types = ['service_provider', 'authorization_code'];
-      formValue.redirect_uris = [
-        // eslint-disable-next-line max-len
+      // eslint-disable-next-line max-len
+      const redirect_uris = [
         'http://127.0.0.1:5100/api/v1/application/' +
           'oauth2-consumer/callback?consumer=' +
           formValue.label,
       ];
-
-      // console.log('form value', formValue);
+      const scopes = 'oslc_fetch_access';
+      const response_types = ['code'];
+      const grant_types = ['service_provider', 'authorization_code'];
 
       const postUrl = `${lmApiUrl}/application`;
       dispatch(
         fetchCreateApp({
           url: postUrl,
           token: authCtx.token,
-          bodyData: formValue,
+          bodyData: { ...formValue, scopes, response_types, grant_types, redirect_uris },
           sendMsg: false,
         }),
       )
         .then((response) => {
           if (response) {
+            console.log('response: ', response);
+            setSteps(1);
             // setClientId(response.payload.client_id);
             // setClientSecret(response.payload.client_secret);
-            setSteps(1);
             let query = `client_id=${response.payload.client_id}`;
             query += `&scope=${formValue.scope}`;
 
-            formValue.response_types.forEach((response_type) => {
+            formValue?.response_types?.forEach((response_type) => {
               if (formValue.response_types.indexOf(response_type) === 0) {
                 query += `&response_type=${response_type}`;
               } else {
@@ -192,8 +187,7 @@ const Application = () => {
         .catch((error) => console.error(error));
     }
 
-    setOpenModal(false);
-    dispatch(handleIsAddNewModal(true));
+    // setOpenModal(false);
     if (isAdminEditing) dispatch(handleIsAdminEditing(false));
   };
 
@@ -241,18 +235,25 @@ const Application = () => {
     setEditData({});
     setFormValue({
       name: '',
-      url: '',
+      label: '',
+      rootservices_url: '',
+      client_uri: '',
       oslc_domain: '',
       organization_id: '',
       description: '',
     });
   };
 
-  // handle open add user modal
+  // handle open add application modal
   const handleAddNew = () => {
     handleResetForm();
     setOpenModal(true);
-    // dispatch(handleIsAddNewModal(true));
+  };
+  // handle close modal
+  const handleCloseModal = async () => {
+    await setOpenModal(false);
+    await setSteps(0);
+    handleResetForm();
   };
 
   useEffect(() => {
@@ -286,7 +287,9 @@ const Application = () => {
     dispatch(handleIsAdminEditing(true));
     setFormValue({
       name: data?.name,
-      url: data?.url,
+      label: data?.label,
+      rootservices_url: data?.rootservices_url,
+      client_uri: data?.client_uri,
       oslc_domain: data?.oslc_domain,
       organization_id: data?.organization_id,
       description: data?.description,
@@ -326,108 +329,180 @@ const Application = () => {
             {isAdminEditing ? 'Edit Application' : 'Add New Application'}
           </Modal.Title>
 
-          <Steps current={steps} style={{ margin: '10px 0 0' }}>
+          <Steps current={steps} style={{ marginTop: '5px' }}>
             <Steps.Item />
             <Steps.Item />
             <Steps.Item />
           </Steps>
         </Modal.Header>
 
-        <Modal.Body style={{ padding: '10px 10px 30px' }}>
-          <div className="show-grid step-1">
-            <Form
-              fluid
-              ref={appFormRef}
-              onChange={setFormValue}
-              onCheck={setFormError}
-              formValue={formValue}
-              model={model}
-            >
-              <FlexboxGrid justify="space-between">
-                <FlexboxGrid.Item colspan={11}>
-                  <TextField
-                    name="name"
-                    label="Name"
-                    reqText="Application name is required"
-                  />
-                </FlexboxGrid.Item>
+        <Modal.Body style={{ padding: '0 10px 30px' }}>
+          {steps === 0 && (
+            <div className="show-grid step-1">
+              <Form
+                fluid
+                ref={appFormRef}
+                onChange={setFormValue}
+                onCheck={setFormError}
+                formValue={formValue}
+                model={model}
+              >
+                <FlexboxGrid justify="space-between">
+                  <FlexboxGrid.Item colspan={11}>
+                    <TextField
+                      name="name"
+                      label="Name"
+                      reqText="Application name is required"
+                    />
+                  </FlexboxGrid.Item>
 
-                <FlexboxGrid.Item colspan={11}>
-                  <TextField
-                    name="label"
-                    label="label"
-                    reqText="Application label is required"
-                  />
-                </FlexboxGrid.Item>
+                  <FlexboxGrid.Item colspan={11}>
+                    <TextField
+                      name="label"
+                      label="label"
+                      reqText="Application label is required"
+                    />
+                  </FlexboxGrid.Item>
 
-                <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                  <TextField
-                    name="rootservices_url"
-                    label="Root Services URL"
-                    reqText="Root Services URL of OSLC application is required"
-                  />
-                </FlexboxGrid.Item>
+                  <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
+                    <TextField
+                      name="rootservices_url"
+                      label="Root Services URL"
+                      reqText="Root Services URL of OSLC application is required"
+                    />
+                  </FlexboxGrid.Item>
 
-                <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                  <TextField
-                    name="client_uri"
-                    label="Client URI"
-                    reqText="Client URI about OSLC application is required"
-                  />
-                </FlexboxGrid.Item>
+                  <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
+                    <TextField
+                      name="client_uri"
+                      label="Client URI"
+                      reqText="Client URI about OSLC application is required"
+                    />
+                  </FlexboxGrid.Item>
 
-                <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                  <TextField
-                    name="oslc_domain"
-                    label="OSLC Domain"
-                    reqText="OSLC domain is required"
-                  />
-                </FlexboxGrid.Item>
+                  <FlexboxGrid.Item colspan={24}>
+                    <TextField
+                      name="oslc_domain"
+                      label="OSLC Domain"
+                      reqText="OSLC domain is required"
+                    />
+                  </FlexboxGrid.Item>
 
-                <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                  <SelectField
-                    name="organization_id"
-                    label="Organization ID"
-                    placeholder="Select Organization ID"
-                    accepter={CustomSelect}
-                    apiURL={`${lmApiUrl}/organization`}
-                    error={formError.organization_id}
-                    reqText="Organization Id is required"
-                  />
-                </FlexboxGrid.Item>
+                  <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                    <SelectField
+                      name="organization_id"
+                      label="Organization ID"
+                      placeholder="Select Organization ID"
+                      accepter={CustomSelect}
+                      apiURL={`${lmApiUrl}/organization`}
+                      error={formError.organization_id}
+                      reqText="Organization Id is required"
+                    />
+                  </FlexboxGrid.Item>
 
-                <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0 10px' }}>
-                  <TextField
-                    name="description"
-                    label="Description"
-                    accepter={TextArea}
-                    rows={5}
-                    reqText="application description is required"
-                  />
-                </FlexboxGrid.Item>
+                  <FlexboxGrid.Item colspan={24} style={{ marginBottom: '20px' }}>
+                    <TextField
+                      name="description"
+                      label="Description"
+                      accepter={TextArea}
+                      rows={5}
+                      reqText="application description is required"
+                    />
+                  </FlexboxGrid.Item>
+                </FlexboxGrid>
+              </Form>
+
+              <FlexboxGrid justify="end">
+                <Button
+                  className="adminModalFooterBtn"
+                  appearance="default"
+                  onClick={handleCloseModal}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  appearance="primary"
+                  color="blue"
+                  className="adminModalFooterBtn"
+                  onClick={() => handleAddApplication()}
+                >
+                  {formValue?.name ? 'Next' : 'Save'}
+                </Button>
               </FlexboxGrid>
-            </Form>
-          </div>
+            </div>
+          )}
 
-          <div className="show-grid step-2">
-            <h4 style={{ margin: '30px 0 10px' }}>
-              Authorize the application consumption
-            </h4>
-            Please authorize the access for the application in the window below:
-            {/* eslint-disable-next-line max-len */}
-            <iframe className={'authorize-iframe'} src={authorizeFrameSrc} />
-          </div>
+          {steps === 1 && (
+            <div className="show-grid step-2">
+              <h4 style={{ marginBottom: '20px' }}>
+                Authorize the application consumption
+              </h4>
+              Please authorize the access for the application in the window below:
+              {/* eslint-disable-next-line max-len */}
+              <iframe className={'authorize-iframe'} src={authorizeFrameSrc} />
+              <FlexboxGrid justify="end">
+                <Button
+                  className="adminModalFooterBtn"
+                  appearance="ghost"
+                  onClick={() => setSteps(0)}
+                >
+                  {' '}
+                  Back
+                </Button>
 
-          <div className="show-grid step-3">
-            {/* eslint-disable-next-line max-len */}
-            <h4 style={{ margin: '30px 0 10px' }}>
-              Application has been registered and authorized successfully
-            </h4>
-            Close this window to continue.
-          </div>
+                <Button
+                  appearance="primary"
+                  color="blue"
+                  className="adminModalFooterBtn"
+                  onClick={() => setSteps(2)}
+                >
+                  {formValue?.name ? 'Next' : 'Save'}
+                </Button>
+
+                <Button
+                  appearance="ghost"
+                  color="blue"
+                  className="adminModalFooterBtn"
+                  onClick={() => setSteps(2)}
+                >
+                  Skip
+                </Button>
+              </FlexboxGrid>
+            </div>
+          )}
+
+          {steps === 2 && (
+            <div className="show-grid step-3">
+              {/* eslint-disable-next-line max-len */}
+              <h4 style={{ marginBottom: '10px' }}>
+                Application has been registered and authorized successfully
+              </h4>
+              <h5 style={{ marginBottom: '20px' }}>Close this window to continue.</h5>
+
+              <FlexboxGrid justify="end">
+                <Button
+                  className="adminModalFooterBtn"
+                  appearance="default"
+                  onClick={() => setSteps(1)}
+                >
+                  {' '}
+                  Back
+                </Button>
+
+                <Button
+                  appearance="primary"
+                  color="blue"
+                  className="adminModalFooterBtn"
+                  onClick={handleCloseModal}
+                >
+                  Close
+                </Button>
+              </FlexboxGrid>
+            </div>
+          )}
         </Modal.Body>
 
-        <Modal.Footer>
+        {/* <Modal.Footer>
           <Button
             className="adminModalFooterBtn"
             appearance="default"
@@ -443,16 +518,8 @@ const Application = () => {
           >
             Save
           </Button>
-        </Modal.Footer>
+        </Modal.Footer> */}
       </Modal>
-
-      {/* <AddNewModal
-        title={isAdminEditing ? 'Edit Application' : 'Add New Application'}
-        handleSubmit={handleAddApplication}
-        handleReset={handleResetForm}
-      >
-        
-      </AddNewModal> */}
 
       {isAppLoading && (
         <FlexboxGrid justify="center">
