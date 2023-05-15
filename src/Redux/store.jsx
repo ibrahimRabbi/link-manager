@@ -10,6 +10,7 @@ import linkTypesReducer from './slices/linkTypeSlice';
 import linkConsReducer from './slices/linkConstraintSlice';
 import componentsReducer from './slices/componentSlice';
 import eventReducer from './slices/eventSlice';
+import pipelineReducer from './slices/pipelineSlice';
 import * as Sentry from '@sentry/react';
 
 const sentryReduxEnhancer = Sentry.createReduxEnhancer({
@@ -45,6 +46,7 @@ const store = configureStore({
     linkConstraints: linkConsReducer,
     components: componentsReducer,
     events: eventReducer,
+    pipelines: pipelineReducer,
   },
   sentryReduxEnhancer,
 });
