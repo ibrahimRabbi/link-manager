@@ -125,11 +125,11 @@ const Application = () => {
       console.log('appFormRef: ', appFormRef);
 
       const redirect_uris = [
-        'https://lm-api-dev.koneksys.com/api/v1/application/' +
+        `${lmApiUrl}/application/` +
           'oauth2-consumer/callback?consumer=' +
           formValue.label,
       ];
-      const scope = 'oslc_fetch_access';
+      const scopes = 'oslc_fetch_access';
       const response_types = ['code'];
       const grant_types = ['service_provider', 'authorization_code'];
 
@@ -138,7 +138,7 @@ const Application = () => {
         fetchCreateApp({
           url: postUrl,
           token: authCtx.token,
-          bodyData: { ...formValue, scope, response_types, grant_types, redirect_uris },
+          bodyData: { ...formValue, scopes, response_types, grant_types, redirect_uris },
           sendMsg: false,
         }),
       )
@@ -151,7 +151,7 @@ const Application = () => {
               // setClientId(response.payload.client_id);
               // setClientSecret(response.payload.client_secret);
               let query = `client_id=${response.payload.client_id}`;
-              query += `&scope=${scope}`;
+              query += `&scope=${scopes}`;
 
               response_types?.forEach((response_type) => {
                 if (response_types?.indexOf(response_type) === 0) {
