@@ -283,9 +283,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     const { projectName, sourceType, title, uri, appName } = sourceDataList;
 
     const targetsData = targetDataArr?.map((data) => {
-      const id = data?.selected_lines ? data.uri + '#' + data?.selected_lines : data.uri;
+      // eslint-disable-next-line max-len
+      const id = data?.selected_lines
+        ? data.koatl_uri + '#' + data?.selected_lines
+        : data.koatl_uri;
+      const platform_uri = data?.uri;
       return {
-        koatl_uri: data.koatl_uri,
+        koatl_uri: platform_uri,
         koatl_path: data.koatl_path,
         content_lines: data.content_lines,
         selected_lines: data.selected_lines,
