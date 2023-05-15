@@ -39,9 +39,8 @@ const headerData = [
 ];
 
 const Users = () => {
-  const { allUsers, usersLoading, isUserCreated, isUserDeleted } = useSelector(
-    (state) => state.users,
-  );
+  const { allUsers, usersLoading, isUserCreated, isUserDeleted, isUserUpdated } =
+    useSelector((state) => state.users);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [isAddModal, setIsAddModal] = useState(false);
   const [editData, setEditData] = useState({});
@@ -94,7 +93,7 @@ const Users = () => {
 
     const getUrl = `${lmApiUrl}/user?page=${currPage}&per_page=${pageSize}`;
     dispatch(fetchUsers({ url: getUrl, token: authCtx.token }));
-  }, [isUserCreated, isUserDeleted, pageSize, currPage, refreshData]);
+  }, [isUserCreated, isUserDeleted, isUserUpdated, pageSize, currPage, refreshData]);
 
   // handle delete user
   const handleDelete = (data) => {

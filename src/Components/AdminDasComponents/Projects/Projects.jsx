@@ -20,10 +20,6 @@ import TextField from '../TextField';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
 
-// import UseTable from '../UseTable';
-// import styles from './Projects.module.scss';
-// const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
-
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
 // demo data
@@ -96,6 +92,7 @@ const Projects = () => {
           url: postUrl,
           token: authCtx.token,
           bodyData: formValue,
+          message: 'project',
         }),
       );
     }

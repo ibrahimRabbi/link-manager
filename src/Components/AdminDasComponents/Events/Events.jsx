@@ -1,27 +1,24 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Swal from 'sweetalert2';
 import {
-  fetchCreateOrg,
-  fetchDeleteOrg,
-  fetchOrganizations,
-  fetchUpdateOrg,
-} from '../../../Redux/slices/organizationSlice';
+  fetchEvents,
+  fetchCreateEvent,
+  fetchDeleteEvent,
+  fetchUpdateEvent,
+} from '../../../Redux/slices/eventSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
   handleIsAddNewModal,
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
-import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
-import { FlexboxGrid, Form, Schema } from 'rsuite';
+import AdminDataTable from '../AdminDataTable';
+import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
 import TextField from '../TextField';
+import { useRef } from 'react';
 import TextArea from '../TextArea';
-import UseLoader from '../../Shared/UseLoader';
-
-// import styles from './Organization.module.scss';
-// const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
+import Swal from 'sweetalert2';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -30,22 +27,18 @@ const headerData = [
   {
     header: 'ID',
     key: 'id',
-    width: 100,
   },
   {
-    header: 'Organization',
+    header: 'Name',
     key: 'name',
-    width: 200,
   },
   {
-    header: 'URL',
-    key: 'url',
-    width: 200,
+    header: 'Trigger Endpoint',
+    key: 'trigger_endpoint',
   },
   {
     header: 'Description',
     key: 'description',
-    width: 300,
   },
 ];
 
@@ -53,54 +46,66 @@ const { StringType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
-  url: StringType().isRequired('This field is required.'),
+  trigger_endpoint: StringType().isRequired('This field is required.'),
   description: StringType().isRequired('This field is required.'),
 });
 
-const Organization = () => {
-  const { allOrganizations, isOrgLoading, isOrgCreated, isOrgDeleted, isOrgUpdated } =
-    useSelector((state) => state.organizations);
+const Events = () => {
+  const { allEvents, isEventLoading, isEventUpdated, isEventCreated, isEventDeleted } =
+    useSelector((state) => state.events);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
+
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
   const [formValue, setFormValue] = useState({
     name: '',
-    url: '',
+    trigger_endpoint: '',
     description: '',
   });
 
+  const eventFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
-  const orgFormRef = React.useRef();
 
-  const handleAddOrg = () => {
-    // throw form validation error
-    if (!orgFormRef.current.check()) {
+  // Pagination
+  const handlePagination = (value) => {
+    setCurrPage(value);
+  };
+
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
+  };
+
+  // handle open add event modal
+  const handleAddNew = () => {
+    handleResetForm();
+    dispatch(handleIsAddNewModal(true));
+  };
+
+  const handleAddLinkEvent = () => {
+    if (!eventFormRef.current.check()) {
       console.error('Form Error', formError);
       return;
-    }
-    // editing org
-    else if (isAdminEditing) {
-      const putUrl = `${lmApiUrl}/organization/${editData?.id}`;
+    } else if (isAdminEditing) {
+      const putUrl = `${lmApiUrl}/pipelines/event/${editData?.id}`;
       dispatch(
-        fetchUpdateOrg({
+        fetchUpdateEvent({
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
         }),
       );
-    }
-    // creating org
-    else {
-      const postUrl = `${lmApiUrl}/organization`;
+    } else {
+      const postUrl = `${lmApiUrl}/pipelines/event`;
       dispatch(
-        fetchCreateOrg({
+        fetchCreateEvent({
           url: postUrl,
           token: authCtx.token,
           bodyData: formValue,
-          message: 'organization',
+          message: 'event',
         }),
       );
     }
@@ -113,41 +118,24 @@ const Organization = () => {
     setEditData({});
     setFormValue({
       name: '',
-      url: '',
+      trigger_endpoint: '',
       description: '',
     });
   };
 
-  // Pagination
-  const handlePagination = (value) => {
-    setCurrPage(value);
-  };
-
-  const handleChangeLimit = (dataKey) => {
-    setCurrPage(1);
-    setPageSize(dataKey);
-  };
-
-  // handle open add org modal
-  const handleAddNew = () => {
-    handleResetForm();
-    dispatch(handleIsAddNewModal(true));
-  };
-
-  // load table data
   useEffect(() => {
-    dispatch(handleCurrPageTitle('Organizations'));
+    dispatch(handleCurrPageTitle('Events'));
 
-    const getUrl = `${lmApiUrl}/organization?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchOrganizations({ url: getUrl, token: authCtx.token }));
-  }, [isOrgCreated, isOrgUpdated, isOrgDeleted, pageSize, currPage, refreshData]);
+    const getUrl = `${lmApiUrl}/pipelines/event?page=${currPage}&per_page=${pageSize}`;
+    dispatch(fetchEvents({ url: getUrl, token: authCtx.token }));
+  }, [isEventCreated, isEventUpdated, isEventDeleted, pageSize, currPage, refreshData]);
 
-  // handle delete Org
+  // handle delete event
   const handleDelete = (data) => {
     Swal.fire({
       title: 'Are you sure',
       icon: 'info',
-      text: 'Do you want to delete the organization!!',
+      text: 'Do you want to delete the Event!!',
       cancelButtonColor: 'red',
       showCancelButton: true,
       confirmButtonText: 'Delete',
@@ -155,19 +143,19 @@ const Organization = () => {
       reverseButtons: true,
     }).then((value) => {
       if (value.isConfirmed) {
-        const deleteUrl = `${lmApiUrl}/organization/${data?.id}`;
-        dispatch(fetchDeleteOrg({ url: deleteUrl, token: authCtx.token }));
+        const deleteUrl = `${lmApiUrl}/pipelines/event/${data?.id}`;
+        dispatch(fetchDeleteEvent({ url: deleteUrl, token: authCtx.token }));
       }
     });
   };
 
-  // handle Edit org
+  // handle Edit Event
   const handleEdit = (data) => {
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
     setFormValue({
       name: data?.name,
-      url: data?.url,
+      trigger_endpoint: data?.trigger_endpoint,
       description: data?.description,
     });
     dispatch(handleIsAddNewModal(true));
@@ -175,52 +163,57 @@ const Organization = () => {
 
   // send props in the batch action table
   const tableProps = {
-    title: 'Organizations',
-    rowData: allOrganizations?.items?.length ? allOrganizations?.items : [],
+    title: 'Events',
+    rowData: allEvents?.items?.length ? allEvents?.items : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: allOrganizations?.total_items,
-    totalPages: allOrganizations?.total_pages,
+    totalItems: allEvents?.total_items,
+    totalPages: allEvents?.total_pages,
     pageSize,
-    page: allOrganizations?.page,
-    inpPlaceholder: 'Search Organization',
+    page: allEvents?.page,
+    inpPlaceholder: 'Search Events',
   };
 
   return (
     <div>
       <AddNewModal
-        title={isAdminEditing ? 'Edit Organization' : 'Add New Organization'}
-        handleSubmit={handleAddOrg}
+        title={isAdminEditing ? 'Edit Event' : 'Add New Event'}
+        handleSubmit={handleAddLinkEvent}
         handleReset={handleResetForm}
       >
         <div className="show-grid">
           <Form
             fluid
-            ref={orgFormRef}
+            ref={eventFormRef}
             onChange={setFormValue}
             onCheck={setFormError}
             formValue={formValue}
             model={model}
           >
             <FlexboxGrid justify="space-between">
-              <FlexboxGrid.Item colspan={11}>
-                <TextField name="name" label="Name" reqText="Name is Required" />
+              <FlexboxGrid.Item colspan={24}>
+                <TextField name="name" label="Name" reqText="Name is required" />
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={11}>
-                <TextField name="url" label="URL" reqText="URL is Required" />
+              <FlexboxGrid.Item colspan={24}>
+                <TextField
+                  name="trigger_endpoint"
+                  label="Trigger Endpoint"
+                  reqText="Trigger Endpoint is required"
+                />
               </FlexboxGrid.Item>
-              <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0 10px' }}>
+
+              <FlexboxGrid.Item colspan={24} style={{ marginBottom: '10px' }}>
                 <TextField
                   name="description"
                   label="Description"
                   accepter={TextArea}
                   rows={5}
-                  reqText="Description is Required"
+                  reqText="Description is required"
                 />
               </FlexboxGrid.Item>
             </FlexboxGrid>
@@ -228,11 +221,19 @@ const Organization = () => {
         </div>
       </AddNewModal>
 
-      {isOrgLoading && <UseLoader />}
-      {/* <UseTable props={tableProps} /> */}
+      {isEventLoading && (
+        <Loader
+          backdrop
+          center
+          size="md"
+          vertical
+          content="Loading"
+          style={{ zIndex: '10' }}
+        />
+      )}
       <AdminDataTable props={tableProps} />
     </div>
   );
 };
 
-export default Organization;
+export default Events;

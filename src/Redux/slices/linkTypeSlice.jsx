@@ -5,15 +5,6 @@ import postAPI from '../apiRequests/postAPI';
 import putAPI from '../apiRequests/putAPI';
 
 // Fetch get all link type
-export const fetchApplicationList = createAsyncThunk(
-  'linkTypes/fetchApplicationList',
-  async ({ url, token }) => {
-    const response = getAPI({ url, token });
-    return response;
-  },
-);
-
-// Fetch get all link type
 export const fetchLinkTypes = createAsyncThunk(
   'linkTypes/fetchLinkTypes',
   async ({ url, token }) => {
@@ -25,8 +16,8 @@ export const fetchLinkTypes = createAsyncThunk(
 // Create Link type
 export const fetchCreateLinkType = createAsyncThunk(
   'linkTypes/fetchCreateLinkType',
-  async ({ url, token, bodyData, reset }) => {
-    const res = postAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData, message }) => {
+    const res = postAPI({ url, token, bodyData, message });
     return res;
   },
 );
@@ -34,8 +25,8 @@ export const fetchCreateLinkType = createAsyncThunk(
 // Update Link type
 export const fetchUpdateLinkType = createAsyncThunk(
   'linkTypes/fetchUpdateLinkType',
-  async ({ url, token, bodyData, reset }) => {
-    const res = putAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData }) => {
+    const res = putAPI({ url, token, bodyData });
     return res;
   },
 );
@@ -52,7 +43,6 @@ export const fetchDeleteLinkType = createAsyncThunk(
 /// All link type states
 const initialState = {
   allLinkTypes: {},
-  applicationList: {},
   isLinkTypeCreated: false,
   isLinkTypeUpdated: false,
   isLinkTypeDeleted: false,
@@ -129,13 +119,6 @@ export const linkTypeSlice = createSlice({
 
     builder.addCase(fetchDeleteLinkType.rejected, (state) => {
       state.isLinkTypeLoading = false;
-    });
-
-    // Get all applications for crate link types
-    builder.addCase(fetchApplicationList.fulfilled, (state, { payload }) => {
-      if (payload?.items) {
-        state.applicationList = payload;
-      }
     });
   },
 });

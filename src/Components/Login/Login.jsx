@@ -1,12 +1,20 @@
 import React, { useContext, useState } from 'react';
-// import {PasswordInput, ProgressBar, TextInput } from '@carbon/react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import style from './Login.module.scss';
 import { useSelector } from 'react-redux';
 import { useMixpanel } from 'react-mixpanel-browser';
-import { FlexboxGrid, Button, Panel, Col, Loader, Schema, Form } from 'rsuite';
+import {
+  FlexboxGrid,
+  Button,
+  Panel,
+  Col,
+  Schema,
+  Form,
+  Loader,
+  useToaster,
+  Message,
+} from 'rsuite';
 import TextField from '../AdminDasComponents/TextField.jsx';
 import PasswordField from '../AdminDasComponents/PasswordField.jsx';
 
@@ -19,10 +27,7 @@ const model = Schema.Model({
   userName: StringType().isRequired('Username is required.'),
   password: StringType()
     .addRule((value) => {
-      if (value.length < 5) {
-        return false;
-      }
-      return true;
+      return value.length >= 5;
     }, 'Password should include at least 5 characters')
     .isRequired('Password is required.'),
 });
@@ -31,8 +36,8 @@ const model = Schema.Model({
 const Login = () => {
   const { isWbe } = useSelector((state) => state.links);
   const [isLoading, setIsLoading] = useState(false);
-  const [formError, setFormError] = React.useState({});
-  const [formValue, setFormValue] = React.useState({
+  const [setFormError] = useState({});
+  const [formValue, setFormValue] = useState({
     userName: '',
     password: '',
   });
@@ -41,17 +46,16 @@ const Login = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const toaster = useToaster();
+
   // React mixpanel browser
   const mixpanel = useMixpanel();
   mixpanel.init('197a3508675e32adcdfee4563c0e0595', { debug: true });
 
   // handle form submit
   const onSubmit = async () => {
-    if (!loginFormRef.current.check()) {
-      console.error('Form Error', formError);
-      return;
-    }
     setIsLoading(true);
+
     //track who try to login
     mixpanel.track('Trying to login.', {
       username: formValue.userName,
@@ -71,29 +75,43 @@ const Login = () => {
           mixpanel.track('Successfully logged in.', {
             username: formValue.userName,
           });
-          return res.json();
         } else {
-          res.json().then((data) => {
-            let errorMessage = 'Authentication failed: ';
-            if (data && data.message) {
-              errorMessage += data.message;
-              Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
-            }
+          //track who try to login
+          mixpanel.track('Failed to login.', {
+            username: formValue.userName,
           });
         }
+        return res.json();
       })
       .then((data) => {
-        const expirationTime = new Date(new Date().getTime() + +data.expires_in * 1000);
-        authCtx.login(data.access_token, expirationTime.toISOString());
-
-        // manage redirect user
-        if (location.state) navigate(location.state.from.pathname);
-        else {
-          isWbe ? navigate('/wbe') : navigate('/');
+        if ('access_token' in data) {
+          const expirationTime = new Date(new Date().getTime() + +data.expires_in * 1000);
+          authCtx.login(data.access_token, expirationTime.toISOString());
+          // manage redirect user
+          if (location.state) navigate(location.state.from.pathname);
+          else {
+            isWbe ? navigate('/wbe') : navigate('/');
+          }
+        } else {
+          let errorMessage = 'Authentication failed: ';
+          if (data && data.message) {
+            errorMessage += data.message;
+            const message = (
+              <Message closable showIcon type="error">
+                {errorMessage}
+              </Message>
+            );
+            toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
+          }
         }
       })
       .catch((err) => {
-        Swal.fire({ title: 'Error', text: err.message, icon: 'error' });
+        const message = (
+          <Message closable showIcon type="error">
+            Something went wrong when connecting to the server. ({err.message})
+          </Message>
+        );
+        toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
       })
       .finally(() => setIsLoading(false));
   };
@@ -101,9 +119,14 @@ const Login = () => {
   return (
     <div className={main}>
       {isLoading && (
-        <h5 style={{ textAlign: 'center' }}>
-          <Loader size="md" />
-        </h5>
+        <Loader
+          backdrop
+          center
+          size="md"
+          vertical
+          content="Authenticating"
+          style={{ zIndex: '10' }}
+        />
       )}
 
       <FlexboxGrid justify="center" align="middle">
@@ -111,7 +134,8 @@ const Login = () => {
           <Panel
             header={
               <h3 className={title}>
-                Link Manager Application <br />
+                TraceLynx
+                <br />
                 <span className={titleSpan}>Please Login</span>
               </h3>
             }
@@ -121,7 +145,7 @@ const Login = () => {
               fluid
               ref={loginFormRef}
               onChange={setFormValue}
-              onCheck={setFormError}
+              check={setFormError}
               formValue={formValue}
               model={model}
             >

@@ -5,28 +5,23 @@ import {
   fetchApplications,
   fetchCreateApp,
   fetchDeleteApp,
-  fetchOrg,
   fetchUpdateApp,
-  // fetchUpdateApp,
 } from '../../../Redux/slices/applicationSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
-  handleIsAddNewModal,
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
-// import AddNewModal from '../AddNewModal';
-import { Button, FlexboxGrid, Form, Loader, Modal, Schema, Steps } from 'rsuite';
+import { Button, FlexboxGrid, Form, Modal, Schema, Steps } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import TextField from '../TextField';
 import SelectField from '../SelectField';
 import CustomSelect from '../CustomSelect';
 import TextArea from '../TextArea';
-// eslint-disable-next-line max-len
-// import styles from './Application.module.scss';
+import UseLoader from '../../Shared/UseLoader';
+
 // import css file
 import './Application2.scss';
-
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
 // demo data
@@ -83,12 +78,13 @@ const Application = () => {
 
   // const [clientId, setClientId] = useState('');
   // const [clientSecret, setClientSecret] = useState('');
+  const [appCreateSuccess, setAppCreateSuccess] = useState(false);
   const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
 
   const [formValue, setFormValue] = useState({
     name: '',
     label: '',
-    url: '',
+    rootservices_url: '',
     client_uri: '',
     oslc_domain: '',
     organization_id: '',
@@ -98,16 +94,6 @@ const Application = () => {
   const iframeRef = useRef(null);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
-
-  // get organizations for create application
-  useEffect(() => {
-    dispatch(
-      fetchOrg({
-        url: `${lmApiUrl}/organization?page=${'1'}&per_page=${'100'}`,
-        token: authCtx.token,
-      }),
-    );
-  }, []);
 
   // Pagination
   const handlePagination = (value) => {
@@ -133,17 +119,18 @@ const Application = () => {
           bodyData: formValue,
         }),
       );
+      setOpenModal(false);
     } else {
       // create application
       console.log('Trying to create new application');
+      console.log('appFormRef: ', appFormRef);
 
-      // eslint-disable-next-line max-len
       const redirect_uris = [
-        'http://127.0.0.1:5100/api/v1/application/' +
+        'https://lm-api-dev.koneksys.com/api/v1/application/' +
           'oauth2-consumer/callback?consumer=' +
           formValue.label,
       ];
-      const scopes = 'oslc_fetch_access';
+      const scope = 'oslc_fetch_access';
       const response_types = ['code'];
       const grant_types = ['service_provider', 'authorization_code'];
 
@@ -152,30 +139,35 @@ const Application = () => {
         fetchCreateApp({
           url: postUrl,
           token: authCtx.token,
-          bodyData: { ...formValue, scopes, response_types, grant_types, redirect_uris },
+          bodyData: { ...formValue, scope, response_types, grant_types, redirect_uris },
           sendMsg: false,
         }),
       )
         .then((response) => {
           if (response) {
-            console.log('response: ', response);
-            setSteps(1);
-            // setClientId(response.payload.client_id);
-            // setClientSecret(response.payload.client_secret);
-            let query = `client_id=${response.payload.client_id}`;
-            query += `&scope=${formValue.scope}`;
+            console.log('application:response: ', response);
+            if (response?.payload?.status) {
+              setAppCreateSuccess(true);
+              setSteps(1);
+              // setClientId(response.payload.client_id);
+              // setClientSecret(response.payload.client_secret);
+              let query = `client_id=${response.payload.client_id}`;
+              query += `&scope=${scope}`;
 
-            formValue?.response_types?.forEach((response_type) => {
-              if (formValue.response_types.indexOf(response_type) === 0) {
-                query += `&response_type=${response_type}`;
-              } else {
-                query += ` ${response_type}`;
-              }
-            }, query);
+              response_types?.forEach((response_type) => {
+                if (response_types?.indexOf(response_type) === 0) {
+                  query += `&response_type=${response_type}`;
+                } else {
+                  query += ` ${response_type}`;
+                }
+              }, query);
 
-            query += `&redirect_uri=${formValue.redirect_uris[0]}`;
-            let authorizeUri = response.payload.oauth_client_authorize_uri + '?' + query;
-            setAuthorizeFrameSrc(authorizeUri);
+              query += `&redirect_uri=${redirect_uris[0]}`;
+              // eslint-disable-next-line max-len
+              let authorizeUri =
+                response.payload?.oauth_client_authorize_uri + '?' + query;
+              setAuthorizeFrameSrc(authorizeUri);
+            }
           } else {
             Swal.fire({
               icon: 'error',
@@ -195,12 +187,12 @@ const Application = () => {
     'message',
     function (event) {
       let message = event.data;
-      console.log('message' + message);
-      if (!message.source) {
+      if (!message.source && message?.data) {
+        console.log('windowMessage: ', message);
         if (message.toString()?.startsWith('access-token-data')) {
-          console.log('response' + message);
           const response = JSON.parse(message?.substr('access-token-data:'?.length));
 
+          console.log('response: ', response);
           localStorage.setItem('access_token', response.access_token);
           localStorage.setItem('expires_in', response.expires_in);
           setSteps(2);
@@ -254,6 +246,7 @@ const Application = () => {
     await setOpenModal(false);
     await setSteps(0);
     handleResetForm();
+    setAppCreateSuccess(false);
   };
 
   useEffect(() => {
@@ -295,7 +288,7 @@ const Application = () => {
       description: data?.description,
     });
 
-    dispatch(handleIsAddNewModal(true));
+    setOpenModal(true);
   };
 
   // send props in the batch action table
@@ -322,7 +315,7 @@ const Application = () => {
         keyboard={false}
         size="md"
         open={openModal}
-        onClose={() => setOpenModal(false)}
+        onClose={handleCloseModal}
       >
         <Modal.Header>
           <Modal.Title className="adminModalTitle">
@@ -424,9 +417,14 @@ const Application = () => {
                   appearance="primary"
                   color="blue"
                   className="adminModalFooterBtn"
-                  onClick={() => handleAddApplication()}
+                  onClick={() => {
+                    if (appCreateSuccess) setSteps(2);
+                    else {
+                      handleAddApplication();
+                    }
+                  }}
                 >
-                  {formValue?.name ? 'Next' : 'Save'}
+                  {appCreateSuccess ? 'Next' : 'Save'}
                 </Button>
               </FlexboxGrid>
             </div>
@@ -439,7 +437,11 @@ const Application = () => {
               </h4>
               Please authorize the access for the application in the window below:
               {/* eslint-disable-next-line max-len */}
-              <iframe className={'authorize-iframe'} src={authorizeFrameSrc} />
+              <iframe
+                className={'authorize-iframe'}
+                ref={iframeRef}
+                src={authorizeFrameSrc}
+              />
               <FlexboxGrid justify="end">
                 <Button
                   className="adminModalFooterBtn"
@@ -456,7 +458,9 @@ const Application = () => {
                   className="adminModalFooterBtn"
                   onClick={() => setSteps(2)}
                 >
-                  {formValue?.name ? 'Next' : 'Save'}
+                  {' '}
+                  Save
+                  {/* {appCreateSuccess ? 'Next' : 'Save'} */}
                 </Button>
 
                 <Button
@@ -521,13 +525,8 @@ const Application = () => {
         </Modal.Footer> */}
       </Modal>
 
-      {isAppLoading && (
-        <FlexboxGrid justify="center">
-          <Loader size="md" label="" />
-        </FlexboxGrid>
-      )}
+      {isAppLoading && <UseLoader />}
 
-      {/* <UseTable props={tableProps} /> */}
       <AdminDataTable props={tableProps} />
     </div>
   );

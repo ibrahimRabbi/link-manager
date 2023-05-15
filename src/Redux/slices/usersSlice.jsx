@@ -13,8 +13,8 @@ export const fetchUsers = createAsyncThunk('users/fetchUsers', async ({ url, tok
 // Create New User
 export const fetchCreateUser = createAsyncThunk(
   'users/fetchCreateUser',
-  async ({ url, token, bodyData }) => {
-    const res = postAPI({ url, token, bodyData });
+  async ({ url, token, bodyData, message }) => {
+    const res = postAPI({ url, token, bodyData, message });
     return res;
   },
 );

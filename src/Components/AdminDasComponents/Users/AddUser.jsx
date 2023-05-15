@@ -57,6 +57,7 @@ const AddUser = ({
           url: postUrl,
           token: authCtx.token,
           bodyData: { ...formValue, enabled: true },
+          message: 'user',
         }),
       );
     }

@@ -4,15 +4,6 @@ import getAPI from '../apiRequests/getAPI';
 import postAPI from '../apiRequests/postAPI';
 import putAPI from '../apiRequests/putAPI';
 
-// Fetch get all organizations for create application
-export const fetchOrg = createAsyncThunk(
-  'applications/fetchOrg',
-  async ({ url, token }) => {
-    const response = getAPI({ url, token });
-    return response;
-  },
-);
-
 // Fetch get all applications
 export const fetchApplications = createAsyncThunk(
   'applications/fetchApplications',
@@ -25,8 +16,8 @@ export const fetchApplications = createAsyncThunk(
 // Create New app
 export const fetchCreateApp = createAsyncThunk(
   'applications/fetchCreateApp',
-  async ({ url, token, bodyData }) => {
-    const res = postAPI({ url, token, bodyData });
+  async ({ url, token, bodyData, message }) => {
+    const res = postAPI({ url, token, bodyData, message });
     return res;
   },
 );
@@ -52,7 +43,6 @@ export const fetchDeleteApp = createAsyncThunk(
 /// All user states
 const initialState = {
   allApplications: {},
-  organizationList: {},
   isAppCreated: false,
   isAppUpdated: false,
   isAppDeleted: false,
@@ -131,22 +121,6 @@ export const applicationSlice = createSlice({
 
     builder.addCase(fetchDeleteApp.rejected, (state) => {
       state.isAppLoading = false;
-    });
-
-    // Get all organizations for crate applications
-    builder.addCase(fetchOrg.pending, (state) => {
-      state.isDdLoading = true;
-    });
-    // Get all organizations for crate applications
-    builder.addCase(fetchOrg.fulfilled, (state, { payload }) => {
-      state.isDdLoading = false;
-      if (payload?.items) {
-        state.organizationList = payload;
-      }
-    });
-    // Get all organizations for crate applications
-    builder.addCase(fetchOrg.rejected, (state) => {
-      state.isDdLoading = false;
     });
   },
 });

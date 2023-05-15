@@ -29,8 +29,6 @@ const CustomSelect = React.forwardRef((props, ref) => {
 
   async function fetchOptions(page) {
     setIsLoading(true);
-    // eslint-disable-next-line max-len
-    console.log('API URL: ' + apiURL);
     const response = await fetch(`${apiURL}?page=${page}&per_page=${'10'}`, {
       method: 'GET',
       headers: {
@@ -48,7 +46,6 @@ const CustomSelect = React.forwardRef((props, ref) => {
   // handle load more
   async function handleLoadMore() {
     if (option.length) {
-      console.log('Options length' + option.length);
       if (checkPagination?.has_next) {
         const newOptions = await fetchOptions(page + 1);
         setOption([...option, ...newOptions]);

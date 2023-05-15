@@ -280,7 +280,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Create new link
   const handleSaveLink = () => {
-    const { projectName, title, uri, appName } = sourceDataList;
+    const { projectName, sourceType, title, uri, appName } = sourceDataList;
 
     const targetsData = targetDataArr?.map((data) => {
       const id = data?.selected_lines ? data.uri + '#' + data?.selected_lines : data.uri;
@@ -307,10 +307,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     } else {
       appNameTwo = appName;
     }
+
     const linkObj = {
-      stream: streamType,
-      source_type: title,
-      source_title: title,
+      stream: streamType ? streamType : '',
+      source_type: sourceType ? sourceType : '',
+      source_title: title ? title : '',
       source_project: projectName,
       source_provider: appNameTwo,
       source_id: uri,
@@ -324,6 +325,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         url: apiURL,
         token: authCtx.token,
         bodyData: linkObj,
+        message: 'link',
       }),
     );
   };
