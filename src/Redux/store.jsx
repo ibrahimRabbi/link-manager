@@ -10,6 +10,8 @@ import linkTypesReducer from './slices/linkTypeSlice';
 import linkConsReducer from './slices/linkConstraintSlice';
 import componentsReducer from './slices/componentSlice';
 import eventReducer from './slices/eventSlice';
+import useCRUDReducer from './slices/useCRUDSlice';
+
 import * as Sentry from '@sentry/react';
 
 const sentryReduxEnhancer = Sentry.createReduxEnhancer({
@@ -37,6 +39,7 @@ const store = configureStore({
     links: linksReducer,
     graph: graphReducer,
     // admin dashboard reducers
+    crud: useCRUDReducer,
     users: usersReducer,
     organizations: organizationsReducer,
     applications: applicationsReducer,

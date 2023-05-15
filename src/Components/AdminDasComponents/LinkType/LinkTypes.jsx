@@ -1,12 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-import {
-  fetchCreateLinkType,
-  fetchDeleteLinkType,
-  fetchLinkTypes,
-  fetchUpdateLinkType,
-} from '../../../Redux/slices/linkTypeSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
@@ -22,11 +16,12 @@ import SelectField from '../SelectField';
 import CustomSelect from '../CustomSelect';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
-
-// import styles from './LinkTypes.module.scss';
-// const { errText, formContainer,
-// modalBtnCon, modalBody, mhContainer, flNameContainer } =
-//   styles;
+import {
+  fetchCreateData,
+  fetchDeleteData,
+  fetchGetData,
+  fetchUpdateData,
+} from '../../../Redux/slices/useCRUDSlice';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -70,13 +65,10 @@ const model = Schema.Model({
 });
 
 const LinkTypes = () => {
-  const {
-    allLinkTypes,
-    isLinkTypeLoading,
-    isLinkTypeCreated,
-    isLinkTypeUpdated,
-    isLinkTypeDeleted,
-  } = useSelector((state) => state.linkTypes);
+  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
+    (state) => state.crud,
+  );
+
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -118,7 +110,7 @@ const LinkTypes = () => {
     } else if (isAdminEditing) {
       const putUrl = `${lmApiUrl}/link-type/${editData?.id}`;
       dispatch(
-        fetchUpdateLinkType({
+        fetchUpdateData({
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
@@ -127,7 +119,7 @@ const LinkTypes = () => {
     } else {
       const postUrl = `${lmApiUrl}/link-type`;
       dispatch(
-        fetchCreateLinkType({
+        fetchCreateData({
           url: postUrl,
           token: authCtx.token,
           bodyData: formValue,
@@ -157,15 +149,14 @@ const LinkTypes = () => {
     dispatch(handleCurrPageTitle('Link Types'));
 
     const getUrl = `${lmApiUrl}/link-type?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchLinkTypes({ url: getUrl, token: authCtx.token }));
-  }, [
-    isLinkTypeCreated,
-    isLinkTypeUpdated,
-    isLinkTypeDeleted,
-    pageSize,
-    currPage,
-    refreshData,
-  ]);
+    dispatch(
+      fetchGetData({
+        url: getUrl,
+        token: authCtx.token,
+        stateName: 'allLinkTypes',
+      }),
+    );
+  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
 
   // handle delete link type
   const handleDelete = (data) => {
@@ -181,7 +172,7 @@ const LinkTypes = () => {
     }).then((value) => {
       if (value.isConfirmed) {
         const deleteUrl = `${lmApiUrl}/link-type/${data?.id}`;
-        dispatch(fetchDeleteLinkType({ url: deleteUrl, token: authCtx.token }));
+        dispatch(fetchDeleteData({ url: deleteUrl, token: authCtx.token }));
       }
     });
   };
@@ -203,17 +194,17 @@ const LinkTypes = () => {
   // send props in the batch action table
   const tableProps = {
     title: 'Link Types',
-    rowData: allLinkTypes?.items?.length ? allLinkTypes?.items : [],
+    rowData: crudData?.allLinkTypes?.items?.length ? crudData?.allLinkTypes?.items : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: allLinkTypes?.total_items,
-    totalPages: allLinkTypes?.total_pages,
+    totalItems: crudData?.allLinkTypes?.total_items,
+    totalPages: crudData?.allLinkTypes?.total_pages,
     pageSize,
-    page: allLinkTypes?.page,
+    page: crudData?.allLinkTypes?.page,
     inpPlaceholder: 'Search Link Type',
   };
 
@@ -284,8 +275,8 @@ const LinkTypes = () => {
         </div>
       </AddNewModal>
 
-      {isLinkTypeLoading && <UseLoader />}
-      {/* <UseTable props={tableProps} /> */}
+      {isCrudLoading && <UseLoader />}
+
       <AdminDataTable props={tableProps} />
     </div>
   );
