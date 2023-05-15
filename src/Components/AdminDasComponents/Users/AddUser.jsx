@@ -1,16 +1,13 @@
 import React from 'react';
 import AuthContext from '../../../Store/Auth-Context';
 
-// import styles from './Users.module.scss';
-// const { errText, formContainer, modalBtnCon, flNameContainer } = styles;
-
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 import { Form, Button, Schema, FlexboxGrid } from 'rsuite';
 import TextField from '../TextField';
 import { useContext } from 'react';
 import { useDispatch } from 'react-redux';
-import { fetchCreateUser, fetchUpdateUser } from '../../../Redux/slices/usersSlice';
 import { handleIsAdminEditing } from '../../../Redux/slices/navSlice';
+import { fetchCreateData, fetchUpdateData } from '../../../Redux/slices/useCRUDSlice';
 
 const { StringType } = Schema.Types;
 
@@ -37,6 +34,7 @@ const AddUser = ({
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
+  // handle create and update form submit
   const handleSubmit = () => {
     if (!userFormRef.current.check()) {
       console.error('Form Error', formError);
@@ -44,7 +42,7 @@ const AddUser = ({
     } else if (isAdminEditing) {
       const putUrl = `${lmApiUrl}/user/${editData?.id}`;
       dispatch(
-        fetchUpdateUser({
+        fetchUpdateData({
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
@@ -53,7 +51,7 @@ const AddUser = ({
     } else {
       const postUrl = `${lmApiUrl}/user`;
       dispatch(
-        fetchCreateUser({
+        fetchCreateData({
           url: postUrl,
           token: authCtx.token,
           bodyData: { ...formValue, enabled: true },

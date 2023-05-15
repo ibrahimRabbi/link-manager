@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 import clientMessages from './responseMsg';
 
-export default async function getAPI({ url, token }) {
+export default async function getAPI({ url, token, message }) {
   const response = await fetch(url, {
     method: 'GET',
     headers: {
@@ -15,7 +15,7 @@ export default async function getAPI({ url, token }) {
           return res.json();
         } else {
           Swal.fire({
-            text: 'No Content Available',
+            text: message ? message : 'No content available !!',
             icon: 'info',
             confirmButtonColor: '#3085d6',
           });

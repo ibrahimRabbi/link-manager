@@ -283,19 +283,23 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     const { projectName, sourceType, title, uri, appName } = sourceDataList;
 
     const targetsData = targetDataArr?.map((data) => {
-      const id = data?.selected_lines ? data.uri + '#' + data?.selected_lines : data.uri;
+      // eslint-disable-next-line max-len
+      const id = data?.selected_lines
+        ? data.koatl_uri + '#' + data?.selected_lines
+        : data.koatl_uri;
+      const platform_uri = data?.uri;
       return {
-        koatl_uri: data.koatl_uri,
-        koatl_path: data.koatl_path,
-        content_lines: data.content_lines,
-        selected_lines: data.selected_lines,
-        branch_name: data.branch_name,
-        provider_id: data.provider_id,
-        resource_id: data.resource_id,
-        resource_type: data.type,
-        content: data.content,
-        target_type: data.resource_type,
-        target_title: data.label,
+        koatl_uri: platform_uri,
+        koatl_path: data.koatl_path ? data.koatl_path : '',
+        content_lines: data.content_lines ? data.content_lines : '',
+        selected_lines: data.selected_lines ? data.selected_lines : '',
+        branch_name: data.branch_name ? data.branch_name : '',
+        provider_id: data.provider_id ? data.provider_id : '',
+        resource_id: data.resource_id ? data.resource_id : '',
+        resource_type: data.type ? data.type : '',
+        content: data.content ? data.content : '',
+        target_type: data.resource_type ? data.resource_type : '',
+        target_title: data.label ? data.label : '',
         target_id: id,
         target_project: projectType,
         target_provider: data.target_provider,
