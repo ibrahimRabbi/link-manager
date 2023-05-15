@@ -107,7 +107,6 @@ const Application = () => {
 
   const handleAddApplication = () => {
     if (!appFormRef.current.check()) {
-      console.error('Form Error', formError);
       return;
     } else if (isAdminEditing) {
       // edit application
@@ -218,7 +217,6 @@ const Application = () => {
     const currentUrl = iframeRef.current.contentWindow.location.href;
     if (currentUrl !== authorizeFrameSrc) {
       setAuthorizeFrameSrc(currentUrl);
-      console.log('URL changed:', currentUrl);
     }
   };
 

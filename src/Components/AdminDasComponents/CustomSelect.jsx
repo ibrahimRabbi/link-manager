@@ -20,7 +20,9 @@ const FixedLoader = () => (
 );
 
 const CustomSelect = React.forwardRef((props, ref) => {
-  const { apiURL, placeholder, onChange, ...rest } = props;
+  // eslint-disable-next-line max-len
+  const { apiURL, placeholder, onChange, customSelectLabel, customSelectValue, ...rest } =
+    props;
   const [option, setOption] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [checkPagination, setCheckPagination] = useState({});
@@ -39,6 +41,7 @@ const CustomSelect = React.forwardRef((props, ref) => {
     const data = await response.json();
     setIsLoading(false);
     setCheckPagination(data);
+    console.log('Data', data);
     if (data?.items) return data.items;
     return [];
   }
@@ -80,10 +83,18 @@ const CustomSelect = React.forwardRef((props, ref) => {
   };
 
   // The data is filtered according to the select picker's needs
-  const data = option?.map((item) => ({
-    label: item.name,
-    value: item.id,
-  }));
+  let data = [];
+  if (customSelectValue && customSelectLabel) {
+    data = option?.map((item) => ({
+      label: item.name + ' - ' + item[customSelectLabel],
+      value: [item[customSelectValue], item?.id],
+    }));
+  } else {
+    data = option?.map((item) => ({
+      label: item.name,
+      value: item.id,
+    }));
+  }
 
   return (
     <SelectPicker
