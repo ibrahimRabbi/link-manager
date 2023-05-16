@@ -1,17 +1,28 @@
 [
     {
-        "name": "Cross-Domain Integration Demo (JIRA)",
-        "icon": "https://lm-dev.koneksys.com/jira_logo.png",
-        "alt_value": "JIRA"
+        "name": "Cross-Domain Integration Demo (JIRA)"
+    },
+    {
+        "name": "Jira projects (JIRA-PROJECTS)"
     },
     {
         "name": "Cross-Domain Integration Demo (GITLAB)",
-        "icon": "https://lm-dev.koneksys.com/gitlab_logo.png",
-        "alt_value": "GITLAB"
+        "id": "41530067"
     },
     {
-        "name": "Jet Engine Design (GLIDE)",
-        "icon": "https://lm-dev.koneksys.com/glide_logo.png",
-        "alt_value": "GLIDE"
+        "name": "Drone Project (GITLAB)",
+        "id": "42854970"
+    },
+    {
+        "name": "Jet Engine Design (GLIDE)"
+    },
+    {
+        "name": "Requirement Management template (CODEBEAMER)"
+    },
+    {
+        "name": "Valispace ST-100 (VALISPACE)"
+    },
+    {
+        "name": "Valispace Projects (VALISPACE-PROJECTS)"
     }
 ]

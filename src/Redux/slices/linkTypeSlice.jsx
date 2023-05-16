@@ -16,8 +16,8 @@ export const fetchLinkTypes = createAsyncThunk(
 // Create Link type
 export const fetchCreateLinkType = createAsyncThunk(
   'linkTypes/fetchCreateLinkType',
-  async ({ url, token, bodyData, reset }) => {
-    const res = postAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData, message }) => {
+    const res = postAPI({ url, token, bodyData, message });
     return res;
   },
 );
@@ -25,8 +25,8 @@ export const fetchCreateLinkType = createAsyncThunk(
 // Update Link type
 export const fetchUpdateLinkType = createAsyncThunk(
   'linkTypes/fetchUpdateLinkType',
-  async ({ url, token, bodyData, reset }) => {
-    const res = putAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData }) => {
+    const res = putAPI({ url, token, bodyData });
     return res;
   },
 );
@@ -60,8 +60,8 @@ export const linkTypeSlice = createSlice({
   extraReducers: (builder) => {
     // Get all link type pending
     builder.addCase(fetchLinkTypes.pending, (state) => {
-      state.isLinkTypeCreated = false;
       state.isLinkTypeDeleted = false;
+      state.isLinkTypeCreated = false;
       state.isLinkTypeUpdated = false;
       state.isLinkTypeLoading = true;
     });
@@ -69,12 +69,7 @@ export const linkTypeSlice = createSlice({
     builder.addCase(fetchLinkTypes.fulfilled, (state, { payload }) => {
       state.isLinkTypeLoading = false;
       if (payload?.items) {
-        // id as string is required in the table
-        const items = payload.items?.reduce((acc, curr) => {
-          acc.push({ ...curr, id: curr?.id?.toString() });
-          return acc;
-        }, []);
-        state.allLinkTypes = { ...payload, items };
+        state.allLinkTypes = payload;
       }
     });
     builder.addCase(fetchLinkTypes.rejected, (state) => {
@@ -117,8 +112,8 @@ export const linkTypeSlice = createSlice({
     });
 
     builder.addCase(fetchDeleteLinkType.fulfilled, (state, { payload }) => {
-      state.isLinkTypeLoading = false;
       state.isLinkTypeDeleted = true;
+      state.isLinkTypeLoading = false;
       console.log('link type Deleting: ', payload);
     });
 

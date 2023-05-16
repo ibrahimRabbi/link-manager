@@ -4,14 +4,14 @@
 .tableContainer,
 .tableHeader,
 .pagination {
-  background-color: white !important;
+  // background-color: white !important;
   font-size: type.type-scale(3);
 }
 
 .tableCell {
   width: 200px;
   font-size: type.type-scale(3);
-  background-color: white !important;
+  // background-color: white !important;
 
   .sourceIdEl {
     width: 150px;
@@ -28,6 +28,12 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     text-decoration: none;
+    transition: 0.3s;
+    color: rgb(32, 175, 246);
+  }
+
+  a:hover {
+    color: rgb(0, 146, 219);
   }
 }
 
@@ -56,22 +62,13 @@
 .popoverContentStyle {
   position: relative;
   background-color: white;
-  box-shadow: 0 0 15px lightgray;
+  // box-shadow: 0 0 15px lightgray;
   padding: 35px 0 0;
 
   iframe {
-    width: 600px;
-    height: 400px;
+    width: 500px;
+    height: 250px;
   }
-}
-
-.closeIcon {
-  position: absolute;
-  top: 5px;
-  color: lightgray;
-  right: 5px;
-  font-size: 20px;
-  cursor: pointer;
 }
 
 .actionContainer {
@@ -106,27 +103,6 @@
   color: colors.$gray-30;
 }
 
-.modalHeadContainer {
-  display: flex;
-  border-bottom: 1px solid colors.$gray-30;
-  padding: 10px;
-}
-
-.modalTitle {
-  cursor: pointer;
-  font-weight: bold;
-  color: colors.$blue-70;
-  font-size: 18px;
-  border-bottom: 2px solid colors.$blue-70;
-}
-
-.modalBody {
-  margin: 0;
-  padding: 10px;
-  background-color: colors.$white;
-  border-radius: 10px;
-}
-
 #sourceProp {
   border-right: 1px solid lightgray;
   padding: 8px;
@@ -135,4 +111,9 @@
 
 #sourceValue {
   padding: 8px;
+}
+
+// links data table rsuite
+.tableContainerDiv {
+  // border: 1px dotted rgb(145, 141, 141);
 }

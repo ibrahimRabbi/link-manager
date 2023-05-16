@@ -1,45 +1,23 @@
-import { Close, Logout, Menu, UserAvatarFilledAlt } from '@carbon/icons-react';
-import {
-  Button,
-  Header,
-  IconButton,
-  Popover,
-  PopoverContent,
-  SideNav,
-  SideNavItems,
-  SideNavMenuItem,
-  Theme,
-} from '@carbon/react';
 import React, { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { handleIsProfileOpen, handleIsSidebarOpen } from '../../../Redux/slices/navSlice';
+import { handleIsDarkMode, handleIsProfileOpen } from '../../../Redux/slices/navSlice';
 import AuthContext from '../../../Store/Auth-Context.jsx';
 
 import koneksysLogo from './koneksys_logo.png';
 import styles from './NavigationBar.module.scss';
-const {
-  content,
-  header,
-  headerContainer,
-  main,
-  pageTitle,
-  popoverContent,
-  profile,
-  projectTitle,
-  sidebar,
-  sidebarLink,
-  userContainer,
-} = styles;
+import { Button, Nav, Navbar, Popover, Whisper } from 'rsuite';
+import { BiUserCircle, BiLogOut } from 'react-icons/bi';
 
+const { userContainer, content, popButton } = styles;
+
+import { ImBrightnessContrast } from 'react-icons/im';
+import { darkColor, lightBgColor } from '../../../App';
 const NavigationBar = () => {
   const authCtx = useContext(AuthContext);
-  const { currPageTitle, isSidebarOpen, isProfileOpen } = useSelector(
-    (state) => state.nav,
-  );
+  const { currPageTitle, isDark, isProfileOpen } = useSelector((state) => state.nav);
   const navigate = useNavigate();
-  const { pathname } = useLocation();
   const dispatch = useDispatch();
 
   const handleLogout = () => {
@@ -66,97 +44,83 @@ const NavigationBar = () => {
     });
   };
 
+  const darkModeText =
+    isDark == 'dark' ? 'Light Mode' : isDark == 'light' ? 'Dark Mode' : 'Dark Mode';
+
+  // popover control
+  const speaker = (
+    <Popover
+      title=""
+      style={{ padding: '0', display: 'flex', flexDirection: 'column', gap: '2px' }}
+    >
+      <div className={content}>
+        <div className={userContainer}>
+          <h5>User Name</h5>
+          <span>
+            <BiUserCircle size={25} />
+          </span>
+        </div>
+      </div>
+
+      <Button
+        style={{ display: 'flex', width: '100%', justifyContent: 'start', gap: '20px' }}
+        onClick={() => dispatch(handleIsDarkMode())}
+        size="md"
+        appearance="default"
+      >
+        <ImBrightnessContrast />
+        <p>{darkModeText}</p>
+      </Button>
+
+      <Button
+        className={popButton}
+        style={{ display: 'flex', width: '100%', gap: '20px', justifyContent: 'start' }}
+        onClick={handleLogout}
+        size="md"
+        appearance="default"
+      >
+        <BiLogOut />
+        <p>Logout</p>
+      </Button>
+    </Popover>
+  );
+
   return (
-    <div className={`${'container'} ${main}`}>
-      <Theme theme="g100">
-        <Header aria-label="" id={header}>
-          <div className={headerContainer}>
-            <IconButton
-              kind="ghost"
-              label=""
-              onClick={() => dispatch(handleIsSidebarOpen(!isSidebarOpen))}
-            >
-              {isSidebarOpen ? <Close size={30} /> : <Menu size={30} />}
-            </IconButton>
+    <>
+      <Navbar
+        style={{
+          backgroundColor: isDark == 'dark' ? darkColor : lightBgColor,
+          boxShadow: `2px 2px 5px ${isDark == 'light' ? 'lightgray' : '#292D33'}`,
+        }}
+      >
+        <Navbar.Brand
+          onClick={() => navigate('/')}
+          style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}
+        >
+          <img height={30} src={koneksysLogo} alt="Logo" />
+          <h3>Koneksys</h3>
+        </Navbar.Brand>
+        <Nav style={{ textAlign: 'center', marginLeft: '39%' }}>
+          <Nav.Item>
+            <h3 style={{ textAlign: 'center' }}>{currPageTitle}</h3>
+          </Nav.Item>
+        </Nav>
 
-            <img src={koneksysLogo} height="40px" alt="logo" />
-            <h5 className={projectTitle}>Link manager</h5>
-            <h6 className={pageTitle}>{currPageTitle}</h6>
-
-            {/* --- User popover --- */}
-            <Popover
-              open={isProfileOpen}
-              highContrast={false}
-              dropShadow
-              caret={false}
-              align="bottom-right"
-              className={profile}
-            >
-              <IconButton
-                kind="ghost"
-                label=""
-                onClick={() => dispatch(handleIsProfileOpen(!isProfileOpen))}
-              >
-                <UserAvatarFilledAlt size={30} />
-              </IconButton>
-
-              <PopoverContent className={popoverContent}>
-                <div className={content}>
-                  <div className={userContainer}>
-                    <h5>User Name</h5>
-                    <span>
-                      <UserAvatarFilledAlt size={25} />
-                    </span>
-                  </div>
-                  <p>Item option 1</p>
-                  <p>Item option 2</p>
-                </div>
-                <Button
-                  onClick={handleLogout}
-                  renderIcon={Logout}
-                  size="md"
-                  kind="secondary"
-                >
-                  Logout
-                </Button>
-              </PopoverContent>
-            </Popover>
-          </div>
-        </Header>
-
-        {/* --------- Side nav ---------   */}
-        {isSidebarOpen && (
-          <SideNav id={sidebar} aria-label="" isPersistent={true} isChildOfHeader={false}>
-            <SideNavItems>
-              <hr />
-              <SideNavMenuItem
-                className={sidebarLink}
-                onClick={() => navigate('/')}
-                isActive={pathname === '/'}
-              >
-                Links
-              </SideNavMenuItem>
-
-              <SideNavMenuItem
-                className={sidebarLink}
-                onClick={() => navigate('/graph-view')}
-                isActive={pathname === '/graph-view'}
-              >
-                Graph View
-              </SideNavMenuItem>
-
-              <SideNavMenuItem
-                className={sidebarLink}
-                onClick={() => navigate('/admin')}
-                isActive={pathname === '/admin'}
-              >
-                Dashboard
-              </SideNavMenuItem>
-            </SideNavItems>
-          </SideNav>
-        )}
-      </Theme>
-    </div>
+        <Nav pullRight style={{ padding: '5px 20px 0 0' }}>
+          <Whisper
+            placement="bottomEnd"
+            trigger="click"
+            controlId="control-id-hover-enterable"
+            speaker={speaker}
+            enterable
+          >
+            <Button>
+              <BiUserCircle size={30} />
+            </Button>
+          </Whisper>
+        </Nav>
+      </Navbar>
+    </>
   );
 };
 

@@ -11,12 +11,10 @@ import {
   TableHeader,
   TableRow,
 } from '@carbon/react';
-import React, { useState } from 'react';
+import React from 'react';
 import { AiFillCheckCircle } from 'react-icons/ai';
-import { FiSettings } from 'react-icons/fi';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { ArrowContainer, Popover } from 'react-tiny-popover';
 import Swal from 'sweetalert2';
 import {
   handleDeleteLink,
@@ -26,41 +24,33 @@ import {
   handleTargetDataArr,
   handleViewLinkDetails,
 } from '../../../Redux/slices/linksSlice';
-import { GrClose } from 'react-icons/gr';
 
 import styles from './UseDataTable.module.scss';
+import { Settings } from '@carbon/icons-react';
+import { Whisper, Popover } from 'rsuite';
 const {
   tableContainer,
   table,
   tableHead,
   tableHeader,
   tableRow,
-  pagination,
   actionMenu,
   boxCell,
   menuItem,
   newLinkCell1,
   newLinkCell2,
   statusIcon,
-  closeIcon,
   tableCell,
   targetCell,
   validIcon,
-  popoverContentStyle,
+  pagination,
 } = styles;
 
-const UseDataTable = ({
-  tableData,
-  headers,
-  isCheckBox = false,
-  isChecked,
-  editTargetData,
-  handlePagination,
-  currPage,
-  pageSize,
-}) => {
+const UseDataTable = ({ isCheckBox = false, isChecked, editTargetData, props }) => {
+  const { headerData, rowData, handlePagination, totalItems, pageSize } = props;
+
   const { isWbe } = useSelector((state) => state.links);
-  const [isPopoverOpen, setIsPopoverOpen] = useState({});
+  const [popData, setPopData] = React.useState({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -82,12 +72,33 @@ const UseDataTable = ({
     });
   };
 
+  const lines = popData?.content_lines ? popData?.content_lines?.split('L') : '';
+  const speaker = (
+    <Popover
+      title={popData?.koatl_path + popData?.content_lines}
+      style={{ width: '500px' }}
+    >
+      <iframe
+        src={
+          // eslint-disable-next-line max-len
+          `https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/${
+            popData?.provider_id
+          }/resources/${popData?.Type}/${popData?.resource_id}/smallPreview?file_lines=${
+            lines ? lines[1] + lines[2] : ''
+          }&file_content=${popData?.content}&file_path=${popData?.koatl_path}`
+        }
+        width="100%"
+        height="auto"
+      ></iframe>
+    </Popover>
+  );
+
   return (
     <TableContainer title="" className={tableContainer}>
       <Table size="md" className={table}>
         <TableHead className={tableHead}>
           <TableRow className={tableRow}>
-            {headers?.map((header, i) => (
+            {headerData?.map((header, i) => (
               <TableHeader key={i} className={tableHeader}>
                 {header?.header}
               </TableHeader>
@@ -98,8 +109,8 @@ const UseDataTable = ({
           {
             // --- New link Table and edit link ---
             isCheckBox &&
-              tableData[0] &&
-              tableData?.map((row) => (
+              rowData[0] &&
+              rowData?.map((row) => (
                 <TableRow key={row?.identifier}>
                   <TableCell className={`${tableCell} ${newLinkCell1}`}>
                     {row?.identifier}
@@ -150,10 +161,10 @@ const UseDataTable = ({
           {
             // Link Manager Table
             !isCheckBox &&
-              tableData[0] &&
-              tableData?.map((row, i) => {
+              rowData[0] &&
+              rowData?.map((row, index) => {
                 return (
-                  <TableRow key={i}>
+                  <TableRow key={index}>
                     <TableCell className={tableCell}>
                       <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> Valid
                     </TableCell>
@@ -161,57 +172,18 @@ const UseDataTable = ({
 
                     {/* --- Table data with Popover ---  */}
                     <TableCell className={`${tableCell} ${targetCell}`}>
-                      <Popover
-                        id={row?.id}
-                        isOpen={row?.id === isPopoverOpen?.id ? true : false}
-                        onClickOutside={() => setIsPopoverOpen({})}
-                        positions={['bottom', 'top', 'left']}
-                        content={({ position, childRect, popoverRect }) => (
-                          <ArrowContainer
-                            position={position}
-                            childRect={childRect}
-                            popoverRect={popoverRect}
-                            arrowColor={'gray'}
-                            arrowSize={12}
-                            arrowStyle={{}}
-                            className="popover-arrow-container"
-                            arrowClassName="popover-arrow"
-                          >
-                            <div
-                              className={popoverContentStyle}
-                              onMouseEnter={() =>
-                                setIsPopoverOpen({ id: row?.id, value: true })
-                              }
-                              // mouse leave event
-                              onMouseLeave={() => setIsPopoverOpen({})}
-                            >
-                              {/* --- close popover ---  */}
-                              <GrClose
-                                className={closeIcon}
-                                onClick={() => setIsPopoverOpen({})}
-                              />
-                              {/* <h5>{row?.name}</h5>
-                        <h6>{row?.link_type}</h6>
-                        <p>{row?.project}</p> */}
-                              <iframe
-                                src={
-                                  /* eslint-disable-next-line max-len */
-                                  'https://gitlab-oslc-api-dev.koneksys.com/oslc/provider/42854970/resources/files/7f1d9abe39a958aaac2a04d6e4e03ac9a908c34c/smallPreview?file_lines=1-9&file_content=6c58744a370a4e3be225ba36caac24d3e03791b846eb4ddebdf40f1f6432fcb2&file_path=GUI/background.js'
-                                }
-                                width="100%"
-                                height="auto"
-                              ></iframe>
-                            </div>
-                          </ArrowContainer>
-                        )}
+                      <Whisper
+                        placement="bottom"
+                        trigger="hover"
+                        controlId="control-id-hover-enterable"
+                        speaker={speaker}
+                        enterable
                       >
                         <a
                           href={row?.id}
                           target="_blank"
                           rel="noopener noreferrer"
-                          onMouseEnter={() =>
-                            setIsPopoverOpen({ id: row?.id, value: true })
-                          }
+                          onMouseEnter={() => setPopData(row)}
                         >
                           {row?.content_lines
                             ? row?.name.length > 15
@@ -223,25 +195,14 @@ const UseDataTable = ({
                               : row?.name + ' [' + row.content_lines + ']'
                             : row?.name}
                         </a>
-
-                        {/* <a
-                          href={row?.id}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onMouseEnter={() =>
-                            setIsPopoverOpen({ id: row?.id, value: true })
-                          }
-                        >
-                          {row?.name}
-                        </a> */}
-                      </Popover>
+                      </Whisper>
                     </TableCell>
 
                     <TableCell className={`${tableCell} ${'cds--table-column-menu'}`}>
                       <OverflowMenu
                         menuOptionsClass={actionMenu}
                         menuOffset={{ left: -55 }}
-                        renderIcon={() => <FiSettings />}
+                        renderIcon={Settings}
                         size="md"
                         ariaLabel=""
                       >
@@ -302,16 +263,11 @@ const UseDataTable = ({
       {/* --- Pagination --- */}
       <Pagination
         className={pagination}
-        backwardText="Previous page"
-        forwardText="Next page"
-        itemsPerPageText="Items per page:"
-        onChange={handlePagination}
-        page={currPage}
         pageSize={pageSize}
-        pageSizes={[5, 10, 20, 50, 100]}
-        size="lg"
-        totalItems={tableData?.length}
-        // pagesUnknown
+        onChange={handlePagination}
+        pageSizes={[5, 10, 25, 50, 100]}
+        size="md"
+        totalItems={totalItems ? totalItems : 0}
       />
     </TableContainer>
   );

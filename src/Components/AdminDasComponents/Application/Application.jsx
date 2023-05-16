@@ -1,32 +1,27 @@
-import {
-  Button,
-  ComboBox,
-  ComposedModal,
-  ModalBody,
-  ModalHeader,
-  ProgressBar,
-  Stack,
-  TextArea,
-  TextInput,
-  Theme,
-} from '@carbon/react';
-import React, { useState, useContext, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-import {
-  fetchApplications,
-  fetchCreateApp,
-  fetchDeleteApp,
-  fetchOrg,
-  fetchUpdateApp,
-} from '../../../Redux/slices/applicationSlice';
 import AuthContext from '../../../Store/Auth-Context';
-import UseTable from '../UseTable';
-import styles from './Application.module.scss';
-
-const { errText, formContainer, modalBtnCon, modalBody, mhContainer, flNameContainer } =
-  styles;
+import {
+  handleCurrPageTitle,
+  handleIsAddNewModal,
+  handleIsAdminEditing,
+} from '../../../Redux/slices/navSlice';
+import AddNewModal from '../AddNewModal';
+import { FlexboxGrid, Form, Schema } from 'rsuite';
+import AdminDataTable from '../AdminDataTable';
+import TextField from '../TextField';
+import SelectField from '../SelectField';
+import CustomSelect from '../CustomSelect';
+import TextArea from '../TextArea';
+import UseLoader from '../../Shared/UseLoader';
+import {
+  fetchCreateData,
+  fetchDeleteData,
+  fetchGetData,
+  fetchUpdateData,
+} from '../../../Redux/slices/useCRUDSlice';
+// import styles from './Application.module.scss';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -39,10 +34,6 @@ const headerData = [
   {
     header: 'Application',
     key: 'name',
-  },
-  {
-    header: 'Active',
-    key: 'active',
   },
   {
     header: 'OSLC Domain',
@@ -58,293 +49,223 @@ const headerData = [
   },
 ];
 
+const { StringType, NumberType } = Schema.Types;
+
+const model = Schema.Model({
+  name: StringType().isRequired('This field is required.'),
+  url: StringType().isRequired('This field is required.'),
+  oslc_domain: StringType().isRequired('This field is required.'),
+  organization_id: NumberType().isRequired('This field is required.'),
+  description: StringType().isRequired('This field is required.'),
+});
+
 const Application = () => {
-  const {
-    allApplications,
-    organizationList,
-    isAppLoading,
-    isAppUpdated,
-    isAppCreated,
-    isAppDeleted,
-  } = useSelector((state) => state.applications);
-  const [isAddModal, setIsAddModal] = useState(false);
-  const [appDescription, setAppDescription] = useState('');
-  const [selectedItem, setSelectedItem] = useState({});
-  const [filInput, setFilInput] = useState('');
-  const [editData, setEditData] = useState({});
+  const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
+
+  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
+    (state) => state.crud,
+  );
+
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const {
-    handleSubmit,
-    register,
-    control,
-    reset,
-    formState: { errors },
-  } = useForm({ defaultValues: { organization_id: {} } });
+  const [formError, setFormError] = useState({});
+  const [editData, setEditData] = useState({});
+  const [formValue, setFormValue] = useState({
+    name: '',
+    url: '',
+    oslc_domain: '',
+    organization_id: '',
+    description: '',
+  });
+  const appFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
-  // get organizations for create application
-  useEffect(() => {
-    dispatch(
-      fetchOrg({
-        url: `${lmApiUrl}/organization?page=${'1'}&per_page=${'50'}`,
-        token: authCtx.token,
-      }),
-    );
-  }, []);
+  // Pagination
+  const handlePagination = (value) => {
+    setCurrPage(value);
+  };
+
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
+  };
+
+  const handleAddApplication = () => {
+    if (!appFormRef.current.check()) {
+      console.error('Form Error', formError);
+      return;
+    } else if (isAdminEditing) {
+      const putUrl = `${lmApiUrl}/application/${editData?.id}`;
+      dispatch(
+        fetchUpdateData({
+          url: putUrl,
+          token: authCtx.token,
+          bodyData: formValue,
+        }),
+      );
+    } else {
+      const postUrl = `${lmApiUrl}/application`;
+      dispatch(
+        fetchCreateData({
+          url: postUrl,
+          token: authCtx.token,
+          bodyData: formValue,
+          message: 'application',
+        }),
+      );
+    }
+
+    dispatch(handleIsAddNewModal(false));
+    if (isAdminEditing) dispatch(handleIsAdminEditing(false));
+  };
+
+  // reset form
+  const handleResetForm = () => {
+    setEditData({});
+    setFormValue({
+      name: '',
+      url: '',
+      oslc_domain: '',
+      organization_id: '',
+      description: '',
+    });
+  };
 
   // handle open add user modal
   const handleAddNew = () => {
-    setIsAddModal(true);
-  };
-  const addModalClose = () => {
-    setEditData({});
-    setAppDescription('');
-    setIsAddModal(false);
-    reset();
-  };
-
-  // create and edit application form submit
-  const handleAddApplication = (data) => {
-    setIsAddModal(false);
-    // update application
-    if (editData?.name) {
-      data = {
-        name: data?.name ? data?.name : editData?.name,
-        url: data.url ? data.url : editData?.url,
-        description: appDescription ? appDescription : editData?.description,
-        oslc_domain: data.oslc_domain ? data.oslc_domain : editData?.oslc_domain,
-        organization_id: selectedItem?.id ? selectedItem?.id : editData?.organization_id,
-      };
-      console.log('edit submit: ', data);
-      const putUrl = `${lmApiUrl}/application/${editData?.id}`;
-      dispatch(
-        fetchUpdateApp({
-          url: putUrl,
-          token: authCtx.token,
-          bodyData: data,
-          reset,
-        }),
-      );
-    }
-    // Create application
-    else {
-      const appData = {
-        name: data.name,
-        url: data.url,
-        description: appDescription,
-        oslc_domain: data.oslc_domain,
-        organization_id: selectedItem?.id,
-      };
-      console.log('app submit: ', appData);
-      const postUrl = `${lmApiUrl}/application`;
-      dispatch(
-        fetchCreateApp({
-          url: postUrl,
-          token: authCtx.token,
-          bodyData: appData,
-          reset,
-        }),
-      );
-    }
-    setFilInput('');
-    setSelectedItem({});
-    // setOrgData({});
-  };
-
-  // Pagination
-  const handlePagination = (values) => {
-    setPageSize(values.pageSize);
-    setCurrPage(values.page);
+    handleResetForm();
+    dispatch(handleIsAddNewModal(true));
   };
 
   useEffect(() => {
+    dispatch(handleCurrPageTitle('Applications'));
+
     const getUrl = `${lmApiUrl}/application?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchApplications({ url: getUrl, token: authCtx.token }));
-  }, [isAppCreated, isAppUpdated, isAppDeleted, pageSize, currPage]);
+    dispatch(
+      fetchGetData({
+        url: getUrl,
+        token: authCtx.token,
+        stateName: 'allApplications',
+      }),
+    );
+  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
 
   // handle delete application
   const handleDelete = (data) => {
-    // const idList = data?.map((v) => v.id);
-    if (data.length === 1) {
-      const id = data[0]?.id;
-      Swal.fire({
-        title: 'Are you sure',
-        icon: 'info',
-        text: 'Do you want to delete the Application!!',
-        cancelButtonColor: 'red',
-        showCancelButton: true,
-        confirmButtonText: 'Delete',
-        confirmButtonColor: '#3085d6',
-        reverseButtons: true,
-      }).then((value) => {
-        if (value.isConfirmed) {
-          const deleteUrl = `${lmApiUrl}/application/${id}`;
-          dispatch(fetchDeleteApp({ url: deleteUrl, token: authCtx.token }));
-        }
-      });
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry',
-        icon: 'info',
-        text: 'You can not delete multiple application at the same time!!',
-        confirmButtonColor: '#3085d6',
-      });
-    }
+    Swal.fire({
+      title: 'Are you sure',
+      icon: 'info',
+      text: 'Do you want to delete the Application!!',
+      cancelButtonColor: 'red',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#3085d6',
+      reverseButtons: true,
+    }).then((value) => {
+      if (value.isConfirmed) {
+        const deleteUrl = `${lmApiUrl}/application/${data?.id}`;
+        dispatch(fetchDeleteData({ url: deleteUrl, token: authCtx.token }));
+      }
+    });
   };
   // handle Edit application
   const handleEdit = (data) => {
-    if (data.length === 1) {
-      setIsAddModal(true);
-      const data1 = data[0];
-      setEditData(data1);
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry!!',
-        icon: 'info',
-        text: 'You can not edit more than 1 application at the same time',
-      });
-    }
+    setEditData(data);
+    dispatch(handleIsAdminEditing(true));
+    setFormValue({
+      name: data?.name,
+      url: data?.url,
+      oslc_domain: data?.oslc_domain,
+      organization_id: data?.organization_id,
+      description: data?.description,
+    });
+
+    dispatch(handleIsAddNewModal(true));
   };
 
   // send props in the batch action table
   const tableProps = {
     title: 'Applications',
-    rowData: allApplications?.items?.length ? allApplications?.items : [],
+    rowData: crudData?.allApplications?.items?.length
+      ? crudData?.allApplications?.items
+      : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
-    totalItems: allApplications?.total_items,
-    totalPages: allApplications?.total_pages,
+    handleChangeLimit,
+    totalItems: crudData?.allApplications?.total_items,
+    totalPages: crudData?.allApplications?.total_pages,
     pageSize,
-    page: allApplications?.page,
+    page: crudData?.allApplications?.page,
     inpPlaceholder: 'Search Application',
-  };
-
-  const handleScroll = (e) => {
-    console.log(e.target);
   };
 
   return (
     <div>
-      {/* -- add application Modal -- */}
-      <Theme theme="g10">
-        <ComposedModal open={isAddModal} onClose={addModalClose}>
-          <div className={mhContainer}>
-            <h4>{editData?.name ? 'Edit Application' : 'Add New Application'}</h4>
-            <ModalHeader onClick={addModalClose} />
-          </div>
+      <AddNewModal
+        title={isAdminEditing ? 'Edit Application' : 'Add New Application'}
+        handleSubmit={handleAddApplication}
+        handleReset={handleResetForm}
+      >
+        <div className="show-grid">
+          <Form
+            fluid
+            ref={appFormRef}
+            onChange={setFormValue}
+            onCheck={setFormError}
+            formValue={formValue}
+            model={model}
+          >
+            <FlexboxGrid justify="space-between">
+              <FlexboxGrid.Item colspan={11}>
+                <TextField name="name" label="Name" reqText="Name is required" />
+              </FlexboxGrid.Item>
 
-          <ModalBody id={modalBody} onScroll={(e) => handleScroll(e)}>
-            <form
-              onSubmit={handleSubmit(handleAddApplication)}
-              className={formContainer}
-              onScroll={(e) => handleScroll(e)}
-            >
-              <Stack gap={7}>
-                {/* Application name  */}
-                <div className={flNameContainer}>
-                  <div>
-                    <TextInput
-                      defaultValue={editData?.name}
-                      type="text"
-                      id="application_name"
-                      labelText="Application Name"
-                      placeholder="Please enter application name"
-                      {...register('name', { required: editData?.name ? false : true })}
-                    />
-                    <p className={errText}>{errors.name && 'Invalid Name'}</p>
-                  </div>
+              <FlexboxGrid.Item colspan={11}>
+                <TextField name="url" label="URL" reqText="URL is required" />
+              </FlexboxGrid.Item>
 
-                  {/* application URL  */}
-                  <div>
-                    <TextInput
-                      defaultValue={editData?.url}
-                      type="text"
-                      id="application_url"
-                      labelText="Application Url"
-                      placeholder="Please enter Application Url"
-                      {...register('url', { required: editData?.url ? false : true })}
-                    />
-                    <p className={errText}>{errors.url && 'Invalid url'}</p>
-                  </div>
-                </div>
+              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                <TextField
+                  name="oslc_domain"
+                  label="OSLC Domain"
+                  reqText="OSLC domain is required"
+                />
+              </FlexboxGrid.Item>
 
-                {/* Oslc domain  */}
-                <div>
-                  <TextInput
-                    defaultValue={editData?.oslc_domain}
-                    type="text"
-                    id="organization_id"
-                    labelText="OSLC Domain"
-                    placeholder="Please enter OSLC domain"
-                    {...register('oslc_domain', {
-                      required: editData?.oslc_domain ? false : true,
-                    })}
-                  />
-                  <p className={errText}>{errors.oslc_domain && 'Invalid Domain'}</p>
-                </div>
+              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                <SelectField
+                  name="organization_id"
+                  label="Organization ID"
+                  placeholder="Select Organization ID"
+                  accepter={CustomSelect}
+                  apiURL={`${lmApiUrl}/organization`}
+                  error={formError.organization_id}
+                  reqText="Organization Id is required"
+                />
+              </FlexboxGrid.Item>
 
-                {/* --- Select organization ---  */}
-                <div>
-                  <Controller
-                    name="select"
-                    control={control}
-                    render={({ field }) => (
-                      <ComboBox
-                        onScroll={(e) => handleScroll(e)}
-                        {...field}
-                        {...register('select', {
-                          required: editData?.organization_id ? false : true,
-                        })}
-                        downshiftProps={selectedItem}
-                        placeholder="Please search or select organization"
-                        value={filInput}
-                        id="organization_id_dropdown"
-                        items={organizationList?.items ? organizationList?.items : []}
-                        label="Combo box menu options"
-                        titleText="Organization"
-                        onInputChange={(e) => setFilInput(e)}
-                        onChange={(v) => setSelectedItem(v.selectedItem)}
-                        itemToString={(item) => (item ? item?.name : '')}
-                        itemToElement={(item) => (item ? <p>{item?.name}</p> : '')}
-                      />
-                    )}
-                  />
-                  <p className={errText}>{errors.select && 'Invalid organization'}</p>
-                </div>
+              <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0 10px' }}>
+                <TextField
+                  name="description"
+                  label="Description"
+                  accepter={TextArea}
+                  rows={5}
+                  reqText="Description is required"
+                />
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          </Form>
+        </div>
+      </AddNewModal>
 
-                {/* Description  */}
-                <div>
-                  <TextArea
-                    defaultValue={editData?.description}
-                    id="application_description"
-                    required={editData?.description ? false : true}
-                    onChange={(e) => setAppDescription(e.target.value)}
-                    labelText="Application description"
-                    placeholder="Please enter Description"
-                  />
-                </div>
+      {isCrudLoading && <UseLoader />}
 
-                <div className={modalBtnCon}>
-                  <Button kind="secondary" size="md" onClick={addModalClose}>
-                    Cancel
-                  </Button>
-                  <Button kind="primary" size="md" type="submit">
-                    {editData?.name ? 'Save' : 'Ok'}
-                  </Button>
-                </div>
-              </Stack>
-            </form>
-          </ModalBody>
-        </ComposedModal>
-      </Theme>
-
-      {isAppLoading && <ProgressBar label="" />}
-      <UseTable props={tableProps} />
+      {/* <UseTable props={tableProps} /> */}
+      <AdminDataTable props={tableProps} />
     </div>
   );
 };

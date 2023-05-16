@@ -1,23 +1,30 @@
 [
     {
-        "name": "affectedBy"
+        "name": "affectedBy",
+        "id": 1
     },
     {
-        "name": "implementedBy"
+        "name": "implementedBy",
+        "id": 2
     },
     {
-        "name": "trackedBy"
+        "name": "trackedBy",
+        "id": 3
     },
     {
-        "name": "constrainedBy"
+        "name": "constrainedBy",
+        "id": 4
     },
     {
-        "name": "decomposedBy"
+        "name": "decomposedBy",
+        "id": 5
     },
     {
-        "name": "elaboratedBy"
+        "name": "elaboratedBy",
+        "id": 6
     },
     {
-        "name": "satisfiedBy"
+        "name": "satisfiedBy",
+        "id": 7
     }
 ]

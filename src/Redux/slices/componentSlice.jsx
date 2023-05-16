@@ -16,8 +16,8 @@ export const fetchComponents = createAsyncThunk(
 // Create New components
 export const fetchCreateComp = createAsyncThunk(
   'components/fetchCreateComp',
-  async ({ url, token, bodyData, reset }) => {
-    const res = postAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData, message }) => {
+    const res = postAPI({ url, token, bodyData, message });
     return res;
   },
 );
@@ -25,8 +25,8 @@ export const fetchCreateComp = createAsyncThunk(
 // Update components
 export const fetchUpdateComp = createAsyncThunk(
   'components/fetchUpdateComp',
-  async ({ url, token, bodyData, reset }) => {
-    const res = putAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData }) => {
+    const res = putAPI({ url, token, bodyData });
     return res;
   },
 );
@@ -69,12 +69,7 @@ export const ComponentsSlice = createSlice({
     builder.addCase(fetchComponents.fulfilled, (state, { payload }) => {
       state.isCompLoading = false;
       if (payload?.items) {
-        // id as string is required in the table
-        const items = payload.items?.reduce((acc, curr) => {
-          acc.push({ ...curr, id: curr?.id?.toString() });
-          return acc;
-        }, []);
-        state.allComponents = { ...payload, items };
+        state.allComponents = payload;
       }
     });
 

@@ -13,8 +13,8 @@ export const fetchUsers = createAsyncThunk('users/fetchUsers', async ({ url, tok
 // Create New User
 export const fetchCreateUser = createAsyncThunk(
   'users/fetchCreateUser',
-  async ({ url, token, bodyData, reset }) => {
-    const res = postAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData, message }) => {
+    const res = postAPI({ url, token, bodyData, message });
     return res;
   },
 );
@@ -22,8 +22,8 @@ export const fetchCreateUser = createAsyncThunk(
 // Update user
 export const fetchUpdateUser = createAsyncThunk(
   'users/fetchUpdateUser',
-  async ({ url, token, bodyData, reset }) => {
-    const res = putAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData }) => {
+    const res = putAPI({ url, token, bodyData });
     return res;
   },
 );
@@ -70,12 +70,7 @@ export const usersSlice = createSlice({
     builder.addCase(fetchUsers.fulfilled, (state, { payload }) => {
       state.usersLoading = false;
       if (payload?.items) {
-        // id as string is required in the table
-        const items = payload.items?.reduce((acc, curr) => {
-          acc.push({ ...curr, id: curr?.id?.toString() });
-          return acc;
-        }, []);
-        state.allUsers = { ...payload, items };
+        state.allUsers = payload;
       }
     });
     // Get all users request rejected

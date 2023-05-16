@@ -4,20 +4,11 @@ import getAPI from '../apiRequests/getAPI';
 import postAPI from '../apiRequests/postAPI';
 import putAPI from '../apiRequests/putAPI';
 
-// Fetch get all organizations for create application
-export const fetchOrg = createAsyncThunk(
-  'applications/fetchOrg',
-  async ({ url, token }) => {
-    const response = getAPI({ url, token });
-    return response;
-  },
-);
-
 // Fetch get all applications
 export const fetchApplications = createAsyncThunk(
   'applications/fetchApplications',
   async ({ url, token }) => {
-    const response = getAPI({ url, token });
+    const response = await getAPI({ url, token });
     return response;
   },
 );
@@ -25,8 +16,8 @@ export const fetchApplications = createAsyncThunk(
 // Create New app
 export const fetchCreateApp = createAsyncThunk(
   'applications/fetchCreateApp',
-  async ({ url, token, bodyData, reset }) => {
-    const res = postAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData, message }) => {
+    const res = await postAPI({ url, token, bodyData, message });
     return res;
   },
 );
@@ -34,8 +25,8 @@ export const fetchCreateApp = createAsyncThunk(
 // Update app
 export const fetchUpdateApp = createAsyncThunk(
   'applications/fetchUpdateApp',
-  async ({ url, token, bodyData, reset }) => {
-    const res = putAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData }) => {
+    const res = await putAPI({ url, token, bodyData });
     return res;
   },
 );
@@ -44,7 +35,7 @@ export const fetchUpdateApp = createAsyncThunk(
 export const fetchDeleteApp = createAsyncThunk(
   'applications/fetchDeleteApp',
   async ({ url, token }) => {
-    const response = deleteAPI({ url, token });
+    const response = await deleteAPI({ url, token });
     return { ...response, message: 'deleted Response' };
   },
 );
@@ -52,7 +43,6 @@ export const fetchDeleteApp = createAsyncThunk(
 /// All user states
 const initialState = {
   allApplications: {},
-  organizationList: {},
   isAppCreated: false,
   isAppUpdated: false,
   isAppDeleted: false,
@@ -79,12 +69,7 @@ export const applicationSlice = createSlice({
     builder.addCase(fetchApplications.fulfilled, (state, { payload }) => {
       state.isAppLoading = false;
       if (payload?.items) {
-        // id as string is required in the table
-        const items = payload.items?.reduce((acc, curr) => {
-          acc.push({ ...curr, id: curr?.id?.toString() });
-          return acc;
-        }, []);
-        state.allApplications = { ...payload, items };
+        state.allApplications = payload;
       }
     });
 
@@ -98,9 +83,9 @@ export const applicationSlice = createSlice({
     });
 
     builder.addCase(fetchCreateApp.fulfilled, (state, { payload }) => {
+      state.isAppCreated = true;
       state.isAppLoading = false;
       console.log('App Creating: ', payload);
-      state.isAppCreated = true;
     });
 
     builder.addCase(fetchCreateApp.rejected, (state) => {
@@ -113,9 +98,9 @@ export const applicationSlice = createSlice({
     });
 
     builder.addCase(fetchUpdateApp.fulfilled, (state, { payload }) => {
+      state.isAppUpdated = true;
       state.isAppLoading = false;
       console.log('App Updating: ', payload);
-      state.isAppUpdated = true;
     });
 
     builder.addCase(fetchUpdateApp.rejected, (state) => {
@@ -128,25 +113,13 @@ export const applicationSlice = createSlice({
     });
 
     builder.addCase(fetchDeleteApp.fulfilled, (state, { payload }) => {
-      state.isAppLoading = false;
       state.isAppDeleted = true;
+      state.isAppLoading = false;
       console.log('App Deleting: ', payload);
     });
 
     builder.addCase(fetchDeleteApp.rejected, (state) => {
       state.isAppLoading = false;
-    });
-
-    // Get all organizations for crate applications
-    builder.addCase(fetchOrg.fulfilled, (state, { payload }) => {
-      if (payload?.items) {
-        // id as string is required in the table
-        const items = payload.items?.reduce((acc, curr) => {
-          acc.push({ ...curr, id: curr?.id?.toString() });
-          return acc;
-        }, []);
-        state.organizationList = { ...payload, items };
-      }
     });
   },
 });

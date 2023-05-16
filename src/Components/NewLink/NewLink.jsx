@@ -1,100 +1,68 @@
-import {
-  Accordion,
-  AccordionItem,
-  Button,
-  Checkbox,
-  ProgressBar,
-  Search,
-  // Tooltip,
-} from '@carbon/react';
 import React, { useContext, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
 import {
   fetchCreateLink,
+  handleApplicationType,
   handleCancelLink,
   handleIsTargetModalOpen,
   handleLinkType,
   handleOslcResponse,
   handleProjectType,
-  handleStreamType,
   handleTargetDataArr,
-  handleUpdateCreatedLink,
 } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
-import UseDataTable from '../Shared/UseDataTable/UseDataTable';
-import UseDropdown from '../Shared/UseDropdown/UseDropdown';
 
 import styles from './NewLink.module.scss';
-const {
-  btnContainer,
-  dropdownStyle,
-  dropdownStyle2,
-  emptySearchWarning,
-  inputContainer,
-  linkTypeContainer,
-  newLinkTable,
-  searchContainer,
-  searchInput,
-  sourceContainer,
-  sourceGrid,
-  sourceProp,
-  sourceValue,
-  targetContainer,
-  targetIframe,
-  targetBtnContainer,
-  targetSearchContainer,
-  accordionItem,
-} = styles;
-
-// Table header
-const headers = [
-  { key: 'identifier', header: 'Identifier' },
-  { key: 'name', header: 'Name' },
-  { key: 'description', header: 'Description' },
-  { key: 'checkbox', header: <Checkbox labelText="" id="" /> },
-];
+import UseSelectPicker from '../Shared/UseDropdown/UseSelectPicker';
+import { FlexboxGrid, Col, Button } from 'rsuite';
+import SourceSection from '../SourceSection';
+import UseLoader from '../Shared/UseLoader';
+const { targetContainer, targetIframe, targetBtnContainer, cancelMargin } = styles;
 
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
 const jiraDialogURL = process.env.REACT_APP_JIRA_DIALOG_URL;
 const gitlabDialogURL = process.env.REACT_APP_GITLAB_DIALOG_URL;
 const glideDialogURL = process.env.REACT_APP_GLIDE_DIALOG_URL;
+const valispaceDialogURL = process.env.REACT_APP_VALISPACE_DIALOG_URL;
+const codebeamerDialogURL = process.env.REACT_APP_CODEBEAMER_DIALOG_URL;
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
+  // links states
   const {
     configuration_aware,
     isWbe,
     oslcResponse,
     sourceDataList,
     linkType,
+    applicationType,
     streamType,
     projectType,
-    resourceType,
-    editLinkData,
     targetDataArr,
-    editTargetData,
     createLinkRes,
     linkCreateLoading,
-    // isTargetModalOpen,
   } = useSelector((state) => state.links);
-  const { register, handleSubmit } = useForm();
-  const [searchText, setSearchText] = useState(null);
-  const [displayTableData, setDisplayTableData] = useState([]);
-  const [streamItems, setStreamItems] = useState([]);
   const [linkTypeItems, setLinkTypeItems] = useState([]);
+  const [applicationTypeItems, setApplicationTypeItems] = useState([]);
   const [projectTypeItems, setProjectTypeItems] = useState([]);
   const [projectFrameSrc, setProjectFrameSrc] = useState('');
+  const [projectId, setProjectId] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  // const wbePath = location.pathname?.includes('wbe');
   const authCtx = useContext(AuthContext);
+
+  // Add if and condition to check if app is Jira
+
   const isJIRA = sourceDataList?.appName?.includes('jira');
+  const isJIRAProject = sourceDataList?.appName?.includes('jira-projects');
   const isGitlab = sourceDataList?.appName?.includes('gitlab');
   const isGlide = sourceDataList?.appName?.includes('glide');
+  const isValispace = sourceDataList?.appName?.includes('valispace');
+  const isValispaceProject = sourceDataList?.appName?.includes('valispace-projects');
+  const isCodebeamer = sourceDataList?.appName?.includes('codebeamer');
+  const isCodebeamerProject = sourceDataList?.appName?.includes('codebeamer-projects');
 
   // Display project types conditionally by App name
   useEffect(() => {
@@ -102,13 +70,19 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       // get link_types dropdown items
       fetch('.././gcm_context.json')
         .then((res) => res.json())
-        .then((data) => setStreamItems(data))
+        // .then((data) => setStreamItems(data))
         .catch((err) => console.log(err));
 
       // get link_types dropdown items
       fetch('.././link_types.json')
         .then((res) => res.json())
         .then((data) => setLinkTypeItems(data))
+        .catch((err) => console.log(err));
+
+      // get application_types dropdown items
+      fetch('.././application_types.json')
+        .then((res) => res.json())
+        .then((data) => setApplicationTypeItems(data))
         .catch((err) => console.log(err));
 
       // get project_types dropdown items
@@ -118,7 +92,16 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
       // display projects conditionally
       const specificProject = projectsRes?.reduce((acc, curr) => {
-        if (isJIRA) {
+        if (isJIRAProject) {
+          const jiraProject = curr.name.includes('JIRA-PROJECTS');
+          if (!jiraProject && curr.name.includes('-PROJECTS')) acc.push(curr);
+        } else if (isValispaceProject) {
+          const valispaceProject = curr.name.includes('VALISPACE-PROJECTS');
+          if (!valispaceProject && curr.name.includes('-PROJECTS')) acc.push(curr);
+        } else if (isCodebeamerProject) {
+          const codebeamerProject = curr.name.includes('CODEBEAMER-PROJECTS');
+          if (!codebeamerProject && curr.name.includes('-PROJECTS')) acc.push(curr);
+        } else if (isJIRA) {
           const jira = curr.name.includes('JIRA');
           if (!jira) acc.push(curr);
         } else if (isGitlab) {
@@ -127,6 +110,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         } else if (isGlide) {
           const glide = curr.name.includes('GLIDE');
           if (!glide) acc.push(curr);
+        } else if (isValispace) {
+          const valispace = curr.name.includes('VALISPACE');
+          if (!valispace) acc.push(curr);
+        } else if (isCodebeamer) {
+          const codebeamer = curr.name.includes('CODEBEAMER');
+          if (!codebeamer) acc.push(curr);
         } else {
           acc.push(curr);
         }
@@ -136,30 +125,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       setProjectTypeItems(specificProject);
     })();
   }, [sourceDataList]);
-
-  let sourceTitles = [];
-  let sourceValues = {};
-  if (isGlide) {
-    sourceTitles = ['Glide Project', 'Title', 'Resource'];
-    sourceValues = {
-      projectName: sourceDataList['projectName'],
-      title: sourceDataList['title'],
-      sourceType: sourceDataList['sourceType'],
-      uri: sourceDataList['uri'],
-      origin: sourceDataList['origin'],
-    };
-  } else if (isJIRA) {
-    sourceTitles = ['JIRA Project', 'Title', 'Issue Type'];
-    sourceValues = {
-      projectName: sourceDataList['projectName'],
-      title: sourceDataList['title'],
-      sourceType: sourceDataList['sourceType'],
-      uri: sourceDataList['uri'],
-    };
-  } else {
-    sourceTitles = ['GitLab Project', 'Filename'];
-    sourceValues = sourceDataList;
-  }
 
   useEffect(() => {
     dispatch(handleCurrPageTitle(isEditLinkPage ? isEditLinkPage : 'New Link'));
@@ -175,6 +140,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       const jiraApp = projectType?.includes('(JIRA)');
       const gitlabApp = projectType?.includes('(GITLAB)');
       const glideApp = projectType?.includes('(GLIDE)');
+      const valispaceApp = projectType?.includes('(VALISPACE)');
+      const codebeamerApp = projectType?.includes('(CODEBEAMER)');
+      const jiraProjectApp = projectType?.includes('(JIRA-PROJECTS)');
+      const valispaceProjectApp = projectType?.includes('(VALISPACE-PROJECTS)');
+      const codebeamerProjectApp = projectType?.includes('(CODEBEAMER-PROJECTS)');
 
       if (jiraApp) {
         setProjectFrameSrc(
@@ -184,51 +154,41 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       } else if (gitlabApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          `${gitlabDialogURL}/oslc/provider/selector?provider_id=${'42854970'}&gc_context=${'st-develop'}`,
+          `${gitlabDialogURL}/oslc/provider/selector?provider_id=${projectId}&gc_context=${'st-develop'}`,
         );
       } else if (glideApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
           `${glideDialogURL}/oslc/provider/selector?gc_context=${streamType}`,
         );
+      } else if (valispaceApp) {
+        setProjectFrameSrc(
+          // eslint-disable-next-line max-len
+          `${valispaceDialogURL}/oslc/provider/selector?gc_context=${streamType}`,
+        );
+      } else if (codebeamerApp) {
+        setProjectFrameSrc(
+          // eslint-disable-next-line max-len
+          `${codebeamerDialogURL}/oslc/provider/selector?gc_context=${streamType}`,
+        );
+      } else if (jiraProjectApp) {
+        setProjectFrameSrc(
+          // eslint-disable-next-line max-len
+          `${jiraDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
+        );
+      } else if (valispaceProjectApp) {
+        setProjectFrameSrc(
+          // eslint-disable-next-line max-len
+          `${valispaceDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
+        );
+      } else if (codebeamerProjectApp) {
+        setProjectFrameSrc(
+          // eslint-disable-next-line max-len
+          `${codebeamerDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
+        );
       }
     }
   }, [projectType]);
-
-  // Edit link options start
-  useEffect(() => {
-    if (editTargetData?.identifier) {
-      const string = editTargetData?.description?.split(' ')[0]?.toLowerCase();
-      setSearchText(
-        string === 'document' ? 'document' : string === 'user' ? 'data' : null,
-      );
-    }
-  }, [isEditLinkPage]);
-  // Edit link options end
-
-  // search data or document
-  useEffect(() => {
-    setDisplayTableData([]);
-    // eslint-disable-next-line max-len
-    // const URL = editTargetData?.identifier ? `../../${searchText}.json` : `../../${searchText}.json`;
-    // if(searchText){
-    //   fetch(URL)
-    //     .then(res => res.json())
-    //     .then(data => setDisplayTableData(data))
-    //     .catch(() => { });
-    // }
-  }, [searchText]);
-
-  const handleSearchData = (data) => {
-    dispatch(handleTargetDataArr(null));
-    fetch(
-      // eslint-disable-next-line max-len
-      'https://192.241.220.34:9443/jts/j_security_check?j_username=koneksys&j_password=koneksys',
-    )
-      .then((res) => console.log(res))
-      .catch((err) => console.log(err));
-    setSearchText(data?.searchText);
-  };
 
   //// Get Selection dialog response data
   window.addEventListener(
@@ -239,16 +199,37 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         if (message.toString()?.startsWith('oslc-response')) {
           const response = JSON.parse(message?.substr('oslc-response:'?.length));
           const results = response['oslc:results'];
-          console.log(results);
+          // console.log('dialog response: ', results);
           const targetArray = [];
           results?.forEach((v, i) => {
-            const koatlUri = results[i]['koatl:apiUrl'];
+            const koatl_path = results[i]['koatl:apiPath'];
+            const koatl_uri = results[i]['koatl:apiUrl'];
+            const branch_name = results[i]['oslc:branchName'];
+            const target_provider = results[i]['oslc:api'];
             const content = results[i]['oslc:content'];
             const content_lines = results[i]['oslc:contentLine'];
+            const provider_id = results[i]['oslc:providerId'];
+            const resource_id = results[i]['oslc:resourceId'];
+            const resource_type = results[i]['oslc:resourceType'];
+            const selected_lines = results[i]['oslc:selectedLines'];
             const label = results[i]['oslc:label'];
             const uri = results[i]['rdf:resource'];
             const type = results[i]['rdf:type'];
-            targetArray.push({ uri, label, type, koatlUri, content, content_lines });
+            targetArray.push({
+              koatl_uri,
+              koatl_path,
+              branch_name,
+              target_provider,
+              provider_id,
+              resource_id,
+              resource_type,
+              content_lines,
+              selected_lines,
+              uri,
+              label,
+              type,
+              content,
+            });
           });
           dispatch(handleOslcResponse(true));
           dispatch(handleTargetDataArr([...targetArray]));
@@ -272,14 +253,19 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   }, [createLinkRes]);
 
   // Link type dropdown
-  const handleLinkTypeChange = ({ selectedItem }) => {
-    dispatch(handleLinkType(selectedItem.name));
+  const handleLinkTypeChange = (selectedItem) => {
+    dispatch(handleLinkType(selectedItem?.name));
+  };
+
+  // Link type dropdown
+  const handleApplicationChange = (selectedItem) => {
+    dispatch(handleApplicationType(selectedItem?.name));
   };
 
   // stream type dropdown
-  const handleStreamChange = ({ selectedItem }) => {
-    dispatch(handleStreamType(selectedItem.key));
-  };
+  // const handleStreamChange = ({ selectedItem }) => {
+  //   dispatch(handleStreamType(selectedItem.key));
+  // };
 
   const targetProjectItems =
     linkType === 'constrainedBy' ? ['Jet Engine Design (GLIDE)'] : projectTypeItems;
@@ -287,47 +273,36 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   //   linkType === 'constrainedBy' ? ['Document (PLM)', 'Part (PLM)'] : resourceItems;
 
   // Project type dropdown
-  const handleTargetProject = ({ selectedItem }) => {
-    dispatch(handleProjectType(selectedItem.name));
-  };
-
-  // Resource type dropdown
-  // const handleTargetResource = ({ selectedItem }) => {
-  //   dispatch(handleResourceType(selectedItem));
-  // };
-
-  // Selected target data
-  const handleSelectedData = (data, value) => {
-    dispatch(handleTargetDataArr({ data, value }));
-  };
-
-  // Edit created link
-  const handleLinkUpdate = () => {
-    dispatch(handleUpdateCreatedLink());
-    Swal.fire({
-      icon: 'success',
-      title: 'Link Updated success!',
-      timer: 3000,
-    });
-    isWbe ? navigate('/wbe') : navigate('/');
+  const handleTargetProject = (selectedItem) => {
+    dispatch(handleProjectType(selectedItem?.name));
+    setProjectId(selectedItem?.id);
   };
 
   // Create new link
   const handleSaveLink = () => {
-    const { projectName, title, uri, appName } = sourceDataList;
+    const { projectName, sourceType, title, uri, appName } = sourceDataList;
 
-    // console.log('NewLink.jsx -> handleSaveLink -> targetDataArr', targetDataArr);
     const targetsData = targetDataArr?.map((data) => {
-      // console.log('NewLink.jsx -> handleSaveLink -> targetDataArr -> data', data);
-      const id = data?.content_lines ? data.uri + '#' + data?.content_lines : data.uri;
+      // eslint-disable-next-line max-len
+      const id = data?.selected_lines
+        ? data.koatl_uri + '#' + data?.selected_lines
+        : data.koatl_uri;
+      const platform_uri = data?.uri;
       return {
-        content_lines: data.content_lines,
-        content: data.content,
-        target_type: data.type,
-        target_title: data.label,
+        koatl_uri: platform_uri,
+        koatl_path: data.koatl_path ? data.koatl_path : '',
+        content_lines: data.content_lines ? data.content_lines : '',
+        selected_lines: data.selected_lines ? data.selected_lines : '',
+        branch_name: data.branch_name ? data.branch_name : '',
+        provider_id: data.provider_id ? data.provider_id : '',
+        resource_id: data.resource_id ? data.resource_id : '',
+        resource_type: data.type ? data.type : '',
+        content: data.content ? data.content : '',
+        target_type: data.resource_type ? data.resource_type : '',
+        target_title: data.label ? data.label : '',
         target_id: id,
         target_project: projectType,
-        target_provider: 'JIRA',
+        target_provider: data.target_provider,
       };
     });
     let appNameTwo = '';
@@ -336,10 +311,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     } else {
       appNameTwo = appName;
     }
+
     const linkObj = {
-      stream: streamType,
-      source_type: title,
-      source_title: title,
+      stream: streamType ? streamType : '',
+      source_type: sourceType ? sourceType : '',
+      source_title: title ? title : '',
       source_project: projectName,
       source_provider: appNameTwo,
       source_id: uri,
@@ -347,20 +323,15 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       status: 'active',
       target_data: targetsData,
     };
-    console.log(linkObj);
+    console.log('Link Obj: ', linkObj);
     dispatch(
       fetchCreateLink({
         url: apiURL,
         token: authCtx.token,
         bodyData: linkObj,
+        message: 'link',
       }),
     );
-  };
-
-  // cancel create link
-  const handleCancelOpenedLink = () => {
-    dispatch(handleCancelLink());
-    isWbe ? navigate('/wbe') : navigate('/');
   };
 
   // eslint-disable-next-line max-len
@@ -385,207 +356,102 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   return (
     <>
       {/* <WbeTopNav /> */}
+      <SourceSection />
+
       <div className="mainContainer">
         <div className="container">
-          <Accordion>
-            {/* <AccordionItem open={true}
-            title={<h5>Source</h5>} className={accordionItem}>
-            <div className={sourceContainer}>
-              {sourceTitles.map((properties, index) => (
-                <div className={sourceGrid} key={properties}>
-                  <p className={sourceProp}>{properties} :</p>
-                  <p className={sourceValue}>{Object.values(sourceValues)[index]}</p>
-                </div>
-              ))}
+          {/* --- Link types --- */}
+          <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
+            <FlexboxGrid.Item colspan={3}>
+              <h3>Link: </h3>
+            </FlexboxGrid.Item>
+
+            <FlexboxGrid.Item colspan={21}>
+              <UseSelectPicker
+                placeholder="Choose Link Type"
+                onChange={handleLinkTypeChange}
+                items={linkTypeItems}
+                // className={dropdownStyle}
+              />
+            </FlexboxGrid.Item>
+          </FlexboxGrid>
+
+          {/* {configuration_aware && (
+              <UseDropdown
+                onChange={handleStreamChange}
+                items={streamItems}
+                title="GCM Configuration Context"
+                selectedValue={editLinkData?.linkType}
+                label={'Select GCM Configuration Context'}
+                id="newLink_stream"
+                className={dropdownStyle}
+              />
+            )} */}
+
+          {/* --- Application and project types --- */}
+          {linkType && (
+            <>
+              <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+                <FlexboxGrid.Item colspan={3}>
+                  <h3>Target: </h3>
+                </FlexboxGrid.Item>
+
+                <FlexboxGrid.Item colspan={21}>
+                  <FlexboxGrid justify="start">
+                    {/* --- Application dropdown ---   */}
+                    <FlexboxGrid.Item as={Col} colspan={11} style={{ paddingLeft: '0' }}>
+                      <UseSelectPicker
+                        placeholder="Choose Application"
+                        onChange={handleApplicationChange}
+                        items={applicationTypeItems}
+                      />
+                    </FlexboxGrid.Item>
+
+                    {/* --- Project dropdown ---   */}
+                    {applicationType && (
+                      <FlexboxGrid.Item
+                        as={Col}
+                        colspan={11}
+                        style={{ paddingRight: '0', marginLeft: 'auto' }}
+                      >
+                        <UseSelectPicker
+                          placeholder="Choose Project"
+                          onChange={handleTargetProject}
+                          items={targetProjectItems}
+                        />
+                      </FlexboxGrid.Item>
+                    )}
+                  </FlexboxGrid>
+                </FlexboxGrid.Item>
+              </FlexboxGrid>
+            </>
+          )}
+
+          {linkCreateLoading && <UseLoader />}
+          {/* --- Target Selection dialog ---  */}
+
+          {(withConfigAware || withoutConfigAware) && (
+            <div className={targetContainer}>
+              {linkType && applicationType && projectType && projectFrameSrc && (
+                <iframe className={targetIframe} src={projectFrameSrc} />
+              )}
             </div>
-          </AccordionItem> */}
-
-            <AccordionItem
-              open={linkType && projectType ? false : true}
-              title={<h5>Sources</h5>}
-              className={accordionItem}
-            >
-              <div className={sourceContainer}>
-                {sourceTitles.map((properties, index) => (
-                  <div className={sourceGrid} key={properties}>
-                    <p className={sourceProp}>{properties} :</p>
-                    <p className={sourceValue}>{Object.values(sourceValues)[index]}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* ------------------ */}
-
-              <div className={linkTypeContainer}>
-                {configuration_aware && (
-                  <UseDropdown
-                    onChange={handleStreamChange}
-                    items={streamItems}
-                    title="GCM Configuration Context"
-                    selectedValue={editLinkData?.linkType}
-                    label={'Select GCM Configuration Context'}
-                    id="newLink_stream"
-                    className={dropdownStyle}
-                  />
-                )}
-
-                <UseDropdown
-                  onChange={handleLinkTypeChange}
-                  items={linkTypeItems}
-                  title="Link type"
-                  selectedValue={editLinkData?.linkType}
-                  label={'Select link type'}
-                  id="newLink_linkTypes"
-                  className={configuration_aware ? dropdownStyle : dropdownStyle2}
-                />
-
-                <UseDropdown
-                  onChange={handleTargetProject}
-                  items={targetProjectItems}
-                  title="Target project"
-                  label={'Select target project'}
-                  selectedValue={editLinkData?.projectType}
-                  id="target-project-dropdown"
-                  className={configuration_aware ? dropdownStyle : dropdownStyle2}
-                />
-
-                {/*{linkType && !isJiraDialog && !isGitlabDialog && !isGlideDialog && (*/}
-                {/*  <UseDropdown*/}
-                {/*    items={targetResourceItems}*/}
-                {/*    onChange={handleTargetResource}*/}
-                {/*    title="Target resource type"*/}
-                {/*    selectedValue={editLinkData?.resource}*/}
-                {/*    label={'Select target resource type'}*/}
-                {/*    id="resourceType-dropdown"*/}
-                {/*    className={dropdownStyle}*/}
-                {/*  />*/}
-                {/*)}*/}
-              </div>
-            </AccordionItem>
-            <AccordionItem
-              open={linkType && projectType ? true : false}
-              title={<h5>Target Projects</h5>}
-              className={accordionItem}
-            >
-              {linkCreateLoading && <ProgressBar label="" />}
-              {/* --- After selected link type ---  */}
-              {(!linkType || !projectType) && (
-                <h3 style={{ textAlign: 'center', color: 'gray' }}>
-                  Please select link type and target project
-                </h3>
-              )}
-              {(withConfigAware || withoutConfigAware) && (
-                <div className={targetContainer}>
-                  {/* Show the selection dialogs */}
-                  {projectFrameSrc && (
-                    <iframe className={targetIframe} src={projectFrameSrc} />
-                  )}
-
-                  {isGlide && isJIRA && (
-                    <>
-                      <div className={targetSearchContainer}>
-                        <form
-                          onSubmit={handleSubmit(handleSearchData)}
-                          className={searchContainer}
-                        >
-                          <div className={inputContainer}>
-                            <Search
-                              id=""
-                              labelText=""
-                              className={searchInput}
-                              type="text"
-                              placeholder="Search by identifier or name"
-                              {...register('searchText')}
-                              size="md"
-                            />
-                          </div>
-                          <Button kind="primary" size="md" type="submit">
-                            Search
-                          </Button>
-                        </form>
-                      </div>
-
-                      {((searchText && displayTableData[0]) || isEditLinkPage) && (
-                        <div className={newLinkTable}>
-                          <UseDataTable
-                            headers={headers}
-                            tableData={displayTableData}
-                            isCheckBox={true}
-                            isChecked={editLinkData?.targetData?.identifier}
-                            editTargetData={editTargetData}
-                            isPagination={displayTableData[0] ? true : false}
-                            selectedData={handleSelectedData}
-                          />
-                        </div>
-                      )}
-                      {searchText && !displayTableData[0] && (
-                        <h2 className={emptySearchWarning}>
-                          Please search by valid identifier or name
-                        </h2>
-                      )}
-                    </>
-                  )}
-
-                  {targetDataArr[0] && (
-                    <>
-                      {/* // new link btn  */}
-                      {projectType && resourceType && !isEditLinkPage && (
-                        <div className={btnContainer}>
-                          <Button
-                            kind="secondary"
-                            onClick={handleCancelOpenedLink}
-                            size="md"
-                          >
-                            Cancel
-                          </Button>
-                          <Button kind="primary" onClick={handleSaveLink} size="md">
-                            Save
-                          </Button>
-                        </div>
-                      )}
-
-                      {/* // edit link btn  */}
-                      {isEditLinkPage && editLinkData?.id && (
-                        <div className={btnContainer}>
-                          <Button
-                            kind="secondary"
-                            onClick={handleCancelOpenedLink}
-                            size="md"
-                          >
-                            Cancel
-                          </Button>
-                          <Button kind="primary" onClick={handleLinkUpdate} size="md">
-                            Save
-                          </Button>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {/* Target Cancel button  */}
-                  {/* <div className={targetBtnContainer}>
-                    <Button kind="secondary"
-                      onClick={()=>{
-                        dispatch(handleCancelLink());
-                      // isWbe ? navigate('/wbe') : navigate('/');
-                      }}
-                      size="md" type="submit">Cancel</Button>
-                  </div> */}
-                </div>
-              )}
-            </AccordionItem>
-          </Accordion>
+          )}
 
           {/* Target Cancel button  */}
-          <div className={targetBtnContainer}>
+          <div
+            className={`
+          ${targetBtnContainer} 
+          ${projectFrameSrc && projectType ? '' : cancelMargin}`}
+          >
             <Button
-              kind="secondary"
+              appearance="default"
+              size="md"
+              type="submit"
               onClick={() => {
                 dispatch(handleCancelLink());
                 isWbe ? navigate('/wbe') : navigate('/');
               }}
-              size="md"
-              type="submit"
             >
               Cancel
             </Button>

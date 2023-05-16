@@ -1,12 +1,13 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import getAPI from '../apiRequests/getAPI';
 import postAPI from '../apiRequests/postAPI';
+import deleteAPI from '../apiRequests/deleteAPI';
 
 // Create New link
 export const fetchCreateLink = createAsyncThunk(
   'links/fetchCreateLink',
-  async ({ url, token, bodyData }) => {
-    const response = postAPI({ url, token, bodyData });
+  async ({ url, token, bodyData, message }) => {
+    const response = postAPI({ url, token, bodyData, message });
     return response;
   },
 );
@@ -20,6 +21,15 @@ export const fetchLinksData = createAsyncThunk(
   },
 );
 
+// Fetch delete Link from manager table
+export const fetchDeleteLink = createAsyncThunk(
+  'links/fetchDeleteLink',
+  async ({ url, token }) => {
+    const response = await deleteAPI({ url, token });
+    return response;
+  },
+);
+
 const gcmAware = JSON.parse(process.env.REACT_APP_CONFIGURATION_AWARE);
 
 const initialState = {
@@ -29,6 +39,7 @@ const initialState = {
   isWbe: false,
   oslcResponse: null,
   isLinkCreate: false,
+  isLinkDeleting: false,
   isLoading: false,
   linkCreateLoading: false,
   allLinks: [],
@@ -39,6 +50,7 @@ const initialState = {
   linkedData: {},
   editLinkData: {},
   linkType: null,
+  applicationType: null,
   streamType: null,
   projectType: null,
   resourceType: null,
@@ -116,7 +128,22 @@ export const linksSlice = createSlice({
     },
 
     handleLinkType: (state, { payload }) => {
-      state.linkType = payload;
+      if (payload) {
+        state.linkType = payload;
+      } else {
+        state.linkType = null;
+        state.applicationType = null;
+        state.projectType = null;
+      }
+    },
+
+    handleApplicationType: (state, { payload }) => {
+      if (payload) {
+        state.applicationType = payload;
+      } else {
+        state.applicationType = null;
+        state.projectType = null;
+      }
     },
 
     handleStreamType: (state, { payload }) => {
@@ -124,7 +151,11 @@ export const linksSlice = createSlice({
     },
 
     handleProjectType: (state, { payload }) => {
-      state.projectType = payload;
+      if (payload) {
+        state.projectType = payload;
+      } else {
+        state.projectType = null;
+      }
     },
 
     handleResourceType: (state, { payload }) => {
@@ -135,6 +166,7 @@ export const linksSlice = createSlice({
     handleCancelLink: (state) => {
       state.isTargetModalOpen = false;
       state.linkType = null;
+      state.applicationType = null;
       state.projectType = null;
       state.resourceType = null;
       state.editTargetData = {};
@@ -163,6 +195,7 @@ export const linksSlice = createSlice({
   extraReducers: (builder) => {
     // get all links controller
     builder.addCase(fetchLinksData.pending, (state) => {
+      state.isLinkDeleting = false;
       state.createLinkRes = null;
       state.isLoading = true;
     });
@@ -171,13 +204,17 @@ export const linksSlice = createSlice({
       state.isLoading = false;
       console.log('fetchLinksData -> payload', payload);
       if (payload) {
-        if (payload?.isConfirmed) state.linksData = [];
+        if (payload?.isConfirmed) state.linksData = {};
         else {
-          state.linksData = payload.data.items;
+          state.linksData = payload.data;
         }
       } else {
-        state.linksData = [];
+        state.linksData = {};
       }
+    });
+
+    builder.addCase(fetchLinksData.rejected, (state) => {
+      state.isLoading = false;
     });
 
     // Create new link controller
@@ -196,6 +233,25 @@ export const linksSlice = createSlice({
       state.linkCreateLoading = false;
       state.createLinkRes = payload;
     });
+
+    builder.addCase(fetchCreateLink.rejected, (state) => {
+      state.linkCreateLoading = false;
+    });
+
+    // Delete link controller
+    builder.addCase(fetchDeleteLink.pending, (state) => {
+      state.isLoading = true;
+    });
+
+    builder.addCase(fetchDeleteLink.fulfilled, (state, { payload }) => {
+      state.isLoading = false;
+      console.log('Delete Link: ', payload);
+      state.isLinkDeleting = true;
+    });
+
+    builder.addCase(fetchDeleteLink.rejected, (state) => {
+      state.isLoading = false;
+    });
   },
 });
 
@@ -211,6 +267,7 @@ export const {
   handleEditTargetData,
   handleUpdateCreatedLink,
   handleLinkType,
+  handleApplicationType,
   handleStreamType,
   handleProjectType,
   handleResourceType,

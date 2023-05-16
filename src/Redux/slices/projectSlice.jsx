@@ -16,8 +16,8 @@ export const fetchProjects = createAsyncThunk(
 // Create New project
 export const fetchCreateProj = createAsyncThunk(
   'projects/fetchCreateProj',
-  async ({ url, token, bodyData, reset }) => {
-    const res = postAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData, message }) => {
+    const res = postAPI({ url, token, bodyData, message });
     return res;
   },
 );
@@ -25,8 +25,8 @@ export const fetchCreateProj = createAsyncThunk(
 // Update Project
 export const fetchUpdateProj = createAsyncThunk(
   'projects/fetchUpdateProj',
-  async ({ url, token, bodyData, reset }) => {
-    const res = putAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData }) => {
+    const res = putAPI({ url, token, bodyData });
     console.log(res);
     return res;
   },
@@ -63,19 +63,14 @@ export const projectSlice = createSlice({
     builder.addCase(fetchProjects.pending, (state) => {
       state.isProjCreated = false;
       state.isProjDeleted = false;
-      state.isProjLoading = true;
       state.isProjUpdated = false;
+      state.isProjLoading = true;
     });
 
     builder.addCase(fetchProjects.fulfilled, (state, { payload }) => {
       state.isProjLoading = false;
       if (payload?.items) {
-        // id as string is required in the table
-        const items = payload.items?.reduce((acc, curr) => {
-          acc.push({ ...curr, id: curr?.id?.toString() });
-          return acc;
-        }, []);
-        state.allProjects = { ...payload, items };
+        state.allProjects = payload;
       }
     });
     builder.addCase(fetchProjects.rejected, (state) => {
@@ -89,8 +84,8 @@ export const projectSlice = createSlice({
 
     builder.addCase(fetchCreateProj.fulfilled, (state, { payload }) => {
       state.isProjLoading = false;
-      console.log('Project Creating: ', payload);
       state.isProjCreated = true;
+      console.log('Project Creating: ', payload);
     });
 
     builder.addCase(fetchCreateProj.rejected, (state) => {

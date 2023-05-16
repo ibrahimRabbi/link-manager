@@ -2,7 +2,6 @@
 @use '@carbon/type';
 
 .main {
-  padding-top: 50px;
 }
 
 #header {
@@ -34,10 +33,10 @@
 }
 
 .topContentContainer {
-  box-shadow: 0 0 5px 1px lightgray;
-  padding: 10px 1vw;
+  // box-shadow: 0 0 5px 1px lightgray;
+  // padding: 10px 0;
   margin-bottom: 15px;
-  border-radius: 5px;
+  // border-radius: 5px;
 }
 
 .marginLeft {
@@ -58,14 +57,17 @@
   display: flex;
   align-items: center;
   max-width: 80%;
-}
+  gap: 10px;
 
-.fileName {
-  margin-left: 5px;
-  color: #9e0732;
-  // background-color: #b4ffff;
-  // padding: 5px 10px;
-  border-radius: 12px;
+  p {
+    // color: gray;
+    margin-top: 5px;
+  }
+
+  .icon {
+    margin-bottom: -3px;
+    font-size: 20px;
+  }
 }
 
 .seeMLBtn {
@@ -110,6 +112,36 @@
   color: colors.$gray-30;
 }
 
+.popover {
+  padding: 0;
+}
+
+.userContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 0 15px;
+
+  span {
+    // background-color: colors.$gray-70;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.popButton {
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  gap: 20px;
+  margin-bottom: 2px;
+}
+
 .popoverContent {
   min-width: 200px;
   max-width: 300px;
@@ -117,7 +149,7 @@
   .content {
     min-height: 10vh;
     padding: 5px 0;
-    background-color: colors.$gray-90;
+    // background-color: colors.$gray-90;
 
     .userContainer {
       display: flex;
@@ -127,7 +159,7 @@
       padding: 0 15px;
 
       span {
-        background-color: colors.$gray-70;
+        // background-color: colors.$gray-70;
         border-radius: 50%;
         width: 35px;
         height: 35px;
@@ -207,6 +239,10 @@
 
 .sidebarLink {
   cursor: pointer;
+}
+
+.darkModeStyle {
+  margin-bottom: 20px;
 }
 
 .linkFileContainer > h5 {

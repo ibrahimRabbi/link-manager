@@ -1,29 +1,24 @@
-import {
-  Button,
-  ComposedModal,
-  ModalBody,
-  ModalHeader,
-  ProgressBar,
-  Stack,
-  TextArea,
-  TextInput,
-  Theme,
-} from '@carbon/react';
-import React, { useState, useContext, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-import {
-  fetchCreateProj,
-  fetchDeleteProj,
-  fetchProjects,
-  fetchUpdateProj,
-} from '../../../Redux/slices/projectSlice';
 import AuthContext from '../../../Store/Auth-Context';
-import UseTable from '../UseTable';
-import styles from './Projects.module.scss';
-
-const { errText, formContainer, modalBtnCon, modalBody, mhContainer } = styles;
+import {
+  handleCurrPageTitle,
+  handleIsAddNewModal,
+  handleIsAdminEditing,
+} from '../../../Redux/slices/navSlice';
+import { Form, Schema } from 'rsuite';
+import AdminDataTable from '../AdminDataTable';
+import AddNewModal from '../AddNewModal';
+import TextField from '../TextField';
+import TextArea from '../TextArea';
+import UseLoader from '../../Shared/UseLoader';
+import {
+  fetchCreateData,
+  fetchDeleteData,
+  fetchGetData,
+  fetchUpdateData,
+} from '../../../Redux/slices/useCRUDSlice';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -38,203 +33,183 @@ const headerData = [
     key: 'name',
   },
   {
-    header: 'Active',
-    key: 'active',
-  },
-  {
     header: 'Description',
     key: 'description',
   },
 ];
 
+const { StringType } = Schema.Types;
+
+const model = Schema.Model({
+  name: StringType().isRequired('This field is required.'),
+  description: StringType().isRequired('This field is required.'),
+});
+
 const Projects = () => {
-  const { allProjects, isProjLoading, isProjCreated, isProjUpdated, isProjDeleted } =
-    useSelector((state) => state.projects);
-  const [isAddModal, setIsAddModal] = useState(false);
-  const [projectDescription, setProjectDescription] = useState('');
-  const [editData, setEditData] = useState({});
+  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
+    (state) => state.crud,
+  );
+
+  const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const {
-    handleSubmit,
-    register,
-    reset,
-    formState: { errors },
-  } = useForm();
+  const [formError, setFormError] = useState({});
+  const [editData, setEditData] = useState({});
+  const [formValue, setFormValue] = useState({
+    name: '',
+    description: '',
+  });
+
+  const projectFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
   // Pagination
-  const handlePagination = (values) => {
-    setPageSize(values.pageSize);
-    setCurrPage(values.page);
+  const handlePagination = (value) => {
+    setCurrPage(value);
   };
 
-  // handle open add user modal
-  const handleAddNew = () => {
-    setIsAddModal(true);
-  };
-  // add modal close
-  const addModalClose = () => {
-    setEditData({});
-    setIsAddModal(false);
-    reset();
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
   };
 
-  // create and edit project form submit
-  const handleAddUser = (data) => {
-    setIsAddModal(false);
-    // update project
-    if (editData?.name) {
-      data = {
-        name: data?.name ? data?.name : editData?.name,
-        description: projectDescription ? projectDescription : editData?.description,
-      };
+  const handleAddProject = () => {
+    if (!projectFormRef.current.check()) {
+      console.error('Form Error', formError);
+      return;
+    } else if (isAdminEditing) {
       const putUrl = `${lmApiUrl}/project/${editData?.id}`;
       dispatch(
-        fetchUpdateProj({
+        fetchUpdateData({
           url: putUrl,
           token: authCtx.token,
-          bodyData: data,
-          reset,
+          bodyData: formValue,
         }),
       );
-    }
-    // create project
-    else {
-      data.description = projectDescription;
+    } else {
       const postUrl = `${lmApiUrl}/project`;
       dispatch(
-        fetchCreateProj({
+        fetchCreateData({
           url: postUrl,
           token: authCtx.token,
-          bodyData: data,
-          reset,
+          bodyData: formValue,
+          message: 'project',
         }),
       );
     }
+
+    dispatch(handleIsAddNewModal(false));
+    if (isAdminEditing) dispatch(handleIsAdminEditing(false));
+  };
+
+  // reset form
+  const handleResetForm = () => {
+    setEditData({});
+    setFormValue({
+      name: '',
+      description: '',
+    });
   };
 
   // get all projects
   useEffect(() => {
+    dispatch(handleCurrPageTitle('Projects'));
+
     const getUrl = `${lmApiUrl}/project?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchProjects({ url: getUrl, token: authCtx.token }));
-  }, [isProjCreated, isProjUpdated, isProjDeleted, pageSize, currPage]);
+    dispatch(
+      fetchGetData({
+        url: getUrl,
+        token: authCtx.token,
+        stateName: 'allProjects',
+      }),
+    );
+  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
+
+  // handle open add user modal
+  const handleAddNew = () => {
+    handleResetForm();
+    dispatch(handleIsAddNewModal(true));
+  };
 
   // handle delete project
   const handleDelete = (data) => {
-    // const idList = data?.map((v) => v.id);
-    if (data.length === 1) {
-      const id = data[0]?.id;
-      Swal.fire({
-        title: 'Are you sure',
-        icon: 'info',
-        text: 'Do you want to delete the project!!',
-        cancelButtonColor: 'red',
-        showCancelButton: true,
-        confirmButtonText: 'Delete',
-        confirmButtonColor: '#3085d6',
-        reverseButtons: true,
-      }).then((value) => {
-        if (value.isConfirmed) {
-          const deleteUrl = `${lmApiUrl}/project/${id}`;
-          dispatch(fetchDeleteProj({ url: deleteUrl, token: authCtx.token }));
-        }
-      });
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry',
-        icon: 'info',
-        text: 'You can not delete more then 1 project at the same time',
-        confirmButtonColor: '#3085d6',
-      });
-    }
+    Swal.fire({
+      title: 'Are you sure',
+      icon: 'info',
+      text: 'Do you want to delete the project!!',
+      cancelButtonColor: 'red',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#3085d6',
+      reverseButtons: true,
+    }).then((value) => {
+      if (value.isConfirmed) {
+        const deleteUrl = `${lmApiUrl}/project/${data?.id}`;
+        dispatch(fetchDeleteData({ url: deleteUrl, token: authCtx.token }));
+      }
+    });
   };
   // handle Edit project
   const handleEdit = (data) => {
-    if (data.length === 1) {
-      setIsAddModal(true);
-      const data1 = data[0];
-      setEditData(data1);
-    } else if (data.length > 1) {
-      Swal.fire({
-        title: 'Sorry!!',
-        icon: 'info',
-        text: 'You can not edit more than 1 project at the same time',
-      });
-    }
+    setEditData(data);
+    dispatch(handleIsAdminEditing(true));
+    setFormValue({
+      name: data?.name,
+      description: data?.description,
+    });
+
+    dispatch(handleIsAddNewModal(true));
   };
 
   // send props in the batch action table
   const tableProps = {
     title: 'Projects',
-    rowData: allProjects?.items?.length ? allProjects?.items : [],
+    rowData: crudData?.allProjects?.items?.length ? crudData?.allProjects?.items : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
-    totalItems: allProjects?.total_items,
-    totalPages: allProjects?.total_pages,
+    handleChangeLimit,
+    totalItems: crudData?.allProjects?.total_items,
+    totalPages: crudData?.allProjects?.total_pages,
     pageSize,
-    page: allProjects?.page,
+    page: crudData?.allProjects?.page,
     inpPlaceholder: 'Search Project',
   };
 
   return (
     <div>
-      {/* -- add User Modal -- */}
-      <Theme theme="g10">
-        <ComposedModal open={isAddModal} onClose={addModalClose}>
-          <div className={mhContainer}>
-            <h4>{editData?.name ? 'Edit Project' : 'Add New Project'}</h4>
-            <ModalHeader onClick={addModalClose} />
+      <AddNewModal
+        title={isAdminEditing ? 'Edit Project' : 'Add New Project'}
+        handleSubmit={handleAddProject}
+        handleReset={handleResetForm}
+      >
+        <Form
+          fluid
+          ref={projectFormRef}
+          onChange={setFormValue}
+          onCheck={setFormError}
+          formValue={formValue}
+          model={model}
+        >
+          <TextField name="name" label="Name" reqText="Name is required" />
+          <div style={{ margin: '30px 0 10px' }}>
+            <TextField
+              name="description"
+              label="Description"
+              accepter={TextArea}
+              rows={5}
+              reqText="Description is required"
+            />
           </div>
+        </Form>
+      </AddNewModal>
 
-          <ModalBody id={modalBody}>
-            <form onSubmit={handleSubmit(handleAddUser)} className={formContainer}>
-              <Stack gap={7}>
-                {/* Project name  */}
-                <div>
-                  <TextInput
-                    defaultValue={editData?.name}
-                    type="text"
-                    id="project_name"
-                    labelText="Project name"
-                    placeholder="Please enter project name"
-                    {...register('name', { required: editData?.name ? false : true })}
-                  />
-                  <p className={errText}>{errors.name && 'Invalid Name'}</p>
-                </div>
+      {isCrudLoading && <UseLoader />}
 
-                {/* project description  */}
-                <div>
-                  <TextArea
-                    defaultValue={editData?.description}
-                    id="project_description"
-                    required={editData?.description ? false : true}
-                    onChange={(e) => setProjectDescription(e.target.value)}
-                    labelText="Organization description"
-                    placeholder="Please enter organization description"
-                  />
-                </div>
-
-                <div className={modalBtnCon}>
-                  <Button kind="secondary" size="md" onClick={addModalClose}>
-                    Cancel
-                  </Button>
-                  <Button kind="primary" size="md" type="submit">
-                    {editData?.email ? 'Save' : 'Ok'}
-                  </Button>
-                </div>
-              </Stack>
-            </form>
-          </ModalBody>
-        </ComposedModal>
-      </Theme>
-
-      {isProjLoading && <ProgressBar label="" />}
-      <UseTable props={tableProps} />
+      <AdminDataTable props={tableProps} />
     </div>
   );
 };

@@ -1,47 +1,68 @@
 import React, { useContext, useState } from 'react';
-
-import { ArrowRight } from '@carbon/icons-react';
-import { Button, PasswordInput, ProgressBar, TextInput } from '@carbon/react';
-import { useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import style from './Login.module.scss';
 import { useSelector } from 'react-redux';
 import { useMixpanel } from 'react-mixpanel-browser';
+import {
+  FlexboxGrid,
+  Button,
+  Panel,
+  Col,
+  Schema,
+  Form,
+  Loader,
+  useToaster,
+  Message,
+} from 'rsuite';
+import TextField from '../AdminDasComponents/TextField.jsx';
+import PasswordField from '../AdminDasComponents/PasswordField.jsx';
 
-const { main, container, title, formContainer, btnContainer, titleSpan, errText } = style;
+const { titleSpan, main, title } = style;
 const loginURL = `${process.env.REACT_APP_LM_REST_API_URL}/auth/login`;
 
-// const mixpanelToken= process.env.REACT_APP_MIXPANEL_TOKEN;
+const { StringType } = Schema.Types;
 
+const model = Schema.Model({
+  userName: StringType().isRequired('Username is required.'),
+  password: StringType()
+    .addRule((value) => {
+      return value.length >= 5;
+    }, 'Password should include at least 5 characters')
+    .isRequired('Password is required.'),
+});
+
+// const mixpanelToken= process.env.REACT_APP_MIXPANEL_TOKEN;
 const Login = () => {
   const { isWbe } = useSelector((state) => state.links);
   const [isLoading, setIsLoading] = useState(false);
+  const [setFormError] = useState({});
+  const [formValue, setFormValue] = useState({
+    userName: '',
+    password: '',
+  });
+  const loginFormRef = React.useRef();
   const authCtx = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
-  const {
-    handleSubmit,
-    register,
-    formState: { errors },
-  } = useForm();
+
+  const toaster = useToaster();
 
   // React mixpanel browser
   const mixpanel = useMixpanel();
   mixpanel.init('197a3508675e32adcdfee4563c0e0595', { debug: true });
 
   // handle form submit
-  const onSubmit = (data) => {
+  const onSubmit = async () => {
     setIsLoading(true);
 
     //track who try to login
     mixpanel.track('Trying to login.', {
-      username: data.userName,
+      username: formValue.userName,
     });
 
-    const authData = window.btoa(data.userName + ':' + data.password);
-    fetch(loginURL, {
+    const authData = window.btoa(formValue.userName + ':' + formValue.password);
+    await fetch(loginURL, {
       method: 'POST',
       headers: {
         'Content-type': 'application/json',
@@ -52,72 +73,109 @@ const Login = () => {
         if (res.ok) {
           //track who try to login
           mixpanel.track('Successfully logged in.', {
-            username: data.userName,
+            username: formValue.userName,
           });
-          return res.json();
         } else {
-          res.json().then((data) => {
-            let errorMessage = 'Authentication failed: ';
-            if (data && data.message) {
-              errorMessage += data.message;
-              Swal.fire({ title: 'Error', text: errorMessage, icon: 'error' });
-            }
+          //track who try to login
+          mixpanel.track('Failed to login.', {
+            username: formValue.userName,
           });
         }
+        return res.json();
       })
       .then((data) => {
-        const expirationTime = new Date(new Date().getTime() + +data.expires_in * 1000);
-        authCtx.login(data.access_token, expirationTime.toISOString());
-
-        // manage redirect user
-        if (location.state) navigate(location.state.from.pathname);
-        else {
-          isWbe ? navigate('/wbe') : navigate('/');
+        if ('access_token' in data) {
+          const expirationTime = new Date(new Date().getTime() + +data.expires_in * 1000);
+          authCtx.login(data.access_token, expirationTime.toISOString());
+          // manage redirect user
+          if (location.state) navigate(location.state.from.pathname);
+          else {
+            isWbe ? navigate('/wbe') : navigate('/');
+          }
+        } else {
+          let errorMessage = 'Authentication failed: ';
+          if (data && data.message) {
+            errorMessage += data.message;
+            const message = (
+              <Message closable showIcon type="error">
+                {errorMessage}
+              </Message>
+            );
+            toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
+          }
         }
       })
       .catch((err) => {
-        Swal.fire({ title: 'Error', text: err.message, icon: 'error' });
+        const message = (
+          <Message closable showIcon type="error">
+            Something went wrong when connecting to the server. ({err.message})
+          </Message>
+        );
+        toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
       })
       .finally(() => setIsLoading(false));
   };
 
   return (
     <div className={main}>
-      <div className={container}>
-        <h3 className={title}>
-          Link Manager Application <br />
-          <span className={titleSpan}>Please Login</span>
-        </h3>
+      {isLoading && (
+        <Loader
+          backdrop
+          center
+          size="md"
+          vertical
+          content="Authenticating"
+          style={{ zIndex: '10' }}
+        />
+      )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className={formContainer}>
-          <TextInput
-            type="text"
-            id="userName"
-            labelText="User name"
-            placeholder="Enter user name"
-            {...register('userName', { required: true })}
-          />
-          <p className={errText}>{errors.userName && 'Invalid User'}</p>
+      <FlexboxGrid justify="center" align="middle">
+        <FlexboxGrid.Item as={Col} colspan={16} md={14} lg={12} xl={10} xxl={8}>
+          <Panel
+            header={
+              <h3 className={title}>
+                TraceLynx
+                <br />
+                <span className={titleSpan}>Please Login</span>
+              </h3>
+            }
+            bordered
+          >
+            <Form
+              fluid
+              ref={loginFormRef}
+              onChange={setFormValue}
+              check={setFormError}
+              formValue={formValue}
+              model={model}
+            >
+              <TextField
+                name="userName"
+                type="text"
+                label="User Name"
+                reqText="User name is required"
+              />
 
-          <PasswordInput
-            type="password"
-            id="login_password_id"
-            labelText="Password"
-            placeholder="Enter your password"
-            autoComplete="on"
-            {...register('password', { required: true, minLength: 5 })}
-          />
-          <p className={errText}>
-            {errors.password && 'Password should include at least 5 characters'}
-          </p>
-          {isLoading && <ProgressBar label="" />}
-          <div className={btnContainer}>
-            <Button renderIcon={ArrowRight} size="lg" kind="primary" type="submit">
-              Sign in
-            </Button>
-          </div>
-        </form>
-      </div>
+              <PasswordField
+                name="password"
+                type="password"
+                label="Password"
+                reqText="Password is required"
+              />
+
+              <Button
+                color="blue"
+                block
+                type="submit"
+                appearance="primary"
+                onClick={onSubmit}
+              >
+                Sign in
+              </Button>
+            </Form>
+          </Panel>
+        </FlexboxGrid.Item>
+      </FlexboxGrid>
     </div>
   );
 };
