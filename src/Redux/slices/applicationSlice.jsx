@@ -8,7 +8,7 @@ import putAPI from '../apiRequests/putAPI';
 export const fetchApplications = createAsyncThunk(
   'applications/fetchApplications',
   async ({ url, token }) => {
-    const response = getAPI({ url, token });
+    const response = await getAPI({ url, token });
     return response;
   },
 );
@@ -17,7 +17,7 @@ export const fetchApplications = createAsyncThunk(
 export const fetchCreateApp = createAsyncThunk(
   'applications/fetchCreateApp',
   async ({ url, token, bodyData, message }) => {
-    const res = postAPI({ url, token, bodyData, message });
+    const res = await postAPI({ url, token, bodyData, message });
     return res;
   },
 );
@@ -26,7 +26,7 @@ export const fetchCreateApp = createAsyncThunk(
 export const fetchUpdateApp = createAsyncThunk(
   'applications/fetchUpdateApp',
   async ({ url, token, bodyData }) => {
-    const res = putAPI({ url, token, bodyData });
+    const res = await putAPI({ url, token, bodyData });
     return res;
   },
 );
@@ -35,7 +35,7 @@ export const fetchUpdateApp = createAsyncThunk(
 export const fetchDeleteApp = createAsyncThunk(
   'applications/fetchDeleteApp',
   async ({ url, token }) => {
-    const response = deleteAPI({ url, token });
+    const response = await deleteAPI({ url, token });
     return { ...response, message: 'deleted Response' };
   },
 );

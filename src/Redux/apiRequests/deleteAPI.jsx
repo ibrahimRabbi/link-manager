@@ -18,8 +18,8 @@ export default async function deleteAPI({ url, token }) {
             text: 'This data successfully deleted',
             confirmButtonColor: '#3085d6',
           });
+          return res;
         }
-        return res;
       } else {
         if (res.status === 400) {
           console.log(res.status, res.statusText);
@@ -37,7 +37,7 @@ export default async function deleteAPI({ url, token }) {
         }
       }
       // if links not created we need return a value
-      return 'Link delete Failed';
+      return res;
     })
     .catch((error) => {
       console.log(error);

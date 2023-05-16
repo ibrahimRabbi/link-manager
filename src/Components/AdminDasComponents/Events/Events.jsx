@@ -1,11 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  fetchEvents,
-  fetchCreateEvent,
-  fetchDeleteEvent,
-  fetchUpdateEvent,
-} from '../../../Redux/slices/eventSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
@@ -19,6 +13,12 @@ import TextField from '../TextField';
 import { useRef } from 'react';
 import TextArea from '../TextArea';
 import Swal from 'sweetalert2';
+import {
+  fetchCreateData,
+  fetchDeleteData,
+  fetchGetData,
+  fetchUpdateData,
+} from '../../../Redux/slices/useCRUDSlice';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -51,8 +51,10 @@ const model = Schema.Model({
 });
 
 const Events = () => {
-  const { allEvents, isEventLoading, isEventUpdated, isEventCreated, isEventDeleted } =
-    useSelector((state) => state.events);
+  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
+    (state) => state.crud,
+  );
+
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
 
   const [currPage, setCurrPage] = useState(1);
@@ -92,7 +94,7 @@ const Events = () => {
     } else if (isAdminEditing) {
       const putUrl = `${lmApiUrl}/pipelines/event/${editData?.id}`;
       dispatch(
-        fetchUpdateEvent({
+        fetchUpdateData({
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
@@ -101,7 +103,7 @@ const Events = () => {
     } else {
       const postUrl = `${lmApiUrl}/pipelines/event`;
       dispatch(
-        fetchCreateEvent({
+        fetchCreateData({
           url: postUrl,
           token: authCtx.token,
           bodyData: formValue,
@@ -127,8 +129,14 @@ const Events = () => {
     dispatch(handleCurrPageTitle('Events'));
 
     const getUrl = `${lmApiUrl}/pipelines/event?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchEvents({ url: getUrl, token: authCtx.token }));
-  }, [isEventCreated, isEventUpdated, isEventDeleted, pageSize, currPage, refreshData]);
+    dispatch(
+      fetchGetData({
+        url: getUrl,
+        token: authCtx.token,
+        stateName: 'allEvents',
+      }),
+    );
+  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
 
   // handle delete event
   const handleDelete = (data) => {
@@ -144,7 +152,7 @@ const Events = () => {
     }).then((value) => {
       if (value.isConfirmed) {
         const deleteUrl = `${lmApiUrl}/pipelines/event/${data?.id}`;
-        dispatch(fetchDeleteEvent({ url: deleteUrl, token: authCtx.token }));
+        dispatch(fetchDeleteData({ url: deleteUrl, token: authCtx.token }));
       }
     });
   };
@@ -164,17 +172,17 @@ const Events = () => {
   // send props in the batch action table
   const tableProps = {
     title: 'Events',
-    rowData: allEvents?.items?.length ? allEvents?.items : [],
+    rowData: crudData?.allEvents?.items?.length ? crudData?.allEvents?.items : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: allEvents?.total_items,
-    totalPages: allEvents?.total_pages,
+    totalItems: crudData?.allEvents?.total_items,
+    totalPages: crudData?.allEvents?.total_pages,
     pageSize,
-    page: allEvents?.page,
+    page: crudData?.allEvents?.page,
     inpPlaceholder: 'Search Events',
   };
 
@@ -199,7 +207,7 @@ const Events = () => {
                 <TextField name="name" label="Name" reqText="Name is required" />
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={24}>
+              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
                 <TextField
                   name="trigger_endpoint"
                   label="Trigger Endpoint"
@@ -221,7 +229,7 @@ const Events = () => {
         </div>
       </AddNewModal>
 
-      {isEventLoading && (
+      {isCrudLoading && (
         <Loader
           backdrop
           center

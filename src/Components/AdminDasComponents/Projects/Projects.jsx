@@ -1,12 +1,6 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-import {
-  fetchCreateProj,
-  fetchDeleteProj,
-  fetchProjects,
-  fetchUpdateProj,
-} from '../../../Redux/slices/projectSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
@@ -19,6 +13,12 @@ import AddNewModal from '../AddNewModal';
 import TextField from '../TextField';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
+import {
+  fetchCreateData,
+  fetchDeleteData,
+  fetchGetData,
+  fetchUpdateData,
+} from '../../../Redux/slices/useCRUDSlice';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -46,8 +46,10 @@ const model = Schema.Model({
 });
 
 const Projects = () => {
-  const { allProjects, isProjLoading, isProjCreated, isProjUpdated, isProjDeleted } =
-    useSelector((state) => state.projects);
+  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
+    (state) => state.crud,
+  );
+
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -79,7 +81,7 @@ const Projects = () => {
     } else if (isAdminEditing) {
       const putUrl = `${lmApiUrl}/project/${editData?.id}`;
       dispatch(
-        fetchUpdateProj({
+        fetchUpdateData({
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
@@ -88,7 +90,7 @@ const Projects = () => {
     } else {
       const postUrl = `${lmApiUrl}/project`;
       dispatch(
-        fetchCreateProj({
+        fetchCreateData({
           url: postUrl,
           token: authCtx.token,
           bodyData: formValue,
@@ -115,8 +117,14 @@ const Projects = () => {
     dispatch(handleCurrPageTitle('Projects'));
 
     const getUrl = `${lmApiUrl}/project?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchProjects({ url: getUrl, token: authCtx.token }));
-  }, [isProjCreated, isProjUpdated, isProjDeleted, pageSize, currPage, refreshData]);
+    dispatch(
+      fetchGetData({
+        url: getUrl,
+        token: authCtx.token,
+        stateName: 'allProjects',
+      }),
+    );
+  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
 
   // handle open add user modal
   const handleAddNew = () => {
@@ -138,7 +146,7 @@ const Projects = () => {
     }).then((value) => {
       if (value.isConfirmed) {
         const deleteUrl = `${lmApiUrl}/project/${data?.id}`;
-        dispatch(fetchDeleteProj({ url: deleteUrl, token: authCtx.token }));
+        dispatch(fetchDeleteData({ url: deleteUrl, token: authCtx.token }));
       }
     });
   };
@@ -157,17 +165,17 @@ const Projects = () => {
   // send props in the batch action table
   const tableProps = {
     title: 'Projects',
-    rowData: allProjects?.items?.length ? allProjects?.items : [],
+    rowData: crudData?.allProjects?.items?.length ? crudData?.allProjects?.items : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: allProjects?.total_items,
-    totalPages: allProjects?.total_pages,
+    totalItems: crudData?.allProjects?.total_items,
+    totalPages: crudData?.allProjects?.total_pages,
     pageSize,
-    page: allProjects?.page,
+    page: crudData?.allProjects?.page,
     inpPlaceholder: 'Search Project',
   };
 
@@ -199,8 +207,7 @@ const Projects = () => {
         </Form>
       </AddNewModal>
 
-      {isProjLoading && <UseLoader />}
-      {/* <UseTable props={tableProps} /> */}
+      {isCrudLoading && <UseLoader />}
 
       <AdminDataTable props={tableProps} />
     </div>

@@ -1,12 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-import {
-  fetchComponents,
-  fetchCreateComp,
-  fetchDeleteComp,
-  fetchUpdateComp,
-} from '../../../Redux/slices/componentSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
@@ -22,6 +16,12 @@ import { useRef } from 'react';
 import CustomSelect from '../CustomSelect';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
+import {
+  fetchCreateData,
+  fetchDeleteData,
+  fetchGetData,
+  fetchUpdateData,
+} from '../../../Redux/slices/useCRUDSlice';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -34,18 +34,6 @@ const headerData = [
   {
     header: 'Name',
     key: 'name',
-  },
-  {
-    header: 'Component',
-    key: 'component',
-  },
-  {
-    header: 'Type',
-    key: 'type_',
-  },
-  {
-    header: 'Domain',
-    key: 'domain',
   },
   {
     header: 'Description',
@@ -62,8 +50,10 @@ const model = Schema.Model({
 });
 
 const Components = () => {
-  const { allComponents, isCompLoading, isCompUpdated, isCompCreated, isCompDeleted } =
-    useSelector((state) => state.components);
+  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
+    (state) => state.crud,
+  );
+
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
 
   const [currPage, setCurrPage] = useState(1);
@@ -103,7 +93,7 @@ const Components = () => {
     } else if (isAdminEditing) {
       const putUrl = `${lmApiUrl}/component/${editData?.id}`;
       dispatch(
-        fetchUpdateComp({
+        fetchUpdateData({
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
@@ -112,7 +102,7 @@ const Components = () => {
     } else {
       const postUrl = `${lmApiUrl}/component`;
       dispatch(
-        fetchCreateComp({
+        fetchCreateData({
           url: postUrl,
           token: authCtx.token,
           bodyData: formValue,
@@ -138,8 +128,14 @@ const Components = () => {
     dispatch(handleCurrPageTitle('Components'));
 
     const getUrl = `${lmApiUrl}/component?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchComponents({ url: getUrl, token: authCtx.token }));
-  }, [isCompCreated, isCompUpdated, isCompDeleted, pageSize, currPage, refreshData]);
+    dispatch(
+      fetchGetData({
+        url: getUrl,
+        token: authCtx.token,
+        stateName: 'allComponents',
+      }),
+    );
+  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
 
   // handle delete component
   const handleDelete = (data) => {
@@ -155,7 +151,7 @@ const Components = () => {
     }).then((value) => {
       if (value.isConfirmed) {
         const deleteUrl = `${lmApiUrl}/component/${data?.id}`;
-        dispatch(fetchDeleteComp({ url: deleteUrl, token: authCtx.token }));
+        dispatch(fetchDeleteData({ url: deleteUrl, token: authCtx.token }));
       }
     });
   };
@@ -171,20 +167,28 @@ const Components = () => {
     dispatch(handleIsAddNewModal(true));
   };
 
+  // const allComps = crudData?.allComponents?.items?.reduce((acc, curr)=>{
+
+  //   if(curr.project){
+
+  //   }
+  //   return acc;
+  // }, []);
+  // console.log('components: ',allComps);
   // send props in the batch action table
   const tableProps = {
     title: 'Components',
-    rowData: allComponents?.items?.length ? allComponents?.items : [],
+    rowData: crudData?.allComponents?.items?.length ? crudData?.allComponents?.items : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: allComponents?.total_items,
-    totalPages: allComponents?.total_pages,
+    totalItems: crudData?.allComponents?.total_items,
+    totalPages: crudData?.allComponents?.total_pages,
     pageSize,
-    page: allComponents?.page,
+    page: crudData?.allComponents?.page,
     inpPlaceholder: 'Search Component',
   };
 
@@ -235,7 +239,8 @@ const Components = () => {
         </div>
       </AddNewModal>
 
-      {isCompLoading && <UseLoader />}
+      {isCrudLoading && <UseLoader />}
+
       <AdminDataTable props={tableProps} />
     </div>
   );

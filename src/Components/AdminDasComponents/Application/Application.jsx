@@ -1,12 +1,6 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-import {
-  fetchApplications,
-  fetchCreateApp,
-  fetchDeleteApp,
-  fetchUpdateApp,
-} from '../../../Redux/slices/applicationSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
@@ -19,6 +13,13 @@ import SelectField from '../SelectField';
 import CustomSelect from '../CustomSelect';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
+import {
+  fetchCreateData,
+  fetchDeleteData,
+  fetchGetData,
+  fetchUpdateData,
+} from '../../../Redux/slices/useCRUDSlice';
+// import styles from './Application.module.scss';
 
 // import css file
 import './Application2.scss';
@@ -61,9 +62,11 @@ const model = Schema.Model({
 });
 
 const Application = () => {
-  const { allApplications, isAppLoading, isAppUpdated, isAppCreated, isAppDeleted } =
-    useSelector((state) => state.applications);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
+
+  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
+    (state) => state.crud,
+  );
 
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -112,7 +115,7 @@ const Application = () => {
       // edit application
       const putUrl = `${lmApiUrl}/application/${editData?.id}`;
       dispatch(
-        fetchUpdateApp({
+        fetchUpdateData({
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
@@ -135,7 +138,7 @@ const Application = () => {
 
       const postUrl = `${lmApiUrl}/application`;
       dispatch(
-        fetchCreateApp({
+        fetchCreateData({
           url: postUrl,
           token: authCtx.token,
           bodyData: { ...formValue, scopes, response_types, grant_types, redirect_uris },
@@ -251,8 +254,14 @@ const Application = () => {
     dispatch(handleCurrPageTitle('Applications'));
 
     const getUrl = `${lmApiUrl}/application?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchApplications({ url: getUrl, token: authCtx.token }));
-  }, [isAppCreated, isAppUpdated, isAppDeleted, pageSize, currPage, refreshData]);
+    dispatch(
+      fetchGetData({
+        url: getUrl,
+        token: authCtx.token,
+        stateName: 'allApplications',
+      }),
+    );
+  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
 
   // handle delete application
   const handleDelete = (data) => {
@@ -268,7 +277,7 @@ const Application = () => {
     }).then((value) => {
       if (value.isConfirmed) {
         const deleteUrl = `${lmApiUrl}/application/${data?.id}`;
-        dispatch(fetchDeleteApp({ url: deleteUrl, token: authCtx.token }));
+        dispatch(fetchDeleteData({ url: deleteUrl, token: authCtx.token }));
       }
     });
   };
@@ -292,17 +301,19 @@ const Application = () => {
   // send props in the batch action table
   const tableProps = {
     title: 'Applications',
-    rowData: allApplications?.items?.length ? allApplications?.items : [],
+    rowData: crudData?.allApplications?.items?.length
+      ? crudData?.allApplications?.items
+      : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: allApplications?.total_items,
-    totalPages: allApplications?.total_pages,
+    totalItems: crudData?.allApplications?.total_items,
+    totalPages: crudData?.allApplications?.total_pages,
     pageSize,
-    page: allApplications?.page,
+    page: crudData?.allApplications?.page,
     inpPlaceholder: 'Search Application',
   };
 
@@ -523,7 +534,7 @@ const Application = () => {
         </Modal.Footer> */}
       </Modal>
 
-      {isAppLoading && <UseLoader />}
+      {isCrudLoading && <UseLoader />}
 
       <AdminDataTable props={tableProps} />
     </div>

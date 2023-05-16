@@ -72,7 +72,10 @@ const LinksDataTable = ({ props }) => {
     const lines = rowData?.content_lines ? rowData?.content_lines?.split('L') : '';
     // OSLC API URL Receiving conditionally
     const oslcObj = { URL: '' };
-    if (rowData?.provider?.toLowerCase() == 'jira') {
+    if (
+      rowData?.provider?.toLowerCase() == 'jira' ||
+      rowData?.provider?.toLowerCase() == 'jira-projects'
+    ) {
       oslcObj['URL'] = jiraURL;
     } else if (rowData?.provider?.toLowerCase() == 'gitlab') {
       oslcObj['URL'] = gitlabURL;
@@ -87,16 +90,13 @@ const LinksDataTable = ({ props }) => {
     const speaker = (
       <Popover title="Preview">
         <iframe
-          src={
-            // eslint-disable-next-line max-len
-            `${oslcObj?.URL}/oslc/provider/${rowData?.provider_id}/resources/${
-              rowData?.Type
-            }/${rowData?.resource_id}/smallPreview?branch_name=${
-              rowData?.branch_name
-            }&file_content=${rowData?.content}&file_lines=${
-              lines ? lines[1] + lines[2] : ''
-            }&file_path=${rowData?.koatl_path}`
-          }
+          src={`${oslcObj?.URL}/oslc/provider/${rowData?.provider_id}/resources/${
+            rowData?.Type
+          }/${rowData?.resource_id}/smallPreview?branch_name=${
+            rowData?.branch_name
+          }&file_content=${rowData?.content}&file_lines=${
+            lines ? lines[1] + lines[2] : ''
+          }&file_path=${rowData?.koatl_path}`}
           width="400"
           height="250"
         ></iframe>
@@ -114,13 +114,13 @@ const LinksDataTable = ({ props }) => {
         >
           <a href={rowData?.id} target="_blank" rel="noopener noreferrer">
             {rowData?.content_lines
-              ? rowData?.name.length > 15
-                ? rowData?.name.slice(0, 15 - 1) +
+              ? rowData?.name?.length > 15
+                ? rowData?.name?.slice(0, 15 - 1) +
                   '...' +
                   ' [' +
-                  rowData.content_lines +
+                  rowData?.content_lines +
                   ']'
-                : rowData?.name + ' [' + rowData.content_lines + ']'
+                : rowData?.name + ' [' + rowData?.content_lines + ']'
               : rowData?.name}
           </a>
         </Whisper>

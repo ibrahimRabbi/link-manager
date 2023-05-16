@@ -1,7 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-import { fetchDeleteUser, fetchUsers } from '../../../Redux/slices/usersSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
@@ -11,6 +10,7 @@ import AdminDataTable from '../AdminDataTable';
 import { Modal } from 'rsuite';
 import AddUser from './AddUser';
 import UseLoader from '../../Shared/UseLoader';
+import { fetchDeleteData, fetchGetData } from '../../../Redux/slices/useCRUDSlice';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -39,8 +39,10 @@ const headerData = [
 ];
 
 const Users = () => {
-  const { allUsers, usersLoading, isUserCreated, isUserDeleted, isUserUpdated } =
-    useSelector((state) => state.users);
+  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
+    (state) => state.crud,
+  );
+
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [isAddModal, setIsAddModal] = useState(false);
   const [editData, setEditData] = useState({});
@@ -87,13 +89,19 @@ const Users = () => {
     setPageSize(dataKey);
   };
 
-  // console.log(allUsers);
+  // get all users
   useEffect(() => {
     dispatch(handleCurrPageTitle('Users'));
 
     const getUrl = `${lmApiUrl}/user?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchUsers({ url: getUrl, token: authCtx.token }));
-  }, [isUserCreated, isUserDeleted, isUserUpdated, pageSize, currPage, refreshData]);
+    dispatch(
+      fetchGetData({
+        url: getUrl,
+        token: authCtx.token,
+        stateName: 'allUsers',
+      }),
+    );
+  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
 
   // handle delete user
   const handleDelete = (data) => {
@@ -108,8 +116,8 @@ const Users = () => {
       reverseButtons: true,
     }).then((value) => {
       if (value.isConfirmed) {
-        const deleteUrl = `${lmApiUrl}/user?user_id=${data?.id}`;
-        dispatch(fetchDeleteUser({ url: deleteUrl, token: authCtx.token }));
+        const deleteUrl = `${lmApiUrl}/user/${data?.id}`;
+        dispatch(fetchDeleteData({ url: deleteUrl, token: authCtx.token }));
       }
     });
   };
@@ -130,17 +138,17 @@ const Users = () => {
   // send props in the batch action table
   const tableProps = {
     title: 'Users',
-    rowData: allUsers?.items?.length ? allUsers?.items : [],
+    rowData: crudData?.allUsers?.items?.length ? crudData?.allUsers?.items : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: allUsers?.total_items,
-    totalPages: allUsers?.total_pages,
+    totalItems: crudData?.allUsers?.total_items,
+    totalPages: crudData?.allUsers?.total_pages,
     pageSize,
-    page: allUsers?.page,
+    page: crudData?.allUsers?.page,
     inpPlaceholder: 'Search User',
   };
 
@@ -165,8 +173,8 @@ const Users = () => {
         <Modal.Footer></Modal.Footer>
       </Modal>
 
-      {usersLoading && <UseLoader />}
-      {/* <UseTable props={tableProps} /> */}
+      {isCrudLoading && <UseLoader />}
+
       <AdminDataTable props={tableProps} />
     </div>
   );
