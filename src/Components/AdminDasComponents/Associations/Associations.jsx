@@ -79,6 +79,7 @@ const Associations = () => {
     selection_dialog_url: '',
     project_id: '',
   });
+  console.log('oslcServiceProviderResponse', oslcServiceProviderResponse);
 
   const associationFormRef = useRef();
   const authCtx = useContext(AuthContext);
@@ -283,6 +284,7 @@ const Associations = () => {
               customSelectLabel="rootservices_url"
               error={formError.application_id}
               onChange={(value) => {
+                console.log('value: ', value);
                 fetchOslcServiceProviderCatalog(value);
               }}
               reqText="External integration data is required"

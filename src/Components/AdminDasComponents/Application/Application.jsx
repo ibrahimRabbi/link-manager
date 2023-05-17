@@ -126,6 +126,7 @@ const Application = () => {
       // create application
       console.log('Trying to create new application');
       console.log('appFormRef: ', appFormRef);
+      console.log('form value: ', formValue);
 
       const redirect_uris = [
         `${lmApiUrl}/application/` +
@@ -145,15 +146,15 @@ const Application = () => {
           sendMsg: false,
         }),
       )
-        .then((response) => {
-          if (response) {
-            console.log('application:response: ', response);
-            if (response?.payload?.status) {
+        .then((appRes) => {
+          if (appRes) {
+            console.log('application:response: ', appRes);
+            if (appRes.payload.response?.status) {
               setAppCreateSuccess(true);
               setSteps(1);
               // setClientId(response.payload.client_id);
               // setClientSecret(response.payload.client_secret);
-              let query = `client_id=${response.payload.client_id}`;
+              let query = `client_id=${appRes.payload.response?.client_id}`;
               query += `&scope=${scopes}`;
 
               response_types?.forEach((response_type) => {
@@ -167,7 +168,8 @@ const Application = () => {
               query += `&redirect_uri=${redirect_uris[0]}`;
               // eslint-disable-next-line max-len
               let authorizeUri =
-                response.payload?.oauth_client_authorize_uri + '?' + query;
+                appRes.payload?.response?.oauth_client_authorize_uri + '?' + query;
+              console.log('authorizeUri: ', authorizeUri);
               setAuthorizeFrameSrc(authorizeUri);
             }
           } else {

@@ -11,6 +11,7 @@ const DCTERMS_IDENTIFIER = 'http://purl.org/dc/terms/identifier';
 export const fetchOslcResource = createAsyncThunk(
   'oslc/fetchOslcResource',
   async ({ url, token }) => {
+    console.log('oslc resource url:', url);
     const response = await getOslcAPI({ url, token });
     return { url, response };
   },
