@@ -40,7 +40,7 @@ const headerData = [
   },
   {
     header: 'Resource type',
-    key: 'resource_type_id',
+    key: 'resource_type',
   },
   {
     header: 'Project ID',
@@ -160,7 +160,7 @@ const Associations = () => {
       bodyData['service_provider_url'] = selectedServiceProvider?.value;
       bodyData['service_label'] = selectedSelectionDialog?.label;
       bodyData['service_description'] = selectedSelectionDialog?.description;
-      bodyData['resource_type_id'] = selectedSelectionDialog?.resourceType;
+      bodyData['resource_type'] = selectedSelectionDialog?.resourceType;
 
       const postUrl = `${lmApiUrl}/association`;
       dispatch(
