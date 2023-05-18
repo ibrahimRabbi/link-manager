@@ -86,7 +86,7 @@
   }
 }
 
-.linkFileContainer > h5 {
+.linkFileContainer>h5 {
   span {
     margin-left: 10px;
     margin-bottom: -10px;
@@ -159,4 +159,12 @@
   font-size: 17px !important;
   padding: 7px 18px !important;
   margin-left: 10px;
+}
+
+// authorize iframe style
+.authorize-iframe {
+  width: 100%;
+  height: 480px;
+  border: 0;
+  border: 1px dashed lightgray;
 }

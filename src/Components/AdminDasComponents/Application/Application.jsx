@@ -19,10 +19,7 @@ import {
   fetchGetData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
-// import styles from './Application.module.scss';
 
-// import css file
-import './Application2.scss';
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
 // demo data
@@ -74,13 +71,6 @@ const Application = () => {
   const [editData, setEditData] = useState({});
   const [openModal, setOpenModal] = useState(false);
   const [steps, setSteps] = useState(0);
-  // const [grant_types, set_grant_types] = useState([]);
-  // const [redirect_uris, set_redirect_uris] = useState('');
-  // const [response_types, set_response_types] = useState([]);
-  // const [scopes, set_scopes]=useState('');
-
-  // const [clientId, setClientId] = useState('');
-  // const [clientSecret, setClientSecret] = useState('');
   const [appCreateSuccess, setAppCreateSuccess] = useState(false);
   const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
 
@@ -123,11 +113,6 @@ const Application = () => {
       );
       setOpenModal(false);
     } else {
-      // create application
-      console.log('Trying to create new application');
-      console.log('appFormRef: ', appFormRef);
-      console.log('form value: ', formValue);
-
       const redirect_uris = [
         `${lmApiUrl}/application/` +
           'oauth2-consumer/callback?consumer=' +
@@ -147,13 +132,12 @@ const Application = () => {
         }),
       )
         .then((appRes) => {
-          if (appRes) {
+          if (appRes.payload) {
             console.log('application:response: ', appRes);
             if (appRes.payload.response?.status) {
               setAppCreateSuccess(true);
               setSteps(1);
-              // setClientId(response.payload.client_id);
-              // setClientSecret(response.payload.client_secret);
+
               let query = `client_id=${appRes.payload.response?.client_id}`;
               query += `&scope=${scopes}`;
 
@@ -169,7 +153,6 @@ const Application = () => {
               // eslint-disable-next-line max-len
               let authorizeUri =
                 appRes.payload?.response?.oauth_client_authorize_uri + '?' + query;
-              console.log('authorizeUri: ', authorizeUri);
               setAuthorizeFrameSrc(authorizeUri);
             }
           } else {
@@ -191,15 +174,13 @@ const Application = () => {
     'message',
     function (event) {
       let message = event.data;
-      if (!message.source && message?.data) {
-        console.log('windowMessage: ', message);
+      if (!message.source) {
         if (message.toString()?.startsWith('access-token-data')) {
           const response = JSON.parse(message?.substr('access-token-data:'?.length));
 
-          console.log('response: ', response);
           localStorage.setItem('access_token', response.access_token);
           localStorage.setItem('expires_in', response.expires_in);
-          setSteps(2);
+          if (response.access_token) handleCloseModal();
         }
       }
     },
@@ -245,11 +226,13 @@ const Application = () => {
     setOpenModal(true);
   };
   // handle close modal
-  const handleCloseModal = async () => {
-    await setOpenModal(false);
-    await setSteps(0);
-    handleResetForm();
-    setAppCreateSuccess(false);
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setTimeout(() => {
+      setSteps(0);
+      handleResetForm();
+      setAppCreateSuccess(false);
+    }, 500);
   };
 
   useEffect(() => {
@@ -335,7 +318,7 @@ const Application = () => {
 
           <Steps current={steps} style={{ marginTop: '5px' }}>
             <Steps.Item />
-            <Steps.Item />
+            <Steps.Item status={steps == 1 ? 'process' : 'wait'} />
             <Steps.Item />
           </Steps>
         </Modal.Header>
@@ -422,14 +405,14 @@ const Application = () => {
                   appearance="default"
                   onClick={handleCloseModal}
                 >
-                  Cancel
+                  {appCreateSuccess ? 'Close' : 'Cancel'}
                 </Button>
                 <Button
                   appearance="primary"
                   color="blue"
                   className="adminModalFooterBtn"
                   onClick={() => {
-                    if (appCreateSuccess) setSteps(2);
+                    if (appCreateSuccess) setSteps(1);
                     else {
                       handleAddApplication();
                     }
@@ -442,12 +425,9 @@ const Application = () => {
           )}
 
           {steps === 1 && (
-            <div className="show-grid step-2">
-              <h4 style={{ marginBottom: '20px' }}>
-                Authorize the application consumption
-              </h4>
-              Please authorize the access for the application in the window below:
-              {/* eslint-disable-next-line max-len */}
+            <div style={{ textAlign: 'center' }}>
+              <h4>{'The application has been registered successfully'}</h4>
+
               <iframe
                 className={'authorize-iframe'}
                 ref={iframeRef}
@@ -456,22 +436,11 @@ const Application = () => {
               <FlexboxGrid justify="end">
                 <Button
                   className="adminModalFooterBtn"
-                  appearance="ghost"
+                  appearance="default"
                   onClick={() => setSteps(0)}
                 >
                   {' '}
                   Back
-                </Button>
-
-                <Button
-                  appearance="primary"
-                  color="blue"
-                  className="adminModalFooterBtn"
-                  onClick={() => setSteps(2)}
-                >
-                  {' '}
-                  Save
-                  {/* {appCreateSuccess ? 'Next' : 'Save'} */}
                 </Button>
 
                 <Button
@@ -487,14 +456,14 @@ const Application = () => {
           )}
 
           {steps === 2 && (
-            <div className="show-grid step-3">
-              {/* eslint-disable-next-line max-len */}
-              <h4 style={{ marginBottom: '10px' }}>
-                Application has been registered and authorized successfully
-              </h4>
-              <h5 style={{ marginBottom: '20px' }}>Close this window to continue.</h5>
+            <div style={{ textAlign: 'center' }}>
+              <h4 style={{ marginBottom: '10px' }}>You have not authorized</h4>
 
-              <FlexboxGrid justify="end">
+              <h5 style={{ marginBottom: '20px' }}>
+                Please go back and authorize or skip it for now
+              </h5>
+
+              <FlexboxGrid justify="end" style={{ marginTop: '30px' }}>
                 <Button
                   className="adminModalFooterBtn"
                   appearance="default"
@@ -516,24 +485,6 @@ const Application = () => {
             </div>
           )}
         </Modal.Body>
-
-        {/* <Modal.Footer>
-          <Button
-            className="adminModalFooterBtn"
-            appearance="default"
-            onClick={() => setOpenModal(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            className="adminModalFooterBtn"
-            appearance="primary"
-            color="blue"
-            onClick={() => handleAddApplication()}
-          >
-            Save
-          </Button>
-        </Modal.Footer> */}
       </Modal>
 
       {isCrudLoading && <UseLoader />}

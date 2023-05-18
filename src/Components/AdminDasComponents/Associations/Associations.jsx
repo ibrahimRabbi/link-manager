@@ -14,7 +14,7 @@ import {
   handleIsAddNewModal,
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
-import { FlexboxGrid, Form, Schema, SelectPicker } from 'rsuite';
+import { Button, FlexboxGrid, Form, Modal, Schema, SelectPicker } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
 import TextField from '../TextField';
@@ -72,6 +72,8 @@ const Associations = () => {
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
+  const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
+  const [oauth2ModalOpen, setOauth2ModalOpen] = useState(false);
   const [formValue, setFormValue] = useState({
     name: '',
     application_id: '',
@@ -79,16 +81,14 @@ const Associations = () => {
     selection_dialog_url: '',
     project_id: '',
   });
-  console.log('oslcServiceProviderResponse', oslcServiceProviderResponse);
 
   const associationFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
-  const fetchOslcServiceProviderCatalog = (data) => {
-    const url = data[0];
+  const fetchOslcServiceProviderCatalog = (url, id) => {
     const newFormValue = { ...formValue };
-    newFormValue.application_id = data[1];
+    newFormValue['application_id'] = id;
     setFormValue(newFormValue);
 
     const consumerToken = localStorage.getItem('consumerToken');
@@ -102,12 +102,14 @@ const Associations = () => {
 
   const getServiceProviderResources = (url) => {
     const consumerToken = localStorage.getItem('consumerToken');
-    dispatch(
-      fetchOslcResource({
-        url: url,
-        token: 'Bearer ' + consumerToken,
-      }),
-    );
+    if (url && consumerToken) {
+      dispatch(
+        fetchOslcResource({
+          url: url,
+          token: 'Bearer ' + consumerToken,
+        }),
+      );
+    }
   };
 
   // Pagination
@@ -177,12 +179,14 @@ const Associations = () => {
 
   useEffect(() => {
     const consumerToken = localStorage.getItem('consumerToken');
-    dispatch(
-      fetchOslcResource({
-        url: oslcRootservicesCatalogResponse,
-        token: 'Bearer ' + consumerToken,
-      }),
-    );
+    if (consumerToken) {
+      dispatch(
+        fetchOslcResource({
+          url: oslcRootservicesCatalogResponse,
+          token: 'Bearer ' + consumerToken,
+        }),
+      );
+    }
   }, [oslcRootservicesCatalogResponse]);
 
   // get all associations
@@ -246,6 +250,53 @@ const Associations = () => {
     inpPlaceholder: 'Search Integration',
   };
 
+  // control oauth2 modal
+
+  const handleRootServiceUrlChange = (value) => {
+    const consumerToken = localStorage.getItem('consumerToken');
+    const selectedURL = JSON.parse(value);
+
+    if (consumerToken && value) {
+      fetchOslcServiceProviderCatalog(selectedURL?.rootservices_url, selectedURL?.id);
+    } else {
+      if (selectedURL) {
+        const selectedData = selectedURL?.oauth2_application[0];
+        let query = `client_id=${selectedData?.client_id}&scope=${selectedData?.scopes}`;
+
+        selectedData?.response_types?.forEach((response_type) => {
+          if (selectedData?.response_types?.indexOf(response_type) === 0) {
+            query += `&response_type=${response_type}`;
+          } else {
+            query += ` ${response_type}`;
+          }
+        }, query);
+
+        query += `&redirect_uri=${selectedData?.redirect_uris[0]}`;
+        const authUrl = `${selectedData?.authorization_uri}?${query}`;
+        setAuthorizeFrameSrc(authUrl);
+        setOauth2ModalOpen(true);
+      }
+    }
+  };
+
+  window.addEventListener(
+    'message',
+    function (event) {
+      let message = event.data;
+      if (!message.source) {
+        if (message.toString()?.startsWith('access-token-data')) {
+          const response = JSON.parse(message?.substr('access-token-data:'?.length));
+          console.log('windowMessage: assoc', message);
+
+          localStorage.setItem('access_token', response.access_token);
+          localStorage.setItem('expires_in', response.expires_in);
+          setOauth2ModalOpen(false);
+        }
+      }
+    },
+    false,
+  );
+
   return (
     <div>
       <AddNewModal
@@ -261,63 +312,89 @@ const Associations = () => {
           formValue={formValue}
           model={model}
         >
-          <TextField name="name" label="Name" reqText="Name is required" />
-          <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-            <SelectField
-              name="project_id"
-              label="Project"
-              placeholder="Select project"
-              accepter={CustomSelect}
-              apiURL={`${lmApiUrl}/project`}
-              error={formError.project_id}
-              reqText="Project to attach integration is required"
-            />
-          </FlexboxGrid.Item>
-          <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-            <SelectField
-              name="application"
-              label="Integration"
-              placeholder="Select external integration"
-              accepter={CustomSelect}
-              apiURL={`${lmApiUrl}/application`}
-              customSelectValue="rootservices_url"
-              customSelectLabel="rootservices_url"
-              error={formError.application_id}
-              onChange={(value) => {
-                console.log('value: ', value);
-                fetchOslcServiceProviderCatalog(value);
-              }}
-              reqText="External integration data is required"
-            />
-          </FlexboxGrid.Item>
-          <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-            <SelectField
-              name="service_provider_id"
-              label="Resource container"
-              placeholder="Select resource container"
-              data={oslcServiceProviderCatalogResponse}
-              accepter={SelectPicker}
-              onChange={(value) => {
-                getServiceProviderResources(value);
-              }}
-              reqText="Resource container is required"
-            />
-          </FlexboxGrid.Item>
-          <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-            <SelectField
-              name="selection_dialog_url"
-              label="Resource type"
-              placeholder="Select resource type"
-              data={oslcServiceProviderResponse}
-              accepter={SelectPicker}
-              reqText="Resource type is required"
-            />
-          </FlexboxGrid.Item>
+          <FlexboxGrid>
+            <TextField name="name" label="Name" reqText="Name is required" />
+
+            <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+              <SelectField
+                name="project_id"
+                label="Project"
+                placeholder="Select project"
+                accepter={CustomSelect}
+                apiURL={`${lmApiUrl}/project`}
+                error={formError.project_id}
+                reqText="Project to attach integration is required"
+              />
+            </FlexboxGrid.Item>
+
+            <FlexboxGrid.Item colspan={24}>
+              <SelectField
+                name="application"
+                label="Integration"
+                placeholder="Select external integration"
+                accepter={CustomSelect}
+                apiURL={`${lmApiUrl}/application`}
+                customSelectLabel="rootservices_url"
+                error={formError.application_id}
+                reqText="External integration data is required"
+                onChange={(value) => handleRootServiceUrlChange(value)}
+              />
+            </FlexboxGrid.Item>
+
+            {oslcRootservicesCatalogResponse.length && (
+              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                <SelectField
+                  name="service_provider_id"
+                  label="Resource container"
+                  placeholder="Select resource container"
+                  data={oslcServiceProviderCatalogResponse}
+                  accepter={SelectPicker}
+                  onChange={(value) => {
+                    getServiceProviderResources(value);
+                  }}
+                  reqText="Resource container is required"
+                />
+              </FlexboxGrid.Item>
+            )}
+
+            <FlexboxGrid.Item style={{ marginBottom: '10px' }} colspan={24}>
+              <SelectField
+                name="selection_dialog_url"
+                label="Resource type"
+                placeholder="Select resource type"
+                data={oslcServiceProviderResponse}
+                accepter={SelectPicker}
+                reqText="Resource type is required"
+              />
+            </FlexboxGrid.Item>
+          </FlexboxGrid>
         </Form>
       </AddNewModal>
 
+      {/* --- oauth 2 modal ---  */}
+      <Modal
+        backdrop="static"
+        keyboard={false}
+        open={oauth2ModalOpen}
+        style={{ marginTop: '25px' }}
+        size="sm"
+        onClose={() => setOauth2ModalOpen(false)}
+      >
+        <Modal.Header>
+          <Modal.Title className="adminModalTitle">Please authorize</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <iframe className={'authorize-iframe'} src={authorizeFrameSrc} />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={() => setOauth2ModalOpen(false)} appearance="default">
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       {isAssocLoading && <UseLoader />}
-      {/* <UseTable props={tableProps} /> */}
 
       <AdminDataTable props={tableProps} />
     </div>

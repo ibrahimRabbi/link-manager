@@ -323,7 +323,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       status: 'active',
       target_data: targetsData,
     };
-    // console.log('Link Obj: ', linkObj);
+    console.log('Link Obj: ', linkObj);
     dispatch(
       fetchCreateLink({
         url: apiURL,

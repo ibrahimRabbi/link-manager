@@ -21,8 +21,7 @@ const FixedLoader = () => (
 
 const CustomSelect = React.forwardRef((props, ref) => {
   // eslint-disable-next-line max-len
-  const { apiURL, placeholder, onChange, customSelectLabel, customSelectValue, ...rest } =
-    props;
+  const { apiURL, placeholder, onChange, customSelectLabel, ...rest } = props;
   const [option, setOption] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [checkPagination, setCheckPagination] = useState({});
@@ -84,10 +83,10 @@ const CustomSelect = React.forwardRef((props, ref) => {
 
   // The data is filtered according to the select picker's needs
   let data = [];
-  if (customSelectValue && customSelectLabel) {
+  if (customSelectLabel) {
     data = option?.map((item) => ({
       label: item.name + ' - ' + item[customSelectLabel],
-      value: [item[customSelectValue], item?.id],
+      value: JSON.stringify(item),
     }));
   } else {
     data = option?.map((item) => ({
