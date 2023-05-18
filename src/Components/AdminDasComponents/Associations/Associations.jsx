@@ -31,8 +31,8 @@ const headerData = [
     key: 'id',
   },
   {
-    header: 'Application',
-    key: 'application_id',
+    header: 'Service Provider ID',
+    key: 'service_provider_id',
   },
   {
     header: 'Description',
@@ -41,6 +41,14 @@ const headerData = [
   {
     header: 'Resource type',
     key: 'resource_type_id',
+  },
+  {
+    header: 'Project ID',
+    key: 'project_id',
+  },
+  {
+    header: 'Created',
+    key: 'created',
   },
 ];
 
@@ -76,6 +84,7 @@ const Associations = () => {
     name: '',
     application_id: '',
     service_provider_id: '',
+    // service_provider_url: '',
     selection_dialog_url: '',
     project_id: '',
   });
@@ -141,13 +150,15 @@ const Associations = () => {
       const selectedSelectionDialog = oslcServiceProviderResponse?.find(
         (item) => item.value === formValue.selection_dialog_url,
       );
+      console.log('selectedSelectionDialog', selectedSelectionDialog);
+      console.log('selectedServiceProvider', selectedServiceProvider);
+
       bodyData['oslc_domain'] = selectedSelectionDialog.domain;
       bodyData['service_provider_id'] = selectedServiceProvider?.serviceProviderId;
+      bodyData['service_provider_url'] = selectedServiceProvider?.value;
       bodyData['service_label'] = selectedSelectionDialog?.label;
+      bodyData['service_description'] = selectedSelectionDialog?.description;
       bodyData['resource_type_id'] = selectedSelectionDialog?.resourceType;
-      bodyData['selection_dialog_url'] = selectedSelectionDialog?.value;
-      bodyData['height'] = selectedSelectionDialog?.height;
-      bodyData['width'] = selectedSelectionDialog?.width;
 
       const postUrl = `${lmApiUrl}/association`;
       dispatch(
@@ -284,7 +295,6 @@ const Associations = () => {
               customSelectLabel="rootservices_url"
               error={formError.application_id}
               onChange={(value) => {
-                console.log('value: ', value);
                 fetchOslcServiceProviderCatalog(value);
               }}
               reqText="External integration data is required"
@@ -295,6 +305,8 @@ const Associations = () => {
               name="service_provider_id"
               label="Resource container"
               placeholder="Select resource container"
+              size="lg"
+              block
               data={oslcServiceProviderCatalogResponse}
               accepter={SelectPicker}
               onChange={(value) => {
@@ -308,6 +320,8 @@ const Associations = () => {
               name="selection_dialog_url"
               label="Resource type"
               placeholder="Select resource type"
+              size="lg"
+              block
               data={oslcServiceProviderResponse}
               accepter={SelectPicker}
               reqText="Resource type is required"
