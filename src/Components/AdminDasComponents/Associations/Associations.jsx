@@ -31,8 +31,8 @@ const headerData = [
     key: 'id',
   },
   {
-    header: 'Application',
-    key: 'application_id',
+    header: 'Service Provider ID',
+    key: 'service_provider_id',
   },
   {
     header: 'Description',
@@ -41,6 +41,14 @@ const headerData = [
   {
     header: 'Resource type',
     key: 'resource_type_id',
+  },
+  {
+    header: 'Project ID',
+    key: 'project_id',
+  },
+  {
+    header: 'Created',
+    key: 'created',
   },
 ];
 
@@ -78,6 +86,7 @@ const Associations = () => {
     name: '',
     application_id: '',
     service_provider_id: '',
+    // service_provider_url: '',
     selection_dialog_url: '',
     project_id: '',
   });
@@ -143,13 +152,15 @@ const Associations = () => {
       const selectedSelectionDialog = oslcServiceProviderResponse?.find(
         (item) => item.value === formValue.selection_dialog_url,
       );
+      console.log('selectedSelectionDialog', selectedSelectionDialog);
+      console.log('selectedServiceProvider', selectedServiceProvider);
+
       bodyData['oslc_domain'] = selectedSelectionDialog.domain;
       bodyData['service_provider_id'] = selectedServiceProvider?.serviceProviderId;
+      bodyData['service_provider_url'] = selectedServiceProvider?.value;
       bodyData['service_label'] = selectedSelectionDialog?.label;
+      bodyData['service_description'] = selectedSelectionDialog?.description;
       bodyData['resource_type_id'] = selectedSelectionDialog?.resourceType;
-      bodyData['selection_dialog_url'] = selectedSelectionDialog?.value;
-      bodyData['height'] = selectedSelectionDialog?.height;
-      bodyData['width'] = selectedSelectionDialog?.width;
 
       const postUrl = `${lmApiUrl}/association`;
       dispatch(
