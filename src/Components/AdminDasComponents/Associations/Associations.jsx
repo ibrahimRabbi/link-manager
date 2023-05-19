@@ -6,6 +6,7 @@ import {
   fetchDeleteAssoc,
   fetchAssociations,
   fetchUpdateAssoc,
+  handleIsOauth2ModalOpen,
 } from '../../../Redux/slices/associationSlice';
 import { fetchOslcResource } from '../../../Redux/slices/oslcResourcesSlice.jsx';
 import AuthContext from '../../../Store/Auth-Context';
@@ -14,13 +15,14 @@ import {
   handleIsAddNewModal,
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
-import { Button, FlexboxGrid, Form, Modal, Schema, SelectPicker } from 'rsuite';
+import { Button, FlexboxGrid, Form, Modal, Schema } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
 import TextField from '../TextField';
 import UseLoader from '../../Shared/UseLoader';
 import SelectField from '../SelectField.jsx';
 import CustomSelect from '../CustomSelect.jsx';
+import DefaultCustomSelect from '../DefaultCustomSelect';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -69,6 +71,7 @@ const Associations = () => {
     isAssocCreated,
     isAssocUpdated,
     isAssocDeleted,
+    isOauth2ModalOpen,
   } = useSelector((state) => state.associations);
   const {
     oslcRootservicesCatalogResponse,
@@ -81,7 +84,6 @@ const Associations = () => {
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
   const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
-  const [oauth2ModalOpen, setOauth2ModalOpen] = useState(false);
   const [formValue, setFormValue] = useState({
     name: '',
     application_id: '',
@@ -190,14 +192,12 @@ const Associations = () => {
 
   useEffect(() => {
     const consumerToken = localStorage.getItem('consumerToken');
-    if (consumerToken) {
-      dispatch(
-        fetchOslcResource({
-          url: oslcRootservicesCatalogResponse,
-          token: 'Bearer ' + consumerToken,
-        }),
-      );
-    }
+    dispatch(
+      fetchOslcResource({
+        url: oslcRootservicesCatalogResponse,
+        token: 'Bearer ' + consumerToken,
+      }),
+    );
   }, [oslcRootservicesCatalogResponse]);
 
   // get all associations
@@ -285,28 +285,10 @@ const Associations = () => {
         query += `&redirect_uri=${selectedData?.redirect_uris[0]}`;
         const authUrl = `${selectedData?.authorization_uri}?${query}`;
         setAuthorizeFrameSrc(authUrl);
-        setOauth2ModalOpen(true);
+        dispatch(handleIsOauth2ModalOpen(true));
       }
     }
   };
-
-  window.addEventListener(
-    'message',
-    function (event) {
-      let message = event.data;
-      if (!message.source) {
-        if (message.toString()?.startsWith('access-token-data')) {
-          const response = JSON.parse(message?.substr('access-token-data:'?.length));
-          console.log('windowMessage: assoc', message);
-
-          localStorage.setItem('access_token', response.access_token);
-          localStorage.setItem('expires_in', response.expires_in);
-          setOauth2ModalOpen(false);
-        }
-      }
-    },
-    false,
-  );
 
   return (
     <div>
@@ -324,7 +306,9 @@ const Associations = () => {
           model={model}
         >
           <FlexboxGrid>
-            <TextField name="name" label="Name" reqText="Name is required" />
+            <FlexboxGrid.Item colspan={24}>
+              <TextField name="name" label="Name" reqText="Name is required" />
+            </FlexboxGrid.Item>
 
             <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
               <SelectField
@@ -352,32 +336,34 @@ const Associations = () => {
               />
             </FlexboxGrid.Item>
 
-            {oslcRootservicesCatalogResponse.length && (
+            {/* {oslcRootservicesCatalogResponse[0] && ( */}
+            <>
               <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
                 <SelectField
                   name="service_provider_id"
                   label="Resource container"
                   placeholder="Select resource container"
-                  data={oslcServiceProviderCatalogResponse}
-                  accepter={SelectPicker}
+                  options={oslcServiceProviderCatalogResponse}
+                  accepter={DefaultCustomSelect}
                   onChange={(value) => {
                     getServiceProviderResources(value);
                   }}
                   reqText="Resource container is required"
                 />
               </FlexboxGrid.Item>
-            )}
 
-            <FlexboxGrid.Item style={{ marginBottom: '10px' }} colspan={24}>
-              <SelectField
-                name="selection_dialog_url"
-                label="Resource type"
-                placeholder="Select resource type"
-                data={oslcServiceProviderResponse}
-                accepter={SelectPicker}
-                reqText="Resource type is required"
-              />
-            </FlexboxGrid.Item>
+              <FlexboxGrid.Item style={{ marginBottom: '10px' }} colspan={24}>
+                <SelectField
+                  name="selection_dialog_url"
+                  label="Resource type"
+                  placeholder="Select resource type"
+                  options={oslcServiceProviderResponse}
+                  accepter={DefaultCustomSelect}
+                  reqText="Resource type is required"
+                />
+              </FlexboxGrid.Item>
+            </>
+            {/* )} */}
           </FlexboxGrid>
         </Form>
       </AddNewModal>
@@ -386,10 +372,10 @@ const Associations = () => {
       <Modal
         backdrop="static"
         keyboard={false}
-        open={oauth2ModalOpen}
+        open={isOauth2ModalOpen}
         style={{ marginTop: '25px' }}
         size="sm"
-        onClose={() => setOauth2ModalOpen(false)}
+        onClose={() => dispatch(handleIsOauth2ModalOpen(false))}
       >
         <Modal.Header>
           <Modal.Title className="adminModalTitle">Please authorize</Modal.Title>
@@ -399,7 +385,10 @@ const Associations = () => {
           <iframe className={'authorize-iframe'} src={authorizeFrameSrc} />
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={() => setOauth2ModalOpen(false)} appearance="default">
+          <Button
+            onClick={() => dispatch(handleIsOauth2ModalOpen(false))}
+            appearance="default"
+          >
             Close
           </Button>
         </Modal.Footer>

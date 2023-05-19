@@ -49,6 +49,7 @@ const initialState = {
   isAssocUpdated: false,
   isAssocDeleted: false,
   isAssocLoading: false,
+  isOauth2ModalOpen: false,
 };
 
 export const associationSlice = createSlice({
@@ -56,7 +57,9 @@ export const associationSlice = createSlice({
   initialState,
 
   reducers: {
-    //
+    handleIsOauth2ModalOpen: (state, { payload }) => {
+      state.isOauth2ModalOpen = payload;
+    },
   },
   //----------------------\\
   extraReducers: (builder) => {
@@ -126,6 +129,6 @@ export const associationSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-// export const {  } = applicationSlice.actions;
+export const { handleIsOauth2ModalOpen } = associationSlice.actions;
 
 export default associationSlice.reducer;
