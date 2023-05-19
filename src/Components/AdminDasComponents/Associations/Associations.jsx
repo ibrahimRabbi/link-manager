@@ -6,7 +6,6 @@ import {
   fetchDeleteAssoc,
   fetchAssociations,
   fetchUpdateAssoc,
-  handleIsOauth2ModalOpen,
 } from '../../../Redux/slices/associationSlice';
 import { fetchOslcResource } from '../../../Redux/slices/oslcResourcesSlice.jsx';
 import AuthContext from '../../../Store/Auth-Context';
@@ -15,7 +14,7 @@ import {
   handleIsAddNewModal,
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
-import { Button, FlexboxGrid, Form, Modal, Schema } from 'rsuite';
+import { FlexboxGrid, Form, Schema } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
 import TextField from '../TextField';
@@ -23,6 +22,7 @@ import UseLoader from '../../Shared/UseLoader';
 import SelectField from '../SelectField.jsx';
 import CustomSelect from '../CustomSelect.jsx';
 import DefaultCustomSelect from '../DefaultCustomSelect';
+import Oauth2Modal from '../../Oauth2Modal/Oauth2Modal.jsx';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -71,7 +71,6 @@ const Associations = () => {
     isAssocCreated,
     isAssocUpdated,
     isAssocDeleted,
-    isOauth2ModalOpen,
   } = useSelector((state) => state.associations);
   const {
     oslcRootservicesCatalogResponse,
@@ -83,7 +82,6 @@ const Associations = () => {
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
-  const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
   const [formValue, setFormValue] = useState({
     name: '',
     application_id: '',
@@ -94,6 +92,7 @@ const Associations = () => {
   });
 
   const associationFormRef = useRef();
+  const oauth2ModalRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
@@ -270,22 +269,9 @@ const Associations = () => {
     if (consumerToken && value) {
       fetchOslcServiceProviderCatalog(selectedURL?.rootservices_url, selectedURL?.id);
     } else {
-      if (selectedURL) {
-        const selectedData = selectedURL?.oauth2_application[0];
-        let query = `client_id=${selectedData?.client_id}&scope=${selectedData?.scopes}`;
-
-        selectedData?.response_types?.forEach((response_type) => {
-          if (selectedData?.response_types?.indexOf(response_type) === 0) {
-            query += `&response_type=${response_type}`;
-          } else {
-            query += ` ${response_type}`;
-          }
-        }, query);
-
-        query += `&redirect_uri=${selectedData?.redirect_uris[0]}`;
-        const authUrl = `${selectedData?.authorization_uri}?${query}`;
-        setAuthorizeFrameSrc(authUrl);
-        dispatch(handleIsOauth2ModalOpen(true));
+      // Call function of Oauth2Modal
+      if (oauth2ModalRef.current && oauth2ModalRef.current.verifyAndOpenModal) {
+        oauth2ModalRef.current.verifyAndOpenModal(selectedURL, selectedURL?.id);
       }
     }
   };
@@ -371,30 +357,7 @@ const Associations = () => {
       </AddNewModal>
 
       {/* --- oauth 2 modal ---  */}
-      <Modal
-        backdrop="static"
-        keyboard={false}
-        open={isOauth2ModalOpen}
-        style={{ marginTop: '25px' }}
-        size="sm"
-        onClose={() => dispatch(handleIsOauth2ModalOpen(false))}
-      >
-        <Modal.Header>
-          <Modal.Title className="adminModalTitle">Please authorize</Modal.Title>
-        </Modal.Header>
-
-        <Modal.Body>
-          <iframe className={'authorize-iframe'} src={authorizeFrameSrc} />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            onClick={() => dispatch(handleIsOauth2ModalOpen(false))}
-            appearance="default"
-          >
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+      <Oauth2Modal ref={oauth2ModalRef} />
 
       {isAssocLoading && <UseLoader />}
 

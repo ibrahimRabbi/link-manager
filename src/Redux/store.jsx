@@ -13,6 +13,7 @@ import componentsReducer from './slices/componentSlice';
 import eventReducer from './slices/eventSlice';
 import oslcResourceReducer from './slices/oslcResourcesSlice';
 import useCRUDReducer from './slices/useCRUDSlice';
+import oauth2ModalReducer from './slices/oauth2ModalSlice';
 import * as Sentry from '@sentry/react';
 
 const sentryReduxEnhancer = Sentry.createReduxEnhancer({
@@ -51,6 +52,7 @@ const store = configureStore({
     linkConstraints: linkConsReducer,
     components: componentsReducer,
     events: eventReducer,
+    oauth2Modal: oauth2ModalReducer,
   },
   sentryReduxEnhancer,
 });
