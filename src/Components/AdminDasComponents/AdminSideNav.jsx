@@ -85,15 +85,15 @@ const AdminSideNav = () => {
 
               <Nav.Item
                 eventKey="4"
-                active={pathname === '/admin/associations'}
-                onClick={() => navigate('/admin/associations')}
+                active={pathname === '/admin/integrations'}
+                onClick={() => navigate('/admin/integrations')}
               >
                 <TbApps
                   className="adminDasIcon"
                   size={20}
                   style={{ marginLeft: '-37px' }}
                 />
-                Associations
+                Integrations
               </Nav.Item>
 
               <Nav.Item
