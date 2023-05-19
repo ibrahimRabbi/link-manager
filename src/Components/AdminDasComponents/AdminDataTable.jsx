@@ -140,7 +140,7 @@ const AdminDataTable = ({ props }) => {
   };
 
   return (
-    <div>
+    <div style={{ paddingBottom: '30px' }}>
       <FlexboxGrid
         justify="space-between"
         style={{

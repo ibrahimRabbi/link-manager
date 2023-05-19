@@ -4,11 +4,9 @@ import Swal from 'sweetalert2';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
-  handleIsAddNewModal,
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
-import AddNewModal from '../AddNewModal';
-import { FlexboxGrid, Form, Schema } from 'rsuite';
+import { Button, FlexboxGrid, Form, Modal, Schema, Steps } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import TextField from '../TextField';
 import SelectField from '../SelectField';
@@ -21,7 +19,6 @@ import {
   fetchGetData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
-// import styles from './Application.module.scss';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -36,16 +33,16 @@ const headerData = [
     key: 'name',
   },
   {
+    header: 'Description',
+    key: 'description',
+  },
+  {
     header: 'OSLC Domain',
     key: 'oslc_domain',
   },
   {
-    header: 'URL',
-    key: 'url',
-  },
-  {
-    header: 'Description',
-    key: 'description',
+    header: 'Rootservices URL',
+    key: 'rootservices_url',
   },
 ];
 
@@ -53,7 +50,9 @@ const { StringType, NumberType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
-  url: StringType().isRequired('This field is required.'),
+  label: StringType().isRequired('This field is required.'),
+  rootservices_url: StringType().isRequired('This field is required.'),
+  client_uri: StringType().isRequired('This field is required.'),
   oslc_domain: StringType().isRequired('This field is required.'),
   organization_id: NumberType().isRequired('This field is required.'),
   description: StringType().isRequired('This field is required.'),
@@ -70,14 +69,22 @@ const Application = () => {
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
+  const [openModal, setOpenModal] = useState(false);
+  const [steps, setSteps] = useState(0);
+  const [appCreateSuccess, setAppCreateSuccess] = useState(false);
+  const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
+
   const [formValue, setFormValue] = useState({
     name: '',
-    url: '',
+    label: '',
+    rootservices_url: '',
+    client_uri: '',
     oslc_domain: '',
     organization_id: '',
     description: '',
   });
   const appFormRef = useRef();
+  const iframeRef = useRef(null);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
@@ -93,9 +100,9 @@ const Application = () => {
 
   const handleAddApplication = () => {
     if (!appFormRef.current.check()) {
-      console.error('Form Error', formError);
       return;
     } else if (isAdminEditing) {
+      // edit application
       const putUrl = `${lmApiUrl}/application/${editData?.id}`;
       dispatch(
         fetchUpdateData({
@@ -104,20 +111,99 @@ const Application = () => {
           bodyData: formValue,
         }),
       );
+      setOpenModal(false);
     } else {
+      const redirect_uris = [
+        `${lmApiUrl}/application/` +
+          'oauth2-consumer/callback?consumer=' +
+          formValue.label,
+      ];
+      const scopes = 'oslc_fetch_access';
+      const response_types = ['code'];
+      const grant_types = ['service_provider', 'authorization_code'];
+
       const postUrl = `${lmApiUrl}/application`;
       dispatch(
         fetchCreateData({
           url: postUrl,
           token: authCtx.token,
-          bodyData: formValue,
-          message: 'application',
+          bodyData: { ...formValue, scopes, response_types, grant_types, redirect_uris },
+          sendMsg: false,
         }),
-      );
+      )
+        .then((appRes) => {
+          if (appRes.payload) {
+            console.log('application:response: ', appRes);
+            if (appRes.payload.response?.status) {
+              setAppCreateSuccess(true);
+              setSteps(1);
+
+              let query = `client_id=${appRes.payload.response?.client_id}`;
+              query += `&scope=${scopes}`;
+
+              response_types?.forEach((response_type) => {
+                if (response_types?.indexOf(response_type) === 0) {
+                  query += `&response_type=${response_type}`;
+                } else {
+                  query += ` ${response_type}`;
+                }
+              }, query);
+
+              query += `&redirect_uri=${redirect_uris[0]}`;
+              // eslint-disable-next-line max-len
+              let authorizeUri =
+                appRes.payload?.response?.oauth_client_authorize_uri + '?' + query;
+              setAuthorizeFrameSrc(authorizeUri);
+            }
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Something went wrong!',
+            });
+          }
+        })
+        .catch((error) => console.error(error));
     }
 
-    dispatch(handleIsAddNewModal(false));
+    // setOpenModal(false);
     if (isAdminEditing) dispatch(handleIsAdminEditing(false));
+  };
+
+  window.addEventListener(
+    'message',
+    function (event) {
+      let message = event.data;
+      if (!message.source) {
+        if (message.toString()?.startsWith('access-token-data')) {
+          const response = JSON.parse(message?.substr('access-token-data:'?.length));
+
+          localStorage.setItem('access_token', response.access_token);
+          localStorage.setItem('expires_in', response.expires_in);
+          if (response.access_token) handleCloseModal();
+        }
+      }
+    },
+    false,
+  );
+
+  useEffect(() => {
+    if (iframeRef.current) {
+      iframeRef.current.addEventListener('load', handleLoad);
+    }
+    return () => {
+      if (iframeRef.current) {
+        iframeRef.current.removeEventListener('load', handleLoad);
+      }
+    };
+  }, [iframeRef]);
+
+  // Check for changes to the iframe URL when it is loaded
+  const handleLoad = () => {
+    const currentUrl = iframeRef.current.contentWindow.location.href;
+    if (currentUrl !== authorizeFrameSrc) {
+      setAuthorizeFrameSrc(currentUrl);
+    }
   };
 
   // reset form
@@ -125,17 +211,28 @@ const Application = () => {
     setEditData({});
     setFormValue({
       name: '',
-      url: '',
+      label: '',
+      rootservices_url: '',
+      client_uri: '',
       oslc_domain: '',
       organization_id: '',
       description: '',
     });
   };
 
-  // handle open add user modal
+  // handle open add application modal
   const handleAddNew = () => {
     handleResetForm();
-    dispatch(handleIsAddNewModal(true));
+    setOpenModal(true);
+  };
+  // handle close modal
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setTimeout(() => {
+      setSteps(0);
+      handleResetForm();
+      setAppCreateSuccess(false);
+    }, 500);
   };
 
   useEffect(() => {
@@ -175,13 +272,15 @@ const Application = () => {
     dispatch(handleIsAdminEditing(true));
     setFormValue({
       name: data?.name,
-      url: data?.url,
+      label: data?.label,
+      rootservices_url: data?.rootservices_url,
+      client_uri: data?.client_uri,
       oslc_domain: data?.oslc_domain,
       organization_id: data?.organization_id,
       description: data?.description,
     });
 
-    dispatch(handleIsAddNewModal(true));
+    setOpenModal(true);
   };
 
   // send props in the batch action table
@@ -205,66 +304,191 @@ const Application = () => {
 
   return (
     <div>
-      <AddNewModal
-        title={isAdminEditing ? 'Edit Application' : 'Add New Application'}
-        handleSubmit={handleAddApplication}
-        handleReset={handleResetForm}
+      <Modal
+        backdrop={'static'}
+        keyboard={false}
+        size="md"
+        open={openModal}
+        onClose={handleCloseModal}
       >
-        <div className="show-grid">
-          <Form
-            fluid
-            ref={appFormRef}
-            onChange={setFormValue}
-            onCheck={setFormError}
-            formValue={formValue}
-            model={model}
-          >
-            <FlexboxGrid justify="space-between">
-              <FlexboxGrid.Item colspan={11}>
-                <TextField name="name" label="Name" reqText="Name is required" />
-              </FlexboxGrid.Item>
+        <Modal.Header>
+          <Modal.Title className="adminModalTitle">
+            {isAdminEditing ? 'Edit Application' : 'Add New Application'}
+          </Modal.Title>
 
-              <FlexboxGrid.Item colspan={11}>
-                <TextField name="url" label="URL" reqText="URL is required" />
-              </FlexboxGrid.Item>
+          <Steps current={steps} style={{ marginTop: '5px' }}>
+            <Steps.Item />
+            <Steps.Item status={steps == 1 ? 'process' : 'wait'} />
+            <Steps.Item />
+          </Steps>
+        </Modal.Header>
 
-              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                <TextField
-                  name="oslc_domain"
-                  label="OSLC Domain"
-                  reqText="OSLC domain is required"
-                />
-              </FlexboxGrid.Item>
+        <Modal.Body style={{ padding: '0 10px 30px' }}>
+          {steps === 0 && (
+            <div className="show-grid step-1">
+              <Form
+                fluid
+                ref={appFormRef}
+                onChange={setFormValue}
+                onCheck={setFormError}
+                formValue={formValue}
+                model={model}
+              >
+                <FlexboxGrid justify="space-between">
+                  <FlexboxGrid.Item colspan={11}>
+                    <TextField
+                      name="name"
+                      label="Name"
+                      reqText="Application name is required"
+                    />
+                  </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                <SelectField
-                  name="organization_id"
-                  label="Organization ID"
-                  placeholder="Select Organization ID"
-                  accepter={CustomSelect}
-                  apiURL={`${lmApiUrl}/organization`}
-                  error={formError.organization_id}
-                  reqText="Organization Id is required"
-                />
-              </FlexboxGrid.Item>
+                  <FlexboxGrid.Item colspan={11}>
+                    <TextField
+                      name="label"
+                      label="label"
+                      reqText="Application label is required"
+                    />
+                  </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0 10px' }}>
-                <TextField
-                  name="description"
-                  label="Description"
-                  accepter={TextArea}
-                  rows={5}
-                  reqText="Description is required"
-                />
-              </FlexboxGrid.Item>
-            </FlexboxGrid>
-          </Form>
-        </div>
-      </AddNewModal>
+                  <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
+                    <TextField
+                      name="rootservices_url"
+                      label="Root Services URL"
+                      reqText="Root Services URL of OSLC application is required"
+                    />
+                  </FlexboxGrid.Item>
+
+                  <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
+                    <TextField
+                      name="client_uri"
+                      label="Client URI"
+                      reqText="Client URI about OSLC application is required"
+                    />
+                  </FlexboxGrid.Item>
+
+                  <FlexboxGrid.Item colspan={24}>
+                    <TextField
+                      name="oslc_domain"
+                      label="OSLC Domain"
+                      reqText="OSLC domain is required"
+                    />
+                  </FlexboxGrid.Item>
+
+                  <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                    <SelectField
+                      name="organization_id"
+                      label="Organization ID"
+                      placeholder="Select Organization ID"
+                      accepter={CustomSelect}
+                      apiURL={`${lmApiUrl}/organization`}
+                      error={formError.organization_id}
+                      reqText="Organization Id is required"
+                    />
+                  </FlexboxGrid.Item>
+
+                  <FlexboxGrid.Item colspan={24} style={{ marginBottom: '20px' }}>
+                    <TextField
+                      name="description"
+                      label="Description"
+                      accepter={TextArea}
+                      rows={5}
+                      reqText="application description is required"
+                    />
+                  </FlexboxGrid.Item>
+                </FlexboxGrid>
+              </Form>
+
+              <FlexboxGrid justify="end">
+                <Button
+                  className="adminModalFooterBtn"
+                  appearance="default"
+                  onClick={handleCloseModal}
+                >
+                  {appCreateSuccess ? 'Close' : 'Cancel'}
+                </Button>
+                <Button
+                  appearance="primary"
+                  color="blue"
+                  className="adminModalFooterBtn"
+                  onClick={() => {
+                    if (appCreateSuccess) setSteps(1);
+                    else {
+                      handleAddApplication();
+                    }
+                  }}
+                >
+                  {appCreateSuccess ? 'Next' : 'Save'}
+                </Button>
+              </FlexboxGrid>
+            </div>
+          )}
+
+          {steps === 1 && (
+            <div style={{ textAlign: 'center' }}>
+              <h4>{'The application has been registered successfully'}</h4>
+
+              <iframe
+                className={'authorize-iframe'}
+                ref={iframeRef}
+                src={authorizeFrameSrc}
+              />
+              <FlexboxGrid justify="end">
+                <Button
+                  className="adminModalFooterBtn"
+                  appearance="default"
+                  onClick={() => setSteps(0)}
+                >
+                  {' '}
+                  Back
+                </Button>
+
+                <Button
+                  appearance="ghost"
+                  color="blue"
+                  className="adminModalFooterBtn"
+                  onClick={() => setSteps(2)}
+                >
+                  Skip
+                </Button>
+              </FlexboxGrid>
+            </div>
+          )}
+
+          {steps === 2 && (
+            <div style={{ textAlign: 'center' }}>
+              <h4 style={{ marginBottom: '10px' }}>You have not authorized</h4>
+
+              <h5 style={{ marginBottom: '20px' }}>
+                Please go back and authorize or skip it for now
+              </h5>
+
+              <FlexboxGrid justify="end" style={{ marginTop: '30px' }}>
+                <Button
+                  className="adminModalFooterBtn"
+                  appearance="default"
+                  onClick={() => setSteps(1)}
+                >
+                  {' '}
+                  Back
+                </Button>
+
+                <Button
+                  appearance="primary"
+                  color="blue"
+                  className="adminModalFooterBtn"
+                  onClick={handleCloseModal}
+                >
+                  Close
+                </Button>
+              </FlexboxGrid>
+            </div>
+          )}
+        </Modal.Body>
+      </Modal>
 
       {isCrudLoading && <UseLoader />}
 
-      {/* <UseTable props={tableProps} /> */}
       <AdminDataTable props={tableProps} />
     </div>
   );

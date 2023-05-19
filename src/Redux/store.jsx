@@ -5,13 +5,14 @@ import navReducer from './slices/navSlice';
 import usersReducer from './slices/usersSlice';
 import organizationsReducer from './slices/organizationSlice';
 import applicationsReducer from './slices/applicationSlice';
+import associationsReducer from './slices/associationSlice';
 import projectsReducer from './slices/projectSlice';
 import linkTypesReducer from './slices/linkTypeSlice';
 import linkConsReducer from './slices/linkConstraintSlice';
 import componentsReducer from './slices/componentSlice';
 import eventReducer from './slices/eventSlice';
+import oslcResourceReducer from './slices/oslcResourcesSlice';
 import useCRUDReducer from './slices/useCRUDSlice';
-
 import * as Sentry from '@sentry/react';
 
 const sentryReduxEnhancer = Sentry.createReduxEnhancer({
@@ -43,6 +44,8 @@ const store = configureStore({
     users: usersReducer,
     organizations: organizationsReducer,
     applications: applicationsReducer,
+    associations: associationsReducer,
+    oslcResources: oslcResourceReducer,
     projects: projectsReducer,
     linkTypes: linkTypesReducer,
     linkConstraints: linkConsReducer,

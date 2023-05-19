@@ -47,7 +47,7 @@ const GraphView = () => {
               relationships={graphData.relationships}
               width="100%"
               height="100%"
-              // hasLegends
+              hasLegends
               hasInspector
               hasTruncatedFields
             />
