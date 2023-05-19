@@ -355,6 +355,8 @@ const Associations = () => {
             {oslcRootservicesCatalogResponse.length && (
               <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
                 <SelectField
+                  size="lg"
+                  block
                   name="service_provider_id"
                   label="Resource container"
                   placeholder="Select resource container"
@@ -372,6 +374,8 @@ const Associations = () => {
               <SelectField
                 name="selection_dialog_url"
                 label="Resource type"
+                size="lg"
+                block
                 placeholder="Select resource type"
                 data={oslcServiceProviderResponse}
                 accepter={SelectPicker}
