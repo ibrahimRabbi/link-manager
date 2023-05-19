@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import SourceSection from '../SourceSection.jsx';
 import { useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { handleIsOauth2ModalOpen } from '../../Redux/slices/associationSlice.jsx';
+import { handleIsOauth2ModalOpen } from '../../Redux/slices/oauth2ModalSlice.jsx';
 
 const Oauth2Success = () => {
   const location = useLocation();
