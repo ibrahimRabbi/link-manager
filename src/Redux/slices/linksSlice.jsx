@@ -52,7 +52,7 @@ const initialState = {
   linkType: null,
   applicationType: null,
   streamType: null,
-  integrationType: null,
+  projectType: null,
   resourceType: null,
 };
 
@@ -87,7 +87,7 @@ export const linksSlice = createSlice({
     // edit link first step get data
     handleEditLinkData: (state, { payload }) => {
       state.linkType = null;
-      state.integrationType = null;
+      state.projectType = null;
       state.resourceType = null;
       state.oslcResponse = false;
       state.editTargetData = payload?.targetData;
@@ -104,17 +104,14 @@ export const linksSlice = createSlice({
         ...{
           targetData: state.editTargetData,
           linkType: state.linkType ? state?.linkType : state.editLinkData?.linkType,
-          // eslint-disable-next-line max-len
-          project: state.integrationType
-            ? state.integrationType
-            : state.editLinkData?.project,
+          project: state.projectType ? state.projectType : state.editLinkData?.project,
           resource: state.resourceType
             ? state.resourceType
             : state.editLinkData?.resource,
         },
       };
       state.linkType = null;
-      state.integrationType = null;
+      state.projectType = null;
       state.resourceType = null;
       state.editTargetData = {};
       state.targetDataArr = [];
@@ -136,7 +133,7 @@ export const linksSlice = createSlice({
       } else {
         state.linkType = null;
         state.applicationType = null;
-        state.integrationType = null;
+        state.projectType = null;
       }
     },
 
@@ -145,7 +142,7 @@ export const linksSlice = createSlice({
         state.applicationType = payload;
       } else {
         state.applicationType = null;
-        state.integrationType = null;
+        state.projectType = null;
       }
     },
 
@@ -153,11 +150,11 @@ export const linksSlice = createSlice({
       state.streamType = payload;
     },
 
-    handleOslcIntegration: (state, { payload }) => {
+    handleProjectType: (state, { payload }) => {
       if (payload) {
-        state.integrationType = payload;
+        state.projectType = payload;
       } else {
-        state.integrationType = null;
+        state.projectType = null;
       }
     },
 
@@ -170,7 +167,7 @@ export const linksSlice = createSlice({
       state.isTargetModalOpen = false;
       state.linkType = null;
       state.applicationType = null;
-      state.integrationType = null;
+      state.projectType = null;
       state.resourceType = null;
       state.editTargetData = {};
       state.targetDataArr = [];
@@ -227,7 +224,7 @@ export const linksSlice = createSlice({
       state.targetDataArr = [];
       state.linkType = null;
       state.streamType = null;
-      state.integrationType = null;
+      state.projectType = null;
       state.resourceType = null;
       state.isLinkEdit = false;
     });
@@ -272,7 +269,7 @@ export const {
   handleLinkType,
   handleApplicationType,
   handleStreamType,
-  handleOslcIntegration,
+  handleProjectType,
   handleResourceType,
   handleSetStatus,
   handleDeleteLink,
