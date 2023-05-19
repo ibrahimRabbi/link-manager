@@ -32,7 +32,7 @@ const DefaultCustomSelect = forwardRef((props, ref) => {
   let data = [];
   if (customSelectLabel) {
     data = options?.map((item) => ({
-      label: item.name,
+      label: item[customSelectLabel],
       value: JSON.stringify(item),
     }));
   } else {

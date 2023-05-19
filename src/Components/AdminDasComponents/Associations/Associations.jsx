@@ -60,8 +60,8 @@ const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
   application_id: NumberType().isRequired('This field is required.'),
   project_id: NumberType().isRequired('This field is required.'),
-  service_provider_id: StringType().isRequired('This field is required.'),
-  selection_dialog_url: StringType().isRequired('This field is required.'),
+  resource_container: StringType().isRequired('This field is required.'),
+  resource_type: StringType().isRequired('This field is required.'),
 });
 
 const Associations = () => {
@@ -85,9 +85,9 @@ const Associations = () => {
   const [formValue, setFormValue] = useState({
     name: '',
     application_id: '',
-    service_provider_id: '',
+    resource_container: '',
     // service_provider_url: '',
-    selection_dialog_url: '',
+    resource_type: '',
     project_id: '',
   });
 
@@ -110,7 +110,9 @@ const Associations = () => {
     );
   };
 
-  const getServiceProviderResources = (url) => {
+  const getServiceProviderResources = (payload) => {
+    const data = JSON.parse(payload);
+    const url = data.value;
     const consumerToken = localStorage.getItem('consumerToken');
     if (url && consumerToken) {
       dispatch(
@@ -146,15 +148,16 @@ const Associations = () => {
         }),
       );
     } else {
-      let bodyData = { ...formValue };
+      const bodyData = { ...formValue };
+      const resourceContainerPayload = JSON.parse(bodyData.resource_container);
+      const resourceTypePayload = JSON.parse(bodyData.resource_type);
+
       const selectedServiceProvider = oslcServiceProviderCatalogResponse?.find(
-        (item) => item.value === formValue.service_provider_id,
+        (item) => item.value === resourceContainerPayload.value,
       );
       const selectedSelectionDialog = oslcServiceProviderResponse?.find(
-        (item) => item.value === formValue.selection_dialog_url,
+        (item) => item.value === resourceTypePayload.value,
       );
-      console.log('selectedSelectionDialog', selectedSelectionDialog);
-      console.log('selectedServiceProvider', selectedServiceProvider);
 
       bodyData['oslc_domain'] = selectedSelectionDialog.domain;
       bodyData['service_provider_id'] = selectedServiceProvider?.serviceProviderId;
@@ -183,8 +186,8 @@ const Associations = () => {
     setFormValue({
       name: '',
       application_id: '',
-      service_provider_id: '',
-      selection_dialog_url: '',
+      resource_container: '',
+      resource_type: '',
       project_id: '',
     });
   };
@@ -236,8 +239,8 @@ const Associations = () => {
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
     setFormValue({
-      service_provider_id: data?.service_provider_id,
-      selection_dialog_url: data?.selection_dialog_url,
+      resource_container: data?.resource_container,
+      resource_type: data?.resource_type,
     });
 
     dispatch(handleIsAddNewModal(true));
@@ -328,10 +331,11 @@ const Associations = () => {
                 <SelectField
                   size="lg"
                   block
-                  name="service_provider_id"
+                  name="resource_container"
                   label="Resource container"
                   placeholder="Select resource container"
                   options={oslcServiceProviderCatalogResponse}
+                  customSelectLabel="label"
                   accepter={DefaultCustomSelect}
                   onChange={(value) => {
                     getServiceProviderResources(value);
@@ -342,11 +346,12 @@ const Associations = () => {
 
               <FlexboxGrid.Item style={{ marginBottom: '10px' }} colspan={24}>
                 <SelectField
-                  name="selection_dialog_url"
+                  name="resource_type"
                   label="Resource type"
                   placeholder="Select resource type"
                   options={oslcServiceProviderResponse}
                   accepter={DefaultCustomSelect}
+                  customSelectLabel="label"
                   reqText="Resource type is required"
                 />
               </FlexboxGrid.Item>
