@@ -95,7 +95,7 @@ function App() {
             <Route path="/admin/users" element={<Users />} />
             <Route path="/admin/organizations" element={<Organization />} />
             <Route path="/admin/applications" element={<Application />} />
-            <Route path="/admin/associations" element={<Associations />} />
+            <Route path="/admin/integrations" element={<Associations />} />
             <Route path="/admin/projects" element={<Projects />} />
             <Route path="/admin/link-types" element={<LinkTypes />} />
             <Route path="/admin/link-constraint" element={<LinkConstraint />} />

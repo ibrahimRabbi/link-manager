@@ -177,10 +177,11 @@ const Application = () => {
       if (!message.source) {
         if (message.toString()?.startsWith('access-token-data')) {
           const response = JSON.parse(message?.substr('access-token-data:'?.length));
+          console.log('Token res: ', response);
+          handleCloseModal();
 
           localStorage.setItem('access_token', response.access_token);
           localStorage.setItem('expires_in', response.expires_in);
-          if (response.access_token) handleCloseModal();
         }
       }
     },
@@ -197,6 +198,11 @@ const Application = () => {
       }
     };
   }, [iframeRef]);
+
+  useEffect(() => {
+    const consToken = localStorage.getItem('consumerToken');
+    if (consToken) handleCloseModal();
+  }, [localStorage]);
 
   // Check for changes to the iframe URL when it is loaded
   const handleLoad = () => {
@@ -228,10 +234,10 @@ const Application = () => {
   // handle close modal
   const handleCloseModal = () => {
     setOpenModal(false);
+    setAppCreateSuccess(false);
     setTimeout(() => {
-      setSteps(0);
       handleResetForm();
-      setAppCreateSuccess(false);
+      setSteps(0);
     }, 500);
   };
 
@@ -433,16 +439,7 @@ const Application = () => {
                 ref={iframeRef}
                 src={authorizeFrameSrc}
               />
-              <FlexboxGrid justify="end">
-                <Button
-                  className="adminModalFooterBtn"
-                  appearance="default"
-                  onClick={() => setSteps(0)}
-                >
-                  {' '}
-                  Back
-                </Button>
-
+              <FlexboxGrid justify="end" style={{ marginTop: '20px' }}>
                 <Button
                   appearance="ghost"
                   color="blue"
@@ -464,15 +461,6 @@ const Application = () => {
               </h5>
 
               <FlexboxGrid justify="end" style={{ marginTop: '30px' }}>
-                <Button
-                  className="adminModalFooterBtn"
-                  appearance="default"
-                  onClick={() => setSteps(1)}
-                >
-                  {' '}
-                  Back
-                </Button>
-
                 <Button
                   appearance="primary"
                   color="blue"

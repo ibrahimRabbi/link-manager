@@ -126,6 +126,6 @@ export const associationSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-// export const {  } = applicationSlice.actions;
+// export const { } = associationSlice.actions;
 
 export default associationSlice.reducer;
