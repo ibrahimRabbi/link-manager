@@ -47,3 +47,31 @@ export default async function postAPI({ url, token, bodyData, message }) {
     .catch((error) => clientMessages({ isErrCatch: true, error }));
   return response;
 }
+
+export async function postAPIForm({ url, token, bodyData }) {
+  const formData = new FormData();
+  for (const name in bodyData) {
+    if (name === 'script_path') {
+      formData.append(name, bodyData[name][0]['blobFile']);
+    }
+    formData.append(name, bodyData[name]);
+  }
+  console.log(formData);
+
+  console.log(url);
+  console.log(token);
+  console.log(formData);
+  return await fetch(`${url}`, {
+    method: 'POST',
+    headers: {
+      authorization: 'Bearer ' + token,
+    },
+    body: formData,
+  })
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}

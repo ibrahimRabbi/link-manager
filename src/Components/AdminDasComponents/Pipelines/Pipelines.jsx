@@ -14,7 +14,7 @@ import {
 } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Form, Uploader, Toggle, Loader, Schema } from 'rsuite';
+import { FlexboxGrid, Form, Uploader, /*Toggle,*/ Loader, Schema } from 'rsuite';
 import TextField from '../TextField';
 import { useRef } from 'react';
 import SelectField from '../SelectField.jsx';
@@ -36,15 +36,19 @@ const headerData = [
     header: 'Polling Period',
     key: 'polling_period',
   },
+  {
+    header: 'Is Polling?',
+    key: 'is_polling',
+  },
 ];
 
-const { ObjectType, BooleanType, NumberType } = Schema.Types;
+const { ObjectType, /*BooleanType,*/ NumberType } = Schema.Types;
 
 const model = Schema.Model({
   event_id: NumberType().isRequired('Event is required.'),
   script_path: ObjectType().isRequired('Please upload a file.'),
-  is_polling: BooleanType().isRequired('This field is required.'),
-  polling_period: NumberType().isRequired('This field is required.'),
+  // is_polling: BooleanType().isRequired('This field is required.'),
+  // polling_period: NumberType().isRequired('This field is required.'),
 });
 
 const Pipelines = () => {
@@ -60,10 +64,10 @@ const Pipelines = () => {
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
   const [formValue, setFormValue] = useState({
-    event_id: '',
-    script_path: '',
-    is_polling: false,
-    polling_period: 0,
+    event_id: 0,
+    script_path: null,
+    // is_polling: false,
+    // polling_period: 0,
   });
 
   const pipelineFormRef = useRef();
@@ -119,10 +123,10 @@ const Pipelines = () => {
   const handleResetForm = () => {
     setEditData({});
     setFormValue({
-      event_id: '',
-      script_path: '',
-      is_polling: '',
-      polling_period: '',
+      event_id: 0,
+      // script_path: null,
+      // is_polling: false,
+      // polling_period: 0,
     });
   };
 
@@ -231,7 +235,7 @@ const Pipelines = () => {
                 />
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={24}>
+              {/*<FlexboxGrid.Item colspan={24}>
                 <TextField
                   name="is_polling"
                   label="Is Polling"
@@ -246,7 +250,7 @@ const Pipelines = () => {
                   label="Polling Period"
                   reqText="Polling Period is required"
                 />
-              </FlexboxGrid.Item>
+              </FlexboxGrid.Item>*/}
             </FlexboxGrid>
           </Form>
         </div>
