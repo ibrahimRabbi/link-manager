@@ -11,7 +11,7 @@ import linkTypesReducer from './slices/linkTypeSlice';
 import linkConsReducer from './slices/linkConstraintSlice';
 import componentsReducer from './slices/componentSlice';
 import eventReducer from './slices/eventSlice';
-import oslcResourceReducer from './slices/oslcResourcesSlice';
+import { reducer as oslcResourceReducer } from './slices/oslcResourcesSlice';
 import useCRUDReducer from './slices/useCRUDSlice';
 import oauth2ModalReducer from './slices/oauth2ModalSlice';
 import * as Sentry from '@sentry/react';

@@ -7,7 +7,7 @@ import {
   fetchAssociations,
   fetchUpdateAssoc,
 } from '../../../Redux/slices/associationSlice';
-import { fetchOslcResource } from '../../../Redux/slices/oslcResourcesSlice.jsx';
+import { actions, fetchOslcResource } from '../../../Redux/slices/oslcResourcesSlice.jsx';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
@@ -182,6 +182,7 @@ const Associations = () => {
 
   // reset form
   const handleResetForm = () => {
+    console.log('reset form');
     setEditData({});
     setFormValue({
       name: '',
@@ -190,6 +191,8 @@ const Associations = () => {
       resource_type: '',
       project_id: '',
     });
+    dispatch(actions.resetOslcServiceProviderCatalogResponse());
+    dispatch(actions.resetOslcServiceProviderResponse());
   };
 
   useEffect(() => {

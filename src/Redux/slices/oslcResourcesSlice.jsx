@@ -111,10 +111,16 @@ export const oslcResourceSlice = createSlice({
     builder.addCase(fetchOslcResource.rejected, (state) => {
       state.isAssocLoading = false;
     });
+    builder.addCase('resetOslcServiceProviderCatalogResponse', (state) => {
+      state.oslcServiceProviderCatalogResponse = [];
+    });
+    builder.addCase('resetOslcServiceProviderResponse', (state) => {
+      state.oslcServiceProviderResponse = [];
+    });
   },
 });
 
 // Action creators are generated for each case reducer function
 // export const {  } = applicationSlice.actions;
 
-export default oslcResourceSlice.reducer;
+export const { actions, reducer } = oslcResourceSlice;
