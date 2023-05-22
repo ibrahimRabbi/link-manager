@@ -2,16 +2,24 @@ import Swal from 'sweetalert2';
 import clientMessages from './responseMsg';
 
 export default async function postAPI({ url, token, bodyData, message }) {
+  const formData = new FormData();
+  for (const name in bodyData) {
+    if (name === 'script_path') {
+      formData.append(name, bodyData[name][0]['blobFile']);
+    }
+    formData.append(name, bodyData[name]);
+  }
   const response = await fetch(`${url}`, {
     method: 'POST',
     headers: {
-      'Content-type': 'application/json',
+      // 'Content-type': 'application/json',
       authorization: 'Bearer ' + token,
     },
-    body: JSON.stringify(bodyData),
+    body: formData,
   })
     .then((res) => {
       if (res.ok) {
+        console.log(`response: ${res.ok}`);
         return res.json().then((data) => {
           Swal.fire({
             title: 'Success',
@@ -36,6 +44,7 @@ export default async function postAPI({ url, token, bodyData, message }) {
         } else if (res.status === 403) {
           console.log(res.status, res.statusText);
         } else if (res.status === 409) {
+          res.json().then((data) => console.log(data.message));
           console.log(res.status, res.statusText);
         } else if (res.status === 500) {
           clientMessages({ status: res.status, message: res.statusText });
@@ -46,32 +55,4 @@ export default async function postAPI({ url, token, bodyData, message }) {
     })
     .catch((error) => clientMessages({ isErrCatch: true, error }));
   return response;
-}
-
-export async function postAPIForm({ url, token, bodyData }) {
-  const formData = new FormData();
-  for (const name in bodyData) {
-    if (name === 'script_path') {
-      formData.append(name, bodyData[name][0]['blobFile']);
-    }
-    formData.append(name, bodyData[name]);
-  }
-  console.log(formData);
-
-  console.log(url);
-  console.log(token);
-  console.log(formData);
-  return await fetch(`${url}`, {
-    method: 'POST',
-    headers: {
-      authorization: 'Bearer ' + token,
-    },
-    body: formData,
-  })
-    .then((res) => {
-      console.log(res);
-    })
-    .catch((error) => {
-      console.log(error);
-    });
 }

@@ -3,8 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchPipelines,
   fetchCreatePipeline,
+  fetchUpdatePipeline,
   //   fetchDeletePipeline,
-  //   fetchUpdatePipeline,
 } from '../../../Redux/slices/pipelineSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import {
@@ -14,7 +14,7 @@ import {
 } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Form, Uploader, /*Toggle,*/ Loader, Schema } from 'rsuite';
+import { FlexboxGrid, Form, Uploader, Toggle, Loader, Schema } from 'rsuite';
 import TextField from '../TextField';
 import { useRef } from 'react';
 import SelectField from '../SelectField.jsx';
@@ -42,20 +42,20 @@ const headerData = [
   },
 ];
 
-const { ObjectType, /*BooleanType,*/ NumberType } = Schema.Types;
+const { ObjectType, BooleanType, NumberType } = Schema.Types;
 
 const model = Schema.Model({
   event_id: NumberType().isRequired('Event is required.'),
   script_path: ObjectType().isRequired('Please upload a file.'),
-  // is_polling: BooleanType().isRequired('This field is required.'),
-  // polling_period: NumberType().isRequired('This field is required.'),
+  is_polling: BooleanType().isRequired('This field is required.'),
+  polling_period: NumberType().isRequired('This field is required.'),
 });
 
 const Pipelines = () => {
-  // eslint-disable-next-line max-len
   const {
     allPipelines,
-    isPipelineLoading /*, isPipelineUpdated, isPipelineCreated, isPipelineDeleted*/,
+    isPipelineLoading,
+    isPipelineCreated /*, isPipelineUpdated,  isPipelineDeleted*/,
   } = useSelector((state) => state.pipelines);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
 
@@ -66,8 +66,8 @@ const Pipelines = () => {
   const [formValue, setFormValue] = useState({
     event_id: 0,
     script_path: null,
-    // is_polling: false,
-    // polling_period: 0,
+    is_polling: false,
+    polling_period: 0,
   });
 
   const pipelineFormRef = useRef();
@@ -97,13 +97,13 @@ const Pipelines = () => {
     } else if (isAdminEditing) {
       const putUrl = `${lmApiUrl}/pipelines/${editData?.id}`;
       console.log('putUrl', putUrl);
-      //       dispatch(
-      //         fetchUpdatePipeline({
-      //           url: putUrl,
-      //           token: authCtx.token,
-      //           bodyData: formValue,
-      //         }),
-      //       );
+      dispatch(
+        fetchUpdatePipeline({
+          url: putUrl,
+          token: authCtx.token,
+          bodyData: formValue,
+        }),
+      );
     } else {
       const postUrl = `${lmApiUrl}/pipelines`;
       dispatch(
@@ -124,9 +124,9 @@ const Pipelines = () => {
     setEditData({});
     setFormValue({
       event_id: 0,
-      // script_path: null,
-      // is_polling: false,
-      // polling_period: 0,
+      script_path: null,
+      is_polling: false,
+      polling_period: 0,
     });
   };
 
@@ -134,10 +134,10 @@ const Pipelines = () => {
     dispatch(handleCurrPageTitle('Pipelines'));
 
     const getUrl = `${lmApiUrl}/pipelines?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchPipelines({ url: getUrl, token: authCtx.token }));
-    // eslint-disable-next-line max-len
+    dispatch(fetchPipelines({ url: getUrl, token: authCtx.token, authCtx: authCtx }));
   }, [
-    /*isPipelineCreated, isPipelineUpdated, isPipelineDeleted,*/ pageSize,
+    isPipelineCreated,
+    /*isPipelineUpdated, isPipelineDeleted,*/ pageSize,
     currPage,
     refreshData,
   ]);
@@ -161,24 +161,25 @@ const Pipelines = () => {
   //     });
   //  };
 
-  //   // handle Edit Pipeline
-  //   const handleEdit = (data) => {
-  //     setEditData(data);
-  //     dispatch(handleIsAdminEditing(true));
-  //     setFormValue({
-  //       name: data?.name,
-  //       trigger_endpoint: data?.trigger_endpoint,
-  //       description: data?.description,
-  //     });
-  //     dispatch(handleIsAddNewModal(true));
-  //   };
-  //
+  // handle Edit Pipeline
+  const handleEdit = (data) => {
+    setEditData(data);
+    dispatch(handleIsAdminEditing(true));
+    setFormValue({
+      event_id: data?.event_id,
+      script_path: data?.script_path,
+      is_polling: data?.is_polling,
+      polling_period: data?.polling_period,
+    });
+    dispatch(handleIsAddNewModal(true));
+  };
+
   // send props in the batch action table
   const tableProps = {
     title: 'Pipelines',
     rowData: allPipelines?.items?.length ? allPipelines?.items : [],
     headerData,
-    //     handleEdit,
+    handleEdit,
     //     handleDelete,
     handleAddNew,
     handlePagination,
@@ -219,12 +220,6 @@ const Pipelines = () => {
                 />
               </FlexboxGrid.Item>
 
-              {/*<Uploader*/}
-              {/*  autoUpload={false}*/}
-              {/*  listType="picture-text"*/}
-              {/*  name="script_path"*/}
-              {/*/>*/}
-
               <FlexboxGrid.Item colspan={24}>
                 <TextField
                   name="script_path"
@@ -235,7 +230,7 @@ const Pipelines = () => {
                 />
               </FlexboxGrid.Item>
 
-              {/*<FlexboxGrid.Item colspan={24}>
+              <FlexboxGrid.Item colspan={24}>
                 <TextField
                   name="is_polling"
                   label="Is Polling"
@@ -250,7 +245,7 @@ const Pipelines = () => {
                   label="Polling Period"
                   reqText="Polling Period is required"
                 />
-              </FlexboxGrid.Item>*/}
+              </FlexboxGrid.Item>
             </FlexboxGrid>
           </Form>
         </div>
