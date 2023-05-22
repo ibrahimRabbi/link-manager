@@ -25,11 +25,7 @@ import CustomSelect from '../AdminDasComponents/CustomSelect.jsx';
 const { targetContainer, targetIframe, targetBtnContainer, cancelMargin } = styles;
 
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
-const jiraDialogURL = process.env.REACT_APP_JIRA_DIALOG_URL;
-const gitlabDialogURL = process.env.REACT_APP_GITLAB_DIALOG_URL;
-const glideDialogURL = process.env.REACT_APP_GLIDE_DIALOG_URL;
-const valispaceDialogURL = process.env.REACT_APP_VALISPACE_DIALOG_URL;
-const codebeamerDialogURL = process.env.REACT_APP_CODEBEAMER_DIALOG_URL;
+const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // links states
@@ -48,18 +44,15 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   } = useSelector((state) => state.links);
 
   const { oslcSelectionDialogData } = useSelector((state) => state.oslcResources);
-
-  const { crudData } = useSelector((state) => state.crud);
-
-  const [linkTypeItems, setLinkTypeItems] = useState([]);
-
-  const [applicationTypeItems, setApplicationTypeItems] = useState([]);
-  const [projectItems, setProjectItems] = useState([]);
-  const [projectIntegrations, setProjectIntegrations] = useState([]);
-  // const [integrationTypeItems, setintegrationTypeItems] = useState([]);
-  const [projectFrameSrc, setProjectFrameSrc] = useState('');
-  const [projectId, setProjectId] = useState('');
+  const [selectedApplication, setSelectedApplication] = useState('');
+  const [selectedProject, setSelectedProject] = useState('');
+  const [projectUrlQueryParams, setProjectUrlQueryParams] = useState('');
+  const [integration, setIntegration] = useState('');
+  const [integrationUrlQueryParams, setIntegrationUrlQueryParams] = useState('');
   const [selectedIntegration, setSelectedIntegration] = useState('');
+
+  // Hardcoded section
+  const [linkTypeItems, setLinkTypeItems] = useState([]);
   const [selectedLinkType, setSelectedLinkType] = useState('');
 
   const navigate = useNavigate();
@@ -67,84 +60,19 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
 
-  // Add if and condition to check if app is Jira
-
-  // const isJIRA = sourceDataList?.appName?.includes('jira');
-  // const isJIRAProject = sourceDataList?.appName?.includes('jira-projects');
-  // const isGitlab = sourceDataList?.appName?.includes('gitlab');
-  // const isGlide = sourceDataList?.appName?.includes('glide');
-  // const isValispace = sourceDataList?.appName?.includes('valispace');
-  // const isValispaceProject = sourceDataList?.appName?.includes('valispace-projects');
-  // const isCodebeamer = sourceDataList?.appName?.includes('codebeamer');
-  // const isCodebeamerProject = sourceDataList?.appName?.includes('codebeamer-projects');
-
-  const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
-
-  // Display project types conditionally by App name
+  // Display link types
   useEffect(() => {
     (async () => {
-      // get link_types dropdown items
-      fetch('.././gcm_context.json')
-        .then((res) => res.json())
-        // .then((data) => setStreamItems(data))
-        .catch((err) => console.log(err));
-
       // get link_types dropdown items
       fetch('.././link_types.json')
         .then((res) => res.json())
         .then((data) => setLinkTypeItems(data))
         .catch((err) => console.log(err));
-
-      // // get application_types dropdown items
-      // fetch('.././application_types.json')
-      //   .then((res) => res.json())
-      //   .then((data) => setApplicationTypeItems(data))
-      //   .catch((err) => console.log(err));
-
-      // get project_types dropdown items
-      // const projectsRes = await fetch('.././project_types.json')
-      //   .then((res) => res.json())
-      //   .catch((err) => console.log(err));
-
-      // display projects conditionally
-      // const specificProject = projectsRes?.reduce((acc, curr) => {
-      //   if (isJIRAProject) {
-      //     const jiraProject = curr.name.includes('JIRA-PROJECTS');
-      //     if (!jiraProject && curr.name.includes('-PROJECTS')) acc.push(curr);
-      //   } else if (isValispaceProject) {
-      //     const valispaceProject = curr.name.includes('VALISPACE-PROJECTS');
-      //     if (!valispaceProject && curr.name.includes('-PROJECTS')) acc.push(curr);
-      //   } else if (isCodebeamerProject) {
-      //     const codebeamerProject = curr.name.includes('CODEBEAMER-PROJECTS');
-      //     if (!codebeamerProject && curr.name.includes('-PROJECTS')) acc.push(curr);
-      //   } else if (isJIRA) {
-      //     const jira = curr.name.includes('JIRA');
-      //     if (!jira) acc.push(curr);
-      //   } else if (isGitlab) {
-      //     const gitlab = curr.name.includes('GITLAB');
-      //     if (!gitlab) acc.push(curr);
-      //   } else if (isGlide) {
-      //     const glide = curr.name.includes('GLIDE');
-      //     if (!glide) acc.push(curr);
-      //   } else if (isValispace) {
-      //     const valispace = curr.name.includes('VALISPACE');
-      //     if (!valispace) acc.push(curr);
-      //   } else if (isCodebeamer) {
-      //     const codebeamer = curr.name.includes('CODEBEAMER');
-      //     if (!codebeamer) acc.push(curr);
-      //   } else {
-      //     acc.push(curr);
-      //   }
-      //
-      //   return acc;
-      // }, []);
-      // setintegrationTypeItems(specificProject);
     })();
   }, [sourceDataList]);
 
   useEffect(() => {
-    console.log('oslcSelectionDialogData', oslcSelectionDialogData);
-    setSelectedIntegration(oslcSelectionDialogData[0]?.value);
+    setIntegration(oslcSelectionDialogData[0]?.value);
   }, [oslcSelectionDialogData]);
 
   useEffect(() => {
@@ -165,73 +93,15 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     isEditLinkPage ? null : dispatch(handleCancelLink());
   }, [location?.pathname]);
 
-  // set iframe SRC conditionally
-  useEffect(() => {
-    if (integrationType) {
-      const jiraApp = integrationType?.includes('(JIRA)');
-      const gitlabApp = integrationType?.includes('(GITLAB)');
-      const glideApp = integrationType?.includes('(GLIDE)');
-      const valispaceApp = integrationType?.includes('(VALISPACE)');
-      const codebeamerApp = integrationType?.includes('(CODEBEAMER)');
-      const jiraProjectApp = integrationType?.includes('(JIRA-PROJECTS)');
-      const valispaceProjectApp = integrationType?.includes('(VALISPACE-PROJECTS)');
-      const codebeamerProjectApp = integrationType?.includes('(CODEBEAMER-PROJECTS)');
-
-      if (jiraApp) {
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `${jiraDialogURL}/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0&gc_context=${streamType}`,
-        );
-      } else if (gitlabApp) {
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `${gitlabDialogURL}/oslc/provider/selector?provider_id=${projectId}&gc_context=${'st-develop'}`,
-        );
-      } else if (glideApp) {
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `${glideDialogURL}/oslc/provider/selector?gc_context=${streamType}`,
-        );
-      } else if (valispaceApp) {
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `${valispaceDialogURL}/oslc/provider/selector?gc_context=${streamType}`,
-        );
-      } else if (codebeamerApp) {
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `${codebeamerDialogURL}/oslc/provider/selector?gc_context=${streamType}`,
-        );
-      } else if (jiraProjectApp) {
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `${jiraDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
-        );
-      } else if (valispaceProjectApp) {
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `${valispaceDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
-        );
-      } else if (codebeamerProjectApp) {
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `${codebeamerDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
-        );
-      }
-    }
-  }, [integrationType]);
-
   //// Get Selection dialog response data
   window.addEventListener(
     'message',
     function (event) {
       let message = event.data;
-      console.log('message: ', message);
       if (!message.source && !oslcResponse) {
         if (message.toString()?.startsWith('oslc-response')) {
           const response = JSON.parse(message?.substr('oslc-response:'?.length));
           const results = response['oslc:results'];
-          // console.log('dialog response: ', results);
           const targetArray = [];
           results?.forEach((v, i) => {
             const koatl_path = results[i]['koatl:apiPath'];
@@ -287,83 +157,77 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     }
   }, [createLinkRes]);
 
-  useEffect(() => {
-    console.log('crudData.selectedAssociations: ', crudData.selectedAssociations);
-    let integrations = [];
-    if (crudData?.selectedAssociations) {
-      crudData.selectedAssociations.items.forEach((item) => {
-        integrations.push({
-          name: item.service_description,
-          value: item.service_provider_url,
-          service_label: item.service_label,
-        });
-      });
-      setProjectIntegrations(integrations);
-    }
-  }, [crudData.selectedAssociations]);
-
   // Link type dropdown
-  const handleLinkTypeChange = (selectedItem) => {
-    // dispatch(handleLinkType(selectedItem?.name));
-    setSelectedLinkType(selectedItem?.name);
-
-    let projects = [];
-    console.log('crudData: ', crudData);
-    if (crudData?.allProjects) {
-      console.log('crudData.allProjects: ', crudData.allProjects);
-      crudData.allProjects.items.forEach((item) => {
-        console.log('item: ', item);
-        projects.push({
-          name: item.name,
-          value: item.id,
-        });
-      });
+  const handleLinkTypeChange = (linkType) => {
+    if (linkType) {
+      if (linkType?.name !== selectedLinkType) {
+        setSelectedLinkType(linkType?.name);
+        if (selectedApplication) setSelectedApplication('');
+        if (selectedProject) setSelectedProject('');
+        if (selectedIntegration) setSelectedIntegration('');
+      }
+    } else {
+      setSelectedLinkType('');
+      if (selectedApplication) setSelectedApplication('');
+      if (selectedProject) setSelectedProject('');
+      if (selectedIntegration) setSelectedIntegration('');
     }
-    setProjectItems(projects);
-    // Here we need to request the information about a project
-    console.log('projectItems: ', projectItems);
   };
 
   // Application dropdown handler
-  const handleApplicationChange = (selectedItem) => {
-    console.log('selectedItem: ', selectedItem);
-    console.log('applicationTypeItems: ', applicationTypeItems);
-    if (selectedItem?.name === 'WBE') {
-      setApplicationTypeItems('asd');
+  const handleApplicationChange = (applicationId) => {
+    console.log('handling application: ', applicationId);
+    if (applicationId) {
+      if (applicationId !== selectedApplication) {
+        const newProjectUrlQuery = `application_id=${applicationId}`;
+        setSelectedApplication(applicationId);
+        setProjectUrlQueryParams(newProjectUrlQuery);
+        if (selectedProject) setSelectedProject('');
+        if (selectedIntegration) setSelectedIntegration('');
+      }
+    } else {
+      setSelectedApplication('');
+      if (selectedProject) setSelectedProject('');
+      if (selectedIntegration) setSelectedIntegration('');
     }
   };
 
   // Link type dropdown
-  const handleProjectChange = (selectedItem) => {
-    console.log('selectedItem: ', selectedItem);
-    setProjectId(selectedItem.value);
-    const currPage = 1;
-    const pageSize = 100;
-    // eslint-disable-next-line max-len
-    const getUrl = `${lmApiUrl}/association?page=${currPage}&per_page=${pageSize}&project_id=${selectedItem.value}`;
-    dispatch(
-      fetchGetData({
-        url: getUrl,
-        token: authCtx.token,
-        stateName: 'selectedAssociations',
-      }),
-    );
+  const handleProjectChange = (projectId) => {
+    console.log('handling project: ', projectId);
+    if (projectId) {
+      if (projectId !== selectedProject) {
+        setSelectedProject(projectId);
+        // eslint-disable-next-line max-len
+        const newApplicationUrlQuery = `project_id=${projectId}&application_id=${selectedApplication}`;
+        setIntegrationUrlQueryParams(newApplicationUrlQuery);
+        setSelectedIntegration('');
+      }
+    } else {
+      setSelectedProject('');
+      if (selectedIntegration) setSelectedIntegration('');
+    }
   };
 
   // Project type dropdown
-  const handleTargetProjectIntegration = (selectedItem) => {
-    dispatch(handleOslcIntegration(selectedItem?.name));
+  const handleIntegration = (integrationData) => {
+    console.log('handling integration: ', integrationData);
+    if (integrationData) {
+      setSelectedIntegration(integrationData);
+      const selectedItem = JSON.parse(integrationData);
+      dispatch(handleOslcIntegration(selectedItem?.name));
 
-    const consumerToken = localStorage.getItem('consumerToken');
-    dispatch(
-      fetchOslcResource({
-        url: selectedItem.value,
-        token: 'Bearer ' + consumerToken,
-        dialogLabel: selectedItem.service_label,
-      }),
-    );
-
-    // setProjectId(selectedItem?.id);
+      const consumerToken = localStorage.getItem('consumerToken');
+      dispatch(
+        fetchOslcResource({
+          url: selectedItem.service_provider_url,
+          token: 'Bearer ' + consumerToken,
+          dialogLabel: selectedItem.service_label,
+        }),
+      );
+    } else {
+      setSelectedIntegration('');
+    }
   };
 
   // Create new link
@@ -478,17 +342,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                     <FlexboxGrid.Item as={Col} colspan={7} style={{ paddingLeft: '0' }}>
                       <CustomSelect
                         name="application"
-                        placeholder="Select external integration"
+                        placeholder="Select application"
                         apiURL={`${lmApiUrl}/application`}
-                        reqText="External integration data is required"
+                        value={selectedApplication}
                         onChange={(value) => handleApplicationChange(value)}
                       />
-
-                      {/*<UseSelectPicker*/}
-                      {/*  placeholder="Choose application"*/}
-                      {/*  onChange={handleApplicationChange}*/}
-                      {/*  items={applicationTypeItems}*/}
-                      {/*/>*/}
                     </FlexboxGrid.Item>
 
                     {/* --- Project dropdown ---   */}
@@ -497,30 +355,24 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                         name="project"
                         placeholder="Select project"
                         apiURL={`${lmApiUrl}/project`}
-                        reqText="External integration data is required"
+                        value={selectedProject}
+                        apiQueryParams={projectUrlQueryParams}
                         onChange={(value) => handleProjectChange(value)}
                       />
-                      {/*<UseSelectPicker*/}
-                      {/*  placeholder="Choose project"*/}
-                      {/*  onChange={handleProjectChange}*/}
-                      {/*  items={projectItems}*/}
-                      {/*/>*/}
                     </FlexboxGrid.Item>
 
                     {/* --- Project dropdown ---   */}
-                    {projectIntegrations && (
-                      <FlexboxGrid.Item
-                        as={Col}
-                        colspan={7}
-                        style={{ paddingLeft: '20' }}
-                      >
-                        <UseSelectPicker
-                          placeholder="Choose integration"
-                          onChange={handleTargetProjectIntegration}
-                          items={projectIntegrations}
-                        />
-                      </FlexboxGrid.Item>
-                    )}
+                    <FlexboxGrid.Item as={Col} colspan={7} style={{ paddingLeft: '20' }}>
+                      <CustomSelect
+                        name="integration"
+                        placeholder="Select integration"
+                        customSelectLabel={'service_description'}
+                        apiURL={`${lmApiUrl}/association`}
+                        value={selectedIntegration}
+                        apiQueryParams={integrationUrlQueryParams}
+                        onChange={(value) => handleIntegration(value)}
+                      />
+                    </FlexboxGrid.Item>
                   </FlexboxGrid>
                 </FlexboxGrid.Item>
               </FlexboxGrid>
@@ -532,8 +384,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
           {(withConfigAware || withoutConfigAware) && (
             <div className={targetContainer}>
-              {selectedLinkType && projectId && selectedIntegration && (
-                <iframe className={targetIframe} src={selectedIntegration} />
+              {selectedLinkType && selectedProject && selectedIntegration && (
+                <iframe className={targetIframe} src={integration} />
               )}
             </div>
           )}
@@ -542,7 +394,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           <div
             className={`
           ${targetBtnContainer} 
-          ${projectFrameSrc && integrationType ? '' : cancelMargin}`}
+          ${integrationType ? '' : cancelMargin}`}
           >
             <Button
               appearance="default"
