@@ -13,7 +13,7 @@ const AddNewModal = ({ children, handleSubmit, title, handleReset }) => {
 
   const handleClose = () => {
     dispatch(handleIsAddNewModal(false));
-    handleReset();
+    setTimeout(() => handleReset(), 500);
     if (isAdminEditing) dispatch(handleIsAdminEditing(false));
   };
 

@@ -33,7 +33,7 @@ const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 const LinkManager = () => {
   const { sourceDataList, linksData, isLoading, isLinkDeleting, configuration_aware } =
     useSelector((state) => state.links);
-  // console.log('linksData ->', linksData);
+
   const { linksStream, refreshData, isDark } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);

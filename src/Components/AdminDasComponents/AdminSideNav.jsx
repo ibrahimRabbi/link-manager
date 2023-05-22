@@ -85,6 +85,19 @@ const AdminSideNav = () => {
 
               <Nav.Item
                 eventKey="4"
+                active={pathname === '/admin/integrations'}
+                onClick={() => navigate('/admin/integrations')}
+              >
+                <TbApps
+                  className="adminDasIcon"
+                  size={20}
+                  style={{ marginLeft: '-37px' }}
+                />
+                Integrations
+              </Nav.Item>
+
+              <Nav.Item
+                eventKey="5"
                 active={pathname === '/admin/projects'}
                 onClick={() => navigate('/admin/projects')}
               >
@@ -97,7 +110,7 @@ const AdminSideNav = () => {
               </Nav.Item>
 
               <Nav.Item
-                eventKey="5"
+                eventKey="6"
                 active={pathname === '/admin/link-types'}
                 onClick={() => navigate('/admin/link-types')}
               >
@@ -106,7 +119,7 @@ const AdminSideNav = () => {
               </Nav.Item>
 
               <Nav.Item
-                eventKey="6"
+                eventKey="7"
                 active={pathname === '/admin/link-constraint'}
                 onClick={() => navigate('/admin/link-constraint')}
               >
@@ -119,7 +132,7 @@ const AdminSideNav = () => {
               </Nav.Item>
 
               <Nav.Item
-                eventKey="7"
+                eventKey="8"
                 active={pathname === '/admin/components'}
                 onClick={() => navigate('/admin/components')}
               >

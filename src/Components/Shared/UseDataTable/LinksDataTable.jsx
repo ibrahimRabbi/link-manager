@@ -106,11 +106,12 @@ const LinksDataTable = ({ props }) => {
     return (
       <Cell {...props} style={{ cursor: 'pointer', fontSize: '17px' }}>
         <Whisper
+          trigger="hover"
           enterable
           placement="auto"
           speaker={speaker}
-          delayOpen={700}
-          delayClose={700}
+          delayOpen={800}
+          delayClose={800}
         >
           <a href={rowData?.id} target="_blank" rel="noopener noreferrer">
             {rowData?.content_lines

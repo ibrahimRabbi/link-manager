@@ -43,10 +43,12 @@ export const fetchDeleteApp = createAsyncThunk(
 /// All user states
 const initialState = {
   allApplications: {},
+  createdApplicationResponse: {},
   isAppCreated: false,
   isAppUpdated: false,
   isAppDeleted: false,
   isAppLoading: false,
+  isDdLoading: false,
 };
 
 export const applicationSlice = createSlice({
