@@ -179,7 +179,6 @@ const Associations = () => {
 
   // reset form
   const handleResetForm = () => {
-    console.log('reset form');
     setEditData({});
     setFormValue({
       name: '',
@@ -195,14 +194,15 @@ const Associations = () => {
   };
 
   useEffect(() => {
-    const consumerToken = localStorage.getItem('consumerToken');
-    console.log('Trying to request OSLC Root Services Catalog');
-    dispatch(
-      fetchOslcResource({
-        url: rootservicesResponse,
-        token: 'Bearer ' + consumerToken,
-      }),
-    );
+    if (rootservicesResponse) {
+      const consumerToken = localStorage.getItem('consumerToken');
+      dispatch(
+        fetchOslcResource({
+          url: rootservicesResponse,
+          token: 'Bearer ' + consumerToken,
+        }),
+      );
+    }
   }, [rootservicesResponse]);
 
   // get all associations
