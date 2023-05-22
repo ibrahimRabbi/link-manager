@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -21,6 +21,7 @@ import UseLoader from '../Shared/UseLoader';
 import { fetchGetData } from '../../Redux/slices/useCRUDSlice.jsx';
 import { fetchOslcResource } from '../../Redux/slices/oslcResourcesSlice.jsx';
 import CustomSelect from '../AdminDasComponents/CustomSelect.jsx';
+import Oauth2Modal from '../Oauth2Modal/Oauth2Modal.jsx';
 // import SelectField from '../AdminDasComponents/SelectField.jsx';
 const { targetContainer, targetIframe, targetBtnContainer, cancelMargin } = styles;
 
@@ -42,6 +43,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     createLinkRes,
     linkCreateLoading,
   } = useSelector((state) => state.links);
+  const { crudData } = useSelector((state) => state.crud);
 
   const { oslcSelectionDialogData } = useSelector((state) => state.oslcResources);
   const [selectedApplication, setSelectedApplication] = useState('');
@@ -59,6 +61,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const location = useLocation();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
+  const oauth2ModalRef = useRef();
 
   // Display link types
   useEffect(() => {
@@ -144,9 +147,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // Call create link function
   useEffect(() => {
     if (integrationType && oslcResponse && targetDataArr.length) {
-      console.log('integrationType: ', integrationType);
-      console.log('oslcResponse: ', oslcResponse);
-      console.log('targetDataArr: ', targetDataArr);
       handleSaveLink();
     }
   }, [oslcResponse, targetDataArr]);
@@ -176,7 +176,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Application dropdown handler
   const handleApplicationChange = (applicationId) => {
-    console.log('handling application: ', applicationId);
     if (applicationId) {
       if (applicationId !== selectedApplication) {
         const newProjectUrlQuery = `application_id=${applicationId}`;
@@ -194,7 +193,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Link type dropdown
   const handleProjectChange = (projectId) => {
-    console.log('handling project: ', projectId);
     if (projectId) {
       if (projectId !== selectedProject) {
         setSelectedProject(projectId);
@@ -211,20 +209,40 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Project type dropdown
   const handleIntegration = (integrationData) => {
-    console.log('handling integration: ', integrationData);
+    const selectedItem = JSON.parse(integrationData);
+
     if (integrationData) {
       setSelectedIntegration(integrationData);
-      const selectedItem = JSON.parse(integrationData);
-      dispatch(handleOslcIntegration(selectedItem?.name));
-
       const consumerToken = localStorage.getItem('consumerToken');
-      dispatch(
-        fetchOslcResource({
-          url: selectedItem.service_provider_url,
-          token: 'Bearer ' + consumerToken,
-          dialogLabel: selectedItem.service_label,
-        }),
-      );
+      if (!consumerToken) {
+        // eslint-disable-next-line max-len
+        const applicationUrlWithId = `${lmApiUrl}/application/${selectedItem?.application_id}`;
+        dispatch(
+          fetchGetData({
+            url: applicationUrlWithId,
+            token: authCtx.token,
+            stateName: 'applicationData',
+          }),
+        );
+        // Call function of Oauth2Modal
+        if (oauth2ModalRef.current && oauth2ModalRef.current.verifyAndOpenModal) {
+          // eslint-disable-next-line max-len
+          oauth2ModalRef.current.verifyAndOpenModal(
+            crudData?.applicationData,
+            crudData?.applicationData?.id,
+          );
+        }
+      } else {
+        dispatch(handleOslcIntegration(selectedItem?.name));
+
+        dispatch(
+          fetchOslcResource({
+            url: selectedItem.service_provider_url,
+            token: 'Bearer ' + consumerToken,
+            dialogLabel: selectedItem.service_label,
+          }),
+        );
+      }
     } else {
       setSelectedIntegration('');
     }
@@ -409,6 +427,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             </Button>
           </div>
         </div>
+        {/* --- oauth 2 modal ---  */}
+        <Oauth2Modal ref={oauth2ModalRef} />
       </div>
     </>
   );
