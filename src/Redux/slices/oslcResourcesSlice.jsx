@@ -18,11 +18,10 @@ export const fetchOslcResource = createAsyncThunk(
 
 /// All user states
 const initialState = {
-  oslcRootservicesResponse: [],
-  oslcRootservicesCatalogResponse: '',
-  oslcServiceProviderCatalogResponse: [],
+  rootservicesResponse: '',
+  oslcCatalogResponse: [],
   oslcServiceProviderResponse: [],
-  oslcSelectionDialogResponse: [],
+  oslcSelectionDialogData: [],
   isOslcResourceLoading: false,
 };
 
@@ -32,6 +31,18 @@ export const oslcResourceSlice = createSlice({
 
   reducers: {
     //
+    resetRootservicesResponse: (state) => {
+      state.rootservicesResponse = '';
+    },
+    resetOslcServiceProviderCatalogResponse: (state) => {
+      state.oslcCatalogResponse = [];
+    },
+    resetOslcServiceProviderResponse: (state) => {
+      state.oslcServiceProviderResponse = [];
+    },
+    resetOslcSelectionDialogData: (state) => {
+      state.oslcSelectionDialogData = [];
+    },
   },
   //----------------------\\
   extraReducers: (builder) => {
@@ -48,8 +59,7 @@ export const oslcResourceSlice = createSlice({
         response.every((item) => {
           if (item['@id'].includes('/rootservices')) {
             if (ROOTSERVICES_CATALOG_TYPE in item) {
-              state.oslcRootservicesCatalogResponse =
-                item[ROOTSERVICES_CATALOG_TYPE][0]['@id'];
+              state.rootservicesResponse = item[ROOTSERVICES_CATALOG_TYPE][0]['@id'];
               return true;
             }
           }
@@ -65,7 +75,7 @@ export const oslcResourceSlice = createSlice({
             });
           }
         });
-        state.oslcServiceProviderCatalogResponse = serviceProviders;
+        state.oslcCatalogResponse = serviceProviders;
       } else if (response?.length > 0 && url.includes('/provider') && !dialogLabel) {
         let selectionDialogData = [];
         response.forEach((item) => {
@@ -105,17 +115,11 @@ export const oslcResourceSlice = createSlice({
             }
           }
         });
-        state.oslcSelectionDialogResponse = selectionDialogData;
+        state.oslcSelectionDialogData = selectionDialogData;
       }
     });
     builder.addCase(fetchOslcResource.rejected, (state) => {
       state.isAssocLoading = false;
-    });
-    builder.addCase('resetOslcServiceProviderCatalogResponse', (state) => {
-      state.oslcServiceProviderCatalogResponse = [];
-    });
-    builder.addCase('resetOslcServiceProviderResponse', (state) => {
-      state.oslcServiceProviderResponse = [];
     });
   },
 });

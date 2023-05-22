@@ -47,7 +47,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     linkCreateLoading,
   } = useSelector((state) => state.links);
 
-  const { oslcSelectionDialogResponse } = useSelector((state) => state.oslcResources);
+  const { oslcSelectionDialogData } = useSelector((state) => state.oslcResources);
 
   const { crudData } = useSelector((state) => state.crud);
 
@@ -143,9 +143,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   }, [sourceDataList]);
 
   useEffect(() => {
-    console.log('oslcSelectionDialogResponse', oslcSelectionDialogResponse);
-    setSelectedIntegration(oslcSelectionDialogResponse[0]?.value);
-  }, [oslcSelectionDialogResponse]);
+    console.log('oslcSelectionDialogData', oslcSelectionDialogData);
+    setSelectedIntegration(oslcSelectionDialogData[0]?.value);
+  }, [oslcSelectionDialogData]);
 
   useEffect(() => {
     dispatch(handleCurrPageTitle(isEditLinkPage ? isEditLinkPage : 'New Link'));
@@ -389,7 +389,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         target_type: data.resource_type ? data.resource_type : '',
         target_title: data.label ? data.label : '',
         target_id: id,
-        target_project: oslcSelectionDialogResponse[0].serviceProviderTitle,
+        target_project: oslcSelectionDialogData[0].serviceProviderTitle,
         target_provider: data.target_provider,
       };
     });

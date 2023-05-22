@@ -7,7 +7,7 @@ import {
   fetchAssociations,
   fetchUpdateAssoc,
 } from '../../../Redux/slices/associationSlice';
-import { actions, fetchOslcResource } from '../../../Redux/slices/oslcResourcesSlice.jsx';
+import { actions, fetchOslcResource } from '../../../Redux/slices/oslcResourcesSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
@@ -72,11 +72,8 @@ const Associations = () => {
     isAssocUpdated,
     isAssocDeleted,
   } = useSelector((state) => state.associations);
-  const {
-    oslcRootservicesCatalogResponse,
-    oslcServiceProviderCatalogResponse,
-    oslcServiceProviderResponse,
-  } = useSelector((state) => state.oslcResources);
+  const { rootservicesResponse, oslcCatalogResponse, oslcServiceProviderResponse } =
+    useSelector((state) => state.oslcResources);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -100,7 +97,7 @@ const Associations = () => {
     const newFormValue = { ...formValue };
     newFormValue['application_id'] = id;
     setFormValue(newFormValue);
-
+    console.log('Trying to request Rootservices');
     const consumerToken = localStorage.getItem('consumerToken');
     dispatch(
       fetchOslcResource({
@@ -152,7 +149,7 @@ const Associations = () => {
       const resourceContainerPayload = JSON.parse(bodyData.resource_container);
       const resourceTypePayload = JSON.parse(bodyData.resource_type);
 
-      const selectedServiceProvider = oslcServiceProviderCatalogResponse?.find(
+      const selectedServiceProvider = oslcCatalogResponse?.find(
         (item) => item.value === resourceContainerPayload.value,
       );
       const selectedSelectionDialog = oslcServiceProviderResponse?.find(
@@ -191,19 +188,22 @@ const Associations = () => {
       resource_type: '',
       project_id: '',
     });
+    dispatch(actions.resetRootservicesResponse());
     dispatch(actions.resetOslcServiceProviderCatalogResponse());
     dispatch(actions.resetOslcServiceProviderResponse());
+    dispatch(actions.resetOslcSelectionDialogData());
   };
 
   useEffect(() => {
     const consumerToken = localStorage.getItem('consumerToken');
+    console.log('Trying to request OSLC Root Services Catalog');
     dispatch(
       fetchOslcResource({
-        url: oslcRootservicesCatalogResponse,
+        url: rootservicesResponse,
         token: 'Bearer ' + consumerToken,
       }),
     );
-  }, [oslcRootservicesCatalogResponse]);
+  }, [rootservicesResponse]);
 
   // get all associations
   useEffect(() => {
@@ -328,7 +328,7 @@ const Associations = () => {
               />
             </FlexboxGrid.Item>
 
-            {/* {oslcRootservicesCatalogResponse[0] && ( */}
+            {/* {rootservicesResponse[0] && ( */}
             <>
               <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
                 <SelectField
@@ -337,7 +337,7 @@ const Associations = () => {
                   name="resource_container"
                   label="Resource container"
                   placeholder="Select resource container"
-                  options={oslcServiceProviderCatalogResponse}
+                  options={oslcCatalogResponse}
                   customSelectLabel="label"
                   accepter={DefaultCustomSelect}
                   onChange={(value) => {
