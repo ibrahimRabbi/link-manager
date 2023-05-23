@@ -11,8 +11,9 @@ import linkTypesReducer from './slices/linkTypeSlice';
 import linkConsReducer from './slices/linkConstraintSlice';
 import componentsReducer from './slices/componentSlice';
 import eventReducer from './slices/eventSlice';
-import oslcResourceReducer from './slices/oslcResourcesSlice';
+import pipelineReducer from './slices/pipelineSlice';
 import useCRUDReducer from './slices/useCRUDSlice';
+import oslcResourceReducer from './slices/oslcResourcesSlice';
 import oauth2ModalReducer from './slices/oauth2ModalSlice';
 import * as Sentry from '@sentry/react';
 
@@ -52,6 +53,7 @@ const store = configureStore({
     linkConstraints: linkConsReducer,
     components: componentsReducer,
     events: eventReducer,
+    pipelines: pipelineReducer,
     oauth2Modal: oauth2ModalReducer,
   },
   sentryReduxEnhancer,

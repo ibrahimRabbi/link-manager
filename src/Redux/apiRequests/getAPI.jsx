@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 import clientMessages from './responseMsg';
 
-export default async function getAPI({ url, token, message }) {
+export default async function getAPI({ url, token, message, authCtx }) {
   const response = await fetch(url, {
     method: 'GET',
     headers: {
@@ -24,6 +24,7 @@ export default async function getAPI({ url, token, message }) {
         if (res.status === 400) {
           clientMessages({ status: res.status, message: res.statusText });
         } else if (res.status === 401) {
+          authCtx && authCtx.logout();
           clientMessages({ status: res.status, message: res.statusText });
         } else if (res.status === 403) {
           console.log(res.status, res.status);

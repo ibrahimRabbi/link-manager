@@ -29,6 +29,7 @@ import 'rsuite/styles/index.less';
 import UserVerify from './Components/Login/UserVerify';
 import Oauth2Success from './Components/Oauth2/oauth2Success.jsx';
 import Events from './Components/AdminDasComponents/Events/Events.jsx';
+import Pipelines from './Components/AdminDasComponents/Pipelines/Pipelines.jsx';
 import Associations from './Components/AdminDasComponents/Associations/Associations';
 
 export const darkColor = '#1a1d24';
@@ -101,6 +102,7 @@ function App() {
             <Route path="/admin/link-constraint" element={<LinkConstraint />} />
             <Route path="/admin/components" element={<Components />} />
             <Route path="/admin/events" element={<Events />} />
+            <Route path="/admin/pipelines" element={<Pipelines />} />
             <Route path="/admin" element={<Users />} />
           </Route>
 
