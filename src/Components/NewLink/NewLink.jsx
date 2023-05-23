@@ -73,7 +73,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       // get application_types dropdown items
       fetch('.././application_types.json')
         .then((res) => res.json())
-        .then((data) => setApplicationTypeItems(data))
+        .then((data) => {
+          const { appName } = sourceDataList;
+          const filteredApplications = data.filter((app) => {
+            if (app.name !== appName.toUpperCase()) return app;
+          });
+          setApplicationTypeItems(filteredApplications);
+        })
         .catch((err) => console.log(err));
 
       // get project_types dropdown items
