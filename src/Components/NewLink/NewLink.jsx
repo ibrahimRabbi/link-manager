@@ -45,7 +45,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   } = useSelector((state) => state.links);
   const [linkTypeItems, setLinkTypeItems] = useState([]);
   const [applicationTypeItems, setApplicationTypeItems] = useState([]);
-  const [projectTypeItems, setProjectTypeItems] = useState([]);
+  let [projectTypeItems, setProjectTypeItems] = useState([]);
   const [projectFrameSrc, setProjectFrameSrc] = useState('');
   const [projectId, setProjectId] = useState('');
   const navigate = useNavigate();
@@ -55,18 +55,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Add if and condition to check if app is Jira
 
-  const isJIRA = sourceDataList?.appName?.includes('jira');
-  const isJIRAProject = sourceDataList?.appName?.includes('jira-projects');
-  const isGitlab = sourceDataList?.appName?.includes('gitlab');
-  const isGlide = sourceDataList?.appName?.includes('glide');
-  const isValispace = sourceDataList?.appName?.includes('valispace');
-  const isValispaceProject = sourceDataList?.appName?.includes('valispace-projects');
-  const isCodebeamer = sourceDataList?.appName?.includes('codebeamer');
-  const isCodebeamerProject = sourceDataList?.appName?.includes('codebeamer-projects');
-
   // Display project types conditionally by App name
-  useEffect(() => {
-    (async () => {
+  useEffect(async () => {
+    await (async () => {
       // get link_types dropdown items
       fetch('.././gcm_context.json')
         .then((res) => res.json())
@@ -82,7 +73,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       // get application_types dropdown items
       fetch('.././application_types.json')
         .then((res) => res.json())
-        .then((data) => setApplicationTypeItems(data))
+        .then((data) => {
+          const { appName } = sourceDataList;
+          const filteredApplications = data.filter((app) => {
+            if (app.name !== appName.toUpperCase()) return app;
+          });
+          setApplicationTypeItems(filteredApplications);
+        })
         .catch((err) => console.log(err));
 
       // get project_types dropdown items
@@ -92,39 +89,29 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
       // display projects conditionally
       const specificProject = projectsRes?.reduce((acc, curr) => {
-        if (isJIRAProject) {
-          const jiraProject = curr.name.includes('JIRA-PROJECTS');
-          if (!jiraProject && curr.name.includes('-PROJECTS')) acc.push(curr);
-        } else if (isValispaceProject) {
-          const valispaceProject = curr.name.includes('VALISPACE-PROJECTS');
-          if (!valispaceProject && curr.name.includes('-PROJECTS')) acc.push(curr);
-        } else if (isCodebeamerProject) {
-          const codebeamerProject = curr.name.includes('CODEBEAMER-PROJECTS');
-          if (!codebeamerProject && curr.name.includes('-PROJECTS')) acc.push(curr);
-        } else if (isJIRA) {
-          const jira = curr.name.includes('JIRA');
-          if (!jira) acc.push(curr);
-        } else if (isGitlab) {
-          const gitlab = curr.name.includes('GITLAB');
-          if (!gitlab) acc.push(curr);
-        } else if (isGlide) {
-          const glide = curr.name.includes('GLIDE');
-          if (!glide) acc.push(curr);
-        } else if (isValispace) {
-          const valispace = curr.name.includes('VALISPACE');
-          if (!valispace) acc.push(curr);
-        } else if (isCodebeamer) {
-          const codebeamer = curr.name.includes('CODEBEAMER');
-          if (!codebeamer) acc.push(curr);
-        } else {
-          acc.push(curr);
-        }
-
+        if (curr.name.includes(applicationType)) acc.push(curr);
         return acc;
       }, []);
       setProjectTypeItems(specificProject);
     })();
   }, [sourceDataList]);
+
+  useEffect(() => {
+    const updateProjectTypeItems = async () => {
+      // get project_types dropdown items
+      const projectsRes = await fetch('.././project_types.json')
+        .then((res) => res.json())
+        .catch((err) => console.log(err));
+
+      // display projects conditionally
+      const specificProject = projectsRes?.reduce((acc, curr) => {
+        if (curr.name.includes(applicationType)) acc.push(curr);
+        return acc;
+      }, []);
+      setProjectTypeItems(specificProject);
+    };
+    updateProjectTypeItems();
+  }, [applicationType]);
 
   useEffect(() => {
     dispatch(handleCurrPageTitle(isEditLinkPage ? isEditLinkPage : 'New Link'));
@@ -259,7 +246,10 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Link type dropdown
   const handleApplicationChange = (selectedItem) => {
-    dispatch(handleApplicationType(selectedItem?.name));
+    dispatch(handleApplicationType(null));
+    setTimeout(() => {
+      dispatch(handleApplicationType(selectedItem?.name));
+    }, 50);
   };
 
   // stream type dropdown
@@ -267,8 +257,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   //   dispatch(handleStreamType(selectedItem.key));
   // };
 
-  const targetProjectItems =
-    linkType === 'constrainedBy' ? ['Jet Engine Design (GLIDE)'] : projectTypeItems;
+  // const targetProjectItems =
+  //   linkType === 'constrainedBy' ? ['Jet Engine Design (GLIDE)'] : projectTypeItems;
   // const targetResourceItems =
   //   linkType === 'constrainedBy' ? ['Document (PLM)', 'Part (PLM)'] : resourceItems;
 
@@ -417,7 +407,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                         <UseSelectPicker
                           placeholder="Choose Project"
                           onChange={handleTargetProject}
-                          items={targetProjectItems}
+                          items={projectTypeItems}
                         />
                       </FlexboxGrid.Item>
                     )}
