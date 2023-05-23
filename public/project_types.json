@@ -3,9 +3,6 @@
         "name": "Cross-Domain Integration Demo (JIRA)"
     },
     {
-        "name": "Jira projects (JIRA-PROJECTS)"
-    },
-    {
         "name": "Cross-Domain Integration Demo (GITLAB)",
         "id": "41530067"
     },
@@ -21,8 +18,5 @@
     },
     {
         "name": "Valispace ST-100 (VALISPACE)"
-    },
-    {
-        "name": "Valispace Projects (VALISPACE-PROJECTS)"
     }
 ]
