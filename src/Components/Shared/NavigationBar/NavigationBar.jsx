@@ -45,7 +45,7 @@ const NavigationBar = () => {
   };
 
   const darkModeText =
-    isDark == 'dark' ? 'Light Mode' : isDark == 'light' ? 'Dark Mode' : 'Dark Mode';
+    isDark === 'dark' ? 'Light Mode' : isDark === 'light' ? 'Dark Mode' : 'Dark Mode';
 
   // popover control
   const speaker = (
@@ -89,8 +89,8 @@ const NavigationBar = () => {
     <>
       <Navbar
         style={{
-          backgroundColor: isDark == 'dark' ? darkColor : lightBgColor,
-          boxShadow: `2px 2px 5px ${isDark == 'light' ? 'lightgray' : '#292D33'}`,
+          backgroundColor: isDark === 'dark' ? darkColor : lightBgColor,
+          boxShadow: `2px 2px 5px ${isDark === 'light' ? 'lightgray' : '#292D33'}`,
         }}
       >
         <Navbar.Brand
@@ -98,7 +98,7 @@ const NavigationBar = () => {
           style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}
         >
           <img height={30} src={koneksysLogo} alt="Logo" />
-          <h3>Koneksys</h3>
+          <h3>TraceLynx</h3>
         </Navbar.Brand>
         <Nav style={{ textAlign: 'center', marginLeft: '39%' }}>
           <Nav.Item>

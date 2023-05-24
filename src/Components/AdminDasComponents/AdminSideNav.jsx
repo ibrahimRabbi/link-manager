@@ -146,6 +146,15 @@ const AdminSideNav = () => {
 
               <Nav.Item
                 eventKey="10"
+                active={pathname === '/admin/pipelines'}
+                onClick={() => navigate('/admin/pipelines')}
+                icon={<SiAzurepipelines size={15} style={{ ...iconStyle }} />}
+              >
+                Pipelines
+              </Nav.Item>
+
+              <Nav.Item
+                eventKey="11"
                 active={pathname === '/'}
                 onClick={() => navigate('/')}
                 icon={
