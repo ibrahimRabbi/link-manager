@@ -28,9 +28,11 @@ const headerData = [
     header: 'ID',
     key: 'id',
   },
+
   {
     header: 'Application',
     key: 'name',
+    iconKey: 'applicationIcon',
   },
   {
     header: 'Description',
@@ -163,9 +165,9 @@ const Application = () => {
     function (event) {
       let message = event.data;
       if (!message.source) {
+        console.log('window res: ', message);
         if (message.toString()?.startsWith('access-token-data')) {
           const response = JSON.parse(message?.substr('access-token-data:'?.length));
-          console.log('Token res: ', response);
           handleCloseModal();
 
           localStorage.setItem('access_token', response.access_token);
@@ -271,12 +273,19 @@ const Application = () => {
     setOpenModal(true);
   };
 
+  // test icon
+  const customAppItems = crudData?.allApplications?.items?.reduce((acc, curr) => {
+    acc.push({
+      ...curr,
+      applicationIcon: 'https://lm-dev.koneksys.com/jira_logo.png',
+    });
+    return acc;
+  }, []);
+
   // send props in the batch action table
   const tableProps = {
     title: 'Applications',
-    rowData: crudData?.allApplications?.items?.length
-      ? crudData?.allApplications?.items
-      : [],
+    rowData: crudData?.allApplications?.items?.length ? customAppItems : [],
     headerData,
     handleEdit,
     handleDelete,
