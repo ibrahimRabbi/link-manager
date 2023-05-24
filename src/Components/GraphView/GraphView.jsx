@@ -24,7 +24,10 @@ const GraphView = () => {
     if (sourceDataList.uri) {
       dispatch(
         fetchGraphData({
-          url: `${apiURL}?start_node_id=${encodeURIComponent(sourceDataList?.uri)}`,
+          // eslint-disable-next-line max-len
+          url: `${apiURL}?start_node_id=${encodeURIComponent(
+            sourceDataList?.uri,
+          )}&direction=outgoing`,
           token: authCtx.token,
         }),
       );
