@@ -33,7 +33,7 @@ const headerData = [
     key: 'id',
   },
   {
-    header: 'Service Provider ID',
+    header: 'Resource container',
     key: 'service_provider_id',
   },
   {
@@ -41,11 +41,7 @@ const headerData = [
     key: 'service_label',
   },
   {
-    header: 'Resource type',
-    key: 'resource_type',
-  },
-  {
-    header: 'Project ID',
+    header: 'Project',
     key: 'project_id',
   },
   {

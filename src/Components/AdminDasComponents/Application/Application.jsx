@@ -37,10 +37,6 @@ const headerData = [
     key: 'description',
   },
   {
-    header: 'OSLC Domain',
-    key: 'oslc_domain',
-  },
-  {
     header: 'Rootservices URL',
     key: 'rootservices_url',
   },
@@ -50,10 +46,7 @@ const { StringType, NumberType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
-  label: StringType().isRequired('This field is required.'),
   rootservices_url: StringType().isRequired('This field is required.'),
-  client_uri: StringType().isRequired('This field is required.'),
-  oslc_domain: StringType().isRequired('This field is required.'),
   organization_id: NumberType().isRequired('This field is required.'),
   description: StringType().isRequired('This field is required.'),
 });
@@ -76,10 +69,7 @@ const Application = () => {
 
   const [formValue, setFormValue] = useState({
     name: '',
-    label: '',
     rootservices_url: '',
-    client_uri: '',
-    oslc_domain: '',
     organization_id: '',
     description: '',
   });
@@ -114,11 +104,9 @@ const Application = () => {
       setOpenModal(false);
     } else {
       const redirect_uris = [
-        `${lmApiUrl}/application/` +
-          'oauth2-consumer/callback?consumer=' +
-          formValue.label,
+        `${lmApiUrl}/application/` + 'consumer/callback?consumer=' + formValue.name,
       ];
-      const scopes = 'oslc_fetch_access';
+      const scopes = 'rest_api_access';
       const response_types = ['code'];
       const grant_types = ['service_provider', 'authorization_code'];
 
@@ -217,10 +205,7 @@ const Application = () => {
     setEditData({});
     setFormValue({
       name: '',
-      label: '',
       rootservices_url: '',
-      client_uri: '',
-      oslc_domain: '',
       organization_id: '',
       description: '',
     });
@@ -278,10 +263,7 @@ const Application = () => {
     dispatch(handleIsAdminEditing(true));
     setFormValue({
       name: data?.name,
-      label: data?.label,
       rootservices_url: data?.rootservices_url,
-      client_uri: data?.client_uri,
-      oslc_domain: data?.oslc_domain,
       organization_id: data?.organization_id,
       description: data?.description,
     });
@@ -351,33 +333,9 @@ const Application = () => {
 
                   <FlexboxGrid.Item colspan={11}>
                     <TextField
-                      name="label"
-                      label="label"
-                      reqText="Application label is required"
-                    />
-                  </FlexboxGrid.Item>
-
-                  <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
-                    <TextField
                       name="rootservices_url"
                       label="Root Services URL"
                       reqText="Root Services URL of OSLC application is required"
-                    />
-                  </FlexboxGrid.Item>
-
-                  <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
-                    <TextField
-                      name="client_uri"
-                      label="Client URI"
-                      reqText="Client URI about OSLC application is required"
-                    />
-                  </FlexboxGrid.Item>
-
-                  <FlexboxGrid.Item colspan={24}>
-                    <TextField
-                      name="oslc_domain"
-                      label="OSLC Domain"
-                      reqText="OSLC domain is required"
                     />
                   </FlexboxGrid.Item>
 
