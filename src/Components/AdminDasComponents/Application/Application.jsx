@@ -68,6 +68,7 @@ const Application = () => {
   const [steps, setSteps] = useState(0);
   const [appCreateSuccess, setAppCreateSuccess] = useState(false);
   const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
+  const [authorizedAppConsumption, setAuthorizedAppConsumption] = useState(false);
 
   const [formValue, setFormValue] = useState({
     name: '',
@@ -123,7 +124,6 @@ const Application = () => {
       )
         .then((appRes) => {
           if (appRes.payload) {
-            console.log('application:response: ', appRes);
             if (appRes.payload.response?.status) {
               setAppCreateSuccess(true);
               setSteps(1);
@@ -165,13 +165,12 @@ const Application = () => {
     function (event) {
       let message = event.data;
       if (!message.source) {
-        console.log('window res: ', message);
-        if (message.toString()?.startsWith('access-token-data')) {
-          const response = JSON.parse(message?.substr('access-token-data:'?.length));
-          handleCloseModal();
-
-          localStorage.setItem('access_token', response.access_token);
-          localStorage.setItem('expires_in', response.expires_in);
+        if (message.toString()?.startsWith('consumer-token-info')) {
+          const response = JSON.parse(message?.substr('consumer-token-info:'?.length));
+          if (response?.consumerStatus === 'success') {
+            setAuthorizedAppConsumption(true);
+            setSteps(2);
+          }
         }
       }
     },
@@ -188,11 +187,6 @@ const Application = () => {
       }
     };
   }, [iframeRef]);
-
-  useEffect(() => {
-    const consToken = localStorage.getItem('consumerToken');
-    if (consToken) handleCloseModal();
-  }, [localStorage]);
 
   // Check for changes to the iframe URL when it is loaded
   const handleLoad = () => {
@@ -211,6 +205,7 @@ const Application = () => {
       organization_id: '',
       description: '',
     });
+    setAuthorizedAppConsumption(false);
   };
 
   // handle open add application modal
@@ -421,11 +416,22 @@ const Application = () => {
 
           {steps === 2 && (
             <div style={{ textAlign: 'center' }}>
-              <h4 style={{ marginBottom: '10px' }}>You have not authorized</h4>
+              {authorizedAppConsumption ? (
+                <h4 style={{ marginBottom: '10px' }}>You have authorized</h4>
+              ) : (
+                <h4 style={{ marginBottom: '10px' }}>You have not authorized</h4>
+              )}
 
-              <h5 style={{ marginBottom: '20px' }}>
-                Please go back and authorize or skip it for now
-              </h5>
+              {authorizedAppConsumption ? (
+                <h5 style={{ marginBottom: '20px' }}>
+                  Close this window and go back to the application to start using it
+                </h5>
+              ) : (
+                // eslint-disable-next-line max-len
+                <h5 style={{ marginBottom: '20px' }}>
+                  Please go back and authorize or skip it for now
+                </h5>
+              )}
 
               <FlexboxGrid justify="end" style={{ marginTop: '30px' }}>
                 <Button
