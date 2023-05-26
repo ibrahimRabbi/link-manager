@@ -2,11 +2,13 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import getOslcAPI from '../oslcRequests/getOslcAPI';
 
 // Fetch get all associations
-const ROOTSERVICES_CATALOG_TYPE =
-  'http://open-services.net/xmlns/rm/1.0/rmServiceProviders';
+export const ROOTSERVICES_CATALOG_TYPES = [
+  'http://open-services.net/xmlns/rm/1.0/rmServiceProviders',
+];
 const OSLC_CORE = 'http://open-services.net/ns/core#';
 const DCTERMS_TITLE = 'http://purl.org/dc/terms/title';
 const DCTERMS_IDENTIFIER = 'http://purl.org/dc/terms/identifier';
+const STATUS_URL = 'https://onto-portal.org/ns/koatl#userStatus';
 
 export const fetchOslcResource = createAsyncThunk(
   'oslc/fetchOslcResource',
@@ -19,10 +21,15 @@ export const fetchOslcResource = createAsyncThunk(
 /// All user states
 const initialState = {
   rootservicesResponse: '',
+  oslcCatalogUrls: [],
+  userStatusUrl: '',
   oslcCatalogResponse: [],
   oslcServiceProviderResponse: [],
   oslcSelectionDialogData: [],
   isOslcResourceLoading: false,
+  oslcResourceFailed: false,
+  oslcUnauthorizedUser: false,
+  oslcMissingConsumerToken: false,
 };
 
 export const oslcResourceSlice = createSlice({
@@ -34,6 +41,9 @@ export const oslcResourceSlice = createSlice({
     resetRootservicesResponse: (state) => {
       state.rootservicesResponse = '';
     },
+    resetOslcCatalogUrls: (state) => {
+      state.oslcCatalogUrls = '';
+    },
     resetOslcServiceProviderCatalogResponse: (state) => {
       state.oslcCatalogResponse = [];
     },
@@ -42,6 +52,15 @@ export const oslcResourceSlice = createSlice({
     },
     resetOslcSelectionDialogData: (state) => {
       state.oslcSelectionDialogData = [];
+    },
+    resetOslcResourceFailed: (state) => {
+      state.oslcResourceFailed = false;
+    },
+    resetOslcUnauthorizedUser: (state) => {
+      state.oslcUnauthorizedUser = false;
+    },
+    resetOslcMissingConsumerToken: (state) => {
+      state.oslcMissingConsumerToken = false;
     },
   },
   //----------------------\\
@@ -56,14 +75,23 @@ export const oslcResourceSlice = createSlice({
 
       const { url, response, dialogLabel } = payload;
       if (response?.length > 0 && url.includes('/rootservices')) {
-        response.every((item) => {
+        let allCatalogs = {};
+        response.map((item) => {
           if (item['@id'].includes('/rootservices')) {
-            if (ROOTSERVICES_CATALOG_TYPE in item) {
-              state.rootservicesResponse = item[ROOTSERVICES_CATALOG_TYPE][0]['@id'];
-              return true;
-            }
+            const foundCatalogs = Object.entries(item).reduce((acc, [key, value]) => {
+              if (ROOTSERVICES_CATALOG_TYPES.includes(key)) {
+                acc[key] = value[0]['@id'];
+              }
+              return acc;
+            }, {});
+            allCatalogs = { ...allCatalogs, ...foundCatalogs };
+          }
+          if (STATUS_URL in item) {
+            state.userStatusUrl = item[STATUS_URL][0]['@id'];
           }
         });
+        state.rootservicesResponse = response;
+        state.oslcCatalogUrls = allCatalogs;
       } else if (response?.length > 0 && url.includes('/catalog')) {
         let serviceProviders = [];
         response.forEach((item) => {
@@ -118,8 +146,16 @@ export const oslcResourceSlice = createSlice({
         state.oslcSelectionDialogData = selectionDialogData;
       }
     });
-    builder.addCase(fetchOslcResource.rejected, (state) => {
-      state.isAssocLoading = false;
+    builder.addCase(fetchOslcResource.rejected, (state, action) => {
+      const error = action.error.message;
+      const consumerTokenExists = action?.meta?.arg?.token;
+      state.oslcResourceFailed = true;
+
+      if (consumerTokenExists && error === 'UNAUTHORIZED') {
+        state.oslcUnauthorizedUser = true;
+      } else {
+        state.oslcMissingConsumerToken = true;
+      }
     });
   },
 });
