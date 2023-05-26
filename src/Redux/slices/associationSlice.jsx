@@ -17,7 +17,7 @@ export const fetchAssociations = createAsyncThunk(
 export const fetchCreateAssoc = createAsyncThunk(
   'associations/fetchCreateAssoc',
   async ({ url, token, bodyData, reset }) => {
-    const res = postAPI({ url, token, bodyData, reset });
+    const res = await postAPI({ url, token, bodyData, reset });
     return res;
   },
 );
@@ -35,7 +35,7 @@ export const fetchUpdateAssoc = createAsyncThunk(
 export const fetchDeleteAssoc = createAsyncThunk(
   'associations/fetchDeleteAssoc',
   async ({ url, token }) => {
-    const response = deleteAPI({ url, token });
+    const response = await deleteAPI({ url, token });
     return { ...response, message: 'deleted Response' };
   },
 );

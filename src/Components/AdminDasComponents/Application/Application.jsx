@@ -48,10 +48,7 @@ const { StringType, NumberType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
-  label: StringType().isRequired('This field is required.'),
   rootservices_url: StringType().isRequired('This field is required.'),
-  client_uri: StringType().isRequired('This field is required.'),
-  oslc_domain: StringType().isRequired('This field is required.'),
   organization_id: NumberType().isRequired('This field is required.'),
   description: StringType().isRequired('This field is required.'),
 });
@@ -71,13 +68,11 @@ const Application = () => {
   const [steps, setSteps] = useState(0);
   const [appCreateSuccess, setAppCreateSuccess] = useState(false);
   const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
+  const [authorizedAppConsumption, setAuthorizedAppConsumption] = useState(false);
 
   const [formValue, setFormValue] = useState({
     name: '',
-    label: '',
     rootservices_url: '',
-    client_uri: '',
-    oslc_domain: '',
     organization_id: '',
     description: '',
   });
@@ -112,11 +107,9 @@ const Application = () => {
       setOpenModal(false);
     } else {
       const redirect_uris = [
-        `${lmApiUrl}/application/` +
-          'oauth2-consumer/callback?consumer=' +
-          formValue.label,
+        `${lmApiUrl}/application/` + 'consumer/callback?consumer=' + formValue.name,
       ];
-      const scopes = 'oslc_fetch_access';
+      const scopes = 'rest_api_access';
       const response_types = ['code'];
       const grant_types = ['service_provider', 'authorization_code'];
 
@@ -131,7 +124,6 @@ const Application = () => {
       )
         .then((appRes) => {
           if (appRes.payload) {
-            console.log('application:response: ', appRes);
             if (appRes.payload.response?.status) {
               setAppCreateSuccess(true);
               setSteps(1);
@@ -173,13 +165,12 @@ const Application = () => {
     function (event) {
       let message = event.data;
       if (!message.source) {
-        console.log('window res: ', message);
-        if (message.toString()?.startsWith('access-token-data')) {
-          const response = JSON.parse(message?.substr('access-token-data:'?.length));
-          handleCloseModal();
-
-          localStorage.setItem('access_token', response.access_token);
-          localStorage.setItem('expires_in', response.expires_in);
+        if (message.toString()?.startsWith('consumer-token-info')) {
+          const response = JSON.parse(message?.substr('consumer-token-info:'?.length));
+          if (response?.consumerStatus === 'success') {
+            setAuthorizedAppConsumption(true);
+            setSteps(2);
+          }
         }
       }
     },
@@ -197,11 +188,6 @@ const Application = () => {
     };
   }, [iframeRef]);
 
-  useEffect(() => {
-    const consToken = localStorage.getItem('consumerToken');
-    if (consToken) handleCloseModal();
-  }, [localStorage]);
-
   // Check for changes to the iframe URL when it is loaded
   const handleLoad = () => {
     const currentUrl = iframeRef.current.contentWindow.location.href;
@@ -215,13 +201,11 @@ const Application = () => {
     setEditData({});
     setFormValue({
       name: '',
-      label: '',
       rootservices_url: '',
-      client_uri: '',
-      oslc_domain: '',
       organization_id: '',
       description: '',
     });
+    setAuthorizedAppConsumption(false);
   };
 
   // handle open add application modal
@@ -276,10 +260,7 @@ const Application = () => {
     dispatch(handleIsAdminEditing(true));
     setFormValue({
       name: data?.name,
-      label: data?.label,
       rootservices_url: data?.rootservices_url,
-      client_uri: data?.client_uri,
-      oslc_domain: data?.oslc_domain,
       organization_id: data?.organization_id,
       description: data?.description,
     });
@@ -356,33 +337,9 @@ const Application = () => {
 
                   <FlexboxGrid.Item colspan={11}>
                     <TextField
-                      name="label"
-                      label="label"
-                      reqText="Application label is required"
-                    />
-                  </FlexboxGrid.Item>
-
-                  <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
-                    <TextField
                       name="rootservices_url"
                       label="Root Services URL"
                       reqText="Root Services URL of OSLC application is required"
-                    />
-                  </FlexboxGrid.Item>
-
-                  <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
-                    <TextField
-                      name="client_uri"
-                      label="Client URI"
-                      reqText="Client URI about OSLC application is required"
-                    />
-                  </FlexboxGrid.Item>
-
-                  <FlexboxGrid.Item colspan={24}>
-                    <TextField
-                      name="oslc_domain"
-                      label="OSLC Domain"
-                      reqText="OSLC domain is required"
                     />
                   </FlexboxGrid.Item>
 
@@ -459,11 +416,22 @@ const Application = () => {
 
           {steps === 2 && (
             <div style={{ textAlign: 'center' }}>
-              <h4 style={{ marginBottom: '10px' }}>You have not authorized</h4>
+              {authorizedAppConsumption ? (
+                <h4 style={{ marginBottom: '10px' }}>You have authorized</h4>
+              ) : (
+                <h4 style={{ marginBottom: '10px' }}>You have not authorized</h4>
+              )}
 
-              <h5 style={{ marginBottom: '20px' }}>
-                Please go back and authorize or skip it for now
-              </h5>
+              {authorizedAppConsumption ? (
+                <h5 style={{ marginBottom: '20px' }}>
+                  Close this window and go back to the application to start using it
+                </h5>
+              ) : (
+                // eslint-disable-next-line max-len
+                <h5 style={{ marginBottom: '20px' }}>
+                  Please go back and authorize or skip it for now
+                </h5>
+              )}
 
               <FlexboxGrid justify="end" style={{ marginTop: '30px' }}>
                 <Button

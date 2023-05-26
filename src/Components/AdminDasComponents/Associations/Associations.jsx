@@ -8,7 +8,7 @@ import {
   fetchUpdateAssoc,
   handleConsumerToken,
 } from '../../../Redux/slices/associationSlice';
-import { fetchOslcResource } from '../../../Redux/slices/oslcResourcesSlice.jsx';
+import { actions, fetchOslcResource } from '../../../Redux/slices/oslcResourcesSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
@@ -24,6 +24,11 @@ import SelectField from '../SelectField.jsx';
 import CustomSelect from '../CustomSelect.jsx';
 import DefaultCustomSelect from '../DefaultCustomSelect';
 import Oauth2Modal from '../../Oauth2Modal/Oauth2Modal.jsx';
+import {
+  actions as crudActions,
+  fetchGetData,
+} from '../../../Redux/slices/useCRUDSlice.jsx';
+import { ROOTSERVICES_CATALOG_TYPES } from '../../../Redux/slices/oslcResourcesSlice.jsx';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -34,16 +39,12 @@ const headerData = [
     key: 'id',
   },
   {
-    header: 'Service Provider ID',
+    header: 'Resource container',
     key: 'service_provider_id',
   },
   {
     header: 'Description',
     key: 'service_label',
-  },
-  {
-    header: 'Resource type',
-    key: 'resource_type',
   },
   {
     header: 'Project',
@@ -72,13 +73,16 @@ const Associations = () => {
     isAssocCreated,
     isAssocUpdated,
     isAssocDeleted,
-    consumerTokens,
   } = useSelector((state) => state.associations);
   const {
-    oslcRootservicesCatalogResponse,
-    oslcServiceProviderCatalogResponse,
+    oslcCatalogResponse,
     oslcServiceProviderResponse,
+    oslcCatalogUrls,
+    oslcResourceFailed,
+    oslcUnauthorizedUser,
+    oslcMissingConsumerToken,
   } = useSelector((state) => state.oslcResources);
+  const { crudData } = useSelector((state) => state.crud);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -99,27 +103,33 @@ const Associations = () => {
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
-  const fetchOslcServiceProviderCatalog = (url, id) => {
+  const fetchCatalogFromRootservices = (url, id) => {
     const newFormValue = { ...formValue };
     newFormValue['application_id'] = id;
     setFormValue(newFormValue);
-    dispatch(
-      fetchOslcResource({
-        url: url,
-        token: 'Bearer ' + consumerTokens[id],
-      }),
-    );
+
+    const consumerToken = crudData?.consumerToken?.access_token;
+    if (consumerToken) {
+      dispatch(
+        fetchOslcResource({
+          url: url,
+          token: 'Bearer ' + consumerToken,
+        }),
+      );
+    }
   };
 
   const getServiceProviderResources = (payload) => {
     const data = JSON.parse(payload);
 
     const url = data.value;
-    if (url && consumerTokens[selectedAppData?.id]) {
+    const consumerToken = crudData?.consumerToken?.access_token;
+
+    if (url && consumerToken) {
       dispatch(
         fetchOslcResource({
           url: url,
-          token: 'Bearer ' + consumerTokens[selectedAppData?.id],
+          token: 'Bearer ' + consumerToken,
         }),
       );
     }
@@ -137,7 +147,6 @@ const Associations = () => {
 
   const handleAddAssociation = () => {
     if (!associationFormRef.current.check()) {
-      console.error('Form Error', formError);
       return;
     } else if (isAdminEditing) {
       const putUrl = `${lmApiUrl}/association/${editData?.id}`;
@@ -153,7 +162,7 @@ const Associations = () => {
       const resourceContainerPayload = JSON.parse(bodyData.resource_container);
       const resourceTypePayload = JSON.parse(bodyData.resource_type);
 
-      const selectedServiceProvider = oslcServiceProviderCatalogResponse?.find(
+      const selectedServiceProvider = oslcCatalogResponse?.find(
         (item) => item.value === resourceContainerPayload.value,
       );
       const selectedSelectionDialog = oslcServiceProviderResponse?.find(
@@ -184,6 +193,7 @@ const Associations = () => {
   // reset form
   const handleResetForm = () => {
     setEditData({});
+    setSelectedAppData({});
     setFormValue({
       name: '',
       application_id: '',
@@ -191,19 +201,43 @@ const Associations = () => {
       resource_type: '',
       project_id: '',
     });
-    setSelectedAppData({});
+    dispatch(actions.resetRootservicesResponse());
+    dispatch(actions.resetOslcCatalogUrls());
+    dispatch(actions.resetOslcServiceProviderCatalogResponse());
+    dispatch(actions.resetOslcServiceProviderResponse());
+    dispatch(actions.resetOslcSelectionDialogData());
+    dispatch(actions.resetOslcResourceFailed());
+    dispatch(actions.resetOslcUnauthorizedUser());
+    dispatch(actions.resetOslcMissingConsumerToken());
+    dispatch(crudActions.removeCrudParameter('consumerToken'));
   };
 
   useEffect(() => {
-    if (oslcRootservicesCatalogResponse) {
+    if (oslcCatalogUrls && oslcCatalogUrls[ROOTSERVICES_CATALOG_TYPES[0]]) {
       dispatch(
         fetchOslcResource({
-          url: oslcRootservicesCatalogResponse,
-          token: 'Bearer ' + consumerTokens[selectedAppData?.id],
+          url: oslcCatalogUrls[ROOTSERVICES_CATALOG_TYPES[0]],
+          token: 'Bearer ' + crudData?.consumerToken?.access_token,
         }),
       );
     }
-  }, [oslcRootservicesCatalogResponse]);
+  }, [oslcCatalogUrls]);
+
+  useEffect(() => {
+    if (oslcResourceFailed && oslcUnauthorizedUser) {
+      if (oauth2ModalRef.current && oauth2ModalRef.current.verifyAndOpenModal) {
+        oauth2ModalRef.current.verifyAndOpenModal(
+          selectedAppData,
+          selectedAppData?.id,
+          true,
+        );
+      }
+    } else if (oslcResourceFailed && oslcMissingConsumerToken) {
+      if (oauth2ModalRef.current && oauth2ModalRef.current.verifyAndOpenModal) {
+        oauth2ModalRef.current.verifyAndOpenModal(selectedAppData, selectedAppData?.id);
+      }
+    }
+  }, [oslcResourceFailed, oslcUnauthorizedUser]);
 
   // get all associations
   useEffect(() => {
@@ -270,20 +304,31 @@ const Associations = () => {
   const handleRootServiceUrlChange = (value) => {
     const selectedURL = JSON.parse(value);
     setSelectedAppData(selectedURL);
+    fetchConsumerToken(selectedURL?.name);
+  };
 
-    if (consumerTokens[selectedURL?.id]) {
-      fetchOslcServiceProviderCatalog(selectedURL?.rootservices_url, selectedURL?.id);
-    }
+  const fetchConsumerToken = (label) => {
+    dispatch(
+      fetchGetData({
+        url: `${lmApiUrl}/application/consumer-token/${label}`,
+        token: authCtx.token,
+        stateName: 'consumerToken',
+      }),
+    );
   };
 
   useEffect(() => {
-    if (consumerTokens[selectedAppData?.id]) {
-      fetchOslcServiceProviderCatalog(
+    // eslint-disable-next-line max-len
+    if (
+      crudData?.consumerToken?.access_token &&
+      Object.keys(selectedAppData).length > 0
+    ) {
+      fetchCatalogFromRootservices(
         selectedAppData?.rootservices_url,
         selectedAppData?.id,
       );
     }
-  }, [consumerTokens, selectedAppData]);
+  }, [crudData?.consumerToken?.access_token, selectedAppData]);
 
   const handleOauth2Modal = () => {
     // Call function of Oauth2Modal
@@ -317,7 +362,6 @@ const Associations = () => {
     false,
   );
 
-  console.log('allAssociations: ', allAssociations?.items);
   return (
     <div>
       <AddNewModal
@@ -367,7 +411,7 @@ const Associations = () => {
 
             {selectedAppData?.id && (
               <>
-                {!consumerTokens[selectedAppData?.id] && (
+                {!crudData?.consumerToken?.access_token && (
                   <p style={{ fontSize: '17px', color: '#eb9d17', marginTop: '5px' }}>
                     Please{' '}
                     <span
@@ -386,7 +430,7 @@ const Associations = () => {
               </>
             )}
 
-            {consumerTokens[selectedAppData?.id] && (
+            {crudData?.consumerToken?.access_token && (
               <>
                 <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
                   <SelectField
@@ -395,7 +439,7 @@ const Associations = () => {
                     name="resource_container"
                     label="Resource container"
                     placeholder="Select resource container"
-                    options={oslcServiceProviderCatalogResponse}
+                    options={oslcCatalogResponse}
                     customSelectLabel="label"
                     accepter={DefaultCustomSelect}
                     onChange={(value) => {

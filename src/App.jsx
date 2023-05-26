@@ -120,7 +120,7 @@ function App() {
             <Route path="/admin" element={<Users />} />
           </Route>
 
-          <Route path="/oauth2-success" element={<Oauth2Success />} />
+          <Route path="/oauth2-status" element={<Oauth2Success />} />
           <Route path="/set-password" element={<UserVerify />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="*" element={<NotFound />} />

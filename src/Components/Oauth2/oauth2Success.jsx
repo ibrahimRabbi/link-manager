@@ -6,12 +6,15 @@ import { useLocation } from 'react-router-dom';
 const Oauth2Success = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const param1 = searchParams.get('jwt');
-  console.log('Access token:', param1);
+  const jsonData = {
+    consumer: searchParams.get('consumer'),
+    consumerStatus: searchParams.get('status'),
+  };
+  const param1 = JSON.stringify(jsonData);
 
   useEffect(() => {
     if (param1) {
-      const message = 'consumer-token-data:' + param1;
+      const message = 'consumer-token-info:' + param1;
       window.parent.postMessage(message, '*');
     }
   }, [param1]);
@@ -23,7 +26,15 @@ const Oauth2Success = () => {
 
       <div className="mainContainer">
         <div className="container">
-          <h2>User logged in successfully</h2>
+          <h2>Consumer info:</h2>
+          <h3 style={{ marginBottom: '10px' }}>consumer: </h3>
+          <p>{jsonData.consumer}</p>
+          <h3 style={{ marginBottom: '10px' }}>status: </h3>
+          {jsonData.consumerStatus === 'success' ? (
+            <p style={{ color: 'green' }}>{jsonData.consumerStatus}</p>
+          ) : (
+            <p style={{ color: 'red' }}>{jsonData.consumerStatus}</p>
+          )}
         </div>
       </div>
     </>
