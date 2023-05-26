@@ -2,20 +2,20 @@ import React, { useEffect } from 'react';
 
 import SourceSection from '../SourceSection.jsx';
 import { useLocation } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { handleIsOauth2ModalOpen } from '../../Redux/slices/oauth2ModalSlice.jsx';
 
 const Oauth2Success = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const dispatch = useDispatch();
-  const param1 = searchParams.get('jwt');
-  console.log('Access token:', param1);
+  const jsonData = {
+    consumer: searchParams.get('consumer'),
+    consumerStatus: searchParams.get('status'),
+  };
+  const param1 = JSON.stringify(jsonData);
 
   useEffect(() => {
     if (param1) {
-      localStorage.setItem('consumerToken', param1);
-      dispatch(handleIsOauth2ModalOpen(false));
+      const message = 'consumer-token-info:' + param1;
+      window.parent.postMessage(message, '*');
     }
   }, [param1]);
 
@@ -26,7 +26,15 @@ const Oauth2Success = () => {
 
       <div className="mainContainer">
         <div className="container">
-          <h1>User logged in successfully</h1>
+          <h2>Consumer info:</h2>
+          <h3 style={{ marginBottom: '10px' }}>consumer: </h3>
+          <p>{jsonData.consumer}</p>
+          <h3 style={{ marginBottom: '10px' }}>status: </h3>
+          {jsonData.consumerStatus === 'success' ? (
+            <p style={{ color: 'green' }}>{jsonData.consumerStatus}</p>
+          ) : (
+            <p style={{ color: 'red' }}>{jsonData.consumerStatus}</p>
+          )}
         </div>
       </div>
     </>

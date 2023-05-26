@@ -1,38 +1,20 @@
-import Swal from 'sweetalert2';
-import clientMessages from '../apiRequests/responseMsg';
-
 export default async function getOslcAPI({ url, token }) {
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-type': 'application/json-ld',
-      Accept: 'application/json-ld',
-      'OSLC-OAuth2-Consumer': token,
-    },
-  })
-    .then((res) => {
-      if (res.ok) {
-        if (res.status !== 204) {
-          return res.json();
-        } else {
-          Swal.fire({
-            text: 'No Content Available',
-            icon: 'info',
-            confirmButtonColor: '#3085d6',
-          });
-        }
-      } else {
-        if (res.status === 400) {
-          clientMessages({ status: res.status, message: res.statusText });
-        } else if (res.status === 401) {
-          clientMessages({ status: res.status, message: res.statusText });
-        } else if (res.status === 403) {
-          console.log(res.status, res.status);
-        } else if (res.status === 500) {
-          clientMessages({ status: res.status, message: res.statusText });
-        }
-      }
-    })
-    .catch((error) => clientMessages({ isErrCatch: true, error }));
-  return response;
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      credentials: 'include',
+      cors: true,
+      headers: {
+        'Content-type': 'application/json-ld',
+        Accept: 'application/json-ld',
+        'OSLC-OAuth2-Consumer': token,
+      },
+    });
+    if (!response.ok) {
+      throw new Error(response.statusText);
+    }
+    return response.json();
+  } catch (error) {
+    throw new Error(error.message);
+  }
 }
