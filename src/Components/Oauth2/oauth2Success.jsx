@@ -2,20 +2,17 @@ import React, { useEffect } from 'react';
 
 import SourceSection from '../SourceSection.jsx';
 import { useLocation } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { handleIsOauth2ModalOpen } from '../../Redux/slices/oauth2ModalSlice.jsx';
 
 const Oauth2Success = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const dispatch = useDispatch();
   const param1 = searchParams.get('jwt');
   console.log('Access token:', param1);
 
   useEffect(() => {
     if (param1) {
-      localStorage.setItem('consumerToken', param1);
-      dispatch(handleIsOauth2ModalOpen(false));
+      const message = 'consumer-token-data:' + param1;
+      window.parent.postMessage(message, '*');
     }
   }, [param1]);
 
@@ -26,7 +23,7 @@ const Oauth2Success = () => {
 
       <div className="mainContainer">
         <div className="container">
-          <h1>User logged in successfully</h1>
+          <h2>User logged in successfully</h2>
         </div>
       </div>
     </>

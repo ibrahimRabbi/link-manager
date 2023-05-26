@@ -139,6 +139,16 @@ const AdminDataTable = ({ props }) => {
     );
   };
 
+  // dynamic cell for the image
+  const DynamicCell = ({ rowData, dataKey, iconKey, ...props }) => {
+    return (
+      <Cell {...props}>
+        {iconKey && <img height="22px" src={rowData[iconKey]} alt="" />}
+        <p style={{ marginLeft: '10px' }}>{rowData[dataKey]}</p>
+      </Cell>
+    );
+  };
+
   return (
     <div style={{ paddingBottom: '30px' }}>
       <FlexboxGrid
@@ -230,7 +240,11 @@ const AdminDataTable = ({ props }) => {
             <HeaderCell>
               <h5>{header?.header}</h5>
             </HeaderCell>
-            <Cell style={{ fontSize: '17px' }} dataKey={header?.key}></Cell>
+            <DynamicCell
+              style={{ fontSize: '17px', display: 'flex', alignItems: 'center' }}
+              dataKey={header?.key}
+              iconKey={header?.iconKey}
+            />
           </Column>
         ))}
 

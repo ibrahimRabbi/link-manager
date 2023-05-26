@@ -1,18 +1,19 @@
+import React, { useState, forwardRef, useEffect } from 'react';
 import { Button, Modal } from 'rsuite';
-import React, { useState } from 'react';
-
-import { handleIsOauth2ModalOpen } from '../../Redux/slices/oauth2ModalSlice.jsx';
 import { useDispatch, useSelector } from 'react-redux';
+import { handleIsOauth2ModalOpen } from '../../Redux/slices/oauth2ModalSlice.jsx';
 
 // eslint-disable-next-line react/display-name
-const Oauth2Modal = React.forwardRef((props, ref) => {
+const Oauth2Modal = forwardRef((props, ref) => {
+  const { isOauth2ModalOpen } = useSelector((state) => state.oauth2Modal);
+  const { consumerTokens } = useSelector((state) => state.associations);
+  const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
+  const [appId, setAppId] = useState('');
   const dispatch = useDispatch();
 
   const verifyAndOpenModal = (payload, selectedApplication) => {
-    console.log('verifyAndOpenModal');
-    console.log('payload', payload);
-    console.log('selectedApplication', selectedApplication);
     if (payload && selectedApplication) {
+      setAppId(selectedApplication);
       const selectedData = payload?.oauth2_application[0];
 
       let query = `client_id=${selectedData?.client_id}&scope=${selectedData?.scopes}`;
@@ -32,14 +33,19 @@ const Oauth2Modal = React.forwardRef((props, ref) => {
     }
   };
 
+  // handle close modal
+  const handleCloseModal = () => {
+    dispatch(handleIsOauth2ModalOpen(false));
+  };
+
+  useEffect(() => {
+    if (consumerTokens[appId]) handleCloseModal();
+  }, [consumerTokens[appId]]);
+
   // Assign the childFunction to the ref
   React.useImperativeHandle(ref, () => ({
     verifyAndOpenModal,
   }));
-
-  const { isOauth2ModalOpen } = useSelector((state) => state.oauth2Modal);
-
-  const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
 
   return (
     <>
@@ -49,7 +55,7 @@ const Oauth2Modal = React.forwardRef((props, ref) => {
         open={isOauth2ModalOpen}
         style={{ marginTop: '25px' }}
         size="sm"
-        onClose={() => dispatch(handleIsOauth2ModalOpen(false))}
+        onClose={handleCloseModal}
       >
         <Modal.Header>
           <Modal.Title className="adminModalTitle">Please authorize</Modal.Title>
@@ -59,10 +65,7 @@ const Oauth2Modal = React.forwardRef((props, ref) => {
           <iframe className={'authorize-iframe'} src={authorizeFrameSrc} />
         </Modal.Body>
         <Modal.Footer>
-          <Button
-            onClick={() => dispatch(handleIsOauth2ModalOpen(false))}
-            appearance="default"
-          >
+          <Button onClick={handleCloseModal} appearance="default">
             Close
           </Button>
         </Modal.Footer>

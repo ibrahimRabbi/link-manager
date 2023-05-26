@@ -9,7 +9,6 @@ export const fetchAssociations = createAsyncThunk(
   'associations/fetchAssociations',
   async ({ url, token }) => {
     const response = getAPI({ url, token });
-    console.log('response: ', response);
     return response;
   },
 );
@@ -28,7 +27,6 @@ export const fetchUpdateAssoc = createAsyncThunk(
   'associations/fetchUpdateAssoc',
   async ({ url, token, bodyData, reset }) => {
     const res = putAPI({ url, token, bodyData, reset });
-    console.log(res);
     return res;
   },
 );
@@ -45,6 +43,7 @@ export const fetchDeleteAssoc = createAsyncThunk(
 /// All user states
 const initialState = {
   allAssociations: {},
+  consumerTokens: {},
   isAssocCreated: false,
   isAssocUpdated: false,
   isAssocDeleted: false,
@@ -56,7 +55,24 @@ export const associationSlice = createSlice({
   initialState,
 
   reducers: {
-    //
+    handleGetConsumerTokenFromStor: (state, { payload }) => {
+      state.consumerTokens = payload;
+    },
+    handleConsumerToken: (state, { payload }) => {
+      const consumerTokens = localStorage.getItem('consumerTokens');
+      if (consumerTokens) {
+        const tokensObj = JSON.parse(consumerTokens);
+
+        tokensObj[payload?.appId] = payload?.token;
+        localStorage.setItem('consumerTokens', JSON.stringify(tokensObj));
+      }
+      // tokens are not available in the local storage
+      else {
+        const newToken = { [payload?.appId]: payload?.token };
+        localStorage.setItem('consumerTokens', JSON.stringify(newToken));
+        state.consumerTokens = newToken;
+      }
+    },
   },
   //----------------------\\
   extraReducers: (builder) => {
@@ -126,6 +142,7 @@ export const associationSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-// export const { } = associationSlice.actions;
+export const { handleConsumerToken, handleGetConsumerTokenFromStor } =
+  associationSlice.actions;
 
 export default associationSlice.reducer;

@@ -15,6 +15,12 @@ import { VscProject } from 'react-icons/vsc';
 import { CgLink } from 'react-icons/cg';
 import { darkColor, lightBgColor } from '../../App';
 
+const iconStyle = {
+  marginLeft: '-35px',
+  marginBottom: '-3px',
+  marginRight: '20px',
+};
+
 const AdminSideNav = () => {
   const { isDark, isAdminSidebarOpen } = useSelector((state) => state.nav);
   const navigate = useNavigate();
@@ -47,7 +53,7 @@ const AdminSideNav = () => {
         <Divider style={{ marginTop: '0' }} />
         <Sidenav
           expanded={isAdminSidebarOpen}
-          defaultOpenKeys={['3']}
+          defaultOpenKeys={['10']}
           appearance="subtle"
         >
           <Sidenav.Body>
@@ -56,8 +62,8 @@ const AdminSideNav = () => {
                 eventKey="1"
                 active={pathname === '/admin' || pathname === '/admin/users'}
                 onClick={() => navigate('/admin/users')}
+                icon={<FaUsers style={iconStyle} />}
               >
-                <FaUsers className="adminDasIcon" />
                 <span>User</span>
               </Nav.Item>
 
@@ -65,8 +71,8 @@ const AdminSideNav = () => {
                 eventKey="2"
                 active={pathname === '/admin/organizations'}
                 onClick={() => navigate('/admin/organizations')}
+                icon={<SlOrganization size={17} style={iconStyle} />}
               >
-                <SlOrganization className="adminDasIcon" />
                 Organizations
               </Nav.Item>
 
@@ -74,12 +80,8 @@ const AdminSideNav = () => {
                 eventKey="3"
                 active={pathname === '/admin/applications'}
                 onClick={() => navigate('/admin/applications')}
+                icon={<TbApps size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />}
               >
-                <TbApps
-                  className="adminDasIcon"
-                  size={20}
-                  style={{ marginLeft: '-37px' }}
-                />
                 Applications
               </Nav.Item>
 
@@ -87,12 +89,8 @@ const AdminSideNav = () => {
                 eventKey="4"
                 active={pathname === '/admin/integrations'}
                 onClick={() => navigate('/admin/integrations')}
+                icon={<TbApps size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />}
               >
-                <TbApps
-                  className="adminDasIcon"
-                  size={20}
-                  style={{ marginLeft: '-37px' }}
-                />
                 Integrations
               </Nav.Item>
 
@@ -100,12 +98,8 @@ const AdminSideNav = () => {
                 eventKey="5"
                 active={pathname === '/admin/projects'}
                 onClick={() => navigate('/admin/projects')}
+                icon={<VscProject size={18} style={{ ...iconStyle }} />}
               >
-                <VscProject
-                  className="adminDasIcon"
-                  size={18}
-                  style={{ marginLeft: '-36px' }}
-                />
                 Projects
               </Nav.Item>
 
@@ -113,8 +107,8 @@ const AdminSideNav = () => {
                 eventKey="6"
                 active={pathname === '/admin/link-types'}
                 onClick={() => navigate('/admin/link-types')}
+                icon={<FaLink size={16.5} style={{ ...iconStyle }} />}
               >
-                <FaLink className="adminDasIcon" />
                 Link Types
               </Nav.Item>
 
@@ -122,12 +116,8 @@ const AdminSideNav = () => {
                 eventKey="7"
                 active={pathname === '/admin/link-constraint'}
                 onClick={() => navigate('/admin/link-constraint')}
+                icon={<CgLink size={25} style={{ ...iconStyle, marginLeft: '-39px' }} />}
               >
-                <CgLink
-                  size={22}
-                  style={{ marginLeft: '-39px' }}
-                  className="adminDasIcon"
-                />
                 Link Constraint
               </Nav.Item>
 
@@ -135,39 +125,45 @@ const AdminSideNav = () => {
                 eventKey="8"
                 active={pathname === '/admin/components'}
                 onClick={() => navigate('/admin/components')}
+                icon={
+                  <SiWebcomponentsdotorg
+                    size={18}
+                    style={{ ...iconStyle, marginLeft: '-36' }}
+                  />
+                }
               >
-                <SiWebcomponentsdotorg className="adminDasIcon" />
                 Components
               </Nav.Item>
 
               <Nav.Item
-                eventKey="8"
+                eventKey="9"
                 active={pathname === '/admin/events'}
                 onClick={() => navigate('/admin/events')}
+                icon={<SiAzurepipelines size={15} style={{ ...iconStyle }} />}
               >
-                <SiAzurepipelines className="adminDasIcon" />
                 Events
               </Nav.Item>
 
               <Nav.Item
-                eventKey="9"
+                eventKey="10"
                 active={pathname === '/admin/pipelines'}
                 onClick={() => navigate('/admin/pipelines')}
+                icon={<SiAzurepipelines size={15} style={{ ...iconStyle }} />}
               >
-                <SiAzurepipelines className="adminDasIcon" />
                 Pipelines
               </Nav.Item>
 
               <Nav.Item
-                eventKey="10"
+                eventKey="11"
                 active={pathname === '/'}
                 onClick={() => navigate('/')}
+                icon={
+                  <TiArrowBackOutline
+                    size={22}
+                    style={{ ...iconStyle, marginLeft: '-36px' }}
+                  />
+                }
               >
-                <TiArrowBackOutline
-                  size={21}
-                  style={{ marginLeft: '-36px' }}
-                  className="adminDasIcon"
-                />
                 Back To Home
               </Nav.Item>
             </Nav>
