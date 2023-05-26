@@ -16,9 +16,12 @@ import UseLoader from '../../Shared/UseLoader';
 import {
   fetchCreateData,
   fetchDeleteData,
-  fetchGetData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
+import {
+  fetchApplications,
+  fetchApplicationPublisherIcon,
+} from '../../../Redux/slices/applicationSlice';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -56,9 +59,10 @@ const model = Schema.Model({
 const Application = () => {
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
 
-  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
+  const { isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
     (state) => state.crud,
   );
+  const { allApplications } = useSelector((state) => state.applications);
 
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -228,13 +232,29 @@ const Application = () => {
 
     const getUrl = `${lmApiUrl}/application?page=${currPage}&per_page=${pageSize}`;
     dispatch(
-      fetchGetData({
+      fetchApplications({
         url: getUrl,
         token: authCtx.token,
-        stateName: 'allApplications',
       }),
     );
   }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
+
+  useEffect(() => {
+    if (allApplications?.items) {
+      let tempData = [];
+      allApplications?.items?.forEach((item) => {
+        tempData.push({
+          id: item?.id,
+          rootservicesUrl: item?.rootservices_url ? item.rootservices_url : null,
+        });
+      });
+      dispatch(
+        fetchApplicationPublisherIcon({
+          applicationData: tempData,
+        }),
+      );
+    }
+  }, [allApplications]);
 
   // handle delete application
   const handleDelete = (data) => {
@@ -269,7 +289,7 @@ const Application = () => {
   };
 
   // test icon
-  const customAppItems = crudData?.allApplications?.items?.reduce((acc, curr) => {
+  const customAppItems = allApplications?.items?.reduce((acc, curr) => {
     acc.push({
       ...curr,
       applicationIcon: 'https://lm-dev.koneksys.com/jira_logo.png',
@@ -280,17 +300,17 @@ const Application = () => {
   // send props in the batch action table
   const tableProps = {
     title: 'Applications',
-    rowData: crudData?.allApplications?.items?.length ? customAppItems : [],
+    rowData: allApplications?.items?.length ? customAppItems : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: crudData?.allApplications?.total_items,
-    totalPages: crudData?.allApplications?.total_pages,
+    totalItems: allApplications?.total_items,
+    totalPages: allApplications?.total_pages,
     pageSize,
-    page: crudData?.allApplications?.page,
+    page: allApplications?.page,
     inpPlaceholder: 'Search Application',
   };
 
