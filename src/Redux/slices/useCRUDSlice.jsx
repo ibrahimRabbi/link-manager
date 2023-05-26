@@ -57,7 +57,10 @@ export const useCRUDSlice = createSlice({
   },
 
   reducers: {
-    //
+    removeCrudParameter: (state, action) => {
+      const paramToRemove = action.payload;
+      delete state.crudData[paramToRemove];
+    },
   },
   //----------------------\\
   extraReducers: (builder) => {
@@ -72,7 +75,6 @@ export const useCRUDSlice = createSlice({
     builder.addCase(fetchGetData.fulfilled, (state, { payload }) => {
       state.isCrudLoading = false;
       if (payload.response) {
-        console.log('payload: ', payload?.stateName, payload?.response);
         state.crudData[payload?.stateName] = payload?.response;
       }
     });
@@ -127,5 +129,4 @@ export const useCRUDSlice = createSlice({
     });
   },
 });
-
-export default useCRUDSlice.reducer;
+export const { actions, reducer } = useCRUDSlice;
