@@ -73,17 +73,17 @@ const LinksDataTable = ({ props }) => {
     // OSLC API URL Receiving conditionally
     const oslcObj = { URL: '' };
     if (
-      rowData?.provider?.toLowerCase() == 'jira' ||
-      rowData?.provider?.toLowerCase() == 'jira-projects'
+      rowData?.provider?.toLowerCase() === 'jira' ||
+      rowData?.provider?.toLowerCase() === 'jira-projects'
     ) {
       oslcObj['URL'] = jiraURL;
-    } else if (rowData?.provider?.toLowerCase() == 'gitlab') {
+    } else if (rowData?.provider?.toLowerCase() === 'gitlab') {
       oslcObj['URL'] = gitlabURL;
-    } else if (rowData?.provider?.toLowerCase() == 'glide') {
+    } else if (rowData?.provider?.toLowerCase() === 'glide') {
       oslcObj['URL'] = glideURL;
-    } else if (rowData?.provider?.toLowerCase() == 'valispace') {
+    } else if (rowData?.provider?.toLowerCase() === 'valispace') {
       oslcObj['URL'] = valispaceURL;
-    } else if (rowData?.provider?.toLowerCase() == 'codebeamer') {
+    } else if (rowData?.provider?.toLowerCase() === 'codebeamer') {
       oslcObj['URL'] = codebeamerURL;
     }
 
@@ -173,7 +173,7 @@ const LinksDataTable = ({ props }) => {
         </Table>
 
         <Pagination
-          style={{ backgroundColor: isDark == 'dark' ? darkColor : lightBgColor }}
+          style={{ backgroundColor: isDark === 'dark' ? darkColor : lightBgColor }}
           prev
           next
           first
