@@ -75,8 +75,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         .then((res) => res.json())
         .then((data) => {
           const { appName } = sourceDataList;
-          const filteredApplications = data.filter((app) => {
-            if (app.name !== appName.toUpperCase()) return app;
+          const filteredApplications = data?.filter((app) => {
+            if (app.name !== appName?.toUpperCase()) return app;
           });
           setApplicationTypeItems(filteredApplications);
         })

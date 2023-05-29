@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { HiRefresh } from 'react-icons/hi';
+import defaultLogo from './default-logo.PNG';
 import {
   Table,
   Pagination,
@@ -143,7 +144,13 @@ const AdminDataTable = ({ props }) => {
   const DynamicCell = ({ rowData, dataKey, iconKey, ...props }) => {
     return (
       <Cell {...props}>
-        {iconKey && <img height="22px" src={rowData[iconKey]} alt="" />}
+        {iconKey && (
+          <img
+            height={rowData[iconKey] ? '22px' : '28'}
+            src={rowData[iconKey] ? rowData[iconKey] : defaultLogo}
+            alt=""
+          />
+        )}
         <p style={{ marginLeft: '10px' }}>{rowData[dataKey]}</p>
       </Cell>
     );
