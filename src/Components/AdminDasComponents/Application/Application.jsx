@@ -46,19 +46,26 @@ const headerData = [
 
 const { StringType, NumberType } = Schema.Types;
 
-const model = Schema.Model({
-  name: StringType().isRequired('This field is required.'),
-  rootservices_url: StringType().isRequired('This field is required.'),
-  organization_id: NumberType().isRequired('This field is required.'),
-  description: StringType().isRequired('This field is required.'),
-});
-
 const Application = () => {
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
 
   const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
     (state) => state.crud,
   );
+  // application form validation schema
+  const model = Schema.Model({
+    name: StringType()
+      .addRule((value) => {
+        const regex = /^[a-zA-Z0-9_-]+$/;
+        return regex.test(value);
+      }, 'Please try to enter valid application name')
+      .isRequired('This field is required.'),
+    rootservices_url: isAdminEditing
+      ? StringType()
+      : StringType().isRequired('This field is required.'),
+    organization_id: NumberType().isRequired('This field is required.'),
+    description: StringType().isRequired('This field is required.'),
+  });
 
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -112,7 +119,13 @@ const Application = () => {
       const scopes = 'rest_api_access';
       const response_types = ['code'];
       const grant_types = ['service_provider', 'authorization_code'];
-
+      console.log('app', {
+        ...formValue,
+        scopes,
+        response_types,
+        grant_types,
+        redirect_uris,
+      });
       const postUrl = `${lmApiUrl}/application`;
       dispatch(
         fetchCreateData({
@@ -220,6 +233,7 @@ const Application = () => {
     setTimeout(() => {
       handleResetForm();
       setSteps(0);
+      dispatch(handleIsAdminEditing(false));
     }, 500);
   };
 
@@ -256,6 +270,7 @@ const Application = () => {
   };
   // handle Edit application
   const handleEdit = (data) => {
+    console.log('edit data: ', data);
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
     setFormValue({
@@ -308,11 +323,13 @@ const Application = () => {
             {isAdminEditing ? 'Edit Application' : 'Add New Application'}
           </Modal.Title>
 
-          <Steps current={steps} style={{ marginTop: '5px' }}>
-            <Steps.Item />
-            <Steps.Item status={steps == 1 ? 'process' : 'wait'} />
-            <Steps.Item />
-          </Steps>
+          {!isAdminEditing && (
+            <Steps current={steps} style={{ marginTop: '5px' }}>
+              <Steps.Item />
+              <Steps.Item status={steps == 1 ? 'process' : 'wait'} />
+              <Steps.Item />
+            </Steps>
+          )}
         </Modal.Header>
 
         <Modal.Body style={{ padding: '0 10px 30px' }}>
@@ -327,7 +344,7 @@ const Application = () => {
                 model={model}
               >
                 <FlexboxGrid justify="space-between">
-                  <FlexboxGrid.Item colspan={11}>
+                  <FlexboxGrid.Item colspan={isAdminEditing ? 24 : 11}>
                     <TextField
                       name="name"
                       label="Name"
@@ -335,13 +352,15 @@ const Application = () => {
                     />
                   </FlexboxGrid.Item>
 
-                  <FlexboxGrid.Item colspan={11}>
-                    <TextField
-                      name="rootservices_url"
-                      label="Root Services URL"
-                      reqText="Root Services URL of OSLC application is required"
-                    />
-                  </FlexboxGrid.Item>
+                  {!isAdminEditing && (
+                    <FlexboxGrid.Item colspan={11}>
+                      <TextField
+                        name="rootservices_url"
+                        label="Root Services URL"
+                        reqText="Root Services URL of OSLC application is required"
+                      />
+                    </FlexboxGrid.Item>
+                  )}
 
                   <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
                     <SelectField
