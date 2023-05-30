@@ -47,7 +47,6 @@ export const fetchApplicationPublisherIcon = createAsyncThunk(
             url: appDataObj.publisherUrl,
             token: 'dummy',
           });
-
           publisherResponse.every((item) => {
             if (item[OSLC_PUBLISHER_ICON][0]['@id']) {
               appDataObj['icon'] = item[OSLC_PUBLISHER_ICON][0]['@id'];
@@ -57,7 +56,7 @@ export const fetchApplicationPublisherIcon = createAsyncThunk(
           });
         }
       }
-
+      console.log('icons: ', appDataObj.icon);
       return { ...item, iconUrl: appDataObj.icon };
     });
 

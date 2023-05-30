@@ -37,17 +37,20 @@ const CustomSelect = React.forwardRef((props, ref) => {
     if (queryParams) {
       url = `${url}&${queryParams}`;
     }
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json',
-        authorization: 'Bearer ' + authCtx.token,
-      },
-    });
-    const data = await response.json();
-    setIsLoading(false);
-    setCheckPagination(data);
-    if (data?.items) return data.items;
+    if (apiURL) {
+      console.log('url', url);
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json',
+          authorization: 'Bearer ' + authCtx.token,
+        },
+      });
+      const data = await response.json();
+      setIsLoading(false);
+      setCheckPagination(data);
+      if (data?.items) return data.items;
+    }
     return [];
   }
 

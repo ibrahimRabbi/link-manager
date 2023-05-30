@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { HiRefresh } from 'react-icons/hi';
 import defaultLogo from './default-logo.PNG';
+import SuccessStatus from '@rsuite/icons/CheckRound';
+import FailedStatus from '@rsuite/icons/WarningRound';
+import InfoStatus from '@rsuite/icons/InfoRound';
+import PauseStatus from '@rsuite/icons/PauseRound';
 import {
   Table,
   Pagination,
@@ -141,9 +145,10 @@ const AdminDataTable = ({ props }) => {
   };
 
   // dynamic cell for the image
-  const DynamicCell = ({ rowData, dataKey, iconKey, ...props }) => {
+  const DynamicCell = ({ rowData, dataKey, iconKey, statusKey, ...props }) => {
     return (
       <Cell {...props}>
+        {/* display logo  */}
         {iconKey && (
           <img
             height={rowData[iconKey] ? '22px' : '28'}
@@ -151,7 +156,24 @@ const AdminDataTable = ({ props }) => {
             alt=""
           />
         )}
-        <p style={{ marginLeft: '10px' }}>{rowData[dataKey]}</p>
+
+        {/* display row data  */}
+        {dataKey && <p style={{ marginLeft: '5px' }}>{rowData[dataKey]}</p>}
+
+        {/* display status data  */}
+        {statusKey && (
+          <div style={{ marginLeft: '20%', fontSize: '20px' }}>
+            {rowData[statusKey] === 'success' ? (
+              <SuccessStatus color="#378f17" />
+            ) : rowData[statusKey] === 'error' ? (
+              <FailedStatus color="#de1655" />
+            ) : rowData[statusKey] === 'info' ? (
+              <InfoStatus color="#eb9d17" />
+            ) : (
+              <PauseStatus color="#25b3f5" />
+            )}
+          </div>
+        )}
       </Cell>
     );
   };
@@ -243,14 +265,20 @@ const AdminDataTable = ({ props }) => {
         </Column> */}
 
         {headerData?.map((header, i) => (
-          <Column key={i} width={70} flexGrow={header?.header === 'ID' ? 0 : 1} fullText>
+          <Column
+            key={i}
+            width={header?.width ? header?.width : 70}
+            flexGrow={header?.width || header?.header === 'ID' ? 0 : 1}
+            fullText
+          >
             <HeaderCell>
-              <h5>{header?.header}</h5>
+              <h6>{header?.header}</h6>
             </HeaderCell>
             <DynamicCell
               style={{ fontSize: '17px', display: 'flex', alignItems: 'center' }}
               dataKey={header?.key}
               iconKey={header?.iconKey}
+              statusKey={header?.statusKey}
             />
           </Column>
         ))}

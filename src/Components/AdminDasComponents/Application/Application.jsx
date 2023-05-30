@@ -45,6 +45,11 @@ const headerData = [
     header: 'Rootservices URL',
     key: 'rootservices_url',
   },
+  {
+    header: 'Status',
+    statusKey: 'status',
+    width: 100,
+  },
 ];
 
 const { StringType, NumberType } = Schema.Types;
@@ -303,11 +308,16 @@ const Application = () => {
     setOpenModal(true);
   };
 
+  const demoStatus = ['success', 'error', 'info'];
   // merging application icons with applications data
-  const customAppItems = allApplications?.items?.reduce((acc, curr) => {
+  const customAppItems = allApplications?.items?.reduce((acc, curr, i) => {
     iconData?.forEach((icon) => {
       if (curr.id === icon.id) {
-        const withIcon = { ...curr, iconUrl: icon.iconUrl };
+        const withIcon = {
+          ...curr,
+          iconUrl: icon.iconUrl,
+          status: demoStatus[i] ? demoStatus[i] : '',
+        };
         acc.push(withIcon);
       }
     });
