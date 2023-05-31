@@ -20,15 +20,15 @@ export const fetchApplications = createAsyncThunk(
 export const fetchApplicationPublisherIcon = createAsyncThunk(
   'applications/fetchApplicationPublisherIcon',
   async ({ applicationData }) => {
-    applicationData.map(async (item) => {
+    const getIconsUrl = applicationData?.reduce(async (accumulator, current) => {
       const appDataObj = {
         publisherUrl: null,
         icon: null,
       };
 
-      if (item.rootservicesUrl) {
+      if (current?.rootservicesUrl) {
         const oslcResponse = await getOslcAPI({
-          url: item.rootservicesUrl,
+          url: current.rootservicesUrl,
           token: 'dummy',
         });
 
@@ -56,18 +56,20 @@ export const fetchApplicationPublisherIcon = createAsyncThunk(
           });
         }
       }
-      console.log('icons: ', appDataObj.icon);
-      return { ...item, iconUrl: appDataObj.icon };
-    });
-
-    const applicationData2 = applicationData.map((item) => {
-      if (!item?.iconUrl) {
-        item.iconUrl = null;
+      if (current.rootservicesUrl && appDataObj.icon) {
+        const appWithIcon = {
+          ...current,
+          iconUrl: appDataObj.icon,
+          publisherUrl: appDataObj.publisherUrl,
+        };
+        const acc = await accumulator;
+        acc.push(appWithIcon);
       }
-      return item;
-    });
 
-    return applicationData2;
+      return await accumulator;
+    }, []);
+    console.log('icon url', await getIconsUrl);
+    return await getIconsUrl;
   },
 );
 
@@ -194,6 +196,9 @@ export const applicationSlice = createSlice({
       state.isIconDataLoaded = true;
       state.isIconDataLoading = false;
       state.iconData = payload;
+    });
+    builder.addCase(fetchApplicationPublisherIcon.rejected, (state) => {
+      state.isIconDataLoading = false;
     });
   },
 });

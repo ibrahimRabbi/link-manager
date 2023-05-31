@@ -16,12 +16,10 @@ import UseLoader from '../../Shared/UseLoader';
 import {
   fetchCreateData,
   fetchDeleteData,
+  fetchGetData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
-import {
-  fetchApplications,
-  fetchApplicationPublisherIcon,
-} from '../../../Redux/slices/applicationSlice';
+import { fetchApplicationPublisherIcon } from '../../../Redux/slices/applicationSlice';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -56,10 +54,10 @@ const { StringType, NumberType } = Schema.Types;
 
 const Application = () => {
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
-  const { isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
+  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
     (state) => state.crud,
   );
-  const { allApplications, iconData } = useSelector((state) => state.applications);
+  const { iconData } = useSelector((state) => state.applications);
 
   // application form validation schema
   const model = Schema.Model({
@@ -251,17 +249,18 @@ const Application = () => {
 
     const getUrl = `${lmApiUrl}/application?page=${currPage}&per_page=${pageSize}`;
     dispatch(
-      fetchApplications({
+      fetchGetData({
         url: getUrl,
         token: authCtx.token,
+        stateName: 'allApplications',
       }),
     );
   }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
 
   useEffect(() => {
-    if (allApplications?.items) {
+    if (crudData?.allApplications?.items) {
       let tempData = [];
-      allApplications?.items?.forEach((item) => {
+      crudData?.allApplications?.items?.forEach((item) => {
         tempData.push({
           id: item?.id,
           rootservicesUrl: item?.rootservices_url ? item.rootservices_url : null,
@@ -273,8 +272,7 @@ const Application = () => {
         }),
       );
     }
-  }, [allApplications]);
-
+  }, [crudData?.allApplications]);
   // handle delete application
   const handleDelete = (data) => {
     Swal.fire({
@@ -295,7 +293,6 @@ const Application = () => {
   };
   // handle Edit application
   const handleEdit = (data) => {
-    console.log('edit data: ', data);
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
     setFormValue({
@@ -307,42 +304,51 @@ const Application = () => {
 
     setOpenModal(true);
   };
-
   const demoStatus = ['success', 'error', 'info'];
-  // merging application icons with applications data
-  const customAppItems = allApplications?.items?.reduce((acc, curr, i) => {
-    iconData?.forEach((icon) => {
-      if (curr.id === icon.id) {
-        const withIcon = {
+  const [appsWithIcon, setAppsWithIcon] = useState([]);
+  useEffect(() => {
+    // merging application icons with applications data
+    const customAppItems = crudData?.allApplications?.items?.reduce((acc, curr, i) => {
+      if (curr?.rootservices_url) {
+        iconData?.forEach((icon) => {
+          if (curr.id === icon.id) {
+            const withIcon = {
+              ...curr,
+              iconUrl: icon.iconUrl,
+              status: demoStatus[i] ? demoStatus[i] : '',
+            };
+            acc.push(withIcon);
+          }
+        });
+      } else {
+        acc.push({
           ...curr,
-          iconUrl: icon.iconUrl,
+          iconUrl: null,
           status: demoStatus[i] ? demoStatus[i] : '',
-        };
-        acc.push(withIcon);
+        });
       }
-    });
-    return acc;
-  }, []);
-
-  console.log('Merged icons with application', customAppItems);
+      return acc;
+    }, []);
+    setAppsWithIcon(customAppItems);
+    console.log('Merged icons with application', customAppItems);
+  }, [iconData, crudData?.allApplications]);
 
   // send props in the batch action table
   const tableProps = {
     title: 'Applications',
-    rowData: allApplications?.items?.length ? customAppItems : [],
+    rowData: crudData?.allApplications?.items?.length ? appsWithIcon : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: allApplications?.total_items,
-    totalPages: allApplications?.total_pages,
+    totalItems: crudData?.allApplications?.total_items,
+    totalPages: crudData?.allApplications?.total_pages,
     pageSize,
-    page: allApplications?.page,
+    page: crudData?.allApplications?.page,
     inpPlaceholder: 'Search Application',
   };
-
   return (
     <div>
       <Modal
@@ -481,9 +487,7 @@ const Application = () => {
                 </h5>
               ) : (
                 // eslint-disable-next-line max-len
-                <h5 style={{ marginBottom: '20px' }}>
-                  Please go back and authorize or skip it for now
-                </h5>
+                <h5 style={{ marginBottom: '20px' }}>You can skip it for now</h5>
               )}
 
               <FlexboxGrid justify="end" style={{ marginTop: '30px' }}>

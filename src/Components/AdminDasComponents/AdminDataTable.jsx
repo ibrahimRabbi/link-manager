@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { HiRefresh } from 'react-icons/hi';
-import defaultLogo from './default-logo.PNG';
+import defaultLogo from './logo.png';
 import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
 import InfoStatus from '@rsuite/icons/InfoRound';
@@ -146,14 +146,20 @@ const AdminDataTable = ({ props }) => {
 
   // dynamic cell for the image
   const DynamicCell = ({ rowData, dataKey, iconKey, statusKey, ...props }) => {
+    const logo = rowData[iconKey] ? rowData[iconKey] : defaultLogo;
     return (
       <Cell {...props}>
         {/* display logo  */}
         {iconKey && (
           <img
-            height={rowData[iconKey] ? '22px' : '28'}
-            src={rowData[iconKey] ? rowData[iconKey] : defaultLogo}
+            height={25}
+            src={logo}
             alt=""
+            style={{
+              backgroundColor: rowData[iconKey] ? '' : 'white',
+              borderRadius: rowData[iconKey] ? '' : '50%',
+              padding: '1px',
+            }}
           />
         )}
 

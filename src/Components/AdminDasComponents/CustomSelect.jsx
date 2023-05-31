@@ -38,18 +38,22 @@ const CustomSelect = React.forwardRef((props, ref) => {
       url = `${url}&${queryParams}`;
     }
     if (apiURL) {
-      console.log('url', url);
       const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-type': 'application/json',
           authorization: 'Bearer ' + authCtx.token,
         },
+      }).then((res) => {
+        if (res.ok) {
+          if (res.status !== 204) {
+            return res.json();
+          }
+        }
       });
-      const data = await response.json();
       setIsLoading(false);
-      setCheckPagination(data);
-      if (data?.items) return data.items;
+      setCheckPagination(response);
+      if (response?.items) return response.items;
     }
     return [];
   }
