@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import deleteAPI from '../apiRequests/deleteAPI';
 import getAPI from '../apiRequests/getAPI';
 import { postAPIForm } from '../apiRequests/postAPI';
-import putAPI from '../apiRequests/putAPI';
+import { putAPIForm } from '../apiRequests/putAPI';
 
 // Fetch get all Pipelines
 export const fetchPipelines = createAsyncThunk(
@@ -24,7 +24,7 @@ export const fetchCreatePipeline = createAsyncThunk(
 export const fetchUpdatePipeline = createAsyncThunk(
   'pipelines/fetchUpdatePipeline',
   async ({ url, token, bodyData }) => {
-    return putAPI({ url, token, bodyData });
+    return putAPIForm({ url, token, bodyData });
   },
 );
 

@@ -4,7 +4,7 @@ import {
   fetchPipelines,
   fetchCreatePipeline,
   fetchUpdatePipeline,
-  //   fetchDeletePipeline,
+  fetchDeletePipeline,
 } from '../../../Redux/slices/pipelineSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import {
@@ -19,6 +19,7 @@ import TextField from '../TextField';
 import { useRef } from 'react';
 import SelectField from '../SelectField.jsx';
 import CustomSelect from '../CustomSelect.jsx';
+import Swal from 'sweetalert2';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -96,7 +97,6 @@ const Pipelines = () => {
       return;
     } else if (isAdminEditing) {
       const putUrl = `${lmApiUrl}/pipelines/${editData?.id}`;
-      console.log('putUrl', putUrl);
       dispatch(
         fetchUpdatePipeline({
           url: putUrl,
@@ -142,24 +142,24 @@ const Pipelines = () => {
     refreshData,
   ]);
 
-  //   // handle delete pipeline
-  //   const handleDelete = (data) => {
-  //     Swal.fire({
-  //       title: 'Are you sure',
-  //       icon: 'info',
-  //       text: 'Do you want to delete the Pipeline!!',
-  //       cancelButtonColor: 'red',
-  //       showCancelButton: true,
-  //       confirmButtonText: 'Delete',
-  //       confirmButtonColor: '#3085d6',
-  //       reverseButtons: true,
-  //     }).then((value) => {
-  //       if (value.isConfirmed) {
-  //         const deleteUrl = `${lmApiUrl}/pipelines/pipeline/${data?.id}`;
-  //         dispatch(fetchDeletePipeline({ url: deleteUrl, token: authCtx.token }));
-  //       }
-  //     });
-  //  };
+  // handle delete pipeline
+  const handleDelete = (data) => {
+    Swal.fire({
+      title: 'Are you sure',
+      icon: 'info',
+      text: 'Do you want to delete the Pipeline!!',
+      cancelButtonColor: 'red',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      confirmButtonColor: '#3085d6',
+      reverseButtons: true,
+    }).then((value) => {
+      if (value.isConfirmed) {
+        const deleteUrl = `${lmApiUrl}/pipelines/${data?.id}`;
+        dispatch(fetchDeletePipeline({ url: deleteUrl, token: authCtx.token }));
+      }
+    });
+  };
 
   // handle Edit Pipeline
   const handleEdit = (data) => {
@@ -168,7 +168,7 @@ const Pipelines = () => {
     setFormValue({
       event_id: data?.event_id,
       script_path: data?.script_path,
-      is_polling: data?.is_polling,
+      is_polling: data?.is_polling ? data?.is_polling : false,
       polling_period: data?.polling_period,
     });
     dispatch(handleIsAddNewModal(true));
@@ -180,7 +180,7 @@ const Pipelines = () => {
     rowData: allPipelines?.items?.length ? allPipelines?.items : [],
     headerData,
     handleEdit,
-    //     handleDelete,
+    handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
@@ -214,7 +214,7 @@ const Pipelines = () => {
                   name="event_id"
                   label="Event"
                   accepter={CustomSelect}
-                  apiURL={`${lmApiUrl}/pipelines/event`}
+                  apiURL={`${lmApiUrl}/events`}
                   error={formError.event_id}
                   reqText="Event is required"
                 />
