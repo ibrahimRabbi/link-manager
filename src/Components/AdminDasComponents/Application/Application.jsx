@@ -19,6 +19,8 @@ import {
   fetchGetData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
+import { fetchApplicationPublisherIcon } from '../../../Redux/slices/applicationSlice';
+import Oauth2Modal from '../../Oauth2Modal/Oauth2Modal';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -32,7 +34,7 @@ const headerData = [
   {
     header: 'Application',
     key: 'name',
-    iconKey: 'applicationIcon',
+    iconKey: 'iconUrl',
   },
   {
     header: 'Description',
@@ -42,23 +44,36 @@ const headerData = [
     header: 'Rootservices URL',
     key: 'rootservices_url',
   },
+  {
+    header: 'Status',
+    statusKey: 'status',
+    width: 120,
+  },
 ];
 
 const { StringType, NumberType } = Schema.Types;
 
-const model = Schema.Model({
-  name: StringType().isRequired('This field is required.'),
-  rootservices_url: StringType().isRequired('This field is required.'),
-  organization_id: NumberType().isRequired('This field is required.'),
-  description: StringType().isRequired('This field is required.'),
-});
-
 const Application = () => {
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
-
   const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
     (state) => state.crud,
   );
+  const { iconData } = useSelector((state) => state.applications);
+
+  // application form validation schema
+  const model = Schema.Model({
+    name: StringType()
+      .addRule((value) => {
+        const regex = /^[a-zA-Z0-9_-]+$/;
+        return regex.test(value);
+      }, 'Please try to enter valid application name')
+      .isRequired('This field is required.'),
+    rootservices_url: isAdminEditing
+      ? StringType()
+      : StringType().isRequired('This field is required.'),
+    organization_id: NumberType().isRequired('This field is required.'),
+    description: StringType().isRequired('This field is required.'),
+  });
 
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -66,6 +81,7 @@ const Application = () => {
   const [editData, setEditData] = useState({});
   const [openModal, setOpenModal] = useState(false);
   const [steps, setSteps] = useState(0);
+  const [appsWithIcon, setAppsWithIcon] = useState([]);
   const [appCreateSuccess, setAppCreateSuccess] = useState(false);
   const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
   const [authorizedAppConsumption, setAuthorizedAppConsumption] = useState(false);
@@ -78,8 +94,86 @@ const Application = () => {
   });
   const appFormRef = useRef();
   const iframeRef = useRef(null);
+  const oauth2ModalRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
+
+  // get all applications
+  useEffect(() => {
+    dispatch(handleCurrPageTitle('Applications'));
+    const getUrl = `${lmApiUrl}/application?page=${currPage}&per_page=${pageSize}`;
+    dispatch(
+      fetchGetData({
+        url: getUrl,
+        token: authCtx.token,
+        stateName: 'allApplications',
+      }),
+    );
+  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
+
+  // get icons for the applications
+  useEffect(() => {
+    if (crudData?.allApplications?.items) {
+      let tempData = [];
+      crudData?.allApplications?.items?.forEach((item) => {
+        tempData.push({
+          id: item?.id,
+          rootservicesUrl: item?.rootservices_url ? item.rootservices_url : null,
+        });
+      });
+      dispatch(
+        fetchApplicationPublisherIcon({
+          applicationData: tempData,
+        }),
+      );
+    }
+  }, [crudData?.allApplications]);
+
+  // merging application icons with applications data
+  useEffect(() => {
+    const customAppItems = crudData?.allApplications?.items?.reduce((acc, curr) => {
+      if (curr?.rootservices_url) {
+        iconData?.forEach((icon) => {
+          if (curr.id === icon.id) {
+            const withIcon = {
+              ...curr,
+              iconUrl: icon.iconUrl,
+              status: curr?.oauth2_application[0]?.token_status?.status,
+            };
+            acc.push(withIcon);
+          }
+        });
+      } else {
+        acc.push({
+          ...curr,
+          iconUrl: null,
+          status: curr?.oauth2_application[0]?.token_status?.status,
+        });
+      }
+      return acc;
+    }, []);
+    setAppsWithIcon(customAppItems);
+  }, [iconData, crudData?.allApplications]);
+
+  // manage oauth iframe
+  useEffect(() => {
+    if (iframeRef.current) {
+      iframeRef.current.addEventListener('load', handleLoad);
+    }
+    return () => {
+      if (iframeRef.current) {
+        iframeRef.current.removeEventListener('load', handleLoad);
+      }
+    };
+  }, [iframeRef]);
+
+  // Check for changes to the iframe URL when it is loaded
+  const handleLoad = () => {
+    const currentUrl = iframeRef.current.contentWindow.location.href;
+    if (currentUrl !== authorizeFrameSrc) {
+      setAuthorizeFrameSrc(currentUrl);
+    }
+  };
 
   // Pagination
   const handlePagination = (value) => {
@@ -177,25 +271,6 @@ const Application = () => {
     false,
   );
 
-  useEffect(() => {
-    if (iframeRef.current) {
-      iframeRef.current.addEventListener('load', handleLoad);
-    }
-    return () => {
-      if (iframeRef.current) {
-        iframeRef.current.removeEventListener('load', handleLoad);
-      }
-    };
-  }, [iframeRef]);
-
-  // Check for changes to the iframe URL when it is loaded
-  const handleLoad = () => {
-    const currentUrl = iframeRef.current.contentWindow.location.href;
-    if (currentUrl !== authorizeFrameSrc) {
-      setAuthorizeFrameSrc(currentUrl);
-    }
-  };
-
   // reset form
   const handleResetForm = () => {
     setEditData({});
@@ -220,21 +295,18 @@ const Application = () => {
     setTimeout(() => {
       handleResetForm();
       setSteps(0);
+      dispatch(handleIsAdminEditing(false));
     }, 500);
   };
 
-  useEffect(() => {
-    dispatch(handleCurrPageTitle('Applications'));
-
-    const getUrl = `${lmApiUrl}/application?page=${currPage}&per_page=${pageSize}`;
-    dispatch(
-      fetchGetData({
-        url: getUrl,
-        token: authCtx.token,
-        stateName: 'allApplications',
-      }),
-    );
-  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
+  // handle oauth2 modal for authorize applications
+  const handleOpenAuthorizeModal = (data) => {
+    if (data?.status && data?.status?.toLowerCase() !== 'valid') {
+      if (oauth2ModalRef.current && oauth2ModalRef.current?.verifyAndOpenModal) {
+        oauth2ModalRef.current?.verifyAndOpenModal(data, data?.id);
+      }
+    }
+  };
 
   // handle delete application
   const handleDelete = (data) => {
@@ -264,36 +336,26 @@ const Application = () => {
       organization_id: data?.organization_id,
       description: data?.description,
     });
-
     setOpenModal(true);
   };
-
-  // test icon
-  const customAppItems = crudData?.allApplications?.items?.reduce((acc, curr) => {
-    acc.push({
-      ...curr,
-      applicationIcon: 'https://lm-dev.koneksys.com/jira_logo.png',
-    });
-    return acc;
-  }, []);
 
   // send props in the batch action table
   const tableProps = {
     title: 'Applications',
-    rowData: crudData?.allApplications?.items?.length ? customAppItems : [],
+    rowData: crudData?.allApplications?.items?.length ? appsWithIcon : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
+    authorizeModal: handleOpenAuthorizeModal,
     totalItems: crudData?.allApplications?.total_items,
     totalPages: crudData?.allApplications?.total_pages,
     pageSize,
     page: crudData?.allApplications?.page,
     inpPlaceholder: 'Search Application',
   };
-
   return (
     <div>
       <Modal
@@ -308,11 +370,13 @@ const Application = () => {
             {isAdminEditing ? 'Edit Application' : 'Add New Application'}
           </Modal.Title>
 
-          <Steps current={steps} style={{ marginTop: '5px' }}>
-            <Steps.Item />
-            <Steps.Item status={steps == 1 ? 'process' : 'wait'} />
-            <Steps.Item />
-          </Steps>
+          {!isAdminEditing && (
+            <Steps current={steps} style={{ marginTop: '5px' }}>
+              <Steps.Item />
+              <Steps.Item status={steps == 1 ? 'process' : 'wait'} />
+              <Steps.Item />
+            </Steps>
+          )}
         </Modal.Header>
 
         <Modal.Body style={{ padding: '0 10px 30px' }}>
@@ -327,7 +391,7 @@ const Application = () => {
                 model={model}
               >
                 <FlexboxGrid justify="space-between">
-                  <FlexboxGrid.Item colspan={11}>
+                  <FlexboxGrid.Item colspan={isAdminEditing ? 24 : 11}>
                     <TextField
                       name="name"
                       label="Name"
@@ -335,13 +399,15 @@ const Application = () => {
                     />
                   </FlexboxGrid.Item>
 
-                  <FlexboxGrid.Item colspan={11}>
-                    <TextField
-                      name="rootservices_url"
-                      label="Root Services URL"
-                      reqText="Root Services URL of OSLC application is required"
-                    />
-                  </FlexboxGrid.Item>
+                  {!isAdminEditing && (
+                    <FlexboxGrid.Item colspan={11}>
+                      <TextField
+                        name="rootservices_url"
+                        label="Root Services URL"
+                        reqText="Root Services URL of OSLC application is required"
+                      />
+                    </FlexboxGrid.Item>
+                  )}
 
                   <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
                     <SelectField
@@ -428,9 +494,7 @@ const Application = () => {
                 </h5>
               ) : (
                 // eslint-disable-next-line max-len
-                <h5 style={{ marginBottom: '20px' }}>
-                  Please go back and authorize or skip it for now
-                </h5>
+                <h5 style={{ marginBottom: '20px' }}>You can skip it for now</h5>
               )}
 
               <FlexboxGrid justify="end" style={{ marginTop: '30px' }}>
@@ -447,6 +511,9 @@ const Application = () => {
           )}
         </Modal.Body>
       </Modal>
+
+      {/* --- oauth 2 modal ---  */}
+      <Oauth2Modal ref={oauth2ModalRef} />
 
       {isCrudLoading && <UseLoader />}
 

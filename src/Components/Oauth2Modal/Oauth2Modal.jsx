@@ -28,7 +28,6 @@ const Oauth2Modal = forwardRef((props, ref) => {
       authUrl = userStatusUrl;
     } else if (payload && selectedApplication) {
       setAppId(selectedApplication);
-
       let query = `client_id=${oauth2AppData?.client_id}&scope=${oauth2AppData?.scopes}`;
 
       oauth2AppData?.response_types?.forEach((response_type) => {

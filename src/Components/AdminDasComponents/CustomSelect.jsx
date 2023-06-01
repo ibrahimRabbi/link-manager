@@ -37,17 +37,24 @@ const CustomSelect = React.forwardRef((props, ref) => {
     if (queryParams) {
       url = `${url}&${queryParams}`;
     }
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json',
-        authorization: 'Bearer ' + authCtx.token,
-      },
-    });
-    const data = await response.json();
-    setIsLoading(false);
-    setCheckPagination(data);
-    if (data?.items) return data.items;
+    if (apiURL) {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json',
+          authorization: 'Bearer ' + authCtx.token,
+        },
+      }).then((res) => {
+        if (res.ok) {
+          if (res.status !== 204) {
+            return res.json();
+          }
+        }
+      });
+      setIsLoading(false);
+      setCheckPagination(response);
+      if (response?.items) return response.items;
+    }
     return [];
   }
 
@@ -113,11 +120,13 @@ const CustomSelect = React.forwardRef((props, ref) => {
       </>
     );
   };
+
   return (
     <SelectPicker
       menuMaxHeight={250}
       size="lg"
       block
+      searchable={dropDownData?.length > 9 || dropDownData?.length === 0 ? true : false}
       ref={ref}
       {...rest}
       data={dropDownData}

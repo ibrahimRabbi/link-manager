@@ -31,7 +31,6 @@ import Oauth2Success from './Components/Oauth2/oauth2Success.jsx';
 import Events from './Components/AdminDasComponents/Events/Events.jsx';
 import Pipelines from './Components/AdminDasComponents/Pipelines/Pipelines.jsx';
 import Associations from './Components/AdminDasComponents/Associations/Associations';
-import { handleGetConsumerTokenFromStor } from './Redux/slices/associationSlice';
 import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun.jsx';
 
 export const darkColor = '#1a1d24';
@@ -45,20 +44,7 @@ function App() {
   useEffect(() => {
     const isDark = localStorage.getItem('isDarkMode');
     dispatch(handleIsDarkMode(isDark));
-    // get consumer tokens from local storage before loading application
-    const consumerTokens = localStorage.getItem('consumerTokens');
-    if (consumerTokens) {
-      const token = JSON.parse(consumerTokens);
-      dispatch(handleGetConsumerTokenFromStor(token));
-    }
   }, []);
-
-  window.addEventListener('storage', (event) => {
-    if (event.storageArea === window.localStorage) {
-      const consumer_tokens = localStorage.getItem('consumerTokens');
-      if (!consumer_tokens) dispatch(handleGetConsumerTokenFromStor({}));
-    }
-  });
 
   return (
     <CustomProvider theme={isDark}>

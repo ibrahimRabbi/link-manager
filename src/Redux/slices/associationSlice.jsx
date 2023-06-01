@@ -54,26 +54,7 @@ export const associationSlice = createSlice({
   name: 'associations',
   initialState,
 
-  reducers: {
-    handleGetConsumerTokenFromStor: (state, { payload }) => {
-      state.consumerTokens = payload;
-    },
-    handleConsumerToken: (state, { payload }) => {
-      const consumerTokens = localStorage.getItem('consumerTokens');
-      if (consumerTokens) {
-        const tokensObj = JSON.parse(consumerTokens);
-
-        tokensObj[payload?.appId] = payload?.token;
-        localStorage.setItem('consumerTokens', JSON.stringify(tokensObj));
-      }
-      // tokens are not available in the local storage
-      else {
-        const newToken = { [payload?.appId]: payload?.token };
-        localStorage.setItem('consumerTokens', JSON.stringify(newToken));
-        state.consumerTokens = newToken;
-      }
-    },
-  },
+  reducers: {},
   //----------------------\\
   extraReducers: (builder) => {
     // Get all Project
@@ -142,7 +123,6 @@ export const associationSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { handleConsumerToken, handleGetConsumerTokenFromStor } =
-  associationSlice.actions;
+// export const { } = associationSlice.actions;
 
 export default associationSlice.reducer;
