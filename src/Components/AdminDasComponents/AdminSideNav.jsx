@@ -14,6 +14,7 @@ import { TbApps } from 'react-icons/tb';
 import { VscProject } from 'react-icons/vsc';
 import { CgLink } from 'react-icons/cg';
 import { darkColor, lightBgColor } from '../../App';
+import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
 
 const iconStyle = {
   marginLeft: '-35px',
@@ -155,6 +156,15 @@ const AdminSideNav = () => {
 
               <Nav.Item
                 eventKey="11"
+                active={pathname === '/admin/pipelinerun'}
+                onClick={() => navigate('/admin/pipelinerun')}
+                icon={<PlayOutlineIcon size={15} style={{ ...iconStyle }} />}
+              >
+                Pipeline Results
+              </Nav.Item>
+
+              <Nav.Item
+                eventKey="12"
                 active={pathname === '/'}
                 onClick={() => navigate('/')}
                 icon={

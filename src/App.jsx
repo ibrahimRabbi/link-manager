@@ -31,6 +31,7 @@ import Oauth2Success from './Components/Oauth2/oauth2Success.jsx';
 import Events from './Components/AdminDasComponents/Events/Events.jsx';
 import Pipelines from './Components/AdminDasComponents/Pipelines/Pipelines.jsx';
 import Associations from './Components/AdminDasComponents/Associations/Associations';
+import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun.jsx';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -103,6 +104,7 @@ function App() {
             <Route path="/admin/components" element={<Components />} />
             <Route path="/admin/events" element={<Events />} />
             <Route path="/admin/pipelines" element={<Pipelines />} />
+            <Route path="/admin/pipelinerun" element={<PipelineRun />} />
             <Route path="/admin" element={<Users />} />
           </Route>
 

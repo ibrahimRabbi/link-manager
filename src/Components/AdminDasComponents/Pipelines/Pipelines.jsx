@@ -56,7 +56,9 @@ const Pipelines = () => {
   const {
     allPipelines,
     isPipelineLoading,
-    isPipelineCreated /*, isPipelineUpdated,  isPipelineDeleted*/,
+    isPipelineCreated,
+    isPipelineUpdated,
+    isPipelineDeleted,
   } = useSelector((state) => state.pipelines);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
 
@@ -137,7 +139,9 @@ const Pipelines = () => {
     dispatch(fetchPipelines({ url: getUrl, token: authCtx.token, authCtx: authCtx }));
   }, [
     isPipelineCreated,
-    /*isPipelineUpdated, isPipelineDeleted,*/ pageSize,
+    isPipelineUpdated,
+    isPipelineDeleted,
+    pageSize,
     currPage,
     refreshData,
   ]);

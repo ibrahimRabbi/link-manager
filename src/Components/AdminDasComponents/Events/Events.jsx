@@ -8,7 +8,7 @@ import {
 } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Form, Loader, Schema } from 'rsuite';
+import { FlexboxGrid, Form, Loader, Schema, Tree } from 'rsuite';
 import TextField from '../TextField';
 import { useRef } from 'react';
 import TextArea from '../TextArea';
@@ -92,7 +92,7 @@ const Events = () => {
       console.error('Form Error', formError);
       return;
     } else if (isAdminEditing) {
-      const putUrl = `${lmApiUrl}/pipelines/event/${editData?.id}`;
+      const putUrl = `${lmApiUrl}/events/${editData?.id}`;
       dispatch(
         fetchUpdateData({
           url: putUrl,
@@ -101,7 +101,7 @@ const Events = () => {
         }),
       );
     } else {
-      const postUrl = `${lmApiUrl}/pipelines/event`;
+      const postUrl = `${lmApiUrl}/events`;
       dispatch(
         fetchCreateData({
           url: postUrl,
@@ -128,7 +128,7 @@ const Events = () => {
   useEffect(() => {
     dispatch(handleCurrPageTitle('Events'));
 
-    const getUrl = `${lmApiUrl}/pipelines/event?page=${currPage}&per_page=${pageSize}`;
+    const getUrl = `${lmApiUrl}/events?page=${currPage}&per_page=${pageSize}`;
     dispatch(
       fetchGetData({
         url: getUrl,
@@ -151,7 +151,7 @@ const Events = () => {
       reverseButtons: true,
     }).then((value) => {
       if (value.isConfirmed) {
-        const deleteUrl = `${lmApiUrl}/pipelines/event/${data?.id}`;
+        const deleteUrl = `${lmApiUrl}/events/${data?.id}`;
         dispatch(fetchDeleteData({ url: deleteUrl, token: authCtx.token }));
       }
     });
@@ -186,6 +186,40 @@ const Events = () => {
     inpPlaceholder: 'Search Events',
   };
 
+  const treedata = crudData?.allEvents?.items.map((item) => {
+    return { label: item.name, value: item.name, isFolder: true, children: [] };
+  });
+  // {
+  //   limits: [3, 3, 4],
+  //   labels: (layer, value, faker) => {
+  //     const methodName = ['jobArea', 'jobType', 'firstName'];
+  //     return faker.person[methodName[layer]]();
+  //   },
+  //
+  //   Array(5) [Object,
+  //   Object,
+  //   Object,
+  //   Object,
+  //   Object]
+  //
+  //
+  // {
+  //   "label": "Embedded Software",
+  //   "value": "Embedded Software",
+  //   "isFolder": "true",
+  //   "children": [],
+  //   "oslc:label": "Embedded Software",
+  //   "rdf:type": "http://open-services.net/ns/scm#RepositoryTree",
+  //   "koatl:apiPath": "Embedded Software",
+  //   "oslc:providerId": "42854970",
+  //   "oslc:resourceType": "files",
+  //   "oslc:resourceId": "f921876d132d886e141e3a62a408cc0efcec9f52",
+  //   "oslc:branchName": "main",
+  //   "oslc:api": "gitlab"
+  // }
+  //
+  //
+  // };
   return (
     <div>
       <AddNewModal
@@ -240,6 +274,7 @@ const Events = () => {
         />
       )}
       <AdminDataTable props={tableProps} />
+      {treedata && <Tree data={treedata} getChildren={console.log(0)}></Tree>}
     </div>
   );
 };
