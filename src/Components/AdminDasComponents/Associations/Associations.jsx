@@ -6,7 +6,6 @@ import {
   fetchDeleteAssoc,
   fetchAssociations,
   fetchUpdateAssoc,
-  handleConsumerToken,
 } from '../../../Redux/slices/associationSlice';
 import { actions, fetchOslcResource } from '../../../Redux/slices/oslcResourcesSlice';
 import AuthContext from '../../../Store/Auth-Context';
@@ -38,20 +37,20 @@ const headerData = [
     key: 'id',
   },
   {
-    header: 'Resource container',
-    key: 'service_provider_id',
-  },
-  {
-    header: 'Description',
-    key: 'service_label',
+    header: 'Application',
+    key: 'application_id',
   },
   {
     header: 'Project',
     key: 'project_id',
   },
   {
-    header: 'Created',
-    key: 'created',
+    header: 'Resource container',
+    key: 'service_provider_id',
+  },
+  {
+    header: 'Resource url',
+    key: 'service_provider_url',
   },
 ];
 
@@ -74,13 +73,13 @@ const Associations = () => {
   } = useSelector((state) => state.associations);
   const {
     oslcCatalogResponse,
-    oslcServiceProviderResponse,
+    // oslcServiceProviderResponse,
     oslcCatalogUrls,
     oslcResourceFailed,
     oslcUnauthorizedUser,
     oslcMissingConsumerToken,
   } = useSelector((state) => state.oslcResources);
-  const { crudData } = useSelector((state) => state.crud);
+  const { crudData, isCrudLoading } = useSelector((state) => state.crud);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -117,7 +116,6 @@ const Associations = () => {
 
   const getServiceProviderResources = (payload) => {
     const data = JSON.parse(payload);
-    console.log(data);
     const url = data?.value;
     const consumerToken = crudData?.consumerToken?.access_token;
 
@@ -156,22 +154,14 @@ const Associations = () => {
     } else {
       const bodyData = { ...formValue };
       const resourceContainerPayload = JSON.parse(bodyData.resource_container);
-      const resourceTypePayload = JSON.parse(bodyData.resource_type);
 
       const selectedServiceProvider = oslcCatalogResponse?.find(
         (item) => item.value === resourceContainerPayload.value,
       );
-      const selectedSelectionDialog = oslcServiceProviderResponse?.find(
-        (item) => item.value === resourceTypePayload.value,
-      );
-
-      bodyData['oslc_domain'] = selectedSelectionDialog.domain;
+      console.log(selectedServiceProvider);
       bodyData['service_provider_id'] = selectedServiceProvider?.serviceProviderId;
       bodyData['service_provider_url'] = selectedServiceProvider?.value;
-      bodyData['service_label'] = selectedSelectionDialog?.label;
-      bodyData['service_description'] = selectedSelectionDialog?.description;
-      bodyData['resource_type'] = selectedSelectionDialog?.resourceType;
-
+      console.log('BodyData: ', bodyData);
       const postUrl = `${lmApiUrl}/association`;
       dispatch(
         fetchCreateAssoc({
@@ -309,27 +299,30 @@ const Associations = () => {
 
   // control oauth2 modal
   const handleRootServiceUrlChange = (value) => {
-    const selectedURL = JSON.parse(value);
-    setSelectedAppData(selectedURL);
-    fetchConsumerToken(selectedURL?.name);
+    if (value) {
+      const selectedURL = JSON.parse(value);
+      setSelectedAppData(selectedURL);
+      fetchConsumerToken(selectedURL?.name);
+    } else {
+      dispatch(crudActions.removeCrudParameter('consumerToken'));
+      setSelectedAppData({});
+    }
   };
 
-  const fetchConsumerToken = (label) => {
-    dispatch(
-      fetchGetData({
-        url: `${lmApiUrl}/application/consumer-token/${label}`,
-        token: authCtx.token,
-        stateName: 'consumerToken',
-      }),
-    );
+  const fetchConsumerToken = async (label) => {
+    if (label) {
+      await dispatch(
+        fetchGetData({
+          url: `${lmApiUrl}/application/consumer-token/${label}`,
+          token: authCtx.token,
+          stateName: 'consumerToken',
+        }),
+      );
+    }
   };
-
   useEffect(() => {
     // eslint-disable-next-line max-len
-    if (
-      crudData?.consumerToken?.access_token &&
-      Object.keys(selectedAppData)?.length > 0
-    ) {
+    if (crudData?.consumerToken?.access_token && selectedAppData?.id) {
       fetchCatalogFromRootservices(
         selectedAppData?.rootservices_url,
         selectedAppData?.id,
@@ -339,35 +332,11 @@ const Associations = () => {
 
   const handleOauth2Modal = () => {
     // Call function of Oauth2Modal
+    console.log('oauth2ModalRef: ', oauth2ModalRef);
     if (oauth2ModalRef.current && oauth2ModalRef.current?.verifyAndOpenModal) {
       oauth2ModalRef.current?.verifyAndOpenModal(selectedAppData, selectedAppData?.id);
     }
   };
-
-  // get consumer token from oauth2 authorization iframe
-  window.addEventListener(
-    'message',
-    function (event) {
-      let message = event.data;
-      if (!message?.source) {
-        if (message.toString()?.startsWith('consumer-token-data:')) {
-          const response = message?.split('consumer-token-data:');
-          if (response) {
-            const exactToken = response[1];
-            if (exactToken && selectedAppData?.id) {
-              dispatch(
-                handleConsumerToken({
-                  token: exactToken,
-                  appId: selectedAppData?.id,
-                }),
-              );
-            }
-          }
-        }
-      }
-    },
-    false,
-  );
 
   return (
     <div>
@@ -429,43 +398,47 @@ const Associations = () => {
 
             {selectedAppData?.id && (
               <>
-                {!crudData?.consumerToken?.access_token && (
-                  <p style={{ fontSize: '17px', color: '#eb9d17', marginTop: '5px' }}>
-                    Please{' '}
-                    <span
-                      style={{
-                        color: 'blue',
-                        textDecoration: 'underline',
-                        cursor: 'pointer',
-                      }}
-                      onClick={handleOauth2Modal}
-                    >
-                      authorize
-                    </span>{' '}
-                    this application to add integration.
-                  </p>
+                {isCrudLoading ? (
+                  <FlexboxGrid.Item colspan={24}>
+                    <UseLoader />
+                  </FlexboxGrid.Item>
+                ) : (
+                  <>
+                    {crudData?.consumerToken?.access_token ? (
+                      <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                        <SelectField
+                          size="lg"
+                          block
+                          name="resource_container"
+                          label="Resource container"
+                          placeholder="Select resource container"
+                          options={oslcCatalogResponse}
+                          customSelectLabel="label"
+                          accepter={DefaultCustomSelect}
+                          onChange={(value) => {
+                            getServiceProviderResources(value);
+                          }}
+                          reqText="Resource container is required"
+                        />
+                      </FlexboxGrid.Item>
+                    ) : (
+                      <p style={{ fontSize: '17px', color: '#eb9d17', marginTop: '5px' }}>
+                        Please{' '}
+                        <span
+                          style={{
+                            color: 'blue',
+                            textDecoration: 'underline',
+                            cursor: 'pointer',
+                          }}
+                          onClick={handleOauth2Modal}
+                        >
+                          authorize
+                        </span>{' '}
+                        this application to add integration.
+                      </p>
+                    )}
+                  </>
                 )}
-              </>
-            )}
-
-            {crudData?.consumerToken?.access_token && (
-              <>
-                <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                  <SelectField
-                    size="lg"
-                    block
-                    name="resource_container"
-                    label="Resource container"
-                    placeholder="Select resource container"
-                    options={oslcCatalogResponse}
-                    customSelectLabel="label"
-                    accepter={DefaultCustomSelect}
-                    onChange={(value) => {
-                      getServiceProviderResources(value);
-                    }}
-                    reqText="Resource container is required"
-                  />
-                </FlexboxGrid.Item>
               </>
             )}
           </FlexboxGrid>

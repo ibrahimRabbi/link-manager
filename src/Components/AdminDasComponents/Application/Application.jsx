@@ -20,6 +20,7 @@ import {
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
 import { fetchApplicationPublisherIcon } from '../../../Redux/slices/applicationSlice';
+import Oauth2Modal from '../../Oauth2Modal/Oauth2Modal';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -46,7 +47,7 @@ const headerData = [
   {
     header: 'Status',
     statusKey: 'status',
-    width: 100,
+    width: 120,
   },
 ];
 
@@ -80,6 +81,7 @@ const Application = () => {
   const [editData, setEditData] = useState({});
   const [openModal, setOpenModal] = useState(false);
   const [steps, setSteps] = useState(0);
+  const [appsWithIcon, setAppsWithIcon] = useState([]);
   const [appCreateSuccess, setAppCreateSuccess] = useState(false);
   const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
   const [authorizedAppConsumption, setAuthorizedAppConsumption] = useState(false);
@@ -92,8 +94,86 @@ const Application = () => {
   });
   const appFormRef = useRef();
   const iframeRef = useRef(null);
+  const oauth2ModalRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
+
+  // get all applications
+  useEffect(() => {
+    dispatch(handleCurrPageTitle('Applications'));
+    const getUrl = `${lmApiUrl}/application?page=${currPage}&per_page=${pageSize}`;
+    dispatch(
+      fetchGetData({
+        url: getUrl,
+        token: authCtx.token,
+        stateName: 'allApplications',
+      }),
+    );
+  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
+
+  // get icons for the applications
+  useEffect(() => {
+    if (crudData?.allApplications?.items) {
+      let tempData = [];
+      crudData?.allApplications?.items?.forEach((item) => {
+        tempData.push({
+          id: item?.id,
+          rootservicesUrl: item?.rootservices_url ? item.rootservices_url : null,
+        });
+      });
+      dispatch(
+        fetchApplicationPublisherIcon({
+          applicationData: tempData,
+        }),
+      );
+    }
+  }, [crudData?.allApplications]);
+
+  // merging application icons with applications data
+  useEffect(() => {
+    const customAppItems = crudData?.allApplications?.items?.reduce((acc, curr) => {
+      if (curr?.rootservices_url) {
+        iconData?.forEach((icon) => {
+          if (curr.id === icon.id) {
+            const withIcon = {
+              ...curr,
+              iconUrl: icon.iconUrl,
+              status: curr?.oauth2_application[0]?.token_status?.status,
+            };
+            acc.push(withIcon);
+          }
+        });
+      } else {
+        acc.push({
+          ...curr,
+          iconUrl: null,
+          status: curr?.oauth2_application[0]?.token_status?.status,
+        });
+      }
+      return acc;
+    }, []);
+    setAppsWithIcon(customAppItems);
+  }, [iconData, crudData?.allApplications]);
+
+  // manage oauth iframe
+  useEffect(() => {
+    if (iframeRef.current) {
+      iframeRef.current.addEventListener('load', handleLoad);
+    }
+    return () => {
+      if (iframeRef.current) {
+        iframeRef.current.removeEventListener('load', handleLoad);
+      }
+    };
+  }, [iframeRef]);
+
+  // Check for changes to the iframe URL when it is loaded
+  const handleLoad = () => {
+    const currentUrl = iframeRef.current.contentWindow.location.href;
+    if (currentUrl !== authorizeFrameSrc) {
+      setAuthorizeFrameSrc(currentUrl);
+    }
+  };
 
   // Pagination
   const handlePagination = (value) => {
@@ -126,13 +206,7 @@ const Application = () => {
       const scopes = 'rest_api_access';
       const response_types = ['code'];
       const grant_types = ['service_provider', 'authorization_code'];
-      console.log('app', {
-        ...formValue,
-        scopes,
-        response_types,
-        grant_types,
-        redirect_uris,
-      });
+
       const postUrl = `${lmApiUrl}/application`;
       dispatch(
         fetchCreateData({
@@ -197,25 +271,6 @@ const Application = () => {
     false,
   );
 
-  useEffect(() => {
-    if (iframeRef.current) {
-      iframeRef.current.addEventListener('load', handleLoad);
-    }
-    return () => {
-      if (iframeRef.current) {
-        iframeRef.current.removeEventListener('load', handleLoad);
-      }
-    };
-  }, [iframeRef]);
-
-  // Check for changes to the iframe URL when it is loaded
-  const handleLoad = () => {
-    const currentUrl = iframeRef.current.contentWindow.location.href;
-    if (currentUrl !== authorizeFrameSrc) {
-      setAuthorizeFrameSrc(currentUrl);
-    }
-  };
-
   // reset form
   const handleResetForm = () => {
     setEditData({});
@@ -244,35 +299,15 @@ const Application = () => {
     }, 500);
   };
 
-  useEffect(() => {
-    dispatch(handleCurrPageTitle('Applications'));
-
-    const getUrl = `${lmApiUrl}/application?page=${currPage}&per_page=${pageSize}`;
-    dispatch(
-      fetchGetData({
-        url: getUrl,
-        token: authCtx.token,
-        stateName: 'allApplications',
-      }),
-    );
-  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
-
-  useEffect(() => {
-    if (crudData?.allApplications?.items) {
-      let tempData = [];
-      crudData?.allApplications?.items?.forEach((item) => {
-        tempData.push({
-          id: item?.id,
-          rootservicesUrl: item?.rootservices_url ? item.rootservices_url : null,
-        });
-      });
-      dispatch(
-        fetchApplicationPublisherIcon({
-          applicationData: tempData,
-        }),
-      );
+  // handle oauth2 modal for authorize applications
+  const handleOpenAuthorizeModal = (data) => {
+    if (data?.status && data?.status?.toLowerCase() !== 'valid') {
+      if (oauth2ModalRef.current && oauth2ModalRef.current?.verifyAndOpenModal) {
+        oauth2ModalRef.current?.verifyAndOpenModal(data, data?.id);
+      }
     }
-  }, [crudData?.allApplications]);
+  };
+
   // handle delete application
   const handleDelete = (data) => {
     Swal.fire({
@@ -301,37 +336,8 @@ const Application = () => {
       organization_id: data?.organization_id,
       description: data?.description,
     });
-
     setOpenModal(true);
   };
-  const demoStatus = ['success', 'error', 'info'];
-  const [appsWithIcon, setAppsWithIcon] = useState([]);
-  useEffect(() => {
-    // merging application icons with applications data
-    const customAppItems = crudData?.allApplications?.items?.reduce((acc, curr, i) => {
-      if (curr?.rootservices_url) {
-        iconData?.forEach((icon) => {
-          if (curr.id === icon.id) {
-            const withIcon = {
-              ...curr,
-              iconUrl: icon.iconUrl,
-              status: demoStatus[i] ? demoStatus[i] : '',
-            };
-            acc.push(withIcon);
-          }
-        });
-      } else {
-        acc.push({
-          ...curr,
-          iconUrl: null,
-          status: demoStatus[i] ? demoStatus[i] : '',
-        });
-      }
-      return acc;
-    }, []);
-    setAppsWithIcon(customAppItems);
-    console.log('Merged icons with application', customAppItems);
-  }, [iconData, crudData?.allApplications]);
 
   // send props in the batch action table
   const tableProps = {
@@ -343,6 +349,7 @@ const Application = () => {
     handleAddNew,
     handlePagination,
     handleChangeLimit,
+    authorizeModal: handleOpenAuthorizeModal,
     totalItems: crudData?.allApplications?.total_items,
     totalPages: crudData?.allApplications?.total_pages,
     pageSize,
@@ -504,6 +511,9 @@ const Application = () => {
           )}
         </Modal.Body>
       </Modal>
+
+      {/* --- oauth 2 modal ---  */}
+      <Oauth2Modal ref={oauth2ModalRef} />
 
       {isCrudLoading && <UseLoader />}
 

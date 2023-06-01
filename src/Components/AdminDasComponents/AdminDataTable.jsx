@@ -5,7 +5,7 @@ import defaultLogo from './logo.png';
 import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
 import InfoStatus from '@rsuite/icons/InfoRound';
-import PauseStatus from '@rsuite/icons/PauseRound';
+
 import {
   Table,
   Pagination,
@@ -38,6 +38,7 @@ const AdminDataTable = ({ props }) => {
     handleAddNew,
     handleEdit,
     handleDelete,
+    authorizeModal,
     totalItems,
     pageSize,
   } = props;
@@ -168,16 +169,28 @@ const AdminDataTable = ({ props }) => {
 
         {/* display status data  */}
         {statusKey && (
-          <div style={{ marginLeft: '20%', fontSize: '20px' }}>
-            {rowData[statusKey] === 'success' ? (
-              <SuccessStatus color="#378f17" />
-            ) : rowData[statusKey] === 'error' ? (
-              <FailedStatus color="#de1655" />
-            ) : rowData[statusKey] === 'info' ? (
-              <InfoStatus color="#eb9d17" />
-            ) : (
-              <PauseStatus color="#25b3f5" />
-            )}
+          <div
+            onClick={() => (authorizeModal ? authorizeModal(rowData) : null)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+            }}
+          >
+            <h5>
+              {rowData[statusKey]?.toLowerCase() === 'valid' ? (
+                <SuccessStatus color="#378f17" />
+              ) : rowData[statusKey]?.toLowerCase() === 'invalid' ? (
+                <FailedStatus color="#de1655" />
+              ) : rowData[statusKey]?.toLowerCase() === 'suspect' ? (
+                <InfoStatus color="#25b3f5" />
+              ) : (
+                <InfoStatus color="#25b3f5" />
+              )}
+            </h5>
+
+            <p style={{ marginTop: '2px' }}>{rowData[statusKey]}</p>
           </div>
         )}
       </Cell>

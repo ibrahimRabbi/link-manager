@@ -120,11 +120,13 @@ const CustomSelect = React.forwardRef((props, ref) => {
       </>
     );
   };
+
   return (
     <SelectPicker
       menuMaxHeight={250}
       size="lg"
       block
+      searchable={dropDownData?.length > 9 || dropDownData?.length === 0 ? true : false}
       ref={ref}
       {...rest}
       data={dropDownData}

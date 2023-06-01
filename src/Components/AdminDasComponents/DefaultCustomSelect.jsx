@@ -47,6 +47,7 @@ const DefaultCustomSelect = forwardRef((props, ref) => {
       menuMaxHeight={250}
       size="lg"
       block
+      searchable={data?.length > 9 || data?.length === 0 ? true : false}
       ref={ref}
       {...rest}
       data={data}

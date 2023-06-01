@@ -68,7 +68,7 @@ export const fetchApplicationPublisherIcon = createAsyncThunk(
 
       return await accumulator;
     }, []);
-    console.log('icon url', await getIconsUrl);
+
     return await getIconsUrl;
   },
 );
