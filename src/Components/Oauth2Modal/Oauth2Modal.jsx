@@ -40,7 +40,6 @@ const Oauth2Modal = forwardRef((props, ref) => {
 
       query += `&redirect_uri=${oauth2AppData?.redirect_uris[0]}`;
       authUrl = `${oauth2AppData?.authorization_uri}?${query}`;
-      console.log(authUrl);
     }
     setAuthorizeFrameSrc(authUrl);
     dispatch(handleIsOauth2ModalOpen(true));
