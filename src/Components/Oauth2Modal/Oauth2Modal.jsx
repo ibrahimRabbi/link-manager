@@ -54,7 +54,6 @@ const Oauth2Modal = forwardRef((props, ref) => {
           receivedUrl.includes('status=ok') &&
           receivedUrl.includes('authorizedUser=true')
         ) {
-          console.log('Message: ', receivedUrl);
           handleCloseModal();
         }
       }

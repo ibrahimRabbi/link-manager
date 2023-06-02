@@ -13,7 +13,6 @@ const STATUS_URL = 'https://onto-portal.org/ns/koatl#userStatus';
 export const fetchOslcResource = createAsyncThunk(
   'oslc/fetchOslcResource',
   async ({ url, token, dialogLabel = null }) => {
-    console.log('Get oslc resource: ', url, token);
     const response = await getOslcAPI({ url, token });
     return { url, response, dialogLabel };
   },

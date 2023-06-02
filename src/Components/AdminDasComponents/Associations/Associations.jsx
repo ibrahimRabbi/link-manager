@@ -159,10 +159,9 @@ const Associations = () => {
       const selectedServiceProvider = oslcCatalogResponse?.find(
         (item) => item.value === resourceContainerPayload.value,
       );
-      console.log(selectedServiceProvider);
       bodyData['service_provider_id'] = selectedServiceProvider?.serviceProviderId;
       bodyData['service_provider_url'] = selectedServiceProvider?.value;
-      console.log('BodyData: ', bodyData);
+
       const postUrl = `${lmApiUrl}/association`;
       dispatch(
         fetchCreateAssoc({
@@ -355,8 +354,7 @@ const Associations = () => {
     },
     false,
   );
-  // console.log('resourceConData: ', oslcCatalogResponse);
-  console.log('resourceConData: ', crudData?.consumerToken);
+
   return (
     <div>
       <AddNewModal
