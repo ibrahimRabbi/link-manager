@@ -13,6 +13,7 @@ const Oauth2Modal = forwardRef((props, ref) => {
   const [appId, setAppId] = useState('');
   const dispatch = useDispatch();
   const { userStatusUrl } = useSelector((state) => state.oslcResources);
+
   const verifyAndOpenModal = (payload, selectedApplication, userStatus = false) => {
     const oauth2AppData = payload?.oauth2_application[0];
     const appData = payload;

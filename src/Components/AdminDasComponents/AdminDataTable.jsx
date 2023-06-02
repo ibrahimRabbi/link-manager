@@ -125,6 +125,8 @@ const AdminDataTable = ({ props }) => {
         handleEdit(actionData);
       } else if (eventKey === 2) {
         handleDelete(actionData);
+      } else if (eventKey === 3) {
+        authorizeModal(actionData);
       }
       onClose();
       setActionData({});
@@ -140,6 +142,12 @@ const AdminDataTable = ({ props }) => {
           <Dropdown.Item eventKey={2}>
             <p>Delete</p>
           </Dropdown.Item>
+
+          {authorizeModal && (
+            <Dropdown.Item eventKey={3}>
+              <p>Authorize App</p>
+            </Dropdown.Item>
+          )}
         </Dropdown.Menu>
       </Popover>
     );

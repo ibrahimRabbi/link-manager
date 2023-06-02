@@ -186,7 +186,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         if (message.toString()?.startsWith('oslc-response')) {
           const response = JSON.parse(message?.substr('oslc-response:'?.length));
           const results = response['oslc:results'];
-          // console.log('dialog response: ', results);
           const targetArray = [];
           results?.forEach((v, i) => {
             const koatl_path = results[i]['koatl:apiPath'];

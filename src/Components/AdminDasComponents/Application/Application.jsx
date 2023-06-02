@@ -6,7 +6,16 @@ import {
   handleCurrPageTitle,
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
-import { Button, FlexboxGrid, Form, Modal, Schema, Steps } from 'rsuite';
+import {
+  Button,
+  FlexboxGrid,
+  Form,
+  Modal,
+  Schema,
+  Steps,
+  useToaster,
+  Message,
+} from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import TextField from '../TextField';
 import SelectField from '../SelectField';
@@ -21,6 +30,7 @@ import {
 } from '../../../Redux/slices/useCRUDSlice';
 import { fetchApplicationPublisherIcon } from '../../../Redux/slices/applicationSlice';
 import Oauth2Modal from '../../Oauth2Modal/Oauth2Modal';
+import { handleIsOauth2ModalOpen } from '../../../Redux/slices/oauth2ModalSlice';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -85,6 +95,7 @@ const Application = () => {
   const [appCreateSuccess, setAppCreateSuccess] = useState(false);
   const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
   const [authorizedAppConsumption, setAuthorizedAppConsumption] = useState(false);
+  const [isAppAuthorize, setIsAppAuthorize] = useState(false);
 
   const [formValue, setFormValue] = useState({
     name: '',
@@ -97,6 +108,7 @@ const Application = () => {
   const oauth2ModalRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
+  const toaster = useToaster();
 
   // get all applications
   useEffect(() => {
@@ -109,7 +121,7 @@ const Application = () => {
         stateName: 'allApplications',
       }),
     );
-  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
+  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData, isAppAuthorize]);
 
   // get icons for the applications
   useEffect(() => {
@@ -179,12 +191,13 @@ const Application = () => {
   const handlePagination = (value) => {
     setCurrPage(value);
   };
-
+  // page limit control
   const handleChangeLimit = (dataKey) => {
     setCurrPage(1);
     setPageSize(dataKey);
   };
 
+  // handle create and edit application
   const handleAddApplication = () => {
     if (!appFormRef.current.check()) {
       return;
@@ -200,6 +213,7 @@ const Application = () => {
       );
       setOpenModal(false);
     } else {
+      // create application
       const redirect_uris = [
         `${lmApiUrl}/application/` + 'consumer/callback?consumer=' + formValue.name,
       ];
@@ -262,8 +276,12 @@ const Application = () => {
         if (message.toString()?.startsWith('consumer-token-info')) {
           const response = JSON.parse(message?.substr('consumer-token-info:'?.length));
           if (response?.consumerStatus === 'success') {
-            setAuthorizedAppConsumption(true);
-            setSteps(2);
+            setIsAppAuthorize(true);
+            dispatch(handleIsOauth2ModalOpen(false));
+            if (steps === 1) {
+              setAuthorizedAppConsumption(true);
+              setSteps(2);
+            }
           }
         }
       }
@@ -302,9 +320,17 @@ const Application = () => {
   // handle oauth2 modal for authorize applications
   const handleOpenAuthorizeModal = (data) => {
     if (data?.status && data?.status?.toLowerCase() !== 'valid') {
+      setIsAppAuthorize(false);
       if (oauth2ModalRef.current && oauth2ModalRef.current?.verifyAndOpenModal) {
         oauth2ModalRef.current?.verifyAndOpenModal(data, data?.id);
       }
+    } else if (data?.status && data?.status?.toLowerCase() === 'valid') {
+      const message = (
+        <Message closable showIcon type="info" style={{ fontSize: '17px' }}>
+          Sorry, This application has been already authorized
+        </Message>
+      );
+      toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
     }
   };
 
@@ -356,6 +382,10 @@ const Application = () => {
     page: crudData?.allApplications?.page,
     inpPlaceholder: 'Search Application',
   };
+
+  // manage step 2
+  const manageStep2 =
+    steps == 1 ? 'process' : steps === 2 && authorizedAppConsumption ? 'finish' : 'wait';
   return (
     <div>
       <Modal
@@ -373,7 +403,7 @@ const Application = () => {
           {!isAdminEditing && (
             <Steps current={steps} style={{ marginTop: '5px' }}>
               <Steps.Item />
-              <Steps.Item status={steps == 1 ? 'process' : 'wait'} />
+              <Steps.Item status={manageStep2} />
               <Steps.Item />
             </Steps>
           )}

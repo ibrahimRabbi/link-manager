@@ -73,8 +73,6 @@ const CustomSelect = React.forwardRef((props, ref) => {
   }
 
   useEffect(async () => {
-    // console.log('New API URL', apiURL);
-    // console.log('New API Query Params', apiQueryParams);
     const newOptions = await fetchOptions(page);
     setOption([...newOptions]);
   }, [apiURL, apiQueryParams]);

@@ -31,13 +31,13 @@ const LinksDataTable = ({ props }) => {
   const renderMenu = ({ onClose, left, top, className }, ref) => {
     const handleSelect = (key) => {
       if (key === 1) {
-        console.log('Details');
+        //
       } else if (key === 2) {
-        console.log('Edit');
+        //
       } else if (key === 3) {
-        console.log('Set Status Valid');
+        //
       } else if (key === 4) {
-        console.log('Set Status Invalid');
+        //
       } else if (key === 5) {
         handleDeleteLink(actionData);
       }

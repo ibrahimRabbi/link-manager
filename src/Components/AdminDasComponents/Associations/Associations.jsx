@@ -27,6 +27,7 @@ import {
   fetchGetData,
 } from '../../../Redux/slices/useCRUDSlice.jsx';
 import { ROOTSERVICES_CATALOG_TYPES } from '../../../Redux/slices/oslcResourcesSlice.jsx';
+import { handleIsOauth2ModalOpen } from '../../../Redux/slices/oauth2ModalSlice';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -158,10 +159,9 @@ const Associations = () => {
       const selectedServiceProvider = oslcCatalogResponse?.find(
         (item) => item.value === resourceContainerPayload.value,
       );
-      console.log(selectedServiceProvider);
       bodyData['service_provider_id'] = selectedServiceProvider?.serviceProviderId;
       bodyData['service_provider_url'] = selectedServiceProvider?.value;
-      console.log('BodyData: ', bodyData);
+
       const postUrl = `${lmApiUrl}/association`;
       dispatch(
         fetchCreateAssoc({
@@ -299,6 +299,7 @@ const Associations = () => {
 
   // control oauth2 modal
   const handleRootServiceUrlChange = (value) => {
+    // dispatch(actions.resetOslcServiceProviderCatalogResponse());
     if (value) {
       const selectedURL = JSON.parse(value);
       setSelectedAppData(selectedURL);
@@ -332,11 +333,27 @@ const Associations = () => {
 
   const handleOauth2Modal = () => {
     // Call function of Oauth2Modal
-    console.log('oauth2ModalRef: ', oauth2ModalRef);
     if (oauth2ModalRef.current && oauth2ModalRef.current?.verifyAndOpenModal) {
       oauth2ModalRef.current?.verifyAndOpenModal(selectedAppData, selectedAppData?.id);
     }
   };
+
+  // get authoriz response from oauth2 modal
+  window.addEventListener(
+    'message',
+    function (event) {
+      let message = event.data;
+      if (!message.source) {
+        if (message.toString()?.startsWith('consumer-token-info')) {
+          const response = JSON.parse(message?.substr('consumer-token-info:'?.length));
+          if (response?.consumerStatus === 'success') {
+            dispatch(handleIsOauth2ModalOpen(false));
+          }
+        }
+      }
+    },
+    false,
+  );
 
   return (
     <div>
