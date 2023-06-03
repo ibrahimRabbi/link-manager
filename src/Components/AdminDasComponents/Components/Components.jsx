@@ -167,15 +167,6 @@ const Components = () => {
     dispatch(handleIsAddNewModal(true));
   };
 
-  // const allComps = crudData?.allComponents?.items?.reduce((acc, curr)=>{
-
-  //   if(curr.project){
-
-  //   }
-  //   return acc;
-  // }, []);
-  // console.log('components: ',allComps);
-  // send props in the batch action table
   const tableProps = {
     title: 'Components',
     rowData: crudData?.allComponents?.items?.length ? crudData?.allComponents?.items : [],

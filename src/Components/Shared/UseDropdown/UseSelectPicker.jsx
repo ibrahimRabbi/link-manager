@@ -50,6 +50,7 @@ const UseSelectPicker = ({ items, onChange, placeholder, className }) => {
     <SelectPicker
       placeholder={<p>{placeholder}</p>}
       data={selectItems}
+      searchable={selectItems?.length > 9 || selectItems?.length === 0 ? true : false}
       menuMaxHeight={250}
       size="md"
       block

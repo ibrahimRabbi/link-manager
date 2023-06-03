@@ -26,5 +26,9 @@
     {
         "name": "satisfiedBy",
         "id": 7
+    },
+    {
+        "name": "satisfies",
+        "id": 8
     }
 ]

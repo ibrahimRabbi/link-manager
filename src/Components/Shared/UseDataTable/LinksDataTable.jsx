@@ -31,13 +31,13 @@ const LinksDataTable = ({ props }) => {
   const renderMenu = ({ onClose, left, top, className }, ref) => {
     const handleSelect = (key) => {
       if (key === 1) {
-        console.log('Details');
+        //
       } else if (key === 2) {
-        console.log('Edit');
+        //
       } else if (key === 3) {
-        console.log('Set Status Valid');
+        //
       } else if (key === 4) {
-        console.log('Set Status Invalid');
+        //
       } else if (key === 5) {
         handleDeleteLink(actionData);
       }
@@ -73,17 +73,17 @@ const LinksDataTable = ({ props }) => {
     // OSLC API URL Receiving conditionally
     const oslcObj = { URL: '' };
     if (
-      rowData?.provider?.toLowerCase() == 'jira' ||
-      rowData?.provider?.toLowerCase() == 'jira-projects'
+      rowData?.provider?.toLowerCase() === 'jira' ||
+      rowData?.provider?.toLowerCase() === 'jira-projects'
     ) {
       oslcObj['URL'] = jiraURL;
-    } else if (rowData?.provider?.toLowerCase() == 'gitlab') {
+    } else if (rowData?.provider?.toLowerCase() === 'gitlab') {
       oslcObj['URL'] = gitlabURL;
-    } else if (rowData?.provider?.toLowerCase() == 'glide') {
+    } else if (rowData?.provider?.toLowerCase() === 'glide') {
       oslcObj['URL'] = glideURL;
-    } else if (rowData?.provider?.toLowerCase() == 'valispace') {
+    } else if (rowData?.provider?.toLowerCase() === 'valispace') {
       oslcObj['URL'] = valispaceURL;
-    } else if (rowData?.provider?.toLowerCase() == 'codebeamer') {
+    } else if (rowData?.provider?.toLowerCase() === 'codebeamer') {
       oslcObj['URL'] = codebeamerURL;
     }
 
@@ -106,11 +106,12 @@ const LinksDataTable = ({ props }) => {
     return (
       <Cell {...props} style={{ cursor: 'pointer', fontSize: '17px' }}>
         <Whisper
+          trigger="hover"
           enterable
           placement="auto"
           speaker={speaker}
-          delayOpen={700}
-          delayClose={700}
+          delayOpen={800}
+          delayClose={800}
         >
           <a href={rowData?.id} target="_blank" rel="noopener noreferrer">
             {rowData?.content_lines
@@ -172,7 +173,7 @@ const LinksDataTable = ({ props }) => {
         </Table>
 
         <Pagination
-          style={{ backgroundColor: isDark == 'dark' ? darkColor : lightBgColor }}
+          style={{ backgroundColor: isDark === 'dark' ? darkColor : lightBgColor }}
           prev
           next
           first

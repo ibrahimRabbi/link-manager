@@ -1,4 +1,4 @@
-import { Button, FlexboxGrid, Input, InputGroup } from 'rsuite';
+import { Button, FlexboxGrid, Input, InputGroup, Loader } from 'rsuite';
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
@@ -12,7 +12,6 @@ import AuthContext from '../../Store/Auth-Context.jsx';
 import styles from './LinkManager.module.scss';
 import SourceSection from '../SourceSection';
 import LinksDataTable from '../Shared/UseDataTable/LinksDataTable';
-import UseLoader from '../Shared/UseLoader';
 import { HiRefresh } from 'react-icons/hi';
 import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
@@ -33,7 +32,7 @@ const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
 const LinkManager = () => {
   const { sourceDataList, linksData, isLoading, isLinkDeleting, configuration_aware } =
     useSelector((state) => state.links);
-  // console.log('linksData ->', linksData);
+
   const { linksStream, refreshData, isDark } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -132,7 +131,6 @@ const LinkManager = () => {
   }, [tableFilterValue]);
 
   const tableProps = {
-    // eslint-disable-next-line max-len
     rowData:
       tableFilterValue === ''
         ? linksData?.items?.length
@@ -157,12 +155,21 @@ const LinkManager = () => {
         <div className="mainContainer">
           <div className="container">
             <div className={tableContainer}>
-              {isLoading && <UseLoader />}
+              {isLoading && (
+                <Loader
+                  backdrop
+                  center
+                  size="md"
+                  vertical
+                  content="Loading..."
+                  style={{ zIndex: '10' }}
+                />
+              )}
 
               <FlexboxGrid
                 justify="space-between"
                 style={{
-                  backgroundColor: isDark == 'dark' ? darkBgColor : lightBgColor,
+                  backgroundColor: isDark === 'dark' ? darkBgColor : lightBgColor,
                   padding: '10px 0',
                 }}
               >
