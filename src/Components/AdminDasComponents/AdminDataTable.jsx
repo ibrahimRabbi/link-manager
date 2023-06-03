@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { HiRefresh } from 'react-icons/hi';
+import defaultLogo from './logo.png';
+import SuccessStatus from '@rsuite/icons/CheckRound';
+import FailedStatus from '@rsuite/icons/WarningRound';
+import InfoStatus from '@rsuite/icons/InfoRound';
+
 import {
   Table,
   Pagination,
@@ -33,6 +38,7 @@ const AdminDataTable = ({ props }) => {
     handleAddNew,
     handleEdit,
     handleDelete,
+    authorizeModal,
     totalItems,
     pageSize,
   } = props;
@@ -119,6 +125,8 @@ const AdminDataTable = ({ props }) => {
         handleEdit(actionData);
       } else if (eventKey === 2) {
         handleDelete(actionData);
+      } else if (eventKey === 3) {
+        authorizeModal(actionData);
       }
       onClose();
       setActionData({});
@@ -134,13 +142,71 @@ const AdminDataTable = ({ props }) => {
           <Dropdown.Item eventKey={2}>
             <p>Delete</p>
           </Dropdown.Item>
+
+          {authorizeModal && (
+            <Dropdown.Item eventKey={3}>
+              <p>Authorize App</p>
+            </Dropdown.Item>
+          )}
         </Dropdown.Menu>
       </Popover>
     );
   };
 
+  // dynamic cell for the image
+  const DynamicCell = ({ rowData, dataKey, iconKey, statusKey, ...props }) => {
+    const logo = rowData[iconKey] ? rowData[iconKey] : defaultLogo;
+    return (
+      <Cell {...props}>
+        {/* display logo  */}
+        {iconKey && (
+          <img
+            height={25}
+            src={logo}
+            alt=""
+            style={{
+              backgroundColor: rowData[iconKey] ? '' : 'white',
+              borderRadius: rowData[iconKey] ? '' : '50%',
+              padding: '1px',
+            }}
+          />
+        )}
+
+        {/* display row data  */}
+        {dataKey && <p style={{ marginLeft: '5px' }}>{rowData[dataKey]}</p>}
+
+        {/* display status data  */}
+        {statusKey && (
+          <div
+            onClick={() => (authorizeModal ? authorizeModal(rowData) : null)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+            }}
+          >
+            <h5>
+              {rowData[statusKey]?.toLowerCase() === 'valid' ? (
+                <SuccessStatus color="#378f17" />
+              ) : rowData[statusKey]?.toLowerCase() === 'invalid' ? (
+                <FailedStatus color="#de1655" />
+              ) : rowData[statusKey]?.toLowerCase() === 'suspect' ? (
+                <InfoStatus color="#25b3f5" />
+              ) : (
+                <InfoStatus color="#25b3f5" />
+              )}
+            </h5>
+
+            <p style={{ marginTop: '2px' }}>{rowData[statusKey]}</p>
+          </div>
+        )}
+      </Cell>
+    );
+  };
+
   return (
-    <div>
+    <div style={{ paddingBottom: '30px' }}>
       <FlexboxGrid
         justify="space-between"
         style={{
@@ -226,11 +292,21 @@ const AdminDataTable = ({ props }) => {
         </Column> */}
 
         {headerData?.map((header, i) => (
-          <Column key={i} width={70} flexGrow={header?.header === 'ID' ? 0 : 1} fullText>
+          <Column
+            key={i}
+            width={header?.width ? header?.width : 70}
+            flexGrow={header?.width || header?.header === 'ID' ? 0 : 1}
+            fullText
+          >
             <HeaderCell>
-              <h5>{header?.header}</h5>
+              <h6>{header?.header}</h6>
             </HeaderCell>
-            <Cell style={{ fontSize: '17px' }} dataKey={header?.key}></Cell>
+            <DynamicCell
+              style={{ fontSize: '17px', display: 'flex', alignItems: 'center' }}
+              dataKey={header?.key}
+              iconKey={header?.iconKey}
+              statusKey={header?.statusKey}
+            />
           </Column>
         ))}
 

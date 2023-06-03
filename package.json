@@ -16,6 +16,7 @@
     "@carbon/icons-react": "^11.9.0",
     "@carbon/react": "^1.14.0",
     "@reduxjs/toolkit": "^1.8.6",
+    "@rsuite/icons": "^1.0.2",
     "@sentry/browser": "^7.45.0",
     "@sentry/react": "^7.45.0",
     "@sentry/tracing": "^7.44.2",
@@ -33,7 +34,7 @@
     "react-redux": "^8.0.4",
     "react-router-dom": "^6.4.2",
     "react-scripts": "5.0.1",
-    "rsuite": "^5.31.0",
+    "rsuite": "^5.34.0",
     "sass": "1.51.0",
     "sweetalert2": "^11.5.1",
     "web-vitals": "^2.1.4"

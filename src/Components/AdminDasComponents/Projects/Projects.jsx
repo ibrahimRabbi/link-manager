@@ -7,7 +7,7 @@ import {
   handleIsAddNewModal,
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
-import { Form, Schema } from 'rsuite';
+import { FlexboxGrid, Form, Schema } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
 import TextField from '../TextField';
@@ -19,6 +19,8 @@ import {
   fetchGetData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
+import SelectField from '../SelectField.jsx';
+import CustomSelect from '../CustomSelect.jsx';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -36,13 +38,18 @@ const headerData = [
     header: 'Description',
     key: 'description',
   },
+  {
+    header: 'Organization',
+    key: 'organization_id',
+  },
 ];
 
-const { StringType } = Schema.Types;
+const { StringType, NumberType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
   description: StringType().isRequired('This field is required.'),
+  organization_id: NumberType().isRequired('This field is required.'),
 });
 
 const Projects = () => {
@@ -58,6 +65,7 @@ const Projects = () => {
   const [formValue, setFormValue] = useState({
     name: '',
     description: '',
+    organization_id: '',
   });
 
   const projectFormRef = useRef();
@@ -109,6 +117,7 @@ const Projects = () => {
     setFormValue({
       name: '',
       description: '',
+      organization_id: '',
     });
   };
 
@@ -157,6 +166,7 @@ const Projects = () => {
     setFormValue({
       name: data?.name,
       description: data?.description,
+      organization_id: data?.organization_id,
     });
 
     dispatch(handleIsAddNewModal(true));
@@ -204,6 +214,17 @@ const Projects = () => {
               reqText="Description is required"
             />
           </div>
+          <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+            <SelectField
+              name="organization_id"
+              label="Organization"
+              placeholder="Select Organization"
+              accepter={CustomSelect}
+              apiURL={`${lmApiUrl}/organization`}
+              error={formError.organization_id}
+              reqText="Organization Id is required"
+            />
+          </FlexboxGrid.Item>
         </Form>
       </AddNewModal>
 

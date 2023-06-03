@@ -3,6 +3,10 @@ import deleteAPI from '../apiRequests/deleteAPI';
 import getAPI from '../apiRequests/getAPI';
 import postAPI from '../apiRequests/postAPI';
 import putAPI from '../apiRequests/putAPI';
+import getOslcAPI from '../oslcRequests/getOslcAPI.jsx';
+
+const OSLC_PUBLISHER_URL = 'http://open-services.net/ns/core#publisher';
+const OSLC_PUBLISHER_ICON = 'http://open-services.net/ns/core#icon';
 
 // Fetch get all applications
 export const fetchApplications = createAsyncThunk(
@@ -10,6 +14,62 @@ export const fetchApplications = createAsyncThunk(
   async ({ url, token }) => {
     const response = await getAPI({ url, token });
     return response;
+  },
+);
+
+export const fetchApplicationPublisherIcon = createAsyncThunk(
+  'applications/fetchApplicationPublisherIcon',
+  async ({ applicationData }) => {
+    const getIconsUrl = applicationData?.reduce(async (accumulator, current) => {
+      const appDataObj = {
+        publisherUrl: null,
+        icon: null,
+      };
+
+      if (current?.rootservicesUrl) {
+        const oslcResponse = await getOslcAPI({
+          url: current.rootservicesUrl,
+          token: 'dummy',
+        });
+
+        if (oslcResponse instanceof Array) {
+          oslcResponse.every((item) => {
+            if (item[OSLC_PUBLISHER_URL][0]['@id']) {
+              appDataObj['publisherUrl'] = item[OSLC_PUBLISHER_URL][0]['@id'];
+              return false;
+            }
+            return true;
+          });
+        }
+
+        if (appDataObj.publisherUrl) {
+          const publisherResponse = await getOslcAPI({
+            url: appDataObj.publisherUrl,
+            token: 'dummy',
+          });
+          publisherResponse.every((item) => {
+            if (item[OSLC_PUBLISHER_ICON][0]['@id']) {
+              appDataObj['icon'] = item[OSLC_PUBLISHER_ICON][0]['@id'];
+              return false;
+            }
+            return true;
+          });
+        }
+      }
+      if (current.rootservicesUrl && appDataObj.icon) {
+        const appWithIcon = {
+          ...current,
+          iconUrl: appDataObj.icon,
+          publisherUrl: appDataObj.publisherUrl,
+        };
+        const acc = await accumulator;
+        acc.push(appWithIcon);
+      }
+
+      return await accumulator;
+    }, []);
+
+    return await getIconsUrl;
   },
 );
 
@@ -43,10 +103,15 @@ export const fetchDeleteApp = createAsyncThunk(
 /// All user states
 const initialState = {
   allApplications: {},
+  createdApplicationResponse: {},
   isAppCreated: false,
   isAppUpdated: false,
   isAppDeleted: false,
   isAppLoading: false,
+  isDdLoading: false,
+  isIconDataLoading: false,
+  isIconDataLoaded: false,
+  iconData: [],
 };
 
 export const applicationSlice = createSlice({
@@ -120,6 +185,20 @@ export const applicationSlice = createSlice({
 
     builder.addCase(fetchDeleteApp.rejected, (state) => {
       state.isAppLoading = false;
+    });
+
+    // Get application icon
+    builder.addCase(fetchApplicationPublisherIcon.pending, (state) => {
+      state.isIconDataLoading = true;
+    });
+
+    builder.addCase(fetchApplicationPublisherIcon.fulfilled, (state, { payload }) => {
+      state.isIconDataLoaded = true;
+      state.isIconDataLoading = false;
+      state.iconData = payload;
+    });
+    builder.addCase(fetchApplicationPublisherIcon.rejected, (state) => {
+      state.isIconDataLoading = false;
     });
   },
 });

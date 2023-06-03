@@ -20,27 +20,41 @@ const FixedLoader = () => (
 );
 
 const CustomSelect = React.forwardRef((props, ref) => {
-  const { apiURL, placeholder, onChange, ...rest } = props;
+  // eslint-disable-next-line max-len
+  const { apiURL, placeholder, onChange, customSelectLabel, apiQueryParams, ...rest } =
+    props;
   const [option, setOption] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [checkPagination, setCheckPagination] = useState({});
   const [page, setPage] = useState(1);
+  const [dropDownData, setDropdownData] = useState([]);
   const authCtx = useContext(AuthContext);
 
   async function fetchOptions(page) {
     setIsLoading(true);
-    // eslint-disable-next-line max-len
-    const response = await fetch(`${apiURL}?page=${page}&per_page=${'10'}`, {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json',
-        authorization: 'Bearer ' + authCtx.token,
-      },
-    });
-    const data = await response.json();
-    setIsLoading(false);
-    setCheckPagination(data);
-    if (data?.items) return data.items;
+    const queryParams = apiQueryParams ? apiQueryParams : null;
+    let url = `${apiURL}?page=${page}&per_page=${'10'}`;
+    if (queryParams) {
+      url = `${url}&${queryParams}`;
+    }
+    if (apiURL) {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json',
+          authorization: 'Bearer ' + authCtx.token,
+        },
+      }).then((res) => {
+        if (res.ok) {
+          if (res.status !== 204) {
+            return res.json();
+          }
+        }
+      });
+      setIsLoading(false);
+      setCheckPagination(response);
+      if (response?.items) return response.items;
+    }
     return [];
   }
 
@@ -58,12 +72,37 @@ const CustomSelect = React.forwardRef((props, ref) => {
     }
   }
 
+  useEffect(async () => {
+    const newOptions = await fetchOptions(page);
+    setOption([...newOptions]);
+  }, [apiURL, apiQueryParams]);
+
+  useEffect(() => {
+    getData();
+  }, [option]);
+
   // load dropdown item first time
   useEffect(() => {
     if (option.length === 0) {
       handleLoadMore();
     }
   }, []);
+
+  const getData = () => {
+    let dropdownJsonData = [];
+    if (customSelectLabel) {
+      dropdownJsonData = option?.map((item) => ({
+        label: item.name + ' - ' + item[customSelectLabel],
+        value: JSON.stringify(item),
+      }));
+    } else {
+      dropdownJsonData = option?.map((item) => ({
+        label: item.name,
+        value: item.id,
+      }));
+    }
+    setDropdownData(dropdownJsonData);
+  };
 
   const onItemsRendered = (props) => {
     if (props.visibleStopIndex >= option.length - 1) {
@@ -80,20 +119,15 @@ const CustomSelect = React.forwardRef((props, ref) => {
     );
   };
 
-  // The data is filtered according to the select picker's needs
-  const data = option?.map((item) => ({
-    label: item.name,
-    value: item.id,
-  }));
-
   return (
     <SelectPicker
       menuMaxHeight={250}
       size="lg"
       block
+      searchable={dropDownData?.length > 9 || dropDownData?.length === 0 ? true : false}
       ref={ref}
       {...rest}
-      data={data}
+      data={dropDownData}
       onChange={(v) => onChange(v)}
       placeholder={<p style={{ fontSize: '17px' }}>{placeholder}</p>}
       virtualized
