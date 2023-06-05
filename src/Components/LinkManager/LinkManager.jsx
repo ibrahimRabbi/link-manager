@@ -11,15 +11,17 @@ import { handleCurrPageTitle, handleRefreshData } from '../../Redux/slices/navSl
 import AuthContext from '../../Store/Auth-Context.jsx';
 import styles from './LinkManager.module.scss';
 import SourceSection from '../SourceSection';
-import LinksDataTable from '../Shared/UseDataTable/LinksDataTable';
 import { HiRefresh } from 'react-icons/hi';
 import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
 import { darkBgColor, lightBgColor } from '../../App';
 import Swal from 'sweetalert2';
+import LinksDataTable from '../Shared/UseDataTable/LinksDataTable';
+// import LinksTreeDataTable from '../Shared/UseDataTable/LinksTreeDataTable';
 
 const { tableContainer } = styles;
 
+// links table header data
 const headerData = [
   { key: 'status', header: 'Status' },
   { key: 'link_type', header: 'Link type' },
@@ -220,6 +222,7 @@ const LinkManager = () => {
               </FlexboxGrid>
 
               <LinksDataTable props={tableProps} />
+              {/* <LinksTreeDataTable props={tableProps} /> */}
             </div>
           </div>
         </div>
