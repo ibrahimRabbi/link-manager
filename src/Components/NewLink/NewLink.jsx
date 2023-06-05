@@ -123,6 +123,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // set iframe SRC conditionally
   useEffect(() => {
+    console.log('projectId', projectId);
     if (projectType) {
       const jiraApp = projectType?.includes('(JIRA)');
       const gitlabApp = projectType?.includes('(GITLAB)');
@@ -136,7 +137,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       if (jiraApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          `${jiraDialogURL}/oslc/provider/selector?provider_id=CDID#oslc-core-postMessage-1.0&gc_context=${streamType}`,
+          `${jiraDialogURL}/oslc/provider/selector?provider_id=${projectId}#oslc-core-postMessage-1.0`,
         );
       } else if (gitlabApp) {
         setProjectFrameSrc(
@@ -151,17 +152,17 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       } else if (valispaceApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          `${valispaceDialogURL}/oslc/provider/selector?gc_context=${streamType}`,
+          `${valispaceDialogURL}/oslc/provider/selector?provider_id=${projectId}`,
         );
       } else if (codebeamerApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          `${codebeamerDialogURL}/oslc/provider/selector?gc_context=${streamType}`,
+          `${codebeamerDialogURL}/oslc/provider/selector?provider_id=${projectId}`,
         );
       } else if (jiraProjectApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          `${jiraDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
+          `${jiraDialogURL}/oslc/provider/selector-project?provider_id=${projectId}`,
         );
       } else if (valispaceProjectApp) {
         setProjectFrameSrc(
@@ -245,6 +246,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Link type dropdown
   const handleApplicationChange = (selectedItem) => {
+    console.log('selectedItem', selectedItem);
     dispatch(handleApplicationType(null));
     setTimeout(() => {
       dispatch(handleApplicationType(selectedItem?.name));
