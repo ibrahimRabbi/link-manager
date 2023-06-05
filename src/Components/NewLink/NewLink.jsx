@@ -149,17 +149,17 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       } else if (glideApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          `${glideDialogURL}/oslc/provider/selector?gc_context=${streamType}`,
+          `${glideDialogURL}/oslc/provider/selector?gc_context=${streamType}#oslc-core-postMessage-1.0`,
         );
       } else if (valispaceApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          `${valispaceDialogURL}/oslc/provider/selector?provider_id=${projectId}`,
+          `${valispaceDialogURL}/oslc/provider/selector?provider_id=${projectId}#oslc-core-postMessage-1.0`,
         );
       } else if (codebeamerApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          `${codebeamerDialogURL}/oslc/provider/selector?provider_id=${projectId}`,
+          `${codebeamerDialogURL}/oslc/provider/selector?provider_id=${projectId}#oslc-core-postMessage-1.0`,
         );
       } else if (jiraProjectApp) {
         setProjectFrameSrc(
@@ -189,6 +189,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         if (message.toString()?.startsWith('oslc-response')) {
           const response = JSON.parse(message?.substr('oslc-response:'?.length));
           const results = response['oslc:results'];
+          const isCancelled = response['oslc:cancel'];
           const targetArray = [];
           if (results?.length > 0) {
             results?.forEach((v, i) => {
@@ -223,7 +224,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             });
             dispatch(handleOslcResponse(true));
             dispatch(handleTargetDataArr([...targetArray]));
-          } else {
+          } else if (isCancelled) {
             dispatch(handleOslcCancelResponse());
           }
         }
