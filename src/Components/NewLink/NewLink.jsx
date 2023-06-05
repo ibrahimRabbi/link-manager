@@ -10,6 +10,8 @@ import {
   handleOslcResponse,
   handleProjectType,
   handleTargetDataArr,
+  handleOslcCancelResponse,
+  resetOslcCancelResponse,
 } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
@@ -42,6 +44,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     targetDataArr,
     createLinkRes,
     linkCreateLoading,
+    oslcCancelResponse,
   } = useSelector((state) => state.links);
   const [linkTypeItems, setLinkTypeItems] = useState([]);
   const [applicationTypeItems, setApplicationTypeItems] = useState([]);
@@ -123,7 +126,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // set iframe SRC conditionally
   useEffect(() => {
-    console.log('projectId', projectId);
     if (projectType) {
       const jiraApp = projectType?.includes('(JIRA)');
       const gitlabApp = projectType?.includes('(GITLAB)');
@@ -188,43 +190,58 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           const response = JSON.parse(message?.substr('oslc-response:'?.length));
           const results = response['oslc:results'];
           const targetArray = [];
-          results?.forEach((v, i) => {
-            const koatl_path = results[i]['koatl:apiPath'];
-            const koatl_uri = results[i]['koatl:apiUrl'];
-            const branch_name = results[i]['oslc:branchName'];
-            const target_provider = results[i]['oslc:api'];
-            const content = results[i]['oslc:content'];
-            const content_lines = results[i]['oslc:contentLine'];
-            const provider_id = results[i]['oslc:providerId'];
-            const resource_id = results[i]['oslc:resourceId'];
-            const resource_type = results[i]['oslc:resourceType'];
-            const selected_lines = results[i]['oslc:selectedLines'];
-            const label = results[i]['oslc:label'];
-            const uri = results[i]['rdf:resource'];
-            const type = results[i]['rdf:type'];
-            targetArray.push({
-              koatl_uri,
-              koatl_path,
-              branch_name,
-              target_provider,
-              provider_id,
-              resource_id,
-              resource_type,
-              content_lines,
-              selected_lines,
-              uri,
-              label,
-              type,
-              content,
+          if (results?.length > 0) {
+            results?.forEach((v, i) => {
+              const koatl_path = results[i]['koatl:apiPath'];
+              const koatl_uri = results[i]['koatl:apiUrl'];
+              const branch_name = results[i]['oslc:branchName'];
+              const target_provider = results[i]['oslc:api'];
+              const content = results[i]['oslc:content'];
+              const content_lines = results[i]['oslc:contentLine'];
+              const provider_id = results[i]['oslc:providerId'];
+              const resource_id = results[i]['oslc:resourceId'];
+              const resource_type = results[i]['oslc:resourceType'];
+              const selected_lines = results[i]['oslc:selectedLines'];
+              const label = results[i]['oslc:label'];
+              const uri = results[i]['rdf:resource'];
+              const type = results[i]['rdf:type'];
+              targetArray.push({
+                koatl_uri,
+                koatl_path,
+                branch_name,
+                target_provider,
+                provider_id,
+                resource_id,
+                resource_type,
+                content_lines,
+                selected_lines,
+                uri,
+                label,
+                type,
+                content,
+              });
             });
-          });
-          dispatch(handleOslcResponse(true));
-          dispatch(handleTargetDataArr([...targetArray]));
+            dispatch(handleOslcResponse(true));
+            dispatch(handleTargetDataArr([...targetArray]));
+          } else {
+            dispatch(handleOslcCancelResponse());
+          }
         }
       }
     },
     false,
   );
+
+  useEffect(() => {
+    if (oslcCancelResponse) {
+      dispatch(resetOslcCancelResponse());
+      dispatch(handleApplicationType(null));
+      setTimeout(() => {
+        dispatch(handleApplicationType(applicationType));
+      }, 50);
+      setProjectId('');
+    }
+  }, [oslcCancelResponse]);
 
   // Call create link function
   useEffect(() => {
@@ -246,7 +263,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Link type dropdown
   const handleApplicationChange = (selectedItem) => {
-    console.log('selectedItem', selectedItem);
     dispatch(handleApplicationType(null));
     setTimeout(() => {
       dispatch(handleApplicationType(selectedItem?.name));

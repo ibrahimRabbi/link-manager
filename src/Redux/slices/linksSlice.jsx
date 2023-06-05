@@ -38,6 +38,7 @@ const initialState = {
   sourceDataList: {},
   isWbe: false,
   oslcResponse: null,
+  oslcCancelResponse: false,
   isLinkCreate: false,
   isLinkDeleting: false,
   isLoading: false,
@@ -73,6 +74,14 @@ export const linksSlice = createSlice({
 
     handleOslcResponse: (state, { payload }) => {
       state.oslcResponse = payload;
+    },
+
+    handleOslcCancelResponse: (state) => {
+      state.oslcCancelResponse = true;
+    },
+
+    resetOslcCancelResponse: (state) => {
+      state.oslcCancelResponse = false;
     },
 
     // get sources in wbe
@@ -275,6 +284,8 @@ export const {
   handleDeleteLink,
   handleCancelLink,
   handleIsTargetModalOpen,
+  handleOslcCancelResponse,
+  resetOslcCancelResponse,
 } = linksSlice.actions;
 
 export default linksSlice.reducer;
