@@ -1,5 +1,5 @@
-import { Button, FlexboxGrid, Input, InputGroup, Loader } from 'rsuite';
-import React, { useState, useContext, useEffect } from 'react';
+import { Button, FlexboxGrid, Form, Loader, Schema, Stack } from 'rsuite';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -13,11 +13,13 @@ import styles from './LinkManager.module.scss';
 import SourceSection from '../SourceSection';
 import { HiRefresh } from 'react-icons/hi';
 import SearchIcon from '@rsuite/icons/Search';
-import CloseIcon from '@rsuite/icons/Close';
+// import CloseIcon from '@rsuite/icons/Close';
 import { darkBgColor, lightBgColor } from '../../App';
 import Swal from 'sweetalert2';
-import LinksDataTable from '../Shared/UseDataTable/LinksDataTable';
-// import LinksTreeDataTable from '../Shared/UseDataTable/LinksTreeDataTable';
+// import LinksDataTable from '../Shared/UseDataTable/LinksDataTable';
+import TextField from '../AdminDasComponents/TextField';
+import { fetchGetData } from '../../Redux/slices/useCRUDSlice';
+import LinksTreeDataTable from '../Shared/UseDataTable/LinksTreeDataTable';
 
 const { tableContainer } = styles;
 
@@ -29,22 +31,31 @@ const headerData = [
   { key: 'actions', header: 'Actions' },
 ];
 
-const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
+const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
+
+const { StringType } = Schema.Types;
+const model = Schema.Model({
+  search_term: StringType().isRequired('Search text is required.'),
+});
 
 const LinkManager = () => {
   const { sourceDataList, linksData, isLoading, isLinkDeleting, configuration_aware } =
     useSelector((state) => state.links);
 
   const { linksStream, refreshData, isDark } = useSelector((state) => state.nav);
+  // const { crudData } = useSelector((state) => state.crud);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [tableFilterValue, setTableFilterValue] = useState('');
+  const [searchValue, setSearchValue] = useState({ search_term: '' });
+  const [searchError, setSearchError] = useState({});
   const [displayTableData, setDisplayTableData] = useState([]);
+  const authCtx = useContext(AuthContext);
   const location = useLocation();
   const isWbe = location.pathname?.includes('wbe');
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const authCtx = useContext(AuthContext);
+  const searchRef = useRef(null);
   const [searchParams] = useSearchParams();
   const uri = searchParams.get('uri');
   const sourceFileURL = uri || sourceDataList?.uri;
@@ -81,9 +92,12 @@ const LinkManager = () => {
         dispatch(
           fetchLinksData({
             // eslint-disable-next-line max-len
-            url: `${apiURL}?stream=${stream}&resource_id=${encodeURIComponent(
+            url: `${apiURL}/resource?stream=${stream}&resource_id=${encodeURIComponent(
               sourceFileURL,
-            )}&page=${currPage}&per_page=${pageSize}`,
+              // eslint-disable-next-line max-len
+            )}&page=${currPage}&per_page=${pageSize}&search_term=${
+              searchValue.search_term
+            }`,
             token: authCtx.token,
           }),
         );
@@ -116,6 +130,27 @@ const LinkManager = () => {
         );
       }
     });
+  };
+
+  // handle search links
+  const handleSearchLinks = () => {
+    if (!searchRef.current.check()) {
+      console.error('Search Error', searchError);
+      console.log(tableFilterValue, setTableFilterValue);
+      return;
+    }
+
+    // console.log(searchValue);
+    const linkType = '';
+    const resourceType = '';
+    dispatch(
+      fetchGetData({
+        // eslint-disable-next-line max-len
+        url: `${apiURL}/search?search_term=${searchValue.search_term}&resource_type=${resourceType}&link_type=${linkType}&page=1&page_size=100`,
+        token: authCtx.token,
+        stateName: 'filteredLinks',
+      }),
+    ).then((res) => console.log(res?.payload?.response));
   };
 
   // filter table
@@ -176,24 +211,39 @@ const LinkManager = () => {
                 }}
               >
                 <FlexboxGrid.Item>
-                  <InputGroup size="lg" inside style={{ width: '400px' }}>
-                    <Input
-                      placeholder={'Search Links'}
-                      type="text"
-                      value={tableFilterValue}
-                      onChange={(v) => setTableFilterValue(v)}
-                    />
+                  <Form
+                    fluid
+                    ref={searchRef}
+                    onChange={setSearchValue}
+                    onCheck={setSearchError}
+                    formValue={searchValue}
+                    model={model}
+                  >
+                    <Stack>
+                      <TextField
+                        style={{
+                          width: '400px',
+                          borderRadius: '6px 0 0 6px',
+                          height: '36px',
+                        }}
+                        placeholder="Search Links"
+                        type="text"
+                        name="search_term"
+                      />
 
-                    {tableFilterValue ? (
-                      <InputGroup.Button onClick={() => setTableFilterValue('')}>
-                        <CloseIcon />
-                      </InputGroup.Button>
-                    ) : (
-                      <InputGroup.Button>
-                        <SearchIcon />
-                      </InputGroup.Button>
-                    )}
-                  </InputGroup>
+                      <Button
+                        color="blue"
+                        appearance="primary"
+                        size="md"
+                        style={{ borderRadius: '0 6px 6px 0' }}
+                        type="submit"
+                        startIcon={<SearchIcon style={{ marginLeft: '-5px' }} />}
+                        onClick={handleSearchLinks}
+                      >
+                        Search
+                      </Button>
+                    </Stack>
+                  </Form>
                 </FlexboxGrid.Item>
 
                 <FlexboxGrid.Item>
@@ -221,8 +271,8 @@ const LinkManager = () => {
                 </FlexboxGrid.Item>
               </FlexboxGrid>
 
-              <LinksDataTable props={tableProps} />
-              {/* <LinksTreeDataTable props={tableProps} /> */}
+              {/* <LinksDataTable props={tableProps} /> */}
+              <LinksTreeDataTable props={tableProps} />
             </div>
           </div>
         </div>
