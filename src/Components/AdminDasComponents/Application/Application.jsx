@@ -96,6 +96,7 @@ const Application = () => {
   const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
   const [authorizedAppConsumption, setAuthorizedAppConsumption] = useState(false);
   const [isAppAuthorize, setIsAppAuthorize] = useState(false);
+  // const [iconMergeLoading, setIconMergeLoading]=useState(false)
 
   const [formValue, setFormValue] = useState({
     name: '',
@@ -143,28 +144,30 @@ const Application = () => {
 
   // merging application icons with applications data
   useEffect(() => {
-    const customAppItems = crudData?.allApplications?.items?.reduce((acc, curr) => {
-      if (curr?.rootservices_url) {
-        iconData?.forEach((icon) => {
-          if (curr.id === icon.id) {
-            const withIcon = {
-              ...curr,
-              iconUrl: icon.iconUrl,
-              status: curr?.oauth2_application[0]?.token_status?.status,
-            };
-            acc.push(withIcon);
-          }
-        });
-      } else {
-        acc.push({
-          ...curr,
-          iconUrl: null,
-          status: curr?.oauth2_application[0]?.token_status?.status,
-        });
-      }
-      return acc;
-    }, []);
-    setAppsWithIcon(customAppItems);
+    if (crudData?.allApplications) {
+      const customAppItems = crudData?.allApplications?.items?.reduce((acc, curr) => {
+        if (curr?.rootservices_url) {
+          iconData?.forEach((icon) => {
+            if (curr.id === icon.id) {
+              const withIcon = {
+                ...curr,
+                iconUrl: icon.iconUrl,
+                status: curr?.oauth2_application[0]?.token_status?.status,
+              };
+              acc.push(withIcon);
+            }
+          });
+        } else {
+          acc.push({
+            ...curr,
+            iconUrl: null,
+            status: curr?.oauth2_application[0]?.token_status?.status,
+          });
+        }
+        return acc;
+      }, []);
+      setAppsWithIcon(customAppItems);
+    }
   }, [iconData, crudData?.allApplications]);
 
   // manage oauth iframe
