@@ -43,14 +43,7 @@ const headerData = [
   },
 ];
 
-const { ObjectType, BooleanType, NumberType } = Schema.Types;
-
-const model = Schema.Model({
-  event_id: NumberType().isRequired('Event is required.'),
-  script_path: ObjectType().isRequired('Please upload a file.'),
-  is_polling: BooleanType().isRequired('This field is required.'),
-  polling_period: NumberType().isRequired('This field is required.'),
-});
+const { ObjectType, StringType, BooleanType, NumberType } = Schema.Types;
 
 const Pipelines = () => {
   const {
@@ -62,6 +55,16 @@ const Pipelines = () => {
   } = useSelector((state) => state.pipelines);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
 
+  const model = Schema.Model({
+    event_id: NumberType().isRequired('Event is required.'),
+    script_path: isAdminEditing
+      ? ObjectType()
+      : ObjectType().isRequired('Please upload a file.'),
+    filename: StringType(),
+    is_polling: BooleanType().isRequired('This field is required.'),
+    polling_period: NumberType().isRequired('This field is required.'),
+  });
+
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
@@ -69,6 +72,7 @@ const Pipelines = () => {
   const [formValue, setFormValue] = useState({
     event_id: 0,
     script_path: null,
+    filename: '',
     is_polling: false,
     polling_period: 0,
   });
@@ -127,6 +131,7 @@ const Pipelines = () => {
     setFormValue({
       event_id: 0,
       script_path: null,
+      filename: '',
       is_polling: false,
       polling_period: 0,
     });
@@ -171,7 +176,8 @@ const Pipelines = () => {
     dispatch(handleIsAdminEditing(true));
     setFormValue({
       event_id: data?.event_id,
-      script_path: data?.script_path,
+      script_path: {},
+      filename: data?.filename,
       is_polling: data?.is_polling ? data?.is_polling : false,
       polling_period: data?.polling_period,
     });
@@ -226,9 +232,15 @@ const Pipelines = () => {
 
               <FlexboxGrid.Item colspan={24}>
                 <TextField
+                  action=""
                   name="script_path"
                   label="Script Path"
-                  reqText="Path is required"
+                  defaultFileList={
+                    formValue.filename !== ''
+                      ? [{ fileKey: formValue.script_path, name: formValue.filename }]
+                      : []
+                  }
+                  reqText="File is required"
                   autoUpload={false}
                   accepter={Uploader}
                 />
