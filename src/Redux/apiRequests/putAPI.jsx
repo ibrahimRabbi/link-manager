@@ -49,7 +49,7 @@ export async function putAPIForm({ url, token, bodyData }) {
     if (name === 'script_path') {
       formData.append(
         name,
-        bodyData[name][0] !== undefined ? bodyData[name][0]['blobFile'] : Object(),
+        bodyData[name] !== null ? bodyData[name][0]['blobFile'] : Object(),
       );
     }
     formData.append(name, bodyData[name]);

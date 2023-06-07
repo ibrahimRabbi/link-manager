@@ -30,8 +30,8 @@ const headerData = [
     key: 'id',
   },
   {
-    header: 'Script Path',
-    key: 'script_path',
+    header: 'Script',
+    key: 'filename',
   },
   {
     header: 'Polling Period',
@@ -176,7 +176,7 @@ const Pipelines = () => {
     dispatch(handleIsAdminEditing(true));
     setFormValue({
       event_id: data?.event_id,
-      script_path: {},
+      script_path: null,
       filename: data?.filename,
       is_polling: data?.is_polling ? data?.is_polling : false,
       polling_period: data?.polling_period,
