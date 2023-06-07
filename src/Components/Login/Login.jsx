@@ -84,6 +84,7 @@ const Login = () => {
         return res.json();
       })
       .then((data) => {
+        console.log(data);
         if ('access_token' in data) {
           const expirationTime = data.expires_in;
           authCtx.login(data.access_token, expirationTime);

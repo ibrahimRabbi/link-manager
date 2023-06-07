@@ -6,24 +6,20 @@ const AuthContext = React.createContext({
   token: '',
   isLoggedIn: false,
   // eslint-disable-next-line no-unused-vars
-  login: (token, expirationTime) => {},
+  login: (token, expiresIn) => {},
   logout: () => {},
 });
 
-const calculateRemainingTime = (expirationTime) => {
-  const currentTime = new Date().getTime();
-  const adjExpirationTime = new Date(expirationTime).getTime();
-
-  return adjExpirationTime - currentTime;
-};
-
 const retrieveStoredToken = () => {
   const storedToken = localStorage.getItem('token');
+  const storedExpirationTime = localStorage.getItem('expirationTime');
 
-  const storedExpirationDate = localStorage.getItem('expirationTime');
-  const remainingTime = storedExpirationDate;
+  if (!storedToken || !storedExpirationTime) {
+    return null;
+  }
 
-  if (remainingTime <= 1800) {
+  const expirationTime = parseInt(storedExpirationTime);
+  if (expirationTime <= Date.now() / 1000) {
     localStorage.removeItem('token');
     localStorage.removeItem('expirationTime');
     return null;
@@ -31,7 +27,7 @@ const retrieveStoredToken = () => {
 
   return {
     token: storedToken,
-    duration: remainingTime,
+    expirationTime: expirationTime,
   };
 };
 
@@ -50,31 +46,35 @@ export const AuthContextProvider = (props) => {
     setToken(null);
     localStorage.removeItem('token');
     localStorage.removeItem('expirationTime');
-    window.location = window.location.href;
+    window.location.replace('/login'); // Redirect to the login page
     if (logoutTimer) {
       clearTimeout(logoutTimer);
     }
   }, []);
 
-  const loginHandler = (token, expirationTime) => {
-    setToken(token);
+  const loginHandler = (token, expiresIn) => {
+    const expirationTime = Math.floor(Date.now() / 1000) + expiresIn;
 
+    setToken(token);
     localStorage.setItem('token', token);
     localStorage.setItem('expirationTime', expirationTime);
-
-    const remainingTime = expirationTime;
-    logoutTimer = setTimeout(() => {
-      logoutHandler();
-      window.location.replace('/login'); // Redirect to the login page
-    }, remainingTime);
   };
 
   useEffect(() => {
     if (token) {
-      const remainingTime = calculateRemainingTime(
-        localStorage.getItem('expirationTime'),
-      );
-      logoutTimer = setTimeout(logoutHandler, remainingTime);
+      const expirationTime = parseInt(localStorage.getItem('expirationTime'));
+
+      const timer = setInterval(() => {
+        const updatedRemainingTime = expirationTime - Math.floor(Date.now() / 1000);
+
+        if (updatedRemainingTime <= 0) {
+          logoutHandler();
+        }
+      }, 1000); // Update the remaining time every second
+
+      return () => {
+        clearInterval(timer);
+      };
     } else {
       clearTimeout(logoutTimer);
     }

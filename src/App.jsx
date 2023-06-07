@@ -50,7 +50,7 @@ function App() {
   return (
     <CustomProvider theme={isDark}>
       <div>
-        <Toaster position="top-center" reverseOrder={false} />
+        <Toaster position="bottom-center" reverseOrder={false} />
       </div>
       <div
         className="App"
