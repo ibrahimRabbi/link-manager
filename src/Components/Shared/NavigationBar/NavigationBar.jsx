@@ -14,6 +14,7 @@ const { userContainer, content, popButton } = styles;
 
 import { ImBrightnessContrast } from 'react-icons/im';
 import { darkColor, lightBgColor } from '../../../App';
+import { toast } from 'react-hot-toast';
 const NavigationBar = () => {
   const authCtx = useContext(AuthContext);
   const { currPageTitle, isDark, isProfileOpen } = useSelector((state) => state.nav);
@@ -34,11 +35,7 @@ const NavigationBar = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         authCtx.logout();
-        Swal.fire({
-          title: 'Logged out successful',
-          icon: 'success',
-          timer: 1500,
-        });
+        toast.success('Logut successfull');
         navigate('/login', { replace: true });
       }
     });

@@ -21,9 +21,9 @@ const retrieveStoredToken = () => {
   const storedToken = localStorage.getItem('token');
 
   const storedExpirationDate = localStorage.getItem('expirationTime');
-  const remainingTime = calculateRemainingTime(storedExpirationDate);
+  const remainingTime = storedExpirationDate;
 
-  if (remainingTime <= 60000) {
+  if (remainingTime <= 1800) {
     localStorage.removeItem('token');
     localStorage.removeItem('expirationTime');
     return null;
@@ -62,8 +62,11 @@ export const AuthContextProvider = (props) => {
     localStorage.setItem('token', token);
     localStorage.setItem('expirationTime', expirationTime);
 
-    const remainingTime = calculateRemainingTime(expirationTime);
-    logoutTimer = setTimeout(logoutHandler, remainingTime);
+    const remainingTime = expirationTime;
+    logoutTimer = setTimeout(() => {
+      logoutHandler();
+      window.location.replace('/login'); // Redirect to the login page
+    }, remainingTime);
   };
 
   useEffect(() => {

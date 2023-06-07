@@ -1,7 +1,8 @@
-import Swal from 'sweetalert2';
 import clientMessages from './responseMsg';
+import { toast } from 'react-hot-toast';
+// import Toaster from '../../Components/Shared/Toaster';
 
-export default async function postAPI({ url, token, bodyData, message }) {
+export default async function postAPI({ url, token, bodyData }) {
   const response = await fetch(`${url}`, {
     method: 'POST',
     headers: {
@@ -13,32 +14,33 @@ export default async function postAPI({ url, token, bodyData, message }) {
     .then((res) => {
       if (res.ok) {
         return res.json().then((data) => {
-          Swal.fire({
-            title: 'Success',
-            icon: 'success',
-            text: data.message,
-            confirmButtonColor: '#3085d6',
-          });
+          // Toaster(data);
+          toast.success(data.message);
           return data;
         });
       } else {
         if (res.status === 304) {
-          Swal.fire({
-            title: 'Already exists',
-            icon: 'info',
-            text: `This ${message} already exists.`,
-            confirmButtonColor: '#3085d6',
+          return res.json().then((data) => {
+            toast.error(data.message);
           });
         } else if (res.status === 400) {
-          clientMessages({ status: res.status, message: res.statusText });
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
         } else if (res.status === 401) {
-          clientMessages({ status: res.status, message: res.statusText });
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
         } else if (res.status === 403) {
-          console.log(res.status, res.statusText);
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
         } else if (res.status === 409) {
-          console.log(res.status, res.statusText);
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
         } else if (res.status === 500) {
-          clientMessages({ status: res.status, message: res.statusText });
+          toast.error('Internal Server error');
         }
       }
       // if links not created we need return a value
@@ -48,7 +50,7 @@ export default async function postAPI({ url, token, bodyData, message }) {
   return response;
 }
 
-export async function postAPIForm({ url, token, bodyData, message }) {
+export async function postAPIForm({ url, token, bodyData }) {
   const formData = new FormData();
   for (const name in bodyData) {
     if (name === 'script_path') {
@@ -66,35 +68,34 @@ export async function postAPIForm({ url, token, bodyData, message }) {
   })
     .then((res) => {
       if (res.ok) {
-        console.log(`response: ${res.ok}`);
         return res.json().then((data) => {
-          Swal.fire({
-            title: 'Success',
-            icon: 'success',
-            text: data.message,
-            confirmButtonColor: '#3085d6',
-          });
+          // Toaster(data);
+          toast.success(data.message);
           return data;
         });
       } else {
         if (res.status === 304) {
-          Swal.fire({
-            title: 'Already exists',
-            icon: 'info',
-            text: `This ${message} already exists.`,
-            confirmButtonColor: '#3085d6',
+          return res.json().then((data) => {
+            toast.error(data.message);
           });
         } else if (res.status === 400) {
-          clientMessages({ status: res.status, message: res.statusText });
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
         } else if (res.status === 401) {
-          clientMessages({ status: res.status, message: res.statusText });
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
         } else if (res.status === 403) {
-          console.log(res.status, res.statusText);
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
         } else if (res.status === 409) {
-          res.json().then((data) => console.log(data.message));
-          console.log(res.status, res.statusText);
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
         } else if (res.status === 500) {
-          clientMessages({ status: res.status, message: res.statusText });
+          toast.error('Internal Server error');
         }
       }
       // if links not created we need return a value

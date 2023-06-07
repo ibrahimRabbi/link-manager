@@ -1,5 +1,6 @@
 import Swal from 'sweetalert2';
 import clientMessages from './responseMsg';
+import { toast } from 'react-hot-toast';
 
 export default async function putAPI({ url, token, bodyData }) {
   const response = await fetch(`${url}`, {
@@ -10,39 +11,43 @@ export default async function putAPI({ url, token, bodyData }) {
     },
     body: JSON.stringify(bodyData),
   })
-    .then((res) => {
+    .then(async (res) => {
       if (res.ok) {
         return res.json().then((data) => {
-          Swal.fire({
-            title: 'Success',
-            icon: 'success',
-            text: data.message,
-            confirmButtonColor: '#3085d6',
-          });
+          // Toaster(data);
+          toast.success(data.message);
           return data;
         });
       } else {
-        if (res.status === 400) {
-          clientMessages({ status: res.status, message: res.statusText });
+        if (res.status === 304) {
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
+        } else if (res.status === 400) {
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
         } else if (res.status === 401) {
-          clientMessages({ status: res.status, message: res.statusText });
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
         } else if (res.status === 403) {
-          console.log(res.status, res.statusText);
-        } else if (res.status === 404) {
-          console.log(res.status, res.statusText);
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
         } else if (res.status === 409) {
-          console.log(res.status, res.statusText);
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
         } else if (res.status === 500) {
-          clientMessages({ status: res.status, message: res.statusText });
+          toast.error('Internal Server error');
         }
       }
-      // if links not created we need return a value
-      return 'Link Updating Failed';
     })
     .catch((error) => clientMessages({ isErrCatch: true, error }));
+
   return response;
 }
-
 export async function putAPIForm({ url, token, bodyData }) {
   const formData = new FormData();
   for (const name in bodyData) {
@@ -55,40 +60,27 @@ export async function putAPIForm({ url, token, bodyData }) {
   const response = await fetch(`${url}`, {
     method: 'PUT',
     headers: {
-      // 'Content-type': 'application/json',
       authorization: 'Bearer ' + token,
     },
     body: formData,
   })
-    .then((res) => {
+    .then(async (res) => {
       if (res.ok) {
-        return res.json().then((data) => {
-          Swal.fire({
-            title: 'Success',
-            icon: 'success',
-            text: data.message,
-            confirmButtonColor: '#3085d6',
-          });
-          return data;
+        const data = await res.json();
+        Swal.fire({
+          title: 'Success',
+          icon: 'success',
+          text: data.message,
+          confirmButtonColor: '#3085d6',
         });
+        return data;
       } else {
-        if (res.status === 400) {
-          clientMessages({ status: res.status, message: res.statusText });
-        } else if (res.status === 401) {
-          clientMessages({ status: res.status, message: res.statusText });
-        } else if (res.status === 403) {
-          console.log(res.status, res.statusText);
-        } else if (res.status === 404) {
-          console.log(res.status, res.statusText);
-        } else if (res.status === 409) {
-          console.log(res.status, res.statusText);
-        } else if (res.status === 500) {
-          clientMessages({ status: res.status, message: res.statusText });
-        }
+        // const errorData = await res.json();
+        clientMessages({ status: res.status, message: res });
+        throw new Error('Update Failed');
       }
-      // if links not created we need return a value
-      return 'Link Updating Failed';
     })
     .catch((error) => clientMessages({ isErrCatch: true, error }));
+
   return response;
 }

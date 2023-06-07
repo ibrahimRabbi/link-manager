@@ -1,4 +1,5 @@
-import Swal from 'sweetalert2';
+import { toast } from 'react-hot-toast';
+// import Swal from 'sweetalert2';
 // import clientMessages from './responseMsg';
 
 export default async function deleteAPI({ url, token }) {
@@ -12,28 +13,32 @@ export default async function deleteAPI({ url, token }) {
     .then((res) => {
       if (res.ok) {
         if (res.status === 204) {
-          Swal.fire({
-            title: 'Deleted',
-            icon: 'success',
-            text: 'This data successfully deleted',
-            confirmButtonColor: '#3085d6',
-          });
+          toast.success('Successfully deleted');
           return res;
         }
       } else {
-        if (res.status === 400) {
-          console.log(res.status, res.statusText);
-          // clientMessages({ status: res.status, message: res.statusText });
+        if (res.status === 304) {
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
+        } else if (res.status === 400) {
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
         } else if (res.status === 401) {
-          console.log(res.status, res.statusText);
-          // clientMessages({ status: res.status, message: res.statusText });
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
         } else if (res.status === 403) {
-          console.log(res.status, res.statusText);
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
         } else if (res.status === 409) {
-          console.log(res.status, res.statusText);
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
         } else if (res.status === 500) {
-          console.log(res.status, res.statusText);
-          // clientMessages({ status: res.status, message: res.statusText });
+          toast.error('Internal Server error');
         }
       }
       // if links not created we need return a value
