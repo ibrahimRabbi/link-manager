@@ -467,7 +467,7 @@ const Associations = () => {
                     ) : (
                       <p style={{ fontSize: '17px', color: '#eb9d17', marginTop: '5px' }}>
                         {' '}
-                        Please{' '}
+                        Please
                         <span
                           style={{
                             color: 'blue',
@@ -478,7 +478,7 @@ const Associations = () => {
                         >
                           {' '}
                           authorize{' '}
-                        </span>{' '}
+                        </span>
                         this application to add integration.
                       </p>
                     )}
