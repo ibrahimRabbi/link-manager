@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Application from './Components/AdminDasComponents/Application/Application';

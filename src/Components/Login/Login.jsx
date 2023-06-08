@@ -85,8 +85,7 @@ const Login = () => {
       })
       .then((data) => {
         if ('access_token' in data) {
-          const expirationTime = data.expires_in;
-          authCtx.login(data.access_token, expirationTime);
+          authCtx.login(data.access_token, data.expires_in);
           // manage redirect user
           if (location.state) navigate(location.state.from.pathname);
           else {
