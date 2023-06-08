@@ -1,7 +1,8 @@
 import Swal from 'sweetalert2';
+import clientMessages from './responseMsg';
 import { toast } from 'react-hot-toast';
 
-export default async function getAPI({ url, token, message }) {
+export default async function getAPI({ url, token, message, authCtx }) {
   const response = await fetch(url, {
     method: 'GET',
     headers: {
@@ -20,9 +21,20 @@ export default async function getAPI({ url, token, message }) {
         });
       }
     } else {
-      return res.json().then((data) => {
-        toast.error(data.message);
-      });
+      if (res.status === 400) {
+        clientMessages({ status: res.status, message: res.statusText });
+      } else if (res.status === 401) {
+        authCtx && authCtx.logout();
+        clientMessages({ status: res.status, message: res.statusText });
+      } else if (res.status === 403) {
+        if (authCtx?.token) {
+          toast('You do not have permission to access');
+        } else {
+          window.location.replace('/login');
+        }
+      } else if (res.status === 500) {
+        clientMessages({ status: res.status, message: res.statusText });
+      }
     }
   });
   return response;
