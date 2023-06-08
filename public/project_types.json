@@ -1,6 +1,7 @@
 [
     {
-        "name": "Cross-Domain Integration Demo (JIRA)"
+        "name": "Cross-Domain Integration Demo (JIRA)",
+        "id": "CDID"
     },
     {
         "name": "Cross-Domain Integration Demo (GITLAB)",
@@ -17,6 +18,7 @@
         "name": "Requirement Management template (CODEBEAMER)"
     },
     {
-        "name": "Valispace ST-100 (VALISPACE)"
+        "name": "Valispace ST-100 (VALISPACE)",
+        "id": "24"
     }
 ]
