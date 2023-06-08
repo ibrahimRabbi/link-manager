@@ -1,5 +1,3 @@
-import Swal from 'sweetalert2';
-import clientMessages from './responseMsg';
 import { toast } from 'react-hot-toast';
 
 export default async function putAPI({ url, token, bodyData }) {
@@ -44,7 +42,7 @@ export default async function putAPI({ url, token, bodyData }) {
         }
       }
     })
-    .catch((error) => clientMessages({ isErrCatch: true, error }));
+    .catch((error) => toast.error(error));
 
   return response;
 }
@@ -70,20 +68,35 @@ export async function putAPIForm({ url, token, bodyData }) {
     .then(async (res) => {
       if (res.ok) {
         const data = await res.json();
-        Swal.fire({
-          title: 'Success',
-          icon: 'success',
-          text: data.message,
-          confirmButtonColor: '#3085d6',
-        });
+        toast.success(data.message);
         return data;
       } else {
-        // const errorData = await res.json();
-        clientMessages({ status: res.status, message: res });
-        throw new Error('Update Failed');
+        if (res.status === 304) {
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
+        } else if (res.status === 400) {
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
+        } else if (res.status === 401) {
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
+        } else if (res.status === 403) {
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
+        } else if (res.status === 409) {
+          return res.json().then((data) => {
+            toast.error(data.message);
+          });
+        } else if (res.status === 500) {
+          toast.error('Internal Server error');
+        }
       }
     })
-    .catch((error) => clientMessages({ isErrCatch: true, error }));
+    .catch((error) => toast.error(error));
 
   return response;
 }

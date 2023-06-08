@@ -1,5 +1,6 @@
 import Swal from 'sweetalert2';
 import clientMessages from './responseMsg';
+import { toast } from 'react-hot-toast';
 
 export default async function getAPI({ url, token, message, authCtx }) {
   const response = await fetch(url, {
@@ -33,6 +34,6 @@ export default async function getAPI({ url, token, message, authCtx }) {
         }
       }
     })
-    .catch((error) => clientMessages({ isErrCatch: true, error }));
+    .catch((error) => toast.error(error));
   return response;
 }

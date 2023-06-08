@@ -101,6 +101,6 @@ export async function postAPIForm({ url, token, bodyData }) {
       // if links not created we need return a value
       return 'Link creating Failed';
     })
-    .catch((error) => clientMessages({ isErrCatch: true, error }));
+    .catch((error) => toast.error(error));
   return response;
 }

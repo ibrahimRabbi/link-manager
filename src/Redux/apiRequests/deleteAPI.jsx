@@ -45,7 +45,7 @@ export default async function deleteAPI({ url, token }) {
       return res;
     })
     .catch((error) => {
-      console.log(error);
+      toast.error(error);
       // clientMessages({ isErrCatch: true, error });
     });
   return response;
