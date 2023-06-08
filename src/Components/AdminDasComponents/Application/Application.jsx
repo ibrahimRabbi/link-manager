@@ -85,7 +85,7 @@ const Application = () => {
     description: StringType().isRequired('This field is required.'),
   });
 
-  const [currPage, setCurrPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
@@ -96,7 +96,6 @@ const Application = () => {
   const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
   const [authorizedAppConsumption, setAuthorizedAppConsumption] = useState(false);
   const [isAppAuthorize, setIsAppAuthorize] = useState(false);
-  // const [iconMergeLoading, setIconMergeLoading]=useState(false)
 
   const [formValue, setFormValue] = useState({
     name: '',
@@ -114,7 +113,7 @@ const Application = () => {
   // get all applications
   useEffect(() => {
     dispatch(handleCurrPageTitle('Applications'));
-    const getUrl = `${lmApiUrl}/application?page=${currPage}&per_page=${pageSize}`;
+    const getUrl = `${lmApiUrl}/application?page=${currentPage}&per_page=${pageSize}`;
     dispatch(
       fetchGetData({
         url: getUrl,
@@ -122,7 +121,15 @@ const Application = () => {
         stateName: 'allApplications',
       }),
     );
-  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData, isAppAuthorize]);
+  }, [
+    isCreated,
+    isUpdated,
+    isDeleted,
+    pageSize,
+    currentPage,
+    refreshData,
+    isAppAuthorize,
+  ]);
 
   // get icons for the applications
   useEffect(() => {
@@ -145,27 +152,30 @@ const Application = () => {
   // merging application icons with applications data
   useEffect(() => {
     if (crudData?.allApplications) {
-      const customAppItems = crudData?.allApplications?.items?.reduce((acc, curr) => {
-        if (curr?.rootservices_url) {
-          iconData?.forEach((icon) => {
-            if (curr.id === icon.id) {
-              const withIcon = {
-                ...curr,
-                iconUrl: icon.iconUrl,
-                status: curr?.oauth2_application[0]?.token_status?.status,
-              };
-              acc.push(withIcon);
-            }
-          });
-        } else {
-          acc.push({
-            ...curr,
-            iconUrl: null,
-            status: curr?.oauth2_application[0]?.token_status?.status,
-          });
-        }
-        return acc;
-      }, []);
+      const customAppItems = crudData?.allApplications?.items?.reduce(
+        (accumulator, currentValue) => {
+          if (currentValue?.rootservices_url) {
+            iconData?.forEach((icon) => {
+              if (currentValue.id === icon.id) {
+                const withIcon = {
+                  ...currentValue,
+                  iconUrl: icon.iconUrl,
+                  status: currentValue?.oauth2_application[0]?.token_status?.status,
+                };
+                accumulator.push(withIcon);
+              }
+            });
+          } else {
+            accumulator.push({
+              ...currentValue,
+              iconUrl: null,
+              status: currentValue?.oauth2_application[0]?.token_status?.status,
+            });
+          }
+          return accumulator;
+        },
+        [],
+      );
       setAppsWithIcon(customAppItems);
     }
   }, [iconData, crudData?.allApplications]);
@@ -192,11 +202,11 @@ const Application = () => {
 
   // Pagination
   const handlePagination = (value) => {
-    setCurrPage(value);
+    setCurrentPage(value);
   };
   // page limit control
   const handleChangeLimit = (dataKey) => {
-    setCurrPage(1);
+    setCurrentPage(1);
     setPageSize(dataKey);
   };
 
@@ -251,7 +261,6 @@ const Application = () => {
               }, query);
 
               query += `&redirect_uri=${redirect_uris[0]}`;
-              // eslint-disable-next-line max-len
               let authorizeUri =
                 appRes.payload?.response?.oauth_client_authorize_uri + '?' + query;
               setAuthorizeFrameSrc(authorizeUri);
@@ -267,7 +276,6 @@ const Application = () => {
         .catch((error) => console.error(error));
     }
 
-    // setOpenModal(false);
     if (isAdminEditing) dispatch(handleIsAdminEditing(false));
   };
 
@@ -526,7 +534,6 @@ const Application = () => {
                   Close this window and go back to the application to start using it
                 </h5>
               ) : (
-                // eslint-disable-next-line max-len
                 <h5 style={{ marginBottom: '20px' }}>You can skip it for now</h5>
               )}
 
