@@ -8,7 +8,6 @@ import { AiFillCheckCircle } from 'react-icons/ai';
 import { useSelector } from 'react-redux';
 import { darkColor, lightBgColor } from '../../../App';
 const { tableContainerDiv, validIcon, statusIcon } = styles;
-// import SpinnerIcon from '@rsuite/icons/legacy/Spinner';
 import treeData from './treeData';
 
 // OSLC API URLs
@@ -60,11 +59,17 @@ const LinksTreeDataTable = ({ props }) => {
     );
   };
 
-  const StatusCell = ({ ...props }) => {
+  const StatusCell = ({ dataKey, ...props }) => {
+    console.log(props);
     return (
       <Cell {...props} style={{ fontSize: '17px' }}>
         {' '}
-        <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} /> Valid
+        {props?.rowData[dataKey] && (
+          <>
+            <AiFillCheckCircle className={`${statusIcon} ${validIcon}`} />
+            Valid
+          </>
+        )}
       </Cell>
     );
   };
@@ -141,7 +146,7 @@ const LinksTreeDataTable = ({ props }) => {
           bordered
           headerHeight={50}
           isTree
-          rowKey={'labelName'}
+          rowKey={'id'}
           onExpandChange={(isOpen, rowData) => {
             console.log(isOpen, rowData);
           }}
@@ -156,14 +161,14 @@ const LinksTreeDataTable = ({ props }) => {
             <HeaderCell>
               <h5>Status</h5>
             </HeaderCell>
-            <StatusCell dataKey={''} />
+            <StatusCell dataKey={'status'} />
           </Column>
 
           <Column width={250} fullText>
             <HeaderCell>
               <h5>Link Type</h5>
             </HeaderCell>
-            <Cell style={{ fontSize: '17px' }} dataKey="status" />
+            <Cell style={{ fontSize: '17px' }} dataKey="link_type" />
           </Column>
 
           <Column width={300} flexGrow={1} fullText>
