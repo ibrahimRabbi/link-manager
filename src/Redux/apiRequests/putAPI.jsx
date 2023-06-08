@@ -47,7 +47,10 @@ export async function putAPIForm({ url, token, bodyData }) {
   const formData = new FormData();
   for (const name in bodyData) {
     if (name === 'script_path') {
-      formData.append(name, bodyData[name][0]['blobFile']);
+      formData.append(
+        name,
+        bodyData[name] !== null ? bodyData[name][0]['blobFile'] : Object(),
+      );
     }
     formData.append(name, bodyData[name]);
   }
