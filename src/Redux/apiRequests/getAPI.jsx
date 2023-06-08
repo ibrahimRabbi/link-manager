@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
-import clientMessages from './responseMsg';
+import { toast } from 'react-hot-toast';
 
-export default async function getAPI({ url, token, message, authCtx }) {
+export default async function getAPI({ url, token, message }) {
   const response = await fetch(url, {
     method: 'GET',
     headers: {
@@ -20,16 +20,9 @@ export default async function getAPI({ url, token, message, authCtx }) {
         });
       }
     } else {
-      if (res.status === 400) {
-        clientMessages({ status: res.status, message: res.statusText });
-      } else if (res.status === 401) {
-        authCtx && authCtx.logout();
-        clientMessages({ status: res.status, message: res.statusText });
-      } else if (res.status === 403) {
-        console.log(res.status, res.status);
-      } else if (res.status === 500) {
-        clientMessages({ status: res.status, message: res.statusText });
-      }
+      return res.json().then((data) => {
+        toast.error(data.message);
+      });
     }
   });
   return response;
