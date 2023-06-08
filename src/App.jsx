@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Application from './Components/AdminDasComponents/Application/Application';
@@ -50,7 +51,11 @@ function App() {
   return (
     <CustomProvider theme={isDark}>
       <div>
-        <Toaster position="bottom-center" reverseOrder={false} />
+        <Toaster
+          position="bottom-center"
+          reverseOrder={false}
+          containerClassName="toast-container"
+        />
       </div>
       <div
         className="App"
