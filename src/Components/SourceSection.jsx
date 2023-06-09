@@ -44,6 +44,14 @@ const SourceSection = () => {
                 flexWrap: 'wrap',
               }}
             >
+              {sourceDataList?.logoUrl && (
+                <img
+                  src={sourceDataList?.logoUrl}
+                  height={25}
+                  alt=""
+                  style={{ marginRight: '10px' }}
+                />
+              )}
               <span>{sourceDataList?.projectName}</span>
               {sourceDataList?.sourceType && <Divider style={dividerStyle}>|</Divider>}
 
