@@ -7,7 +7,6 @@ import organizationsReducer from './slices/organizationSlice';
 import applicationsReducer from './slices/applicationSlice';
 import associationsReducer from './slices/associationSlice';
 import projectsReducer from './slices/projectSlice';
-import linkTypesReducer from './slices/linkTypeSlice';
 import linkConsReducer from './slices/linkConstraintSlice';
 import componentsReducer from './slices/componentSlice';
 import eventReducer from './slices/eventSlice';
@@ -15,6 +14,7 @@ import pipelineReducer from './slices/pipelineSlice';
 import pipelineRunReducer from './slices/pipelineRunSlice';
 import { reducer as useCRUDReducer } from './slices/useCRUDSlice';
 import { reducer as oslcResourceReducer } from './slices/oslcResourcesSlice';
+import { reducer as linkTypesReducer } from './slices/linkTypeSlice';
 import oauth2ModalReducer from './slices/oauth2ModalSlice';
 import * as Sentry from '@sentry/react';
 

@@ -1,5 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import AppSelectIcon from '@rsuite/icons/AppSelect';
+import ScatterIcon from '@rsuite/icons/Scatter';
 import Swal from 'sweetalert2';
 import AuthContext from '../../../Store/Auth-Context';
 import {
@@ -8,13 +10,11 @@ import {
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Form, Schema } from 'rsuite';
-import TextField from '../TextField';
+import { FlexboxGrid, Form, Schema, Col, Button } from 'rsuite';
 import AddNewModal from '../AddNewModal';
 import { useRef } from 'react';
 import SelectField from '../SelectField';
 import CustomSelect from '../CustomSelect';
-import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
 import {
   fetchCreateData,
@@ -22,6 +22,8 @@ import {
   fetchGetData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
+
+import { actions as linkTypeActions } from '../../../Redux/slices/linkTypeSlice';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -33,23 +35,15 @@ const headerData = [
   },
   {
     header: 'Link Type',
-    key: 'name',
+    key: 'label',
   },
   {
-    header: 'Incoming Label',
-    key: 'incoming_label',
+    header: 'Domain',
+    key: 'oslc_domain',
   },
   {
-    header: 'Outgoing Label',
-    key: 'outgoing_label',
-  },
-  {
-    header: 'Url',
-    key: 'url',
-  },
-  {
-    header: 'Description',
-    key: 'description',
+    header: 'Updated',
+    key: 'updated',
   },
 ];
 
@@ -67,6 +61,10 @@ const model = Schema.Model({
 const LinkTypes = () => {
   const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
     (state) => state.crud,
+  );
+
+  const { selectedLinkTypeCreationMethod, applicationType } = useSelector(
+    (state) => state.linkTypes,
   );
 
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
@@ -102,6 +100,24 @@ const LinkTypes = () => {
     handleResetForm();
     dispatch(handleIsAddNewModal(true));
   };
+
+  const handleSelectedNewLinkTypeMethod = (value) => {
+    console.log('value', value);
+    dispatch(linkTypeActions.handleSelectedLinkTypeCreationMethod(value));
+  };
+
+  const handleApplication = (value) => {
+    console.log('value', value);
+    dispatch(linkTypeActions.handleApplicationType(value));
+  };
+
+  useEffect(() => {
+    // If application exists then fetch link types for that application
+    // Get rootservicesUrl
+    // Get instanceShapes of all OSLC QC services
+    // Request data from all instanceShapes to display the external link types in the UI
+    // Here I need to take the OSLC domain provided by those external values
+  }, [applicationType]);
 
   const handleAddLinkType = () => {
     if (!linkTypeFormRef.current.check()) {
@@ -142,6 +158,7 @@ const LinkTypes = () => {
       outgoing_label: '',
       description: '',
     });
+    dispatch(linkTypeActions.resetSelectedLinkTypeCreationMethod());
   };
 
   // get all link types
@@ -211,67 +228,72 @@ const LinkTypes = () => {
   return (
     <div>
       <AddNewModal
-        title={isAdminEditing ? 'Edit Link Type' : 'Add New Link Type'}
+        title={selectedLinkTypeCreationMethod ? 'Add link types' : 'Choose an option'}
         handleSubmit={handleAddLinkType}
         handleReset={handleResetForm}
       >
         <div className="show-grid">
-          <Form
-            fluid
-            ref={linkTypeFormRef}
-            onChange={setFormValue}
-            onCheck={setFormError}
-            formValue={formValue}
-            model={model}
-          >
-            <FlexboxGrid justify="space-between">
-              <FlexboxGrid.Item colspan={11}>
-                <TextField name="name" label="Name" reqText="Name is required" />
+          {!selectedLinkTypeCreationMethod ? (
+            <FlexboxGrid justify="space-around">
+              <FlexboxGrid.Item as={Col} colspan={24} md={10}>
+                <Button
+                  appearance="subtle"
+                  block
+                  size={'lg'}
+                  onClick={() => handleSelectedNewLinkTypeMethod('external')}
+                >
+                  <AppSelectIcon fontSize={'6em'} color={'#3498FF'} />
+                  <br />
+                  <p style={{ marginTop: '10px' }}>Add from external application</p>
+                </Button>
               </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item colspan={11}>
-                <TextField name="url" label="URL" reqText="URL is required" />
-              </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
-                <TextField
-                  name="incoming_label"
-                  label="Incoming Label"
-                  reqText="Incoming label is required"
-                />
-              </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
-                <TextField
-                  name="outgoing_label"
-                  label="Outgoing Label"
-                  reqText="Outgoing label is required"
-                />
-              </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item colspan={24}>
-                <SelectField
-                  name="application_id"
-                  label="Application ID"
-                  placeholder="Select application ID"
-                  accepter={CustomSelect}
-                  apiURL={`${lmApiUrl}/application`}
-                  error={formError.organization_id}
-                  reqText="Application Id is required"
-                />
-              </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0 10px' }}>
-                <TextField
-                  name="description"
-                  label="Description"
-                  accepter={TextArea}
-                  rows={5}
-                  reqText="Description is required"
-                />
+              <FlexboxGrid.Item as={Col} colspan={24} md={10}>
+                <Button
+                  appearance="subtle"
+                  block
+                  size={'lg'}
+                  onClick={() => handleSelectedNewLinkTypeMethod('custom')}
+                >
+                  <ScatterIcon fontSize={'6em'} color={'#3498FF'} />
+                  <br />
+                  <p style={{ marginTop: '10px' }}>Add your own link type</p>
+                </Button>
               </FlexboxGrid.Item>
             </FlexboxGrid>
-          </Form>
+          ) : (
+            <Form
+              fluid
+              ref={linkTypeFormRef}
+              onChange={setFormValue}
+              onCheck={setFormError}
+              formValue={formValue}
+              model={model}
+            >
+              <FlexboxGrid justify="space-between">
+                <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                  <SelectField
+                    name="application_id"
+                    label="Application"
+                    placeholder="Select Application"
+                    accepter={CustomSelect}
+                    apiURL={`${lmApiUrl}/application`}
+                    onChange={handleApplication}
+                    // error={formError.application_id}
+                    // reqText="Organization Id is required"
+                  />
+                </FlexboxGrid.Item>
+
+                <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                  <SelectField
+                    name="resource_type"
+                    label="Resource type"
+                    placeholder="Select resource type"
+                    accepter={CustomSelect}
+                  />
+                </FlexboxGrid.Item>
+              </FlexboxGrid>
+            </Form>
+          )}
         </div>
       </AddNewModal>
 
