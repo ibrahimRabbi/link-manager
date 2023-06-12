@@ -54,16 +54,7 @@ const headerData = [
   },
 ];
 
-const { StringType, NumberType } = Schema.Types;
-
-const model = Schema.Model({
-  name: StringType().isRequired('This field is required.'),
-  url: StringType().isRequired('This field is required.'),
-  application_id: NumberType().isRequired('This field is required.'),
-  incoming_label: StringType().isRequired('This field is required.'),
-  outgoing_label: StringType().isRequired('This field is required.'),
-  description: StringType().isRequired('This field is required.'),
-});
+const { StringType } = Schema.Types;
 
 const LinkTypes = () => {
   const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
@@ -88,15 +79,17 @@ const LinkTypes = () => {
   const [editData, setEditData] = useState({});
   const [registeredLinkTypes, setRegisteredLinkTypes] = useState([]);
   const [linkTypeResourceTypes, setLinkTypeResourceTypes] = useState([]);
-  const [formElements, setFormElements] = useState([]);
+  const [formElements, setFormElements] = useState([1]);
   const [formValue, setFormValue] = useState({
-    name: '',
-    url: '',
-    application_id: '',
-    incoming_label: '',
-    outgoing_label: '',
-    description: '',
+    url_1: '',
+    label_1: '',
   });
+  const [model, setModel] = useState(
+    Schema.Model({
+      url_1: StringType().isRequired('This field is required.'),
+      label_1: StringType().isRequired('This field is required.'),
+    }),
+  );
 
   const linkTypeFormRef = useRef();
   const authCtx = useContext(AuthContext);
@@ -127,38 +120,38 @@ const LinkTypes = () => {
   };
 
   const addExtraFormElements = () => {
-    const newElement = (
-      <>
-        <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={10}>
-          <TextField
-            name="label"
-            label="Link Type label"
-            reqText="Link type label is required"
-          />
-        </FlexboxGrid.Item>
-        <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={10}>
-          <TextField name="domain" label="domain" reqText="URL domain is required" />
-        </FlexboxGrid.Item>
-        {/* eslint-disable-next-line max-len */}
-        <FlexboxGrid.Item
-          style={{ margin: '60px 0', alignItems: 'center', marginBottom: '5px' }}
-          colspan={2}
-        >
-          <Button size={'sm'}>
-            {/* eslint-disable-next-line max-len */}
-            <WarningRoundIcon fontSize={'2em'} color={'red'} />
-          </Button>
-        </FlexboxGrid.Item>
-      </>
-    );
+    const lastElement = formElements[formElements.length - 1];
+    const newElement = lastElement + 1;
     setFormElements([...formElements, newElement]);
+
+    const newFormElements = [...formElements, newElement];
+
+    let modelData = {};
+    newFormElements.map((element) => {
+      modelData[`url_${element}`] = StringType().isRequired('This field is required.');
+      modelData[`label_${element}`] = StringType().isRequired('This field is required.');
+    });
+
+    let newFormValue = {};
+    newFormValue[`url_${newElement}`] = '';
+    newFormValue[`label_${newElement}`] = '';
+    setFormValue({ ...formValue, ...newFormValue });
+
+    const newModel = Schema.Model(modelData);
+    setModel(newModel);
   };
 
-  // const removeFormElement = (index) => {
-  //   const newElements = [...formElements];
-  //   newElements.splice(index, 1);
-  //   setFormElements(newElements);
-  // };
+  const removeFormElement = (index) => {
+    let newElements = [...formElements];
+    let newFormValue = { ...formValue };
+    if (newElements.length > 1) {
+      newElements.splice(index, 1);
+      newFormValue[`url_${index + 1}`] = 'Value removed from form';
+      newFormValue[`label_${index + 1}`] = 'Value removed from form';
+    }
+    setFormElements(newElements);
+    setFormValue(newFormValue);
+  };
 
   const showTooltip = (value) => {
     return <Tooltip>{value}</Tooltip>;
@@ -245,15 +238,8 @@ const LinkTypes = () => {
     }
   }, [oslcFoundExternalLinks]);
 
-  useEffect(() => {
-    // If application exists then fetch link types for that application
-    // Get rootservicesUrl
-    // Get instanceShapes of all OSLC QC services
-    // Request data from all instanceShapes to display the external link types in the UI
-    // Here I need to take the OSLC domain provided by those external values
-  }, [applicationType]);
-
   const handleAddLinkType = () => {
+    console.log('formValue', formValue);
     if (!linkTypeFormRef.current.check()) {
       console.error('Form Error', formError);
       return;
@@ -267,12 +253,24 @@ const LinkTypes = () => {
         }),
       );
     } else {
+      let payload = {};
+      Object.keys(formValue).map((item) => {
+        if (item.includes('url')) {
+          payload[formValue[item]] = [];
+        }
+      });
+      Object.keys(formValue).map((item) => {
+        if (item.includes('label')) {
+          const index = item.split('_')[1];
+          payload[formValue[`url_${index}`]].push(formValue[item]);
+        }
+      });
       const postUrl = `${lmApiUrl}/link-type`;
       dispatch(
         fetchCreateData({
           url: postUrl,
           token: authCtx.token,
-          bodyData: formValue,
+          bodyData: payload,
           message: 'link type',
         }),
       );
@@ -285,18 +283,14 @@ const LinkTypes = () => {
   const handleResetForm = () => {
     setEditData({});
     setFormValue({
-      name: '',
-      url: '',
-      application_id: '',
-      incoming_label: '',
-      outgoing_label: '',
-      description: '',
+      label_1: '',
+      url_1: '',
     });
     dispatch(linkTypeActions.resetSelectedLinkTypeCreationMethod());
     dispatch(linkTypeActions.resetApplicationType());
     setRegisteredLinkTypes([]);
     setLinkTypeResourceTypes([]);
-    setFormElements([]);
+    setFormElements([1]);
     dispatch(oslcActions.resetRootservicesResponse());
     dispatch(oslcActions.resetOslcCatalogInstanceShape());
     dispatch(oslcActions.resetOslcProviderInstanceShape());
@@ -413,23 +407,36 @@ const LinkTypes = () => {
             >
               {selectedLinkTypeCreationMethod === 'custom' ? (
                 <FlexboxGrid justify="space-between">
-                  <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
-                    <TextField
-                      name="label"
-                      label="Link Type label"
-                      reqText="Link type label is required"
-                    />
-                  </FlexboxGrid.Item>
-                  <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
-                    <TextField
-                      name="domain"
-                      label="domain"
-                      reqText="URL domain is required"
-                    />
-                  </FlexboxGrid.Item>
-
-                  {formElements.map((item) => (
-                    <>{item}</>
+                  {formElements.map((value, index) => (
+                    <React.Fragment key={value}>
+                      <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={10}>
+                        <TextField
+                          name={`label_${value}`}
+                          label="Link Type label"
+                          reqText="Link type label is required"
+                        />
+                      </FlexboxGrid.Item>
+                      <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={10}>
+                        <TextField
+                          name={`url_${value}`}
+                          label="domain"
+                          reqText="URL domain is required"
+                        />
+                      </FlexboxGrid.Item>
+                      <FlexboxGrid.Item
+                        style={{
+                          margin: '60px 0',
+                          alignItems: 'center',
+                          marginBottom: '5px',
+                        }}
+                        colspan={2}
+                      >
+                        <Button size={'sm'} onClick={() => removeFormElement(index)}>
+                          {/* eslint-disable-next-line max-len */}
+                          <WarningRoundIcon fontSize={'2em'} color={'red'} />
+                        </Button>
+                      </FlexboxGrid.Item>
+                    </React.Fragment>
                   ))}
 
                   <Button
