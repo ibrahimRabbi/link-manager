@@ -475,7 +475,7 @@ const LinkTypes = () => {
                         Found link types for:
                       </p>
                       {linkTypeResourceTypes.map((item, index) => (
-                        <>
+                        <React.Fragment key={`linkResourceType-${index}`}>
                           {item?.value.length > 0 && (
                             <>
                               <h6 style={{ marginBottom: '10px' }} key={index}>
@@ -489,7 +489,7 @@ const LinkTypes = () => {
                                 spacing={20}
                               >
                                 {item?.value.map((link, index) => (
-                                  <>
+                                  <React.Fragment key={`whisper-${index}`}>
                                     <Whisper
                                       placement="topEnd"
                                       controlId="control-id-hover"
@@ -500,12 +500,12 @@ const LinkTypes = () => {
                                         {link.value}
                                       </Button>
                                     </Whisper>
-                                  </>
+                                  </React.Fragment>
                                 ))}
                               </Stack>
                             </>
                           )}
-                        </>
+                        </React.Fragment>
                       ))}
                     </FlexboxGrid.Item>
                   )}
