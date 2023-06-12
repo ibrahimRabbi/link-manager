@@ -1,7 +1,10 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+
 import AppSelectIcon from '@rsuite/icons/AppSelect';
 import ScatterIcon from '@rsuite/icons/Scatter';
+import WarningRoundIcon from '@rsuite/icons/WarningRound';
+import PlusRoundIcon from '@rsuite/icons/PlusRound';
 import Swal from 'sweetalert2';
 import AuthContext from '../../../Store/Auth-Context';
 import {
@@ -10,7 +13,7 @@ import {
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Form, Schema, Col, Button } from 'rsuite';
+import { FlexboxGrid, Form, Schema, Col, Button, Stack, Tooltip, Whisper } from 'rsuite';
 import AddNewModal from '../AddNewModal';
 import { useRef } from 'react';
 import SelectField from '../SelectField';
@@ -23,7 +26,11 @@ import {
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
 
+import { fetchOslcResource } from '../../../Redux/slices/oslcResourcesSlice.jsx';
+
 import { actions as linkTypeActions } from '../../../Redux/slices/linkTypeSlice';
+import { actions as oslcActions } from '../../../Redux/slices/oslcResourcesSlice';
+import TextField from '../TextField.jsx';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -67,11 +74,21 @@ const LinkTypes = () => {
     (state) => state.linkTypes,
   );
 
+  const {
+    oslcCatalogInstanceShapeUrl,
+    oslcProviderInstanceShapeUrl,
+    oslcResourceShapeUrls,
+    oslcFoundExternalLinks,
+  } = useSelector((state) => state.oslcResources);
+
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
+  const [registeredLinkTypes, setRegisteredLinkTypes] = useState([]);
+  const [linkTypeResourceTypes, setLinkTypeResourceTypes] = useState([]);
+  const [formElements, setFormElements] = useState([]);
   const [formValue, setFormValue] = useState({
     name: '',
     url: '',
@@ -102,14 +119,131 @@ const LinkTypes = () => {
   };
 
   const handleSelectedNewLinkTypeMethod = (value) => {
-    console.log('value', value);
     dispatch(linkTypeActions.handleSelectedLinkTypeCreationMethod(value));
   };
 
   const handleApplication = (value) => {
-    console.log('value', value);
     dispatch(linkTypeActions.handleApplicationType(value));
   };
+
+  const addExtraFormElements = () => {
+    const newElement = (
+      <>
+        <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={10}>
+          <TextField
+            name="label"
+            label="Link Type label"
+            reqText="Link type label is required"
+          />
+        </FlexboxGrid.Item>
+        <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={10}>
+          <TextField name="domain" label="domain" reqText="URL domain is required" />
+        </FlexboxGrid.Item>
+        {/* eslint-disable-next-line max-len */}
+        <FlexboxGrid.Item
+          style={{ margin: '60px 0', alignItems: 'center', marginBottom: '5px' }}
+          colspan={2}
+        >
+          <Button size={'sm'}>
+            {/* eslint-disable-next-line max-len */}
+            <WarningRoundIcon fontSize={'2em'} color={'red'} />
+          </Button>
+        </FlexboxGrid.Item>
+      </>
+    );
+    setFormElements([...formElements, newElement]);
+  };
+
+  // const removeFormElement = (index) => {
+  //   const newElements = [...formElements];
+  //   newElements.splice(index, 1);
+  //   setFormElements(newElements);
+  // };
+
+  const showTooltip = (value) => {
+    return <Tooltip>{value}</Tooltip>;
+  };
+
+  useEffect(() => {
+    if (applicationType) {
+      const getUrl = `${lmApiUrl}/application/${applicationType}`;
+      dispatch(
+        fetchGetData({
+          url: getUrl,
+          token: authCtx.token,
+          stateName: 'selectedApplication',
+        }),
+      );
+    }
+  }, [applicationType]);
+
+  useEffect(() => {
+    if (crudData?.selectedApplication) {
+      // eslint-disable-next-line max-len
+      const rootservicesUrl = crudData?.selectedApplication?.rootservices_url;
+      dispatch(
+        fetchOslcResource({
+          url: rootservicesUrl,
+          token: '',
+        }),
+      );
+    }
+  }, [crudData?.selectedApplication]);
+
+  useEffect(() => {
+    if (oslcCatalogInstanceShapeUrl) {
+      dispatch(
+        fetchOslcResource({
+          url: oslcCatalogInstanceShapeUrl,
+          token: '',
+          requestType: 'oslcCatalogInstanceShape',
+        }),
+      );
+    }
+  }, [oslcCatalogInstanceShapeUrl]);
+
+  useEffect(() => {
+    if (oslcProviderInstanceShapeUrl) {
+      dispatch(
+        fetchOslcResource({
+          url: oslcProviderInstanceShapeUrl,
+          token: '',
+          requestType: 'oslcServiceProviderInstanceShape',
+        }),
+      );
+    }
+  }, [oslcProviderInstanceShapeUrl]);
+
+  useEffect(() => {
+    if (oslcResourceShapeUrls) {
+      oslcResourceShapeUrls.map((url) => {
+        dispatch(
+          fetchOslcResource({
+            url: url,
+            token: '',
+            requestType: 'oslcResourceShape',
+          }),
+        );
+      });
+    }
+  }, [oslcResourceShapeUrls]);
+
+  useEffect(() => {
+    if (oslcFoundExternalLinks) {
+      oslcFoundExternalLinks.map((resourceType) => {
+        if (registeredLinkTypes.includes(resourceType.title) === false) {
+          setRegisteredLinkTypes([...registeredLinkTypes, resourceType.title]);
+          setLinkTypeResourceTypes([
+            ...linkTypeResourceTypes,
+            {
+              label: resourceType.title,
+              value: resourceType.links,
+            },
+          ]);
+        }
+      });
+    }
+  }, [oslcFoundExternalLinks]);
 
   useEffect(() => {
     // If application exists then fetch link types for that application
@@ -159,6 +293,14 @@ const LinkTypes = () => {
       description: '',
     });
     dispatch(linkTypeActions.resetSelectedLinkTypeCreationMethod());
+    dispatch(linkTypeActions.resetApplicationType());
+    setRegisteredLinkTypes([]);
+    setLinkTypeResourceTypes([]);
+    setFormElements([]);
+    dispatch(oslcActions.resetRootservicesResponse());
+    dispatch(oslcActions.resetOslcCatalogInstanceShape());
+    dispatch(oslcActions.resetOslcProviderInstanceShape());
+    dispatch(oslcActions.resetOslcResourceShape());
   };
 
   // get all link types
@@ -269,29 +411,99 @@ const LinkTypes = () => {
               formValue={formValue}
               model={model}
             >
-              <FlexboxGrid justify="space-between">
-                <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                  <SelectField
-                    name="application_id"
-                    label="Application"
-                    placeholder="Select Application"
-                    accepter={CustomSelect}
-                    apiURL={`${lmApiUrl}/application`}
-                    onChange={handleApplication}
-                    // error={formError.application_id}
-                    // reqText="Organization Id is required"
-                  />
-                </FlexboxGrid.Item>
+              {selectedLinkTypeCreationMethod === 'custom' ? (
+                <FlexboxGrid justify="space-between">
+                  <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
+                    <TextField
+                      name="label"
+                      label="Link Type label"
+                      reqText="Link type label is required"
+                    />
+                  </FlexboxGrid.Item>
+                  <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={11}>
+                    <TextField
+                      name="domain"
+                      label="domain"
+                      reqText="URL domain is required"
+                    />
+                  </FlexboxGrid.Item>
 
-                <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                  <SelectField
-                    name="resource_type"
-                    label="Resource type"
-                    placeholder="Select resource type"
-                    accepter={CustomSelect}
-                  />
-                </FlexboxGrid.Item>
-              </FlexboxGrid>
+                  {formElements.map((item) => (
+                    <>{item}</>
+                  ))}
+
+                  <Button
+                    appearance="subtle"
+                    block
+                    size={'lg'}
+                    onClick={() => addExtraFormElements()}
+                  >
+                    <PlusRoundIcon fontSize={'2em'} color={'#3498FF'} />
+                    <br />
+                  </Button>
+                </FlexboxGrid>
+              ) : (
+                <FlexboxGrid justify="space-between">
+                  <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                    <SelectField
+                      name="application_id"
+                      label="Application"
+                      placeholder="Select Application"
+                      accepter={CustomSelect}
+                      apiURL={`${lmApiUrl}/application`}
+                      onChange={handleApplication}
+                    />
+                  </FlexboxGrid.Item>
+
+                  {linkTypeResourceTypes.length > 0 && (
+                    <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                      {/* eslint-disable-next-line max-len */}
+                      <p
+                        style={{
+                          fontSize: '17px',
+                          marginBottom: '10px',
+                          textAlign: 'center',
+                        }}
+                      >
+                        Found link types for:
+                      </p>
+                      {linkTypeResourceTypes.map((item, index) => (
+                        <>
+                          {item?.value.length > 0 && (
+                            <>
+                              <h6 style={{ marginBottom: '10px' }} key={index}>
+                                {item.label}:
+                              </h6>
+                              <Stack
+                                direction={'row'}
+                                alignItems={'center'}
+                                justifyContent={'flex-start'}
+                                wrap
+                                spacing={20}
+                              >
+                                {item?.value.map((link, index) => (
+                                  <>
+                                    <Whisper
+                                      placement="topEnd"
+                                      controlId="control-id-hover"
+                                      trigger="hover"
+                                      speaker={showTooltip(link.url)}
+                                    >
+                                      <Button key={index} size="lg">
+                                        {link.value}
+                                      </Button>
+                                    </Whisper>
+                                  </>
+                                ))}
+                              </Stack>
+                            </>
+                          )}
+                        </>
+                      ))}
+                    </FlexboxGrid.Item>
+                  )}
+                </FlexboxGrid>
+              )}
             </Form>
           )}
         </div>
