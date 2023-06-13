@@ -121,7 +121,17 @@ const LinkTypes = () => {
   };
 
   const handleApplication = (value) => {
-    dispatch(linkTypeActions.handleApplicationType(value));
+    setLinkTypeResourceTypes([]);
+    setRegisteredLinkTypes([]);
+    setResourceTypes([]);
+    dispatch(linkTypeActions.resetApplicationType());
+    dispatch(oslcActions.resetRootservicesResponse());
+    dispatch(oslcActions.resetOslcCatalogInstanceShape());
+    dispatch(oslcActions.resetOslcProviderInstanceShape());
+    dispatch(oslcActions.resetOslcResourceShape());
+    if (value) {
+      dispatch(linkTypeActions.handleApplicationType(value));
+    }
   };
 
   const addExtraFormElements = () => {
@@ -255,7 +265,11 @@ const LinkTypes = () => {
   }, [oslcFoundExternalLinks]);
 
   useEffect(() => {
-    if (linkTypeResourceTypes.length > 0) {
+    // eslint-disable-next-line max-len
+    if (
+      linkTypeResourceTypes.length > 0 &&
+      selectedLinkTypeCreationMethod === 'external'
+    ) {
       let newResourceShapeData = { ...resourceShapeData };
       linkTypeResourceTypes.map((resourceType) => {
         resourceType.value.map((link) => {
@@ -279,7 +293,7 @@ const LinkTypes = () => {
   }, [linkTypeResourceTypes]);
 
   const handleAddLinkType = () => {
-    console.log('formValue', formValue);
+    let payload = [];
     if (!linkTypeFormRef.current.check()) {
       console.error('Form Error', formError);
       return;
@@ -293,7 +307,6 @@ const LinkTypes = () => {
         }),
       );
     } else {
-      let payload = [];
       if (formValue['selectedOption'] === 'external') {
         let addedResourceTypes = false;
         Object.entries(formValue).forEach(([key, value]) => {
@@ -316,7 +329,6 @@ const LinkTypes = () => {
           }
         });
       } else {
-        let payload = [];
         let linkLabels = {};
         const data = Object.entries(formValue);
         for (const [key, value] of data) {
@@ -339,7 +351,6 @@ const LinkTypes = () => {
             labels: value,
           });
         });
-        console.log('payload', payload);
       }
       const postUrl = `${lmApiUrl}/link-type`;
       dispatch(
@@ -368,6 +379,7 @@ const LinkTypes = () => {
     setRegisteredLinkTypes([]);
     setLinkTypeResourceTypes([]);
     setFormElements([1]);
+    setResourceTypes([]);
     dispatch(oslcActions.resetRootservicesResponse());
     dispatch(oslcActions.resetOslcCatalogInstanceShape());
     dispatch(oslcActions.resetOslcProviderInstanceShape());
