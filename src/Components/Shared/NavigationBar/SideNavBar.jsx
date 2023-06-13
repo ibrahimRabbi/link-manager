@@ -16,6 +16,7 @@ import MenuIcon from '@rsuite/icons/Menu';
 import CloseIcon from '@rsuite/icons/Close';
 import DashboardIcon from '@rsuite/icons/Dashboard';
 import { darkColor, lightBgColor } from '../../../App';
+import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
 
 const SideNavBar = ({ isWbe }) => {
   const { isDark, isSidebarOpen } = useSelector((state) => state.nav);
@@ -53,8 +54,8 @@ const SideNavBar = ({ isWbe }) => {
           display: 'flex',
           flexDirection: 'column',
           minHeight: isWbe ? '100vh' : '94vh',
-          boxShadow: `2px 2px 5px ${isDark == 'light' ? 'lightgray' : '#292D33'}`,
-          backgroundColor: isDark == 'dark' ? darkColor : lightBgColor,
+          boxShadow: `2px 2px 5px ${isDark === 'light' ? 'lightgray' : '#292D33'}`,
+          backgroundColor: isDark === 'dark' ? darkColor : lightBgColor,
         }}
         width={isSidebarOpen ? 200 : 56}
         collapsible
@@ -93,6 +94,17 @@ const SideNavBar = ({ isWbe }) => {
                 }
               >
                 Graph View
+              </Nav.Item>
+
+              <Nav.Item
+                eventKey="3"
+                active={isWbe ? pathname === '/wbe/pipeline' : pathname === '/pipeline'}
+                icon={<PlayOutlineIcon />}
+                onClick={() =>
+                  isWbe ? navigate('/wbe/pipeline') : navigate('/pipeline')
+                }
+              >
+                Pipeline
               </Nav.Item>
 
               {!isWbe && (
