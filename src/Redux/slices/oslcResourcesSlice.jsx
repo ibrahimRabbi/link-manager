@@ -17,6 +17,7 @@ const RESOURCE_SHAPE_TAG = '#resourceShape';
 const VALUE_SHAPE_URL = 'http://open-services.net/ns/core#valueShape';
 const OSLC_ANY_RESOURCE_URI = 'http://open-services.net/ns/core#AnyResource';
 const OSLC_VALUE_TYPE_URI = 'http://open-services.net/ns/core#valueType';
+const OSLC_DESCRIBES = 'http://open-services.net/ns/core#describes';
 // eslint-disable-next-line max-len
 const OSLC_PROPERTY_DEFINITION_URI =
   'http://open-services.net/ns/core#propertyDefinition';
@@ -151,10 +152,14 @@ export const oslcResourceSlice = createSlice({
       } else if (requestType === 'oslcResourceShape') {
         let externalLinks = [];
         let title = null;
+        let resourceType = null;
 
         response.map((item) => {
           if (DCTERMS_TITLE in item) {
             title = item[DCTERMS_TITLE][0]['@value'];
+          }
+          if (OSLC_DESCRIBES in item) {
+            resourceType = item[OSLC_DESCRIBES][0]['@id'];
           }
           if (OSLC_PROPERTY_DEFINITION_URI in item) {
             let linkName = null;
@@ -183,6 +188,7 @@ export const oslcResourceSlice = createSlice({
 
         const storedResponse = {
           title: title,
+          resourceType: resourceType,
           response: response,
         };
         state.oslcResourceShapeResponse = [
@@ -193,6 +199,7 @@ export const oslcResourceSlice = createSlice({
           ...state.oslcFoundExternalLinks,
           {
             title: title,
+            resourceType: resourceType,
             links: externalLinks,
           },
         ];

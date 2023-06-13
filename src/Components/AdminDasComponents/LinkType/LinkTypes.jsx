@@ -80,14 +80,17 @@ const LinkTypes = () => {
   const [registeredLinkTypes, setRegisteredLinkTypes] = useState([]);
   const [linkTypeResourceTypes, setLinkTypeResourceTypes] = useState([]);
   const [formElements, setFormElements] = useState([1]);
+  const [resourceTypes, setResourceTypes] = useState([]);
   const [formValue, setFormValue] = useState({
     url_1: '',
     label_1: '',
+    selectedOption: '',
   });
   const [model, setModel] = useState(
     Schema.Model({
       url_1: StringType().isRequired('This field is required.'),
       label_1: StringType().isRequired('This field is required.'),
+      selectedOption: StringType().isRequired('This field is required.'),
     }),
   );
   const [resourceShapeData, setResourceShapeData] = useState({});
@@ -113,6 +116,8 @@ const LinkTypes = () => {
 
   const handleSelectedNewLinkTypeMethod = (value) => {
     dispatch(linkTypeActions.handleSelectedLinkTypeCreationMethod(value));
+    formValue['selectedOption'] = value;
+    setFormValue({ ...formValue });
   };
 
   const handleApplication = (value) => {
@@ -132,6 +137,7 @@ const LinkTypes = () => {
       modelData[`label_${element}`] = StringType().isRequired('This field is required.');
     });
 
+    modelData['selectedOption'] = StringType().isRequired('This field is required.');
     let newFormValue = {};
     newFormValue[`url_${newElement}`] = '';
     newFormValue[`label_${newElement}`] = '';
@@ -151,6 +157,15 @@ const LinkTypes = () => {
     }
     setFormElements(newElements);
     setFormValue(newFormValue);
+  };
+
+  const parseValue = (value) => {
+    const words = value.split(/(?=[A-Z])/);
+    const formattedWords = words.map((word) => {
+      return word.toLowerCase().charAt(0).toUpperCase() + word.slice(1);
+    });
+    const sentence = formattedWords.join(' ');
+    return sentence;
   };
 
   const showTooltip = (value) => {
@@ -226,6 +241,7 @@ const LinkTypes = () => {
       oslcFoundExternalLinks.map((resourceType) => {
         if (registeredLinkTypes.includes(resourceType.title) === false) {
           setRegisteredLinkTypes([...registeredLinkTypes, resourceType.title]);
+          setResourceTypes([...resourceTypes, resourceType.resourceType]);
           setLinkTypeResourceTypes([
             ...linkTypeResourceTypes,
             {
@@ -277,18 +293,54 @@ const LinkTypes = () => {
         }),
       );
     } else {
-      let payload = {};
-      Object.keys(formValue).map((item) => {
-        if (item.includes('url')) {
-          payload[formValue[item]] = [];
+      let payload = [];
+      if (formValue['selectedOption'] === 'external') {
+        let addedResourceTypes = false;
+        Object.entries(formValue).forEach(([key, value]) => {
+          if (key.includes('resourceShapeData')) {
+            Object.entries(value).forEach(function ([uri, labels]) {
+              payload.push({
+                oslc_domain: uri,
+                labels: labels,
+              });
+            });
+          }
+          if (payload.length > 0 && !addedResourceTypes) {
+            payload[0].resource_type = [];
+            registeredLinkTypes.map((linkType, index) => {
+              payload[0].resource_type.push({
+                uri: linkType,
+                label: resourceTypes[index],
+              });
+            });
+          }
+        });
+      } else {
+        let payload = [];
+        let linkLabels = {};
+        const data = Object.entries(formValue);
+        for (const [key, value] of data) {
+          if (key.includes('label')) {
+            const replacedKey = key.replace('label', 'url');
+            const arrayPosition = data.findIndex(([key]) => key === replacedKey);
+            const domainUrl = data[arrayPosition][1];
+
+            if (!(domainUrl in linkLabels)) {
+              linkLabels[domainUrl] = [];
+            }
+            if (!linkLabels[domainUrl].includes(value)) {
+              linkLabels[domainUrl].push(value);
+            }
+          }
         }
-      });
-      Object.keys(formValue).map((item) => {
-        if (item.includes('label')) {
-          const index = item.split('_')[1];
-          payload[formValue[`url_${index}`]].push(formValue[item]);
-        }
-      });
+        Object.entries(linkLabels).forEach(([key, value]) => {
+          payload.push({
+            oslc_domain: key,
+            labels: value,
+          });
+        });
+        console.log('payload', payload);
+      }
       const postUrl = `${lmApiUrl}/link-type`;
       dispatch(
         fetchCreateData({
@@ -309,6 +361,7 @@ const LinkTypes = () => {
     setFormValue({
       label_1: '',
       url_1: '',
+      selectedOption: '',
     });
     dispatch(linkTypeActions.resetSelectedLinkTypeCreationMethod());
     dispatch(linkTypeActions.resetApplicationType());
@@ -521,7 +574,7 @@ const LinkTypes = () => {
                                       speaker={showTooltip(link.url)}
                                     >
                                       <Button key={index} size="lg">
-                                        {link.value}
+                                        {parseValue(link.value)}
                                       </Button>
                                     </Whisper>
                                   </React.Fragment>
