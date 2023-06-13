@@ -90,7 +90,7 @@ const LinkTypes = () => {
       label_1: StringType().isRequired('This field is required.'),
     }),
   );
-
+  const [resourceShapeData, setResourceShapeData] = useState({});
   const linkTypeFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
@@ -237,6 +237,30 @@ const LinkTypes = () => {
       });
     }
   }, [oslcFoundExternalLinks]);
+
+  useEffect(() => {
+    if (linkTypeResourceTypes.length > 0) {
+      let newResourceShapeData = { ...resourceShapeData };
+      linkTypeResourceTypes.map((resourceType) => {
+        resourceType.value.map((link) => {
+          const domain = link?.url.split('#')[0];
+          const property = link?.url.split('#')[1];
+          if (!(domain in newResourceShapeData)) {
+            newResourceShapeData[domain] = [];
+          }
+          if (!newResourceShapeData[domain].includes(property)) {
+            newResourceShapeData[domain].push(property);
+          }
+        });
+      });
+      setResourceShapeData(newResourceShapeData);
+      let newFormValue = { ...formValue };
+      newFormValue['resourceShapeData'] = newResourceShapeData;
+      newFormValue['label_1'] = 'Getting data from resource shape';
+      newFormValue['url_1'] = 'Getting data from resource shape';
+      setFormValue(newFormValue);
+    }
+  }, [linkTypeResourceTypes]);
 
   const handleAddLinkType = () => {
     console.log('formValue', formValue);
