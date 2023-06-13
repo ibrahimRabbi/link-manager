@@ -89,7 +89,12 @@ const LinkTypes = () => {
   const [model, setModel] = useState(
     Schema.Model({
       url_1: StringType().isRequired('This field is required.'),
-      label_1: StringType().isRequired('This field is required.'),
+      label_1: StringType()
+        .addRule((value) => {
+          const regex = /^[A-Za-z]+$/;
+          return regex.test(value);
+        }, 'Please try to enter a label without spaces nor special characters.')
+        .isRequired('This field is required.'),
       selectedOption: StringType().isRequired('This field is required.'),
     }),
   );
@@ -144,7 +149,10 @@ const LinkTypes = () => {
     let modelData = {};
     newFormElements.map((element) => {
       modelData[`url_${element}`] = StringType().isRequired('This field is required.');
-      modelData[`label_${element}`] = StringType().isRequired('This field is required.');
+      modelData[`label_${element}`] = StringType().addRule((value) => {
+        const regex = /^[A-Za-z]+$/;
+        return regex.test(value);
+      }, 'Please try to enter a label without spaces nor special characters.');
     });
 
     modelData['selectedOption'] = StringType().isRequired('This field is required.');
@@ -162,8 +170,8 @@ const LinkTypes = () => {
     let newFormValue = { ...formValue };
     if (newElements.length > 1) {
       newElements.splice(index, 1);
-      newFormValue[`url_${index + 1}`] = 'Value removed from form';
-      newFormValue[`label_${index + 1}`] = 'Value removed from form';
+      newFormValue[`url_${index + 1}`] = 'ValueRemovedFromForm';
+      newFormValue[`label_${index + 1}`] = 'ValueRemovedFromForm';
     }
     setFormElements(newElements);
     setFormValue(newFormValue);
@@ -286,8 +294,8 @@ const LinkTypes = () => {
       setResourceShapeData(newResourceShapeData);
       let newFormValue = { ...formValue };
       newFormValue['resourceShapeData'] = newResourceShapeData;
-      newFormValue['label_1'] = 'Getting data from resource shape';
-      newFormValue['url_1'] = 'Getting data from resource shape';
+      newFormValue['label_1'] = 'GettingDataFromResourceShape';
+      newFormValue['url_1'] = 'GettingDataFromResourceShape';
       setFormValue(newFormValue);
     }
   }, [linkTypeResourceTypes]);
