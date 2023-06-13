@@ -147,6 +147,7 @@ export const oslcResourceSlice = createSlice({
       }
     });
     builder.addCase(fetchOslcResource.rejected, (state, action) => {
+      state.isOslcResourceLoading = false;
       const error = action.error.message;
       const consumerTokenExists = action?.meta?.arg?.token;
       state.oslcResourceFailed = true;
