@@ -17,6 +17,7 @@ import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
 import { darkBgColor, lightBgColor } from '../../App';
 import Swal from 'sweetalert2';
+import Notification from '../Shared/Notification';
 
 const { tableContainer } = styles;
 
@@ -46,7 +47,12 @@ const LinkManager = () => {
   const [searchParams] = useSearchParams();
   const uri = searchParams.get('uri');
   const sourceFileURL = uri || sourceDataList?.uri;
-
+  const [notificationType, setNotificationType] = React.useState('');
+  const [notificationMessage, setNotificationMessage] = React.useState('');
+  const showNotification = (type, message) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+  };
   useEffect(() => {
     dispatch(handleIsWbe(isWbe));
   }, [location]);
@@ -83,6 +89,7 @@ const LinkManager = () => {
               sourceFileURL,
             )}&page=${currPage}&per_page=${pageSize}`,
             token: authCtx.token,
+            showNotification: showNotification,
           }),
         );
       }
@@ -110,6 +117,7 @@ const LinkManager = () => {
           fetchDeleteLink({
             url: deleteURl,
             token: authCtx.token,
+            showNotification: showNotification,
           }),
         );
       }
@@ -218,7 +226,14 @@ const LinkManager = () => {
                   </div>
                 </FlexboxGrid.Item>
               </FlexboxGrid>
-
+              {notificationType && notificationMessage && (
+                <Notification
+                  type={notificationType}
+                  message={notificationMessage}
+                  setNotificationType={setNotificationType}
+                  setNotificationMessage={setNotificationMessage}
+                />
+              )}
               <LinksDataTable props={tableProps} />
             </div>
           </div>

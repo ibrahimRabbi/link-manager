@@ -7,19 +7,19 @@ import AuthContext from '../../../Store/Auth-Context.jsx';
 
 import koneksysLogo from './koneksys_logo.png';
 import styles from './NavigationBar.module.scss';
-import { Button, Nav, Navbar, Popover, Whisper } from 'rsuite';
+import { Button, Message, Nav, Navbar, Popover, Whisper, useToaster } from 'rsuite';
 import { BiUserCircle, BiLogOut } from 'react-icons/bi';
 
 const { userContainer, content, popButton } = styles;
 
 import { ImBrightnessContrast } from 'react-icons/im';
 import { darkColor, lightBgColor } from '../../../App';
-import { toast } from 'react-hot-toast';
 const NavigationBar = () => {
   const authCtx = useContext(AuthContext);
   const { currPageTitle, isDark, isProfileOpen } = useSelector((state) => state.nav);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const toaster = useToaster();
 
   const handleLogout = () => {
     dispatch(handleIsProfileOpen(!isProfileOpen));
@@ -35,7 +35,13 @@ const NavigationBar = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         authCtx.logout();
-        toast.success('Logut successfull');
+        // toast.success('Logut successfull');
+        const message = (
+          <Message closable showIcon type="success">
+            Logut successfull
+          </Message>
+        );
+        toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
         navigate('/login', { replace: true });
       }
     });

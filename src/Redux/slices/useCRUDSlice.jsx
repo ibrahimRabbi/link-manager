@@ -7,8 +7,8 @@ import getAPI from '../apiRequests/getAPI';
 // Fetch get Request
 export const fetchGetData = createAsyncThunk(
   'crud/fetchGetData',
-  async ({ url, token, stateName, message }) => {
-    const response = await getAPI({ url, token, message });
+  async ({ url, token, stateName, message, showNotification }) => {
+    const response = await getAPI({ url, token, message, showNotification });
 
     return { stateName: stateName, response: response };
   },
@@ -17,8 +17,8 @@ export const fetchGetData = createAsyncThunk(
 // Fetch POST Request
 export const fetchCreateData = createAsyncThunk(
   'crud/fetchCreateData',
-  async ({ url, token, bodyData, stateName, message }) => {
-    const response = await postAPI({ url, token, bodyData, message });
+  async ({ url, token, bodyData, stateName, message, showNotification }) => {
+    const response = await postAPI({ url, token, bodyData, message, showNotification });
 
     return { stateName: stateName, response: response };
   },
@@ -27,8 +27,8 @@ export const fetchCreateData = createAsyncThunk(
 // Fetch Update Request
 export const fetchUpdateData = createAsyncThunk(
   'crud/fetchUpdateData',
-  async ({ url, token, bodyData, stateName }) => {
-    const res = await putAPI({ url, token, bodyData });
+  async ({ url, token, bodyData, stateName, showNotification }) => {
+    const res = await putAPI({ url, token, bodyData, showNotification });
 
     return { stateName: stateName, response: res };
   },
@@ -37,8 +37,8 @@ export const fetchUpdateData = createAsyncThunk(
 // Delete organization
 export const fetchDeleteData = createAsyncThunk(
   'crud/fetchDeleteData',
-  async ({ url, token, stateName }) => {
-    const response = await deleteAPI({ url, token });
+  async ({ url, token, stateName, showNotification }) => {
+    const response = await deleteAPI({ url, token, showNotification });
     if (response.status === 204) {
       return { status: 204, message: 'deleted', stateName: stateName };
     }

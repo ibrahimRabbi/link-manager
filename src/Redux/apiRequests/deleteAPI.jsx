@@ -1,6 +1,4 @@
-import { toast } from 'react-hot-toast';
-
-export default async function deleteAPI({ url, token }) {
+export default async function deleteAPI({ url, token, showNotification }) {
   const response = await fetch(`${url}`, {
     method: 'DELETE',
     headers: {
@@ -10,12 +8,12 @@ export default async function deleteAPI({ url, token }) {
   }).then((res) => {
     if (res.ok) {
       if (res.status === 204) {
-        toast.success('Successfully deleted');
+        showNotification('success', 'Successfully deleted');
         return res;
       }
     } else {
       return res.json().then((data) => {
-        toast.error(data.message);
+        showNotification('error', data.message);
       });
     }
   });

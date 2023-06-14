@@ -1,6 +1,4 @@
-import { toast } from 'react-hot-toast';
-
-export default async function putAPI({ url, token, bodyData }) {
+export default async function putAPI({ url, token, bodyData, showNotification }) {
   const response = await fetch(`${url}`, {
     method: 'PUT',
     headers: {
@@ -11,19 +9,19 @@ export default async function putAPI({ url, token, bodyData }) {
   }).then(async (res) => {
     if (res.ok) {
       return res.json().then((data) => {
-        toast.success(data.message);
+        showNotification('success', data.message);
         return data;
       });
     } else {
       return res.json().then((data) => {
-        toast.error(data.message);
+        showNotification('error', data.message);
       });
     }
   });
 
   return response;
 }
-export async function putAPIForm({ url, token, bodyData }) {
+export async function putAPIForm({ url, token, bodyData, showNotification }) {
   const formData = new FormData();
   for (const name in bodyData) {
     if (name === 'script_path') {
@@ -44,11 +42,11 @@ export async function putAPIForm({ url, token, bodyData }) {
   }).then(async (res) => {
     if (res.ok) {
       const data = await res.json();
-      toast.success(data.message);
+      showNotification('success', data.message);
       return data;
     } else {
       return res.json().then((data) => {
-        toast.error(data.message);
+        showNotification('error', data.message);
       });
     }
   });

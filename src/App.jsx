@@ -32,7 +32,6 @@ import Events from './Components/AdminDasComponents/Events/Events.jsx';
 import Pipelines from './Components/AdminDasComponents/Pipelines/Pipelines.jsx';
 import Associations from './Components/AdminDasComponents/Associations/Associations';
 import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun.jsx';
-import { Toaster } from 'react-hot-toast';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -49,13 +48,6 @@ function App() {
 
   return (
     <CustomProvider theme={isDark}>
-      <div>
-        <Toaster
-          position="bottom-center"
-          reverseOrder={false}
-          containerClassName="toast-container"
-        />
-      </div>
       <div
         className="App"
         style={{ backgroundColor: isDark === 'dark' ? darkBgColor : lightBgColor }}

@@ -21,6 +21,7 @@ import {
 } from '../../../Redux/slices/useCRUDSlice';
 import SelectField from '../SelectField.jsx';
 import CustomSelect from '../CustomSelect.jsx';
+import Notification from '../../Shared/Notification';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -67,6 +68,12 @@ const Projects = () => {
     description: '',
     organization_id: '',
   });
+  const [notificationType, setNotificationType] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const showNotification = (type, message) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+  };
 
   const projectFormRef = useRef();
   const authCtx = useContext(AuthContext);
@@ -93,6 +100,7 @@ const Projects = () => {
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
+          showNotification: showNotification,
         }),
       );
     } else {
@@ -103,6 +111,7 @@ const Projects = () => {
           token: authCtx.token,
           bodyData: formValue,
           message: 'project',
+          showNotification: showNotification,
         }),
       );
     }
@@ -131,6 +140,7 @@ const Projects = () => {
         url: getUrl,
         token: authCtx.token,
         stateName: 'allProjects',
+        showNotification: showNotification,
       }),
     );
   }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
@@ -155,7 +165,13 @@ const Projects = () => {
     }).then((value) => {
       if (value.isConfirmed) {
         const deleteUrl = `${lmApiUrl}/project/${data?.id}`;
-        dispatch(fetchDeleteData({ url: deleteUrl, token: authCtx.token }));
+        dispatch(
+          fetchDeleteData({
+            url: deleteUrl,
+            token: authCtx.token,
+            showNotification: showNotification,
+          }),
+        );
       }
     });
   };
@@ -229,7 +245,14 @@ const Projects = () => {
       </AddNewModal>
 
       {isCrudLoading && <UseLoader />}
-
+      {notificationType && notificationMessage && (
+        <Notification
+          type={notificationType}
+          message={notificationMessage}
+          setNotificationType={setNotificationType}
+          setNotificationMessage={setNotificationMessage}
+        />
+      )}
       <AdminDataTable props={tableProps} />
     </div>
   );
