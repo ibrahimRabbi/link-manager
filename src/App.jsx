@@ -68,6 +68,7 @@ function App() {
             <Route path="/wbe/details/:id" element={<LinkDetails />} />
             <Route path="/wbe/graph-view" element={<GraphView />} />
             <Route path="/wbe/pipeline" element={<Pipeline />} />
+            <Route path="/wbe/treeview" element={<LinkManager />} />
             <Route path="/wbe" element={<LinkManager />} />
           </Route>
 
@@ -85,6 +86,7 @@ function App() {
             <Route path="/details/:id" element={<LinkDetails />} />
             <Route path="/graph-view" element={<GraphView />} />
             <Route path="/pipeline" element={<Pipeline />} />
+            <Route path="/treeview" element={<LinkManager />} />
             <Route path="/" element={<LinkManager />} />
           </Route>
 
