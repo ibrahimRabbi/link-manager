@@ -1,5 +1,5 @@
-import { Button, FlexboxGrid, Input, InputGroup, Loader } from 'rsuite';
-import React, { useState, useContext, useEffect } from 'react';
+import { Button, FlexboxGrid, Form, IconButton, Loader, Schema, Stack } from 'rsuite';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -18,6 +18,8 @@ import { darkBgColor, lightBgColor } from '../../App';
 import Swal from 'sweetalert2';
 import Notification from '../Shared/Notification';
 import LinksDataTable from '../Shared/UseDataTable/LinksDataTable';
+import LinksTreeDataTable from '../Shared/UseDataTable/LinksTreeDataTable';
+import TextField from '../AdminDasComponents/TextField';
 
 const { tableContainer } = styles;
 
@@ -29,7 +31,12 @@ const headerData = [
   { key: 'actions', header: 'Actions' },
 ];
 
-const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
+const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
+
+const { StringType } = Schema.Types;
+const model = Schema.Model({
+  search_term: StringType(),
+});
 
 const LinkManager = () => {
   const { sourceDataList, linksData, isLoading, isLinkDeleting, configuration_aware } =
@@ -38,16 +45,18 @@ const LinkManager = () => {
   const { linksStream, refreshData, isDark } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [tableFilterValue, setTableFilterValue] = useState('');
-  const [displayTableData, setDisplayTableData] = useState([]);
+  const [searchValue, setSearchValue] = useState({ search_term: '' });
+  const [isLinkSearching, setIsLinkSearching] = useState(false);
+  const authCtx = useContext(AuthContext);
   const location = useLocation();
   const isWbe = location.pathname?.includes('wbe');
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const authCtx = useContext(AuthContext);
   const [searchParams] = useSearchParams();
   const uri = searchParams.get('uri');
   const sourceFileURL = uri || sourceDataList?.uri;
+  const searchRef = useRef();
+
   const [notificationType, setNotificationType] = React.useState('');
   const [notificationMessage, setNotificationMessage] = React.useState('');
   const showNotification = (type, message) => {
@@ -83,19 +92,27 @@ const LinkManager = () => {
 
       // Get all links
       if (sourceFileURL) {
+        // eslint-disable-next-line max-len
+        const getLinkUrl = `${apiURL}/resource?stream=${stream}&resource_id=${encodeURIComponent(
+          sourceFileURL,
+        )}&page=${currPage}&per_page=${pageSize}&search_term=${searchValue.search_term}`;
         dispatch(
           fetchLinksData({
-            // eslint-disable-next-line max-len
-            url: `${apiURL}?stream=${stream}&resource_id=${encodeURIComponent(
-              sourceFileURL,
-            )}&page=${currPage}&per_page=${pageSize}`,
+            url: getLinkUrl,
             token: authCtx.token,
             showNotification: showNotification,
           }),
         );
       }
     })();
-  }, [linksStream, pageSize, currPage, isLinkDeleting, refreshData]);
+  }, [linksStream, pageSize, currPage, isLinkDeleting, isLinkSearching, refreshData]);
+
+  // handle search links
+  const handleSearchLinks = () => {
+    if (searchValue.search_term) {
+      setIsLinkSearching((prevValue) => !prevValue);
+    }
+  };
 
   // handle delete link
   const handleDeleteLink = (value) => {
@@ -110,7 +127,6 @@ const LinkManager = () => {
       reverseButtons: true,
     }).then(async (result) => {
       if (result.isConfirmed) {
-        // eslint-disable-next-line max-len
         const deleteURl = `${apiURL}?source_id=${encodeURIComponent(
           sourceFileURL,
         )}&target_id=${encodeURIComponent(value.id)}&link_type=${value?.link_type}`;
@@ -125,27 +141,8 @@ const LinkManager = () => {
     });
   };
 
-  // filter table
-  useEffect(() => {
-    if (tableFilterValue) {
-      const filteredData = linksData?.items?.filter((row) => {
-        // eslint-disable-next-line max-len
-        return Object.values(row)
-          ?.toString()
-          ?.toLowerCase()
-          .includes(tableFilterValue?.toLowerCase());
-      });
-      setDisplayTableData(filteredData);
-    }
-  }, [tableFilterValue]);
-
   const tableProps = {
-    rowData:
-      tableFilterValue === ''
-        ? linksData?.items?.length
-          ? linksData?.items
-          : []
-        : displayTableData,
+    rowData: linksData?.items?.length ? linksData?.items : [],
     headerData,
     handlePagination,
     handleChangeLimit,
@@ -157,6 +154,9 @@ const LinkManager = () => {
     page: linksData?.page,
   };
 
+  // eslint-disable-next-line max-len
+  const isTreeView =
+    location?.pathname === '/treeview' || location?.pathname === '/wbe/treeview';
   return (
     <div>
       <SourceSection />
@@ -178,29 +178,62 @@ const LinkManager = () => {
               <FlexboxGrid
                 justify="space-between"
                 style={{
+                  display: 'flex',
+                  alignItems: 'center',
                   backgroundColor: isDark === 'dark' ? darkBgColor : lightBgColor,
                   padding: '10px 0',
                 }}
               >
                 <FlexboxGrid.Item>
-                  <InputGroup size="lg" inside style={{ width: '400px' }}>
-                    <Input
-                      placeholder={'Search Links'}
-                      type="text"
-                      value={tableFilterValue}
-                      onChange={(v) => setTableFilterValue(v)}
-                    />
+                  <Form
+                    fluid
+                    ref={searchRef}
+                    onChange={setSearchValue}
+                    formValue={searchValue}
+                    model={model}
+                  >
+                    <Stack style={{ position: 'relative' }}>
+                      <TextField
+                        style={{
+                          width: '400px',
+                          borderRadius: '6px 0 0 6px',
+                          height: '36px',
+                        }}
+                        placeholder="Search Links"
+                        type="text"
+                        name="search_term"
+                      />
 
-                    {tableFilterValue ? (
-                      <InputGroup.Button onClick={() => setTableFilterValue('')}>
-                        <CloseIcon />
-                      </InputGroup.Button>
-                    ) : (
-                      <InputGroup.Button>
-                        <SearchIcon />
-                      </InputGroup.Button>
-                    )}
-                  </InputGroup>
+                      {searchValue?.search_term && (
+                        <IconButton
+                          onClick={() => {
+                            setSearchValue({ search_term: '' });
+                            setIsLinkSearching((prevValue) => !prevValue);
+                          }}
+                          icon={<CloseIcon />}
+                          style={{
+                            position: 'absolute',
+                            top: '1px',
+                            bottom: '1px',
+                            right: '91px',
+                            borderRadius: '0',
+                          }}
+                        />
+                      )}
+
+                      <Button
+                        color="blue"
+                        appearance="primary"
+                        size="md"
+                        style={{ borderRadius: '0 6px 6px 0' }}
+                        type="submit"
+                        startIcon={<SearchIcon style={{ marginLeft: '-5px' }} />}
+                        onClick={handleSearchLinks}
+                      >
+                        Search
+                      </Button>
+                    </Stack>
+                  </Form>
                 </FlexboxGrid.Item>
 
                 <FlexboxGrid.Item>
@@ -214,7 +247,7 @@ const LinkManager = () => {
                       }
                     >
                       {' '}
-                      Create Link
+                      Create Link{' '}
                     </Button>
 
                     <Button
@@ -227,6 +260,12 @@ const LinkManager = () => {
                   </div>
                 </FlexboxGrid.Item>
               </FlexboxGrid>
+
+              {isTreeView ? (
+                <LinksTreeDataTable props={tableProps} />
+              ) : (
+                <LinksDataTable props={tableProps} />
+              )}
               {notificationType && notificationMessage && (
                 <Notification
                   type={notificationType}
