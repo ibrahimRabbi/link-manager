@@ -20,6 +20,7 @@ import { useRef } from 'react';
 import SelectField from '../SelectField.jsx';
 import CustomSelect from '../CustomSelect.jsx';
 import Swal from 'sweetalert2';
+import Notification from '../../Shared/Notification';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -76,7 +77,12 @@ const Pipelines = () => {
     is_polling: false,
     polling_period: 0,
   });
-
+  const [notificationType, setNotificationType] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const showNotification = (type, message) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+  };
   const pipelineFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
@@ -108,6 +114,7 @@ const Pipelines = () => {
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
+          showNotification: showNotification,
         }),
       );
     } else {
@@ -118,6 +125,7 @@ const Pipelines = () => {
           token: authCtx.token,
           bodyData: formValue,
           message: 'pipeline',
+          showNotification: showNotification,
         }),
       );
     }
@@ -141,7 +149,14 @@ const Pipelines = () => {
     dispatch(handleCurrPageTitle('Pipelines'));
 
     const getUrl = `${lmApiUrl}/pipelines?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchPipelines({ url: getUrl, token: authCtx.token, authCtx: authCtx }));
+    dispatch(
+      fetchPipelines({
+        url: getUrl,
+        token: authCtx.token,
+        authCtx: authCtx,
+        showNotification: showNotification,
+      }),
+    );
   }, [
     isPipelineCreated,
     isPipelineUpdated,
@@ -165,7 +180,13 @@ const Pipelines = () => {
     }).then((value) => {
       if (value.isConfirmed) {
         const deleteUrl = `${lmApiUrl}/pipelines/${data?.id}`;
-        dispatch(fetchDeletePipeline({ url: deleteUrl, token: authCtx.token }));
+        dispatch(
+          fetchDeletePipeline({
+            url: deleteUrl,
+            token: authCtx.token,
+            showNotification: showNotification,
+          }),
+        );
       }
     });
   };
@@ -275,6 +296,14 @@ const Pipelines = () => {
           vertical
           content="Loading"
           style={{ zIndex: '10' }}
+        />
+      )}
+      {notificationType && notificationMessage && (
+        <Notification
+          type={notificationType}
+          message={notificationMessage}
+          setNotificationType={setNotificationType}
+          setNotificationMessage={setNotificationMessage}
         />
       )}
       <AdminDataTable props={tableProps} />

@@ -21,6 +21,7 @@ import UseSelectPicker from '../Shared/UseDropdown/UseSelectPicker';
 import { FlexboxGrid, Col, Button } from 'rsuite';
 import SourceSection from '../SourceSection';
 import UseLoader from '../Shared/UseLoader';
+import Notification from '../Shared/Notification';
 const { targetContainer, targetIframe, targetBtnContainer, cancelMargin } = styles;
 
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
@@ -55,6 +56,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const location = useLocation();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
+  const [notificationType, setNotificationType] = React.useState('');
+  const [notificationMessage, setNotificationMessage] = React.useState('');
+  const showNotification = (type, message) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+  };
 
   // Add if and condition to check if app is Jira
 
@@ -338,6 +345,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         token: authCtx.token,
         bodyData: linkObj,
         message: 'link',
+        showNotification: showNotification,
       }),
     );
   };
@@ -436,6 +444,14 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           )}
 
           {linkCreateLoading && <UseLoader />}
+          {notificationType && notificationMessage && (
+            <Notification
+              type={notificationType}
+              message={notificationMessage}
+              setNotificationType={setNotificationType}
+              setNotificationMessage={setNotificationMessage}
+            />
+          )}
           {/* --- Target Selection dialog ---  */}
 
           {(withConfigAware || withoutConfigAware) && (
