@@ -176,7 +176,7 @@ export const oslcResourceSlice = createSlice({
                 linkName = linkName.split('#')[1];
               }
             }
-            if (linkName && linkUrl && title) {
+            if (linkName && linkUrl) {
               const newLink = {
                 url: linkUrl,
                 value: linkName,
