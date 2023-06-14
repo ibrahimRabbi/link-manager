@@ -7,8 +7,8 @@ import putAPI from '../apiRequests/putAPI';
 // Fetch get all associations
 export const fetchAssociations = createAsyncThunk(
   'associations/fetchAssociations',
-  async ({ url, token }) => {
-    const response = getAPI({ url, token });
+  async ({ url, token, showNotification }) => {
+    const response = getAPI({ url, token, showNotification });
     return response;
   },
 );
@@ -16,8 +16,8 @@ export const fetchAssociations = createAsyncThunk(
 // Create New Association
 export const fetchCreateAssoc = createAsyncThunk(
   'associations/fetchCreateAssoc',
-  async ({ url, token, bodyData, reset }) => {
-    const res = await postAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData, reset, showNotification }) => {
+    const res = await postAPI({ url, token, bodyData, reset, showNotification });
     return res;
   },
 );
@@ -25,8 +25,8 @@ export const fetchCreateAssoc = createAsyncThunk(
 // Update Association
 export const fetchUpdateAssoc = createAsyncThunk(
   'associations/fetchUpdateAssoc',
-  async ({ url, token, bodyData, reset }) => {
-    const res = putAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData, reset, showNotification }) => {
+    const res = putAPI({ url, token, bodyData, reset, showNotification });
     return res;
   },
 );
@@ -34,8 +34,8 @@ export const fetchUpdateAssoc = createAsyncThunk(
 // Delete Association
 export const fetchDeleteAssoc = createAsyncThunk(
   'associations/fetchDeleteAssoc',
-  async ({ url, token }) => {
-    const response = await deleteAPI({ url, token });
+  async ({ url, token, showNotification }) => {
+    const response = await deleteAPI({ url, token, showNotification });
     return { ...response, message: 'deleted Response' };
   },
 );

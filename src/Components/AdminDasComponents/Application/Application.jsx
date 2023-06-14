@@ -31,6 +31,7 @@ import {
 import { fetchApplicationPublisherIcon } from '../../../Redux/slices/applicationSlice';
 import Oauth2Modal from '../../Oauth2Modal/Oauth2Modal';
 import { handleIsOauth2ModalOpen } from '../../../Redux/slices/oauth2ModalSlice';
+import Notification from '../../Shared/Notification';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -103,6 +104,12 @@ const Application = () => {
     organization_id: '',
     description: '',
   });
+  const [notificationType, setNotificationType] = React.useState('');
+  const [notificationMessage, setNotificationMessage] = React.useState('');
+  const showNotification = (type, message) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+  };
   const appFormRef = useRef();
   const iframeRef = useRef(null);
   const oauth2ModalRef = useRef();
@@ -119,6 +126,7 @@ const Application = () => {
         url: getUrl,
         token: authCtx.token,
         stateName: 'allApplications',
+        showNotification: showNotification,
       }),
     );
   }, [
@@ -222,6 +230,7 @@ const Application = () => {
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
+          showNotification: showNotification,
         }),
       );
       setOpenModal(false);
@@ -241,6 +250,7 @@ const Application = () => {
           token: authCtx.token,
           bodyData: { ...formValue, scopes, response_types, grant_types, redirect_uris },
           sendMsg: false,
+          showNotification: showNotification,
         }),
       )
         .then((appRes) => {
@@ -265,12 +275,6 @@ const Application = () => {
                 appRes.payload?.response?.oauth_client_authorize_uri + '?' + query;
               setAuthorizeFrameSrc(authorizeUri);
             }
-          } else {
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops...',
-              text: 'Something went wrong!',
-            });
           }
         })
         .catch((error) => console.error(error));
@@ -359,7 +363,13 @@ const Application = () => {
     }).then((value) => {
       if (value.isConfirmed) {
         const deleteUrl = `${lmApiUrl}/application/${data?.id}`;
-        dispatch(fetchDeleteData({ url: deleteUrl, token: authCtx.token }));
+        dispatch(
+          fetchDeleteData({
+            url: deleteUrl,
+            token: authCtx.token,
+            showNotification: showNotification,
+          }),
+        );
       }
     });
   };
@@ -556,7 +566,14 @@ const Application = () => {
       <Oauth2Modal ref={oauth2ModalRef} />
 
       {isCrudLoading && <UseLoader />}
-
+      {notificationType && notificationMessage && (
+        <Notification
+          type={notificationType}
+          message={notificationMessage}
+          setNotificationType={setNotificationType}
+          setNotificationMessage={setNotificationMessage}
+        />
+      )}
       <AdminDataTable props={tableProps} />
     </div>
   );

@@ -6,8 +6,8 @@ import deleteAPI from '../apiRequests/deleteAPI';
 // Create New link
 export const fetchCreateLink = createAsyncThunk(
   'links/fetchCreateLink',
-  async ({ url, token, bodyData, message }) => {
-    const response = postAPI({ url, token, bodyData, message });
+  async ({ url, token, bodyData, message, showNotification }) => {
+    const response = postAPI({ url, token, bodyData, message, showNotification });
     return response;
   },
 );
@@ -15,8 +15,8 @@ export const fetchCreateLink = createAsyncThunk(
 // Fetch all created links for Link manager table
 export const fetchLinksData = createAsyncThunk(
   'links/fetchLinksData',
-  async ({ url, token }) => {
-    const response = getAPI({ url, token });
+  async ({ url, token, showNotification }) => {
+    const response = getAPI({ url, token, showNotification });
     return response;
   },
 );
@@ -24,8 +24,8 @@ export const fetchLinksData = createAsyncThunk(
 // Fetch delete Link from manager table
 export const fetchDeleteLink = createAsyncThunk(
   'links/fetchDeleteLink',
-  async ({ url, token }) => {
-    const response = await deleteAPI({ url, token });
+  async ({ url, token, showNotification }) => {
+    const response = await deleteAPI({ url, token, showNotification });
     return response;
   },
 );
