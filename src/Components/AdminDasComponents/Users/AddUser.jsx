@@ -27,13 +27,17 @@ const AddUser = ({
   formValue,
   setFormValue,
   isAdminEditing,
+  setNotificationType,
+  setNotificationMessage,
 }) => {
   const [formError, setFormError] = React.useState({});
-
   const userFormRef = React.useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
-
+  const showNotification = (type, message) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+  };
   // handle create and update form submit
   const handleSubmit = () => {
     if (!userFormRef.current.check()) {
@@ -46,6 +50,7 @@ const AddUser = ({
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
+          showNotification: showNotification,
         }),
       );
     } else {
@@ -56,6 +61,7 @@ const AddUser = ({
           token: authCtx.token,
           bodyData: { ...formValue, enabled: true },
           message: 'user',
+          showNotification: showNotification,
         }),
       );
     }

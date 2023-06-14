@@ -19,6 +19,7 @@ import {
   fetchGetData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
+import Notification from '../../Shared/Notification';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -70,7 +71,12 @@ const Organization = () => {
     url: '',
     description: '',
   });
-
+  const [notificationType, setNotificationType] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const showNotification = (type, message) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+  };
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
   const orgFormRef = React.useRef();
@@ -89,6 +95,7 @@ const Organization = () => {
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
+          showNotification: showNotification,
         }),
       );
     }
@@ -101,6 +108,7 @@ const Organization = () => {
           token: authCtx.token,
           bodyData: formValue,
           message: 'organization',
+          showNotification: showNotification,
         }),
       );
     }
@@ -143,6 +151,7 @@ const Organization = () => {
         url: getUrl,
         token: authCtx.token,
         stateName: 'allOrganizations',
+        showNotification: showNotification,
       }),
     );
   }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
@@ -165,6 +174,7 @@ const Organization = () => {
           fetchDeleteData({
             url: deleteUrl,
             token: authCtx.token,
+            showNotification: showNotification,
           }),
         );
       }
@@ -241,6 +251,14 @@ const Organization = () => {
       </AddNewModal>
 
       {isCrudLoading && <UseLoader />}
+      {notificationType && notificationMessage && (
+        <Notification
+          type={notificationType}
+          message={notificationMessage}
+          setNotificationType={setNotificationType}
+          setNotificationMessage={setNotificationMessage}
+        />
+      )}
       <AdminDataTable props={tableProps} />
     </div>
   );
