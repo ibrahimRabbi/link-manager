@@ -8,7 +8,6 @@ import { AiFillCheckCircle } from 'react-icons/ai';
 import { useSelector } from 'react-redux';
 import { darkColor, lightBgColor } from '../../../App';
 const { tableContainerDiv, validIcon, statusIcon } = styles;
-import treeData from './treeData';
 
 // OSLC API URLs
 const jiraURL = `${process.env.REACT_APP_JIRA_DIALOG_URL}`;
@@ -60,7 +59,6 @@ const LinksTreeDataTable = ({ props }) => {
   };
 
   const StatusCell = ({ dataKey, ...props }) => {
-    console.log(props);
     return (
       <Cell {...props} style={{ fontSize: '17px' }}>
         {' '}
@@ -75,8 +73,7 @@ const LinksTreeDataTable = ({ props }) => {
   };
 
   // target name table cell control
-  const NameCell = ({ rowData, dataKey, ...props }) => {
-    const lines = rowData?.content_lines ? rowData?.content_lines?.split('L') : '';
+  const NameCell = ({ rowData, ...props }) => {
     // OSLC API URL Receiving conditionally
     const oslcObj = { URL: '' };
     if (
@@ -94,19 +91,20 @@ const LinksTreeDataTable = ({ props }) => {
       oslcObj['URL'] = codebeamerURL;
     }
 
+    const providerId = rowData?.provider_id ? rowData?.provider_id : '';
+    const type = rowData?.Type ? rowData?.Type : '';
+    const resourceId = rowData?.resource_id ? rowData?.resource_id : '';
+    const branch = rowData?.branch_name ? rowData?.branch_name : '';
+    const content = rowData?.content ? rowData?.content : '';
+    const selectedLine = rowData?.selected_lines ? rowData?.selected_lines : '';
+    const koatlPath = rowData?.koatl_path ? rowData?.koatl_path : '';
+
+    // eslint-disable-next-line max-len
+    const uiPreviewURL = `${oslcObj?.URL}/oslc/provider/${providerId}/resources/${type}/${resourceId}/smallPreview?branch_name=${branch}&file_content=${content}&file_lines=${selectedLine}&file_path=${koatlPath}`;
+
     const speaker = (
       <Popover title="Preview">
-        <iframe
-          src={`${oslcObj?.URL}/oslc/provider/${rowData?.provider_id}/resources/${
-            rowData?.Type
-          }/${rowData?.resource_id}/smallPreview?branch_name=${
-            rowData?.branch_name
-          }&file_content=${rowData?.content}&file_lines=${
-            lines ? lines[1] + lines[2] : ''
-          }&file_path=${rowData?.koatl_path}`}
-          width="400"
-          height="250"
-        ></iframe>
+        <iframe src={uiPreviewURL} width="450" height="300" />
       </Popover>
     );
 
@@ -121,7 +119,7 @@ const LinksTreeDataTable = ({ props }) => {
           delayClose={800}
         >
           <a href={rowData?.id} target="_blank" rel="noopener noreferrer">
-            {/* {rowData?.content_lines
+            {rowData?.content_lines
               ? rowData?.name?.length > 15
                 ? rowData?.name?.slice(0, 15 - 1) +
                   '...' +
@@ -129,8 +127,7 @@ const LinksTreeDataTable = ({ props }) => {
                   rowData?.content_lines +
                   ']'
                 : rowData?.name + ' [' + rowData?.content_lines + ']'
-              : rowData?.name} */}
-            {rowData[dataKey]}
+              : rowData?.name}
           </a>
         </Whisper>
       </Cell>
@@ -141,21 +138,12 @@ const LinksTreeDataTable = ({ props }) => {
     <>
       <div className={tableContainerDiv}>
         <Table
-          data={treeData}
+          data={props?.rowData}
           autoHeight
           bordered
           headerHeight={50}
           isTree
-          rowKey={'id'}
-          onExpandChange={(isOpen, rowData) => {
-            console.log(isOpen, rowData);
-          }}
-          //   renderTreeToggle={(icon, rowData) => {
-          //     if (rowData.children && rowData.children.length === 0) {
-          //       return <SpinnerIcon spin />;
-          //     }
-          //     return icon;
-          //   }}
+          rowKey={'unique_node_id'}
         >
           <Column width={150} flexGrow={1} fullText>
             <HeaderCell>
@@ -175,7 +163,7 @@ const LinksTreeDataTable = ({ props }) => {
             <HeaderCell>
               <h5>Target</h5>
             </HeaderCell>
-            <NameCell dataKey="labelName" />
+            <NameCell dataKey="name" />
           </Column>
 
           <Column width={100} align="center">

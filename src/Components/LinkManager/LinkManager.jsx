@@ -85,13 +85,10 @@ const LinkManager = () => {
 
       // Get all links
       if (sourceFileURL) {
-        const getLinkUrl =
-          // eslint-disable-next-line max-len
-          `${apiURL}/resource?stream=${stream}&resource_id=${encodeURIComponent(
-            sourceFileURL,
-          )}&page=${currPage}&per_page=${pageSize}&search_term=${
-            searchValue.search_term
-          }`;
+        // eslint-disable-next-line max-len
+        const getLinkUrl = `${apiURL}/resource?stream=${stream}&resource_id=${encodeURIComponent(
+          sourceFileURL,
+        )}&page=${currPage}&per_page=${pageSize}&search_term=${searchValue.search_term}`;
         dispatch(
           fetchLinksData({
             url: getLinkUrl,
@@ -122,7 +119,6 @@ const LinkManager = () => {
       reverseButtons: true,
     }).then(async (result) => {
       if (result.isConfirmed) {
-        // eslint-disable-next-line max-len
         const deleteURl = `${apiURL}?source_id=${encodeURIComponent(
           sourceFileURL,
         )}&target_id=${encodeURIComponent(value.id)}&link_type=${value?.link_type}`;
@@ -242,7 +238,7 @@ const LinkManager = () => {
                       }
                     >
                       {' '}
-                      Create Link
+                      Create Link{' '}
                     </Button>
 
                     <Button
