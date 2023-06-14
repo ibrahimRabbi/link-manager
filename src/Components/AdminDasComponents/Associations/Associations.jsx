@@ -75,7 +75,7 @@ const Associations = () => {
   } = useSelector((state) => state.associations);
   const {
     oslcCatalogResponse,
-    // oslcServiceProviderResponse,
+    isOslcResourceLoading,
     oslcCatalogUrls,
     oslcResourceFailed,
     oslcUnauthorizedUser,
@@ -83,11 +83,14 @@ const Associations = () => {
   } = useSelector((state) => state.oslcResources);
   const { crudData, isCrudLoading } = useSelector((state) => state.crud);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
+
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [editData, setEditData] = useState({});
   const [selectedAppData, setSelectedAppData] = useState({});
   const [formError, setFormError] = useState({});
+  const [resourceDropdownResponse, setResourceDropdownResponse] = useState(null);
+  const [isAuthorizeSuccess, setIsAuthorizeSuccess] = useState(null);
   const [formValue, setFormValue] = useState({
     organization_id: '',
     project_id: '',
@@ -188,6 +191,8 @@ const Associations = () => {
   const handleResetForm = () => {
     setEditData({});
     setSelectedAppData({});
+    setResourceDropdownResponse(null);
+    setIsAuthorizeSuccess(false);
     setFormValue({
       organization_id: '',
       project_id: '',
@@ -205,28 +210,37 @@ const Associations = () => {
     dispatch(crudActions.removeCrudParameter('consumerToken'));
   };
 
-  useEffect(() => {
+  // get oslc resources
+  useEffect(async () => {
+    let ignore = false;
+    setResourceDropdownResponse(null);
     if (oslcCatalogUrls && oslcCatalogUrls[ROOTSERVICES_CATALOG_TYPES[0]]) {
       dispatch(
         fetchOslcResource({
           url: oslcCatalogUrls[ROOTSERVICES_CATALOG_TYPES[0]],
           token: 'Bearer ' + crudData?.consumerToken?.access_token,
         }),
-      );
+      ).then((res) => {
+        if (!ignore) setResourceDropdownResponse(res.payload);
+      });
     }
+
+    return () => {
+      ignore = true;
+    };
   }, [oslcCatalogUrls]);
 
   useEffect(() => {
-    if (oslcResourceFailed && oslcUnauthorizedUser) {
-      if (oauth2ModalRef.current && oauth2ModalRef.current.verifyAndOpenModal) {
+    if (oslcResourceFailed && oslcUnauthorizedUser && oauth2ModalRef.current) {
+      if (oauth2ModalRef.current.verifyAndOpenModal) {
         oauth2ModalRef.current?.verifyAndOpenModal(
           selectedAppData,
           selectedAppData?.id,
           true,
         );
       }
-    } else if (oslcResourceFailed && oslcMissingConsumerToken) {
-      if (oauth2ModalRef.current && oauth2ModalRef.current.verifyAndOpenModal) {
+    } else if (oslcResourceFailed && oslcMissingConsumerToken && oauth2ModalRef.current) {
+      if (oauth2ModalRef.current?.verifyAndOpenModal) {
         oauth2ModalRef.current?.verifyAndOpenModal(selectedAppData, selectedAppData?.id);
       }
     }
@@ -319,7 +333,8 @@ const Associations = () => {
 
   // control oauth2 modal
   const handleRootServiceUrlChange = (value) => {
-    // dispatch(actions.resetOslcServiceProviderCatalogResponse());
+    dispatch(actions.resetOslcServiceProviderCatalogResponse());
+    if (resourceDropdownResponse) setResourceDropdownResponse(null);
     if (value) {
       const selectedURL = JSON.parse(value);
       setSelectedAppData(selectedURL);
@@ -330,9 +345,10 @@ const Associations = () => {
     }
   };
 
-  const fetchConsumerToken = async (label) => {
+  // get consumer token from lm API
+  const fetchConsumerToken = (label) => {
     if (label) {
-      await dispatch(
+      dispatch(
         fetchGetData({
           url: `${lmApiUrl}/application/consumer-token/${label}`,
           token: authCtx.token,
@@ -341,6 +357,13 @@ const Associations = () => {
       );
     }
   };
+
+  // after authorized the oslc api consumer token is loading
+  useEffect(() => {
+    fetchConsumerToken(selectedAppData?.name);
+    dispatch(handleIsOauth2ModalOpen(false));
+  }, [isAuthorizeSuccess]);
+
   useEffect(() => {
     // eslint-disable-next-line max-len
     if (crudData?.consumerToken?.access_token && selectedAppData?.id) {
@@ -351,8 +374,8 @@ const Associations = () => {
     }
   }, [crudData?.consumerToken?.access_token, selectedAppData]);
 
+  // Call function of Oauth2Modal
   const handleOauth2Modal = () => {
-    // Call function of Oauth2Modal
     if (oauth2ModalRef.current && oauth2ModalRef.current?.verifyAndOpenModal) {
       oauth2ModalRef.current?.verifyAndOpenModal(selectedAppData, selectedAppData?.id);
     }
@@ -367,7 +390,7 @@ const Associations = () => {
         if (message.toString()?.startsWith('consumer-token-info')) {
           const response = JSON.parse(message?.substr('consumer-token-info:'?.length));
           if (response?.consumerStatus === 'success') {
-            dispatch(handleIsOauth2ModalOpen(false));
+            setIsAuthorizeSuccess(true);
           }
         }
       }
@@ -441,7 +464,7 @@ const Associations = () => {
                   </FlexboxGrid.Item>
                 ) : (
                   <>
-                    {crudData?.consumerToken?.access_token ? (
+                    {crudData?.consumerToken?.access_token && resourceDropdownResponse ? (
                       <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
                         <SelectField
                           size="lg"
@@ -458,9 +481,14 @@ const Associations = () => {
                           reqText="Resource container is required"
                         />
                       </FlexboxGrid.Item>
+                    ) : isOslcResourceLoading ? (
+                      <FlexboxGrid.Item colspan={24}>
+                        <UseLoader />
+                      </FlexboxGrid.Item>
                     ) : (
                       <p style={{ fontSize: '17px', color: '#eb9d17', marginTop: '5px' }}>
-                        Please{' '}
+                        {' '}
+                        Please
                         <span
                           style={{
                             color: 'blue',
@@ -469,8 +497,9 @@ const Associations = () => {
                           }}
                           onClick={handleOauth2Modal}
                         >
-                          authorize
-                        </span>{' '}
+                          {' '}
+                          authorize{' '}
+                        </span>
                         this application to add integration.
                       </p>
                     )}

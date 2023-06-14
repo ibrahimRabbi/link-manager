@@ -47,6 +47,10 @@ const initialState = {
   isLinkTypeUpdated: false,
   isLinkTypeDeleted: false,
   isLinkTypeLoading: false,
+
+  // states for form data
+  selectedLinkTypeCreationMethod: false,
+  applicationType: null,
 };
 
 export const linkTypeSlice = createSlice({
@@ -54,7 +58,18 @@ export const linkTypeSlice = createSlice({
   initialState,
 
   reducers: {
-    //
+    handleApplicationType: (state, { payload }) => {
+      state.applicationType = payload;
+    },
+    resetApplicationType: (state) => {
+      state.applicationType = null;
+    },
+    handleSelectedLinkTypeCreationMethod: (state, { payload }) => {
+      state.selectedLinkTypeCreationMethod = payload;
+    },
+    resetSelectedLinkTypeCreationMethod: (state) => {
+      state.selectedLinkTypeCreationMethod = false;
+    },
   },
   //----------------------\\
   extraReducers: (builder) => {
@@ -124,6 +139,4 @@ export const linkTypeSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-// export const {  } = applicationSlice.actions;
-
-export default linkTypeSlice.reducer;
+export const { actions, reducer } = linkTypeSlice;

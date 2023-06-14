@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Modal, Button } from 'rsuite';
 import { handleIsAddNewModal, handleIsAdminEditing } from '../../Redux/slices/navSlice';
 
-const AddNewModal = ({ children, handleSubmit, title, handleReset }) => {
+const AddNewModal = ({ children, handleSubmit, title, handleReset, size = null }) => {
   const { isAddNewModalOpen, isAdminEditing } = useSelector((state) => state.nav);
   const dispatch = useDispatch();
 
@@ -18,7 +18,7 @@ const AddNewModal = ({ children, handleSubmit, title, handleReset }) => {
   };
 
   return (
-    <Modal open={isAddNewModalOpen} size="md" onClose={handleClose}>
+    <Modal open={isAddNewModalOpen} size={size ? size : 'md'} onClose={handleClose}>
       <Modal.Header>
         <Modal.Title className="adminModalTitle">{title}</Modal.Title>
       </Modal.Header>

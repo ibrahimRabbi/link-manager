@@ -3,7 +3,10 @@ import { Button, Modal } from 'rsuite';
 import { useDispatch, useSelector } from 'react-redux';
 import { handleIsOauth2ModalOpen } from '../../Redux/slices/oauth2ModalSlice.jsx';
 
-import { fetchOslcResource } from '../../Redux/slices/oslcResourcesSlice.jsx';
+import {
+  actions as oslcActions,
+  fetchOslcResource,
+} from '../../Redux/slices/oslcResourcesSlice.jsx';
 
 // eslint-disable-next-line react/display-name
 const Oauth2Modal = forwardRef((props, ref) => {
@@ -15,8 +18,10 @@ const Oauth2Modal = forwardRef((props, ref) => {
   const { userStatusUrl } = useSelector((state) => state.oslcResources);
 
   const verifyAndOpenModal = (payload, selectedApplication, userStatus = false) => {
-    const oauth2AppData = payload?.oauth2_application[0];
-    const appData = payload;
+    let appData = payload;
+    if (typeof appData === 'string') {
+      appData = JSON.parse(appData);
+    }
     let authUrl = '';
     if (userStatus) {
       //Request OSLC Rootservices to get the URL to check the user status
@@ -28,6 +33,7 @@ const Oauth2Modal = forwardRef((props, ref) => {
       );
       authUrl = userStatusUrl;
     } else if (payload && selectedApplication) {
+      const oauth2AppData = payload?.oauth2_application[0];
       setAppId(selectedApplication);
       let query = `client_id=${oauth2AppData?.client_id}&scope=${oauth2AppData?.scopes}`;
 
@@ -54,6 +60,7 @@ const Oauth2Modal = forwardRef((props, ref) => {
           receivedUrl.includes('status=ok') &&
           receivedUrl.includes('authorizedUser=true')
         ) {
+          dispatch(oslcActions.resetOslcResourceFailed());
           handleCloseModal();
         }
       }

@@ -80,10 +80,9 @@ export const associationSlice = createSlice({
       state.isAssocLoading = true;
     });
 
-    builder.addCase(fetchCreateAssoc.fulfilled, (state, { payload }) => {
+    builder.addCase(fetchCreateAssoc.fulfilled, (state) => {
       state.isAssocLoading = false;
       state.isAssocCreated = true;
-      console.log('Creating association: ', payload);
     });
 
     builder.addCase(fetchCreateAssoc.rejected, (state) => {
@@ -95,9 +94,8 @@ export const associationSlice = createSlice({
       state.isAssocLoading = true;
     });
 
-    builder.addCase(fetchUpdateAssoc.fulfilled, (state, { payload }) => {
+    builder.addCase(fetchUpdateAssoc.fulfilled, (state) => {
       state.isAssocLoading = false;
-      console.log('Updating association: ', payload);
       state.isAssocUpdated = true;
     });
 
@@ -110,10 +108,9 @@ export const associationSlice = createSlice({
       state.isAssocLoading = true;
     });
 
-    builder.addCase(fetchDeleteAssoc.fulfilled, (state, { payload }) => {
+    builder.addCase(fetchDeleteAssoc.fulfilled, (state) => {
       state.isAssocLoading = false;
       state.isAssocDeleted = true;
-      console.log('Deleting association: ', payload);
     });
 
     builder.addCase(fetchDeleteAssoc.rejected, (state) => {
