@@ -51,10 +51,10 @@ const LinkManager = () => {
   const isWbe = location.pathname?.includes('wbe');
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const searchRef = useRef(null);
   const [searchParams] = useSearchParams();
   const uri = searchParams.get('uri');
   const sourceFileURL = uri || sourceDataList?.uri;
+  const searchRef = useRef();
 
   useEffect(() => {
     dispatch(handleIsWbe(isWbe));

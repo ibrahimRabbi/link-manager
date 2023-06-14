@@ -15,7 +15,6 @@ definitions:
     VALISPACE_OSLC_API_URL: $VALISPACE_OSLC_API_URL
     CODEBEAMER_OSLC_API_URL: $CODEBEAMER_OSLC_API_URL
 
-
   steps:
     - step: &lint
         name: 'Lint'
@@ -64,10 +63,6 @@ pipelines:
 
       - step: *build
 
-      - step:
-          <<: *docker-build
-          name: 'Docker Build on Develop'
-
       # The following deployment steps will be executed for each pipeline run. To configure your steps and conditionally deploy see https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/
       - step:
           name: 'Deployment to Staging'
@@ -96,6 +91,13 @@ pipelines:
           script:
             - echo "Your deployment to production script goes here..."
 
+  tags:
+    v*.*.*:
+      - step: *build
+
+      - step:
+          <<: *docker-build
+          name: 'Docker Build on Tag'
 
 options:
   docker: true

@@ -88,7 +88,7 @@ const Associations = () => {
   const [editData, setEditData] = useState({});
   const [selectedAppData, setSelectedAppData] = useState({});
   const [formError, setFormError] = useState({});
-  const [resourceDdRes, setResourceDdRes] = useState(null);
+  const [resourceDropdownResponse, setResourceDropdownResponse] = useState(null);
   const [isAuthorizeSuccess, setIsAuthorizeSuccess] = useState(null);
   const [formValue, setFormValue] = useState({
     organization_id: '',
@@ -119,7 +119,6 @@ const Associations = () => {
 
   const getServiceProviderResources = (payload) => {
     const data = JSON.parse(payload);
-    console.log(data);
     const url = data?.value;
     const consumerToken = crudData?.consumerToken?.access_token;
 
@@ -183,7 +182,7 @@ const Associations = () => {
   const handleResetForm = () => {
     setEditData({});
     setSelectedAppData({});
-    setResourceDdRes(null);
+    setResourceDropdownResponse(null);
     setIsAuthorizeSuccess(false);
     setFormValue({
       organization_id: '',
@@ -205,7 +204,7 @@ const Associations = () => {
   // get oslc resources
   useEffect(async () => {
     let ignore = false;
-    setResourceDdRes(null);
+    setResourceDropdownResponse(null);
     if (oslcCatalogUrls && oslcCatalogUrls[ROOTSERVICES_CATALOG_TYPES[0]]) {
       dispatch(
         fetchOslcResource({
@@ -213,7 +212,7 @@ const Associations = () => {
           token: 'Bearer ' + crudData?.consumerToken?.access_token,
         }),
       ).then((res) => {
-        if (!ignore) setResourceDdRes(res.payload);
+        if (!ignore) setResourceDropdownResponse(res.payload);
       });
     }
 
@@ -314,7 +313,7 @@ const Associations = () => {
   // control oauth2 modal
   const handleRootServiceUrlChange = (value) => {
     dispatch(actions.resetOslcServiceProviderCatalogResponse());
-    if (resourceDdRes) setResourceDdRes(null);
+    if (resourceDropdownResponse) setResourceDropdownResponse(null);
     if (value) {
       const selectedURL = JSON.parse(value);
       setSelectedAppData(selectedURL);
@@ -444,7 +443,7 @@ const Associations = () => {
                   </FlexboxGrid.Item>
                 ) : (
                   <>
-                    {crudData?.consumerToken?.access_token && resourceDdRes ? (
+                    {crudData?.consumerToken?.access_token && resourceDropdownResponse ? (
                       <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
                         <SelectField
                           size="lg"
@@ -468,7 +467,7 @@ const Associations = () => {
                     ) : (
                       <p style={{ fontSize: '17px', color: '#eb9d17', marginTop: '5px' }}>
                         {' '}
-                        Please{' '}
+                        Please
                         <span
                           style={{
                             color: 'blue',
@@ -479,7 +478,7 @@ const Associations = () => {
                         >
                           {' '}
                           authorize{' '}
-                        </span>{' '}
+                        </span>
                         this application to add integration.
                       </p>
                     )}
