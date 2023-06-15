@@ -84,6 +84,17 @@ const SideNavBar = ({ isWbe }) => {
 
               <Nav.Item
                 eventKey="2"
+                active={isWbe ? pathname === '/wbe/treeview' : pathname === '/treeview'}
+                icon={<TableColumnIcon />}
+                onClick={() =>
+                  isWbe ? navigate('/wbe/treeview') : navigate('/treeview')
+                }
+              >
+                Links Treeview
+              </Nav.Item>
+
+              <Nav.Item
+                eventKey="3"
                 active={
                   isWbe ? pathname === '/wbe/graph-view' : pathname === '/graph-view'
                 }
@@ -97,7 +108,7 @@ const SideNavBar = ({ isWbe }) => {
 
               {!isWbe && (
                 <Nav.Item
-                  eventKey="3"
+                  eventKey="4"
                   active={pathname === '/admin'}
                   icon={<DashboardIcon />}
                   onClick={() => navigate('/admin')}

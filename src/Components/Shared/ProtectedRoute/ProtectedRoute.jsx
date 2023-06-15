@@ -22,6 +22,7 @@ const ProtectedRoute = ({ children }) => {
   const projectName = searchParams.get('project');
   const branch = searchParams.get('branch');
   const commit = searchParams.get('commit');
+  const logoUrl = searchParams.get('logoUrl');
 
   useEffect(() => {
     dispatch(handleIsWbe(wbePath));
@@ -39,8 +40,8 @@ const ProtectedRoute = ({ children }) => {
         origin,
         sourceType,
         appName,
+        logoUrl,
       };
-
       dispatch(handleGetSources(sources));
       sessionStorage.setItem('sourceData', JSON.stringify(sources));
     }
