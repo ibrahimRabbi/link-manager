@@ -13,10 +13,14 @@ export default async function getAPI({ url, token, message, authCtx, showNotific
         showNotification('info', message ? message : 'No content available !!');
       }
     } else {
-      if (res.status === 403) {
+      if (res.status === 401) {
+        return res.json().then((data) => {
+          showNotification('error', data.message);
+          window.location.replace('/login');
+        });
+      } else if (res.status === 403) {
         if (authCtx?.token) {
-          showNotification('info', 'You do not have permission to access');
-          // toast('You do not have permission to access');
+          showNotification('error', 'You do not have permission to access');
         } else {
           window.location.replace('/login');
         }
