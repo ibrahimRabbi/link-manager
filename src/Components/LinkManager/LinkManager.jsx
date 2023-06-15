@@ -274,7 +274,6 @@ const LinkManager = () => {
                   setNotificationMessage={setNotificationMessage}
                 />
               )}
-              <LinksDataTable props={tableProps} />
             </div>
           </div>
         </div>
