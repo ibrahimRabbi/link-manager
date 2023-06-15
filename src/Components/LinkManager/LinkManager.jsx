@@ -16,6 +16,7 @@ import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
 import { darkBgColor, lightBgColor } from '../../App';
 import Swal from 'sweetalert2';
+import Notification from '../Shared/Notification';
 import LinksDataTable from '../Shared/UseDataTable/LinksDataTable';
 import LinksTreeDataTable from '../Shared/UseDataTable/LinksTreeDataTable';
 import TextField from '../AdminDasComponents/TextField';
@@ -56,6 +57,12 @@ const LinkManager = () => {
   const sourceFileURL = uri || sourceDataList?.uri;
   const searchRef = useRef();
 
+  const [notificationType, setNotificationType] = React.useState('');
+  const [notificationMessage, setNotificationMessage] = React.useState('');
+  const showNotification = (type, message) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+  };
   useEffect(() => {
     dispatch(handleIsWbe(isWbe));
   }, [location]);
@@ -93,6 +100,7 @@ const LinkManager = () => {
           fetchLinksData({
             url: getLinkUrl,
             token: authCtx.token,
+            showNotification: showNotification,
           }),
         );
       }
@@ -126,6 +134,7 @@ const LinkManager = () => {
           fetchDeleteLink({
             url: deleteURl,
             token: authCtx.token,
+            showNotification: showNotification,
           }),
         );
       }
@@ -256,6 +265,14 @@ const LinkManager = () => {
                 <LinksTreeDataTable props={tableProps} />
               ) : (
                 <LinksDataTable props={tableProps} />
+              )}
+              {notificationType && notificationMessage && (
+                <Notification
+                  type={notificationType}
+                  message={notificationMessage}
+                  setNotificationType={setNotificationType}
+                  setNotificationMessage={setNotificationMessage}
+                />
               )}
             </div>
           </div>

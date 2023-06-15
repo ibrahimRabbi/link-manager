@@ -7,32 +7,32 @@ import { putAPIForm } from '../apiRequests/putAPI';
 // Fetch get all Pipelines
 export const fetchPipelines = createAsyncThunk(
   'pipelines/fetchPipelines',
-  async ({ url, token, authCtx }) => {
-    return getAPI({ url, token, authCtx });
+  async ({ url, token, authCtx, showNotification }) => {
+    return getAPI({ url, token, authCtx, showNotification });
   },
 );
 
 // Create New Pipeline
 export const fetchCreatePipeline = createAsyncThunk(
   'pipelines/fetchCreatePipeline',
-  async ({ url, token, bodyData }) => {
-    return postAPIForm({ url, token, bodyData });
+  async ({ url, token, bodyData, showNotification }) => {
+    return postAPIForm({ url, token, bodyData, showNotification });
   },
 );
 
 // Update Pipeline
 export const fetchUpdatePipeline = createAsyncThunk(
   'pipelines/fetchUpdatePipeline',
-  async ({ url, token, bodyData }) => {
-    return putAPIForm({ url, token, bodyData });
+  async ({ url, token, bodyData, showNotification }) => {
+    return putAPIForm({ url, token, bodyData, showNotification });
   },
 );
 
 // Delete Pipeline
 export const fetchDeletePipeline = createAsyncThunk(
   'pipelines/fetchDeletePipeline',
-  async ({ url, token }) => {
-    const response = deleteAPI({ url, token });
+  async ({ url, token, showNotification }) => {
+    const response = deleteAPI({ url, token, showNotification });
     return { ...response, message: 'deleted Response' };
   },
 );

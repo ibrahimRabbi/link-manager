@@ -28,6 +28,7 @@ import {
 } from '../../../Redux/slices/useCRUDSlice.jsx';
 import { ROOTSERVICES_CATALOG_TYPES } from '../../../Redux/slices/oslcResourcesSlice.jsx';
 import { handleIsOauth2ModalOpen } from '../../../Redux/slices/oauth2ModalSlice';
+import Notification from '../../Shared/Notification';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -96,6 +97,12 @@ const Associations = () => {
     application_id: '',
     resource_container: '',
   });
+  const [notificationType, setNotificationType] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const showNotification = (type, message) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+  };
   const associationFormRef = useRef();
   const oauth2ModalRef = useRef();
   const authCtx = useContext(AuthContext);
@@ -152,6 +159,7 @@ const Associations = () => {
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
+          showNotification: showNotification,
         }),
       );
     } else {
@@ -170,6 +178,7 @@ const Associations = () => {
           url: postUrl,
           token: authCtx.token,
           bodyData: bodyData,
+          showNotification: showNotification,
         }),
       );
     }
@@ -242,7 +251,13 @@ const Associations = () => {
     dispatch(handleCurrPageTitle('Integrations'));
 
     const getUrl = `${lmApiUrl}/association?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchAssociations({ url: getUrl, token: authCtx.token }));
+    dispatch(
+      fetchAssociations({
+        url: getUrl,
+        token: authCtx.token,
+        showNotification: showNotification,
+      }),
+    );
   }, [isAssocCreated, isAssocUpdated, isAssocDeleted, pageSize, currPage, refreshData]);
 
   // handle open add user modal
@@ -265,7 +280,13 @@ const Associations = () => {
     }).then((value) => {
       if (value.isConfirmed) {
         const deleteUrl = `${lmApiUrl}/association/${data?.id}`;
-        dispatch(fetchDeleteAssoc({ url: deleteUrl, token: authCtx.token }));
+        dispatch(
+          fetchDeleteAssoc({
+            url: deleteUrl,
+            token: authCtx.token,
+            showNotification: showNotification,
+          }),
+        );
       }
     });
   };
@@ -494,7 +515,14 @@ const Associations = () => {
       <Oauth2Modal setSelectedAppData={setSelectedAppData} ref={oauth2ModalRef} />
 
       {isAssocLoading && <UseLoader />}
-
+      {notificationType && notificationMessage && (
+        <Notification
+          type={notificationType}
+          message={notificationMessage}
+          setNotificationType={setNotificationType}
+          setNotificationMessage={setNotificationMessage}
+        />
+      )}
       <AdminDataTable props={tableProps} />
     </div>
   );
