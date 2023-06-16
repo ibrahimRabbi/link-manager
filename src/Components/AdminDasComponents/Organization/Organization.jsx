@@ -13,12 +13,6 @@ import { FlexboxGrid, Form, Schema } from 'rsuite';
 import TextField from '../TextField';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
-import {
-  fetchCreateData,
-  fetchDeleteData,
-  fetchGetData,
-  fetchUpdateData,
-} from '../../../Redux/slices/useCRUDSlice';
 import Notification from '../../Shared/Notification';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
@@ -55,13 +49,16 @@ const model = Schema.Model({
   description: StringType().isRequired('This field is required.'),
 });
 
+// get rtk query states
+import {
+  useGetApiQuery,
+  usePostApiMutation,
+  useUpdateApiMutation,
+  useDeleteApiMutation,
+} from '../../../Redux/rtk_query/fetchApi';
+
 const Organization = () => {
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
-
-  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
-    (state) => state.crud,
-  );
-
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
@@ -73,13 +70,35 @@ const Organization = () => {
   });
   const [notificationType, setNotificationType] = useState('');
   const [notificationMessage, setNotificationMessage] = useState('');
-  const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
-  };
+  // const showNotification = (type, message) => {
+  //   setNotificationType(type);
+  //   setNotificationMessage(message);
+  // };
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
   const orgFormRef = React.useRef();
+
+  // get data using rtk query
+  const {
+    data: allOrganizations,
+    isLoading: getLoading,
+    refetch: refetchOrganizations,
+  } = useGetApiQuery({
+    url: `organization?page=${currPage}&per_page=${pageSize}`,
+    token: authCtx.token,
+  });
+
+  // create data using rtk query
+  const [createOrganization, { isSuccess: createSuccess, isLoading: createLoading }] =
+    usePostApiMutation();
+
+  // update data using rtk query
+  const [updateOrganization, { isSuccess: updateSuccess, isLoading: updateLoading }] =
+    useUpdateApiMutation();
+
+  // delete data using rtk query
+  const [deleteOrganization, { isSuccess: deleteSuccess, isLoading: deleteLoading }] =
+    useDeleteApiMutation();
 
   const handleAddOrg = () => {
     // throw form validation error
@@ -90,27 +109,20 @@ const Organization = () => {
     // editing org
     else if (isAdminEditing) {
       const putUrl = `${lmApiUrl}/organization/${editData?.id}`;
-      dispatch(
-        fetchUpdateData({
-          url: putUrl,
-          token: authCtx.token,
-          bodyData: formValue,
-          showNotification: showNotification,
-        }),
-      );
+      updateOrganization({
+        url: putUrl,
+        token: authCtx.token,
+        bodyData: formValue,
+      });
     }
     // creating org
     else {
       const postUrl = `${lmApiUrl}/organization`;
-      dispatch(
-        fetchCreateData({
-          url: postUrl,
-          token: authCtx.token,
-          bodyData: formValue,
-          message: 'organization',
-          showNotification: showNotification,
-        }),
-      );
+      createOrganization({
+        url: postUrl,
+        token: authCtx.token,
+        bodyData: formValue,
+      });
     }
     dispatch(handleIsAddNewModal(false));
     if (isAdminEditing) dispatch(handleIsAdminEditing(false));
@@ -142,19 +154,11 @@ const Organization = () => {
     dispatch(handleIsAddNewModal(true));
   };
 
+  // get all organizations
   useEffect(() => {
     dispatch(handleCurrPageTitle('Organizations'));
-
-    const getUrl = `${lmApiUrl}/organization?page=${currPage}&per_page=${pageSize}`;
-    dispatch(
-      fetchGetData({
-        url: getUrl,
-        token: authCtx.token,
-        stateName: 'allOrganizations',
-        showNotification: showNotification,
-      }),
-    );
-  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
+    refetchOrganizations();
+  }, [createSuccess, updateSuccess, deleteSuccess, pageSize, currPage, refreshData]);
 
   // handle delete Org
   const handleDelete = (data) => {
@@ -170,13 +174,10 @@ const Organization = () => {
     }).then((value) => {
       if (value.isConfirmed) {
         const deleteUrl = `${lmApiUrl}/organization/${data?.id}`;
-        dispatch(
-          fetchDeleteData({
-            url: deleteUrl,
-            token: authCtx.token,
-            showNotification: showNotification,
-          }),
-        );
+        deleteOrganization({
+          url: deleteUrl,
+          token: authCtx.token,
+        });
       }
     });
   };
@@ -196,19 +197,17 @@ const Organization = () => {
   // send props in the batch action table
   const tableProps = {
     title: 'Organizations',
-    rowData: crudData?.allOrganizations?.items?.length
-      ? crudData?.allOrganizations?.items
-      : [],
+    rowData: allOrganizations ? allOrganizations?.items : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: crudData?.allOrganizations?.total_items,
-    totalPages: crudData?.allOrganizations?.total_pages,
+    totalItems: allOrganizations?.total_items,
+    totalPages: allOrganizations?.total_pages,
     pageSize,
-    page: crudData?.allOrganizations?.page,
+    page: allOrganizations?.page,
     inpPlaceholder: 'Search Organization',
   };
 
@@ -250,7 +249,8 @@ const Organization = () => {
         </div>
       </AddNewModal>
 
-      {isCrudLoading && <UseLoader />}
+      {(getLoading || createLoading || updateLoading || deleteLoading) && <UseLoader />}
+
       {notificationType && notificationMessage && (
         <Notification
           type={notificationType}
@@ -259,6 +259,7 @@ const Organization = () => {
           setNotificationMessage={setNotificationMessage}
         />
       )}
+
       <AdminDataTable props={tableProps} />
     </div>
   );

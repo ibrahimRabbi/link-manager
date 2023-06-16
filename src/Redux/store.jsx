@@ -17,6 +17,9 @@ import { reducer as oslcResourceReducer } from './slices/oslcResourcesSlice';
 import { reducer as linkTypesReducer } from './slices/linkTypeSlice';
 import oauth2ModalReducer from './slices/oauth2ModalSlice';
 import * as Sentry from '@sentry/react';
+// rtk query api
+import { setupListeners } from '@reduxjs/toolkit/query';
+import { fetchApi } from './rtk_query/fetchApi';
 
 const sentryReduxEnhancer = Sentry.createReduxEnhancer({
   // Optionally pass options listed below
@@ -57,7 +60,14 @@ const store = configureStore({
     pipelines: pipelineReducer,
     pipelinerun: pipelineRunReducer,
     oauth2Modal: oauth2ModalReducer,
+    // rtk query api path
+    [fetchApi.reducerPath]: fetchApi.reducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(fetchApi.middleware),
+
   sentryReduxEnhancer,
 });
+
+setupListeners(store.dispatch);
 export default store;

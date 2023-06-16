@@ -16,12 +16,17 @@ import UseLoader from '../../Shared/UseLoader';
 import {
   fetchCreateData,
   fetchDeleteData,
-  fetchGetData,
+  // fetchGetData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
 import SelectField from '../SelectField.jsx';
 import CustomSelect from '../CustomSelect.jsx';
 import Notification from '../../Shared/Notification';
+import {
+  useQuery,
+  // useMutation,
+  // useQueryClient,
+} from '@tanstack/react-query';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -54,9 +59,9 @@ const model = Schema.Model({
 });
 
 const Projects = () => {
-  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
-    (state) => state.crud,
-  );
+  // const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
+  //   (state) => state.crud,
+  // );
 
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
@@ -74,10 +79,29 @@ const Projects = () => {
     setNotificationType(type);
     setNotificationMessage(message);
   };
-
   const projectFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
+  const {
+    data: allProjects,
+    isLoading,
+    refetch: refetchProjects,
+  } = useQuery(['project'], fetchAllProjects);
+
+  // console.log(isLoading, data, error);
+
+  function fetchAllProjects() {
+    const getUrl = `${lmApiUrl}/project?page=${currPage}&per_page=${pageSize}`;
+    return fetch(getUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        authorization: 'Bearer ' + authCtx.token,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => data);
+  }
 
   // Pagination
   const handlePagination = (value) => {
@@ -134,16 +158,18 @@ const Projects = () => {
   useEffect(() => {
     dispatch(handleCurrPageTitle('Projects'));
 
-    const getUrl = `${lmApiUrl}/project?page=${currPage}&per_page=${pageSize}`;
-    dispatch(
-      fetchGetData({
-        url: getUrl,
-        token: authCtx.token,
-        stateName: 'allProjects',
-        showNotification: showNotification,
-      }),
-    );
-  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
+    // const getUrl = `${lmApiUrl}/project?page=${currPage}&per_page=${pageSize}`;
+
+    refetchProjects();
+    // dispatch(
+    //   fetchGetData({
+    //     url: getUrl,
+    //     token: authCtx.token,
+    //     stateName: 'allProjects',
+    //     showNotification: showNotification,
+    //   }),
+    // );
+  }, [pageSize, currPage, refreshData]);
 
   // handle open add user modal
   const handleAddNew = () => {
@@ -191,17 +217,17 @@ const Projects = () => {
   // send props in the batch action table
   const tableProps = {
     title: 'Projects',
-    rowData: crudData?.allProjects?.items?.length ? crudData?.allProjects?.items : [],
+    rowData: allProjects ? allProjects?.items : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: crudData?.allProjects?.total_items,
-    totalPages: crudData?.allProjects?.total_pages,
+    totalItems: allProjects?.total_items,
+    totalPages: allProjects?.total_pages,
     pageSize,
-    page: crudData?.allProjects?.page,
+    page: allProjects?.page,
     inpPlaceholder: 'Search Project',
   };
 
@@ -244,7 +270,7 @@ const Projects = () => {
         </Form>
       </AddNewModal>
 
-      {isCrudLoading && <UseLoader />}
+      {isLoading && <UseLoader />}
       {notificationType && notificationMessage && (
         <Notification
           type={notificationType}
