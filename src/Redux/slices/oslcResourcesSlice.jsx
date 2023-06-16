@@ -287,7 +287,6 @@ export const oslcResourceSlice = createSlice({
       if (error[0] === 'UNAUTHORIZED') {
         error[1].map((item) => {
           if (OSLC_ERROR_MESSAGE in item) {
-            // eslint-disable-next-line max-len
             if (
               item[OSLC_ERROR_MESSAGE][0]['@value'].includes('invalid_token') ||
               item[OSLC_ERROR_MESSAGE][0]['@value'].includes(
