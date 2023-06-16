@@ -63,7 +63,7 @@ const SideNavBar = ({ isWbe }) => {
           <Nav pullRight>
             <Nav.Item
               onClick={() => dispatch(handleIsSidebarOpen(!isSidebarOpen))}
-              style={{ width: '100%', paddingLeft: '17px' }}
+              style={{ width: '100%', paddingLeft: '17px', borderRadius: '0' }}
             >
               <h3>{isSidebarOpen ? <CloseIcon /> : <MenuIcon />}</h3>
             </Nav.Item>
@@ -101,6 +101,22 @@ const SideNavBar = ({ isWbe }) => {
                 icon={<ShareOutlineIcon />}
                 onClick={() =>
                   isWbe ? navigate('/wbe/graph-view') : navigate('/graph-view')
+                }
+              >
+                Graph View
+              </Nav.Item>
+
+              <Nav.Item
+                eventKey="3"
+                active={
+                  // eslint-disable-next-line max-len
+                  isWbe
+                    ? pathname === '/wbe/graph-dashboard'
+                    : pathname === '/graph-dashboard'
+                }
+                icon={<ShareOutlineIcon />}
+                onClick={() =>
+                  isWbe ? navigate('/wbe/graph-dashboard') : navigate('/graph-dashboard')
                 }
               >
                 Graph View
