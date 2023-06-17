@@ -1,11 +1,11 @@
-import { ArrowLeft } from '@carbon/icons-react';
-import { Button } from '@carbon/react';
 import React, { useEffect } from 'react';
 import { TbArrowNarrowRight } from 'react-icons/tb';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import styles from './LinkDetails.module.scss';
+import { Button } from 'rsuite';
+import { ArrowLeft } from '@rsuite/icons';
 const {
   arrowIcon,
   btnContainer,

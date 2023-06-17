@@ -1,11 +1,8 @@
-@use '@carbon/colors';
-@use '@carbon/type';
-
 .sourceContainer {
   padding: 10px 1vw;
   margin-bottom: 15px;
-  background-color: colors.$white;
-  border: 1px solid colors.$gray-30;
+  // background-color: colors.$white;
+  // border: 1px solid colors.$gray-30;
 }
 
 .sourceList {
@@ -19,26 +16,22 @@
 }
 
 .sourceList h5:first-child {
-  color: colors.$black;
   width: 120px;
 }
 
 .sourceTitle2 {
-  background-color: colors.$red-30;
   border-radius: 5px;
   padding: 0 5px;
   min-width: 40%;
 }
 
 .linkTitle2 {
-  background-color: colors.$gray-30;
   border-radius: 5px;
   padding: 0 5px;
   min-width: 40%;
 }
 
 .targetTitle2 {
-  background-color: colors.$blue-30;
   border-radius: 5px;
   padding: 0 5px;
   min-width: 40%;
@@ -46,7 +39,6 @@
 
 .sourceProp {
   width: 110px;
-  color: colors.$gray-50;
 }
 
 .circlesContainer {
@@ -65,11 +57,9 @@
   justify-content: center;
   border-radius: 50%;
   padding: 5px;
-  background-color: colors.$red-50;
 }
 
 .circle:last-child {
-  background-color: colors.$blue-50;
 }
 
 .linkTypeCenter {
@@ -77,24 +67,20 @@
   top: 25%;
   left: 35%;
   right: 40%;
-  color: colors.$black;
   font-weight: 500;
 }
 
 .circleBorder {
   flex: 1;
-  border-bottom: 5px solid colors.$black;
 }
 
 .arrowIcon {
   font-size: 50px;
-  color: colors.$black;
   margin: 0 -8px -0.5px -15px;
 }
 
 .circle p {
   text-align: center;
-  color: colors.$white;
   font-weight: 500;
   text-overflow: ellipsis;
   overflow: hidden;

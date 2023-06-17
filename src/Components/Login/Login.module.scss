@@ -1,8 +1,4 @@
-@use '@carbon/colors';
-@use '@carbon/type';
-
 .main {
-  // background-image: url('./dark_bg.jpg');
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -24,7 +20,6 @@
 }
 
 .container {
-  background-color: colors.$gray-90;
   max-width: 500px;
   margin: 0 auto;
   padding: 5vh 1vw 2vh;
@@ -32,8 +27,6 @@
 }
 
 .formContainer label {
-  color: colors.$gray-30;
-  font-size: type.type-scale(2);
 }
 
 .title {
@@ -51,6 +44,5 @@
 }
 
 .errText {
-  color: colors.$red-60;
   margin-bottom: 20px;
 }

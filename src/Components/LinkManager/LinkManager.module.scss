@@ -1,18 +1,13 @@
-@use '@carbon/colors';
-@use '@carbon/type';
-
 .resourceDdContainer {
   padding: 10px 1vw;
   margin-bottom: 15px;
   border-radius: 5px;
-  background-color: colors.$white;
   width: 45%;
 }
 
 .fileName {
   font-weight: 500;
   text-decoration: underline;
-  font-size: type.type-scale(4);
 }
 
 .fileDropdown {
@@ -26,9 +21,7 @@
 .tableContainer {
   position: relative;
   padding: 10px 0;
-  // margin-bottom: 15px;
   border-radius: 5px;
-  // box-shadow: 0 0 5px 1px lightgray;
 }
 
 .searchBox {
