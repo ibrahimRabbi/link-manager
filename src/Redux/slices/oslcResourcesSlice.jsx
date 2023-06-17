@@ -22,6 +22,7 @@ const OSLC_DESCRIBES = 'http://open-services.net/ns/core#describes';
 const OSLC_PROPERTY_DEFINITION_URI =
   'http://open-services.net/ns/core#propertyDefinition';
 const OSLC_NAME_URI = 'http://open-services.net/ns/core#name';
+const OSLC_ERROR_MESSAGE = 'http://open-services.net/ns/core#message';
 
 export const fetchOslcResource = createAsyncThunk(
   'oslc/fetchOslcResource',
@@ -214,7 +215,9 @@ export const oslcResourceSlice = createSlice({
               }
               return acc;
             }, {});
-            catalogInstanceShapeUrl = item[CATALOG_INSTANCE_SHAPE][0]['@id'];
+            if (CATALOG_INSTANCE_SHAPE in item) {
+              catalogInstanceShapeUrl = item[CATALOG_INSTANCE_SHAPE][0]['@id'];
+            }
             allCatalogs = { ...allCatalogs, ...foundCatalogs };
           }
           if (STATUS_URL in item) {
@@ -281,14 +284,24 @@ export const oslcResourceSlice = createSlice({
     builder.addCase(fetchOslcResource.rejected, (state, action) => {
       state.isOslcResourceLoading = false;
       const error = action.error.message;
-      const consumerTokenExists = action?.meta?.arg?.token;
-      state.oslcResourceFailed = true;
-
-      if (consumerTokenExists && error === 'UNAUTHORIZED') {
-        state.oslcUnauthorizedUser = true;
-      } else {
-        state.oslcMissingConsumerToken = true;
+      if (error[0] === 'UNAUTHORIZED') {
+        error[1].map((item) => {
+          if (OSLC_ERROR_MESSAGE in item) {
+            if (
+              item[OSLC_ERROR_MESSAGE][0]['@value'].includes('invalid_token') ||
+              item[OSLC_ERROR_MESSAGE][0]['@value'].includes(
+                'access token provided is expired',
+              )
+            ) {
+              state.oslcMissingConsumerToken = true;
+            }
+            if (item[OSLC_ERROR_MESSAGE][0]['@value'].includes('wrong credentials')) {
+              state.oslcUnauthorizedUser = true;
+            }
+          }
+        });
       }
+      state.oslcResourceFailed = true;
     });
   },
 });

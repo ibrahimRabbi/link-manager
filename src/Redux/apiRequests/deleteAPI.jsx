@@ -12,9 +12,22 @@ export default async function deleteAPI({ url, token, showNotification }) {
         return res;
       }
     } else {
-      return res.json().then((data) => {
-        showNotification('error', data.message);
-      });
+      if (res.status === 401) {
+        return res.json().then((data) => {
+          showNotification('error', data.message);
+          window.location.replace('/login');
+        });
+      } else if (res.status === 403) {
+        if (token) {
+          showNotification('error', 'You do not have permission to access');
+        } else {
+          window.location.replace('/login');
+        }
+      } else {
+        return res.json().then((data) => {
+          showNotification('error', data.message);
+        });
+      }
     }
   });
   return response;
