@@ -57,8 +57,8 @@ const SideNavBar = ({ isWbe }) => {
           display: 'flex',
           flexDirection: 'column',
           minHeight: isWbe ? '100vh' : '94vh',
-          boxShadow: `2px 2px 5px ${isDark == 'light' ? 'lightgray' : '#292D33'}`,
-          backgroundColor: isDark == 'dark' ? darkColor : lightBgColor,
+          boxShadow: `2px 2px 5px ${isDark === 'light' ? 'lightgray' : '#292D33'}`,
+          backgroundColor: isDark === 'dark' ? darkColor : lightBgColor,
         }}
         width={isSidebarOpen ? 200 : 56}
         collapsible
