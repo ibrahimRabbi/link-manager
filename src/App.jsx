@@ -33,7 +33,6 @@ import Pipelines from './Components/AdminDasComponents/Pipelines/Pipelines.jsx';
 import Associations from './Components/AdminDasComponents/Associations/Associations';
 import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun.jsx';
 import ExtensionFile from './Components/ExtensionFile/ExtensionFile';
-import GraphDashboardView from './Components/GraphView/GraphDashboardView';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -68,7 +67,7 @@ function App() {
             <Route path="/wbe/edit-link/:id" element={<EditLink />} />
             <Route path="/wbe/details/:id" element={<LinkDetails />} />
             <Route path="/wbe/graph-view" element={<GraphView />} />
-            <Route path="/wbe/graph-dashboard" element={<GraphDashboardView />} />
+            <Route path="/wbe/graph-dashboard" element={<GraphView />} />
             <Route path="/wbe/treeview" element={<LinkManager />} />
             <Route path="/wbe" element={<LinkManager />} />
           </Route>
@@ -86,7 +85,7 @@ function App() {
             <Route path="/edit-link/:id" element={<EditLink />} />
             <Route path="/details/:id" element={<LinkDetails />} />
             <Route path="/graph-view" element={<GraphView />} />
-            <Route path="/graph-dashboard" element={<GraphDashboardView />} />
+            <Route path="/graph-dashboard" element={<GraphView />} />
             <Route path="/treeview" element={<LinkManager />} />
             <Route path="/" element={<LinkManager />} />
             <Route path="/extension" element={<ExtensionFile />} />

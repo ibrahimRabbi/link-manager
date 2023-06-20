@@ -20,6 +20,9 @@ import { darkColor, lightBgColor } from '../../../App';
 
 const SideNavBar = ({ isWbe }) => {
   const { isDark, isSidebarOpen } = useSelector((state) => state.nav);
+  const { isGraphDashboardDisplay, isTreeviewTableDisplay } = useSelector(
+    (state) => state.featureFlag,
+  );
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
@@ -83,16 +86,19 @@ const SideNavBar = ({ isWbe }) => {
                 Links
               </Nav.Item>
 
-              <Nav.Item
-                eventKey="2"
-                active={isWbe ? pathname === '/wbe/treeview' : pathname === '/treeview'}
-                icon={<TableColumnIcon />}
-                onClick={() =>
-                  isWbe ? navigate('/wbe/treeview') : navigate('/treeview')
-                }
-              >
-                Links Treeview
-              </Nav.Item>
+              {isTreeviewTableDisplay && (
+                <Nav.Item
+                  eventKey="2"
+                  active={isWbe ? pathname === '/wbe/treeview' : pathname === '/treeview'}
+                  icon={<TableColumnIcon />}
+                  onClick={() =>
+                    isWbe ? navigate('/wbe/treeview') : navigate('/treeview')
+                  }
+                >
+                  {' '}
+                  Links Treeview
+                </Nav.Item>
+              )}
 
               <Nav.Item
                 eventKey="3"
@@ -107,21 +113,26 @@ const SideNavBar = ({ isWbe }) => {
                 Graph View
               </Nav.Item>
 
-              <Nav.Item
-                eventKey="3"
-                active={
-                  // eslint-disable-next-line max-len
-                  isWbe
-                    ? pathname === '/wbe/graph-dashboard'
-                    : pathname === '/graph-dashboard'
-                }
-                icon={<ShareOutlineIcon />}
-                onClick={() =>
-                  isWbe ? navigate('/wbe/graph-dashboard') : navigate('/graph-dashboard')
-                }
-              >
-                Graph View
-              </Nav.Item>
+              {isGraphDashboardDisplay && (
+                <Nav.Item
+                  eventKey="3"
+                  active={
+                    // eslint-disable-next-line max-len
+                    isWbe
+                      ? pathname === '/wbe/graph-dashboard'
+                      : pathname === '/graph-dashboard'
+                  }
+                  icon={<ShareOutlineIcon />}
+                  onClick={() =>
+                    isWbe
+                      ? navigate('/wbe/graph-dashboard')
+                      : navigate('/graph-dashboard')
+                  }
+                >
+                  {' '}
+                  Graph View
+                </Nav.Item>
+              )}
 
               {!isWbe && (
                 <Nav.Item

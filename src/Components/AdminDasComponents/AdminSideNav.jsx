@@ -45,19 +45,19 @@ const AdminSideNav = () => {
           <Nav pullRight>
             <Nav.Item
               onClick={() => dispatch(handleIsAdminSidebarOpen(!isAdminSidebarOpen))}
-              style={{ width: '100%', paddingLeft: '17px' }}
+              style={{ width: '100%', paddingLeft: '17px', borderRadius: '0' }}
             >
               <h3>{isAdminSidebarOpen ? <CloseIcon /> : <MenuIcon />}</h3>
             </Nav.Item>
           </Nav>
         </Sidenav.Header>
-        <Divider style={{ marginTop: '0' }} />
+        <Divider style={{ margin: '0' }} />
         <Sidenav
           expanded={isAdminSidebarOpen}
-          defaultOpenKeys={['10']}
+          defaultOpenKeys={['12']}
           appearance="subtle"
         >
-          <Sidenav.Body>
+          <Sidenav.Body style={{ marginTop: '0' }}>
             <Nav>
               <Nav.Item
                 eventKey="1"
@@ -158,7 +158,9 @@ const AdminSideNav = () => {
                 eventKey="11"
                 active={pathname === '/admin/pipelinerun'}
                 onClick={() => navigate('/admin/pipelinerun')}
-                icon={<PlayOutlineIcon size={15} style={{ ...iconStyle }} />}
+                icon={
+                  <PlayOutlineIcon size={15} style={{ ...iconStyle, marginLeft: '0' }} />
+                }
               >
                 Pipeline Results
               </Nav.Item>
