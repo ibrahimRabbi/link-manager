@@ -16,11 +16,8 @@ import { reducer as useCRUDReducer } from './slices/useCRUDSlice';
 import { reducer as oslcResourceReducer } from './slices/oslcResourcesSlice';
 import { reducer as linkTypesReducer } from './slices/linkTypeSlice';
 import oauth2ModalReducer from './slices/oauth2ModalSlice';
+import featureFlagReducer from './slices/featureFlagSlice';
 import * as Sentry from '@sentry/react';
-// rtk query api
-import { setupListeners } from '@reduxjs/toolkit/query';
-import { fetchApi } from './rtk_query/fetchApi';
-
 const sentryReduxEnhancer = Sentry.createReduxEnhancer({
   // Optionally pass options listed below
   actionTransformer: (action) => {
@@ -42,6 +39,8 @@ const sentryReduxEnhancer = Sentry.createReduxEnhancer({
 
 const store = configureStore({
   reducer: {
+    // feature flag states
+    featureFlag: featureFlagReducer,
     nav: navReducer,
     links: linksReducer,
     graph: graphReducer,
@@ -60,14 +59,8 @@ const store = configureStore({
     pipelines: pipelineReducer,
     pipelinerun: pipelineRunReducer,
     oauth2Modal: oauth2ModalReducer,
-    // rtk query api path
-    [fetchApi.reducerPath]: fetchApi.reducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(fetchApi.middleware),
-
   sentryReduxEnhancer,
 });
 
-setupListeners(store.dispatch);
 export default store;

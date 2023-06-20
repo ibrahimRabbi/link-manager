@@ -14,8 +14,8 @@ import TextField from '../TextField';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
 import Notification from '../../Shared/Notification';
-
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+import { useQuery, useMutation } from '@tanstack/react-query';
+import fetchAPIRequest from '../../../apiRequests/apiRequest';
 
 // demo data
 const headerData = [
@@ -49,20 +49,13 @@ const model = Schema.Model({
   description: StringType().isRequired('This field is required.'),
 });
 
-// get rtk query states
-import {
-  useGetApiQuery,
-  usePostApiMutation,
-  useUpdateApiMutation,
-  useDeleteApiMutation,
-} from '../../../Redux/rtk_query/fetchApi';
-
 const Organization = () => {
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
+  const [deleteData, setDeleteData] = useState({});
   const [formValue, setFormValue] = useState({
     name: '',
     url: '',
@@ -78,28 +71,92 @@ const Organization = () => {
   const dispatch = useDispatch();
   const orgFormRef = React.useRef();
 
-  // get data using rtk query
+  // get data using react-query
   const {
     data: allOrganizations,
-    isLoading: getLoading,
+    isLoading,
     refetch: refetchOrganizations,
-  } = useGetApiQuery({
-    url: `organization?page=${currPage}&per_page=${pageSize}`,
-    token: authCtx.token,
-  });
+  } = useQuery(['organization'], () =>
+    fetchAPIRequest({
+      urlPath: `organization?page=${currPage}&per_page=${pageSize}`,
+      token: authCtx.token,
+      method: 'GET',
+    }),
+  );
 
-  // create data using rtk query
-  const [createOrganization, { isSuccess: createSuccess, isLoading: createLoading }] =
-    usePostApiMutation();
+  // create data using react query
+  const {
+    isLoading: createLoading,
+    isSuccess: createSuccess,
+    mutate: createMutate,
+  } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: 'organization',
+        token: authCtx.token,
+        method: 'POST',
+        body: formValue,
+      }),
+    {
+      onSuccess: (value) => {
+        console.log(value);
+      },
+      onError: (value) => {
+        console.log(value);
+      },
+    },
+  );
 
-  // update data using rtk query
-  const [updateOrganization, { isSuccess: updateSuccess, isLoading: updateLoading }] =
-    useUpdateApiMutation();
+  // update data using react query
+  const {
+    isLoading: updateLoading,
+    isSuccess: updateSuccess,
+    mutate: updateMutate,
+  } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: `organization/${editData?.id}`,
+        token: authCtx.token,
+        method: 'PUT',
+        body: formValue,
+      }),
+    {
+      onSuccess: (value) => {
+        console.log(value);
+      },
+      onSettled: (value) => {
+        console.log(value);
+      },
+    },
+  );
 
-  // delete data using rtk query
-  const [deleteOrganization, { isSuccess: deleteSuccess, isLoading: deleteLoading }] =
-    useDeleteApiMutation();
+  // Delete data using react query
+  const {
+    isLoading: deleteLoading,
+    isSuccess: deleteSuccess,
+    mutate: deleteMutate,
+  } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: `organization/${deleteData?.id}`,
+        token: authCtx.token,
+        method: 'DELETE',
+      }),
+    {
+      onSuccess: (value) => {
+        console.log(value);
+        setDeleteData({});
+      },
+    },
+  );
 
+  // get all organizations
+  useEffect(() => {
+    dispatch(handleCurrPageTitle('Organizations'));
+    refetchOrganizations();
+  }, [createSuccess, updateSuccess, deleteSuccess, pageSize, currPage, refreshData]);
+
+  // handle create and update organization
   const handleAddOrg = () => {
     // throw form validation error
     if (!orgFormRef.current.check()) {
@@ -108,21 +165,11 @@ const Organization = () => {
     }
     // editing org
     else if (isAdminEditing) {
-      const putUrl = `${lmApiUrl}/organization/${editData?.id}`;
-      updateOrganization({
-        url: putUrl,
-        token: authCtx.token,
-        bodyData: formValue,
-      });
+      updateMutate();
     }
     // creating org
     else {
-      const postUrl = `${lmApiUrl}/organization`;
-      createOrganization({
-        url: postUrl,
-        token: authCtx.token,
-        bodyData: formValue,
-      });
+      createMutate();
     }
     dispatch(handleIsAddNewModal(false));
     if (isAdminEditing) dispatch(handleIsAdminEditing(false));
@@ -154,14 +201,9 @@ const Organization = () => {
     dispatch(handleIsAddNewModal(true));
   };
 
-  // get all organizations
-  useEffect(() => {
-    dispatch(handleCurrPageTitle('Organizations'));
-    refetchOrganizations();
-  }, [createSuccess, updateSuccess, deleteSuccess, pageSize, currPage, refreshData]);
-
   // handle delete Org
   const handleDelete = (data) => {
+    setDeleteData(data);
     Swal.fire({
       title: 'Are you sure',
       icon: 'info',
@@ -173,11 +215,7 @@ const Organization = () => {
       reverseButtons: true,
     }).then((value) => {
       if (value.isConfirmed) {
-        const deleteUrl = `${lmApiUrl}/organization/${data?.id}`;
-        deleteOrganization({
-          url: deleteUrl,
-          token: authCtx.token,
-        });
+        deleteMutate();
       }
     });
   };
@@ -249,7 +287,7 @@ const Organization = () => {
         </div>
       </AddNewModal>
 
-      {(getLoading || createLoading || updateLoading || deleteLoading) && <UseLoader />}
+      {(isLoading || createLoading || updateLoading || deleteLoading) && <UseLoader />}
 
       {notificationType && notificationMessage && (
         <Notification
