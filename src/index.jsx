@@ -9,6 +9,8 @@ import './index.less';
 import store from './Redux/store.jsx';
 import reportWebVitals from './reportWebVitals';
 import { AuthContextProvider } from './Store/Auth-Context.jsx';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 import * as Sentry from '@sentry/react';
 import { BrowserTracing, Replay } from '@sentry/react';
 
@@ -33,15 +35,18 @@ Sentry.init({
   replaysOnErrorSampleRate: 1.0,
   environment: ENVIRONMENT,
 });
+const queryClient = new QueryClient();
 
 ReactDOM.render(
   <React.StrictMode>
     <MixpanelProvider>
       <AuthContextProvider>
         <Provider store={store}>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
+          <QueryClientProvider client={queryClient}>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </QueryClientProvider>
         </Provider>
       </AuthContextProvider>
     </MixpanelProvider>

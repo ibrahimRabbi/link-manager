@@ -41,6 +41,7 @@ const model = Schema.Model({
 const LinkManager = () => {
   const { sourceDataList, linksData, isLoading, isLinkDeleting, configuration_aware } =
     useSelector((state) => state.links);
+  const { isTreeviewTableDisplay } = useSelector((state) => state.featureFlag);
 
   const { linksStream, refreshData, isDark } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
@@ -157,6 +158,14 @@ const LinkManager = () => {
   // eslint-disable-next-line max-len
   const isTreeView =
     location?.pathname === '/treeview' || location?.pathname === '/wbe/treeview';
+
+  // if feature flag is off then user can't see the treeview table page
+  useEffect(() => {
+    if (isTreeView && !isTreeviewTableDisplay) {
+      isWbe ? navigate('/wbe') : navigate('/');
+    }
+  }, [isTreeView, isTreeviewTableDisplay]);
+
   return (
     <div>
       <SourceSection />

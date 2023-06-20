@@ -1,38 +1,70 @@
 import React, { useContext, useEffect } from 'react';
 import ReactGraph from 'react-graph';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation } from 'react-router-dom';
-import { fetchGraphData } from '../../Redux/slices/graphSlice';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { handleCurrPageTitle, handleIsProfileOpen } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context';
 import UseLoader from '../Shared/UseLoader';
-
-const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/visualize/staged`;
+import GraphDashboard from './GraphDashboard';
+import { useQuery } from '@tanstack/react-query';
+import fetchAPIRequest from '../../apiRequests/apiRequest';
 
 const GraphView = () => {
-  const { graphData, graphLoading } = useSelector((state) => state.graph);
+  const { isGraphDashboardDisplay } = useSelector((state) => state.featureFlag);
+
   const { sourceDataList } = useSelector((state) => state.links);
   const { isProfileOpen } = useSelector((state) => state.nav);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
   const location = useLocation();
+  const navigate = useNavigate();
   const wbePath = location.pathname?.includes('wbe');
 
+  // get data using react-query
+  const {
+    data,
+    isLoading: isGraphLoading,
+    refetch: graphDataRefetch,
+  } = useQuery(['graphView'], () =>
+    fetchAPIRequest({
+      urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
+        sourceDataList?.uri,
+      )}&direction=outgoing`,
+      token: authCtx.token,
+      method: 'GET',
+    }),
+  );
+
+  // check url location to display graph view and graph dashboard
+  const isDashboard =
+    // eslint-disable-next-line max-len
+    location?.pathname === '/graph-dashboard' ||
+    location?.pathname === '/wbe/graph-dashboard';
+
+  // load graph data
   useEffect(() => {
     dispatch(handleIsProfileOpen(isProfileOpen && false));
     dispatch(handleCurrPageTitle('Graph view'));
+
     if (sourceDataList.uri) {
-      dispatch(
-        fetchGraphData({
-          // eslint-disable-next-line max-len
-          url: `${apiURL}?start_node_id=${encodeURIComponent(
-            sourceDataList?.uri,
-          )}&direction=outgoing`,
-          token: authCtx.token,
-        }),
-      );
+      graphDataRefetch();
     }
   }, [sourceDataList]);
+
+  // if feature flag is off then user can't see the graph dashboard table page
+  useEffect(() => {
+    if (isDashboard && !isGraphDashboardDisplay) {
+      wbePath ? navigate('/wbe') : navigate('/');
+    }
+  }, [isDashboard, isGraphDashboardDisplay]);
+
+  const graphViewData = data ? data?.data : { nodes: [], relationships: [] };
+
+  // map graph nodes
+  const nodesIdMap = {};
+  graphViewData?.nodes?.forEach((node) => {
+    nodesIdMap[node?.id] = node;
+  });
 
   return (
     <div>
@@ -40,21 +72,31 @@ const GraphView = () => {
         onClick={() => dispatch(handleIsProfileOpen(isProfileOpen && false))}
         className={wbePath ? 'wbeNavSpace' : ''}
       >
-        {graphLoading ? (
+        {isGraphLoading ? (
           <UseLoader />
         ) : (
-          <div className="graphContainer">
-            <ReactGraph
-              initialState={graphData}
-              nodes={graphData.nodes}
-              relationships={graphData.relationships}
-              width="100%"
-              height="100%"
-              hasLegends
-              hasInspector
-              hasTruncatedFields
-            />
-          </div>
+          <>
+            {isDashboard ? (
+              <GraphDashboard
+                nodesIdMap={nodesIdMap}
+                nodes={graphViewData?.nodes}
+                relationships={graphViewData?.relationships}
+              />
+            ) : (
+              <div className="graphContainer">
+                <ReactGraph
+                  initialState={graphViewData}
+                  nodes={graphViewData?.nodes}
+                  relationships={graphViewData?.relationships}
+                  width="100%"
+                  height="100%"
+                  hasLegends
+                  hasInspector
+                  hasTruncatedFields
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
