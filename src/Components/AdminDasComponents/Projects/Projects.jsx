@@ -63,10 +63,10 @@ const Projects = () => {
   });
   const [notificationType, setNotificationType] = useState('');
   const [notificationMessage, setNotificationMessage] = useState('');
-  // const showNotification = (type, message) => {
-  //   setNotificationType(type);
-  //   setNotificationMessage(message);
-  // };
+  const showNotification = (type, message) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+  };
   const projectFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
@@ -81,6 +81,7 @@ const Projects = () => {
       urlPath: `project?page=${currPage}&per_page=${pageSize}`,
       token: authCtx.token,
       method: 'GET',
+      showNotification: showNotification,
     }),
   );
 
@@ -96,6 +97,7 @@ const Projects = () => {
         token: authCtx.token,
         method: 'POST',
         body: formValue,
+        showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {
@@ -116,6 +118,7 @@ const Projects = () => {
         token: authCtx.token,
         method: 'PUT',
         body: formValue,
+        showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {
@@ -135,6 +138,7 @@ const Projects = () => {
         urlPath: `project/${deleteData?.id}`,
         token: authCtx.token,
         method: 'DELETE',
+        showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {

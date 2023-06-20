@@ -63,10 +63,10 @@ const Organization = () => {
   });
   const [notificationType, setNotificationType] = useState('');
   const [notificationMessage, setNotificationMessage] = useState('');
-  // const showNotification = (type, message) => {
-  //   setNotificationType(type);
-  //   setNotificationMessage(message);
-  // };
+  const showNotification = (type, message) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+  };
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
   const orgFormRef = React.useRef();
@@ -81,6 +81,7 @@ const Organization = () => {
       urlPath: `organization?page=${currPage}&per_page=${pageSize}`,
       token: authCtx.token,
       method: 'GET',
+      showNotification: showNotification,
     }),
   );
 
@@ -96,6 +97,7 @@ const Organization = () => {
         token: authCtx.token,
         method: 'POST',
         body: formValue,
+        showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {
@@ -119,6 +121,7 @@ const Organization = () => {
         token: authCtx.token,
         method: 'PUT',
         body: formValue,
+        showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {
@@ -141,6 +144,7 @@ const Organization = () => {
         urlPath: `organization/${deleteData?.id}`,
         token: authCtx.token,
         method: 'DELETE',
+        showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {

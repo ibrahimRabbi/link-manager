@@ -56,10 +56,10 @@ const Users = () => {
   });
   const [notificationType, setNotificationType] = React.useState('');
   const [notificationMessage, setNotificationMessage] = React.useState('');
-  // const showNotification = (type, message) => {
-  //   setNotificationType(type);
-  //   setNotificationMessage(message);
-  // };
+  const showNotification = (type, message) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+  };
 
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
@@ -74,6 +74,7 @@ const Users = () => {
       urlPath: `user?page=${currPage}&per_page=${pageSize}`,
       token: authCtx.token,
       method: 'GET',
+      showNotification: showNotification,
     }),
   );
 
@@ -88,6 +89,7 @@ const Users = () => {
         urlPath: `user/${deleteData?.id}`,
         token: authCtx.token,
         method: 'DELETE',
+        showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {
