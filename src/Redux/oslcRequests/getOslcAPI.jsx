@@ -11,10 +11,10 @@ export default async function getOslcAPI({ url, token }) {
       },
     });
     if (!response.ok) {
-      throw new Error(response.statusText);
+      throw new Error([response.statusText, await response.text()]);
     }
     return response.json();
   } catch (error) {
-    throw new Error(error.message);
+    throw new Error(error);
   }
 }
