@@ -36,22 +36,7 @@ const ExtensionFile = () => {
           setSelectedData(rowData);
         }}
       >
-        <Column width={150} align="center" fixed>
-          <HeaderCell>
-            <h5>EXT No</h5>
-          </HeaderCell>
-          <Cell
-            style={{
-              fontSize: '17px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            dataKey="id"
-          />
-        </Column>
-
-        <Column width={700} align="center" headerHeight={50}>
+        <Column width={600} align="center" headerHeight={50}>
           <HeaderCell>
             <h5>Extension Name</h5>
           </HeaderCell>
@@ -66,7 +51,7 @@ const ExtensionFile = () => {
           />
         </Column>
 
-        <Column width={300} align="center" headerHeight={50}>
+        <Column width={500} align="center" headerHeight={50}>
           <HeaderCell>
             <h5>Download</h5>
           </HeaderCell>
