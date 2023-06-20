@@ -32,7 +32,7 @@ import Events from './Components/AdminDasComponents/Events/Events.jsx';
 import Pipelines from './Components/AdminDasComponents/Pipelines/Pipelines.jsx';
 import Associations from './Components/AdminDasComponents/Associations/Associations';
 import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun.jsx';
-import ExtensionFile from './Components/ExtensionFile/ExtensionFile';
+import WebBrowserExtension from './Components/WebBrowserExtension/WebBrowserExtension';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -88,7 +88,7 @@ function App() {
             <Route path="/graph-dashboard" element={<GraphView />} />
             <Route path="/treeview" element={<LinkManager />} />
             <Route path="/" element={<LinkManager />} />
-            <Route path="/extension" element={<ExtensionFile />} />
+            <Route path="/extension" element={<WebBrowserExtension />} />
           </Route>
 
           {/* This is admin dashboard  */}

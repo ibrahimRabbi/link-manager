@@ -5,7 +5,7 @@ import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import { useDispatch } from 'react-redux';
 
 const { Column, HeaderCell, Cell } = Table;
-const ExtensionFile = () => {
+const WebBrowserExtension = () => {
   const [selectedData, setSelectedData] = useState([]);
   const dispatch = useDispatch();
   useEffect(() => {
@@ -76,4 +76,4 @@ const ExtensionFile = () => {
   );
 };
 
-export default ExtensionFile;
+export default WebBrowserExtension;
