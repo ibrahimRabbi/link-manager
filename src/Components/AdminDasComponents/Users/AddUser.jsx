@@ -29,18 +29,17 @@ const AddUser = ({
   setCreateSuccess,
   setUpdateSuccess,
   setCreateUpdateLoading,
-  // setUpdateLoading,
-  // setNotificationType,
-  // setNotificationMessage,
+  setNotificationType,
+  setNotificationMessage,
 }) => {
   const [formError, setFormError] = React.useState({});
   const userFormRef = React.useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
-  // const showNotification = (type, message) => {
-  //   setNotificationType(type);
-  //   setNotificationMessage(message);
-  // };
+  const showNotification = (type, message) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+  };
   // create data using react query
   const { isLoading: createLoading, mutate: createMutate } = useMutation(
     () =>
@@ -49,6 +48,7 @@ const AddUser = ({
         token: authCtx.token,
         method: 'POST',
         body: { ...formValue, enabled: true },
+        showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {
@@ -68,6 +68,7 @@ const AddUser = ({
         token: authCtx.token,
         method: 'PUT',
         body: { ...formValue },
+        showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {

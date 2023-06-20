@@ -15,6 +15,7 @@ import { handleIsDarkMode, handleIsSidebarOpen } from '../../../Redux/slices/nav
 import MenuIcon from '@rsuite/icons/Menu';
 import CloseIcon from '@rsuite/icons/Close';
 import DashboardIcon from '@rsuite/icons/Dashboard';
+import AttachmentIcon from '@rsuite/icons/Attachment';
 import { darkColor, lightBgColor } from '../../../App';
 
 const SideNavBar = ({ isWbe }) => {
@@ -141,6 +142,16 @@ const SideNavBar = ({ isWbe }) => {
                   onClick={() => navigate('/admin')}
                 >
                   Dashboard
+                </Nav.Item>
+              )}
+              {!isWbe && (
+                <Nav.Item
+                  eventKey="4"
+                  active={pathname === '/extension'}
+                  icon={<AttachmentIcon />}
+                  onClick={() => navigate('/extension')}
+                >
+                  Extension
                 </Nav.Item>
               )}
             </Nav>
