@@ -1,9 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import deleteAPI from '../apiRequests/deleteAPI';
-import getAPI from '../apiRequests/getAPI';
-import postAPI from '../apiRequests/postAPI';
-import putAPI from '../apiRequests/putAPI';
 import getOslcAPI from '../oslcRequests/getOslcAPI.jsx';
+import getAPI, { deleteAPI, putAPI, saveResource } from '../apiRequests/API';
 
 const OSLC_PUBLISHER_URL = 'http://open-services.net/ns/core#publisher';
 const OSLC_PUBLISHER_ICON = 'http://open-services.net/ns/core#icon';
@@ -77,7 +74,7 @@ export const fetchApplicationPublisherIcon = createAsyncThunk(
 export const fetchCreateApp = createAsyncThunk(
   'applications/fetchCreateApp',
   async ({ url, token, bodyData, message }) => {
-    const res = await postAPI({ url, token, bodyData, message });
+    const res = await saveResource({ url, token, bodyData, message });
     return res;
   },
 );

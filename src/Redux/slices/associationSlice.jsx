@@ -1,8 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import deleteAPI from '../apiRequests/deleteAPI';
-import getAPI from '../apiRequests/getAPI';
-import postAPI from '../apiRequests/postAPI';
-import putAPI from '../apiRequests/putAPI';
+import getAPI, { deleteAPI, putAPI, saveResource } from '../apiRequests/API';
 
 // Fetch get all associations
 export const fetchAssociations = createAsyncThunk(
@@ -17,7 +14,7 @@ export const fetchAssociations = createAsyncThunk(
 export const fetchCreateAssoc = createAsyncThunk(
   'associations/fetchCreateAssoc',
   async ({ url, token, bodyData, reset, showNotification }) => {
-    const res = await postAPI({ url, token, bodyData, reset, showNotification });
+    const res = await saveResource({ url, token, bodyData, reset, showNotification });
     return res;
   },
 );

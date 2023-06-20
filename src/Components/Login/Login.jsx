@@ -74,7 +74,6 @@ const Login = () => {
       });
 
       if (isMounted.current) {
-        // Check if the component is still mounted before updating state
         if (response.ok) {
           // Track successful login
           mixpanel.track('Successfully logged in.', {
@@ -90,7 +89,6 @@ const Login = () => {
 
       const data = await response.json();
       if (isMounted.current) {
-        // Check if the component is still mounted before updating state
         if ('access_token' in data) {
           authCtx.login(data.access_token, data.expires_in);
           // Manage redirect
@@ -113,7 +111,6 @@ const Login = () => {
       }
     } catch (err) {
       if (isMounted.current) {
-        // Check if the component is still mounted before updating state
         const message = (
           <Message closable showIcon type="error">
             Something went wrong when connecting to the server. ({err.message})
@@ -123,7 +120,6 @@ const Login = () => {
       }
     } finally {
       if (isMounted.current) {
-        // Check if the component is still mounted before updating state
         setIsLoading(false);
       }
     }

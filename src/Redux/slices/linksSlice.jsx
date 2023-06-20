@@ -1,13 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import getAPI from '../apiRequests/getAPI';
-import postAPI from '../apiRequests/postAPI';
-import deleteAPI from '../apiRequests/deleteAPI';
+import getAPI, { deleteAPI, saveResource } from '../apiRequests/API';
 
 // Create New link
 export const fetchCreateLink = createAsyncThunk(
   'links/fetchCreateLink',
   async ({ url, token, bodyData, message, showNotification }) => {
-    const response = postAPI({ url, token, bodyData, message, showNotification });
+    const response = saveResource({ url, token, bodyData, message, showNotification });
     return response;
   },
 );
