@@ -1,8 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import deleteAPI from '../apiRequests/deleteAPI';
-import putAPI from '../apiRequests/putAPI';
-import postAPI from '../apiRequests/postAPI';
-import getAPI from '../apiRequests/getAPI';
+import getAPI, { deleteAPI, putAPI, saveResource } from '../apiRequests/API';
 
 // Fetch get Request
 export const fetchGetData = createAsyncThunk(
@@ -18,7 +15,13 @@ export const fetchGetData = createAsyncThunk(
 export const fetchCreateData = createAsyncThunk(
   'crud/fetchCreateData',
   async ({ url, token, bodyData, stateName, message, showNotification }) => {
-    const response = await postAPI({ url, token, bodyData, message, showNotification });
+    const response = await saveResource({
+      url,
+      token,
+      bodyData,
+      message,
+      showNotification,
+    });
 
     return { stateName: stateName, response: response };
   },

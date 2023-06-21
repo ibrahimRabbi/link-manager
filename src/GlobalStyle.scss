@@ -1,6 +1,3 @@
-@use '@carbon/colors';
-@use '@carbon/type';
-
 .App {
   min-height: 100vh;
 
@@ -103,7 +100,7 @@
 
 .graphContainer {
   width: 100%;
-  height: 97vh;
+  height: 90vh;
 }
 
 .wbeNavSpace {
@@ -168,6 +165,10 @@
   border: 0;
   border: 1px dashed lightgray;
 }
+
 .toast-container {
   margin-bottom: 40px;
+}
+.download-link:hover {
+  color: blue;
 }

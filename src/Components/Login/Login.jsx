@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import style from './Login.module.scss';
@@ -32,7 +32,6 @@ const model = Schema.Model({
     .isRequired('Password is required.'),
 });
 
-// const mixpanelToken= process.env.REACT_APP_MIXPANEL_TOKEN;
 const Login = () => {
   const { isWbe } = useSelector((state) => state.links);
   const [isLoading, setIsLoading] = useState(false);
@@ -41,52 +40,58 @@ const Login = () => {
     userName: '',
     password: '',
   });
-  const loginFormRef = React.useRef();
+  const loginFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
-
   const toaster = useToaster();
-
-  // React mixpanel browser
   const mixpanel = useMixpanel();
-  mixpanel.init('197a3508675e32adcdfee4563c0e0595', { debug: true });
+  const isMounted = useRef(true); // Variable to track component mount state
 
-  // handle form submit
+  useEffect(() => {
+    return () => {
+      // Cleanup function
+      isMounted.current = false; // Update the mount state on unmount
+    };
+  }, []);
+
   const onSubmit = async () => {
     setIsLoading(true);
 
-    //track who try to login
+    // Track who tried to login
     mixpanel.track('Trying to login.', {
       username: formValue.userName,
     });
 
-    const authData = window.btoa(formValue.userName + ':' + formValue.password);
-    await fetch(loginURL, {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-        Authorization: 'Basic ' + authData,
-      },
-    })
-      .then((res) => {
-        if (res.ok) {
-          //track who try to login
+    try {
+      const authData = window.btoa(formValue.userName + ':' + formValue.password);
+      const response = await fetch(loginURL, {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: 'Basic ' + authData,
+        },
+      });
+
+      if (isMounted.current) {
+        if (response.ok) {
+          // Track successful login
           mixpanel.track('Successfully logged in.', {
             username: formValue.userName,
           });
         } else {
-          //track who try to login
+          // Track failed login
           mixpanel.track('Failed to login.', {
             username: formValue.userName,
           });
         }
-        return res.json();
-      })
-      .then((data) => {
+      }
+
+      const data = await response.json();
+      if (isMounted.current) {
         if ('access_token' in data) {
           authCtx.login(data.access_token, data.expires_in);
-          // manage redirect user
+          // Manage redirect
           if (location.state) navigate(location.state.from.pathname);
           else {
             isWbe ? navigate('/wbe') : navigate('/');
@@ -103,16 +108,21 @@ const Login = () => {
             toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
           }
         }
-      })
-      .catch((err) => {
+      }
+    } catch (err) {
+      if (isMounted.current) {
         const message = (
           <Message closable showIcon type="error">
             Something went wrong when connecting to the server. ({err.message})
           </Message>
         );
         toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
-      })
-      .finally(() => setIsLoading(false));
+      }
+    } finally {
+      if (isMounted.current) {
+        setIsLoading(false);
+      }
+    }
   };
 
   return (

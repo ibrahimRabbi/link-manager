@@ -39,6 +39,7 @@ definitions:
           - echo "REACT_APP_VALISPACE_DIALOG_URL=$VALISPACE_OSLC_API_URL" >> .env
           - echo "REACT_APP_CODEBEAMER_DIALOG_URL=$CODEBEAMER_OSLC_API_URL" >> .env
           - echo "REACT_APP_SENTRY_DSN=$SENTRY_DSN" >> .env
+          - echo "REACT_APP_MIXPANEL_TOKEN=$MIXPANEL_TOKEN" >> .env
           - yarn install
           - yarn build
         artifacts:

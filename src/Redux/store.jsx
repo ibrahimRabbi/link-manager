@@ -16,8 +16,8 @@ import { reducer as useCRUDReducer } from './slices/useCRUDSlice';
 import { reducer as oslcResourceReducer } from './slices/oslcResourcesSlice';
 import { reducer as linkTypesReducer } from './slices/linkTypeSlice';
 import oauth2ModalReducer from './slices/oauth2ModalSlice';
+import featureFlagReducer from './slices/featureFlagSlice';
 import * as Sentry from '@sentry/react';
-
 const sentryReduxEnhancer = Sentry.createReduxEnhancer({
   // Optionally pass options listed below
   actionTransformer: (action) => {
@@ -39,6 +39,8 @@ const sentryReduxEnhancer = Sentry.createReduxEnhancer({
 
 const store = configureStore({
   reducer: {
+    // feature flag states
+    featureFlag: featureFlagReducer,
     nav: navReducer,
     links: linksReducer,
     graph: graphReducer,
@@ -60,4 +62,5 @@ const store = configureStore({
   },
   sentryReduxEnhancer,
 });
+
 export default store;

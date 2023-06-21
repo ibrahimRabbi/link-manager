@@ -22,16 +22,12 @@ import SelectField from '../SelectField';
 import CustomSelect from '../CustomSelect';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
-import {
-  fetchCreateData,
-  fetchDeleteData,
-  fetchGetData,
-  fetchUpdateData,
-} from '../../../Redux/slices/useCRUDSlice';
 import { fetchApplicationPublisherIcon } from '../../../Redux/slices/applicationSlice';
 import Oauth2Modal from '../../Oauth2Modal/Oauth2Modal';
 import { handleIsOauth2ModalOpen } from '../../../Redux/slices/oauth2ModalSlice';
 import Notification from '../../Shared/Notification';
+import fetchAPIRequest from '../../../apiRequests/apiRequest';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -66,9 +62,6 @@ const { StringType, NumberType } = Schema.Types;
 
 const Application = () => {
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
-  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
-    (state) => state.crud,
-  );
   const { iconData } = useSelector((state) => state.applications);
 
   // application form validation schema
@@ -90,6 +83,7 @@ const Application = () => {
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
+  const [deleteData, setDeleteData] = useState({});
   const [openModal, setOpenModal] = useState(false);
   const [steps, setSteps] = useState(0);
   const [appsWithIcon, setAppsWithIcon] = useState([]);
@@ -117,22 +111,123 @@ const Application = () => {
   const dispatch = useDispatch();
   const toaster = useToaster();
 
+  // get data using react-query
+  const {
+    data: allApplications,
+    isLoading,
+    refetch: refetchApplications,
+  } = useQuery(['application'], () =>
+    fetchAPIRequest({
+      urlPath: `application?page=${currentPage}&per_page=${pageSize}`,
+      token: authCtx.token,
+      method: 'GET',
+      showNotification: showNotification,
+    }),
+  );
+
+  // required data for create the application
+  const redirect_uris = [
+    `${lmApiUrl}/application/` + 'consumer/callback?consumer=' + formValue.name,
+  ];
+  const scopes = 'rest_api_access';
+  const response_types = ['code'];
+  const grant_types = ['service_provider', 'authorization_code'];
+
+  // create data using react query
+  const {
+    isLoading: createLoading,
+    isSuccess: createSuccess,
+    mutate: createMutate,
+  } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: 'application',
+        token: authCtx.token,
+        method: 'POST',
+        body: { ...formValue, scopes, response_types, grant_types, redirect_uris },
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (res) => {
+        if (res) {
+          if (res?.status) {
+            setAppCreateSuccess(true);
+            setSteps(1);
+
+            let query = `client_id=${res?.client_id}`;
+            query += `&scope=${scopes}`;
+
+            response_types?.forEach((response_type) => {
+              if (response_types?.indexOf(response_type) === 0) {
+                query += `&response_type=${response_type}`;
+              } else {
+                query += ` ${response_type}`;
+              }
+            }, query);
+
+            query += `&redirect_uri=${redirect_uris[0]}`;
+            let authorizeUri = res?.oauth_client_authorize_uri + '?' + query;
+            setAuthorizeFrameSrc(authorizeUri);
+          }
+        }
+      },
+      onError: (value) => {
+        console.log(value);
+      },
+    },
+  );
+
+  // update data using react query
+  const {
+    isLoading: updateLoading,
+    isSuccess: updateSuccess,
+    mutate: updateMutate,
+  } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: `application/${editData?.id}`,
+        token: authCtx.token,
+        method: 'PUT',
+        body: formValue,
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (value) => {
+        console.log(value);
+      },
+    },
+  );
+
+  // Delete data using react query
+  const {
+    isLoading: deleteLoading,
+    isSuccess: deleteSuccess,
+    mutate: deleteMutate,
+  } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: `application/${deleteData?.id}`,
+        token: authCtx.token,
+        method: 'DELETE',
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (value) => {
+        console.log(value);
+        setDeleteData({});
+      },
+    },
+  );
+
   // get all applications
   useEffect(() => {
     dispatch(handleCurrPageTitle('Applications'));
-    const getUrl = `${lmApiUrl}/application?page=${currentPage}&per_page=${pageSize}`;
-    dispatch(
-      fetchGetData({
-        url: getUrl,
-        token: authCtx.token,
-        stateName: 'allApplications',
-        showNotification: showNotification,
-      }),
-    );
+
+    refetchApplications();
   }, [
-    isCreated,
-    isUpdated,
-    isDeleted,
+    createSuccess,
+    updateSuccess,
+    deleteSuccess,
     pageSize,
     currentPage,
     refreshData,
@@ -141,9 +236,9 @@ const Application = () => {
 
   // get icons for the applications
   useEffect(() => {
-    if (crudData?.allApplications?.items) {
+    if (allApplications?.items) {
       let tempData = [];
-      crudData?.allApplications?.items?.forEach((item) => {
+      allApplications?.items?.forEach((item) => {
         tempData.push({
           id: item?.id,
           rootservicesUrl: item?.rootservices_url ? item.rootservices_url : null,
@@ -155,12 +250,12 @@ const Application = () => {
         }),
       );
     }
-  }, [crudData?.allApplications]);
+  }, [allApplications]);
 
   // merging application icons with applications data
   useEffect(() => {
-    if (crudData?.allApplications) {
-      const customAppItems = crudData?.allApplications?.items?.reduce(
+    if (allApplications) {
+      const customAppItems = allApplications?.items?.reduce(
         (accumulator, currentValue) => {
           if (currentValue?.rootservices_url) {
             iconData?.forEach((icon) => {
@@ -186,7 +281,7 @@ const Application = () => {
       );
       setAppsWithIcon(customAppItems);
     }
-  }, [iconData, crudData?.allApplications]);
+  }, [iconData, allApplications]);
 
   // manage oauth iframe
   useEffect(() => {
@@ -224,60 +319,11 @@ const Application = () => {
       return;
     } else if (isAdminEditing) {
       // edit application
-      const putUrl = `${lmApiUrl}/application/${editData?.id}`;
-      dispatch(
-        fetchUpdateData({
-          url: putUrl,
-          token: authCtx.token,
-          bodyData: formValue,
-          showNotification: showNotification,
-        }),
-      );
+      updateMutate();
       setOpenModal(false);
     } else {
       // create application
-      const redirect_uris = [
-        `${lmApiUrl}/application/` + 'consumer/callback?consumer=' + formValue.name,
-      ];
-      const scopes = 'rest_api_access';
-      const response_types = ['code'];
-      const grant_types = ['service_provider', 'authorization_code'];
-
-      const postUrl = `${lmApiUrl}/application`;
-      dispatch(
-        fetchCreateData({
-          url: postUrl,
-          token: authCtx.token,
-          bodyData: { ...formValue, scopes, response_types, grant_types, redirect_uris },
-          sendMsg: false,
-          showNotification: showNotification,
-        }),
-      )
-        .then((appRes) => {
-          if (appRes.payload) {
-            if (appRes.payload.response?.status) {
-              setAppCreateSuccess(true);
-              setSteps(1);
-
-              let query = `client_id=${appRes.payload.response?.client_id}`;
-              query += `&scope=${scopes}`;
-
-              response_types?.forEach((response_type) => {
-                if (response_types?.indexOf(response_type) === 0) {
-                  query += `&response_type=${response_type}`;
-                } else {
-                  query += ` ${response_type}`;
-                }
-              }, query);
-
-              query += `&redirect_uri=${redirect_uris[0]}`;
-              let authorizeUri =
-                appRes.payload?.response?.oauth_client_authorize_uri + '?' + query;
-              setAuthorizeFrameSrc(authorizeUri);
-            }
-          }
-        })
-        .catch((error) => console.error(error));
+      createMutate();
     }
 
     if (isAdminEditing) dispatch(handleIsAdminEditing(false));
@@ -351,6 +397,7 @@ const Application = () => {
 
   // handle delete application
   const handleDelete = (data) => {
+    setDeleteData(data);
     Swal.fire({
       title: 'Are you sure',
       icon: 'info',
@@ -362,19 +409,13 @@ const Application = () => {
       reverseButtons: true,
     }).then((value) => {
       if (value.isConfirmed) {
-        const deleteUrl = `${lmApiUrl}/application/${data?.id}`;
-        dispatch(
-          fetchDeleteData({
-            url: deleteUrl,
-            token: authCtx.token,
-            showNotification: showNotification,
-          }),
-        );
+        deleteMutate();
       }
     });
   };
   // handle Edit application
   const handleEdit = (data) => {
+    setSteps(0);
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
     setFormValue({
@@ -389,7 +430,7 @@ const Application = () => {
   // send props in the batch action table
   const tableProps = {
     title: 'Applications',
-    rowData: crudData?.allApplications?.items?.length ? appsWithIcon : [],
+    rowData: allApplications ? appsWithIcon : [],
     headerData,
     handleEdit,
     handleDelete,
@@ -397,10 +438,10 @@ const Application = () => {
     handlePagination,
     handleChangeLimit,
     authorizeModal: handleOpenAuthorizeModal,
-    totalItems: crudData?.allApplications?.total_items,
-    totalPages: crudData?.allApplications?.total_pages,
+    totalItems: allApplications?.total_items,
+    totalPages: allApplications?.total_pages,
     pageSize,
-    page: crudData?.allApplications?.page,
+    page: allApplications?.page,
     inpPlaceholder: 'Search Application',
   };
 
@@ -565,7 +606,8 @@ const Application = () => {
       {/* --- oauth 2 modal ---  */}
       <Oauth2Modal ref={oauth2ModalRef} />
 
-      {isCrudLoading && <UseLoader />}
+      {(isLoading || createLoading || updateLoading || deleteLoading) && <UseLoader />}
+
       {notificationType && notificationMessage && (
         <Notification
           type={notificationType}

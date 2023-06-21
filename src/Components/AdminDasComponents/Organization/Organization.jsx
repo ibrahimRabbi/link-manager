@@ -13,15 +13,9 @@ import { FlexboxGrid, Form, Schema } from 'rsuite';
 import TextField from '../TextField';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
-import {
-  fetchCreateData,
-  fetchDeleteData,
-  fetchGetData,
-  fetchUpdateData,
-} from '../../../Redux/slices/useCRUDSlice';
 import Notification from '../../Shared/Notification';
-
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+import { useQuery, useMutation } from '@tanstack/react-query';
+import fetchAPIRequest from '../../../apiRequests/apiRequest';
 
 // demo data
 const headerData = [
@@ -57,15 +51,11 @@ const model = Schema.Model({
 
 const Organization = () => {
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
-
-  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
-    (state) => state.crud,
-  );
-
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
+  const [deleteData, setDeleteData] = useState({});
   const [formValue, setFormValue] = useState({
     name: '',
     url: '',
@@ -81,6 +71,96 @@ const Organization = () => {
   const dispatch = useDispatch();
   const orgFormRef = React.useRef();
 
+  // get data using react-query
+  const {
+    data: allOrganizations,
+    isLoading,
+    refetch: refetchOrganizations,
+  } = useQuery(['organization'], () =>
+    fetchAPIRequest({
+      urlPath: `organization?page=${currPage}&per_page=${pageSize}`,
+      token: authCtx.token,
+      method: 'GET',
+      showNotification: showNotification,
+    }),
+  );
+
+  // create data using react query
+  const {
+    isLoading: createLoading,
+    isSuccess: createSuccess,
+    mutate: createMutate,
+  } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: 'organization',
+        token: authCtx.token,
+        method: 'POST',
+        body: formValue,
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (value) => {
+        console.log(value);
+      },
+      onError: (value) => {
+        console.log(value);
+      },
+    },
+  );
+
+  // update data using react query
+  const {
+    isLoading: updateLoading,
+    isSuccess: updateSuccess,
+    mutate: updateMutate,
+  } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: `organization/${editData?.id}`,
+        token: authCtx.token,
+        method: 'PUT',
+        body: formValue,
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (value) => {
+        console.log(value);
+      },
+      onSettled: (value) => {
+        console.log(value);
+      },
+    },
+  );
+
+  // Delete data using react query
+  const {
+    isLoading: deleteLoading,
+    isSuccess: deleteSuccess,
+    mutate: deleteMutate,
+  } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: `organization/${deleteData?.id}`,
+        token: authCtx.token,
+        method: 'DELETE',
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (value) => {
+        console.log(value);
+        setDeleteData({});
+      },
+    },
+  );
+
+  // get all organizations
+  useEffect(() => {
+    dispatch(handleCurrPageTitle('Organizations'));
+    refetchOrganizations();
+  }, [createSuccess, updateSuccess, deleteSuccess, pageSize, currPage, refreshData]);
+
+  // handle create and update organization
   const handleAddOrg = () => {
     // throw form validation error
     if (!orgFormRef.current.check()) {
@@ -89,28 +169,11 @@ const Organization = () => {
     }
     // editing org
     else if (isAdminEditing) {
-      const putUrl = `${lmApiUrl}/organization/${editData?.id}`;
-      dispatch(
-        fetchUpdateData({
-          url: putUrl,
-          token: authCtx.token,
-          bodyData: formValue,
-          showNotification: showNotification,
-        }),
-      );
+      updateMutate();
     }
     // creating org
     else {
-      const postUrl = `${lmApiUrl}/organization`;
-      dispatch(
-        fetchCreateData({
-          url: postUrl,
-          token: authCtx.token,
-          bodyData: formValue,
-          message: 'organization',
-          showNotification: showNotification,
-        }),
-      );
+      createMutate();
     }
     dispatch(handleIsAddNewModal(false));
     if (isAdminEditing) dispatch(handleIsAdminEditing(false));
@@ -142,22 +205,9 @@ const Organization = () => {
     dispatch(handleIsAddNewModal(true));
   };
 
-  useEffect(() => {
-    dispatch(handleCurrPageTitle('Organizations'));
-
-    const getUrl = `${lmApiUrl}/organization?page=${currPage}&per_page=${pageSize}`;
-    dispatch(
-      fetchGetData({
-        url: getUrl,
-        token: authCtx.token,
-        stateName: 'allOrganizations',
-        showNotification: showNotification,
-      }),
-    );
-  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
-
   // handle delete Org
   const handleDelete = (data) => {
+    setDeleteData(data);
     Swal.fire({
       title: 'Are you sure',
       icon: 'info',
@@ -169,14 +219,7 @@ const Organization = () => {
       reverseButtons: true,
     }).then((value) => {
       if (value.isConfirmed) {
-        const deleteUrl = `${lmApiUrl}/organization/${data?.id}`;
-        dispatch(
-          fetchDeleteData({
-            url: deleteUrl,
-            token: authCtx.token,
-            showNotification: showNotification,
-          }),
-        );
+        deleteMutate();
       }
     });
   };
@@ -196,19 +239,17 @@ const Organization = () => {
   // send props in the batch action table
   const tableProps = {
     title: 'Organizations',
-    rowData: crudData?.allOrganizations?.items?.length
-      ? crudData?.allOrganizations?.items
-      : [],
+    rowData: allOrganizations ? allOrganizations?.items : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: crudData?.allOrganizations?.total_items,
-    totalPages: crudData?.allOrganizations?.total_pages,
+    totalItems: allOrganizations?.total_items,
+    totalPages: allOrganizations?.total_pages,
     pageSize,
-    page: crudData?.allOrganizations?.page,
+    page: allOrganizations?.page,
     inpPlaceholder: 'Search Organization',
   };
 
@@ -250,7 +291,8 @@ const Organization = () => {
         </div>
       </AddNewModal>
 
-      {isCrudLoading && <UseLoader />}
+      {(isLoading || createLoading || updateLoading || deleteLoading) && <UseLoader />}
+
       {notificationType && notificationMessage && (
         <Notification
           type={notificationType}
@@ -259,6 +301,7 @@ const Organization = () => {
           setNotificationMessage={setNotificationMessage}
         />
       )}
+
       <AdminDataTable props={tableProps} />
     </div>
   );

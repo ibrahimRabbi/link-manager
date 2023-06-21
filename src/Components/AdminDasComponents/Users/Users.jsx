@@ -10,10 +10,9 @@ import AdminDataTable from '../AdminDataTable';
 import { Modal } from 'rsuite';
 import AddUser from './AddUser';
 import UseLoader from '../../Shared/UseLoader';
-import { fetchDeleteData, fetchGetData } from '../../../Redux/slices/useCRUDSlice';
 import Notification from '../../Shared/Notification';
-
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+import { useMutation, useQuery } from '@tanstack/react-query';
+import fetchAPIRequest from '../../../apiRequests/apiRequest';
 
 // demo data
 const headerData = [
@@ -40,13 +39,13 @@ const headerData = [
 ];
 
 const Users = () => {
-  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
-    (state) => state.crud,
-  );
-
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [isAddModal, setIsAddModal] = useState(false);
+  const [createUpdateLoading, setCreateUpdateLoading] = useState(false);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [createSuccess, setCreateSuccess] = useState(false);
   const [editData, setEditData] = useState({});
+  const [deleteData, setDeleteData] = useState({});
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formValue, setFormValue] = React.useState({
@@ -65,6 +64,41 @@ const Users = () => {
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
+  // get data using react-query
+  const {
+    data: allUsers,
+    isLoading,
+    refetch: refetchUsers,
+  } = useQuery(['user'], () =>
+    fetchAPIRequest({
+      urlPath: `user?page=${currPage}&per_page=${pageSize}`,
+      token: authCtx.token,
+      method: 'GET',
+      showNotification: showNotification,
+    }),
+  );
+
+  // Delete data using react query
+  const {
+    isLoading: deleteLoading,
+    isSuccess: deleteSuccess,
+    mutate: deleteMutate,
+  } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: `user/${deleteData?.id}`,
+        token: authCtx.token,
+        method: 'DELETE',
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (value) => {
+        console.log(value);
+        setDeleteData({});
+      },
+    },
+  );
+
   const handleClose = () => {
     setIsAddModal(false);
     handleResetForm();
@@ -78,12 +112,14 @@ const Users = () => {
   // reset form
   const handleResetForm = () => {
     setEditData({});
-    setFormValue({
-      first_name: '',
-      last_name: '',
-      username: '',
-      email: '',
-    });
+    setTimeout(() => {
+      setFormValue({
+        first_name: '',
+        last_name: '',
+        username: '',
+        email: '',
+      });
+    }, 3000);
   };
 
   // Pagination
@@ -99,20 +135,12 @@ const Users = () => {
   // get all users
   useEffect(() => {
     dispatch(handleCurrPageTitle('Users'));
-
-    const getUrl = `${lmApiUrl}/user?page=${currPage}&per_page=${pageSize}`;
-    dispatch(
-      fetchGetData({
-        url: getUrl,
-        token: authCtx.token,
-        stateName: 'allUsers',
-        showNotification: showNotification,
-      }),
-    );
-  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
+    refetchUsers();
+  }, [createSuccess, updateSuccess, deleteSuccess, pageSize, currPage, refreshData]);
 
   // handle delete user
   const handleDelete = (data) => {
+    setDeleteData(data);
     Swal.fire({
       title: 'Are you sure',
       icon: 'info',
@@ -124,14 +152,7 @@ const Users = () => {
       reverseButtons: true,
     }).then((value) => {
       if (value.isConfirmed) {
-        const deleteUrl = `${lmApiUrl}/user/${data?.id}`;
-        dispatch(
-          fetchDeleteData({
-            url: deleteUrl,
-            token: authCtx.token,
-            showNotification: showNotification,
-          }),
-        );
+        deleteMutate();
       }
     });
   };
@@ -152,17 +173,17 @@ const Users = () => {
   // send props in the batch action table
   const tableProps = {
     title: 'Users',
-    rowData: crudData?.allUsers?.items?.length ? crudData?.allUsers?.items : [],
+    rowData: allUsers ? allUsers?.items : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: crudData?.allUsers?.total_items,
-    totalPages: crudData?.allUsers?.total_pages,
+    totalItems: allUsers?.total_items,
+    totalPages: allUsers?.total_pages,
     pageSize,
-    page: crudData?.allUsers?.page,
+    page: allUsers?.page,
     inpPlaceholder: 'Search User',
   };
 
@@ -181,6 +202,9 @@ const Users = () => {
             setFormValue={setFormValue}
             editData={editData}
             handleClose={handleClose}
+            setCreateUpdateLoading={setCreateUpdateLoading}
+            setUpdateSuccess={setUpdateSuccess}
+            setCreateSuccess={setCreateSuccess}
             setNotificationType={setNotificationType}
             setNotificationMessage={setNotificationMessage}
             isUserSection={true}
@@ -189,7 +213,8 @@ const Users = () => {
         <Modal.Footer></Modal.Footer>
       </Modal>
 
-      {isCrudLoading && <UseLoader />}
+      {(isLoading || createUpdateLoading || deleteLoading) && <UseLoader />}
+
       {notificationType && notificationMessage && (
         <Notification
           type={notificationType}

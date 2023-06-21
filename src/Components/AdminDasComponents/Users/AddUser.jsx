@@ -1,13 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import AuthContext from '../../../Store/Auth-Context';
-
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 import { Form, Button, Schema, FlexboxGrid } from 'rsuite';
 import TextField from '../TextField';
 import { useContext } from 'react';
 import { useDispatch } from 'react-redux';
 import { handleIsAdminEditing } from '../../../Redux/slices/navSlice';
-import { fetchCreateData, fetchUpdateData } from '../../../Redux/slices/useCRUDSlice';
+import { useMutation } from '@tanstack/react-query';
+import fetchAPIRequest from '../../../apiRequests/apiRequest';
 
 const { StringType } = Schema.Types;
 
@@ -27,6 +26,9 @@ const AddUser = ({
   formValue,
   setFormValue,
   isAdminEditing,
+  setCreateSuccess,
+  setUpdateSuccess,
+  setCreateUpdateLoading,
   setNotificationType,
   setNotificationMessage,
 }) => {
@@ -38,36 +40,67 @@ const AddUser = ({
     setNotificationType(type);
     setNotificationMessage(message);
   };
+  // create data using react query
+  const { isLoading: createLoading, mutate: createMutate } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: 'user',
+        token: authCtx.token,
+        method: 'POST',
+        body: { ...formValue, enabled: true },
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (value) => {
+        setCreateSuccess(value);
+      },
+      onError: () => {
+        setCreateUpdateLoading(false);
+      },
+    },
+  );
+
+  // update data using react query
+  const { isLoading: updateLoading, mutate: updateMutate } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: `user/${editData?.id}`,
+        token: authCtx.token,
+        method: 'PUT',
+        body: { ...formValue },
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (value) => {
+        setUpdateSuccess(value);
+      },
+      onError: () => {
+        setCreateUpdateLoading(false);
+      },
+    },
+  );
+
+  useEffect(() => {
+    setCreateUpdateLoading(createLoading);
+  }, [createLoading]);
+
+  useEffect(() => {
+    setCreateUpdateLoading(updateLoading);
+  }, [updateLoading]);
+
   // handle create and update form submit
   const handleSubmit = () => {
     if (!userFormRef.current.check()) {
       console.error('Form Error', formError);
       return;
     } else if (isAdminEditing) {
-      const putUrl = `${lmApiUrl}/user/${editData?.id}`;
-      dispatch(
-        fetchUpdateData({
-          url: putUrl,
-          token: authCtx.token,
-          bodyData: formValue,
-          showNotification: showNotification,
-        }),
-      );
+      updateMutate();
     } else {
-      const postUrl = `${lmApiUrl}/user`;
-      dispatch(
-        fetchCreateData({
-          url: postUrl,
-          token: authCtx.token,
-          bodyData: { ...formValue, enabled: true },
-          message: 'user',
-          showNotification: showNotification,
-        }),
-      );
+      createMutate();
     }
     // close modal
-    if (handleClose) handleClose();
     if (isAdminEditing) dispatch(handleIsAdminEditing(false));
+    if (handleClose) handleClose();
   };
 
   return (

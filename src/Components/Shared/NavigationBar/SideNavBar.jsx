@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './NavigationBar.module.scss';
@@ -15,11 +15,13 @@ import { handleIsDarkMode, handleIsSidebarOpen } from '../../../Redux/slices/nav
 import MenuIcon from '@rsuite/icons/Menu';
 import CloseIcon from '@rsuite/icons/Close';
 import DashboardIcon from '@rsuite/icons/Dashboard';
+import AttachmentIcon from '@rsuite/icons/Attachment';
 import { darkColor, lightBgColor } from '../../../App';
 import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
 
 const SideNavBar = ({ isWbe }) => {
   const { isDark, isSidebarOpen } = useSelector((state) => state.nav);
+  const { isGraphDashboardDisplay, isTreeviewTableDisplay } = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
@@ -64,7 +66,7 @@ const SideNavBar = ({ isWbe }) => {
           <Nav pullRight>
             <Nav.Item
               onClick={() => dispatch(handleIsSidebarOpen(!isSidebarOpen))}
-              style={{ width: '100%', paddingLeft: '17px' }}
+              style={{ width: '100%', paddingLeft: '17px', borderRadius: '0' }}
             >
               <h3>{isSidebarOpen ? <CloseIcon /> : <MenuIcon />}</h3>
             </Nav.Item>
@@ -83,16 +85,19 @@ const SideNavBar = ({ isWbe }) => {
                 Links
               </Nav.Item>
 
-              <Nav.Item
-                eventKey="2"
-                active={isWbe ? pathname === '/wbe/treeview' : pathname === '/treeview'}
-                icon={<TableColumnIcon />}
-                onClick={() =>
-                  isWbe ? navigate('/wbe/treeview') : navigate('/treeview')
-                }
-              >
-                Links Treeview
-              </Nav.Item>
+              {isTreeviewTableDisplay && (
+                <Nav.Item
+                  eventKey="2"
+                  active={isWbe ? pathname === '/wbe/treeview' : pathname === '/treeview'}
+                  icon={<TableColumnIcon />}
+                  onClick={() =>
+                    isWbe ? navigate('/wbe/treeview') : navigate('/treeview')
+                  }
+                >
+                  {' '}
+                  Links Treeview
+                </Nav.Item>
+              )}
 
               <Nav.Item
                 eventKey="3"
@@ -117,6 +122,26 @@ const SideNavBar = ({ isWbe }) => {
               >
                 Pipeline
               </Nav.Item>
+              {isGraphDashboardDisplay && (
+                <Nav.Item
+                  eventKey="3"
+                  active={
+                    // eslint-disable-next-line max-len
+                    isWbe
+                      ? pathname === '/wbe/graph-dashboard'
+                      : pathname === '/graph-dashboard'
+                  }
+                  icon={<ShareOutlineIcon />}
+                  onClick={() =>
+                    isWbe
+                      ? navigate('/wbe/graph-dashboard')
+                      : navigate('/graph-dashboard')
+                  }
+                >
+                  {' '}
+                  Graph View
+                </Nav.Item>
+              )}
 
               {!isWbe && (
                 <Nav.Item
@@ -126,6 +151,16 @@ const SideNavBar = ({ isWbe }) => {
                   onClick={() => navigate('/admin')}
                 >
                   Dashboard
+                </Nav.Item>
+              )}
+              {!isWbe && (
+                <Nav.Item
+                  eventKey="4"
+                  active={pathname === '/extension'}
+                  icon={<AttachmentIcon />}
+                  onClick={() => navigate('/extension')}
+                >
+                  Extension
                 </Nav.Item>
               )}
             </Nav>

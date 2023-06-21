@@ -1,8 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import deleteAPI from '../apiRequests/deleteAPI';
-import getAPI from '../apiRequests/getAPI';
-import postAPI from '../apiRequests/postAPI';
-import putAPI from '../apiRequests/putAPI';
+import getAPI, { deleteAPI, putAPI, saveResource } from '../apiRequests/API';
 
 // Fetch get all Events
 export const fetchEvents = createAsyncThunk(
@@ -16,7 +13,7 @@ export const fetchEvents = createAsyncThunk(
 export const fetchCreateEvent = createAsyncThunk(
   'events/fetchCreateEvent',
   async ({ url, token, bodyData, message }) => {
-    return postAPI({ url, token, bodyData, message });
+    return saveResource({ url, token, bodyData, message });
   },
 );
 

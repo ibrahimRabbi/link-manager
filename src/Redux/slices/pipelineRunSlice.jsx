@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import getAPI from '../apiRequests/getAPI.jsx';
+import getAPI from '../apiRequests/API';
 
 export const fetchPipelineRun = createAsyncThunk(
   'pipelineRun/fetchPipelineRun',
