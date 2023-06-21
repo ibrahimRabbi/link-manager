@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import ReactGraph from 'react-graph';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -8,7 +8,6 @@ import UseLoader from '../Shared/UseLoader';
 import GraphDashboard from './GraphDashboard';
 import { useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../apiRequests/apiRequest';
-import Notification from '../Shared/Notification';
 
 const GraphView = () => {
   const { isGraphDashboardDisplay } = useSelector((state) => state.featureFlag);
@@ -20,12 +19,6 @@ const GraphView = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const wbePath = location.pathname?.includes('wbe');
-  const [notificationType, setNotificationType] = useState('');
-  const [notificationMessage, setNotificationMessage] = useState('');
-  const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
-  };
   // get data using react-query
   const {
     data,
@@ -38,7 +31,6 @@ const GraphView = () => {
       )}&direction=outgoing`,
       token: authCtx.token,
       method: 'GET',
-      showNotification: showNotification,
     }),
   );
 
@@ -79,14 +71,6 @@ const GraphView = () => {
         onClick={() => dispatch(handleIsProfileOpen(isProfileOpen && false))}
         className={wbePath ? 'wbeNavSpace' : ''}
       >
-        {notificationType && notificationMessage && (
-          <Notification
-            type={notificationType}
-            message={notificationMessage}
-            setNotificationType={setNotificationType}
-            setNotificationMessage={setNotificationMessage}
-          />
-        )}
         {isGraphLoading ? (
           <UseLoader />
         ) : (

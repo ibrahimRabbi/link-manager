@@ -1,12 +1,6 @@
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
-export default function fetchAPIRequest({
-  urlPath,
-  token,
-  method,
-  body,
-  showNotification,
-}) {
+export default function fetchAPIRequest({ urlPath, token, method, body }) {
   const apiURL = `${lmApiUrl}/${urlPath}`;
   return fetch(apiURL, {
     method: method,
@@ -17,29 +11,28 @@ export default function fetchAPIRequest({
     body: JSON.stringify(body),
   }).then(async (response) => {
     if (method === 'GET' && response.status === 204) {
-      return showNotification('success', 'No content available');
+      return console.log('Success');
     } else if (method === 'DELETE' && response.status === 204) {
-      return showNotification('success', 'The content was successfully deleted');
+      return console.log('Deleted');
     } else if (response.ok) {
       return response.json().then((data) => {
-        showNotification('success', data.message);
         return data;
       });
     } else {
       if (response.status === 401) {
         return response.json().then((data) => {
-          showNotification('error', data.message);
+          console.log(data.message);
           window.location.replace('/login');
         });
       } else if (response.status === 403) {
         if (token) {
-          showNotification('error', 'You do not have permission to access');
+          console.log('error', 'You do not have permission to access');
         } else {
           window.location.replace('/login');
         }
       } else {
         return response.json().then((data) => {
-          showNotification('error', data.message);
+          console.log('error', data.message);
         });
       }
     }

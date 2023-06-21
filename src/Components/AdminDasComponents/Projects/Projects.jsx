@@ -15,7 +15,6 @@ import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
 import SelectField from '../SelectField.jsx';
 import CustomSelect from '../CustomSelect.jsx';
-import Notification from '../../Shared/Notification';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
 
@@ -61,12 +60,6 @@ const Projects = () => {
     description: '',
     organization_id: '',
   });
-  const [notificationType, setNotificationType] = useState('');
-  const [notificationMessage, setNotificationMessage] = useState('');
-  const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
-  };
   const projectFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
@@ -81,7 +74,6 @@ const Projects = () => {
       urlPath: `project?page=${currPage}&per_page=${pageSize}`,
       token: authCtx.token,
       method: 'GET',
-      showNotification: showNotification,
     }),
   );
 
@@ -97,7 +89,6 @@ const Projects = () => {
         token: authCtx.token,
         method: 'POST',
         body: formValue,
-        showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {
@@ -118,7 +109,6 @@ const Projects = () => {
         token: authCtx.token,
         method: 'PUT',
         body: formValue,
-        showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {
@@ -138,7 +128,6 @@ const Projects = () => {
         urlPath: `project/${deleteData?.id}`,
         token: authCtx.token,
         method: 'DELETE',
-        showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {
@@ -284,14 +273,6 @@ const Projects = () => {
 
       {(isLoading || createLoading || updateLoading || deleteLoading) && <UseLoader />}
 
-      {notificationType && notificationMessage && (
-        <Notification
-          type={notificationType}
-          message={notificationMessage}
-          setNotificationType={setNotificationType}
-          setNotificationMessage={setNotificationMessage}
-        />
-      )}
       <AdminDataTable props={tableProps} />
     </div>
   );

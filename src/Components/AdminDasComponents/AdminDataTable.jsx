@@ -154,7 +154,14 @@ const AdminDataTable = ({ props }) => {
   };
 
   // dynamic cell for the image
-  const DynamicCell = ({ rowData, dataKey, iconKey, statusKey, ...props }) => {
+  const DynamicCell = ({
+    rowData,
+    dataKey,
+    iconKey,
+    statusKey,
+    pipelinerunkey,
+    ...props
+  }) => {
     const logo = rowData[iconKey] ? rowData[iconKey] : defaultLogo;
     return (
       <Cell {...props}>
@@ -195,6 +202,28 @@ const AdminDataTable = ({ props }) => {
                 <InfoStatus color="#25b3f5" />
               ) : (
                 <InfoStatus color="#25b3f5" />
+              )}
+            </h5>
+
+            <p style={{ marginTop: '2px' }}>{rowData[statusKey]}</p>
+          </div>
+        )}
+        {pipelinerunkey && (
+          <div
+            onClick={() => (authorizeModal ? authorizeModal(rowData) : null)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+            }}
+          >
+            <h5>
+              {rowData?.status === true ? (
+                <SuccessStatus color="#378f17" />
+              ) : (
+                rowData?.status === false && <FailedStatus color="#de1655" />
               )}
             </h5>
 
@@ -297,15 +326,22 @@ const AdminDataTable = ({ props }) => {
             width={header?.width ? header?.width : 70}
             flexGrow={header?.width || header?.header === 'ID' ? 0 : 1}
             fullText
+            align="center"
           >
             <HeaderCell>
               <h6>{header?.header}</h6>
             </HeaderCell>
             <DynamicCell
-              style={{ fontSize: '17px', display: 'flex', alignItems: 'center' }}
+              style={{
+                fontSize: '17px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
               dataKey={header?.key}
               iconKey={header?.iconKey}
               statusKey={header?.statusKey}
+              pipelinerunkey={header?.pipelinerunkey}
             />
           </Column>
         ))}

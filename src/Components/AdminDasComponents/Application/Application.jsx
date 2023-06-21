@@ -25,7 +25,6 @@ import UseLoader from '../../Shared/UseLoader';
 import { fetchApplicationPublisherIcon } from '../../../Redux/slices/applicationSlice';
 import Oauth2Modal from '../../Oauth2Modal/Oauth2Modal';
 import { handleIsOauth2ModalOpen } from '../../../Redux/slices/oauth2ModalSlice';
-import Notification from '../../Shared/Notification';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
@@ -98,12 +97,6 @@ const Application = () => {
     organization_id: '',
     description: '',
   });
-  const [notificationType, setNotificationType] = React.useState('');
-  const [notificationMessage, setNotificationMessage] = React.useState('');
-  const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
-  };
   const appFormRef = useRef();
   const iframeRef = useRef(null);
   const oauth2ModalRef = useRef();
@@ -121,7 +114,6 @@ const Application = () => {
       urlPath: `application?page=${currentPage}&per_page=${pageSize}`,
       token: authCtx.token,
       method: 'GET',
-      showNotification: showNotification,
     }),
   );
 
@@ -145,7 +137,6 @@ const Application = () => {
         token: authCtx.token,
         method: 'POST',
         body: { ...formValue, scopes, response_types, grant_types, redirect_uris },
-        showNotification: showNotification,
       }),
     {
       onSuccess: (res) => {
@@ -189,7 +180,6 @@ const Application = () => {
         token: authCtx.token,
         method: 'PUT',
         body: formValue,
-        showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {
@@ -209,7 +199,6 @@ const Application = () => {
         urlPath: `application/${deleteData?.id}`,
         token: authCtx.token,
         method: 'DELETE',
-        showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {
@@ -608,14 +597,6 @@ const Application = () => {
 
       {(isLoading || createLoading || updateLoading || deleteLoading) && <UseLoader />}
 
-      {notificationType && notificationMessage && (
-        <Notification
-          type={notificationType}
-          message={notificationMessage}
-          setNotificationType={setNotificationType}
-          setNotificationMessage={setNotificationMessage}
-        />
-      )}
       <AdminDataTable props={tableProps} />
     </div>
   );
