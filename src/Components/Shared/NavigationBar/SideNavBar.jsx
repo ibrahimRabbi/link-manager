@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './NavigationBar.module.scss';
@@ -20,9 +20,7 @@ import { darkColor, lightBgColor } from '../../../App';
 
 const SideNavBar = ({ isWbe }) => {
   const { isDark, isSidebarOpen } = useSelector((state) => state.nav);
-  const { isGraphDashboardDisplay, isTreeviewTableDisplay } = useSelector(
-    (state) => state.featureFlag,
-  );
+  const { isGraphDashboardDisplay, isTreeviewTableDisplay } = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
