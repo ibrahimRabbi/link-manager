@@ -90,8 +90,8 @@ function App() {
             <Route path="/pipeline" element={<Pipeline />} />
             <Route path="/graph-dashboard" element={<GraphView />} />
             <Route path="/treeview" element={<LinkManager />} />
-            <Route path="/" element={<LinkManager />} />
             <Route path="/extension" element={<WebBrowserExtension />} />
+            <Route path="/" element={<LinkManager />} />
           </Route>
 
           {/* This is admin dashboard  */}

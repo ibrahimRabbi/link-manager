@@ -47,8 +47,8 @@ const ProtectedRoute = ({ children }) => {
     }
   }, [uri, title, projectName]);
 
-  // eslint-disable-next-line max-len
-  // When the token expires, the state data is emptied after the user re-logins, so the source data is stored and reused.
+  // When the token expires, the state data is emptied after the user re-logins,
+  // so the source data is stored and reused.
   useEffect(() => {
     const source = sessionStorage.getItem('sourceData');
     if (source) dispatch(handleGetSources(JSON.parse(source)));

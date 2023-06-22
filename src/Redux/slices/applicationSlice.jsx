@@ -23,44 +23,49 @@ export const fetchApplicationPublisherIcon = createAsyncThunk(
         icon: null,
       };
 
-      if (current?.rootservicesUrl) {
-        const oslcResponse = await getOslcAPI({
-          url: current.rootservicesUrl,
-          token: 'dummy',
-        });
-
-        if (oslcResponse instanceof Array) {
-          oslcResponse.every((item) => {
-            if (item[OSLC_PUBLISHER_URL][0]['@id']) {
-              appDataObj['publisherUrl'] = item[OSLC_PUBLISHER_URL][0]['@id'];
-              return false;
-            }
-            return true;
-          });
-        }
-
-        if (appDataObj.publisherUrl) {
-          const publisherResponse = await getOslcAPI({
-            url: appDataObj.publisherUrl,
+      try {
+        new URL(current.rootservicesUrl);
+        if (current?.rootservicesUrl) {
+          const oslcResponse = await getOslcAPI({
+            url: current.rootservicesUrl,
             token: 'dummy',
           });
-          publisherResponse.every((item) => {
-            if (item[OSLC_PUBLISHER_ICON][0]['@id']) {
-              appDataObj['icon'] = item[OSLC_PUBLISHER_ICON][0]['@id'];
-              return false;
-            }
-            return true;
-          });
+
+          if (oslcResponse instanceof Array) {
+            oslcResponse.every((item) => {
+              if (item[OSLC_PUBLISHER_URL][0]['@id']) {
+                appDataObj['publisherUrl'] = item[OSLC_PUBLISHER_URL][0]['@id'];
+                return false;
+              }
+              return true;
+            });
+          }
+
+          if (appDataObj.publisherUrl) {
+            const publisherResponse = await getOslcAPI({
+              url: appDataObj.publisherUrl,
+              token: 'dummy',
+            });
+            publisherResponse.every((item) => {
+              if (item[OSLC_PUBLISHER_ICON][0]['@id']) {
+                appDataObj['icon'] = item[OSLC_PUBLISHER_ICON][0]['@id'];
+                return false;
+              }
+              return true;
+            });
+          }
         }
-      }
-      if (current.rootservicesUrl && appDataObj.icon) {
-        const appWithIcon = {
-          ...current,
-          iconUrl: appDataObj.icon,
-          publisherUrl: appDataObj.publisherUrl,
-        };
-        const acc = await accumulator;
-        acc.push(appWithIcon);
+        if (current.rootservicesUrl && appDataObj.icon) {
+          const appWithIcon = {
+            ...current,
+            iconUrl: appDataObj.icon,
+            publisherUrl: appDataObj.publisherUrl,
+          };
+          const acc = await accumulator;
+          acc.push(appWithIcon);
+        }
+      } catch (error) {
+        console.log(error);
       }
 
       return await accumulator;
