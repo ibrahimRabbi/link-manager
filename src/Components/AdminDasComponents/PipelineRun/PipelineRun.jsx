@@ -27,7 +27,7 @@ const headerData = [
   },
   {
     header: 'Status',
-    key: 'status',
+    pipelinerunkey: 'status',
   },
   {
     header: 'Output',

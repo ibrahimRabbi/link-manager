@@ -17,14 +17,73 @@ import CloseIcon from '@rsuite/icons/Close';
 import DashboardIcon from '@rsuite/icons/Dashboard';
 import AttachmentIcon from '@rsuite/icons/Attachment';
 import { darkColor, lightBgColor } from '../../../App';
+import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
+
+const baseOptions = [
+  {
+    path: '/',
+    navigateTo: '/',
+    icon: <TableColumnIcon />,
+    content: <span>Links</span>,
+  },
+  {
+    path: '/graph-view',
+    navigateTo: '/graph-view',
+    icon: <ShareOutlineIcon />,
+    content: <span>Graph View</span>,
+  },
+  {
+    path: '/pipeline',
+    navigateTo: '/pipeline',
+    icon: <PlayOutlineIcon />,
+    content: <span>Pipeline</span>,
+  },
+  {
+    path: '/treeview',
+    navigateTo: '/treeview',
+    icon: <TableColumnIcon />,
+    content: <span>Links Treeview</span>,
+  },
+  {
+    path: '/graph-dashboard',
+    navigateTo: '/graph-dashboard',
+    icon: <ShareOutlineIcon />,
+    content: <span>Graph View</span>,
+  },
+  {
+    path: '/admin',
+    navigateTo: '/admin',
+    icon: <DashboardIcon />,
+    content: <span>Dashboard</span>,
+  },
+  {
+    path: '/extension',
+    navigateTo: '/extension',
+    icon: <AttachmentIcon />,
+    content: <span>Extension</span>,
+  },
+];
+
+const showOptions = (option, showTree, showGraph) => {
+  if (option.path === '/treeview' && !showTree) {
+    return false;
+  }
+
+  return !(option.path === '/graph-dashboard' && !showGraph);
+};
 
 const SideNavBar = ({ isWbe }) => {
   const { isDark, isSidebarOpen } = useSelector((state) => state.nav);
-  const { isGraphDashboardDisplay, isTreeviewTableDisplay } = useState(false);
+  const { isGraphDashboardDisplay } = useState(false);
+  const { isTreeviewTableDisplay } = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
   const { pathname } = useLocation();
+
+  const options = baseOptions.filter((option) =>
+    showOptions(option, isTreeviewTableDisplay, isGraphDashboardDisplay),
+  );
 
   const handleLogout = () => {
     Swal.fire({
@@ -75,83 +134,21 @@ const SideNavBar = ({ isWbe }) => {
         <Sidenav expanded={isSidebarOpen} defaultOpenKeys={['3']} appearance="subtle">
           <Sidenav.Body>
             <Nav>
-              <Nav.Item
-                eventKey="1"
-                active={isWbe ? pathname === '/wbe' : pathname === '/'}
-                icon={<TableColumnIcon />}
-                onClick={() => (isWbe ? navigate('/wbe') : navigate('/'))}
-              >
-                Links
-              </Nav.Item>
-
-              {isTreeviewTableDisplay && (
+              {options.map((option, index) => (
                 <Nav.Item
-                  eventKey="2"
-                  active={isWbe ? pathname === '/wbe/treeview' : pathname === '/treeview'}
-                  icon={<TableColumnIcon />}
-                  onClick={() =>
-                    isWbe ? navigate('/wbe/treeview') : navigate('/treeview')
-                  }
-                >
-                  {' '}
-                  Links Treeview
-                </Nav.Item>
-              )}
-
-              <Nav.Item
-                eventKey="3"
-                active={
-                  isWbe ? pathname === '/wbe/graph-view' : pathname === '/graph-view'
-                }
-                icon={<ShareOutlineIcon />}
-                onClick={() =>
-                  isWbe ? navigate('/wbe/graph-view') : navigate('/graph-view')
-                }
-              >
-                Graph View
-              </Nav.Item>
-
-              {isGraphDashboardDisplay && (
-                <Nav.Item
-                  eventKey="3"
+                  key={index}
+                  eventKey={`${index}`}
                   active={
-                    // eslint-disable-next-line max-len
-                    isWbe
-                      ? pathname === '/wbe/graph-dashboard'
-                      : pathname === '/graph-dashboard'
+                    !isWbe ? option.path === pathname : `/wbe${option.path}` === pathname
                   }
-                  icon={<ShareOutlineIcon />}
+                  icon={option.icon}
                   onClick={() =>
-                    isWbe
-                      ? navigate('/wbe/graph-dashboard')
-                      : navigate('/graph-dashboard')
+                    navigate(!isWbe ? option.navigateTo : `/wbe${option.navigateTo}`)
                   }
                 >
-                  {' '}
-                  Graph View
+                  {option.content}
                 </Nav.Item>
-              )}
-
-              {!isWbe && (
-                <Nav.Item
-                  eventKey="4"
-                  active={pathname === '/admin'}
-                  icon={<DashboardIcon />}
-                  onClick={() => navigate('/admin')}
-                >
-                  Dashboard
-                </Nav.Item>
-              )}
-              {!isWbe && (
-                <Nav.Item
-                  eventKey="4"
-                  active={pathname === '/extension'}
-                  icon={<AttachmentIcon />}
-                  onClick={() => navigate('/extension')}
-                >
-                  Extension
-                </Nav.Item>
-              )}
+              ))}
             </Nav>
           </Sidenav.Body>
         </Sidenav>

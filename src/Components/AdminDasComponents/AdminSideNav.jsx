@@ -22,6 +22,81 @@ const iconStyle = {
   marginRight: '20px',
 };
 
+const options = [
+  {
+    path: ['/admin', '/admin/users'],
+    navigateTo: '/admin/users',
+    icon: <FaUsers style={iconStyle} />,
+    content: <span>User</span>,
+  },
+  {
+    path: ['/admin/organizations'],
+    navigateTo: '/admin/organizations',
+    icon: <SlOrganization size={17} style={iconStyle} />,
+    content: <span>Organizations</span>,
+  },
+  {
+    path: ['/admin/applications'],
+    navigateTo: '/admin/applications',
+    icon: <TbApps size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />,
+    content: <span>Applications</span>,
+  },
+  {
+    path: ['/admin/integrations'],
+    navigateTo: '/admin/integrations',
+    icon: <TbApps size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />,
+    content: <span>Integrations</span>,
+  },
+  {
+    path: ['/admin/projects'],
+    navigateTo: '/admin/projects',
+    icon: <VscProject size={18} style={{ ...iconStyle }} />,
+    content: <span>Projects</span>,
+  },
+  {
+    path: ['/admin/link-types'],
+    navigateTo: '/admin/link-types',
+    icon: <FaLink size={16.5} style={{ ...iconStyle }} />,
+    content: <span>Link Types</span>,
+  },
+  {
+    path: ['/admin/link-constraint'],
+    navigateTo: '/admin/link-constraint',
+    icon: <CgLink size={25} style={{ ...iconStyle, marginLeft: '-39px' }} />,
+    content: <span>Link Constraint</span>,
+  },
+  {
+    path: ['/admin/components'],
+    navigateTo: '/admin/components',
+    icon: <SiWebcomponentsdotorg size={18} style={{ ...iconStyle, marginLeft: '-36' }} />,
+    content: <span>Components</span>,
+  },
+  {
+    path: ['/admin/events'],
+    navigateTo: '/admin/events',
+    icon: <SiAzurepipelines size={15} style={{ ...iconStyle }} />,
+    content: <span>Events</span>,
+  },
+  {
+    path: ['/admin/pipelines'],
+    navigateTo: '/admin/pipelines',
+    icon: <SiAzurepipelines size={15} style={{ ...iconStyle }} />,
+    content: <span>Pipelines</span>,
+  },
+  {
+    path: ['/admin/pipelinerun'],
+    navigateTo: '/admin/pipelinerun',
+    icon: <PlayOutlineIcon size={15} style={{ ...iconStyle, marginLeft: '0' }} />,
+    content: <span>Pipeline Results</span>,
+  },
+  {
+    path: ['/'],
+    navigateTo: '/',
+    icon: <TiArrowBackOutline size={22} style={{ ...iconStyle, marginLeft: '-36px' }} />,
+    content: <span>Back To Home</span>,
+  },
+];
+
 const AdminSideNav = () => {
   const { isDark, isAdminSidebarOpen } = useSelector((state) => state.nav);
   const navigate = useNavigate();
@@ -59,125 +134,17 @@ const AdminSideNav = () => {
         >
           <Sidenav.Body style={{ marginTop: '0' }}>
             <Nav>
-              <Nav.Item
-                eventKey="1"
-                active={pathname === '/admin' || pathname === '/admin/users'}
-                onClick={() => navigate('/admin/users')}
-                icon={<FaUsers style={iconStyle} />}
-              >
-                <span>User</span>
-              </Nav.Item>
-
-              <Nav.Item
-                eventKey="2"
-                active={pathname === '/admin/organizations'}
-                onClick={() => navigate('/admin/organizations')}
-                icon={<SlOrganization size={17} style={iconStyle} />}
-              >
-                Organizations
-              </Nav.Item>
-
-              <Nav.Item
-                eventKey="3"
-                active={pathname === '/admin/applications'}
-                onClick={() => navigate('/admin/applications')}
-                icon={<TbApps size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />}
-              >
-                Applications
-              </Nav.Item>
-
-              <Nav.Item
-                eventKey="4"
-                active={pathname === '/admin/integrations'}
-                onClick={() => navigate('/admin/integrations')}
-                icon={<TbApps size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />}
-              >
-                Integrations
-              </Nav.Item>
-
-              <Nav.Item
-                eventKey="5"
-                active={pathname === '/admin/projects'}
-                onClick={() => navigate('/admin/projects')}
-                icon={<VscProject size={18} style={{ ...iconStyle }} />}
-              >
-                Projects
-              </Nav.Item>
-
-              <Nav.Item
-                eventKey="6"
-                active={pathname === '/admin/link-types'}
-                onClick={() => navigate('/admin/link-types')}
-                icon={<FaLink size={16.5} style={{ ...iconStyle }} />}
-              >
-                Link Types
-              </Nav.Item>
-
-              <Nav.Item
-                eventKey="7"
-                active={pathname === '/admin/link-constraint'}
-                onClick={() => navigate('/admin/link-constraint')}
-                icon={<CgLink size={25} style={{ ...iconStyle, marginLeft: '-39px' }} />}
-              >
-                Link Constraint
-              </Nav.Item>
-
-              <Nav.Item
-                eventKey="8"
-                active={pathname === '/admin/components'}
-                onClick={() => navigate('/admin/components')}
-                icon={
-                  <SiWebcomponentsdotorg
-                    size={18}
-                    style={{ ...iconStyle, marginLeft: '-36' }}
-                  />
-                }
-              >
-                Components
-              </Nav.Item>
-
-              <Nav.Item
-                eventKey="9"
-                active={pathname === '/admin/events'}
-                onClick={() => navigate('/admin/events')}
-                icon={<SiAzurepipelines size={15} style={{ ...iconStyle }} />}
-              >
-                Events
-              </Nav.Item>
-
-              <Nav.Item
-                eventKey="10"
-                active={pathname === '/admin/pipelines'}
-                onClick={() => navigate('/admin/pipelines')}
-                icon={<SiAzurepipelines size={15} style={{ ...iconStyle }} />}
-              >
-                Pipelines
-              </Nav.Item>
-
-              <Nav.Item
-                eventKey="11"
-                active={pathname === '/admin/pipelinerun'}
-                onClick={() => navigate('/admin/pipelinerun')}
-                icon={
-                  <PlayOutlineIcon size={15} style={{ ...iconStyle, marginLeft: '0' }} />
-                }
-              >
-                Pipeline Results
-              </Nav.Item>
-
-              <Nav.Item
-                eventKey="12"
-                active={pathname === '/'}
-                onClick={() => navigate('/')}
-                icon={
-                  <TiArrowBackOutline
-                    size={22}
-                    style={{ ...iconStyle, marginLeft: '-36px' }}
-                  />
-                }
-              >
-                Back To Home
-              </Nav.Item>
+              {options.map((option, index) => (
+                <Nav.Item
+                  key={index}
+                  eventKey={`${index}`}
+                  active={option.path.includes(pathname)}
+                  onClick={() => navigate(option.navigateTo)}
+                  icon={option.icon}
+                >
+                  {option.content}
+                </Nav.Item>
+              ))}
             </Nav>
           </Sidenav.Body>
         </Sidenav>

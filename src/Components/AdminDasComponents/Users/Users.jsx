@@ -10,7 +10,6 @@ import AdminDataTable from '../AdminDataTable';
 import { Modal } from 'rsuite';
 import AddUser from './AddUser';
 import UseLoader from '../../Shared/UseLoader';
-import Notification from '../../Shared/Notification';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
 
@@ -54,12 +53,6 @@ const Users = () => {
     username: '',
     email: '',
   });
-  const [notificationType, setNotificationType] = React.useState('');
-  const [notificationMessage, setNotificationMessage] = React.useState('');
-  const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
-  };
 
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
@@ -74,7 +67,6 @@ const Users = () => {
       urlPath: `user?page=${currPage}&per_page=${pageSize}`,
       token: authCtx.token,
       method: 'GET',
-      showNotification: showNotification,
     }),
   );
 
@@ -89,7 +81,6 @@ const Users = () => {
         urlPath: `user/${deleteData?.id}`,
         token: authCtx.token,
         method: 'DELETE',
-        showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {
@@ -205,8 +196,6 @@ const Users = () => {
             setCreateUpdateLoading={setCreateUpdateLoading}
             setUpdateSuccess={setUpdateSuccess}
             setCreateSuccess={setCreateSuccess}
-            setNotificationType={setNotificationType}
-            setNotificationMessage={setNotificationMessage}
             isUserSection={true}
           />
         </Modal.Body>
@@ -215,14 +204,6 @@ const Users = () => {
 
       {(isLoading || createUpdateLoading || deleteLoading) && <UseLoader />}
 
-      {notificationType && notificationMessage && (
-        <Notification
-          type={notificationType}
-          message={notificationMessage}
-          setNotificationType={setNotificationType}
-          setNotificationMessage={setNotificationMessage}
-        />
-      )}
       <AdminDataTable props={tableProps} />
     </div>
   );
