@@ -124,7 +124,7 @@ const Pipeline = () => {
                           if (rowData.status === 'Success') {
                             return (
                               <span
-                                style={{ cursor: 'pointer' }}
+                                style={{ cursor: 'pointer', fontSize: '19px' }}
                                 onClick={() => {
                                   setOpenWithHeader(true);
                                   setPipelineOutput(rowData.output);
@@ -136,7 +136,7 @@ const Pipeline = () => {
                           } else {
                             return (
                               <span
-                                style={{ cursor: 'pointer' }}
+                                style={{ cursor: 'pointer', fontSize: '19px' }}
                                 onClick={() => {
                                   setOpenWithHeader(true);
                                   setPipelineOutput(rowData.output);
