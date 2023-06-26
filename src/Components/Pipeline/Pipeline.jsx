@@ -123,7 +123,7 @@ const Pipeline = () => {
                         if (rowData.status) {
                           if (rowData.status === 'Success') {
                             return (
-                              <h5
+                              <span
                                 style={{ cursor: 'pointer' }}
                                 onClick={() => {
                                   setOpenWithHeader(true);
@@ -131,11 +131,11 @@ const Pipeline = () => {
                                 }}
                               >
                                 <SuccessStatus color="#378f17" />
-                              </h5>
+                              </span>
                             );
                           } else {
                             return (
-                              <h5
+                              <span
                                 style={{ cursor: 'pointer' }}
                                 onClick={() => {
                                   setOpenWithHeader(true);
@@ -143,7 +143,7 @@ const Pipeline = () => {
                                 }}
                               >
                                 <FailedStatus color="#de1655" />
-                              </h5>
+                              </span>
                             );
                           }
                         }
