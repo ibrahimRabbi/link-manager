@@ -1,7 +1,6 @@
 .tableContainer,
 .tableHeader,
-.pagination {
-}
+.pagination {}
 
 .tableCell {
   width: 200px;
@@ -82,13 +81,12 @@
 }
 
 .validIcon {
+  color: green;
 }
 
-.invalidIcon {
-}
+.invalidIcon {}
 
-.noStatusIcon {
-}
+.noStatusIcon {}
 
 #sourceProp {
   border-right: 1px solid lightgray;
@@ -101,5 +99,4 @@
 }
 
 // links data table rsuite
-.tableContainerDiv {
-}
+.tableContainerDiv {}
