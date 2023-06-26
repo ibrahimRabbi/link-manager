@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './NavigationBar.module.scss';
@@ -19,6 +19,11 @@ import AttachmentIcon from '@rsuite/icons/Attachment';
 import { darkColor, lightBgColor } from '../../../App';
 import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
 
+let isTreeTable = process.env.REACT_APP_IS_TREEVIEW_TABLE;
+let isGraphDashboard = process.env.REACT_APP_IS_GRAPH_DASHBOARD;
+if (isTreeTable) isTreeTable = JSON.parse(isTreeTable);
+if (isGraphDashboard) isGraphDashboard = JSON.parse(isGraphDashboard);
+
 const baseOptions = [
   {
     path: '/',
@@ -27,8 +32,20 @@ const baseOptions = [
     content: <span>Links</span>,
   },
   {
+    path: '/treeview',
+    navigateTo: '/treeview',
+    icon: <TableColumnIcon />,
+    content: <span>Links Treeview</span>,
+  },
+  {
     path: '/graph-view',
     navigateTo: '/graph-view',
+    icon: <ShareOutlineIcon />,
+    content: <span>Graph View</span>,
+  },
+  {
+    path: '/graph-dashboard',
+    navigateTo: '/graph-dashboard',
     icon: <ShareOutlineIcon />,
     content: <span>Graph View</span>,
   },
@@ -38,18 +55,7 @@ const baseOptions = [
     icon: <PlayOutlineIcon />,
     content: <span>Pipeline</span>,
   },
-  {
-    path: '/treeview',
-    navigateTo: '/treeview',
-    icon: <TableColumnIcon />,
-    content: <span>Links Treeview</span>,
-  },
-  {
-    path: '/graph-dashboard',
-    navigateTo: '/graph-dashboard',
-    icon: <ShareOutlineIcon />,
-    content: <span>Graph View</span>,
-  },
+
   {
     path: '/admin',
     navigateTo: '/admin',
@@ -64,27 +70,12 @@ const baseOptions = [
   },
 ];
 
-const showOptions = (option, showTree, showGraph) => {
-  if (option.path === '/treeview' && !showTree) {
-    return false;
-  }
-
-  return !(option.path === '/graph-dashboard' && !showGraph);
-};
-
 const SideNavBar = ({ isWbe }) => {
   const { isDark, isSidebarOpen } = useSelector((state) => state.nav);
-  const { isGraphDashboardDisplay } = useState(false);
-  const { isTreeviewTableDisplay } = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
   const { pathname } = useLocation();
-
-  const options = baseOptions.filter((option) =>
-    showOptions(option, isTreeviewTableDisplay, isGraphDashboardDisplay),
-  );
-
   const handleLogout = () => {
     Swal.fire({
       title: 'Are you sure?',
@@ -134,21 +125,31 @@ const SideNavBar = ({ isWbe }) => {
         <Sidenav expanded={isSidebarOpen} defaultOpenKeys={['3']} appearance="subtle">
           <Sidenav.Body>
             <Nav>
-              {options.map((option, index) => (
-                <Nav.Item
-                  key={index}
-                  eventKey={`${index}`}
-                  active={
-                    !isWbe ? option.path === pathname : `/wbe${option.path}` === pathname
-                  }
-                  icon={option.icon}
-                  onClick={() =>
-                    navigate(!isWbe ? option.navigateTo : `/wbe${option.navigateTo}`)
-                  }
-                >
-                  {option.content}
-                </Nav.Item>
-              ))}
+              {baseOptions?.map((option, index) => {
+                // hide admin dashboard from the WBE
+                if (isWbe && option.path === '/admin') return null;
+
+                if (!isTreeTable && option.path === '/treeview') return null;
+                if (!isGraphDashboard && option.path === '/graph-dashboard') return null;
+
+                return (
+                  <Nav.Item
+                    key={index}
+                    eventKey={`${index}`}
+                    active={
+                      !isWbe
+                        ? option.path === pathname
+                        : `/wbe${option.path}` === pathname
+                    }
+                    icon={option.icon}
+                    onClick={() =>
+                      navigate(!isWbe ? option.navigateTo : `/wbe${option.navigateTo}`)
+                    }
+                  >
+                    {option.content}
+                  </Nav.Item>
+                );
+              })}
             </Nav>
           </Sidenav.Body>
         </Sidenav>

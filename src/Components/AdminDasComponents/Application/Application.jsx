@@ -61,7 +61,7 @@ const { StringType, NumberType } = Schema.Types;
 
 const Application = () => {
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
-  const { iconData } = useSelector((state) => state.applications);
+  // const { iconData } = useSelector((state) => state.applications);
 
   // application form validation schema
   const model = Schema.Model({
@@ -90,6 +90,7 @@ const Application = () => {
   const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
   const [authorizedAppConsumption, setAuthorizedAppConsumption] = useState(false);
   const [isAppAuthorize, setIsAppAuthorize] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [formValue, setFormValue] = useState({
     name: '',
@@ -224,8 +225,9 @@ const Application = () => {
   ]);
 
   // get icons for the applications
-  useEffect(() => {
+  useEffect(async () => {
     if (allApplications?.items) {
+      setLoading(true);
       let tempData = [];
       allApplications?.items?.forEach((item) => {
         tempData.push({
@@ -233,30 +235,31 @@ const Application = () => {
           rootservicesUrl: item?.rootservices_url ? item.rootservices_url : null,
         });
       });
-      dispatch(
+
+      const response = await dispatch(
         fetchApplicationPublisherIcon({
           applicationData: tempData,
         }),
       );
-    }
-  }, [allApplications]);
 
-  // merging application icons with applications data
-  useEffect(() => {
-    if (allApplications) {
+      // merge icons data with application data
       const customAppItems = allApplications?.items?.reduce(
         (accumulator, currentValue) => {
           if (currentValue?.rootservices_url) {
-            iconData?.forEach((icon) => {
-              if (currentValue.id === icon.id) {
-                const withIcon = {
-                  ...currentValue,
-                  iconUrl: icon.iconUrl,
-                  status: currentValue?.oauth2_application[0]?.token_status?.status,
-                };
-                accumulator.push(withIcon);
+            if (response.payload) {
+              if (response?.payload?.length) {
+                response?.payload?.forEach((icon) => {
+                  if (currentValue.id === icon.id) {
+                    const withIcon = {
+                      ...currentValue,
+                      iconUrl: icon.iconUrl,
+                      status: currentValue?.oauth2_application[0]?.token_status?.status,
+                    };
+                    accumulator.push(withIcon);
+                  }
+                });
               }
-            });
+            }
           } else {
             accumulator.push({
               ...currentValue,
@@ -270,7 +273,8 @@ const Application = () => {
       );
       setAppsWithIcon(customAppItems);
     }
-  }, [iconData, allApplications]);
+    setLoading(false);
+  }, [allApplications]);
 
   // manage oauth iframe
   useEffect(() => {
@@ -595,7 +599,9 @@ const Application = () => {
       {/* --- oauth 2 modal ---  */}
       <Oauth2Modal ref={oauth2ModalRef} />
 
-      {(isLoading || createLoading || updateLoading || deleteLoading) && <UseLoader />}
+      {(isLoading || loading || createLoading || updateLoading || deleteLoading) && (
+        <UseLoader />
+      )}
 
       <AdminDataTable props={tableProps} />
     </div>

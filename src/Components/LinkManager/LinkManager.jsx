@@ -32,6 +32,8 @@ const headerData = [
 ];
 
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
+let isTreeTable = process.env.REACT_APP_IS_TREEVIEW_TABLE;
+if (isTreeTable) isTreeTable = JSON.parse(isTreeTable);
 
 const { StringType } = Schema.Types;
 const model = Schema.Model({
@@ -41,7 +43,6 @@ const model = Schema.Model({
 const LinkManager = () => {
   const { sourceDataList, linksData, isLoading, isLinkDeleting, configuration_aware } =
     useSelector((state) => state.links);
-  const { isTreeviewTableDisplay } = useSelector((state) => state.featureFlag);
 
   const { linksStream, refreshData, isDark } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
@@ -161,10 +162,10 @@ const LinkManager = () => {
 
   // if feature flag is off then user can't see the treeview table page
   useEffect(() => {
-    if (isTreeView && !isTreeviewTableDisplay) {
+    if (isTreeView && !isTreeTable) {
       isWbe ? navigate('/wbe') : navigate('/');
     }
-  }, [isTreeView, isTreeviewTableDisplay]);
+  }, [isTreeView, isTreeTable]);
 
   return (
     <div>

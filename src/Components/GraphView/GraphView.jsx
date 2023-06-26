@@ -9,9 +9,10 @@ import GraphDashboard from './GraphDashboard';
 import { useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../apiRequests/apiRequest';
 
-const GraphView = () => {
-  const { isGraphDashboardDisplay } = useSelector((state) => state.featureFlag);
+let isGraphDashboard = process.env.REACT_APP_IS_GRAPH_DASHBOARD;
+if (isGraphDashboard) isGraphDashboard = JSON.parse(isGraphDashboard);
 
+const GraphView = () => {
   const { sourceDataList } = useSelector((state) => state.links);
   const { isProfileOpen } = useSelector((state) => state.nav);
   const authCtx = useContext(AuthContext);
@@ -52,10 +53,10 @@ const GraphView = () => {
 
   // if feature flag is off then user can't see the graph dashboard table page
   useEffect(() => {
-    if (isDashboard && !isGraphDashboardDisplay) {
+    if (isDashboard && !isGraphDashboard) {
       wbePath ? navigate('/wbe') : navigate('/');
     }
-  }, [isDashboard, isGraphDashboardDisplay]);
+  }, [isDashboard, isGraphDashboard]);
 
   const graphViewData = data ? data?.data : { nodes: [], relationships: [] };
 
