@@ -184,7 +184,7 @@ const Pipeline = () => {
                   </Drawer.Actions>
                 </Drawer.Header>
                 <Drawer.Body>
-                  <p style={{ fontSize: '17px', fontWeight: '600' }}>{pipelineOutput}</p>
+                  <p style={{ fontSize: '19px', fontWeight: '400' }}>{pipelineOutput}</p>
                 </Drawer.Body>
               </Drawer>
             </div>
