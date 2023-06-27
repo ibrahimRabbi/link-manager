@@ -172,3 +172,8 @@
 .download-link:hover {
   color: blue;
 }
+.column-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
