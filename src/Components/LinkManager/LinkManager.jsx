@@ -20,6 +20,7 @@ import Notification from '../Shared/Notification';
 import LinksDataTable from '../Shared/UseDataTable/LinksDataTable';
 import LinksTreeDataTable from '../Shared/UseDataTable/LinksTreeDataTable';
 import TextField from '../AdminDasComponents/TextField';
+import LinkManagerTable from './LinkManagerTable';
 
 const { tableContainer } = styles;
 
@@ -48,6 +49,7 @@ const LinkManager = () => {
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchValue, setSearchValue] = useState({ search_term: '' });
+  const [searchText, setSearchText] = useState('');
   const [isLinkSearching, setIsLinkSearching] = useState(false);
   const authCtx = useContext(AuthContext);
   const location = useLocation();
@@ -97,7 +99,7 @@ const LinkManager = () => {
         // eslint-disable-next-line max-len
         const getLinkUrl = `${apiURL}/resource?stream=${stream}&resource_id=${encodeURIComponent(
           sourceFileURL,
-        )}&page=${currPage}&per_page=${pageSize}&search_term=${searchValue.search_term}`;
+        )}&page=${currPage}&per_page=${pageSize}&search_term=${''}`;
         dispatch(
           fetchLinksData({
             url: getLinkUrl,
@@ -107,11 +109,12 @@ const LinkManager = () => {
         );
       }
     })();
-  }, [linksStream, pageSize, currPage, isLinkDeleting, isLinkSearching, refreshData]);
+  }, [linksStream, pageSize, currPage, isLinkDeleting, refreshData]);
 
   // handle search links
   const handleSearchLinks = () => {
     if (searchValue.search_term) {
+      setSearchText(searchValue?.search_term);
       setIsLinkSearching((prevValue) => !prevValue);
     }
   };
@@ -143,8 +146,66 @@ const LinkManager = () => {
     });
   };
 
+  //////////////////////////////////////////////
+  // Recursive search function
+  function searchTreeTable(node, searchQuery, columnName, resultSet) {
+    // Check if the current node matches the search query
+    // eslint-disable-next-line max-len
+    if (
+      node[columnName] &&
+      node[columnName].toString().toLowerCase().includes(searchQuery.toLowerCase())
+    ) {
+      resultSet.push(node);
+    }
+
+    // Recursively call the search function on child nodes
+    if (node.children) {
+      for (const childNode of node.children) {
+        searchTreeTable(childNode, searchQuery, columnName, resultSet);
+      }
+    }
+  }
+
+  // Function to initiate the search
+  function filterTreeTableByColumn(treeTableData, searchQuery, columnName) {
+    if (treeTableData?.length) {
+      const resultSet = [];
+      for (const rootNode of treeTableData) {
+        searchTreeTable(rootNode, searchQuery, columnName, resultSet);
+      }
+      return resultSet;
+    }
+    return [];
+  }
+  const [filteredLinks, setFilteredLinks] = useState([]);
+  // filter nested children from the treeview table
+  useEffect(() => {
+    // eslint-disable-next-line max-len
+    const filteredNodes = filterTreeTableByColumn(
+      linksData?.items,
+      searchValue?.search_term,
+      'name',
+    );
+    setFilteredLinks(filteredNodes);
+  }, [isLinkSearching]); // Process or display the filtered nodes
+
+  //////////////////////////////////////////////
+
+  useEffect(() => {
+    if (!searchValue.search_term) {
+      setSearchText('');
+    }
+  }, [searchValue.search_term]);
+
+  console.log(filteredLinks);
   const tableProps = {
-    rowData: linksData?.items?.length ? linksData?.items : [],
+    // eslint-disable-next-line max-len
+    rowData: linksData?.items?.length
+      ? searchText
+        ? filteredLinks
+        : linksData?.items
+      : [],
+    // rowData: linksData?.items?.length ? linksData?.items : [],
     headerData,
     handlePagination,
     handleChangeLimit,
@@ -276,6 +337,9 @@ const LinkManager = () => {
               ) : (
                 <LinksDataTable props={tableProps} />
               )}
+
+              {!isWbe && <LinkManagerTable />}
+
               {notificationType && notificationMessage && (
                 <Notification
                   type={notificationType}

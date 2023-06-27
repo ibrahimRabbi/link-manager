@@ -29,7 +29,7 @@ const GraphView = () => {
     fetchAPIRequest({
       urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
         sourceDataList?.uri,
-      )}&direction=outgoing`,
+      )}&direction=outgoing&max_depth_outgoing=1`,
       token: authCtx.token,
       method: 'GET',
     }),

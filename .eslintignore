@@ -3,3 +3,4 @@ dist
 node_module
 yarn.lock
 .vscode
+/src/Components/LinkManager/fakedata.js
