@@ -20,7 +20,6 @@ import Notification from '../Shared/Notification';
 import LinksDataTable from '../Shared/UseDataTable/LinksDataTable';
 import LinksTreeDataTable from '../Shared/UseDataTable/LinksTreeDataTable';
 import TextField from '../AdminDasComponents/TextField';
-import LinkManagerTable from './LinkManagerTable';
 
 const { tableContainer } = styles;
 
@@ -32,7 +31,7 @@ const headerData = [
   { key: 'actions', header: 'Actions' },
 ];
 
-const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
+const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}`;
 let isTreeTable = process.env.REACT_APP_IS_TREEVIEW_TABLE;
 if (isTreeTable) isTreeTable = JSON.parse(isTreeTable);
 
@@ -67,6 +66,7 @@ const LinkManager = () => {
     setNotificationType(type);
     setNotificationMessage(message);
   };
+
   useEffect(() => {
     dispatch(handleIsWbe(isWbe));
   }, [location]);
@@ -97,7 +97,7 @@ const LinkManager = () => {
       // Get all links
       if (sourceFileURL) {
         // eslint-disable-next-line max-len
-        const getLinkUrl = `${apiURL}/resource?stream=${stream}&resource_id=${encodeURIComponent(
+        const getLinkUrl = `${apiURL}/link/resource?stream=${stream}&resource_id=${encodeURIComponent(
           sourceFileURL,
         )}&page=${currPage}&per_page=${pageSize}&search_term=${''}`;
         dispatch(
@@ -132,7 +132,7 @@ const LinkManager = () => {
       reverseButtons: true,
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const deleteURl = `${apiURL}?source_id=${encodeURIComponent(
+        const deleteURl = `${apiURL}/link/resource?source_id=${encodeURIComponent(
           sourceFileURL,
         )}&target_id=${encodeURIComponent(value.id)}&link_type=${value?.link_type}`;
         dispatch(
@@ -146,11 +146,9 @@ const LinkManager = () => {
     });
   };
 
-  //////////////////////////////////////////////
   // Recursive search function
   function searchTreeTable(node, searchQuery, columnName, resultSet) {
     // Check if the current node matches the search query
-    // eslint-disable-next-line max-len
     if (
       node[columnName] &&
       node[columnName].toString().toLowerCase().includes(searchQuery.toLowerCase())
@@ -180,7 +178,6 @@ const LinkManager = () => {
   const [filteredLinks, setFilteredLinks] = useState([]);
   // filter nested children from the treeview table
   useEffect(() => {
-    // eslint-disable-next-line max-len
     const filteredNodes = filterTreeTableByColumn(
       linksData?.items,
       searchValue?.search_term,
@@ -189,23 +186,18 @@ const LinkManager = () => {
     setFilteredLinks(filteredNodes);
   }, [isLinkSearching]); // Process or display the filtered nodes
 
-  //////////////////////////////////////////////
-
   useEffect(() => {
     if (!searchValue.search_term) {
       setSearchText('');
     }
   }, [searchValue.search_term]);
 
-  console.log(filteredLinks);
   const tableProps = {
-    // eslint-disable-next-line max-len
     rowData: linksData?.items?.length
       ? searchText
         ? filteredLinks
         : linksData?.items
       : [],
-    // rowData: linksData?.items?.length ? linksData?.items : [],
     headerData,
     handlePagination,
     handleChangeLimit,
@@ -217,7 +209,6 @@ const LinkManager = () => {
     page: linksData?.page,
   };
 
-  // eslint-disable-next-line max-len
   const isTreeView =
     location?.pathname === '/treeview' || location?.pathname === '/wbe/treeview';
 
@@ -337,8 +328,6 @@ const LinkManager = () => {
               ) : (
                 <LinksDataTable props={tableProps} />
               )}
-
-              {!isWbe && <LinkManagerTable />}
 
               {notificationType && notificationMessage && (
                 <Notification
