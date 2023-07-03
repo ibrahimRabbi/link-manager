@@ -9,9 +9,10 @@ import GraphDashboard from './GraphDashboard';
 import { useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../apiRequests/apiRequest';
 
-const GraphView = () => {
-  const { isGraphDashboardDisplay } = useSelector((state) => state.featureFlag);
+let isGraphDashboard = process.env.REACT_APP_IS_GRAPH_DASHBOARD;
+if (isGraphDashboard) isGraphDashboard = JSON.parse(isGraphDashboard);
 
+const GraphView = () => {
   const { sourceDataList } = useSelector((state) => state.links);
   const { isProfileOpen } = useSelector((state) => state.nav);
   const authCtx = useContext(AuthContext);
@@ -19,20 +20,23 @@ const GraphView = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const wbePath = location.pathname?.includes('wbe');
+
+  let graphData = { nodes: [], relationships: [] };
+  let isGraphLoading = false;
   // get data using react-query
-  const {
-    data,
-    isLoading: isGraphLoading,
-    refetch: graphDataRefetch,
-  } = useQuery(['graphView'], () =>
-    fetchAPIRequest({
-      urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
-        sourceDataList?.uri,
-      )}&direction=outgoing`,
-      token: authCtx.token,
-      method: 'GET',
-    }),
-  );
+  if (sourceDataList?.uri) {
+    const { data, isLoading } = useQuery(['graphView'], () =>
+      fetchAPIRequest({
+        urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
+          sourceDataList?.uri,
+        )}&direction=outgoing&max_depth_outgoing=1`,
+        token: authCtx.token,
+        method: 'GET',
+      }),
+    );
+    isGraphLoading = isLoading;
+    graphData = data?.data;
+  }
 
   // check url location to display graph view and graph dashboard
   const isDashboard =
@@ -44,20 +48,18 @@ const GraphView = () => {
   useEffect(() => {
     dispatch(handleIsProfileOpen(isProfileOpen && false));
     dispatch(handleCurrPageTitle('Graph view'));
-
-    if (sourceDataList.uri) {
-      graphDataRefetch();
-    }
-  }, [sourceDataList]);
+  }, []);
 
   // if feature flag is off then user can't see the graph dashboard table page
   useEffect(() => {
-    if (isDashboard && !isGraphDashboardDisplay) {
+    if (isDashboard && !isGraphDashboard) {
       wbePath ? navigate('/wbe') : navigate('/');
     }
-  }, [isDashboard, isGraphDashboardDisplay]);
+  }, [isDashboard, isGraphDashboard]);
 
-  const graphViewData = data ? data?.data : { nodes: [], relationships: [] };
+  const graphViewData = graphData?.nodes?.length
+    ? graphData
+    : { nodes: [], relationships: [] };
 
   // map graph nodes
   const nodesIdMap = {};

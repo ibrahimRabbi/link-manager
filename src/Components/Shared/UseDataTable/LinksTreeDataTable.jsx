@@ -145,7 +145,7 @@ const LinksTreeDataTable = ({ props }) => {
           isTree
           rowKey={'unique_node_id'}
         >
-          <Column width={150} flexGrow={1} fullText>
+          <Column width={150} fullText>
             <HeaderCell>
               <h5>Status</h5>
             </HeaderCell>
