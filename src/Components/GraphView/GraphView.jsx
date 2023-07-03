@@ -35,7 +35,6 @@ const GraphView = () => {
       }),
     );
     isGraphLoading = isLoading;
-    console.log(data);
     graphData = data?.data;
   }
 

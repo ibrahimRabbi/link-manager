@@ -308,8 +308,7 @@ const LinkManager = () => {
                         isWbe ? navigate('/wbe/new-link') : navigate('/new-link')
                       }
                     >
-                      {' '}
-                      Create Link{' '}
+                      Create Link
                     </Button>
 
                     <Button

@@ -83,8 +83,7 @@ const Users = () => {
         method: 'DELETE',
       }),
     {
-      onSuccess: (value) => {
-        console.log(value);
+      onSuccess: () => {
         setDeleteData({});
       },
     },
@@ -135,7 +134,7 @@ const Users = () => {
     Swal.fire({
       title: 'Are you sure',
       icon: 'info',
-      text: 'Do you want to delete the users!!',
+      text: 'Are you sure you want to delete this user?',
       cancelButtonColor: 'red',
       showCancelButton: true,
       confirmButtonText: 'Delete',
