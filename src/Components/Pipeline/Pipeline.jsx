@@ -184,7 +184,19 @@ const Pipeline = () => {
                   </Drawer.Actions>
                 </Drawer.Header>
                 <Drawer.Body>
-                  <p style={{ fontSize: '19px', fontWeight: '400' }}>{pipelineOutput}</p>
+                  <pre
+                    style={{
+                      fontWeight: '700',
+                      fontFamily: 'monospace',
+                      backgroundColor: '#f6f8fa',
+                      padding: '4px 6px',
+                      borderRadius: '4px',
+                      position: 'relative',
+                    }}
+                    dangerouslySetInnerHTML={{
+                      __html: pipelineOutput.replace(/\n/g, '<br>'),
+                    }}
+                  />
                 </Drawer.Body>
               </Drawer>
             </div>
