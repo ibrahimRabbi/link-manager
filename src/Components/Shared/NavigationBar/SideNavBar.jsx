@@ -19,9 +19,7 @@ import AttachmentIcon from '@rsuite/icons/Attachment';
 import { darkColor, lightBgColor } from '../../../App';
 import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
 
-let isTreeTable = process.env.REACT_APP_IS_TREEVIEW_TABLE;
 let isGraphDashboard = process.env.REACT_APP_IS_GRAPH_DASHBOARD;
-if (isTreeTable) isTreeTable = JSON.parse(isTreeTable);
 if (isGraphDashboard) isGraphDashboard = JSON.parse(isGraphDashboard);
 
 const baseOptions = [
@@ -30,12 +28,6 @@ const baseOptions = [
     navigateTo: '/',
     icon: <TableColumnIcon />,
     content: <span>Links</span>,
-  },
-  {
-    path: '/treeview',
-    navigateTo: '/treeview',
-    icon: <TableColumnIcon />,
-    content: <span>Links Treeview</span>,
   },
   {
     path: '/graph-view',
@@ -129,7 +121,6 @@ const SideNavBar = ({ isWbe }) => {
                 // hide admin dashboard from the WBE
                 if (isWbe && option.path === '/admin') return null;
 
-                if (!isTreeTable && option.path === '/treeview') return null;
                 if (!isGraphDashboard && option.path === '/graph-dashboard') return null;
 
                 return (

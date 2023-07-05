@@ -17,20 +17,10 @@ import CloseIcon from '@rsuite/icons/Close';
 import { darkBgColor, lightBgColor } from '../../App';
 import Swal from 'sweetalert2';
 import Notification from '../Shared/Notification';
-import LinksDataTable from '../Shared/UseDataTable/LinksDataTable';
-import LinksTreeDataTable from '../Shared/UseDataTable/LinksTreeDataTable';
 import TextField from '../AdminDasComponents/TextField';
 import LinkManagerTable from './LinkManagerTable';
 
 const { tableContainer } = styles;
-
-// links table header data
-const headerData = [
-  { key: 'status', header: 'Status' },
-  { key: 'link_type', header: 'Link type' },
-  { key: 'target', header: 'Target' },
-  { key: 'actions', header: 'Actions' },
-];
 
 const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
 let isTreeTable = process.env.REACT_APP_IS_TREEVIEW_TABLE;
@@ -49,7 +39,6 @@ const LinkManager = () => {
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchValue, setSearchValue] = useState({ search_term: '' });
-  const [searchText, setSearchText] = useState('');
   const [isLinkSearching, setIsLinkSearching] = useState(false);
   const authCtx = useContext(AuthContext);
   const location = useLocation();
@@ -99,7 +88,7 @@ const LinkManager = () => {
         // eslint-disable-next-line max-len
         const getLinkUrl = `${apiURL}/resource?stream=${stream}&resource_id=${encodeURIComponent(
           sourceFileURL,
-        )}&page=${currPage}&per_page=${pageSize}&search_term=${''}`;
+        )}&page=${currPage}&per_page=${pageSize}&search_term=${searchValue.search_term}`;
         dispatch(
           fetchLinksData({
             url: getLinkUrl,
@@ -109,12 +98,11 @@ const LinkManager = () => {
         );
       }
     })();
-  }, [linksStream, pageSize, currPage, isLinkDeleting, refreshData]);
+  }, [linksStream, pageSize, currPage, isLinkDeleting, isLinkSearching, refreshData]);
 
   // handle search links
   const handleSearchLinks = () => {
     if (searchValue.search_term) {
-      setSearchText(searchValue?.search_term);
       setIsLinkSearching((prevValue) => !prevValue);
     }
   };
@@ -132,7 +120,7 @@ const LinkManager = () => {
       reverseButtons: true,
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const deleteURl = `${apiURL}?source_id=${encodeURIComponent(
+        const deleteURl = `${apiURL}/resource?source_id=${encodeURIComponent(
           sourceFileURL,
         )}&target_id=${encodeURIComponent(value.id)}&link_type=${value?.link_type}`;
         dispatch(
@@ -146,67 +134,8 @@ const LinkManager = () => {
     });
   };
 
-  //////////////////////////////////////////////
-  // Recursive search function
-  function searchTreeTable(node, searchQuery, columnName, resultSet) {
-    // Check if the current node matches the search query
-    // eslint-disable-next-line max-len
-    if (
-      node[columnName] &&
-      node[columnName].toString().toLowerCase().includes(searchQuery.toLowerCase())
-    ) {
-      resultSet.push(node);
-    }
-
-    // Recursively call the search function on child nodes
-    if (node.children) {
-      for (const childNode of node.children) {
-        searchTreeTable(childNode, searchQuery, columnName, resultSet);
-      }
-    }
-  }
-
-  // Function to initiate the search
-  function filterTreeTableByColumn(treeTableData, searchQuery, columnName) {
-    if (treeTableData?.length) {
-      const resultSet = [];
-      for (const rootNode of treeTableData) {
-        searchTreeTable(rootNode, searchQuery, columnName, resultSet);
-      }
-      return resultSet;
-    }
-    return [];
-  }
-  const [filteredLinks, setFilteredLinks] = useState([]);
-  // filter nested children from the treeview table
-  useEffect(() => {
-    // eslint-disable-next-line max-len
-    const filteredNodes = filterTreeTableByColumn(
-      linksData?.items,
-      searchValue?.search_term,
-      'name',
-    );
-    setFilteredLinks(filteredNodes);
-  }, [isLinkSearching]); // Process or display the filtered nodes
-
-  //////////////////////////////////////////////
-
-  useEffect(() => {
-    if (!searchValue.search_term) {
-      setSearchText('');
-    }
-  }, [searchValue.search_term]);
-
-  console.log(filteredLinks);
   const tableProps = {
-    // eslint-disable-next-line max-len
-    rowData: linksData?.items?.length
-      ? searchText
-        ? filteredLinks
-        : linksData?.items
-      : [],
-    // rowData: linksData?.items?.length ? linksData?.items : [],
-    headerData,
+    data: linksData?.items?.length ? linksData?.items : [],
     handlePagination,
     handleChangeLimit,
     handleDeleteLink,
@@ -216,17 +145,6 @@ const LinkManager = () => {
     pageSize,
     page: linksData?.page,
   };
-
-  // eslint-disable-next-line max-len
-  const isTreeView =
-    location?.pathname === '/treeview' || location?.pathname === '/wbe/treeview';
-
-  // if feature flag is off then user can't see the treeview table page
-  useEffect(() => {
-    if (isTreeView && !isTreeTable) {
-      isWbe ? navigate('/wbe') : navigate('/');
-    }
-  }, [isTreeView, isTreeTable]);
 
   return (
     <div>
@@ -317,8 +235,7 @@ const LinkManager = () => {
                         isWbe ? navigate('/wbe/new-link') : navigate('/new-link')
                       }
                     >
-                      {' '}
-                      Create Link{' '}
+                      Create Link
                     </Button>
 
                     <Button
@@ -332,13 +249,7 @@ const LinkManager = () => {
                 </FlexboxGrid.Item>
               </FlexboxGrid>
 
-              {isTreeView ? (
-                <LinksTreeDataTable props={tableProps} />
-              ) : (
-                <LinksDataTable props={tableProps} />
-              )}
-
-              {!isWbe && <LinkManagerTable />}
+              <LinkManagerTable props={tableProps} />
 
               {notificationType && notificationMessage && (
                 <Notification
