@@ -20,20 +20,23 @@ const GraphView = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const wbePath = location.pathname?.includes('wbe');
+
+  let graphData = { nodes: [], relationships: [] };
+  let isGraphLoading = false;
   // get data using react-query
-  const {
-    data,
-    isLoading: isGraphLoading,
-    refetch: graphDataRefetch,
-  } = useQuery(['graphView'], () =>
-    fetchAPIRequest({
-      urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
-        sourceDataList?.uri,
-      )}&direction=outgoing&max_depth_outgoing=1`,
-      token: authCtx.token,
-      method: 'GET',
-    }),
-  );
+  if (sourceDataList?.uri) {
+    const { data, isLoading } = useQuery(['graphView'], () =>
+      fetchAPIRequest({
+        urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
+          sourceDataList?.uri,
+        )}&direction=outgoing&max_depth_outgoing=1`,
+        token: authCtx.token,
+        method: 'GET',
+      }),
+    );
+    isGraphLoading = isLoading;
+    graphData = data?.data;
+  }
 
   // check url location to display graph view and graph dashboard
   const isDashboard =
@@ -45,11 +48,7 @@ const GraphView = () => {
   useEffect(() => {
     dispatch(handleIsProfileOpen(isProfileOpen && false));
     dispatch(handleCurrPageTitle('Graph view'));
-
-    if (sourceDataList.uri) {
-      graphDataRefetch();
-    }
-  }, [sourceDataList]);
+  }, []);
 
   // if feature flag is off then user can't see the graph dashboard table page
   useEffect(() => {
@@ -58,7 +57,9 @@ const GraphView = () => {
     }
   }, [isDashboard, isGraphDashboard]);
 
-  const graphViewData = data ? data?.data : { nodes: [], relationships: [] };
+  const graphViewData = graphData?.nodes?.length
+    ? graphData
+    : { nodes: [], relationships: [] };
 
   // map graph nodes
   const nodesIdMap = {};

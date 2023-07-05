@@ -56,6 +56,7 @@ const LinkManager = () => {
     setNotificationType(type);
     setNotificationMessage(message);
   };
+
   useEffect(() => {
     dispatch(handleIsWbe(isWbe));
   }, [location]);

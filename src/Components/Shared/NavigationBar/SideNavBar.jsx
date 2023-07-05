@@ -120,6 +120,7 @@ const SideNavBar = ({ isWbe }) => {
               {baseOptions?.map((option, index) => {
                 // hide admin dashboard from the WBE
                 if (isWbe && option.path === '/admin') return null;
+                if (isWbe && option.path === '/extension') return null;
 
                 if (!isGraphDashboard && option.path === '/graph-dashboard') return null;
 
@@ -168,10 +169,10 @@ const SideNavBar = ({ isWbe }) => {
                 </Nav.Item>
 
                 <Nav.Item onClick={() => handleLogout()}>
-                  {' '}
                   <h5>
-                    <BiLogOut />
-                  </h5>{' '}
+                    {' '}
+                    <BiLogOut />{' '}
+                  </h5>
                 </Nav.Item>
               </Nav.Menu>
             </Nav>

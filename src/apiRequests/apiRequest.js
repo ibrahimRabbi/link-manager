@@ -33,6 +33,7 @@ export default function fetchAPIRequest({ urlPath, token, method, body }) {
       } else {
         return response.json().then((data) => {
           console.log('error', data.message);
+          throw new Error(data.message);
         });
       }
     }

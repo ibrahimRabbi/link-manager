@@ -163,9 +163,7 @@ const Application = () => {
           }
         }
       },
-      onError: (value) => {
-        console.log(value);
-      },
+      onError: () => {},
     },
   );
 
@@ -183,9 +181,7 @@ const Application = () => {
         body: formValue,
       }),
     {
-      onSuccess: (value) => {
-        console.log(value);
-      },
+      onSuccess: () => {},
     },
   );
 
@@ -202,8 +198,7 @@ const Application = () => {
         method: 'DELETE',
       }),
     {
-      onSuccess: (value) => {
-        console.log(value);
+      onSuccess: () => {
         setDeleteData({});
       },
     },
@@ -241,7 +236,6 @@ const Application = () => {
           applicationData: tempData,
         }),
       );
-
       // merge icons data with application data
       const customAppItems = allApplications?.items?.reduce(
         (accumulator, currentValue) => {
@@ -253,7 +247,10 @@ const Application = () => {
                     const withIcon = {
                       ...currentValue,
                       iconUrl: icon.iconUrl,
-                      status: currentValue?.oauth2_application[0]?.token_status?.status,
+                      // eslint-disable-next-line max-len
+                      status: currentValue?.oauth2_application
+                        ? currentValue?.oauth2_application[0]?.token_status?.status
+                        : '',
                     };
                     accumulator.push(withIcon);
                   }
