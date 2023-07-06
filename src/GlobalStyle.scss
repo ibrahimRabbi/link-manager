@@ -32,6 +32,10 @@
   input::placeholder {
     font-size: 17px !important;
   }
+
+  a {
+    font-size: 17px !important;
+  }
 }
 
 .mainContainer {
@@ -83,7 +87,7 @@
   }
 }
 
-.linkFileContainer > h5 {
+.linkFileContainer>h5 {
   span {
     margin-left: 10px;
     margin-bottom: -10px;

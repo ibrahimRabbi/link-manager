@@ -63,8 +63,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     setNotificationMessage(message);
   };
 
-  // Add if and condition to check if app is Jira
-
   // Display project types conditionally by App name
   useEffect(async () => {
     await (async () => {
@@ -277,16 +275,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     }, 50);
   };
 
-  // stream type dropdown
-  // const handleStreamChange = ({ selectedItem }) => {
-  //   dispatch(handleStreamType(selectedItem.key));
-  // };
-
-  // const targetProjectItems =
-  //   linkType === 'constrainedBy' ? ['Jet Engine Design (GLIDE)'] : projectTypeItems;
-  // const targetResourceItems =
-  //   linkType === 'constrainedBy' ? ['Document (PLM)', 'Part (PLM)'] : resourceItems;
-
   // Project type dropdown
   const handleTargetProject = (selectedItem) => {
     dispatch(handleProjectType(selectedItem?.name));
@@ -298,7 +286,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     const { projectName, sourceType, title, uri, appName } = sourceDataList;
 
     const targetsData = targetDataArr?.map((data) => {
-      // eslint-disable-next-line max-len
       const id = data?.selected_lines
         ? data.koatl_uri + '#' + data?.selected_lines
         : data.koatl_uri;
@@ -371,7 +358,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   return (
     <>
-      {/* <WbeTopNav /> */}
       <SourceSection />
 
       <div className="mainContainer">
@@ -387,22 +373,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                 placeholder="Choose Link Type"
                 onChange={handleLinkTypeChange}
                 items={linkTypeItems}
-                // className={dropdownStyle}
               />
             </FlexboxGrid.Item>
           </FlexboxGrid>
-
-          {/* {configuration_aware && (
-              <UseDropdown
-                onChange={handleStreamChange}
-                items={streamItems}
-                title="GCM Configuration Context"
-                selectedValue={editLinkData?.linkType}
-                label={'Select GCM Configuration Context'}
-                id="newLink_stream"
-                className={dropdownStyle}
-              />
-            )} */}
 
           {/* --- Application and project types --- */}
           {linkType && (
