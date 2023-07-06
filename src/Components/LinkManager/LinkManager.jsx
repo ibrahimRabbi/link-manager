@@ -147,13 +147,6 @@ const LinkManager = () => {
     page: linksData?.page,
   };
 
-  let linkManagerTable = null;
-  try {
-    linkManagerTable = <LinkManagerTable props={tableProps} />;
-  } catch (error) {
-    console.log(error);
-  }
-
   return (
     <div>
       <SourceSection />
@@ -257,7 +250,7 @@ const LinkManager = () => {
                 </FlexboxGrid.Item>
               </FlexboxGrid>
 
-              {linkManagerTable}
+              <LinkManagerTable props={tableProps} />
 
               {notificationType && notificationMessage && (
                 <Notification
