@@ -35,10 +35,19 @@ const {
   filterContainer,
   pageTitle,
   pageInput,
-  numberFilter,
   filterInput,
   emptyTableContent,
+  // statusCellWidth,
+  statusFilterClass,
 } = cssStyles;
+
+const paginationItems = [
+  { label: 'Rows per page 5', value: 5 },
+  { label: 'Rows per page 10', value: 10 },
+  { label: 'Rows per page 25', value: 25 },
+  { label: 'Rows per page 50', value: 50 },
+  { label: 'Rows per page 100', value: 100 },
+];
 
 // OSLC API URLs
 const jiraURL = `${process.env.REACT_APP_JIRA_DIALOG_URL}`;
@@ -48,7 +57,7 @@ const valispaceURL = `${process.env.REACT_APP_VALISPACE_DIALOG_URL}`;
 const codebeamerURL = `${process.env.REACT_APP_CODEBEAMER_DIALOG_URL}`;
 
 const LinkManagerTable = ({ props }) => {
-  const { data, handleDeleteLink } = props;
+  const { data, handleDeleteLink, totalItems } = props;
   const { isDark } = useSelector((state) => state.nav);
   const [actionData, setActionData] = useState({});
 
@@ -144,8 +153,7 @@ const LinkManagerTable = ({ props }) => {
   };
 
   // Status cell
-  const statusCell = (row, getValue) => {
-    const status = getValue();
+  const expandCell = (row, getValue) => {
     return (
       <div
         style={{
@@ -171,18 +179,27 @@ const LinkManagerTable = ({ props }) => {
           ) : (
             <h5 className={emptyBall}>{'🔵'}</h5>
           )}{' '}
-          <h5 className={statusIcon}>
-            {status?.toLowerCase() === 'active' ? (
-              <SuccessStatus color="#378f17" />
-            ) : status?.toLowerCase() === 'invalid' ? (
-              <FailedStatus color="#de1655" />
-            ) : status?.toLowerCase() === 'suspect' ? (
-              <InfoStatus color="#25b3f5" />
-            ) : (
-              <InfoStatus color="#25b3f5" />
-            )}
-          </h5>
+          <p>{getValue()}</p>
         </div>
+      </div>
+    );
+  };
+
+  const statusCell = (info) => {
+    const status = info.getValue();
+    return (
+      <div className={dataCell}>
+        <h5 className={statusIcon}>
+          {status?.toLowerCase() === 'active' ? (
+            <SuccessStatus color="#378f17" />
+          ) : status?.toLowerCase() === 'invalid' ? (
+            <FailedStatus color="#de1655" />
+          ) : status?.toLowerCase() === 'suspect' ? (
+            <InfoStatus color="#25b3f5" />
+          ) : (
+            <InfoStatus color="#25b3f5" />
+          )}
+        </h5>
       </div>
     );
   };
@@ -191,7 +208,7 @@ const LinkManagerTable = ({ props }) => {
   const columns = useMemo(
     () => [
       {
-        accessorKey: 'status',
+        accessorKey: 'link_type',
         header: ({ table }) => (
           <div className={statusHeader}>
             <IndeterminateCheckbox
@@ -206,28 +223,13 @@ const LinkManagerTable = ({ props }) => {
               icon={table.getIsAllRowsExpanded() ? <MdExpandLess /> : <MdExpandMore />}
               size="xs"
             />
-            <h6>Status</h6>
-          </div>
-        ),
-        cell: ({ row, getValue }) => statusCell(row, getValue),
-        footer: (props) => props.column.id,
-      },
-      // Link type cell
-      {
-        accessorKey: 'link_type',
-        header: () => (
-          <div className={headerCell}>
             <h6>Link Type</h6>
           </div>
         ),
-        cell: (info) => (
-          <div className={dataCell}>
-            <p>{info.getValue()}</p>
-          </div>
-        ),
+        cell: ({ row, getValue }) => expandCell(row, getValue),
         footer: (props) => props.column.id,
       },
-      // target cell
+      // Link type cell
       {
         accessorKey: 'name',
         header: () => (
@@ -236,6 +238,17 @@ const LinkManagerTable = ({ props }) => {
           </div>
         ),
         cell: ({ row }) => targetCell(row),
+        footer: (props) => props.column.id,
+      },
+      // status cell
+      {
+        accessorKey: 'status',
+        header: () => (
+          <div className={headerCell}>
+            <h6>Status</h6>
+          </div>
+        ),
+        cell: (info) => statusCell(info),
         footer: (props) => props.column.id,
       },
       // Action cell
@@ -286,20 +299,27 @@ const LinkManagerTable = ({ props }) => {
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
+                console.log(header);
+                const action = header.id.includes('id');
+                const status = header.id.includes('status');
                 return (
-                  <th key={header.id} colSpan={header.colSpan}>
+                  <th
+                    key={header.id}
+                    colSpan={header.colSpan}
+                    style={{ width: status ? '120px' : action ? '120px' : '' }}
+                  >
                     {header.isPlaceholder ? null : (
                       <div>
                         {flexRender(header.column.columnDef.header, header.getContext())}
 
                         {header.column.getCanFilter() ? (
                           <div className={filterContainer}>
-                            {table.getRowModel().rows[0] && (
+                            {data[0] && (
                               <Filter
                                 column={header.column}
                                 table={table}
                                 isAction={header.index === 3 ? true : false}
-                                isStatusFilter={header.index === 0 ? true : false}
+                                isStatusFilter={header.index === 2 ? true : false}
                               />
                             )}
                           </div>
@@ -318,11 +338,18 @@ const LinkManagerTable = ({ props }) => {
               key={row.id}
               className={isDark === 'dark' ? table_row_dark : table_row_light}
             >
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
+              {row.getVisibleCells().map((cell) => {
+                const status = cell.id?.includes('status');
+                const action = cell.id?.includes('id');
+                return (
+                  <td
+                    key={cell.id}
+                    style={{ width: status ? '120px' : action ? '120px' : '' }}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>
@@ -332,18 +359,18 @@ const LinkManagerTable = ({ props }) => {
       {!table.getRowModel().rows[0] && <p className={emptyTableContent}>No Data Found</p>}
 
       <div className={paginationContainer}>
-        <select
-          value={table.getState().pagination.pageSize}
-          onChange={(e) => {
-            table.setPageSize(Number(e.target.value));
+        <p>Total: {totalItems} </p>
+
+        <CustomFilterSelect
+          items={paginationItems}
+          placeholder={'Rows per page ' + table.getState().pagination.pageSize}
+          onChange={(value) => {
+            if (value) table.setPageSize(value);
+            else {
+              table.setPageSize(10);
+            }
           }}
-        >
-          {[5, 10, 25, 50, 100].map((pageSize) => (
-            <option key={pageSize} value={pageSize}>
-              Rows per page {pageSize}
-            </option>
-          ))}
-        </select>
+        />
 
         <Button
           onClick={() => table.setPageIndex(0)}
@@ -359,6 +386,11 @@ const LinkManagerTable = ({ props }) => {
         >
           {'<'}
         </Button>
+
+        <p className={pageTitle}>
+          Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+        </p>
+
         <Button
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
@@ -375,22 +407,16 @@ const LinkManagerTable = ({ props }) => {
         </Button>
 
         <span className={pageTitle}>
-          <div>Page</div>
-          <strong>
-            {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-          </strong>
-        </span>
-
-        <span className={pageTitle}>
-          | Go to page:
-          <input
+          <p> | Go to page: </p>
+          <Input
             type="number"
             defaultValue={table.getState().pagination.pageIndex + 1}
-            onChange={(e) => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0;
+            onChange={(value) => {
+              const page = value ? Number(value) - 1 : 0;
               table.setPageIndex(page);
             }}
             className={pageInput}
+            size="sm"
           />
         </span>
       </div>
@@ -421,23 +447,7 @@ function Filter({ column, table, isAction, isStatusFilter }) {
     },
   ];
 
-  return typeof firstValue === 'number' ? (
-    <div className={numberFilter}>
-      <input
-        type="number"
-        value={columnFilterValue?.[0] ?? ''}
-        onChange={(e) => column.setFilterValue((old) => [e.target.value, old?.[1]])}
-        placeholder={'Min'}
-      />
-      <input
-        type="number"
-        value={columnFilterValue?.[1] ?? ''}
-        onChange={(e) => column.setFilterValue((old) => [old?.[0], e.target.value])}
-        placeholder={'Max'}
-        className={filterInput}
-      />
-    </div>
-  ) : (
+  return typeof firstValue === 'number' ? null : (
     <>
       {!isAction && !isStatusFilter && (
         <Input
@@ -452,6 +462,7 @@ function Filter({ column, table, isAction, isStatusFilter }) {
 
       {isStatusFilter && (
         <CustomFilterSelect
+          className={statusFilterClass}
           items={statusFilterItems}
           placeholder="Search by status"
           onChange={(value) => {

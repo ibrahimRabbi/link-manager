@@ -43,7 +43,7 @@ const CustomFilterSelect = ({ items, onChange, placeholder, className }) => {
           <div className={dropdownContent}>
             {item?.data?.icon ? item?.data?.icon : ''}
 
-            {!item?.data?.icon ? <p style={{ fontSize: '17px' }}>{value}</p> : ''}
+            {!item?.data?.icon ? <p style={{ fontSize: '17px' }}>{item?.label}</p> : ''}
           </div>
         );
       }}

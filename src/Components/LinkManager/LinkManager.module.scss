@@ -96,7 +96,7 @@
   }
 
   .statusIcon {
-    margin-left: 20px;
+    margin-left: 50px;
   }
 }
 
@@ -113,14 +113,13 @@
   .headerCheckBox {
     height: 16px;
     width: 16px;
-    cursor: pointer
+    cursor: pointer;
   }
 
   .headerExpand {
     height: 20px;
     margin-right: 10px;
   }
-
 }
 
 .headerCell {
@@ -129,11 +128,14 @@
   h6 {
     text-align: start;
   }
-
 }
 
 .dataCell {
-  margin-left: 10px;
+  margin-left: 20px;
+}
+
+.statusCellWidth {
+  width: 100px;
 }
 
 .tableStyle {
@@ -157,6 +159,10 @@
   margin: 0 10px;
 }
 
+.statusFilterClass {
+  width: 100px;
+}
+
 .paginationContainer {
   display: flex;
   align-items: center;
@@ -172,17 +178,9 @@
 
   .pageInput {
     border: 1px solid lightgray;
-    width: 60px;
+    width: 80px;
     border-radius: 3px;
   }
-}
-
-.numberFilter {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 0 10px;
-
 }
 
 .filterInput {
