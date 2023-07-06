@@ -58,10 +58,140 @@
 }
 
 // link manager table style
+.table_row_light {
+  height: 40px;
+}
+
+.table_row_dark {
+  height: 40px;
+}
+
 .table_row_light:hover {
   background-color: #f2faff;
 }
 
 .table_row_dark:hover {
   background-color: #323232;
+}
+
+.statusCellStyle {
+  display: flex;
+  align-items: center;
+
+  .checkBox {
+    height: 15px;
+    width: 15px;
+    cursor: pointer;
+    margin-right: 2px;
+    margin-bottom: -3px;
+  }
+
+  .toggleExpand {
+    cursor: pointer;
+    margin: 0 3px 0 2px;
+  }
+
+  .emptyBall {
+    margin: 0 5px;
+  }
+
+  .statusIcon {
+    margin-left: 50px;
+  }
+}
+
+.uiPreviewStyle {
+  margin-left: 10px;
+}
+
+.statusHeader {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin: 10px;
+
+  .headerCheckBox {
+    height: 16px;
+    width: 16px;
+    cursor: pointer;
+  }
+
+  .headerExpand {
+    height: 20px;
+    margin-right: 10px;
+  }
+}
+
+.headerCell {
+  margin: 10px;
+
+  h6 {
+    text-align: start;
+  }
+}
+
+.dataCell {
+  margin-left: 20px;
+}
+
+.statusCellWidth {
+  width: 100px;
+}
+
+.tableStyle {
+  padding: 20px;
+  width: 100%;
+  border: 1px solid lightgray;
+}
+
+.emptyTableContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  border: 1px solid lightgray;
+  border-top: 0;
+}
+
+.filterContainer {
+  display: flex;
+  flex-direction: column;
+  margin: 0 10px;
+}
+
+.statusFilterClass {
+  width: 100px;
+}
+
+.paginationContainer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  border: 1px solid lightgray;
+
+  .pageTitle {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .pageInput {
+    border: 1px solid lightgray;
+    width: 80px;
+    border-radius: 3px;
+  }
+}
+
+.filterInput {
+  border: 1px solid lightgray;
+  border-radius: 3px;
+}
+
+// dropdown style
+.dropdownContent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
 }

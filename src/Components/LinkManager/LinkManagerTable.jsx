@@ -12,10 +12,42 @@ import {
   getExpandedRowModel,
   flexRender,
 } from '@tanstack/react-table';
-import { Button, Dropdown, IconButton, Popover, Whisper } from 'rsuite';
+import { Button, Dropdown, IconButton, Input, Popover, Whisper } from 'rsuite';
 import cssStyles from './LinkManager.module.scss';
 import { useSelector } from 'react-redux';
-const { table_row_dark, table_row_light } = cssStyles;
+import CustomFilterSelect from './CustomFilterSelect';
+const {
+  table_row_dark,
+  table_row_light,
+  statusCellStyle,
+  checkBox,
+  uiPreviewStyle,
+  toggleExpand,
+  emptyBall,
+  statusIcon,
+  statusHeader,
+  headerCheckBox,
+  headerExpand,
+  headerCell,
+  dataCell,
+  tableStyle,
+  paginationContainer,
+  filterContainer,
+  pageTitle,
+  pageInput,
+  filterInput,
+  emptyTableContent,
+  // statusCellWidth,
+  statusFilterClass,
+} = cssStyles;
+
+const paginationItems = [
+  { label: 'Rows per page 5', value: 5 },
+  { label: 'Rows per page 10', value: 10 },
+  { label: 'Rows per page 25', value: 25 },
+  { label: 'Rows per page 50', value: 50 },
+  { label: 'Rows per page 100', value: 100 },
+];
 
 // OSLC API URLs
 const jiraURL = `${process.env.REACT_APP_JIRA_DIALOG_URL}`;
@@ -25,7 +57,7 @@ const valispaceURL = `${process.env.REACT_APP_VALISPACE_DIALOG_URL}`;
 const codebeamerURL = `${process.env.REACT_APP_CODEBEAMER_DIALOG_URL}`;
 
 const LinkManagerTable = ({ props }) => {
-  const { data, handleDeleteLink } = props;
+  const { data, handleDeleteLink, totalItems } = props;
   const { isDark } = useSelector((state) => state.nav);
   const [actionData, setActionData] = useState({});
 
@@ -95,7 +127,7 @@ const LinkManagerTable = ({ props }) => {
     );
 
     return (
-      <div style={{ marginLeft: '10px' }}>
+      <div className={uiPreviewStyle}>
         <Whisper
           trigger="hover"
           enterable
@@ -104,12 +136,7 @@ const LinkManagerTable = ({ props }) => {
           delayOpen={800}
           delayClose={800}
         >
-          <a
-            href={rowData?.id}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ fontSize: '17px' }}
-          >
+          <a href={rowData?.id} target="_blank" rel="noopener noreferrer">
             {rowData?.content_lines
               ? rowData?.name?.length > 15
                 ? rowData?.name?.slice(0, 15 - 1) +
@@ -126,8 +153,7 @@ const LinkManagerTable = ({ props }) => {
   };
 
   // Status cell
-  const statusCell = (row, getValue) => {
-    const status = getValue();
+  const expandCell = (row, getValue) => {
     return (
       <div
         style={{
@@ -135,24 +161,15 @@ const LinkManagerTable = ({ props }) => {
           marginLeft: '10px',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div className={statusCellStyle}>
           <IndeterminateCheckbox
-            style={{
-              height: '15px',
-              width: '15px',
-              cursor: 'pointer',
-              marginRight: '2px',
-              marginBottom: '-3px',
-            }}
+            className={checkBox}
             checked={row.getIsSelected()}
             indeterminate={row.getIsSomeSelected()}
             onChange={row.getToggleSelectedHandler()}
           />
           {row.getCanExpand() ? (
-            <h5
-              onClick={row.getToggleExpandedHandler()}
-              style={{ cursor: 'pointer', margin: '0 3px 0 2px' }}
-            >
+            <h5 onClick={row.getToggleExpandedHandler()} className={toggleExpand}>
               {row.getIsExpanded() ? (
                 <MdExpandLess style={{ marginBottom: '-7px' }} size={22} />
               ) : (
@@ -160,20 +177,29 @@ const LinkManagerTable = ({ props }) => {
               )}
             </h5>
           ) : (
-            <h5 style={{ margin: '0 5px' }}>{'🔵'}</h5>
+            <h5 className={emptyBall}>{'🔵'}</h5>
           )}{' '}
-          <h5 style={{ marginLeft: '20px' }}>
-            {status?.toLowerCase() === 'active' ? (
-              <SuccessStatus color="#378f17" />
-            ) : status?.toLowerCase() === 'invalid' ? (
-              <FailedStatus color="#de1655" />
-            ) : status?.toLowerCase() === 'suspect' ? (
-              <InfoStatus color="#25b3f5" />
-            ) : (
-              <InfoStatus color="#25b3f5" />
-            )}
-          </h5>
+          <p>{getValue()}</p>
         </div>
+      </div>
+    );
+  };
+
+  const statusCell = (info) => {
+    const status = info.getValue();
+    return (
+      <div className={dataCell}>
+        <h5 className={statusIcon}>
+          {status?.toLowerCase() === 'active' ? (
+            <SuccessStatus color="#378f17" />
+          ) : status?.toLowerCase() === 'invalid' ? (
+            <FailedStatus color="#de1655" />
+          ) : status?.toLowerCase() === 'suspect' ? (
+            <InfoStatus color="#25b3f5" />
+          ) : (
+            <InfoStatus color="#25b3f5" />
+          )}
+        </h5>
       </div>
     );
   };
@@ -182,65 +208,59 @@ const LinkManagerTable = ({ props }) => {
   const columns = useMemo(
     () => [
       {
-        accessorKey: 'status',
+        accessorKey: 'link_type',
         header: ({ table }) => (
-          <div
-            style={{ display: 'flex', alignItems: 'center', gap: '3px', margin: '10px' }}
-          >
+          <div className={statusHeader}>
             <IndeterminateCheckbox
-              style={{ height: '16px', width: '16px', cursor: 'pointer' }}
+              className={headerCheckBox}
               checked={table.getIsAllRowsSelected()}
               indeterminate={table.getIsSomeRowsSelected()}
               onChange={table.getToggleAllRowsSelectedHandler()}
             />{' '}
             <IconButton
-              style={{ height: '20px', marginRight: '10px' }}
+              className={headerExpand}
               onClick={table.getToggleAllRowsExpandedHandler()}
               icon={table.getIsAllRowsExpanded() ? <MdExpandLess /> : <MdExpandMore />}
               size="xs"
             />
-            <h6>Status</h6>
+            <h6>Link Type</h6>
           </div>
         ),
-        cell: ({ row, getValue }) => statusCell(row, getValue),
+        cell: ({ row, getValue }) => expandCell(row, getValue),
         footer: (props) => props.column.id,
       },
       // Link type cell
       {
-        accessorKey: 'link_type',
-        header: () => (
-          <div style={{ margin: '10px' }}>
-            <h6 style={{ textAlign: 'start' }}>Link Type</h6>
-          </div>
-        ),
-        cell: (info) => (
-          <div style={{ marginLeft: '10px' }}>
-            <p>{info.getValue()}</p>
-          </div>
-        ),
-        footer: (props) => props.column.id,
-      },
-      // target cell
-      {
         accessorKey: 'name',
         header: () => (
-          <div style={{ margin: '10px' }}>
-            <h6 style={{ textAlign: 'start' }}>Target</h6>
+          <div className={headerCell}>
+            <h6>Target</h6>
           </div>
         ),
         cell: ({ row }) => targetCell(row),
+        footer: (props) => props.column.id,
+      },
+      // status cell
+      {
+        accessorKey: 'status',
+        header: () => (
+          <div className={headerCell}>
+            <h6>Status</h6>
+          </div>
+        ),
+        cell: (info) => statusCell(info),
         footer: (props) => props.column.id,
       },
       // Action cell
       {
         accessorKey: 'id',
         header: () => (
-          <div style={{ margin: '10px' }}>
-            <h6 style={{ textAlign: 'start' }}>Actions</h6>
+          <div className={headerCell}>
+            <h6>Actions</h6>
           </div>
         ),
         cell: ({ row }) => (
-          <div style={{ marginLeft: '10px' }}>
+          <div className={dataCell}>
             <Whisper placement="auto" trigger="click" speaker={renderMenu}>
               <IconButton
                 appearance="subtle"
@@ -274,32 +294,34 @@ const LinkManagerTable = ({ props }) => {
 
   return (
     <div>
-      <table style={{ padding: '20px', width: '100%', border: '1px solid lightgray' }}>
+      <table className={tableStyle}>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
+                console.log(header);
+                const action = header.id.includes('id');
+                const status = header.id.includes('status');
                 return (
-                  <th key={header.id} colSpan={header.colSpan}>
+                  <th
+                    key={header.id}
+                    colSpan={header.colSpan}
+                    style={{ width: status ? '120px' : action ? '120px' : '' }}
+                  >
                     {header.isPlaceholder ? null : (
                       <div>
                         {flexRender(header.column.columnDef.header, header.getContext())}
 
                         {header.column.getCanFilter() ? (
-                          <div
-                            style={{
-                              display: 'flex',
-                              flexDirection: 'column',
-                              margin: '0 10px',
-                            }}
-                          >
-                            <Filter
-                              column={header.column}
-                              table={table}
-                              isAction={
-                                header.index === 0 || header.index === 3 ? false : true
-                              }
-                            />
+                          <div className={filterContainer}>
+                            {data[0] && (
+                              <Filter
+                                column={header.column}
+                                table={table}
+                                isAction={header.index === 3 ? true : false}
+                                isStatusFilter={header.index === 2 ? true : false}
+                              />
+                            )}
                           </div>
                         ) : null}
                       </div>
@@ -315,45 +337,40 @@ const LinkManagerTable = ({ props }) => {
             <tr
               key={row.id}
               className={isDark === 'dark' ? table_row_dark : table_row_light}
-              style={{
-                height: '40px',
-                '&:hover': {
-                  backgroundColor: 'red',
-                },
-              }}
             >
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
+              {row.getVisibleCells().map((cell) => {
+                const status = cell.id?.includes('status');
+                const action = cell.id?.includes('id');
+                return (
+                  <td
+                    key={cell.id}
+                    style={{ width: status ? '120px' : action ? '120px' : '' }}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>
       </table>
       <div />
 
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'flex-end',
-          gap: '10px',
-          border: '1px solid lightgray',
-        }}
-      >
-        <select
-          value={table.getState().pagination.pageSize}
-          onChange={(e) => {
-            table.setPageSize(Number(e.target.value));
+      {!table.getRowModel().rows[0] && <p className={emptyTableContent}>No Data Found</p>}
+
+      <div className={paginationContainer}>
+        <p>Total: {totalItems} </p>
+
+        <CustomFilterSelect
+          items={paginationItems}
+          placeholder={'Rows per page ' + table.getState().pagination.pageSize}
+          onChange={(value) => {
+            if (value) table.setPageSize(value);
+            else {
+              table.setPageSize(10);
+            }
           }}
-        >
-          {[10, 20, 30, 40, 50].map((pageSize) => (
-            <option key={pageSize} value={pageSize}>
-              Rows per page {pageSize}
-            </option>
-          ))}
-        </select>
+        />
 
         <Button
           onClick={() => table.setPageIndex(0)}
@@ -369,6 +386,11 @@ const LinkManagerTable = ({ props }) => {
         >
           {'<'}
         </Button>
+
+        <p className={pageTitle}>
+          Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+        </p>
+
         <Button
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
@@ -384,23 +406,17 @@ const LinkManagerTable = ({ props }) => {
           {'>>'}
         </Button>
 
-        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <div>Page</div>
-          <strong>
-            {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-          </strong>
-        </span>
-
-        <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          | Go to page:
-          <input
+        <span className={pageTitle}>
+          <p> | Go to page: </p>
+          <Input
             type="number"
             defaultValue={table.getState().pagination.pageIndex + 1}
-            onChange={(e) => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0;
+            onChange={(value) => {
+              const page = value ? Number(value) - 1 : 0;
               table.setPageIndex(page);
             }}
-            style={{ border: '1px solid lightgray', width: '60px', borderRadius: '3px' }}
+            className={pageInput}
+            size="sm"
           />
         </span>
       </div>
@@ -408,40 +424,56 @@ const LinkManagerTable = ({ props }) => {
   );
 };
 
-function Filter({ column, table, isAction }) {
+function Filter({ column, table, isAction, isStatusFilter }) {
   const firstValue = table.getPreFilteredRowModel().flatRows[0]?.getValue(column.id);
 
   const columnFilterValue = column.getFilterValue();
 
-  return typeof firstValue === 'number' ? (
-    <div
-      style={{ display: 'flex', flexDirection: 'column', gap: '5px', padding: '0 10px' }}
-    >
-      <input
-        type="number"
-        value={columnFilterValue?.[0] ?? ''}
-        onChange={(e) => column.setFilterValue((old) => [e.target.value, old?.[1]])}
-        placeholder={'Min'}
-        style={{ border: '1px solid lightgray', borderRadius: '3px' }}
-      />
-      <input
-        type="number"
-        value={columnFilterValue?.[1] ?? ''}
-        onChange={(e) => column.setFilterValue((old) => [old?.[0], e.target.value])}
-        placeholder={'Max'}
-        style={{ border: '1px solid lightgray', borderRadius: '3px' }}
-      />
-    </div>
-  ) : (
-    isAction && (
-      <input
-        type="text"
-        value={columnFilterValue ?? ''}
-        onChange={(e) => column.setFilterValue(e.target.value)}
-        placeholder={'Search...'}
-        style={{ border: '1px solid lightgray', borderRadius: '3px' }}
-      />
-    )
+  const statusFilterItems = [
+    {
+      icon: <SuccessStatus color="#378f17" />,
+      label: 'Active',
+      value: 'active',
+    },
+    {
+      icon: <FailedStatus color="#de1655" />,
+      label: 'Invalid',
+      value: 'invalid',
+    },
+    {
+      icon: <InfoStatus color="#25b3f5" />,
+      label: 'Suspect',
+      value: 'suspect',
+    },
+  ];
+
+  return typeof firstValue === 'number' ? null : (
+    <>
+      {!isAction && !isStatusFilter && (
+        <Input
+          type="text"
+          value={columnFilterValue ?? ''}
+          onChange={(value) => column.setFilterValue(value)}
+          placeholder={'Search...'}
+          size="sm"
+          className={filterInput}
+        />
+      )}
+
+      {isStatusFilter && (
+        <CustomFilterSelect
+          className={statusFilterClass}
+          items={statusFilterItems}
+          placeholder="Search by status"
+          onChange={(value) => {
+            if (value) column.setFilterValue(value);
+            else {
+              column.setFilterValue('');
+            }
+          }}
+        />
+      )}
+    </>
   );
 }
 
