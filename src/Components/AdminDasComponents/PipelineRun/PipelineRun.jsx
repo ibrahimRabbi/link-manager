@@ -5,6 +5,7 @@ import AdminDataTable from '../AdminDataTable.jsx';
 import { handleCurrPageTitle } from '../../../Redux/slices/navSlice.jsx';
 import AuthContext from '../../../Store/Auth-Context.jsx';
 import { fetchPipelineRun } from '../../../Redux/slices/pipelineRunSlice.jsx';
+import Notification from '../../Shared/Notification.jsx';
 
 const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
 
@@ -44,7 +45,12 @@ const PipelineRun = () => {
   const [pageSize /*, setPageSize*/] = useState(10);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
-
+  const [notificationType, setNotificationType] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const showNotification = (type, message) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+  };
   const handlePagination = (value) => {
     setCurrPage(value);
   };
@@ -53,7 +59,14 @@ const PipelineRun = () => {
     dispatch(handleCurrPageTitle('Pipeline Results'));
 
     const getUrl = `${lmApiUrl}/pipeline_run?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchPipelineRun({ url: getUrl, token: authCtx.token, authCtx: authCtx }));
+    dispatch(
+      fetchPipelineRun({
+        url: getUrl,
+        token: authCtx.token,
+        authCtx: authCtx,
+        showNotification: showNotification,
+      }),
+    );
   }, [pageSize, currPage, refreshData]);
 
   const tableProps = {
@@ -83,6 +96,14 @@ const PipelineRun = () => {
           vertical
           content="Loading"
           style={{ zIndex: '10' }}
+        />
+      )}
+      {notificationType && notificationMessage && (
+        <Notification
+          type={notificationType}
+          message={notificationMessage}
+          setNotificationType={setNotificationType}
+          setNotificationMessage={setNotificationMessage}
         />
       )}
       <AdminDataTable props={tableProps} />
