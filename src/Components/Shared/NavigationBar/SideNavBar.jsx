@@ -19,9 +19,6 @@ import AttachmentIcon from '@rsuite/icons/Attachment';
 import { darkColor, lightBgColor } from '../../../App';
 import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
 
-let isGraphDashboard = process.env.REACT_APP_IS_GRAPH_DASHBOARD;
-if (isGraphDashboard) isGraphDashboard = JSON.parse(isGraphDashboard);
-
 const baseOptions = [
   {
     path: '/',
@@ -32,12 +29,6 @@ const baseOptions = [
   {
     path: '/graph-view',
     navigateTo: '/graph-view',
-    icon: <ShareOutlineIcon />,
-    content: <span>Graph View</span>,
-  },
-  {
-    path: '/graph-dashboard',
-    navigateTo: '/graph-dashboard',
     icon: <ShareOutlineIcon />,
     content: <span>Graph View</span>,
   },
@@ -121,9 +112,6 @@ const SideNavBar = ({ isWbe }) => {
                 // hide admin dashboard from the WBE
                 if (isWbe && option.path === '/admin') return null;
                 if (isWbe && option.path === '/extension') return null;
-
-                if (!isGraphDashboard && option.path === '/graph-dashboard') return null;
-
                 return (
                   <Nav.Item
                     key={index}
