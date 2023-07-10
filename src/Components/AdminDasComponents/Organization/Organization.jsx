@@ -15,6 +15,7 @@ import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
+import Notification from '../../Shared/Notification';
 
 // demo data
 const headerData = [
@@ -60,6 +61,12 @@ const Organization = () => {
     url: '',
     description: '',
   });
+  const [notificationType, setNotificationType] = React.useState('');
+  const [notificationMessage, setNotificationMessage] = React.useState('');
+  const showNotification = (type, message) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+  };
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
   const orgFormRef = React.useRef();
@@ -74,6 +81,7 @@ const Organization = () => {
       urlPath: `organization?page=${currPage}&per_page=${pageSize}`,
       token: authCtx.token,
       method: 'GET',
+      showNotification: showNotification,
     }),
   );
 
@@ -89,6 +97,7 @@ const Organization = () => {
         token: authCtx.token,
         method: 'POST',
         body: formValue,
+        showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {
@@ -112,6 +121,7 @@ const Organization = () => {
         token: authCtx.token,
         method: 'PUT',
         body: formValue,
+        showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {
@@ -134,6 +144,7 @@ const Organization = () => {
         urlPath: `organization/${deleteData?.id}`,
         token: authCtx.token,
         method: 'DELETE',
+        showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {
@@ -281,7 +292,14 @@ const Organization = () => {
       </AddNewModal>
 
       {(isLoading || createLoading || updateLoading || deleteLoading) && <UseLoader />}
-
+      {notificationType && notificationMessage && (
+        <Notification
+          type={notificationType}
+          message={notificationMessage}
+          setNotificationType={setNotificationType}
+          setNotificationMessage={setNotificationMessage}
+        />
+      )}
       <AdminDataTable props={tableProps} />
     </div>
   );
