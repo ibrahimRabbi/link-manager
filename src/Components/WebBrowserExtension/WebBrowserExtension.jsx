@@ -1,41 +1,47 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Table } from 'rsuite';
 import FileDownloadIcon from '@rsuite/icons/FileDownload';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import { useDispatch } from 'react-redux';
 
 const { Column, HeaderCell, Cell } = Table;
+
 const WebBrowserExtension = () => {
-  const [selectedData, setSelectedData] = useState([]);
   const dispatch = useDispatch();
+
   useEffect(() => {
     dispatch(handleCurrPageTitle('Extension'));
   }, []);
+
   const data = [
     {
       id: 1,
-      extension: 'GITLAB WBE',
+      extension: 'Jira WBE',
+      link: '/wbe/jira-wbe.zip',
+    },
+    {
+      id: 2,
+      extension: 'Glide WBE',
+      link: '/wbe/glide-wbe.zip',
+    },
+    {
+      id: 3,
+      extension: 'Valispace WBE',
+      link: '/wbe/valispace-wbe.zip',
     },
   ];
-  const handleDownload = () => {
-    console.log(selectedData);
+
+  const handleDownload = (rowData) => {
+    console.log(rowData);
     const link = document.createElement('a');
-    link.href = '/default-logo.png';
-    link.download = 'default-logo.png';
+    link.href = rowData.link;
+    link.download = rowData.extension + '.zip';
     link.click();
   };
+
   return (
     <div style={{ padding: '30px' }}>
-      <Table
-        autoHeight
-        bordered
-        headerHeight={50}
-        height={400}
-        data={data}
-        onRowClick={(rowData) => {
-          setSelectedData(rowData);
-        }}
-      >
+      <Table autoHeight bordered headerHeight={50} height={400} data={data}>
         <Column width={600} align="center" headerHeight={50}>
           <HeaderCell>
             <h5>Extension Name</h5>
@@ -56,19 +62,20 @@ const WebBrowserExtension = () => {
             <h5>Download</h5>
           </HeaderCell>
           <Cell>
-            <span
-              className="download-link"
-              style={{
-                fontSize: '17px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-              }}
-              onClick={handleDownload}
-            >
-              <FileDownloadIcon />
-            </span>
+            {(rowData) => (
+              <span
+                className="download-link"
+                style={{
+                  fontSize: '17px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+              >
+                <FileDownloadIcon onClick={() => handleDownload(rowData)} />
+              </span>
+            )}
           </Cell>
         </Column>
       </Table>
