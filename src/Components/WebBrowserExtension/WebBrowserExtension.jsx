@@ -16,26 +16,34 @@ const WebBrowserExtension = () => {
   const data = [
     {
       id: 1,
-      extension: 'Jira WBE',
-      link: '/wbe/jira-wbe.zip',
+      extension: 'Gitlab WBE',
+      filename: 'gitlab-wbe.zip',
+      link: '/wbe/gitlab-wbe.zip',
     },
     {
       id: 2,
-      extension: 'Glide WBE',
-      link: '/wbe/glide-wbe.zip',
+      extension: 'Jira WBE',
+      filename: 'jira-wbe.zip',
+      link: '/wbe/jira-wbe.zip',
     },
     {
       id: 3,
+      extension: 'Glide WBE',
+      filename: 'glide-wbe.zip',
+      link: '/wbe/glide-wbe.zip',
+    },
+    {
+      id: 4,
       extension: 'Valispace WBE',
+      filename: 'valispace-wbe.zip',
       link: '/wbe/valispace-wbe.zip',
     },
   ];
 
   const handleDownload = (rowData) => {
-    console.log(rowData);
     const link = document.createElement('a');
     link.href = rowData.link;
-    link.download = rowData.extension + '.zip';
+    link.download = rowData.filename;
     link.click();
   };
 
