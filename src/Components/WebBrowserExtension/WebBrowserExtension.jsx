@@ -16,21 +16,25 @@ const WebBrowserExtension = () => {
   const data = [
     {
       id: 1,
+      extension: 'Gitlab',
       filename: 'gitlab-wbe.zip',
       link: '/wbe/gitlab-wbe.zip',
     },
     {
       id: 2,
+      extension: 'Jira',
       filename: 'jira-wbe.zip',
       link: '/wbe/jira-wbe.zip',
     },
     {
       id: 3,
+      extension: 'GlideYoke',
       filename: 'glide-wbe.zip',
       link: '/wbe/glide-wbe.zip',
     },
     {
       id: 4,
+      extension: 'Valispace',
       filename: 'valispace-wbe.zip',
       link: '/wbe/valispace-wbe.zip',
     },
@@ -56,8 +60,9 @@ const WebBrowserExtension = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              fontWeight: '700',
             }}
-            dataKey="filename"
+            dataKey="extension"
           />
         </Column>
 
