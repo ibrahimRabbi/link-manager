@@ -1,0 +1,33 @@
+.select {
+    margin-bottom: 10px;
+}
+
+.mainDiv {
+    margin: 10px;
+}
+
+.treeDiv {
+    border: 1px solid;
+    display: flex;
+}
+
+.codemirror {
+    width: 77%;
+}
+
+.tree {
+    width: 23%;
+}
+
+/* 
+.buttonDiv {
+    display: flex;
+    justify-content: end;
+    margin-top: 5px;
+} */
+.error {
+    text-align: center;
+    font-size: 20px;
+    margin-top: 20px;
+    color: red;
+}

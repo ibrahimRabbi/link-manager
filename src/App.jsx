@@ -34,6 +34,10 @@ import Associations from './Components/AdminDasComponents/Associations/Associati
 import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun.jsx';
 import Pipeline from './Components/Pipeline/Pipeline.jsx';
 import WebBrowserExtension from './Components/WebBrowserExtension/WebBrowserExtension';
+import GitlabSelector from './Components/SelecctionDialog/GitlabSelector/GitlabSelector';
+// eslint-disable-next-line max-len
+import SelectionProtectedRoute from './Components/Shared/ProtectedRoute/SelectionProtectedRoute';
+import GitlabLogin from './Components/SelecctionDialog/GitlabSelector/GitlabLogin';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -130,7 +134,15 @@ function App() {
             <Route path="/admin/pipelinerun" element={<PipelineRun />} />
             <Route path="/admin" element={<Users />} />
           </Route>
-
+          <Route
+            path="/gitlabselection"
+            element={
+              <SelectionProtectedRoute>
+                <GitlabSelector />
+              </SelectionProtectedRoute>
+            }
+          ></Route>
+          <Route path="/gitlablogin" element={<GitlabLogin />}></Route>
           <Route path="/oauth2-status" element={<Oauth2Success />} />
           <Route path="/set-password" element={<UserVerify />} />
           <Route path="/login" element={<LoginPage />} />
