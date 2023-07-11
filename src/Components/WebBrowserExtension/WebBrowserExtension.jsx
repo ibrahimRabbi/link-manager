@@ -10,31 +10,27 @@ const WebBrowserExtension = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(handleCurrPageTitle('Extension'));
+    dispatch(handleCurrPageTitle('Link Manager Extension'));
   }, []);
 
   const data = [
     {
       id: 1,
-      extension: 'Gitlab WBE',
       filename: 'gitlab-wbe.zip',
       link: '/wbe/gitlab-wbe.zip',
     },
     {
       id: 2,
-      extension: 'Jira WBE',
       filename: 'jira-wbe.zip',
       link: '/wbe/jira-wbe.zip',
     },
     {
       id: 3,
-      extension: 'Glide WBE',
       filename: 'glide-wbe.zip',
       link: '/wbe/glide-wbe.zip',
     },
     {
       id: 4,
-      extension: 'Valispace WBE',
       filename: 'valispace-wbe.zip',
       link: '/wbe/valispace-wbe.zip',
     },
@@ -61,7 +57,7 @@ const WebBrowserExtension = () => {
               alignItems: 'center',
               justifyContent: 'center',
             }}
-            dataKey="extension"
+            dataKey="filename"
           />
         </Column>
 
