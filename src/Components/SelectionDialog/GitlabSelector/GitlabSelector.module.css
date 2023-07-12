@@ -19,12 +19,12 @@
     width: 23%;
 }
 
-/* 
 .buttonDiv {
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
     margin-top: 5px;
-} */
+}
+
 .error {
     text-align: center;
     font-size: 20px;
