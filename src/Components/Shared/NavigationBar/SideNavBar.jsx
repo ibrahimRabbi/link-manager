@@ -4,7 +4,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import './NavigationBar.module.scss';
 import { ImBrightnessContrast } from 'react-icons/im';
 import { BiLogOut } from 'react-icons/bi';
-
 import { Sidebar, Sidenav, Navbar, Nav, Divider } from 'rsuite';
 import CogIcon from '@rsuite/icons/legacy/Cog';
 import ShareOutlineIcon from '@rsuite/icons/ShareOutline';
