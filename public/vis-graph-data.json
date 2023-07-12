@@ -1,0 +1,5123 @@
+{
+    "nodes": [
+        {
+            "id": 0,
+            "label": "PavelDB",
+            "domain": "Any",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "database",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 1,
+            "label": "MT4",
+            "domain": "TradingTeam",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "circle",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 2,
+            "label": "MTRT",
+            "domain": "TradingTeam",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 3,
+            "label": "api_gateway",
+            "domain": "IAM",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 4,
+            "label": "MT5",
+            "domain": "TradingTeam",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 5,
+            "label": "ExpertDB",
+            "domain": "Any",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 6,
+            "label": "CoreDB",
+            "domain": "Any",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 7,
+            "label": "NATS",
+            "domain": "Backoffice",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 8,
+            "label": "VirtualBillingDB",
+            "domain": "Any",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 9,
+            "label": "clickhouse",
+            "domain": "XDATA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 10,
+            "label": "reportOperations",
+            "domain": "XDATA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 11,
+            "label": "abusers_api",
+            "domain": "XDATA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 12,
+            "label": "xr",
+            "domain": "XDATA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 13,
+            "label": "nsr_db_sync",
+            "domain": "Data Interfaces team",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 14,
+            "label": "authentication_service",
+            "domain": "IAM",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 15,
+            "label": "trades_api",
+            "domain": "XDATA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 16,
+            "label": "pnl_lp_service",
+            "domain": "XDATA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 17,
+            "label": "pnl_service",
+            "domain": "XDATA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 18,
+            "label": "kafka",
+            "domain": "XDATA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 19,
+            "label": "paf",
+            "domain": "Digital Affiliates",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 20,
+            "label": "bo_security_service",
+            "domain": "IAM",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 21,
+            "label": "cpa_service",
+            "domain": "Digital Affiliates",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 22,
+            "label": "bo_user_tags",
+            "domain": "IAM",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 23,
+            "label": "event_bus_manager",
+            "domain": "IAM",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 24,
+            "label": "kyc_app",
+            "domain": "IAM",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 25,
+            "label": "legacylizer",
+            "domain": "IAM",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 26,
+            "label": "profiles",
+            "domain": "IAM",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 27,
+            "label": "sumsub_integration_service",
+            "domain": "IAM",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 28,
+            "label": "user_tags",
+            "domain": "IAM",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 29,
+            "label": "verification_service",
+            "domain": "IAM",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 30,
+            "label": "LiquidityProvider",
+            "domain": "MiddleOffice",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 31,
+            "label": "BitcoinerDB",
+            "domain": "Any",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 32,
+            "label": "keychain",
+            "domain": "Backoffice",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 33,
+            "label": "awd",
+            "domain": "Backoffice",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 34,
+            "label": "bo_integration",
+            "domain": "CoreTeam",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 35,
+            "label": "wl_wallet",
+            "domain": "CoreTeam",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 36,
+            "label": "trade_analyst",
+            "domain": "Mobile Forex",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 37,
+            "label": "trading_news",
+            "domain": "CoreTeam",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 38,
+            "label": "investigation_tool",
+            "domain": "CoreTeam",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 39,
+            "label": "mobile_api",
+            "domain": "Mobile Forex",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 40,
+            "label": "forexnews",
+            "domain": "Mobile Forex",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 41,
+            "label": "sacredSourceMT5",
+            "domain": "XDATA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 42,
+            "label": "price_alert",
+            "domain": "Mobile Forex",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 43,
+            "label": "configs_store",
+            "domain": "Mobile Forex",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 44,
+            "label": "sacredSourceMT4",
+            "domain": "XDATA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 45,
+            "label": "mt5_groups",
+            "domain": "XDATA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 46,
+            "label": "push_service",
+            "domain": "Mobile Forex",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 47,
+            "label": "prophet_detector",
+            "domain": "Engineering Core",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 48,
+            "label": "NTAPI",
+            "domain": "CoreTeam",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 49,
+            "label": "bonuses3",
+            "domain": "WTA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 50,
+            "label": "wta_bonuses_facade",
+            "domain": "WTA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 51,
+            "label": "trading_restrictions_service",
+            "domain": "WTA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 52,
+            "label": "trading_accounts_management",
+            "domain": "WTA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 53,
+            "label": "wl_trading_auth",
+            "domain": "WTA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 54,
+            "label": "wl_wta_api",
+            "domain": "WTA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 55,
+            "label": "preArchivingLoginsCollector",
+            "domain": "XDATA Integrations",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 56,
+            "label": "toxicity_service",
+            "domain": "XDATA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 57,
+            "label": "web_area_frontend",
+            "domain": "WTA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 58,
+            "label": "web_trading_terminal",
+            "domain": "WTA",
+            "nodeType": "service",
+            "level": 0,
+            "shape": "box",
+            "color": "#97C2FC"
+        },
+        {
+            "id": 59,
+            "cid": 1,
+            "label": "exness.prod.env\n/trial7",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "box",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 60,
+            "label": "exness.prod.env/proxy",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 61,
+            "label": "exness.prod.env/main",
+            "domain": "Any",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 62,
+            "cid": 1,
+            "label": "exness.prod.env\n/real1",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "box",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 63,
+            "label": "exness.prod.env/real1",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 64,
+            "cid": 1,
+            "label": "exness.prod.env/real12",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 65,
+            "cid": 1,
+            "label": "exness.prod.env/real9",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 66,
+            "label": "exness.prod.env/trial1",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 67,
+            "label": "exness.prod.env/trial3",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 68,
+            "label": "exness.prod.env/real11",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 69,
+            "label": "exness.prod.env/real6",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 70,
+            "label": "exness.prod.env/real3",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 71,
+            "label": "exness.prod.env/trial5",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 72,
+            "label": "exness.prod.env/real7",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 73,
+            "label": "exness.prod.env/real4",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 74,
+            "label": "exness.prod.env/trial4",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 75,
+            "label": "exness.prod.env/real2",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 76,
+            "label": "exness.prod.env/trial6",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 77,
+            "label": "exness.prod.env/trial2",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 78,
+            "label": "exness.prod.env/real2",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 79,
+            "label": "exness.prod.env/trial1",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 80,
+            "label": "exness.prod.env/real4",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 81,
+            "label": "exness.prod.env/trial3",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 82,
+            "label": "exness.prod.env/trial2",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 83,
+            "label": "exness.prod.env/real3",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 84,
+            "label": "exness.prod.env/trial4",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 85,
+            "label": "exness.prod.env/real14",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 86,
+            "label": "exness.prod.env/real15",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 87,
+            "label": "exness.prod.env/trial9",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 88,
+            "label": "exness.prod.env/real16",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 89,
+            "label": "exness.prod.env/real19",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 90,
+            "label": "exness.prod.env/human",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 91,
+            "label": "exness.prod.env/services",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 92,
+            "label": "exness.prod.env/xdata",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 93,
+            "label": "exness.test.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 94,
+            "label": "exness.test.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 95,
+            "label": "exness.prod.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 96,
+            "label": "exness.test.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 97,
+            "label": "exness.prod.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 98,
+            "label": "exness.test.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 99,
+            "label": "exness.prod.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 100,
+            "label": "exness.test.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 101,
+            "label": "exness.prod.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 102,
+            "label": "exness.test.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 103,
+            "label": "exness.test.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 104,
+            "label": "exness.prod.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 105,
+            "label": "exness.prod.env/real18",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 106,
+            "label": "exness.prod.env/trial8",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 107,
+            "label": "exness.prod.env/real17",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 108,
+            "label": "exness.prod.env/trial7",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 109,
+            "label": "exness.prod.env/trial5",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 110,
+            "label": "exness.prod.env/real8",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 111,
+            "label": "exness.prod.env/trial8",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 112,
+            "label": "exness.test.env/fastmatch03",
+            "domain": "MiddleOffice",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 113,
+            "label": "exness.prod.env/main",
+            "domain": "Any",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 114,
+            "label": "exness.prod.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 115,
+            "label": "exness.prod.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 116,
+            "label": "exness.prod.env/real6",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 117,
+            "label": "exness.prod.env/trial6",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 118,
+            "label": "exness.prod.env/real5",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 119,
+            "label": "exness.prod.env/real7",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 120,
+            "label": "exness.prod.env/main",
+            "domain": "Backoffice",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 121,
+            "label": "exness.prod.env/main",
+            "domain": "Any",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 122,
+            "label": "exness.prod.env/main",
+            "domain": "Any",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 123,
+            "label": "exness.prod.env/main",
+            "domain": "Backoffice",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 124,
+            "label": "exness.prod.env/main",
+            "domain": "Any",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 125,
+            "label": "exness.prod.env/main",
+            "domain": "Backoffice",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 126,
+            "label": "exness.prod.env/liquidity",
+            "domain": "CoreTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 127,
+            "label": "exness.prod.env/lp_real1",
+            "domain": "TradingTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 128,
+            "label": "exness.prod.env/liquidity",
+            "domain": "CoreTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 129,
+            "label": "exness.test.env/main",
+            "domain": "Data Interfaces team",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 130,
+            "label": "exness.prod.env/iam_rke_prod_env",
+            "domain": "IAM",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 131,
+            "label": "exness.prod.env/main",
+            "domain": "Data Interfaces team",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 132,
+            "label": "exness.prod.env/main",
+            "domain": "CoreTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 133,
+            "label": "exness.prod.env/main",
+            "domain": "CoreTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 134,
+            "label": "exness.prod.env/main",
+            "domain": "CoreTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 135,
+            "label": "exness.prod.env/iam_rke_prod_env",
+            "domain": "IAM",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 136,
+            "label": "exness.prod.env/retail",
+            "domain": "CoreTeam",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 137,
+            "label": "exness.prod.env/iam_rke_prod_env",
+            "domain": "IAM",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 138,
+            "label": "exness.prod.env/iam_rke_prod_env",
+            "domain": "IAM",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 139,
+            "label": "exness.prod.env/iam_rke_prod_env",
+            "domain": "IAM",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 140,
+            "label": "exness.test.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 141,
+            "label": "exness.prod.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 142,
+            "label": "exness.test.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 143,
+            "label": "exness.prod.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 144,
+            "label": "exness.prod.env/retail",
+            "domain": "Engineering Core",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 145,
+            "label": "exness.prod.env/main",
+            "domain": "WTA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 146,
+            "label": "exness.prod.env/main",
+            "domain": "WTA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 147,
+            "label": "exness.prod.env/main",
+            "domain": "WTA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 148,
+            "label": "exness.prod.env/trading_acc_mgmt",
+            "domain": "WTA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 149,
+            "label": "exness.prod.env/trading_acc_mgmt_external",
+            "domain": "WTA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 150,
+            "label": "exness.prod.env/main",
+            "domain": "WTA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 151,
+            "label": "exness.prod.env/main",
+            "domain": "WTA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 152,
+            "label": "exness.test.env/main",
+            "domain": "XDATA Integrations",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 153,
+            "label": "exness.prod.env/main",
+            "domain": "XDATA Integrations",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 154,
+            "label": "exness.prod.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 155,
+            "label": "exness.test.env/main",
+            "domain": "XDATA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 156,
+            "label": "exness.prod.env/main",
+            "domain": "WTA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 157,
+            "label": "exness.prod.env/main",
+            "domain": "WTA",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 158,
+            "label": "exness.prod.env/iam_rke_prod_env",
+            "domain": "IAM",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 159,
+            "label": "exness.prod.env/iam_rke_prod_env",
+            "domain": "IAM",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 160,
+            "label": "exness.prod.env/iam_rke_prod_env",
+            "domain": "IAM",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 161,
+            "label": "exness.prod.env/iam_rke_prod_env",
+            "domain": "IAM",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 162,
+            "label": "exness.prod.env/iam_rke_prod_env",
+            "domain": "IAM",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        },
+        {
+            "id": 163,
+            "label": "exness.prod.env/iam_rke_prod_env",
+            "domain": "IAM",
+            "nodeType": "instance",
+            "level": 1,
+            "shape": "diamond",
+            "color": "#FB7E81"
+        }
+    ],
+    "edges": [
+        {
+            "from": 1,
+            "to": 59,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "b5211cd2-ead5-424f-a31b-670ab385fd83"
+        },
+        {
+            "from": 2,
+            "to": 60,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "97216cdd-483b-43ed-a38c-daca7d7026f8"
+        },
+        {
+            "from": 0,
+            "to": 61,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "f837bd74-81fb-4d37-b183-0861e896e58e"
+        },
+        {
+            "from": 1,
+            "to": 62,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "2e45149e-fb87-4dc4-8969-ff2e4109cfad"
+        },
+        {
+            "from": 4,
+            "to": 63,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "724e9041-50a0-4af5-8487-cd61d46250ce"
+        },
+        {
+            "from": 1,
+            "to": 64,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "fafc1d8a-07d4-4928-b241-27841858867b"
+        },
+        {
+            "from": 1,
+            "to": 65,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "22893707-9bbb-4928-afdc-e355a2908129"
+        },
+        {
+            "from": 1,
+            "to": 66,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "63ca6d83-eb2d-4343-9431-10c0404888d1"
+        },
+        {
+            "from": 1,
+            "to": 67,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "a88ddbdf-19fb-4eed-8c08-b811f5219872"
+        },
+        {
+            "from": 1,
+            "to": 68,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "7d32783e-89c6-4ff1-815e-c1a36ee3fbde"
+        },
+        {
+            "from": 1,
+            "to": 69,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "59b7120f-23c6-4b91-8e48-8c362e875818"
+        },
+        {
+            "from": 1,
+            "to": 70,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "cfbf8c38-2b0e-4069-b956-34847e5f562f"
+        },
+        {
+            "from": 1,
+            "to": 71,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "e13f87a0-c9e8-434b-be57-c7afa1a7ac2d"
+        },
+        {
+            "from": 1,
+            "to": 72,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "4b9f6d49-96fe-40bf-92bd-0825db321ca0"
+        },
+        {
+            "from": 1,
+            "to": 73,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "18ee6eb3-33fe-45c5-9ab9-1c9595cfb495"
+        },
+        {
+            "from": 1,
+            "to": 74,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "ae09a78d-b534-4a82-b5c2-e7961ca0de92"
+        },
+        {
+            "from": 1,
+            "to": 75,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "7b6ff491-a4f9-497f-b1fb-2a604f93e0f2"
+        },
+        {
+            "from": 1,
+            "to": 76,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "199c8d7e-a770-4133-b017-1083ef80695e"
+        },
+        {
+            "from": 1,
+            "to": 77,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "04f06029-8112-4a50-a9c7-ab02ee250a9a"
+        },
+        {
+            "from": 4,
+            "to": 78,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "147f0577-5e52-45d5-b5db-4e69cd9b7bca"
+        },
+        {
+            "from": 4,
+            "to": 79,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "18c127ba-22c7-4fba-bc56-4082d1745de8"
+        },
+        {
+            "from": 4,
+            "to": 80,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "ecc8dfa7-4ca6-492b-8862-24c78566ded8"
+        },
+        {
+            "from": 4,
+            "to": 81,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "168fcdd9-0678-4801-be66-f2e272a9a11a"
+        },
+        {
+            "from": 4,
+            "to": 82,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "ecc3bc8c-bfb3-4756-8614-1fcab3d02b31"
+        },
+        {
+            "from": 4,
+            "to": 83,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "f16814e9-2fdb-4649-9c22-b2a30705e113"
+        },
+        {
+            "from": 4,
+            "to": 84,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "b6d70e33-e3f8-406d-891c-916080cffef1"
+        },
+        {
+            "from": 1,
+            "to": 85,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "d0641ac7-919e-4909-be38-fdbd44f86f15"
+        },
+        {
+            "from": 1,
+            "to": 86,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "2129e456-46ac-4516-9871-fa509f4c2e15"
+        },
+        {
+            "from": 1,
+            "to": 87,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "270b442e-d7ae-43b7-82f8-ee103c147ede"
+        },
+        {
+            "from": 1,
+            "to": 88,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "cb78a162-510c-406b-8965-357ccc443c81"
+        },
+        {
+            "from": 1,
+            "to": 89,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "2abae122-c028-4779-ab72-16e45ee214af"
+        },
+        {
+            "from": 9,
+            "to": 90,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "b0259c29-cf15-4d9a-8647-615b653f414c"
+        },
+        {
+            "from": 9,
+            "to": 91,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "e5e41dd7-18d0-45c1-9e1d-ab692c3ff3b5"
+        },
+        {
+            "from": 9,
+            "to": 92,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "9a56e3d5-ef28-4725-bed1-a1258b4df8d5"
+        },
+        {
+            "from": 10,
+            "to": 93,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "f23472c0-6d71-47fb-b97c-56e53372c5d6"
+        },
+        {
+            "from": 12,
+            "to": 94,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "d88b4a95-c7fd-4aa5-9e99-17eb10259eeb"
+        },
+        {
+            "from": 12,
+            "to": 95,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "2a741a27-3e3c-4a06-b65d-1e4045da2971"
+        },
+        {
+            "from": 15,
+            "to": 96,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "831986ee-16d4-46bb-a587-7cd09baf72ca"
+        },
+        {
+            "from": 11,
+            "to": 97,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "7a451bc1-b720-4dd7-9916-0a69a1a0d0d9"
+        },
+        {
+            "from": 11,
+            "to": 98,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "4b76bd0c-f822-4e43-b451-850e75618d3d"
+        },
+        {
+            "from": 16,
+            "to": 99,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "d6e497c4-9c02-4dbc-b6c6-6b84f0c549c0"
+        },
+        {
+            "from": 16,
+            "to": 100,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "dd66e453-3e80-443a-8b4f-214494cccd4c"
+        },
+        {
+            "from": 17,
+            "to": 101,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "eb87c448-a68d-4ed8-aa1b-e53da46c26ac"
+        },
+        {
+            "from": 17,
+            "to": 102,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "b044b085-11fe-44fc-ae28-53bee76594da"
+        },
+        {
+            "from": 18,
+            "to": 103,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "9e94f29a-3c78-4f6b-955c-7fc0ea34a9ce"
+        },
+        {
+            "from": 18,
+            "to": 104,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "7ec3dd08-b683-434b-b2bc-b81fd5768981"
+        },
+        {
+            "from": 1,
+            "to": 105,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "ae52c6f9-1daf-44b7-be2f-1893c03e7bab"
+        },
+        {
+            "from": 1,
+            "to": 106,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "2d3a2a03-f8d8-45e2-b839-18898fade868"
+        },
+        {
+            "from": 1,
+            "to": 107,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "28a1a95e-6633-400d-bb82-a3d130d22f20"
+        },
+        {
+            "from": 4,
+            "to": 108,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "5e7b930f-3a69-42f1-9aaa-3940e1bbea7a"
+        },
+        {
+            "from": 4,
+            "to": 109,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "43f5c3ef-692b-488c-9e82-26a40771d68b"
+        },
+        {
+            "from": 4,
+            "to": 110,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "699f415c-43c6-4497-844f-d240784ad222"
+        },
+        {
+            "from": 4,
+            "to": 111,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "b1d20a3d-1925-4bb2-89d2-5d698e1a9189"
+        },
+        {
+            "from": 30,
+            "to": 112,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "ece05e13-861d-41d7-a29f-5352c3ffbab3"
+        },
+        {
+            "from": 31,
+            "to": 113,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "85559369-a6bf-4af9-8460-60539b47a2e4"
+        },
+        {
+            "from": 10,
+            "to": 114,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "6a9713cd-11c1-4ea5-ad94-06cfd9d7605b"
+        },
+        {
+            "from": 15,
+            "to": 115,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "3ed34d54-8660-4d0f-afa5-6f1d0b9de74d"
+        },
+        {
+            "from": 4,
+            "to": 116,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "dce9b76c-6cac-4a55-94d9-ba1936e287be"
+        },
+        {
+            "from": 4,
+            "to": 117,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "7cc9816e-15d8-41af-bcc3-4b6bda807ff2"
+        },
+        {
+            "from": 4,
+            "to": 118,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "8315e716-daa8-4bdc-b554-81c79de0ed2e"
+        },
+        {
+            "from": 4,
+            "to": 119,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "0b821baf-1460-4c83-a2ec-c9c9f4daa3fe"
+        },
+        {
+            "from": 32,
+            "to": 120,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "5a51d922-1c41-4ef7-8c5e-ee28aaddd017"
+        },
+        {
+            "from": 5,
+            "to": 121,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "a394d261-692c-4fe3-9b5c-d0ff59b45b61"
+        },
+        {
+            "from": 6,
+            "to": 122,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "c2f60368-42df-45a7-802a-497888863071"
+        },
+        {
+            "from": 7,
+            "to": 123,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "7f9add60-e9a3-4596-99fb-3b7d3a2b0d2e"
+        },
+        {
+            "from": 8,
+            "to": 124,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "5dab42a0-843d-4a58-8d89-b23302c3b8fd"
+        },
+        {
+            "from": 33,
+            "to": 125,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "9df57a32-902e-4146-b58f-6d726a858a0a"
+        },
+        {
+            "from": 35,
+            "to": 126,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "8f0c8d73-b0cd-46c5-9059-7780d6a5eacf"
+        },
+        {
+            "from": 4,
+            "to": 127,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "52ed17d4-4d4e-4460-995a-bc7ff71c8a28"
+        },
+        {
+            "from": 48,
+            "to": 128,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "a1095b17-3c52-48ed-8a65-ac9ee47e2970"
+        },
+        {
+            "from": 13,
+            "to": 129,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "961ed9f5-424b-4c92-832f-014f41a3acc3"
+        },
+        {
+            "from": 3,
+            "to": 130,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "db73114e-5a73-4efc-828c-fc2a2abb4b19"
+        },
+        {
+            "from": 13,
+            "to": 131,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "e9f1d66d-ce17-4719-8ecd-33ac409437bf"
+        },
+        {
+            "from": 34,
+            "to": 132,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "85d9ec5a-a30e-4495-a07b-1a8d21e1d993"
+        },
+        {
+            "from": 37,
+            "to": 133,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "c948d1a6-8805-466e-a44b-c24af34620d5"
+        },
+        {
+            "from": 38,
+            "to": 134,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "f4d33efa-95c5-414f-8ffa-7bab0e8094d0"
+        },
+        {
+            "from": 22,
+            "to": 135,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "795ca318-176e-45fa-9a29-28e5ef70ca1d"
+        },
+        {
+            "from": 48,
+            "to": 136,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "63f8c7f9-6466-4575-b1b4-e544785ed4c9"
+        },
+        {
+            "from": 14,
+            "to": 137,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "5f557d4a-562d-4604-b4e4-f2c2b7b85dda"
+        },
+        {
+            "from": 20,
+            "to": 138,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "d34aaaca-047f-4c76-9d44-dfb3a98ef476"
+        },
+        {
+            "from": 23,
+            "to": 139,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "b286c549-ffdb-4006-98ff-733091b6d4c0"
+        },
+        {
+            "from": 41,
+            "to": 140,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "06f3b01c-68a7-4ddb-b74a-fc09e18fa8f7"
+        },
+        {
+            "from": 44,
+            "to": 141,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "c0770577-d03c-40ab-b2bb-042ec9455830"
+        },
+        {
+            "from": 44,
+            "to": 142,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "4b556d23-fa12-4f39-8ca3-8e617968110d"
+        },
+        {
+            "from": 41,
+            "to": 143,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "4c6c1f8f-0295-4cd6-a6ba-dd74a67a4b7c"
+        },
+        {
+            "from": 47,
+            "to": 144,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "03d10cc0-61cc-4678-a67e-2d490e80e3fb"
+        },
+        {
+            "from": 49,
+            "to": 145,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "b2ea10c9-8296-44d3-b006-209878e99765"
+        },
+        {
+            "from": 50,
+            "to": 146,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "dfd0734f-afa3-45ff-868b-35ab64f7bec8"
+        },
+        {
+            "from": 51,
+            "to": 147,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "5dbeb583-5053-4c0f-9244-bfc39d4cbf7a"
+        },
+        {
+            "from": 52,
+            "to": 148,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "cb98d966-f370-48dd-b89c-4efd65ecb5fc"
+        },
+        {
+            "from": 52,
+            "to": 149,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "ded756ab-e2b8-43ac-b540-d4aafe15aa82"
+        },
+        {
+            "from": 53,
+            "to": 150,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "d43a55eb-7bcc-427e-a8ca-2c8699111f3f"
+        },
+        {
+            "from": 54,
+            "to": 151,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "e691ae6d-37bb-43c0-b12b-992f625c8684"
+        },
+        {
+            "from": 55,
+            "to": 152,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "4a39e86d-5ebd-4f47-b4d1-8bf66cc2ca93"
+        },
+        {
+            "from": 55,
+            "to": 153,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "222f4831-0dc7-4a98-aaf1-90f62b69d2cc"
+        },
+        {
+            "from": 56,
+            "to": 154,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "41d02a27-f91c-4c06-b9f6-972b2d444d17"
+        },
+        {
+            "from": 56,
+            "to": 155,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "b17d73b7-c92d-4b4d-8544-3e2399557a94"
+        },
+        {
+            "from": 57,
+            "to": 156,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "a1ac15f7-a4e0-4fb1-bcdd-a1c9c694f191"
+        },
+        {
+            "from": 58,
+            "to": 157,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "9ee70d8a-d9ed-4ab8-8067-236cf4ca9441"
+        },
+        {
+            "from": 24,
+            "to": 158,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "bf009f6c-2bf1-44d2-a865-ac2b5ac9942f"
+        },
+        {
+            "from": 25,
+            "to": 159,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "161cd849-c65a-4d9a-85c7-3747b1508ab8"
+        },
+        {
+            "from": 26,
+            "to": 160,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "f9e5de73-b2d7-405a-a66e-a5c041d299b8"
+        },
+        {
+            "from": 27,
+            "to": 161,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "fba3b3ff-e635-4be5-9473-bedfd5a128cc"
+        },
+        {
+            "from": 28,
+            "to": 162,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "d02b38e0-adff-4ef6-8c2b-140fae7f0056"
+        },
+        {
+            "from": 29,
+            "to": 163,
+            "relation": "low",
+            "arrows": "to",
+            "color": {
+                "color": "green"
+            },
+            "id": "6b5e2e16-f155-4049-826e-d4ead5199ba0"
+        },
+        {
+            "from": 35,
+            "to": 34,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "38423390-f70e-48a4-9f00-39cbfa1f6ed5"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "3523778e-490d-47b6-b028-5b4aeff02a30"
+        },
+        {
+            "from": 48,
+            "to": 34,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "9757ccb1-ec70-4acc-b016-a16b2cde10ed"
+        },
+        {
+            "from": 4,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "1e603f63-b2d8-4efa-a120-8f967d180c07"
+        },
+        {
+            "from": 4,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "8ed148cb-5ef3-4e97-8ac5-9dda239df728"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "8e79cf64-d373-405c-8337-c1b16f845124"
+        },
+        {
+            "from": 4,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "7928a4b3-1ac1-4f76-b0c9-2f9d7561146c"
+        },
+        {
+            "from": 4,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "897756c2-9141-492a-87aa-a578a9e9cf5a"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "a95e97ad-f0f5-4e08-b8d9-30083bd94921"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "a4c994a1-17a1-49c1-b207-f86fc09a0885"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "81614b6a-8fff-4b4f-aa04-d77d9a0201cf"
+        },
+        {
+            "from": 4,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "bbf5b328-d5cc-42bb-929b-09098d9bbbfe"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "cac7c81a-472e-4b02-9f67-1c5646411b8e"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "a17bb699-a5f2-46f2-aab3-b1db582e6c0a"
+        },
+        {
+            "from": 4,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "785f30d5-9b44-4115-8729-9ed17a539aa5"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "c156a27f-4a9a-425f-8e3d-7602400c789f"
+        },
+        {
+            "from": 4,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "9b01c613-8839-42d4-9581-c42affac2202"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "b07eda7e-2353-4bd8-83fd-307320730ddc"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "0a4d5c02-a113-4fc5-9611-e2fe06b58dcd"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "dc346eb2-b5a3-4d97-ab26-3aae40c7a0bf"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "068c24db-8a5a-4bc6-ba80-5bb45c411994"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "b7b18854-240e-473d-ae71-8a6da4e0a453"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "df09d044-df84-44f6-8e28-880e91deb6c7"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "5d4cc4b9-588d-4811-a9a4-ff923246357c"
+        },
+        {
+            "from": 4,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "3d886213-6948-4449-9209-a03a60d86459"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "841a0e53-b2c3-4449-b16c-adaf67863a5e"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "4dbc1dbd-3a6e-4c9e-b566-02d95da18724"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "137a741b-40bf-42ca-b80c-37806fb7d3b2"
+        },
+        {
+            "from": 4,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "823cbef0-7d91-41b9-b00a-9353b6d896c8"
+        },
+        {
+            "from": 4,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "0d54d529-e556-4272-a911-f7682ac697f0"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "94c4ad6c-cb12-4246-842d-d6885713e521"
+        },
+        {
+            "from": 4,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "4b107e11-5d30-4a61-9133-26a4b398f220"
+        },
+        {
+            "from": 4,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "8837e883-e7fe-49ae-9fbf-38c25bdbc54f"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "32f7189e-65f6-4b52-bfe3-37629ff58400"
+        },
+        {
+            "from": 4,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "53763333-33e1-4015-91b5-62d47f7abba8"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "4fa6f562-0104-437c-94e6-dfd3d6ad59da"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "8a3705c9-74d5-4c7a-812d-2d9f01b37644"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "b3cc84ed-f254-46f6-aa18-5e360bebe58c"
+        },
+        {
+            "from": 4,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "4beba8e2-1995-462e-b23a-1f6746a19617"
+        },
+        {
+            "from": 1,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "c9e4994a-5fc1-4458-b1a5-22bcceaea87d"
+        },
+        {
+            "from": 4,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "894177d1-ad81-4313-bf8f-58df0c2c3428"
+        },
+        {
+            "from": 4,
+            "to": 2,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "ff8e4bf1-4279-4a4c-b4ba-284a6fa2a476"
+        },
+        {
+            "from": 9,
+            "to": 38,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "75a34b8a-5563-4986-995d-67abdf41b8bf"
+        },
+        {
+            "from": 11,
+            "to": 47,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "03f849c2-188b-4506-86ae-69d94939d1ac"
+        },
+        {
+            "from": 44,
+            "to": 49,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "63d99592-807b-44ad-a0c1-9c003a2e6923"
+        },
+        {
+            "from": 48,
+            "to": 49,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "8716c43b-3340-4c5f-b8fb-3f16e471e500"
+        },
+        {
+            "from": 15,
+            "to": 49,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "04a984e4-f662-41a3-8881-9f4f6fd086e6"
+        },
+        {
+            "from": 12,
+            "to": 49,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "2300deae-b68d-4ca0-b8e7-6f8da49854e2"
+        },
+        {
+            "from": 49,
+            "to": 50,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "5c0de2fb-45ab-4008-8edb-da74ccacbf78"
+        },
+        {
+            "from": 48,
+            "to": 51,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "8f8bf0aa-7008-42f3-89c2-64001499e19f"
+        },
+        {
+            "from": 51,
+            "to": 52,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "d59c3d39-84c1-4e33-b47e-6ce446c7e42e"
+        },
+        {
+            "from": 49,
+            "to": 52,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "0b0792f9-fe53-4e72-b78c-c25e963a5d95"
+        },
+        {
+            "from": 12,
+            "to": 52,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "da14b3ea-4696-4180-9098-42950069012f"
+        },
+        {
+            "from": 48,
+            "to": 52,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "23d2ce77-64ed-4df8-901d-8e7dfdd11e01"
+        },
+        {
+            "from": 52,
+            "to": 54,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "01edabc1-e5f1-4a72-bc32-7e220a9f12e4"
+        },
+        {
+            "from": 15,
+            "to": 54,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "615fd65d-502e-448b-9f43-6ef3b9e934d0"
+        },
+        {
+            "from": 54,
+            "to": 57,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "061aae13-1368-4e4d-acf6-78b53b0e5ef7"
+        },
+        {
+            "from": 54,
+            "to": 58,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "a79ccbce-1a05-43f0-993d-c8640a3bdc74"
+        },
+        {
+            "from": 2,
+            "to": 12,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "c48f9950-e804-4d5a-bb30-247a8c215a1f"
+        },
+        {
+            "from": 9,
+            "to": 12,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "0a64b432-39f9-47c9-9eaf-b2be281c9641"
+        },
+        {
+            "from": 9,
+            "to": 11,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "dce04baa-a82b-496f-a748-f84abe13373f"
+        },
+        {
+            "from": 9,
+            "to": 16,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "53c4834c-6208-4dcf-80d6-087c5c2b97d9"
+        },
+        {
+            "from": 9,
+            "to": 17,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "9cf05806-8fdc-477a-9ff7-9cb35723db6c"
+        },
+        {
+            "from": 2,
+            "to": 35,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "6ecabfa2-b73d-497d-8719-cc27cf12cf8c"
+        },
+        {
+            "from": 9,
+            "to": 35,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "8ce92cff-bc61-4f55-80f7-105653c02082"
+        },
+        {
+            "from": 16,
+            "to": 35,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "bc478680-f49b-49e4-80b5-4a19495d15b7"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "62ad9bfb-c2c6-4aa4-a9f8-55a7ca6347b8"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "4be449ef-bef9-4de5-95ef-9351d4db65a2"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "6c60d2fd-b9fb-4b4c-b8bc-366d1ff55a46"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "46f62c0f-b6c3-4630-908a-a053b1f0f9d0"
+        },
+        {
+            "from": 15,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "cd3d7659-15f0-4abb-b29a-f29128a17d9e"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "7f43fbf8-c6b2-44cd-96a5-65c23e7e662e"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "23ffa7fe-c453-40a0-a584-1f3b6f5714d0"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "36aedd3b-e29f-47c0-b665-7898425e2fb2"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "aab91216-8ab3-4db7-b7c5-2fc64b060a23"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "898febc6-7b4f-4c55-87c3-9f54f02902af"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "6c1deb13-37a5-4644-abaa-6aa209d4004b"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "5402dd76-2180-421d-b054-cced15c7f164"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "a4214a5e-fd53-4baa-8686-e07466ddf974"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "8043a848-cb07-4905-b674-0f7ed1b1e883"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "ee914574-4f6d-4fcc-ad86-e7341a08feef"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "0686712d-c6e5-4de3-8756-92473a8a2f06"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "584a8e18-ff82-4cbb-b9e2-1f1970544934"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "880f7fd5-fcf2-410a-9373-620904c96c4f"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "bf20a0a6-0b42-4bfa-acdc-a9f52b9885a0"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "c63006d7-aea4-4914-919b-e99e11e363a0"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "ad9d292a-1e7d-4f94-85eb-9dce73fb87c3"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "787c1bd6-f25d-4ee3-885f-d60e29429bc7"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "627da66c-2ba1-4b3b-9bbc-941343398576"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "6f99e773-6ee7-4a10-afe6-ef78bb3ba2ea"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "54773732-4e13-435f-8ee5-f6f25d6ba11d"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "0a6bc0e7-37df-4f2e-9255-ffa32eafc0fb"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "86cdd32c-2f0b-4c0a-93bb-fe3245ace8ea"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "a024877f-2c47-49b5-a43b-763dee54f3be"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "075209cf-0e58-4520-9edb-ae36f5edaca5"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "d4aaae40-5ea8-40b4-bca9-1b9d94c74fbc"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "99855ac2-58d4-48e5-a30d-cabd1663d4c5"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "6a15e972-91c7-4484-be26-1fb8a6b2c64e"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "37c9a2cd-589d-4320-b353-e010bde09ccc"
+        },
+        {
+            "from": 0,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "55ddec8b-088f-4cce-94d0-a94d7d15baac"
+        },
+        {
+            "from": 18,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "23c32c5d-5953-47c8-b48b-a1134fbc4e2b"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "38d70454-57c0-4893-ab52-4ee3c672bf8f"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "69bf7ad7-e0e0-429a-9ad0-9eb2d702fe74"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "cf18f4a1-5e11-41bb-9ff5-e244ca3bea45"
+        },
+        {
+            "from": 9,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "752295bb-986b-4853-ad8f-fa0709aebbf4"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "87fc8797-bbf0-4518-9595-b259b01a1077"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "cb5c1a76-7217-4436-8690-dd1b7a7f185d"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "3b80f0de-1f8b-4d3e-a9c5-979bc55967e6"
+        },
+        {
+            "from": 2,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "d27a6d14-b2da-47a4-9c73-dbf1b0ed480e"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "bc854833-e2f7-4590-9b73-4aa4b2d3181f"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "3202d87c-8099-4a6c-b4a0-8ba2bb9eb68a"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "75f4bbcd-c4ed-4632-8e64-94ae19e853b2"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "f9caf91d-655f-4e2b-97a1-0e56c806be7c"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "9903ff15-81f5-420a-9132-6a75f6c36067"
+        },
+        {
+            "from": 9,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "fb132ece-0991-42cd-a691-d8535a99c4e8"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "f2494a43-688f-4db7-8d52-afc68c7050d6"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "e859c684-8880-4d2c-9483-d9aaa12ade75"
+        },
+        {
+            "from": 35,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "5b6fce4c-8dec-4566-9467-8fdc42f56742"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "c86d291a-afa0-426b-abe2-71fa383ef749"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "d05bc6ca-21b4-40a4-af40-759b984ee735"
+        },
+        {
+            "from": 2,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "bb26ebef-f965-45f8-a0b1-482f26b19f50"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "97dc7fec-4e43-48a6-965b-482ee983c9d7"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "cca41638-20d9-40b8-91f7-b4fda486d6d9"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "782090f1-79d4-40ad-bf12-4f442fea920a"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "7a226f4c-b964-4573-996e-740f650964c0"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "82f1bfe3-dc66-4fd1-b520-e7da8b02f3e7"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "2fe44197-8879-4856-bd42-d7e2adcf406b"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "a52353fc-0f4c-42d3-bdfd-505c1a9589ab"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "f43cf843-1ce7-4245-96b7-8f5e4f42bd00"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "dbf7256a-ffe3-46fd-bc0b-cc540e7acef4"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "ed6c23ad-a42a-4279-95f2-4cdc53127a0e"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "1774b51e-c359-4a63-bb1f-40968d8ea0e1"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "0bb610a7-3df0-4c46-8583-841e7637ba0c"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "cf3bd5c4-b463-427d-9e2e-428093489f8f"
+        },
+        {
+            "from": 2,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "d592b1c0-6b48-4c47-9f68-af2c255a8835"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "75c2a7e0-fc2f-49c6-9dc2-1e58b9ddbde5"
+        },
+        {
+            "from": 15,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "aec2a98c-58f0-4004-a1c1-282cc6d9e163"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "d646133b-c131-4f52-a686-4633bac292c0"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "e27cfd29-a668-4971-ac5f-54b3e994860b"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "44c0ba84-45c4-42d2-b89c-007d31ce35b1"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "42e3cccf-2054-40c1-94fe-4e2fcc827613"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "1d70e1de-d05b-4ba8-9f38-7fa198f46225"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "02076caa-1f7f-4d3a-84f7-da8d37e7b657"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "3066b39a-997b-4608-b729-5cb227238d27"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "ec8e46a8-57a8-45e3-98e1-985ae7a11889"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "a3c5296b-119d-44da-b554-38ad7fdfa443"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "92f319ea-ba83-4bf0-98cd-959fa1732099"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "ffe284c6-c804-4456-bf18-8d33582a8c79"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "0f4e1152-6c63-4d2a-bab2-f25835aa9889"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "5ae0e5a4-13c5-425e-b358-8570eedda2e6"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "0844f7c0-a6ef-4acd-a5a6-a3fd4d6d4819"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "cedca300-1bb2-4f09-b93a-f9f13bdc2ef0"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "b4277c43-b3d3-452e-b57b-3b5a2d7471c8"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "ce50ef74-70f1-4a75-990e-eaba833a241f"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "c49a595f-4a9c-4a38-a42d-24c730d734db"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "2f7fed25-7497-46bb-9e03-e290161f6924"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "efb13670-8184-4e10-a985-b88cb9777927"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "acced94e-8f47-44b7-acc4-8fe15e9bb99a"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "bf021028-e06e-48c9-8568-aeb766e4458b"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "ffc9a8ad-b2ab-4995-ae5b-04b82bee7fd5"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "c09a47dc-fbdb-4a9d-b001-3c589cc2f199"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "68668d68-0d4a-4901-8539-4cf2ee2c0006"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "3f03418e-c565-415d-869b-1ccaea85e56f"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "3c267e98-ac25-46bc-98df-e3a3410e91ca"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "e70ba1b6-6e60-47a5-8a55-ae3098e8ba39"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "ff00f717-6ba4-4191-8236-ce6eddb14f6f"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "f1698849-6c67-4c50-b43d-067048409ac6"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "e76428d3-c2a2-4165-b943-25f8d479f2d9"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "dbae5d4c-c193-438f-a8f2-5f0754334f66"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "7a15468d-4a30-4b23-b260-de276f8e5c16"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "cb7e759c-6358-4ede-8475-b7b51b94311d"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "faa45987-5ced-49eb-bc19-ad9b78e2838b"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "0d3ea86f-9d04-4207-baaa-7e431c04ac1d"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "2a3557df-0e8a-4321-8278-9252470ec84c"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "9c75bcea-5029-4bc3-b29d-9d79a2a1ad0a"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "12d9b83a-8886-4440-acaf-6413b82485ea"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "be918321-4126-42b2-b076-b3fcd4f7af24"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "9feae80b-5576-4df5-9ea0-34cbf3c6684a"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "e9988f91-779d-4fa8-810e-58ce5871e3cb"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "893c71b1-ff22-4481-812c-3bf3010a7edb"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "775d8977-0b6c-4c7f-bb61-5b20e6a50b1c"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "0b62d396-43f3-41b9-8117-ffa7c2cc3c37"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "1f839fba-94f4-4348-93a0-5e7c80e28b36"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "a6589dfe-1455-4652-942a-fc4ff9aa2357"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "9ad16932-3b4a-489c-b668-60708aa378a3"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "39d8ca7f-ee8a-4439-9fe9-9e2e033e91f6"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "fd1fa61a-206c-4a1e-a08f-1f11ab2b9867"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "506fa7dc-8228-40ec-bdc7-46e64d98c6b2"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "ec6b8784-c093-4d67-ad61-7bbc3ebeb5ba"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "9cabe9dc-29a1-4c5a-ab16-a765c96155e3"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "4a4e7cb7-c93f-4a64-b56a-c32f8a20aa52"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "86261c01-d184-4afc-9bd9-d54eeedea76f"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "193cfba3-266f-4ecd-931f-57ee4dbb95b4"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "83ae9adf-efb7-42bf-83da-2e6cb37357eb"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "006ea5db-2c29-490f-98bc-6388ef6b36e8"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "93c90345-9c10-46f0-849a-f66254a1b21e"
+        },
+        {
+            "from": 4,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "91812640-bef2-46ae-b706-3d4bb24a454f"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "20fe7934-c1ff-4064-be8b-ba50521fa5f6"
+        },
+        {
+            "from": 1,
+            "to": 48,
+            "relation": "high",
+            "arrows": "from",
+            "color": {
+                "color": "red"
+            },
+            "smooth": {
+                "type": "curvedCW"
+            },
+            "id": "331c2fbd-4dc7-4a0c-aded-c719a890c34e"
+        }
+    ]
+}

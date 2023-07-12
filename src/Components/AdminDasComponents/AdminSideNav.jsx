@@ -27,7 +27,7 @@ const options = [
     path: ['/admin', '/admin/users'],
     navigateTo: '/admin/users',
     icon: <FaUsers style={iconStyle} />,
-    content: <span>User</span>,
+    content: <span>Users</span>,
   },
   {
     path: ['/admin/organizations'],

@@ -88,11 +88,18 @@
 
   .toggleExpand {
     cursor: pointer;
-    margin: 0 3px 0 2px;
+    margin: 0 2px;
+    transition: 0.1s;
+    margin-top: 3px;
   }
 
-  .emptyBall {
-    margin: 0 5px;
+  .iconRotate {
+    transform: rotate(90deg);
+  }
+
+  .emptyExpand {
+    margin: 0 2px;
+    // width: 13px;
   }
 
   .statusIcon {
@@ -116,10 +123,15 @@
     cursor: pointer;
   }
 
-  .headerExpand {
-    height: 20px;
-    margin-right: 10px;
-  }
+}
+
+.headerExpand {
+  cursor: pointer;
+  transition: 0.1s;
+}
+
+.allIconRotate {
+  transform: rotate(90deg);
 }
 
 .headerCell {

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { MdExpandMore, MdExpandLess } from 'react-icons/md';
+import { FaChevronRight } from 'react-icons/fa';
 import MoreIcon from '@rsuite/icons/legacy/More';
 import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
@@ -23,7 +23,7 @@ const {
   checkBox,
   uiPreviewStyle,
   toggleExpand,
-  emptyBall,
+  emptyExpand,
   statusIcon,
   statusHeader,
   headerCheckBox,
@@ -37,7 +37,8 @@ const {
   pageInput,
   filterInput,
   emptyTableContent,
-  // statusCellWidth,
+  iconRotate,
+  allIconRotate,
   statusFilterClass,
 } = cssStyles;
 
@@ -157,7 +158,7 @@ const LinkManagerTable = ({ props }) => {
     return (
       <div
         style={{
-          paddingLeft: `${row.depth * 2}rem`,
+          paddingLeft: `${row.depth * 20}px`,
           marginLeft: '10px',
         }}
       >
@@ -169,15 +170,14 @@ const LinkManagerTable = ({ props }) => {
             onChange={row.getToggleSelectedHandler()}
           />
           {row.getCanExpand() ? (
-            <h5 onClick={row.getToggleExpandedHandler()} className={toggleExpand}>
-              {row.getIsExpanded() ? (
-                <MdExpandLess style={{ marginBottom: '-7px' }} size={22} />
-              ) : (
-                <MdExpandMore style={{ marginBottom: '-7px' }} size={22} />
-              )}
+            <h5
+              onClick={row.getToggleExpandedHandler()}
+              className={`${toggleExpand} ${row.getIsExpanded() ? iconRotate : ''}`}
+            >
+              <FaChevronRight style={{ marginBottom: '' }} size={17} />
             </h5>
           ) : (
-            <h5 className={emptyBall}>{'🔵'}</h5>
+            <h5 className={emptyExpand} />
           )}{' '}
           <p>{getValue()}</p>
         </div>
@@ -209,23 +209,27 @@ const LinkManagerTable = ({ props }) => {
     () => [
       {
         accessorKey: 'link_type',
-        header: ({ table }) => (
-          <div className={statusHeader}>
-            <IndeterminateCheckbox
-              className={headerCheckBox}
-              checked={table.getIsAllRowsSelected()}
-              indeterminate={table.getIsSomeRowsSelected()}
-              onChange={table.getToggleAllRowsSelectedHandler()}
-            />{' '}
-            <IconButton
-              className={headerExpand}
-              onClick={table.getToggleAllRowsExpandedHandler()}
-              icon={table.getIsAllRowsExpanded() ? <MdExpandLess /> : <MdExpandMore />}
-              size="xs"
-            />
-            <h6>Link Type</h6>
-          </div>
-        ),
+        header: ({ table }) => {
+          const isExpand = table.getIsAllRowsExpanded();
+          return (
+            <div className={statusHeader}>
+              <IndeterminateCheckbox
+                className={headerCheckBox}
+                checked={table.getIsAllRowsSelected()}
+                indeterminate={table.getIsSomeRowsSelected()}
+                onChange={table.getToggleAllRowsSelectedHandler()}
+              />{' '}
+              <h5
+                className={`${headerExpand} ${isExpand ? allIconRotate : ''}
+                  `}
+                onClick={table.getToggleAllRowsExpandedHandler()}
+              >
+                <FaChevronRight size={17} />
+              </h5>
+              <h6>Link Type</h6>
+            </div>
+          );
+        },
         cell: ({ row, getValue }) => expandCell(row, getValue),
         footer: (props) => props.column.id,
       },
@@ -299,7 +303,6 @@ const LinkManagerTable = ({ props }) => {
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
-                console.log(header);
                 const action = header.id.includes('id');
                 const status = header.id.includes('status');
                 return (
