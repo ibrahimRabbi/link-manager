@@ -48,9 +48,16 @@ const WebBrowserExtension = () => {
   };
 
   return (
-    <div style={{ padding: '30px' }}>
-      <Table autoHeight bordered headerHeight={50} height={400} data={data}>
-        <Column width={600} align="center" headerHeight={50}>
+    <div
+      style={{
+        padding: '30px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <Table virtualized bordered width={900} autoHeight headerHeight={50} data={data}>
+        <Column width={450} align="center" headerHeight={50}>
           <HeaderCell>
             <h5>Extension Name</h5>
           </HeaderCell>
@@ -66,7 +73,7 @@ const WebBrowserExtension = () => {
           />
         </Column>
 
-        <Column width={500} align="center" headerHeight={50}>
+        <Column width={450} align="center" headerHeight={50}>
           <HeaderCell>
             <h5>Download</h5>
           </HeaderCell>
