@@ -79,15 +79,13 @@
   justify-content: space-between;
   padding: 10px 1vw;
   margin-bottom: 15px;
-  // border-radius: 10px;
-  // box-shadow: 0 0 5px 1px lightgray;
 
   button {
     border-radius: 5px;
   }
 }
 
-.linkFileContainer > h5 {
+.linkFileContainer>h5 {
   span {
     margin-left: 10px;
     margin-bottom: -10px;
@@ -110,6 +108,36 @@
 .wbeNavSpace {
   margin-top: 15px;
   margin-left: 5px;
+}
+
+// admin side nav
+.links-components-sidebar {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100vh;
+
+  .links-side-nav-body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 20px;
+  }
+
+  .wbe-nav-setting {
+    margin-bottom: 50px;
+  }
+}
+
+// admin side nav
+.admin-components-sidebar {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 93vh;
+
+  .admin-side-nav-body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 20px;
+  }
 }
 
 .dropdown-text {

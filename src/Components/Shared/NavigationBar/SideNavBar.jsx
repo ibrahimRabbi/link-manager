@@ -84,13 +84,12 @@ const SideNavBar = ({ isWbe }) => {
     <>
       <Sidebar
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: isWbe ? '100vh' : '94vh',
+          // minHeight: isWbe ? '100vh' : '94vh',
           boxShadow: `2px 2px 5px ${isDark === 'light' ? 'lightgray' : '#292D33'}`,
           backgroundColor: isDark === 'dark' ? darkColor : lightBgColor,
         }}
-        width={isSidebarOpen ? 200 : 56}
+        className="links-components-sidebar"
+        width={isSidebarOpen ? 210 : 60}
         collapsible
       >
         <Sidenav.Header>
@@ -103,9 +102,14 @@ const SideNavBar = ({ isWbe }) => {
             </Nav.Item>
           </Nav>
         </Sidenav.Header>
-        <Divider style={{ marginTop: '0' }} />
-        <Sidenav expanded={isSidebarOpen} defaultOpenKeys={['3']} appearance="subtle">
-          <Sidenav.Body>
+        <Divider style={{ margin: '0' }} />
+        <Sidenav
+          className="links-side-nav-body"
+          expanded={isSidebarOpen}
+          defaultOpenKeys={['3']}
+          appearance="subtle"
+        >
+          <Sidenav.Body className="link-nav-container">
             <Nav>
               {baseOptions?.map((option, index) => {
                 // hide admin dashboard from the WBE
@@ -137,7 +141,7 @@ const SideNavBar = ({ isWbe }) => {
           <Navbar
             style={{ marginTop: 'auto' }}
             appearance="subtle"
-            className="nav-toggle"
+            className="nav-toggle wbe-nav-setting"
           >
             <Nav>
               <Nav.Menu
