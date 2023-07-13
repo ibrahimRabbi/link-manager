@@ -85,7 +85,7 @@
   }
 }
 
-.linkFileContainer > h5 {
+.linkFileContainer>h5 {
   span {
     margin-left: 10px;
     margin-bottom: -10px;
@@ -214,20 +214,4 @@
 
 .rs-drawer-body {
   padding: 30px 20px !important;
-}
-
-/* react vis network graph styles  */
-
-.vis-graph-container {
-  canvas {
-    height: 700px !important;
-    width: 99% !important;
-    margin: 0 auto !important;
-    background-color: rgb(244, 244, 244);
-  }
-
-  .no-data-title {
-    margin: 50px;
-    text-align: center;
-  }
 }

@@ -9,13 +9,16 @@ import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context';
 import Notification from '../Shared/Notification';
 import UseLoader from '../Shared/UseLoader';
+import styles from './Graph.module.scss';
+import { Col, Grid, Row } from 'rsuite';
+
+const { nodeInfoContainer, visGraphContainer, noDataTitle, infoRow } = styles;
 
 const Graph = () => {
   const { sourceDataList, isWbe } = useSelector((state) => state.links);
   const authCtx = useContext(AuthContext);
-  const [displayGraph, setDisplayGraph] = useState({ nodes: [], edges: [] });
+  const [selectedNode, setSelectedNode] = useState({});
   const dispatch = useDispatch();
-  const [processLoading, setProcessLoading] = useState(false);
   const [notificationType, setNotificationType] = useState('');
   const [notificationMessage, setNotificationMessage] = useState('');
 
@@ -28,10 +31,6 @@ const Graph = () => {
     setNotificationMessage(message);
   };
 
-  // gen a number persistent color from around the palette
-  const getColor = (n) =>
-    '#' + ((n * 1234567) % Math.pow(2, 24)).toString(16).padStart(6, '0');
-
   // get data using react-query
   const { data: graphData, isLoading } = useQuery(['vis-graph'], () =>
     fetchAPIRequest({
@@ -43,43 +42,6 @@ const Graph = () => {
       method: 'GET',
     }),
   );
-
-  useEffect(() => {
-    let isMounted = true;
-    if (isWbe && graphData?.data?.nodes) {
-      setProcessLoading(true);
-      const nodes = graphData?.data?.nodes?.reduce((accumulator, node) => {
-        const name = node?.properties?.name;
-
-        const newNode = {
-          ...node,
-          ...node.properties,
-          id: node?.id,
-          label: name?.slice(0, 20),
-          color: getColor(node.id),
-        };
-        accumulator.push(newNode);
-        return accumulator;
-      }, []);
-
-      const edges = graphData?.data?.relationships?.reduce((accumulator, edge) => {
-        const newEdge = {
-          from: edge?.startNodeId,
-          to: edge?.endNodeId,
-          label: edge?.type,
-          ...edge.properties,
-        };
-        accumulator.push(newEdge);
-        return accumulator;
-      }, []);
-
-      if (isMounted) setDisplayGraph({ nodes, edges });
-    }
-    setProcessLoading(false);
-    return () => {
-      isMounted = false;
-    };
-  }, [graphData]);
 
   // notification component
   const notification = () => {
@@ -96,33 +58,73 @@ const Graph = () => {
     );
   };
 
-  if ((isWbe && isLoading) || processLoading) {
+  if (isWbe && isLoading) {
     return (
-      <div className="vis-graph-container">
-        <UseLoader />
+      <div className={visGraphContainer}>
+        {' '}
+        <UseLoader />{' '}
       </div>
     );
-  } else if (isWbe && displayGraph.nodes?.length) {
-    return (
-      <div className="vis-graph-container">
-        <VisGraph
-          graph={displayGraph}
-          options={visGraphOptions}
-          events={{
-            click: () => {},
-            doubleClick: () => {},
-          }}
-          getNetwork={() => {}}
-        />
+  } else if (isWbe && graphData) {
+    if (graphData?.data?.nodes?.length) {
+      return (
+        <div className={visGraphContainer}>
+          <VisGraph
+            graph={graphData?.data}
+            options={visGraphOptions}
+            events={{
+              selectNode: (selected) => {
+                const nodeId = selected?.nodes[0];
+                const node = graphData?.data?.nodes?.find((value) => value.id === nodeId);
+                setSelectedNode({
+                  node_id: nodeId,
+                  id: node?.id,
+                  label: node?.label,
+                  ...node?.properties,
+                });
+              },
+              deselectNode: () => {
+                setSelectedNode({});
+              },
+              click: () => {},
+              doubleClick: () => {},
+            }}
+            getNetwork={() => {}}
+          />
 
-        {isWbe ? notification() : ''}
-      </div>
-    );
+          {/* node details section  */}
+          {selectedNode?.node_id && (
+            <div className={nodeInfoContainer}>
+              <h6>Selected node details.</h6>
+              <Grid fluid>
+                {Object.keys(selectedNode)?.map((key, i) => {
+                  if (!selectedNode[key]) return null;
+                  return (
+                    <Row className={`show-grid ${infoRow}`} key={i}>
+                      <Col xs={6}>
+                        <p>
+                          <span>{key} </span>
+                        </p>
+                      </Col>
+                      <Col xs={18}>
+                        <p>{selectedNode[key]}</p>{' '}
+                      </Col>
+                    </Row>
+                  );
+                })}
+              </Grid>
+            </div>
+          )}
+
+          {isWbe ? notification() : ''}
+        </div>
+      );
+    }
   }
 
   return (
-    <div className="vis-graph-container">
-      <h5 className="no-data-title">
+    <div className={visGraphContainer}>
+      <h5 className={noDataTitle}>
         {isWbe
           ? 'No content available for this source'
           : 'No source found to display the graph'}
