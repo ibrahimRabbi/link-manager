@@ -8,68 +8,80 @@ import fetchAPIRequest from '../../apiRequests/apiRequest';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context';
 import Notification from '../Shared/Notification';
+import UseLoader from '../Shared/UseLoader';
 
 const Graph = () => {
-  const { sourceDataList } = useSelector((state) => state.links);
+  const { sourceDataList, isWbe } = useSelector((state) => state.links);
   const authCtx = useContext(AuthContext);
+  const [displayGraph, setDisplayGraph] = useState({ nodes: [], edges: [] });
   const dispatch = useDispatch();
+  const [processLoading, setProcessLoading] = useState(false);
   const [notificationType, setNotificationType] = useState('');
   const [notificationMessage, setNotificationMessage] = useState('');
+
+  useEffect(() => {
+    dispatch(handleCurrPageTitle('Graph view'));
+  }, []);
+
   const showNotification = (type, message) => {
     setNotificationType(type);
     setNotificationMessage(message);
   };
-  useEffect(() => {
-    dispatch(handleCurrPageTitle('Graph view'));
-  }, []);
 
   // gen a number persistent color from around the palette
   const getColor = (n) =>
     '#' + ((n * 1234567) % Math.pow(2, 24)).toString(16).padStart(6, '0');
 
-  let graphData = { nodes: [], edges: [] };
-
   // get data using react-query
-  if (sourceDataList?.uri) {
-    const { data } = useQuery(['vis-graph'], () =>
-      fetchAPIRequest({
-        urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
-          sourceDataList?.uri,
-        )}&direction=outgoing&max_depth_outgoing=1`,
-        token: authCtx.token,
-        method: 'GET',
-        showNotification: showNotification,
-      }),
-    );
+  const { data: graphData, isLoading } = useQuery(['vis-graph'], () =>
+    fetchAPIRequest({
+      urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
+        sourceDataList?.uri,
+      )}&direction=outgoing&max_depth_outgoing=1`,
+      token: authCtx.token,
+      showNotification: showNotification,
+      method: 'GET',
+    }),
+  );
 
-    const nodes = data?.data?.nodes?.reduce((accumulator, node) => {
-      const name = node?.properties?.name;
+  useEffect(() => {
+    let isMounted = true;
+    if (isWbe && graphData?.data?.nodes) {
+      setProcessLoading(true);
+      const nodes = graphData?.data?.nodes?.reduce((accumulator, node) => {
+        const name = node?.properties?.name;
 
-      const newNode = {
-        ...node,
-        ...node.properties,
-        id: node?.id,
-        label: name?.slice(0, 20),
-        color: getColor(node.id),
-      };
+        const newNode = {
+          ...node,
+          ...node.properties,
+          id: node?.id,
+          label: name?.slice(0, 20),
+          color: getColor(node.id),
+        };
+        accumulator.push(newNode);
+        return accumulator;
+      }, []);
 
-      // delete newNode.properties;
-      accumulator.push(newNode);
-      return accumulator;
-    }, []);
+      const edges = graphData?.data?.relationships?.reduce((accumulator, edge) => {
+        const newEdge = {
+          from: edge?.startNodeId,
+          to: edge?.endNodeId,
+          label: edge?.type,
+          ...edge.properties,
+        };
+        accumulator.push(newEdge);
+        return accumulator;
+      }, []);
 
-    const edges = data?.data?.relationships?.reduce((accumulator, edge) => {
-      const newEdge = {
-        from: edge?.startNodeId,
-        to: edge?.endNodeId,
-        label: edge?.type,
-        ...edge.properties,
-      };
-      accumulator.push(newEdge);
-      return accumulator;
-    }, []);
-    graphData = { nodes, edges };
-  }
+      if (isMounted) setDisplayGraph({ nodes, edges });
+    }
+    setProcessLoading(false);
+    return () => {
+      isMounted = false;
+    };
+  }, [graphData]);
+
+  // notification component
   const notification = () => {
     return (
       notificationType &&
@@ -83,11 +95,18 @@ const Graph = () => {
       )
     );
   };
-  if (graphData.nodes?.length) {
+
+  if ((isWbe && isLoading) || processLoading) {
+    return (
+      <div className="vis-graph-container">
+        <UseLoader />
+      </div>
+    );
+  } else if (isWbe && displayGraph.nodes?.length) {
     return (
       <div className="vis-graph-container">
         <VisGraph
-          graph={graphData}
+          graph={displayGraph}
           options={visGraphOptions}
           events={{
             click: () => {},
@@ -95,15 +114,20 @@ const Graph = () => {
           }}
           getNetwork={() => {}}
         />
-        {notification()}
+
+        {isWbe ? notification() : ''}
       </div>
     );
   }
 
   return (
     <div className="vis-graph-container">
-      <h5 className="no-data-title">No data found</h5>
-      {notification()}
+      <h5 className="no-data-title">
+        {isWbe
+          ? 'No content available for this source'
+          : 'No source found to display the graph'}
+      </h5>
+      {isWbe ? notification() : ''}
     </div>
   );
 };
