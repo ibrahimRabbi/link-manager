@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import visGraphOptions from './visGraphOptions';
@@ -7,11 +7,18 @@ import { useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../apiRequests/apiRequest';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context';
+import Notification from '../Shared/Notification';
 
 const Graph = () => {
   const { sourceDataList } = useSelector((state) => state.links);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
+  const [notificationType, setNotificationType] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const showNotification = (type, message) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+  };
   useEffect(() => {
     dispatch(handleCurrPageTitle('Graph view'));
   }, []);
@@ -31,6 +38,7 @@ const Graph = () => {
         )}&direction=outgoing&max_depth_outgoing=1`,
         token: authCtx.token,
         method: 'GET',
+        showNotification: showNotification,
       }),
     );
 
@@ -62,7 +70,19 @@ const Graph = () => {
     }, []);
     graphData = { nodes, edges };
   }
-
+  const notification = () => {
+    return (
+      notificationType &&
+      notificationMessage && (
+        <Notification
+          type={notificationType}
+          message={notificationMessage}
+          setNotificationType={setNotificationType}
+          setNotificationMessage={setNotificationMessage}
+        />
+      )
+    );
+  };
   if (graphData.nodes?.length) {
     return (
       <div className="vis-graph-container">
@@ -75,6 +95,7 @@ const Graph = () => {
           }}
           getNetwork={() => {}}
         />
+        {notification()}
       </div>
     );
   }
@@ -82,6 +103,7 @@ const Graph = () => {
   return (
     <div className="vis-graph-container">
       <h5 className="no-data-title">No data found</h5>
+      {notification()}
     </div>
   );
 };
