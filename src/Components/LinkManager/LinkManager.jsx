@@ -267,4 +267,4 @@ const LinkManager = () => {
     </div>
   );
 };
-export default LinkManager;
+export default React.memo(LinkManager);

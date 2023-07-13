@@ -27,7 +27,7 @@ const options = [
     path: ['/admin', '/admin/users'],
     navigateTo: '/admin/users',
     icon: <FaUsers style={iconStyle} />,
-    content: <span>User</span>,
+    content: <span>Users</span>,
   },
   {
     path: ['/admin/organizations'],
@@ -107,13 +107,11 @@ const AdminSideNav = () => {
     <>
       <Sidebar
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          minHeight: '100vh',
           boxShadow: `2px 2px 5px ${isDark === 'light' ? 'lightgray' : '#292D33'}`,
           backgroundColor: isDark === 'dark' ? darkColor : lightBgColor,
         }}
-        width={isAdminSidebarOpen ? 200 : 56}
+        className="admin-components-sidebar"
+        width={isAdminSidebarOpen ? 210 : 60}
         collapsible
       >
         <Sidenav.Header>
@@ -130,9 +128,10 @@ const AdminSideNav = () => {
         <Sidenav
           expanded={isAdminSidebarOpen}
           defaultOpenKeys={['12']}
+          className="admin-side-nav-body"
           appearance="subtle"
         >
-          <Sidenav.Body style={{ marginTop: '0' }}>
+          <Sidenav.Body>
             <Nav>
               {options.map((option, index) => (
                 <Nav.Item

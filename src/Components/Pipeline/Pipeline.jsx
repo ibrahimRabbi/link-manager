@@ -8,6 +8,7 @@ import { Button, Drawer, Loader } from 'rsuite';
 import { Table } from 'rsuite';
 import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
+import Notification from '../Shared/Notification.jsx';
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -23,6 +24,12 @@ const Pipeline = () => {
 
   const [openWithHeader, setOpenWithHeader] = useState(false);
   const [pipelineOutput, setPipelineOutput] = useState('');
+  const [notificationType, setNotificationType] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const showNotification = (type, message) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+  };
 
   useEffect(() => {
     dispatch(handleCurrPageTitle('Pipelines Results'));
@@ -30,6 +37,7 @@ const Pipeline = () => {
       fetchPipelines({
         url: `${apiURL}?type=Pipeline`,
         token: authCtx.token,
+        showNotification: showNotification,
       }),
     );
   }, []);
@@ -73,6 +81,14 @@ const Pipeline = () => {
     <div>
       <div className={wbePath ? 'wbeNavSpace' : ''}>
         <div className="mainContainer">
+          {notificationType && notificationMessage && (
+            <Notification
+              type={notificationType}
+              message={notificationMessage}
+              setNotificationType={setNotificationType}
+              setNotificationMessage={setNotificationMessage}
+            />
+          )}
           <div className="container">
             <div className={tableContainer}>
               {isPipelineLoading && (
@@ -94,7 +110,7 @@ const Pipeline = () => {
                   cellBordered
                   data={data}
                   rowKey="id"
-                  height={520}
+                  autoHeight
                 >
                   <Column flexGrow={1}>
                     <HeaderCell>

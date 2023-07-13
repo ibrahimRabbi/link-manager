@@ -79,8 +79,6 @@
   justify-content: space-between;
   padding: 10px 1vw;
   margin-bottom: 15px;
-  // border-radius: 10px;
-  // box-shadow: 0 0 5px 1px lightgray;
 
   button {
     border-radius: 5px;
@@ -110,6 +108,36 @@
 .wbeNavSpace {
   margin-top: 15px;
   margin-left: 5px;
+}
+
+// admin side nav
+.links-components-sidebar {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100vh;
+
+  .links-side-nav-body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 20px;
+  }
+
+  .wbe-nav-setting {
+    margin-bottom: 50px;
+  }
+}
+
+// admin side nav
+.admin-components-sidebar {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 93vh;
+
+  .admin-side-nav-body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 20px;
+  }
 }
 
 .dropdown-text {
@@ -186,4 +214,20 @@
 
 .rs-drawer-body {
   padding: 30px 20px !important;
+}
+
+/* react vis network graph styles  */
+
+.vis-graph-container {
+  canvas {
+    height: 700px !important;
+    width: 99% !important;
+    margin: 0 auto !important;
+    background-color: rgb(244, 244, 244);
+  }
+
+  .no-data-title {
+    margin: 50px;
+    text-align: center;
+  }
 }

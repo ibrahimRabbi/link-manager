@@ -9,7 +9,6 @@ import Organization from './Components/AdminDasComponents/Organization/Organizat
 import Projects from './Components/AdminDasComponents/Projects/Projects';
 import Users from './Components/AdminDasComponents/Users/Users';
 import EditLink from './Components/EditLink/EditLink';
-import GraphView from './Components/GraphView/GraphView';
 import LinkDetails from './Components/LinkDetails/LinkDetails';
 import LinkManager from './Components/LinkManager/LinkManager';
 import NewLink from './Components/NewLink/NewLink';
@@ -38,6 +37,7 @@ import GitlabSelector from './Components/SelectionDialog/GitlabSelector/GitlabSe
 // eslint-disable-next-line max-len
 import SelectionProtectedRoute from './Components/Shared/ProtectedRoute/SelectionProtectedRoute';
 import GitlabLogin from './Components/SelectionDialog/GitlabSelector/GitlabLogin';
+import Graph from './Components/GraphView/Graph.jsx';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -85,10 +85,8 @@ function App() {
             <Route path="/wbe/new-link" element={<NewLink />} />
             <Route path="/wbe/edit-link/:id" element={<EditLink />} />
             <Route path="/wbe/details/:id" element={<LinkDetails />} />
-            <Route path="/wbe/graph-view" element={<GraphView />} />
+            <Route path="/wbe/graph-view" element={<Graph />} />
             <Route path="/wbe/pipeline" element={<Pipeline />} />
-            <Route path="/wbe/graph-dashboard" element={<GraphView />} />
-            <Route path="/wbe/treeview" element={<LinkManager />} />
             <Route path="/wbe" element={<LinkManager />} />
           </Route>
 
@@ -104,10 +102,8 @@ function App() {
             <Route path="/new-link" element={<NewLink />} />
             <Route path="/edit-link/:id" element={<EditLink />} />
             <Route path="/details/:id" element={<LinkDetails />} />
-            <Route path="/graph-view" element={<GraphView />} />
+            <Route path="/graph-view" element={<Graph />} />
             <Route path="/pipeline" element={<Pipeline />} />
-            <Route path="/graph-dashboard" element={<GraphView />} />
-            <Route path="/treeview" element={<LinkManager />} />
             <Route path="/extension" element={<WebBrowserExtension />} />
             <Route
               path="/gitlabselection"
