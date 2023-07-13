@@ -8,12 +8,12 @@ const visGraphOptions = {
       border: '#2B7CE9',
       background: '#97C2FC',
       highlight: {
-        border: '#2B7CE9',
-        background: '#D2E5FF',
+        border: '#75a9eb',
+        background: '#ededee',
       },
       hover: {
         border: '#2B7CE9',
-        background: '#D2E5FF',
+        background: '#ededee',
       },
     },
     fixed: {
@@ -21,7 +21,7 @@ const visGraphOptions = {
       y: false,
     },
     font: {
-      color: '#343434',
+      color: '#1c1616',
       size: 14, // px
       face: 'arial',
       background: 'none',
@@ -60,10 +60,9 @@ const visGraphOptions = {
       },
     },
     group: undefined,
-    label: 'name',
     labelHighlightBold: true,
     level: undefined,
-    mass: 1,
+    mass: 1.1,
     physics: true,
     scaling: {
       min: 29,
@@ -92,8 +91,8 @@ const visGraphOptions = {
       useBorderWithImage: false, // only for image shape
     },
     // size: 50,
-    widthConstraint: 60,
-    heightConstraint: 60,
+    widthConstraint: 65,
+    heightConstraint: 65,
   },
 
   edges: {
@@ -217,7 +216,7 @@ const visGraphOptions = {
   },
 
   layout: {
-    improvedLayout: true,
+    improvedLayout: false,
     clusterThreshold: 1,
     randomSeed: 1,
     hierarchical: {
@@ -238,8 +237,8 @@ const visGraphOptions = {
     barnesHut: {
       gravitationalConstant: -3000,
       centralGravity: 0.1,
-      springLength: 120,
-      springConstant: 0.01,
+      springLength: 150,
+      springConstant: 0.02,
       damping: 0.1,
       avoidOverlap: 0,
     },
