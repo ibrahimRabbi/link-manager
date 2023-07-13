@@ -109,6 +109,14 @@ function App() {
             <Route path="/graph-dashboard" element={<GraphView />} />
             <Route path="/treeview" element={<LinkManager />} />
             <Route path="/extension" element={<WebBrowserExtension />} />
+            <Route
+              path="/gitlabselection"
+              element={
+                <SelectionProtectedRoute>
+                  <GitlabSelector />
+                </SelectionProtectedRoute>
+              }
+            ></Route>
             <Route path="/" element={<LinkManager />} />
           </Route>
 
@@ -134,14 +142,7 @@ function App() {
             <Route path="/admin/pipelinerun" element={<PipelineRun />} />
             <Route path="/admin" element={<Users />} />
           </Route>
-          <Route
-            path="/gitlabselection"
-            element={
-              <SelectionProtectedRoute>
-                <GitlabSelector />
-              </SelectionProtectedRoute>
-            }
-          ></Route>
+
           <Route path="/gitlablogin" element={<GitlabLogin />}></Route>
           <Route path="/oauth2-status" element={<Oauth2Success />} />
           <Route path="/set-password" element={<UserVerify />} />
