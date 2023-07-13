@@ -103,7 +103,7 @@ const NavigationBar = () => {
           <img height={30} src={koneksysLogo} alt="Logo" />
           <h3>TraceLynx</h3>
         </Navbar.Brand>
-        <Nav style={{ textAlign: 'center', marginLeft: '39%' }}>
+        <Nav style={{ textAlign: 'center', marginLeft: '35%' }}>
           <Nav.Item>
             <h3 style={{ textAlign: 'center' }}>{currPageTitle}</h3>
           </Nav.Item>
