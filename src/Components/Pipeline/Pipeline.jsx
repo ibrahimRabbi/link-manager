@@ -110,7 +110,7 @@ const Pipeline = () => {
                   cellBordered
                   data={data}
                   rowKey="id"
-                  height={520}
+                  autoHeight
                 >
                   <Column flexGrow={1}>
                     <HeaderCell>
