@@ -39,6 +39,15 @@ export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
 export const lightBgColor = 'white';
 
+export const OAUTH2_APPLICATION_TYPES = ['gitlab', 'jira'];
+export const MICROSERVICES_APPLICATION_TYPES = ['glideyoke'];
+export const BASIC_AUTH_APPLICATION_TYPES = ['valispace'];
+
+export const THIRD_PARTY_INTEGRATIONS =
+  OAUTH2_APPLICATION_TYPES +
+  MICROSERVICES_APPLICATION_TYPES +
+  BASIC_AUTH_APPLICATION_TYPES;
+
 function App() {
   const { isDark } = useSelector((state) => state.nav);
   const dispatch = useDispatch();
