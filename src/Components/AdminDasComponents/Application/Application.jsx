@@ -28,8 +28,11 @@ import { handleIsOauth2ModalOpen } from '../../../Redux/slices/oauth2ModalSlice'
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import Notification from '../../Shared/Notification';
+import styles from './Application.module.scss';
 
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+const { modalBodyStyle, step1Container, step2Container, skipBtn } = styles;
+
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 // demo data
 const headerData = [
@@ -62,7 +65,6 @@ const { StringType, NumberType } = Schema.Types;
 
 const Application = () => {
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
-  // const { iconData } = useSelector((state) => state.applications);
 
   // application form validation schema
   const model = Schema.Model({
@@ -218,7 +220,6 @@ const Application = () => {
   // get all applications
   useEffect(() => {
     dispatch(handleCurrPageTitle('Applications'));
-
     refetchApplications();
   }, [
     createSuccess,
@@ -231,56 +232,58 @@ const Application = () => {
   ]);
 
   // get icons for the applications
-  useEffect(async () => {
-    if (allApplications?.items) {
-      setLoading(true);
-      let tempData = [];
-      allApplications?.items?.forEach((item) => {
-        tempData.push({
-          id: item?.id,
-          rootservicesUrl: item?.rootservices_url ? item.rootservices_url : null,
+  useEffect(() => {
+    (async () => {
+      if (allApplications?.items) {
+        setLoading(true);
+        let tempData = [];
+        allApplications?.items?.forEach((item) => {
+          tempData.push({
+            id: item?.id,
+            rootservicesUrl: item?.rootservices_url ? item.rootservices_url : null,
+          });
         });
-      });
 
-      const response = await dispatch(
-        fetchApplicationPublisherIcon({
-          applicationData: tempData,
-        }),
-      );
-      // merge icons data with application data
-      const customAppItems = allApplications?.items?.reduce(
-        (accumulator, currentValue) => {
-          if (currentValue?.rootservices_url) {
-            if (response.payload) {
-              if (response?.payload?.length) {
-                response?.payload?.forEach((icon) => {
-                  if (currentValue.id === icon.id) {
-                    const withIcon = {
-                      ...currentValue,
-                      iconUrl: icon.iconUrl,
-                      // eslint-disable-next-line max-len
-                      status: currentValue?.oauth2_application
-                        ? currentValue?.oauth2_application[0]?.token_status?.status
-                        : '',
-                    };
-                    accumulator.push(withIcon);
-                  }
-                });
+        const response = await dispatch(
+          fetchApplicationPublisherIcon({
+            applicationData: tempData,
+          }),
+        );
+        // merge icons data with application data
+        const customAppItems = allApplications?.items?.reduce(
+          (accumulator, currentValue) => {
+            if (currentValue?.rootservices_url) {
+              if (response.payload) {
+                if (response?.payload?.length) {
+                  response?.payload?.forEach((icon) => {
+                    if (currentValue.id === icon.id) {
+                      const withIcon = {
+                        ...currentValue,
+                        iconUrl: icon.iconUrl,
+                        // eslint-disable-next-line max-len
+                        status: currentValue?.oauth2_application
+                          ? currentValue?.oauth2_application[0]?.token_status?.status
+                          : '',
+                      };
+                      accumulator.push(withIcon);
+                    }
+                  });
+                }
               }
+            } else {
+              accumulator.push({
+                ...currentValue,
+                iconUrl: null,
+                status: currentValue?.oauth2_application[0]?.token_status?.status,
+              });
             }
-          } else {
-            accumulator.push({
-              ...currentValue,
-              iconUrl: null,
-              status: currentValue?.oauth2_application[0]?.token_status?.status,
-            });
-          }
-          return accumulator;
-        },
-        [],
-      );
-      setAppsWithIcon(customAppItems);
-    }
+            return accumulator;
+          },
+          [],
+        );
+        setAppsWithIcon(customAppItems);
+      }
+    })();
     setLoading(false);
   }, [allApplications]);
 
@@ -326,7 +329,6 @@ const Application = () => {
       // create application
       createMutate();
     }
-
     if (isAdminEditing) dispatch(handleIsAdminEditing(false));
   };
 
@@ -472,7 +474,7 @@ const Application = () => {
           )}
         </Modal.Header>
 
-        <Modal.Body style={{ padding: '0 10px 30px' }}>
+        <Modal.Body className={modalBodyStyle}>
           {steps === 0 && (
             <div className="show-grid step-1">
               <Form
@@ -552,7 +554,7 @@ const Application = () => {
           )}
 
           {steps === 1 && (
-            <div style={{ textAlign: 'center' }}>
+            <div className={step1Container}>
               <h4>{'The application has been registered successfully'}</h4>
 
               <iframe
@@ -560,7 +562,7 @@ const Application = () => {
                 ref={iframeRef}
                 src={authorizeFrameSrc}
               />
-              <FlexboxGrid justify="end" style={{ marginTop: '20px' }}>
+              <FlexboxGrid justify="end" className={skipBtn}>
                 <Button
                   appearance="ghost"
                   color="blue"
@@ -574,22 +576,22 @@ const Application = () => {
           )}
 
           {steps === 2 && (
-            <div style={{ textAlign: 'center' }}>
+            <div className={step2Container}>
               {authorizedAppConsumption ? (
-                <h4 style={{ marginBottom: '10px' }}>You have authorized</h4>
+                <h4>You have authorized</h4>
               ) : (
-                <h4 style={{ marginBottom: '10px' }}>You have not authorized</h4>
+                <h4>You have not authorized</h4>
               )}
 
               {authorizedAppConsumption ? (
-                <h5 style={{ marginBottom: '20px' }}>
+                <h5>
                   Close this window and go back to the application to start using it
                 </h5>
               ) : (
-                <h5 style={{ marginBottom: '20px' }}>You can skip it for now</h5>
+                <h5>You can skip it for now</h5>
               )}
 
-              <FlexboxGrid justify="end" style={{ marginTop: '30px' }}>
+              <FlexboxGrid justify="end">
                 <Button
                   appearance="primary"
                   color="blue"

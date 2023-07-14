@@ -138,11 +138,7 @@ const SideNavBar = ({ isWbe }) => {
         </Sidenav>
 
         {isWbe && (
-          <Navbar
-            style={{ marginTop: 'auto' }}
-            appearance="subtle"
-            className="nav-toggle wbe-nav-setting"
-          >
+          <Navbar appearance="subtle" className="nav-toggle wbe-nav-setting">
             <Nav>
               <Nav.Menu
                 noCaret

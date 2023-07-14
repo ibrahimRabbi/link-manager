@@ -24,7 +24,7 @@ import {
 import Notification from '../../Shared/Notification';
 import PlusRoundIcon from '@rsuite/icons/PlusRound.js';
 
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 // demo data
 const headerData = [

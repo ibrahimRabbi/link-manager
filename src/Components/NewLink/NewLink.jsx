@@ -24,12 +24,12 @@ import UseLoader from '../Shared/UseLoader';
 import Notification from '../Shared/Notification';
 const { targetContainer, targetIframe, targetBtnContainer, cancelMargin } = styles;
 
-const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
-const jiraDialogURL = process.env.REACT_APP_JIRA_DIALOG_URL;
-const gitlabDialogURL = process.env.REACT_APP_GITLAB_DIALOG_URL;
-const glideDialogURL = process.env.REACT_APP_GLIDE_DIALOG_URL;
-const valispaceDialogURL = process.env.REACT_APP_VALISPACE_DIALOG_URL;
-const codebeamerDialogURL = process.env.REACT_APP_CODEBEAMER_DIALOG_URL;
+const apiURL = `${import.meta.env.VITE_LM_REST_API_URL}/link`;
+const jiraDialogURL = import.meta.env.VITE_JIRA_DIALOG_URL;
+const gitlabDialogURL = import.meta.env.VITE_GITLAB_DIALOG_URL;
+const glideDialogURL = import.meta.env.VITE_GLIDE_DIALOG_URL;
+const valispaceDialogURL = import.meta.env.VITE_VALISPACE_DIALOG_URL;
+const codebeamerDialogURL = import.meta.env.VITE_CODEBEAMER_DIALOG_URL;
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // links states
@@ -64,8 +64,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   };
 
   // Display project types conditionally by App name
-  useEffect(async () => {
-    await (async () => {
+  useEffect(() => {
+    (async () => {
       // get link_types dropdown items
       fetch('.././gcm_context.json')
         .then((res) => res.json())
@@ -372,7 +372,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               <UseSelectPicker
                 placeholder="Choose Link Type"
                 onChange={handleLinkTypeChange}
-                items={linkTypeItems}
+                items={linkTypeItems?.length ? linkTypeItems : []}
               />
             </FlexboxGrid.Item>
           </FlexboxGrid>
@@ -429,7 +429,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
           {(withConfigAware || withoutConfigAware) && (
             <div className={targetContainer}>
-              {linkType && applicationType && projectType && projectFrameSrc && (
+              {linkType && projectType && projectFrameSrc && (
                 <iframe className={targetIframe} src={projectFrameSrc} />
               )}
             </div>

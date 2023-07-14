@@ -7,7 +7,7 @@ import AuthContext from '../../../Store/Auth-Context.jsx';
 import { fetchPipelineRun } from '../../../Redux/slices/pipelineRunSlice.jsx';
 import Notification from '../../Shared/Notification.jsx';
 
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 const headerData = [
   {

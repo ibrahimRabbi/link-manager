@@ -30,7 +30,7 @@ import { ROOTSERVICES_CATALOG_TYPES } from '../../../Redux/slices/oslcResourcesS
 import { handleIsOauth2ModalOpen } from '../../../Redux/slices/oauth2ModalSlice';
 import Notification from '../../Shared/Notification';
 
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 // demo data
 const headerData = [
@@ -211,7 +211,7 @@ const Associations = () => {
   };
 
   // get oslc resources
-  useEffect(async () => {
+  useEffect(() => {
     let ignore = false;
     setResourceDropdownResponse(null);
     if (oslcCatalogUrls && oslcCatalogUrls[ROOTSERVICES_CATALOG_TYPES[0]]) {

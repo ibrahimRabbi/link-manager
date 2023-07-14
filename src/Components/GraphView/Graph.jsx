@@ -12,7 +12,8 @@ import UseLoader from '../Shared/UseLoader';
 import styles from './Graph.module.scss';
 import { Col, Grid, Row } from 'rsuite';
 
-const { nodeInfoContainer, visGraphContainer, noDataTitle, infoRow } = styles;
+const { nodeInfoContainer, visGraphContainer, noDataTitle, infoRow, firstColumn } =
+  styles;
 
 const Graph = () => {
   const { sourceDataList, isWbe } = useSelector((state) => state.links);
@@ -101,12 +102,12 @@ const Graph = () => {
                   if (!selectedNode[key]) return null;
                   return (
                     <Row className={`show-grid ${infoRow}`} key={i}>
-                      <Col xs={6}>
+                      <Col xs={8} className={firstColumn}>
                         <p>
-                          <span>{key} </span>
+                          <span>{key}</span>
                         </p>
                       </Col>
-                      <Col xs={18}>
+                      <Col xs={16}>
                         <p>{selectedNode[key]}</p>{' '}
                       </Col>
                     </Row>
