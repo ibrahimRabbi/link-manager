@@ -85,7 +85,7 @@
   }
 }
 
-.linkFileContainer>h5 {
+.linkFileContainer > h5 {
   span {
     margin-left: 10px;
     margin-bottom: -10px;
@@ -110,7 +110,7 @@
   margin-left: 5px;
 }
 
-// admin side nav
+// links side nav
 .links-components-sidebar {
   display: flex !important;
   flex-direction: column !important;
@@ -123,7 +123,7 @@
   }
 
   .wbe-nav-setting {
-    margin-bottom: 50px;
+    margin: auto 0 20px;
   }
 }
 

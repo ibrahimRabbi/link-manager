@@ -1,20 +1,19 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+import store from './Redux/store';
+import './index.less';
 import { MixpanelProvider } from 'react-mixpanel-browser';
 import { Provider } from 'react-redux';
 import { BrowserRouter } from 'react-router-dom';
-import App from './App';
-import './index.less';
-import store from './Redux/store.jsx';
-import reportWebVitals from './reportWebVitals';
 import { AuthContextProvider } from './Store/Auth-Context.jsx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import * as Sentry from '@sentry/react';
 import { BrowserTracing, Replay } from '@sentry/react';
 
-const SENTRY_DSN = `${process.env.REACT_APP_SENTRY_DSN}`;
-const ENVIRONMENT = `${process.env.NODE_ENV}`;
+const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
+const ENVIRONMENT = import.meta.env.VITE_NODE_ENV;
 
 Sentry.init({
   // eslint-disable-next-line max-len
@@ -37,7 +36,7 @@ Sentry.init({
 
 const queryClient = new QueryClient();
 
-ReactDOM.render(
+ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <MixpanelProvider>
       <AuthContextProvider>
@@ -51,10 +50,4 @@ ReactDOM.render(
       </AuthContextProvider>
     </MixpanelProvider>
   </React.StrictMode>,
-  document.getElementById('root'),
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();

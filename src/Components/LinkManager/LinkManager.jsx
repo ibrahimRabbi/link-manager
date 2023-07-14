@@ -1,11 +1,7 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import {
-  fetchDeleteLink,
-  fetchLinksData,
-  handleIsWbe,
-} from '../../Redux/slices/linksSlice';
+import { fetchLinksData, handleIsWbe } from '../../Redux/slices/linksSlice';
 import { Button, FlexboxGrid, Form, IconButton, Loader, Schema, Stack } from 'rsuite';
 import { handleCurrPageTitle, handleRefreshData } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
@@ -19,12 +15,12 @@ import Swal from 'sweetalert2';
 import Notification from '../Shared/Notification';
 import TextField from '../AdminDasComponents/TextField';
 import LinkManagerTable from './LinkManagerTable';
+import { useMutation } from '@tanstack/react-query';
+import fetchAPIRequest from '../../apiRequests/apiRequest';
 
 const { tableContainer } = styles;
 
-const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link`;
-let isTreeTable = process.env.REACT_APP_IS_TREEVIEW_TABLE;
-if (isTreeTable) isTreeTable = JSON.parse(isTreeTable);
+const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 
 const { StringType } = Schema.Types;
 const model = Schema.Model({
@@ -32,14 +28,16 @@ const model = Schema.Model({
 });
 
 const LinkManager = () => {
-  const { sourceDataList, linksData, isLoading, isLinkDeleting, configuration_aware } =
-    useSelector((state) => state.links);
+  const { sourceDataList, linksData, isLoading, configuration_aware } = useSelector(
+    (state) => state.links,
+  );
 
   const { linksStream, refreshData, isDark } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchValue, setSearchValue] = useState({ search_term: '' });
   const [isLinkSearching, setIsLinkSearching] = useState(false);
+  const [selectedRowData, setSelectedRowData] = useState({});
   const authCtx = useContext(AuthContext);
   const location = useLocation();
   const isWbe = location.pathname?.includes('wbe');
@@ -60,6 +58,34 @@ const LinkManager = () => {
   useEffect(() => {
     dispatch(handleIsWbe(isWbe));
   }, [location]);
+
+  // delete link using react-query
+  const deleteURl = `link/resource?source_id=${encodeURIComponent(
+    sourceFileURL,
+  )}&target_id=${encodeURIComponent(selectedRowData?.id)}&link_type=${
+    selectedRowData?.link_type
+  }`;
+  const {
+    isLoading: deleteLoading,
+    isSuccess: deleteSuccess,
+    mutate: deleteMutate,
+  } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: deleteURl,
+        token: authCtx.token,
+        method: 'DELETE',
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: () => {
+        setSelectedRowData({});
+      },
+      onError: () => {
+        setSelectedRowData({});
+      },
+    },
+  );
 
   // Handle pagination for the links table
   const handlePagination = (value) => {
@@ -87,9 +113,10 @@ const LinkManager = () => {
       // Get all links
       if (sourceFileURL) {
         // eslint-disable-next-line max-len
-        const getLinkUrl = `${apiURL}/resource?stream=${stream}&resource_id=${encodeURIComponent(
+        const getLinkUrl = `${apiURL}/link/resource?stream=${stream}&resource_id=${encodeURIComponent(
           sourceFileURL,
         )}&page=${currPage}&per_page=${pageSize}&search_term=${searchValue.search_term}`;
+
         dispatch(
           fetchLinksData({
             url: getLinkUrl,
@@ -99,7 +126,7 @@ const LinkManager = () => {
         );
       }
     })();
-  }, [linksStream, pageSize, currPage, isLinkDeleting, isLinkSearching, refreshData]);
+  }, [linksStream, pageSize, currPage, deleteSuccess, isLinkSearching, refreshData]);
 
   // handle search links
   const handleSearchLinks = () => {
@@ -109,7 +136,7 @@ const LinkManager = () => {
   };
 
   // handle delete link
-  const handleDeleteLink = (value) => {
+  const handleDeleteLink = () => {
     Swal.fire({
       title: 'Are you sure?',
       text: 'You want to delete this link!',
@@ -120,17 +147,9 @@ const LinkManager = () => {
       confirmButtonText: 'Delete',
       reverseButtons: true,
     }).then(async (result) => {
-      if (result.isConfirmed) {
-        const deleteURl = `${apiURL}/resource?source_id=${encodeURIComponent(
-          sourceFileURL,
-        )}&target_id=${encodeURIComponent(value.id)}&link_type=${value?.link_type}`;
-        dispatch(
-          fetchDeleteLink({
-            url: deleteURl,
-            token: authCtx.token,
-            showNotification: showNotification,
-          }),
-        );
+      if (result.isConfirmed) deleteMutate();
+      else {
+        setSelectedRowData({});
       }
     });
   };
@@ -140,6 +159,7 @@ const LinkManager = () => {
     handlePagination,
     handleChangeLimit,
     handleDeleteLink,
+    setSelectedRowData: setSelectedRowData,
     totalItems: linksData?.total_items,
     totalPages: linksData?.total_pages,
     setCurrPage,
@@ -154,7 +174,7 @@ const LinkManager = () => {
         <div className="mainContainer">
           <div className="container">
             <div className={tableContainer}>
-              {isLoading && (
+              {(isLoading || deleteLoading) && (
                 <Loader
                   backdrop
                   center

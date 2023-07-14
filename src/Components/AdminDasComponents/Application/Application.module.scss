@@ -1,51 +1,27 @@
-@use '@carbon/colors';
-@use '@carbon/type';
+.modalBodyStyle {
+  padding: 0 10px 30px;
+}
 
-.mhContainer {
-  height: 50px;
+.step1Container {
+  text-align: center;
 
-  h4 {
-    text-align: center;
-    font-weight: bold;
-    margin-top: 10px;
+  .skipBtn {
+    margin-top: 20px;
   }
 }
 
-#modalBody {
-  margin-bottom: 0px;
-}
+.step2Container {
+  text-align: center;
 
-.formContainer {
-  padding: 1vw;
-
-  p {
+  h4 {
     margin-bottom: 10px;
   }
 
-  label {
-    color: colors.$gray-30;
-    font-size: type.type-scale(2);
+  h5 {
+    margin-bottom: 20px;
   }
-}
-
-.flNameContainer {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
-}
-
-.modalBtnCon {
-  margin-top: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
 
   button {
-    border-radius: 5px;
+    margin-top: 30px;
   }
-}
-
-.errText {
-  color: red;
 }

@@ -19,8 +19,8 @@ import TextField from '../AdminDasComponents/TextField.jsx';
 import PasswordField from '../AdminDasComponents/PasswordField.jsx';
 
 const { titleSpan, main, title } = style;
-const loginURL = `${process.env.REACT_APP_LM_REST_API_URL}/auth/login`;
-
+const loginURL = `${import.meta.env.VITE_LM_REST_API_URL}/auth/login`;
+const mixPanelId = import.meta.env.VITE_MIXPANEL_TOKEN;
 const { StringType } = Schema.Types;
 
 const model = Schema.Model({
@@ -46,14 +46,16 @@ const Login = () => {
   const navigate = useNavigate();
   const toaster = useToaster();
   const mixpanel = useMixpanel();
-  const isMounted = useRef(true); // Variable to track component mount state
+  const isMounted = useRef(null); // Variable to track component mount state
 
   useEffect(() => {
     return () => {
       // Cleanup function
-      isMounted.current = false; // Update the mount state on unmount
+      isMounted.current = true; // Update the mount state on unmount
     };
   }, []);
+
+  mixpanel.init(mixPanelId);
 
   const onSubmit = async () => {
     setIsLoading(true);
@@ -88,6 +90,7 @@ const Login = () => {
       }
 
       const data = await response.json();
+
       if (isMounted.current) {
         if ('access_token' in data) {
           authCtx.login(data.access_token, data.expires_in);

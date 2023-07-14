@@ -50,16 +50,7 @@ function App() {
 
   // resize observer loop disable
   window.addEventListener('error', (e) => {
-    if (
-      e.message == 'ResizeObserver loop completed with undelivered notifications.' ||
-      e.message?.toLowerCase()?.includes('resizeObserver'?.toLocaleLowerCase())
-    ) {
-      const resizeIframe = document.getElementById('webpack-dev-server-client-overlay');
-      if (resizeIframe) {
-        resizeIframe.style.display = 'none';
-        return false;
-      }
-    }
+    console.log(e.message);
   });
 
   return (

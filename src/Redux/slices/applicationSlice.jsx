@@ -24,7 +24,7 @@ export const fetchApplicationPublisherIcon = createAsyncThunk(
       };
 
       try {
-        new URL(current.rootservicesUrl);
+        new URL(current?.rootservicesUrl);
         if (current?.rootservicesUrl) {
           const oslcResponse = await getOslcAPI({
             url: current.rootservicesUrl,
