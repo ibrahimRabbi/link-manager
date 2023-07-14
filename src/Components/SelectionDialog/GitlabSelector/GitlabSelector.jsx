@@ -85,7 +85,6 @@ const GitlabSelector = () => {
         .then((response) => response.json())
         .then((data) => {
           setProjects(data?.items);
-          console.log(data);
         });
     } else {
       setProjectId('');
@@ -126,31 +125,31 @@ const GitlabSelector = () => {
         .then((response) => response.json())
         .then((data) => {
           setCommitList(data?.items);
-          console.log(data);
         });
     } else {
       setCommitList([]);
     }
   }, [projectId, branchId, authCtx]);
   useEffect(() => {
-    if (projectId && branchId && commitId) {
+    if (projectId && commitId) {
       setTreeData([]);
       setLoading(true);
       fetch(
-        `https://gitlab-oslc-api-dev.koneksys.com/rest/v2/provider/${projectId}/tree?commit_id=${commitId}`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?ref=${commitId}&application_id=185`,
         {
           headers: {
+            'X-Auth-Gitlab': 'glpat-3najbsK12RyxrdjpHphe',
             Authorization: `Bearer ${authCtx.token}`,
           },
         },
       )
         .then((response) => response.json())
         .then((data) => {
-          setTreeData(data);
+          setTreeData(data?.items);
           setLoading(false);
         });
     }
-  }, [projectId, branchId, authCtx, commitId]);
+  }, [projectId, authCtx, commitId]);
 
   const handleTreeChange = (value) => {
     setCheckedValues(value);
