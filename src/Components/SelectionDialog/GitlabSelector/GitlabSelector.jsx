@@ -1,30 +1,19 @@
 /* eslint-disable max-len */
 import React, { useContext, useEffect, useState } from 'react';
-import { CheckTree, SelectPicker, Loader, Placeholder } from 'rsuite';
+import { CheckTree, Loader, Placeholder } from 'rsuite';
 import style from './GitlabSelector.module.css';
 import FolderFillIcon from '@rsuite/icons/FolderFill';
 import PageIcon from '@rsuite/icons/Page';
-import SpinnerIcon from '@rsuite/icons/legacy/Spinner';
 import CodeEditor from './CodeEditor';
 import ButtonGroup from './ButtonGroup';
-import SelectionAuthContext from '../../../Store/SelectionAuthContext';
+import UseSelectPicker from '../../Shared/UseDropdown/UseSelectPicker';
+import AuthContext from '../../../Store/Auth-Context';
 
-const FixedLoader = () => (
-  <h5
-    style={{
-      display: 'flex',
-      justifyContent: 'center',
-      position: 'absolute',
-      bottom: '0',
-      background: '#fff',
-      width: '100%',
-      padding: '4px 0',
-    }}
-  >
-    <SpinnerIcon spin style={{ fontSize: '35px' }} />
-  </h5>
-);
+const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+
 const GitlabSelector = () => {
+  const [group, setGroup] = useState([]);
+  const [groupId, setGroupId] = useState('');
   const [projects, setProjects] = useState([]);
   const [selectedFile, setSelectedFile] = useState('');
   const [selectedCodes, setSelectedCodes] = useState('');
@@ -32,86 +21,117 @@ const GitlabSelector = () => {
   const [multipleSelected, setMultipleSelected] = useState([]);
   const [singleSelected, setSingleSelected] = useState('');
   const [checkedValues, setCheckedValues] = React.useState([]);
-  //   const [/*checkedNodes,*/ setCheckedNodes] = React.useState([]);
   const [branchList, setBranchList] = useState([]);
   const [projectId, setProjectId] = useState('');
   const [branchId, setBranchId] = useState('');
   const [commitId, setCommitId] = useState('');
   const [commitList, setCommitList] = useState([]);
   const [treeData, setTreeData] = useState([]);
-  const authCtx = useContext(SelectionAuthContext);
+  const authCtx = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
-  React.useEffect(() => {
-    fetch('https://gitlab-oslc-api-dev.koneksys.com/rest/v2/projects', {
+
+  const handleGroupChange = (selectedItem) => {
+    setGroupId(selectedItem?.id);
+    setProjectId('');
+    setProjects([]);
+    setBranchList([]);
+    setBranchId('');
+    setCommitList([]);
+    setCommitId('');
+  };
+  const handleProjectChange = (selectedItem) => {
+    setProjectId(selectedItem?.id);
+    setBranchList([]);
+    setBranchId('');
+    setCommitList([]);
+    setCommitId('');
+  };
+  const handleBranchChange = (selectedItem) => {
+    setBranchId(selectedItem?.id);
+    setCommitList([]);
+    setCommitId('');
+  };
+  const handleCommitChange = (selectedItem) => {
+    setCommitId(selectedItem?.id);
+  };
+
+  useEffect(() => {
+    setGroupId('');
+    fetch(`${lmApiUrl}/third_party/gitlab/workspace?application_id=185`, {
       headers: {
+        'X-Auth-Gitlab': 'glpat-3najbsK12RyxrdjpHphe',
         Authorization: `Bearer ${authCtx.token}`,
       },
     })
       .then((response) => response.json())
       .then((data) => {
-        setProjects(data);
+        setGroup(data?.items);
       });
   }, [authCtx]);
-  const projectList = projects?.map((item) => ({
-    label: item?.name,
-    value: item?.name,
-    data: item,
-  }));
-  const branch = branchList?.map((item) => ({
-    label: item?.name,
-    value: item?.id,
-    data: item,
-  }));
-  const commit = commitList?.map((item) => ({
-    label: item?.title,
-    value: item?.short_id,
-    data: item,
-  }));
-  const handleSelect = (value) => {
-    const selectedItem = projects?.find((v) => v?.name === value);
-    setProjectId(selectedItem?.id);
-    setTreeData([]);
-    setBranchId('');
-    setCommitId('');
-  };
-  React.useEffect(() => {
-    if (projectId) {
+  useEffect(() => {
+    if (groupId) {
+      setProjectId(''); // Clear the project selection
+      setProjects([]);
       setTreeData([]);
       fetch(
-        `https://gitlab-oslc-api-dev.koneksys.com/rest/v2/provider/${projectId}/branch`,
+        `${lmApiUrl}/third_party/gitlab/containers/${groupId}?page=1&per_page=10&application_id=185`,
         {
           headers: {
+            'X-Auth-Gitlab': 'glpat-3najbsK12RyxrdjpHphe',
             Authorization: `Bearer ${authCtx.token}`,
           },
         },
       )
         .then((response) => response.json())
         .then((data) => {
-          setBranchList(data);
+          setProjects(data?.items);
+          console.log(data);
         });
     } else {
-      setBranchList([]); // Reset branchList if projectId is not available
+      setProjectId('');
+      setProjects([]);
     }
-  }, [projectId, authCtx]);
+  }, [groupId, authCtx]);
 
-  React.useEffect(() => {
-    if (projectId && branchId) {
+  useEffect(() => {
+    if (projectId) {
       fetch(
-        `https://gitlab-oslc-api-dev.koneksys.com/rest/v2/provider/${projectId}/branch/${branchId}/commit`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/branch?page=1&per_page=10&application_id=185`,
         {
           headers: {
+            'X-Auth-Gitlab': 'glpat-3najbsK12RyxrdjpHphe',
             Authorization: `Bearer ${authCtx.token}`,
           },
         },
       )
         .then((response) => response.json())
         .then((data) => {
-          setCommitList(data);
+          setBranchList(data?.items);
+        });
+    } else {
+      setBranchList([]);
+    }
+  }, [projectId, authCtx]);
+  useEffect(() => {
+    if (projectId && branchId) {
+      fetch(
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/commit?page=1&per_page=10&application_id=185&branch=${branchId}`,
+        {
+          headers: {
+            'X-Auth-Gitlab': 'glpat-3najbsK12RyxrdjpHphe',
+            Authorization: `Bearer ${authCtx.token}`,
+          },
+        },
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          setCommitList(data?.items);
+          console.log(data);
         });
     } else {
       setCommitList([]);
     }
-  }, [projectId, authCtx, branchId]);
+  }, [projectId, branchId, authCtx]);
   useEffect(() => {
     if (projectId && branchId && commitId) {
       setTreeData([]);
@@ -131,35 +151,6 @@ const GitlabSelector = () => {
         });
     }
   }, [projectId, branchId, authCtx, commitId]);
-  const handleBranch = (value) => {
-    setCommitId('');
-    setTreeData([]);
-    const selectedItem = branchList?.find((v) => v?.id === value);
-    setBranchId(selectedItem?.name);
-  };
-  const handleCommit = (value) => {
-    const selectedItem = commitList?.find((v) => v?.short_id === value);
-    setCommitId(selectedItem?.id);
-    setTreeData([]);
-  };
-  const renderMenuP = (menu) => {
-    if (projects.length === 0) {
-      return <FixedLoader />;
-    }
-    return menu;
-  };
-  const renderMenuB = (menu) => {
-    if (branchList.length === 0) {
-      return <FixedLoader />;
-    }
-    return menu;
-  };
-  const renderMenuC = (menu) => {
-    if (commitList.length === 0) {
-      return <FixedLoader />;
-    }
-    return menu;
-  };
 
   const handleTreeChange = (value) => {
     setCheckedValues(value);
@@ -227,40 +218,44 @@ const GitlabSelector = () => {
       console.log(error);
     }
   };
-
   return (
     <div className={style.mainDiv}>
       <div className={style.select}>
-        <h6>Gitlab Project</h6>
-        <SelectPicker
-          data={projectList}
-          onChange={(v) => handleSelect(v)}
-          block
-          renderMenu={renderMenuP}
+        <h6>Gitlab Group</h6>
+        <UseSelectPicker
+          placeholder="Choose Gitlab Group"
+          onChange={handleGroupChange}
+          items={group}
+        />
+      </div>
+      <div className={style.select}>
+        <h6>Projects</h6>
+        <UseSelectPicker
+          placeholder="Choose Project"
+          onChange={handleProjectChange}
+          items={projects}
         />
       </div>
       <div className={style.select}>
         <h6>Branch</h6>
-        <SelectPicker
-          data={branch}
-          onChange={(v) => handleBranch(v)}
-          block
-          renderMenu={renderMenuB}
+        <UseSelectPicker
+          placeholder="Choose Branch"
+          onChange={handleBranchChange}
+          items={branchList}
         />
       </div>
       <div className={style.select}>
         <h6>Commit</h6>
-        <SelectPicker
-          data={commit}
-          block
-          onChange={(v) => handleCommit(v)}
-          renderMenu={renderMenuC}
+        <UseSelectPicker
+          placeholder="Choose Commit"
+          onChange={handleCommitChange}
+          items={commitList}
         />
       </div>
       {loading && (
         <div>
           <Placeholder.Paragraph rows={8} />
-          <Loader backdrop content="loading..." vertical />
+          <Loader center content="loading" />
         </div>
       )}
       {treeData.length > 0 && (

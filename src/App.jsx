@@ -34,8 +34,6 @@ import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun
 import Pipeline from './Components/Pipeline/Pipeline.jsx';
 import WebBrowserExtension from './Components/WebBrowserExtension/WebBrowserExtension';
 import GitlabSelector from './Components/SelectionDialog/GitlabSelector/GitlabSelector';
-// eslint-disable-next-line max-len
-import SelectionProtectedRoute from './Components/Shared/ProtectedRoute/SelectionProtectedRoute';
 import GitlabLogin from './Components/SelectionDialog/GitlabSelector/GitlabLogin';
 import Graph from './Components/GraphView/Graph.jsx';
 
@@ -105,14 +103,7 @@ function App() {
             <Route path="/graph-view" element={<Graph />} />
             <Route path="/pipeline" element={<Pipeline />} />
             <Route path="/extension" element={<WebBrowserExtension />} />
-            <Route
-              path="/gitlabselection"
-              element={
-                <SelectionProtectedRoute>
-                  <GitlabSelector />
-                </SelectionProtectedRoute>
-              }
-            ></Route>
+            <Route path="/gitlabselection" element={<GitlabSelector />}></Route>
             <Route path="/" element={<LinkManager />} />
           </Route>
 
