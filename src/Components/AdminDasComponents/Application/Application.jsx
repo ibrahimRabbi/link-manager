@@ -30,7 +30,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import Notification from '../../Shared/Notification';
 import styles from './Application.module.scss';
 import { THIRD_PARTY_INTEGRATIONS } from '../../../App.jsx';
-import Oauth2Waiting from '../ExternalAppIntegrations/Oauth2Waiting.jsx';
+import Oauth2Waiting from '../ExternalAppIntegrations/Oauth2Waiting/Oauth2Waiting.jsx';
 
 const { modalBodyStyle, step1Container, step2Container, skipBtn } = styles;
 
@@ -127,6 +127,7 @@ const Application = () => {
   const scopes = 'rest_api_access';
   const response_types = ['code'];
   const grant_types = ['service_provider', 'authorization_code'];
+  const [payload, setPayload] = useState({});
 
   // Data for 3rd party integrations
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
@@ -162,7 +163,7 @@ const Application = () => {
         urlPath: 'application',
         token: authCtx.token,
         method: 'POST',
-        body: { ...formValue, scopes, response_types, grant_types, redirect_uris },
+        body: { ...formValue, ...payload },
         showNotification: showNotification,
       }),
     {
@@ -281,6 +282,7 @@ const Application = () => {
       tenant_id: '',
     });
     setAuthorizedAppConsumption(false);
+    setPayload({});
   };
 
   // Open application modal - Creation
@@ -469,6 +471,26 @@ const Application = () => {
     })();
     setLoading(false);
   }, [allApplications]);
+
+  // Manage Redirect URI
+  useEffect(() => {
+    console.log('formValue type', formValue?.type);
+    if (formValue?.type === 'oslc') {
+      setPayload({
+        redirect_uris,
+        scopes,
+        response_types,
+        grant_types,
+      });
+    } else {
+      setPayload({
+        redirect_uris: [
+          'https://67e3-189-203-12-75.ngrok-free.app/oauth2/callback',
+          `${window.location.origin}/oauth2/callback`,
+        ],
+      });
+    }
+  }, [formValue]);
 
   // manage oauth iframe
   useEffect(() => {

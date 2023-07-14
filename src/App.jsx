@@ -34,6 +34,8 @@ import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun
 import Pipeline from './Components/Pipeline/Pipeline.jsx';
 import WebBrowserExtension from './Components/WebBrowserExtension/WebBrowserExtension';
 import Graph from './Components/GraphView/Graph.jsx';
+// eslint-disable-next-line max-len
+import Oauth2Callback from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2Callback.jsx';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -69,6 +71,7 @@ function App() {
         style={{ backgroundColor: isDark === 'dark' ? darkBgColor : lightBgColor }}
       >
         <Routes>
+          <Route path="/oauth2/callback" element={<Oauth2Callback />} />
           {/* This is WBE dashboard */}
           <Route
             path="/wbe"

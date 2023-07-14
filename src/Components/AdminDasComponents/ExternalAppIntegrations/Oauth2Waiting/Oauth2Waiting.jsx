@@ -3,9 +3,9 @@ import { Panel } from 'rsuite';
 import ViewsAuthorizeIcon from '@rsuite/icons/ViewsAuthorize';
 import styles from './Oauth2Waiting.scss';
 import { useQuery } from '@tanstack/react-query';
-import fetchAPIRequest from '../../../apiRequests/apiRequest.js';
-import AuthContext from '../../../Store/Auth-Context.jsx';
-import Notification from '../../Shared/Notification';
+import fetchAPIRequest from '../../../../apiRequests/apiRequest.js';
+import AuthContext from '../../../../Store/Auth-Context.jsx';
+import Notification from '../../../Shared/Notification.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
