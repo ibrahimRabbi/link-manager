@@ -11,9 +11,6 @@ import {
   Pagination,
   FlexboxGrid,
   Button,
-  // Checkbox,
-  // Stack,
-  // Divider,
   Whisper,
   IconButton,
   Dropdown,
@@ -292,7 +289,7 @@ const AdminDataTable = ({ props }) => {
         maxButtons={2}
         size="lg"
         layout={['-', 'total', '|', 'limit', 'pager']}
-        total={totalItems}
+        total={totalItems ? totalItems : 0}
         limitOptions={[5, 10, 25, 50, 100]}
         limit={pageSize}
         activePage={page}

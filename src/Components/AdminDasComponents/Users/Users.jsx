@@ -21,7 +21,7 @@ const headerData = [
     key: 'id',
   },
   {
-    header: 'User Name',
+    header: 'Users Name',
     key: 'username',
   },
   {
