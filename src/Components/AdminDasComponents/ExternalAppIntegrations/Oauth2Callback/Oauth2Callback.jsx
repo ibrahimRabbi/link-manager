@@ -37,8 +37,6 @@ const Oauth2Callback = () => {
   };
 
   const showNotification = (type, res) => {
-    console.log('type', type);
-    console.log('res', res);
     if (type === 'error') {
       setNotificationType(type);
       try {

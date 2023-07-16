@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Panel } from 'rsuite';
 import ViewsAuthorizeIcon from '@rsuite/icons/ViewsAuthorize';
-import styles from './Oauth2Waiting.scss';
+import styles from './Oauth2Waiting.scss?inline';
 import { useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../../apiRequests/apiRequest.js';
 import AuthContext from '../../../../Store/Auth-Context.jsx';

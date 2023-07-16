@@ -29,8 +29,13 @@ import fetchAPIRequest from '../../../apiRequests/apiRequest';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import Notification from '../../Shared/Notification';
 import styles from './Application.module.scss';
-import { THIRD_PARTY_INTEGRATIONS } from '../../../App.jsx';
+import {
+  MICROSERVICES_APPLICATION_TYPES,
+  OAUTH2_APPLICATION_TYPES,
+  THIRD_PARTY_INTEGRATIONS,
+} from '../../../App.jsx';
 import Oauth2Waiting from '../ExternalAppIntegrations/Oauth2Waiting/Oauth2Waiting.jsx';
+import ExternalLogin from '../ExternalAppIntegrations/ExternalLogin/ExternalLogin.jsx';
 
 const { modalBodyStyle, step1Container, step2Container, skipBtn } = styles;
 
@@ -83,8 +88,8 @@ const Application = () => {
     description: StringType(),
     client_id: StringType(),
     client_secret: StringType(),
-    auth_server: StringType(),
-    ui_server: StringType(),
+    server_url_auth: StringType(),
+    server_url_ui: StringType(),
     tenant_id: StringType(),
   });
 
@@ -107,8 +112,8 @@ const Application = () => {
     description: '',
     client_id: '',
     client_secret: '',
-    auth_server: '',
-    ui_server: '',
+    server_url_auth: '',
+    server_url_ui: '',
     tenant_id: '',
   });
 
@@ -277,8 +282,8 @@ const Application = () => {
       description: '',
       client_id: '',
       client_secret: '',
-      auth_server: '',
-      ui_server: '',
+      server_url_auth: '',
+      server_url_ui: '',
       tenant_id: '',
     });
     setAuthorizedAppConsumption(false);
@@ -312,6 +317,15 @@ const Application = () => {
   broadcastChannel.onmessage = (event) => {
     const { status } = event.data;
     if (status === 'success') {
+      setSteps(2);
+      setAuthorizedAppConsumption(true);
+    }
+  };
+
+  // Handle login status provided by login to the 3rd party application via Basic
+  const getExtLoginData = (data) => {
+    if (data?.status) {
+      setIsAppAuthorize(true);
       setSteps(2);
       setAuthorizedAppConsumption(true);
     }
@@ -365,8 +379,8 @@ const Application = () => {
       description: data?.description,
       client_id: data?.client_id,
       client_secret: data?.client_secret,
-      auth_server: data?.auth_server,
-      ui_server: data?.ui_server,
+      server_url_auth: data?.server_url_auth,
+      server_url_ui: data?.server_url_ui,
       tenant_id: data?.tenant_id,
     });
     setOpenModal(true);
@@ -441,7 +455,7 @@ const Application = () => {
                   status: currentValue?.oauth2_application[0]?.token_status?.status,
                 });
               }
-              if (currentValue?.type === 'glide') {
+              if (currentValue?.type === 'glideyoke') {
                 accumulator.push({
                   ...currentValue,
                   iconUrl: '/glide_logo.png',
@@ -458,7 +472,7 @@ const Application = () => {
             } else {
               accumulator.push({
                 ...currentValue,
-                iconUrl: './default-logo.png',
+                iconUrl: '/default_logo.png',
                 status: currentValue?.oauth2_application[0]?.token_status?.status,
               });
             }
@@ -474,7 +488,6 @@ const Application = () => {
 
   // Manage Redirect URI
   useEffect(() => {
-    console.log('formValue type', formValue?.type);
     if (formValue?.type === 'oslc') {
       setPayload({
         redirect_uris,
@@ -482,12 +495,18 @@ const Application = () => {
         response_types,
         grant_types,
       });
-    } else {
+    } else if (OAUTH2_APPLICATION_TYPES.includes(formValue?.type)) {
       setPayload({
         redirect_uris: [
-          'https://67e3-189-203-12-75.ngrok-free.app/oauth2/callback',
+          // eslint-disable-next-line max-len
+          'https://0605-2806-2f0-a281-f410-80b4-93ca-90ae-c532.ngrok-free.app/oauth2/callback',
           `${window.location.origin}/oauth2/callback`,
         ],
+      });
+    } else if (MICROSERVICES_APPLICATION_TYPES.includes(formValue?.type)) {
+      setPayload({
+        client_id: formValue?.tenant_id,
+        client_secret: formValue?.tenant_id,
       });
     }
   }, [formValue]);
@@ -662,7 +681,7 @@ const Application = () => {
                     <React.Fragment>
                       <FlexboxGrid.Item colspan={11}>
                         <TextField
-                          name="server_auth"
+                          name="server_url_auth"
                           label="Authentication server"
                           reqText="Authentication server of app is required"
                         />
@@ -670,7 +689,7 @@ const Application = () => {
 
                       <FlexboxGrid.Item colspan={11}>
                         <TextField
-                          name="server_ui"
+                          name="server_url_ui"
                           label="UI server"
                           reqText="UI server of app is required"
                         />
@@ -726,6 +745,9 @@ const Application = () => {
               {(formValue?.type === 'gitlab' || formValue?.type === 'jira') &&
                 steps === 1 &&
                 createSuccess && <Oauth2Waiting data={formValue} />}
+              {formValue?.type === 'glideyoke' && steps === 1 && createSuccess && (
+                <ExternalLogin appData={formValue} onDataStatus={getExtLoginData} />
+              )}
               <FlexboxGrid justify="end" className={skipBtn}>
                 <Button
                   appearance="ghost"
