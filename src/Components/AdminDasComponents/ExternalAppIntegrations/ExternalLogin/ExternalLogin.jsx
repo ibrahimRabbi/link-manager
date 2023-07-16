@@ -11,13 +11,13 @@ import {
 } from 'rsuite';
 import TextField from '../../TextField.jsx';
 import PasswordField from '../../PasswordField.jsx';
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import style from './ExternalLogin.scss';
+import React, { useContext, useRef, useState } from 'react';
+import style from './ExternalLogin.scss?inline';
 import { useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../../apiRequests/apiRequest.js';
 import AuthContext from '../../../../Store/Auth-Context.jsx';
 const { StringType } = Schema.Types;
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 const model = Schema.Model({
   username: StringType().isRequired('Username is required.'),
@@ -25,7 +25,7 @@ const model = Schema.Model({
 });
 
 const ExternalLogin = (props) => {
-  const [loginUrl, setLoginUrl] = useState('');
+  let loginUrl = '';
   const loginFormRef = useRef();
   const authCtx = useContext(AuthContext);
 
@@ -40,31 +40,27 @@ const ExternalLogin = (props) => {
     password: '',
   });
 
-  const { data: selectedApplication } = useQuery(['selectedApplication'], () =>
-    fetchAPIRequest({
+  const showNotification = (type, res) => {
+    console.log('showNotification', type, res);
+  };
+
+  const { data: selectedExtLoginApplication } = 
+    useQuery(['selectedExtLoginApplication'], () =>
+      fetchAPIRequest({
       // eslint-disable-next-line max-len
-      urlPath: `application?name=${appData?.name}&organization_id=${appData?.organization_id}`,
-      token: authCtx.token,
-      method: 'GET',
-    }),
-  );
+        urlPath: `application?name=${appData?.name}&organization_id=${appData?.organization_id}`,
+        token: authCtx.token,
+        method: 'GET',
+        showNotification: showNotification,
+      }),
+    );
 
-  useEffect(() => {
-
-    if (selectedApplication) {
-      if (appData?.type === 'glideyoke') {
-        // eslint-disable-next-line max-len
-        setLoginUrl(
-          `${lmApiUrl}/third_party/glideyoke/auth/login?
-          application_id=${selectedApplication?.items[0]?.id}`,
-        );
-      }
+  if (selectedExtLoginApplication) {
+    if (appData?.type === 'glideyoke') {
+      // eslint-disable-next-line max-len
+      loginUrl = `${lmApiUrl}/third_party/glideyoke/auth/login?application_id=${selectedExtLoginApplication?.items[0]?.id}`;
     }
-  }, selectedApplication);
-
-  useEffect(() => {
-    console.log('loginUrl', loginUrl);
-  }, [loginUrl]);
+  }
 
   const convertToUppercase = (str) => {
     return str.replace(/^./, (match) => match.toUpperCase());
@@ -79,7 +75,7 @@ const ExternalLogin = (props) => {
         method: 'POST',
         headers: {
           'Content-type': 'application/json',
-          Authorization: authCtx.token,
+          Authorization: `Bearer ${authCtx.token}`,
           'X-Auth-GlideYoke': 'Basic ' + authData,
         },
       });
