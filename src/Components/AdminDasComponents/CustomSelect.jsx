@@ -102,7 +102,7 @@ const CustomSelect = React.forwardRef((props, ref) => {
     let dropdownJsonData = [];
     if (customLabelKey) {
       dropdownJsonData = option?.map((item) => ({
-        label: item ? [customLabelKey] : item.name,
+        label: item[customLabelKey] ? item[customLabelKey] : item.name,
         value: JSON.stringify(item),
       }));
     } else {

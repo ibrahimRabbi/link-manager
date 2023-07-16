@@ -89,7 +89,7 @@ const Associations = () => {
   const [editData, setEditData] = useState({});
   const [selectedAppData, setSelectedAppData] = useState({});
   const [formError, setFormError] = useState({});
-  const [resourceDropdownResponse, setResourceDropdownResponse] = useState(null);
+  const [oslcCatalogDropdown, setOslcCatalogDropdown] = useState(null);
   const [isAuthorizeSuccess, setIsAuthorizeSuccess] = useState(null);
   const [formValue, setFormValue] = useState({
     organization_id: '',
@@ -108,16 +108,33 @@ const Associations = () => {
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
-  const fetchCatalogFromRootservices = (url, id) => {
+
+  // GET: Fetch OSLC Consumer token from LM API
+  const fetchOslcConsumerToken = (label) => {
+    console.log('label', label);
+    if (label) {
+      dispatch(
+        fetchGetData({
+          url: `${lmApiUrl}/application/consumer-token/${label}`,
+          token: authCtx.token,
+          stateName: 'consumerToken',
+          showNotification: showNotification,
+        }),
+      );
+    }
+
+  };
+
+  const fetchCatalogFromRootservices = (rootservicesUrl, applicationId) => {
+    const consumerToken = crudData?.consumerToken?.access_token;
     const newFormValue = { ...formValue };
-    newFormValue['application_id'] = id;
+    newFormValue['application_id'] = applicationId;
     setFormValue(newFormValue);
 
-    const consumerToken = crudData?.consumerToken?.access_token;
     if (consumerToken) {
       dispatch(
         fetchOslcResource({
-          url: url,
+          url: rootservicesUrl,
           token: 'Bearer ' + consumerToken,
         }),
       );
@@ -125,9 +142,9 @@ const Associations = () => {
   };
 
   const getServiceProviderResources = (payload) => {
+    const consumerToken = crudData?.consumerToken?.access_token;
     const data = JSON.parse(payload);
     const url = data?.value;
-    const consumerToken = crudData?.consumerToken?.access_token;
 
     if (url && consumerToken) {
       dispatch(
@@ -191,7 +208,7 @@ const Associations = () => {
   const handleResetForm = () => {
     setEditData({});
     setSelectedAppData({});
-    setResourceDropdownResponse(null);
+    setOslcCatalogDropdown(null);
     setIsAuthorizeSuccess(false);
     setFormValue({
       organization_id: '',
@@ -210,25 +227,7 @@ const Associations = () => {
     dispatch(crudActions.removeCrudParameter('consumerToken'));
   };
 
-  // get oslc resources
-  useEffect(() => {
-    let ignore = false;
-    setResourceDropdownResponse(null);
-    if (oslcCatalogUrls && oslcCatalogUrls[ROOTSERVICES_CATALOG_TYPES[0]]) {
-      dispatch(
-        fetchOslcResource({
-          url: oslcCatalogUrls[ROOTSERVICES_CATALOG_TYPES[0]],
-          token: 'Bearer ' + crudData?.consumerToken?.access_token,
-        }),
-      ).then((res) => {
-        if (!ignore) setResourceDropdownResponse(res.payload);
-      });
-    }
 
-    return () => {
-      ignore = true;
-    };
-  }, [oslcCatalogUrls]);
 
   useEffect(() => {
     if (oslcResourceFailed && oslcUnauthorizedUser && oauth2ModalRef.current) {
@@ -332,47 +331,67 @@ const Associations = () => {
   }, [formValue.organization_id]);
 
   // control oauth2 modal
-  const handleRootServiceUrlChange = (value) => {
+  const handleExtAppChange = (value) => {
     dispatch(actions.resetOslcServiceProviderCatalogResponse());
-    if (resourceDropdownResponse) setResourceDropdownResponse(null);
+    if (oslcCatalogDropdown) setOslcCatalogDropdown(null);
     if (value) {
-      const selectedURL = JSON.parse(value);
-      setSelectedAppData(selectedURL);
-      fetchConsumerToken(selectedURL?.name);
+      const extAppData = JSON.parse(value);
+      if (extAppData?.type ==='oslc'){
+        setSelectedAppData(extAppData);
+        fetchOslcConsumerToken(extAppData?.name);
+      }
     } else {
       dispatch(crudActions.removeCrudParameter('consumerToken'));
       setSelectedAppData({});
     }
+    
   };
 
-  // get consumer token from lm API
-  const fetchConsumerToken = (label) => {
-    if (label) {
-      dispatch(
-        fetchGetData({
-          url: `${lmApiUrl}/application/consumer-token/${label}`,
-          token: authCtx.token,
-          stateName: 'consumerToken',
-        }),
-      );
-    }
-  };
+
 
   // after authorized the oslc api consumer token is loading
   useEffect(() => {
-    fetchConsumerToken(selectedAppData?.name);
+    fetchOslcConsumerToken(selectedAppData?.name);
     dispatch(handleIsOauth2ModalOpen(false));
   }, [isAuthorizeSuccess]);
 
+  // Get the OSLC catalogs through received consumer token and external app data
   useEffect(() => {
+    console.log('consumerToken', crudData?.consumerToken);
+    console.log('selectedAppData', selectedAppData);
     // eslint-disable-next-line max-len
     if (crudData?.consumerToken?.access_token && selectedAppData?.id) {
+      const rootservicesUrl = selectedAppData?.authentication_server.filter(
+        (item) => item.type === 'rootservices');
+      console.log('rootservicesUrl', rootservicesUrl);
       fetchCatalogFromRootservices(
-        selectedAppData?.rootservices_url,
+        rootservicesUrl[0]?.url,
         selectedAppData?.id,
       );
     }
   }, [crudData?.consumerToken?.access_token, selectedAppData]);
+
+  // Get OSLC Service Providers through selected OSLC catalog
+  useEffect(() => {
+    let ignore = false;
+    setOslcCatalogDropdown(null);
+
+    // Get RM Catalog (test)
+    if (oslcCatalogUrls && oslcCatalogUrls[ROOTSERVICES_CATALOG_TYPES[0]]) {
+      dispatch(
+        fetchOslcResource({
+          url: oslcCatalogUrls[ROOTSERVICES_CATALOG_TYPES[0]],
+          token: 'Bearer ' + crudData?.consumerToken?.access_token,
+        }),
+      ).then((res) => {
+        if (!ignore) setOslcCatalogDropdown(res.payload);
+      });
+    }
+
+    return () => {
+      ignore = true;
+    };
+  }, [oslcCatalogUrls]);
 
   // Call function of Oauth2Modal
   const handleOauth2Modal = () => {
@@ -443,16 +462,16 @@ const Associations = () => {
             <FlexboxGrid.Item colspan={24}>
               <SelectField
                 name="application"
-                label="Integration"
-                placeholder="Select external integration"
+                label="External application"
+                placeholder="Select external application"
                 accepter={CustomSelect}
                 apiURL={queryParamId ? `${lmApiUrl}/application` : ''}
-                customSelectLabel="rootservices_url"
+                customLabelKey="rootservices_url"
                 error={formError.application_id}
                 apiQueryParams={queryParamId}
                 disabled={queryParamId ? false : true}
-                reqText="External integration data is required"
-                onChange={(value) => handleRootServiceUrlChange(value)}
+                reqText="External application is required"
+                onChange={(value) => handleExtAppChange(value)}
               />
             </FlexboxGrid.Item>
 
@@ -464,21 +483,21 @@ const Associations = () => {
                   </FlexboxGrid.Item>
                 ) : (
                   <>
-                    {crudData?.consumerToken?.access_token && resourceDropdownResponse ? (
+                    {crudData?.consumerToken?.access_token && oslcCatalogDropdown ? (
                       <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
                         <SelectField
                           size="lg"
                           block
                           name="resource_container"
-                          label="Resource container"
-                          placeholder="Select resource container"
+                          label="Application project"
+                          placeholder="Select an external app project"
                           options={oslcCatalogResponse}
                           customSelectLabel="label"
                           accepter={DefaultCustomSelect}
                           onChange={(value) => {
                             getServiceProviderResources(value);
                           }}
-                          reqText="Resource container is required"
+                          reqText="External app project is required"
                         />
                       </FlexboxGrid.Item>
                     ) : isOslcResourceLoading ? (

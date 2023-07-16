@@ -53,7 +53,6 @@ const DefaultCustomSelect = forwardRef((props, ref) => {
       data={data}
       onChange={(v) => onChange(v)}
       placeholder={<p style={{ fontSize: '17px' }}>{placeholder}</p>}
-      virtualized
       renderMenu={renderMenu}
       renderMenuItem={(label) => {
         return (
