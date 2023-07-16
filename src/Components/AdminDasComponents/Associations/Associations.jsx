@@ -29,6 +29,7 @@ import {
 import { ROOTSERVICES_CATALOG_TYPES } from '../../../Redux/slices/oslcResourcesSlice.jsx';
 import { handleIsOauth2ModalOpen } from '../../../Redux/slices/oauth2ModalSlice';
 import Notification from '../../Shared/Notification';
+import {PROJECT_APPLICATION_TYPES, WORKSPACE_APPLICATION_TYPES} from '../../../App.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -286,8 +287,8 @@ const Associations = () => {
     if (value) {
       const extAppData = JSON.parse(value);
       console.log('extAppData', extAppData);
+      setSelectedAppData(extAppData);
       if (extAppData?.type ==='oslc'){
-        setSelectedAppData(extAppData);
         fetchOslcConsumerToken(extAppData?.name);
       }
     } else {
@@ -489,40 +490,43 @@ const Associations = () => {
                   </FlexboxGrid.Item>
                 ) : (
                   <>
-                    {crudData?.consumerToken?.access_token && oslcCatalogDropdown ? (
-                      <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                        <SelectField
-                          size="lg"
-                          block
-                          name="resource_container"
-                          label="Application project"
-                          placeholder="Select an external app project"
-                          options={oslcCatalogResponse}
-                          customSelectLabel="label"
-                          accepter={DefaultCustomSelect}
-                          onChange={(value) => {
-                            getServiceProviderResources(value);
-                          }}
-                          reqText="External app project is required"
-                        />
-                      </FlexboxGrid.Item>
-                    ) : isOslcResourceLoading ? (
-                      <FlexboxGrid.Item colspan={24}>
-                        <UseLoader />
-                      </FlexboxGrid.Item>
-                    ) : (
-                      <p style={{ fontSize: '17px', marginTop: '5px' }}>
+                    {
+                      crudData?.consumerToken?.access_token && 
+                      oslcCatalogDropdown &&
+                      selectedAppData?.type === 'oslc' ? (
+                          <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                            <SelectField
+                              size="lg"
+                              block
+                              name="resource_container"
+                              label="Application project"
+                              placeholder="Select an external app project"
+                              options={oslcCatalogResponse}
+                              customSelectLabel="label"
+                              accepter={DefaultCustomSelect}
+                              onChange={(value) => {
+                                getServiceProviderResources(value);
+                              }}
+                              reqText="External app project is required"
+                            />
+                          </FlexboxGrid.Item>
+                        ) : isOslcResourceLoading ? (
+                          <FlexboxGrid.Item colspan={24}>
+                            <UseLoader />
+                          </FlexboxGrid.Item>
+                        ) : (
+                          <p style={{ fontSize: '17px', marginTop: '5px' }}>
                         Please <span
-                          style={{
-                            color: 'blue',
-                            textDecoration: 'underline',
-                            cursor: 'pointer',
-                          }}
-                          onClick={handleOauth2Modal}
-                        >authorize this application
-                        </span> to fetch the application projects.
-                      </p>
-                    )}
+                              style={{
+                                color: 'blue',
+                                textDecoration: 'underline',
+                                cursor: 'pointer',
+                              }}
+                              onClick={handleOauth2Modal}
+                            >authorize this application
+                            </span> to fetch the application projects.
+                          </p>
+                        )}
                   </>
                 )}
               </>

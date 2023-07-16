@@ -44,6 +44,8 @@ export const lightBgColor = 'white';
 export const OAUTH2_APPLICATION_TYPES = ['gitlab', 'jira'];
 export const MICROSERVICES_APPLICATION_TYPES = ['glideyoke'];
 export const BASIC_AUTH_APPLICATION_TYPES = ['valispace'];
+export const WORKSPACE_APPLICATION_TYPES = ['gitlab', 'valispace'];
+export const PROJECT_APPLICATION_TYPES = ['jira', 'glideyoke'];
 
 export const THIRD_PARTY_INTEGRATIONS =
   OAUTH2_APPLICATION_TYPES +
