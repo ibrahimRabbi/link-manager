@@ -66,6 +66,12 @@ const model = Schema.Model({
 });
 
 const Associations = () => {
+  const associationFormRef = useRef();
+  const authCtx = useContext(AuthContext);
+  const dispatch = useDispatch();
+  const oauth2ModalRef = useRef();
+
+  // Variables for Association table/form
   const {
     allAssociations,
     isAssocLoading,
@@ -73,6 +79,28 @@ const Associations = () => {
     isAssocUpdated,
     isAssocDeleted,
   } = useSelector((state) => state.associations);
+  const { crudData, isCrudLoading } = useSelector((state) => state.crud);
+  const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
+  const [currPage, setCurrPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [editData, setEditData] = useState({});
+  const [selectedAppData, setSelectedAppData] = useState({});
+  const [formError, setFormError] = useState({});
+  const [notificationType, setNotificationType] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const [formValue, setFormValue] = useState({
+    organization_id: '',
+    project_id: '',
+    application_id: '',
+    resource_container: '',
+  });
+
+  // Variable for fetching project based on organization ID
+  const [queryParamId, setQueryParamId] = useState('');
+
+  // Variables for OSLC dara
+  const [oslcCatalogDropdown, setOslcCatalogDropdown] = useState(null);
+  const [isAuthorizeSuccess, setIsAuthorizeSuccess] = useState(null);
   const {
     oslcCatalogResponse,
     isOslcResourceLoading,
@@ -81,34 +109,13 @@ const Associations = () => {
     oslcUnauthorizedUser,
     oslcMissingConsumerToken,
   } = useSelector((state) => state.oslcResources);
-  const { crudData, isCrudLoading } = useSelector((state) => state.crud);
-  const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
 
-  const [currPage, setCurrPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [editData, setEditData] = useState({});
-  const [selectedAppData, setSelectedAppData] = useState({});
-  const [formError, setFormError] = useState({});
-  const [oslcCatalogDropdown, setOslcCatalogDropdown] = useState(null);
-  const [isAuthorizeSuccess, setIsAuthorizeSuccess] = useState(null);
-  const [formValue, setFormValue] = useState({
-    organization_id: '',
-    project_id: '',
-    application_id: '',
-    resource_container: '',
-  });
-  const [notificationType, setNotificationType] = useState('');
-  const [notificationMessage, setNotificationMessage] = useState('');
   const showNotification = (type, message) => {
     setNotificationType(type);
     setNotificationMessage(message);
   };
-  const associationFormRef = useRef();
-  const oauth2ModalRef = useRef();
-  const authCtx = useContext(AuthContext);
-  const dispatch = useDispatch();
 
-
+  /*** Methods for OSLC data ***/
   // GET: Fetch OSLC Consumer token from LM API
   const fetchOslcConsumerToken = (label) => {
     console.log('label', label);
@@ -156,6 +163,7 @@ const Associations = () => {
     }
   };
 
+  /*** Methods for Integration table ***/
   // Pagination
   const handlePagination = (value) => {
     setCurrPage(value);
@@ -204,7 +212,7 @@ const Associations = () => {
     if (isAdminEditing) dispatch(handleIsAdminEditing(false));
   };
 
-  // reset form
+  // Reset form
   const handleResetForm = () => {
     setEditData({});
     setSelectedAppData({});
@@ -227,45 +235,13 @@ const Associations = () => {
     dispatch(crudActions.removeCrudParameter('consumerToken'));
   };
 
-
-
-  useEffect(() => {
-    if (oslcResourceFailed && oslcUnauthorizedUser && oauth2ModalRef.current) {
-      if (oauth2ModalRef.current.verifyAndOpenModal) {
-        oauth2ModalRef.current?.verifyAndOpenModal(
-          selectedAppData,
-          selectedAppData?.id,
-          true,
-        );
-      }
-    } else if (oslcResourceFailed && oslcMissingConsumerToken && oauth2ModalRef.current) {
-      if (oauth2ModalRef.current?.verifyAndOpenModal) {
-        oauth2ModalRef.current?.verifyAndOpenModal(selectedAppData, selectedAppData?.id);
-      }
-    }
-  }, [oslcResourceFailed, oslcUnauthorizedUser]);
-
-  // get all associations
-  useEffect(() => {
-    dispatch(handleCurrPageTitle('Integrations'));
-
-    const getUrl = `${lmApiUrl}/association?page=${currPage}&per_page=${pageSize}`;
-    dispatch(
-      fetchAssociations({
-        url: getUrl,
-        token: authCtx.token,
-        showNotification: showNotification,
-      }),
-    );
-  }, [isAssocCreated, isAssocUpdated, isAssocDeleted, pageSize, currPage, refreshData]);
-
-  // handle open add user modal
+  // Open add association modal
   const handleAddNew = () => {
     handleResetForm();
     dispatch(handleIsAddNewModal(true));
   };
 
-  // handle delete association
+  // Delete association
   const handleDelete = (data) => {
     Swal.fire({
       title: 'Are you sure',
@@ -290,7 +266,7 @@ const Associations = () => {
     });
   };
 
-  // handle Edit association
+  // Edit association
   const handleEdit = (data) => {
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
@@ -302,35 +278,8 @@ const Associations = () => {
     dispatch(handleIsAddNewModal(true));
   };
 
-  // send props in the batch action table
-  const tableProps = {
-    title: 'Integrations',
-    rowData: allAssociations?.items?.length ? allAssociations?.items : [],
-    headerData,
-    handleEdit,
-    handleDelete,
-    handleAddNew,
-    handlePagination,
-    handleChangeLimit,
-    totalItems: allAssociations?.total_items,
-    totalPages: allAssociations?.total_pages,
-    pageSize,
-    page: allAssociations?.page,
-    inpPlaceholder: 'Search Integration',
-  };
-
-  // load projects and applications data by organization id
-  const [queryParamId, setQueryParamId] = useState('');
-
-  useEffect(() => {
-    if (formValue?.organization_id) {
-      setQueryParamId(`organization_id=${formValue?.organization_id}`);
-    } else {
-      setQueryParamId('');
-    }
-  }, [formValue.organization_id]);
-
-  // control oauth2 modal
+  /*** Methods for dropdowns ***/
+  // Handle External application dropdown change
   const handleExtAppChange = (value) => {
     dispatch(actions.resetOslcServiceProviderCatalogResponse());
     if (oslcCatalogDropdown) setOslcCatalogDropdown(null);
@@ -345,16 +294,32 @@ const Associations = () => {
       dispatch(crudActions.removeCrudParameter('consumerToken'));
       setSelectedAppData({});
     }
-    
   };
 
+  /** UseEffects for Association */
 
-
-  // after authorized the oslc api consumer token is loading
+  // GET all associations
   useEffect(() => {
-    fetchOslcConsumerToken(selectedAppData?.name);
-    dispatch(handleIsOauth2ModalOpen(false));
-  }, [isAuthorizeSuccess]);
+    dispatch(handleCurrPageTitle('Integrations'));
+
+    const getUrl = `${lmApiUrl}/association?page=${currPage}&per_page=${pageSize}`;
+    dispatch(
+      fetchAssociations({
+        url: getUrl,
+        token: authCtx.token,
+        showNotification: showNotification,
+      }),
+    );
+  }, [isAssocCreated, isAssocUpdated, isAssocDeleted, pageSize, currPage, refreshData]);
+
+  // Set the query param for filtering data based on organization ID
+  useEffect(() => {
+    if (formValue?.organization_id) {
+      setQueryParamId(`organization_id=${formValue?.organization_id}`);
+    } else {
+      setQueryParamId('');
+    }
+  }, [formValue.organization_id]);
 
   // Get the OSLC catalogs through received consumer token and external app data
   useEffect(() => {
@@ -388,11 +353,51 @@ const Associations = () => {
         if (!ignore) setOslcCatalogDropdown(res.payload);
       });
     }
-
     return () => {
       ignore = true;
     };
   }, [oslcCatalogUrls]);
+
+  // Method for opening Oauth2 modal for authorizing OSLC consumption
+  useEffect(() => {
+    if (oslcResourceFailed && oslcUnauthorizedUser && oauth2ModalRef.current) {
+      if (oauth2ModalRef.current.verifyAndOpenModal) {
+        oauth2ModalRef.current?.verifyAndOpenModal(
+          selectedAppData,
+          selectedAppData?.id,
+          true,
+        );
+      }
+    } else if (oslcResourceFailed && oslcMissingConsumerToken && oauth2ModalRef.current) {
+      if (oauth2ModalRef.current?.verifyAndOpenModal) {
+        oauth2ModalRef.current?.verifyAndOpenModal(selectedAppData, selectedAppData?.id);
+      }
+    }
+  }, [oslcResourceFailed, oslcUnauthorizedUser]);
+
+  // Close Oauth2 Modal after successful authorization
+  useEffect(() => {
+    fetchOslcConsumerToken(selectedAppData?.name);
+    dispatch(handleIsOauth2ModalOpen(false));
+  }, [isAuthorizeSuccess]);
+
+
+  // send props in the batch action table
+  const tableProps = {
+    title: 'Integrations',
+    rowData: allAssociations?.items?.length ? allAssociations?.items : [],
+    headerData,
+    handleEdit,
+    handleDelete,
+    handleAddNew,
+    handlePagination,
+    handleChangeLimit,
+    totalItems: allAssociations?.total_items,
+    totalPages: allAssociations?.total_pages,
+    pageSize,
+    page: allAssociations?.page,
+    inpPlaceholder: 'Search Integration',
+  };
 
   // Call function of Oauth2Modal
   const handleOauth2Modal = () => {
@@ -401,7 +406,7 @@ const Associations = () => {
     }
   };
 
-  // get authoriz response from oauth2 modal
+  // Get authorize response from oauth2 modal
   window.addEventListener(
     'message',
     function (event) {
