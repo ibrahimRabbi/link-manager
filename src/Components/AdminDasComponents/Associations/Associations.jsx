@@ -336,6 +336,7 @@ const Associations = () => {
     if (oslcCatalogDropdown) setOslcCatalogDropdown(null);
     if (value) {
       const extAppData = JSON.parse(value);
+      console.log('extAppData', extAppData);
       if (extAppData?.type ==='oslc'){
         setSelectedAppData(extAppData);
         fetchOslcConsumerToken(extAppData?.name);
@@ -436,26 +437,26 @@ const Associations = () => {
             <FlexboxGrid.Item colspan={24}>
               <SelectField
                 name="organization_id"
-                label="Organization ID"
-                placeholder="Select Organization ID"
+                label="Organization"
+                placeholder="Select Organization"
                 accepter={CustomSelect}
                 apiURL={`${lmApiUrl}/organization`}
                 error={formError.organization_id}
-                reqText="Organization Id is required"
+                reqText="Organization is required"
               />
             </FlexboxGrid.Item>
 
             <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
               <SelectField
                 name="project_id"
-                label="Project"
-                placeholder="Select project"
+                label="Workspace"
+                placeholder="Select workspace"
                 accepter={CustomSelect}
                 apiURL={queryParamId ? `${lmApiUrl}/project` : ''}
                 error={formError.project_id}
                 apiQueryParams={queryParamId}
                 disabled={queryParamId ? false : true}
-                reqText="Project to attach integration is required"
+                reqText="Workspace is required"
               />
             </FlexboxGrid.Item>
 
@@ -505,21 +506,16 @@ const Associations = () => {
                         <UseLoader />
                       </FlexboxGrid.Item>
                     ) : (
-                      <p style={{ fontSize: '17px', color: '#eb9d17', marginTop: '5px' }}>
-                        {' '}
-                        Please
-                        <span
+                      <p style={{ fontSize: '17px', marginTop: '5px' }}>
+                        Please <span
                           style={{
                             color: 'blue',
                             textDecoration: 'underline',
                             cursor: 'pointer',
                           }}
                           onClick={handleOauth2Modal}
-                        >
-                          {' '}
-                          authorize{' '}
-                        </span>
-                        this application to add integration.
+                        >authorize this application
+                        </span> to fetch the application projects.
                       </p>
                     )}
                   </>
