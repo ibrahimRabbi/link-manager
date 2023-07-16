@@ -622,6 +622,7 @@ const Application = () => {
                       apiURL={`${lmApiUrl}/external-integrations`}
                       error={formError.type}
                       reqText="Application type is required"
+                      disabled={isAdminEditing}
                       onChange={(value) => handleApplicationType(value)}
                     />
                   </FlexboxGrid.Item>
@@ -634,19 +635,17 @@ const Application = () => {
                     />
                   </FlexboxGrid.Item>
 
-                  {!isAdminEditing && (
-                    <FlexboxGrid.Item colspan={11}>
-                      <TextField
-                        name="server_url"
-                        label={
-                          formValue?.type === 'oslc' ? 'Rootservices URL' : 'Server URL'
-                        }
-                        reqText="Server URL is required"
-                      />
-                    </FlexboxGrid.Item>
-                  )}
-
-                  {/* eslint-disable-next-line max-len */}
+                  <FlexboxGrid.Item colspan={11}>
+                    <TextField
+                      name="server_url"
+                      label={
+                        formValue?.type === 'oslc' ? 'Rootservices URL' : 'Server URL'
+                      }
+                      reqText="Server URL is required"
+                      disabled={isAdminEditing}
+                    />
+                  </FlexboxGrid.Item>
+                  
                   <FlexboxGrid.Item
                     colspan={24}
                     style={{ marginBottom: '25px', marginTop: '30px' }}
@@ -665,6 +664,7 @@ const Application = () => {
                           name="client_id"
                           label="Client ID"
                           reqText="OAuth2 client ID of app is required"
+                          disabled={isAdminEditing}
                         />
                       </FlexboxGrid.Item>
 
@@ -673,6 +673,7 @@ const Application = () => {
                           name="client_secret"
                           label="Client secret"
                           reqText="OAuth2 client secret of app is required"
+                          disabled={isAdminEditing}
                         />
                       </FlexboxGrid.Item>
                     </React.Fragment>
