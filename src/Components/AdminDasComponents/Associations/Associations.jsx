@@ -32,6 +32,7 @@ import Notification from '../../Shared/Notification';
 import {PROJECT_APPLICATION_TYPES, WORKSPACE_APPLICATION_TYPES} from '../../../App.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
+const thirdPartyUrl = `${lmApiUrl}/third_party`;
 
 // demo data
 const headerData = [
@@ -64,6 +65,7 @@ const model = Schema.Model({
   application_id: NumberType().isRequired('This field is required.'),
   project_id: NumberType().isRequired('This field is required.'),
   resource_container: StringType().isRequired('This field is required.'),
+  ext_workspace_id: StringType(),
 });
 
 const Associations = () => {
@@ -90,6 +92,7 @@ const Associations = () => {
   const [notificationType, setNotificationType] = useState('');
   const [notificationMessage, setNotificationMessage] = useState('');
   const [formValue, setFormValue] = useState({
+    ext_workspace_id: '',
     organization_id: '',
     project_id: '',
     application_id: '',
@@ -138,8 +141,10 @@ const Associations = () => {
     const newFormValue = { ...formValue };
     newFormValue['application_id'] = applicationId;
     setFormValue(newFormValue);
+    console.log('rootservicesUrl', rootservicesUrl);
+    console.log('applicationId', applicationId);
 
-    if (consumerToken) {
+    if (consumerToken && selectedAppData?.type === 'oslc') {
       dispatch(
         fetchOslcResource({
           url: rootservicesUrl,
@@ -220,6 +225,7 @@ const Associations = () => {
     setOslcCatalogDropdown(null);
     setIsAuthorizeSuccess(false);
     setFormValue({
+      ext_workspace_id: '',
       organization_id: '',
       project_id: '',
       application_id: '',
@@ -493,28 +499,29 @@ const Associations = () => {
                     {
                       crudData?.consumerToken?.access_token && 
                       oslcCatalogDropdown &&
-                      selectedAppData?.type === 'oslc' ? (
-                          <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                            <SelectField
-                              size="lg"
-                              block
-                              name="resource_container"
-                              label="Application project"
-                              placeholder="Select an external app project"
-                              options={oslcCatalogResponse}
-                              customSelectLabel="label"
-                              accepter={DefaultCustomSelect}
-                              onChange={(value) => {
-                                getServiceProviderResources(value);
-                              }}
-                              reqText="External app project is required"
-                            />
-                          </FlexboxGrid.Item>
-                        ) : isOslcResourceLoading ? (
-                          <FlexboxGrid.Item colspan={24}>
-                            <UseLoader />
-                          </FlexboxGrid.Item>
-                        ) : (
+                      selectedAppData?.type === 'oslc' && (
+                        <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                          <SelectField
+                            size="lg"
+                            block
+                            name="resource_container"
+                            label="Application project"
+                            placeholder="Select an external app project"
+                            options={oslcCatalogResponse}
+                            customSelectLabel="label"
+                            accepter={DefaultCustomSelect}
+                            onChange={(value) => {
+                              getServiceProviderResources(value);
+                            }}
+                            reqText="External app project is required"
+                          />
+                        </FlexboxGrid.Item>
+                      )}  { isOslcResourceLoading && (
+                      <FlexboxGrid.Item colspan={24}>
+                        <UseLoader />
+                      </FlexboxGrid.Item>
+                    )}
+                    {( !crudData?.consumerToken?.access_token &&
                           <p style={{ fontSize: '17px', marginTop: '5px' }}>
                         Please <span
                               style={{
@@ -526,7 +533,26 @@ const Associations = () => {
                             >authorize this application
                             </span> to fetch the application projects.
                           </p>
-                        )}
+                    )}
+                    {(WORKSPACE_APPLICATION_TYPES.includes(selectedAppData?.type)) && (
+                      <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                        <SelectField
+                          block
+                          size="lg"
+                          accepter={CustomSelect}
+                          name={'ext_workspace_id'}
+                          label="External application workspace"
+                          placeholder="Select an external workspace"
+                          apiQueryParams={`application_id=${selectedAppData?.id}`}
+                          /* eslint-disable-next-line max-len */
+                          apiURL={`${thirdPartyUrl}/${selectedAppData?.type}/workspace?`}
+                          onChange={(value) => {
+                            getServiceProviderResources(value);
+                          }}
+                          reqText="External app project is required"
+                        />
+                      </FlexboxGrid.Item>
+                    )}
                   </>
                 )}
               </>
