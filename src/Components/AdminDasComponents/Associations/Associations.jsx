@@ -29,7 +29,7 @@ import {
 import { ROOTSERVICES_CATALOG_TYPES } from '../../../Redux/slices/oslcResourcesSlice.jsx';
 import { handleIsOauth2ModalOpen } from '../../../Redux/slices/oauth2ModalSlice';
 import Notification from '../../Shared/Notification';
-import {PROJECT_APPLICATION_TYPES, WORKSPACE_APPLICATION_TYPES} from '../../../App.jsx';
+import { PROJECT_APPLICATION_TYPES, WORKSPACE_APPLICATION_TYPES } from '../../../App.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 const thirdPartyUrl = `${lmApiUrl}/third_party`;
@@ -327,7 +327,7 @@ const Associations = () => {
       setWorkspaceApp({});
     }
   };
-  
+
   const handleWorkspaceChange = (value) => {
     if (value) {
       setWorkspace(`${thirdPartyUrl}/${selectedAppData?.type}/containers/${value}`);
@@ -374,8 +374,11 @@ const Associations = () => {
   useEffect(() => {
     console.log('consumerToken', crudData?.consumerToken);
     console.log('selectedAppData', selectedAppData);
-    // eslint-disable-next-line max-len
-    if (crudData?.consumerToken?.access_token && selectedAppData?.id && selectedAppData?.type === 'oslc') {
+    if (
+      crudData?.consumerToken?.access_token &&
+      selectedAppData?.id &&
+      selectedAppData?.type === 'oslc'
+    ) {
       const rootservicesUrl = selectedAppData?.authentication_server.filter(
         (item) => item.type === 'rootservices',
       );
@@ -540,27 +543,25 @@ const Associations = () => {
                   </FlexboxGrid.Item>
                 ) : (
                   <>
-                    {
-                      crudData?.consumerToken?.access_token &&
-                      oslcCatalogDropdown &&
-                      selectedAppData?.type === 'oslc' && (
-                        <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                          <SelectField
-                            size="lg"
-                            block
-                            name="ext_application_project"
-                            label="Application project"
-                            placeholder="Select an external app project"
-                            options={oslcCatalogResponse}
-                            customSelectLabel="label"
-                            accepter={DefaultCustomSelect}
-                            onChange={(value) => {
-                              getServiceProviderResources(value);
-                            }}
-                            reqText="External app project is required"
-                          />
-                        </FlexboxGrid.Item>
-                      )}
+                    {/* eslint-disable-next-line max-len */} {/* I had consumerToken */}
+                    {selectedAppData?.type === 'oslc' && oslcCatalogDropdown && (
+                      <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                        <SelectField
+                          size="lg"
+                          block
+                          name="ext_application_project"
+                          label="Application project"
+                          placeholder="Select an external app project"
+                          options={oslcCatalogResponse}
+                          customSelectLabel="label"
+                          accepter={DefaultCustomSelect}
+                          onChange={(value) => {
+                            getServiceProviderResources(value);
+                          }}
+                          reqText="External app project is required"
+                        />
+                      </FlexboxGrid.Item>
+                    )}
                     {isOslcResourceLoading && (
                       <FlexboxGrid.Item colspan={24}>
                         <UseLoader />
@@ -602,9 +603,14 @@ const Associations = () => {
                       </FlexboxGrid.Item>
                     )}
                     {workspace && (
-                      <FlexboxGrid.Item style={
-                        !WORKSPACE_APPLICATION_TYPES.includes(selectedAppData?.type) ?
-                          {margin: '30px 0'} : {marginBottom: '30px' }} colspan={24}>
+                      <FlexboxGrid.Item
+                        style={
+                          !WORKSPACE_APPLICATION_TYPES.includes(selectedAppData?.type)
+                            ? { margin: '30px 0' }
+                            : { marginBottom: '30px' }
+                        }
+                        colspan={24}
+                      >
                         <SelectField
                           block
                           size="lg"
@@ -623,8 +629,6 @@ const Associations = () => {
                         />
                       </FlexboxGrid.Item>
                     )}
-
-                    
                   </>
                 )}
               </>
