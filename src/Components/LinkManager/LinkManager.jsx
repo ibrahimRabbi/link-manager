@@ -209,7 +209,7 @@ const LinkManager = () => {
                           borderRadius: '6px 0 0 6px',
                           height: '36px',
                         }}
-                        placeholder="Search Links"
+                        placeholder="Search..."
                         type="text"
                         name="search_term"
                       />

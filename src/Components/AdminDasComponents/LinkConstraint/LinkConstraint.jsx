@@ -37,11 +37,11 @@ const headerData = [
     key: 'name',
   },
   {
-    header: 'Source Url',
+    header: 'Source URL',
     key: 'source_url',
   },
   {
-    header: 'Target Url',
+    header: 'Target URL',
     key: 'target_url',
   },
   {

@@ -39,7 +39,7 @@ export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
 export const lightBgColor = 'white';
 
-function App() {
+const App = () => {
   const { isDark } = useSelector((state) => state.nav);
   const dispatch = useDispatch();
 
@@ -47,11 +47,6 @@ function App() {
     const isDark = localStorage.getItem('isDarkMode');
     dispatch(handleIsDarkMode(isDark));
   }, []);
-
-  // resize observer loop disable
-  window.addEventListener('error', (e) => {
-    console.log(e.message);
-  });
 
   return (
     <CustomProvider theme={isDark}>
@@ -126,6 +121,6 @@ function App() {
       </div>
     </CustomProvider>
   );
-}
+};
 
 export default App;

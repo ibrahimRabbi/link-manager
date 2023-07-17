@@ -9,14 +9,18 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthContextProvider } from './Store/Auth-Context.jsx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+// define global for the vite.js
+import process from 'process/browser';
+window.process = process;
+window.global = window;
+
+// Sentry error tracing setup
 import * as Sentry from '@sentry/react';
 import { BrowserTracing, Replay } from '@sentry/react';
-
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
 const ENVIRONMENT = import.meta.env.VITE_NODE_ENV;
 
 Sentry.init({
-  // eslint-disable-next-line max-len
   dsn: SENTRY_DSN,
   integrations: [new BrowserTracing(), new Replay()],
 
