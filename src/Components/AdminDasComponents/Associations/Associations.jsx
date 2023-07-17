@@ -166,6 +166,11 @@ const Associations = () => {
     }
   };
 
+  const thirdPartyNotificationStatus = (type, res) => {
+    console.log('type', type);
+    console.log('res', res);
+  };
+
   /*** Methods for Integration table ***/
   // Pagination
   const handlePagination = (value) => {
@@ -296,9 +301,12 @@ const Associations = () => {
       const extAppData = JSON.parse(value);
       console.log('extAppData', extAppData);
       setSelectedAppData(extAppData);
+      setWorkspace('');
+      setWorkspaceApp({});
 
       const newFormValue = { ...formValue };
       newFormValue['application_id'] = extAppData?.id;
+      newFormValue['ext_workspace_id'] = '';
       setFormValue(newFormValue);
 
       if (extAppData?.type === 'oslc') {
@@ -312,9 +320,11 @@ const Associations = () => {
       dispatch(crudActions.removeCrudParameter('consumerToken'));
       setSelectedAppData({});
       const newFormValue = { ...formValue };
+      newFormValue['ext_workspace_id'] = '';
       newFormValue['application_id'] = '';
       setFormValue(newFormValue);
       setWorkspace('');
+      setWorkspaceApp({});
     }
   };
   
@@ -365,7 +375,7 @@ const Associations = () => {
     console.log('consumerToken', crudData?.consumerToken);
     console.log('selectedAppData', selectedAppData);
     // eslint-disable-next-line max-len
-    if (crudData?.consumerToken?.access_token && selectedAppData?.id) {
+    if (crudData?.consumerToken?.access_token && selectedAppData?.id && selectedAppData?.type === 'oslc') {
       const rootservicesUrl = selectedAppData?.authentication_server.filter(
         (item) => item.type === 'rootservices',
       );
@@ -517,6 +527,7 @@ const Associations = () => {
                 apiQueryParams={queryParamId}
                 disabled={queryParamId ? false : true}
                 reqText="External application is required"
+                requestStatus={thirdPartyNotificationStatus}
                 onChange={(value) => handleExtAppChange(value)}
               />
             </FlexboxGrid.Item>
@@ -581,7 +592,8 @@ const Associations = () => {
                           label="External application workspace"
                           placeholder="Select an external workspace"
                           apiQueryParams={`application_id=${selectedAppData?.id}`}
-                          apiURL={`${thirdPartyUrl}/${selectedAppData?.type}/workspace?`}
+                          apiURL={`${thirdPartyUrl}/${selectedAppData?.type}/workspace`}
+                          requestStatus={thirdPartyNotificationStatus}
                           onChange={(value) => {
                             handleWorkspaceChange(value);
                           }}
@@ -590,7 +602,9 @@ const Associations = () => {
                       </FlexboxGrid.Item>
                     )}
                     {workspace && (
-                      <FlexboxGrid.Item style={{ marginBottom: '30px' }} colspan={24}>
+                      <FlexboxGrid.Item style={
+                        !WORKSPACE_APPLICATION_TYPES.includes(selectedAppData?.type) ?
+                          {margin: '30px 0'} : {marginBottom: '30px' }} colspan={24}>
                         <SelectField
                           block
                           size="lg"
@@ -601,6 +615,7 @@ const Associations = () => {
                           placeholder="Select an external application"
                           apiQueryParams={`application_id=${selectedAppData?.id}`}
                           apiURL={workspace}
+                          requestStatus={thirdPartyNotificationStatus}
                           onChange={(value) => {
                             handleExtProjectWorkspaceChange(value);
                           }}
