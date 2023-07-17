@@ -34,12 +34,25 @@ import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun
 import Pipeline from './Components/Pipeline/Pipeline.jsx';
 import WebBrowserExtension from './Components/WebBrowserExtension/WebBrowserExtension';
 import Graph from './Components/GraphView/Graph.jsx';
+// eslint-disable-next-line max-len
+import Oauth2Callback from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2Callback.jsx';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
 export const lightBgColor = 'white';
 
-const App = () => {
+export const OAUTH2_APPLICATION_TYPES = ['gitlab', 'jira'];
+export const MICROSERVICES_APPLICATION_TYPES = ['glideyoke'];
+export const BASIC_AUTH_APPLICATION_TYPES = ['valispace'];
+export const WORKSPACE_APPLICATION_TYPES = ['gitlab', 'valispace'];
+export const PROJECT_APPLICATION_TYPES = ['jira', 'glideyoke'];
+
+export const THIRD_PARTY_INTEGRATIONS =
+  OAUTH2_APPLICATION_TYPES +
+  MICROSERVICES_APPLICATION_TYPES +
+  BASIC_AUTH_APPLICATION_TYPES;
+
+function App() {
   const { isDark } = useSelector((state) => state.nav);
   const dispatch = useDispatch();
 
@@ -55,6 +68,7 @@ const App = () => {
         style={{ backgroundColor: isDark === 'dark' ? darkBgColor : lightBgColor }}
       >
         <Routes>
+          <Route path="/oauth2/callback" element={<Oauth2Callback />} />
           {/* This is WBE dashboard */}
           <Route
             path="/wbe"
@@ -121,6 +135,6 @@ const App = () => {
       </div>
     </CustomProvider>
   );
-};
+}
 
 export default App;

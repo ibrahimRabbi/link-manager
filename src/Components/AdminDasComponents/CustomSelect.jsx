@@ -20,9 +20,15 @@ const FixedLoader = () => (
 );
 
 const CustomSelect = React.forwardRef((props, ref) => {
-  // eslint-disable-next-line max-len
-  const { apiURL, placeholder, onChange, customSelectLabel, apiQueryParams, ...rest } =
-    props;
+  const {
+    apiURL,
+    apiQueryParams,
+    requestStatus,
+    placeholder,
+    onChange,
+    customLabelKey,
+    ...rest
+  } = props;
   const [option, setOption] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [checkPagination, setCheckPagination] = useState({});
@@ -30,12 +36,12 @@ const CustomSelect = React.forwardRef((props, ref) => {
   const [dropDownData, setDropdownData] = useState([]);
   const authCtx = useContext(AuthContext);
 
-  async function fetchOptions(page) {
+  const fetchOptions = async (page) => {
     setIsLoading(true);
-    const queryParams = apiQueryParams ? apiQueryParams : null;
+    const queryPath = apiQueryParams ? apiQueryParams : null;
     let url = `${apiURL}?page=${page}&per_page=${'10'}`;
-    if (queryParams) {
-      url = `${url}&${queryParams}`;
+    if (queryPath) {
+      url = `${url}&${queryPath}`;
     }
     if (apiURL) {
       const response = await fetch(url, {
@@ -49,6 +55,8 @@ const CustomSelect = React.forwardRef((props, ref) => {
           if (res.status !== 204) {
             return res.json();
           }
+        } else {
+          requestStatus('error', res);
         }
       });
       setIsLoading(false);
@@ -56,10 +64,10 @@ const CustomSelect = React.forwardRef((props, ref) => {
       if (response?.items) return response.items;
     }
     return [];
-  }
+  };
 
   // handle load more
-  async function handleLoadMore() {
+  const handleLoadMore = async () => {
     if (option.length) {
       if (checkPagination?.has_next) {
         const newOptions = await fetchOptions(page + 1);
@@ -70,7 +78,7 @@ const CustomSelect = React.forwardRef((props, ref) => {
       const newOptions = await fetchOptions(page);
       setOption([...option, ...newOptions]);
     }
-  }
+  };
 
   useEffect(() => {
     (async () => {
@@ -92,9 +100,9 @@ const CustomSelect = React.forwardRef((props, ref) => {
 
   const getData = () => {
     let dropdownJsonData = [];
-    if (customSelectLabel) {
+    if (customLabelKey) {
       dropdownJsonData = option?.map((item) => ({
-        label: item.name + ' - ' + item[customSelectLabel],
+        label: item[customLabelKey] ? item[customLabelKey] : item.name,
         value: JSON.stringify(item),
       }));
     } else {
@@ -123,16 +131,15 @@ const CustomSelect = React.forwardRef((props, ref) => {
 
   return (
     <SelectPicker
-      menuMaxHeight={250}
-      size="lg"
       block
-      searchable={dropDownData?.length > 9 || dropDownData?.length === 0 ? true : false}
-      ref={ref}
+      size="lg"
       {...rest}
+      ref={ref}
       data={dropDownData}
+      menuMaxHeight={200}
       onChange={(v) => onChange(v)}
+      searchable={dropDownData?.length > 5}
       placeholder={<p style={{ fontSize: '17px' }}>{placeholder}</p>}
-      virtualized
       renderMenu={renderMenu}
       listProps={{ onItemsRendered }}
       renderMenuItem={(label) => {
