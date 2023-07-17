@@ -13,6 +13,8 @@ import { SiAzurepipelines, SiWebcomponentsdotorg } from 'react-icons/si';
 import { TbApps } from 'react-icons/tb';
 import { VscProject } from 'react-icons/vsc';
 import { CgLink } from 'react-icons/cg';
+import { MdEvent } from 'react-icons/md';
+import { GrIntegration } from 'react-icons/gr';
 import { darkColor, lightBgColor } from '../../App';
 import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
 
@@ -44,7 +46,7 @@ const options = [
   {
     path: ['/admin/integrations'],
     navigateTo: '/admin/integrations',
-    icon: <TbApps size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />,
+    icon: <GrIntegration size={17} style={{ ...iconStyle, color: '#8e8e93' }} />,
     content: <span>Integrations</span>,
   },
   {
@@ -74,13 +76,13 @@ const options = [
   {
     path: ['/admin/events'],
     navigateTo: '/admin/events',
-    icon: <SiAzurepipelines size={15} style={{ ...iconStyle }} />,
+    icon: <MdEvent size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />,
     content: <span>Events</span>,
   },
   {
     path: ['/admin/pipelines'],
     navigateTo: '/admin/pipelines',
-    icon: <SiAzurepipelines size={15} style={{ ...iconStyle }} />,
+    icon: <SiAzurepipelines size={16} style={{ ...iconStyle }} />,
     content: <span>Pipelines</span>,
   },
   {

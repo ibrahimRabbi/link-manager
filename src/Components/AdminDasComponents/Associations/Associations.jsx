@@ -51,7 +51,7 @@ const headerData = [
     key: 'service_provider_id',
   },
   {
-    header: 'Resource url',
+    header: 'Resource URL',
     key: 'service_provider_url',
   },
 ];
@@ -293,11 +293,14 @@ const Associations = () => {
 
   // handle Edit association
   const handleEdit = (data) => {
+    console.log(data);
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
     setFormValue({
       resource_container: data?.resource_container,
       resource_type: data?.resource_type,
+      project_id: data?.project_id,
+      application_id: data?.application_id,
     });
 
     dispatch(handleIsAddNewModal(true));
@@ -487,7 +490,6 @@ const Associations = () => {
                       </FlexboxGrid.Item>
                     ) : (
                       <p style={{ fontSize: '17px', color: '#eb9d17', marginTop: '5px' }}>
-                        {' '}
                         Please
                         <span
                           style={{

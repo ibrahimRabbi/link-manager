@@ -364,7 +364,7 @@ const LinkManagerTable = ({ props }) => {
       {!table.getRowModel().rows[0] && <p className={emptyTableContent}>No Data Found</p>}
 
       <div className={paginationContainer}>
-        <p>Total: {totalItems} </p>
+        <p>Total: {totalItems ? totalItems : 0} </p>
 
         <CustomFilterSelect
           items={paginationItems}
