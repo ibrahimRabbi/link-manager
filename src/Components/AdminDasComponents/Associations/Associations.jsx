@@ -53,7 +53,7 @@ const headerData = [
     key: 'service_provider_id',
   },
   {
-    header: 'Resource url',
+    header: 'Resource URL',
     key: 'service_provider_url',
   },
 ];
@@ -282,11 +282,14 @@ const Associations = () => {
 
   // Edit association
   const handleEdit = (data) => {
+    console.log(data);
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
     setFormValue({
       ext_application_project: data?.ext_application_project,
       resource_type: data?.resource_type,
+      project_id: data?.project_id,
+      application_id: data?.application_id,
     });
 
     dispatch(handleIsAddNewModal(true));

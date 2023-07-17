@@ -61,11 +61,6 @@ function App() {
     dispatch(handleIsDarkMode(isDark));
   }, []);
 
-  // resize observer loop disable
-  window.addEventListener('error', (e) => {
-    console.log(e.message);
-  });
-
   return (
     <CustomProvider theme={isDark}>
       <div
