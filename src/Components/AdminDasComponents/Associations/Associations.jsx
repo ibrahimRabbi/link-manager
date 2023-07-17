@@ -124,7 +124,6 @@ const Associations = () => {
   /*** Methods for OSLC data ***/
   // GET: Fetch OSLC Consumer token from LM API
   const fetchOslcConsumerToken = (label) => {
-    console.log('label', label);
     if (label) {
       dispatch(
         fetchGetData({
@@ -139,7 +138,6 @@ const Associations = () => {
 
   const fetchCatalogFromRootservices = (rootservicesUrl) => {
     const consumerToken = crudData?.consumerToken?.access_token;
-    console.log('rootservicesUrl', rootservicesUrl);
 
     if (consumerToken && selectedAppData?.type === 'oslc') {
       dispatch(
@@ -167,6 +165,7 @@ const Associations = () => {
   };
 
   const thirdPartyNotificationStatus = (type, res) => {
+    // I am modifying this section to use login via 3rd party app
     console.log('type', type);
     console.log('res', res);
   };
@@ -183,7 +182,6 @@ const Associations = () => {
   };
 
   const handleAddAssociation = () => {
-    console.log(associationFormRef.current.check());
     if (!associationFormRef.current.check()) {
       return;
     } else if (isAdminEditing) {
@@ -282,7 +280,6 @@ const Associations = () => {
 
   // Edit association
   const handleEdit = (data) => {
-    console.log(data);
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
     setFormValue({
@@ -302,7 +299,6 @@ const Associations = () => {
     if (oslcCatalogDropdown) setOslcCatalogDropdown(null);
     if (value) {
       const extAppData = JSON.parse(value);
-      console.log('extAppData', extAppData);
       setSelectedAppData(extAppData);
       setWorkspace('');
       setWorkspaceApp({});
@@ -375,8 +371,6 @@ const Associations = () => {
 
   // Get the OSLC catalogs through received consumer token and external app data
   useEffect(() => {
-    console.log('consumerToken', crudData?.consumerToken);
-    console.log('selectedAppData', selectedAppData);
     if (
       crudData?.consumerToken?.access_token &&
       selectedAppData?.id &&
@@ -385,7 +379,6 @@ const Associations = () => {
       const rootservicesUrl = selectedAppData?.authentication_server.filter(
         (item) => item.type === 'rootservices',
       );
-      console.log('rootservicesUrl', rootservicesUrl);
       fetchCatalogFromRootservices(rootservicesUrl[0]?.url, selectedAppData?.id);
     }
   }, [crudData?.consumerToken?.access_token, selectedAppData]);
@@ -434,9 +427,7 @@ const Associations = () => {
     dispatch(handleIsOauth2ModalOpen(false));
   }, [isAuthorizeSuccess]);
 
-  useEffect(() => {
-    console.log('formValue', formValue);
-  }, [formValue]);
+  useEffect(() => {}, [formValue]);
 
   // send props in the batch action table
   const tableProps = {
