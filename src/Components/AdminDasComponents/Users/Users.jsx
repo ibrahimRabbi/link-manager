@@ -104,20 +104,22 @@ const Users = () => {
 
   // handle open add user modal
   const handleAddNew = () => {
+    dispatch(handleIsAdminEditing(false));
     setIsAddModal(true);
   };
 
   // reset form
   const handleResetForm = () => {
-    setEditData({});
     setTimeout(() => {
+      setEditData({});
+      if (isAdminEditing) dispatch(handleIsAdminEditing(false));
       setFormValue({
         first_name: '',
         last_name: '',
         username: '',
         email: '',
       });
-    }, 3000);
+    }, 500);
   };
 
   // Pagination

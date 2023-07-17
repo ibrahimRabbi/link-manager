@@ -200,7 +200,7 @@ const AdminDataTable = ({ props }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             <InputGroup size="lg" inside style={{ width: '400px' }}>
               <Input
-                placeholder={'Search Table Item'}
+                placeholder={'Search...'}
                 value={tableFilterValue}
                 onChange={(v) => setTableFilterValue(v)}
               />

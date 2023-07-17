@@ -72,9 +72,11 @@ const CustomSelect = React.forwardRef((props, ref) => {
     }
   }
 
-  useEffect(async () => {
-    const newOptions = await fetchOptions(page);
-    setOption([...newOptions]);
+  useEffect(() => {
+    (async () => {
+      const newOptions = await fetchOptions(page);
+      setOption([...newOptions]);
+    })();
   }, [apiURL, apiQueryParams]);
 
   useEffect(() => {
