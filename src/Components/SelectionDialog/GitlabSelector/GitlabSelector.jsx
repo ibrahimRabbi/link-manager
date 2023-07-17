@@ -59,7 +59,6 @@ const GitlabSelector = () => {
     setGroupId('');
     fetch(`${lmApiUrl}/third_party/gitlab/workspace?application_id=185`, {
       headers: {
-        'X-Auth-Gitlab': 'glpat-3najbsK12RyxrdjpHphe',
         Authorization: `Bearer ${authCtx.token}`,
       },
     })
