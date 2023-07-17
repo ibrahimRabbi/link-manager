@@ -29,7 +29,7 @@ import {
 import { ROOTSERVICES_CATALOG_TYPES } from '../../../Redux/slices/oslcResourcesSlice.jsx';
 import { handleIsOauth2ModalOpen } from '../../../Redux/slices/oauth2ModalSlice';
 import Notification from '../../Shared/Notification';
-import { WORKSPACE_APPLICATION_TYPES } from '../../../App.jsx';
+import {PROJECT_APPLICATION_TYPES, WORKSPACE_APPLICATION_TYPES} from '../../../App.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 const thirdPartyUrl = `${lmApiUrl}/third_party`;
@@ -137,13 +137,9 @@ const Associations = () => {
     }
   };
 
-  const fetchCatalogFromRootservices = (rootservicesUrl, applicationId) => {
+  const fetchCatalogFromRootservices = (rootservicesUrl) => {
     const consumerToken = crudData?.consumerToken?.access_token;
-    const newFormValue = { ...formValue };
-    newFormValue['application_id'] = applicationId;
-    setFormValue(newFormValue);
     console.log('rootservicesUrl', rootservicesUrl);
-    console.log('applicationId', applicationId);
 
     if (consumerToken && selectedAppData?.type === 'oslc') {
       dispatch(
@@ -205,11 +201,10 @@ const Associations = () => {
         );
         bodyData['service_provider_id'] = selectedServiceProvider?.serviceProviderId;
         bodyData['service_provider_url'] = selectedServiceProvider?.value;
-      } else if (WORKSPACE_APPLICATION_TYPES.includes(selectedAppData?.type)) {
+      } else {
         bodyData['service_provider_id'] = workspaceApp?.id;
-        bodyData['service_provider_url'] = workspaceApp?.web_url;
+        bodyData['service_provider_url'] = workspaceApp?.link;
       }
-
       const postUrl = `${lmApiUrl}/association`;
       dispatch(
         fetchCreateAssoc({
@@ -301,26 +296,31 @@ const Associations = () => {
       const extAppData = JSON.parse(value);
       console.log('extAppData', extAppData);
       setSelectedAppData(extAppData);
+
+      const newFormValue = { ...formValue };
+      newFormValue['application_id'] = extAppData?.id;
+      setFormValue(newFormValue);
+
       if (extAppData?.type === 'oslc') {
         fetchOslcConsumerToken(extAppData?.name);
       } else {
-        const newFormValue = { ...formValue };
-        newFormValue['application_id'] = extAppData?.id;
-        setFormValue(newFormValue);
+        if (PROJECT_APPLICATION_TYPES.includes(extAppData?.type)) {
+          setWorkspace(`${thirdPartyUrl}/${extAppData?.type}/containers`);
+        }
       }
     } else {
       dispatch(crudActions.removeCrudParameter('consumerToken'));
       setSelectedAppData({});
-      setFormValue({
-        application_id: '',
-        ...formValue,
-      });
+      const newFormValue = { ...formValue };
+      newFormValue['application_id'] = '';
+      setFormValue(newFormValue);
+      setWorkspace('');
     }
   };
   
   const handleWorkspaceChange = (value) => {
     if (value) {
-      setWorkspace(value);
+      setWorkspace(`${thirdPartyUrl}/${selectedAppData?.type}/containers/${value}`);
     } else {
       setWorkspace('');
     }
@@ -600,7 +600,7 @@ const Associations = () => {
                           label="External application project"
                           placeholder="Select an external application"
                           apiQueryParams={`application_id=${selectedAppData?.id}`}
-                          apiURL={`${thirdPartyUrl}/${selectedAppData?.type}/containers/${workspace}`}
+                          apiURL={workspace}
                           onChange={(value) => {
                             handleExtProjectWorkspaceChange(value);
                           }}
@@ -608,6 +608,7 @@ const Associations = () => {
                         />
                       </FlexboxGrid.Item>
                     )}
+
                     
                   </>
                 )}
