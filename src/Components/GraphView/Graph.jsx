@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import visGraphOptions from './visGraphOptions';
-import VisGraph from 'react-graph-vis';
+import VisGraph from 'react-vis-network-graph';
 import { useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../apiRequests/apiRequest';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
@@ -62,8 +62,7 @@ const Graph = () => {
   if (isWbe && isLoading) {
     return (
       <div className={visGraphContainer}>
-        {' '}
-        <UseLoader />{' '}
+        <UseLoader />
       </div>
     );
   } else if (isWbe && graphData) {
