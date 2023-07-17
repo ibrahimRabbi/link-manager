@@ -44,16 +44,17 @@ const ExternalLogin = (props) => {
     console.log('showNotification', type, res);
   };
 
-  const { data: selectedExtLoginApplication } = 
-    useQuery(['selectedExtLoginApplication'], () =>
+  const { data: selectedExtLoginApplication } = useQuery(
+    ['selectedExtLoginApplication'],
+    () =>
       fetchAPIRequest({
-      // eslint-disable-next-line max-len
+        // eslint-disable-next-line max-len
         urlPath: `application?name=${appData?.name}&organization_id=${appData?.organization_id}`,
         token: authCtx.token,
         method: 'GET',
         showNotification: showNotification,
       }),
-    );
+  );
 
   if (selectedExtLoginApplication) {
     if (appData?.type === 'glideyoke') {

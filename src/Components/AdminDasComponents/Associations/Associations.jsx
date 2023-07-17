@@ -29,7 +29,7 @@ import {
 import { ROOTSERVICES_CATALOG_TYPES } from '../../../Redux/slices/oslcResourcesSlice.jsx';
 import { handleIsOauth2ModalOpen } from '../../../Redux/slices/oauth2ModalSlice';
 import Notification from '../../Shared/Notification';
-import {PROJECT_APPLICATION_TYPES, WORKSPACE_APPLICATION_TYPES} from '../../../App.jsx';
+import { WORKSPACE_APPLICATION_TYPES } from '../../../App.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 const thirdPartyUrl = `${lmApiUrl}/third_party`;
@@ -64,7 +64,7 @@ const model = Schema.Model({
   organization_id: NumberType().isRequired('This field is required.'),
   application_id: NumberType().isRequired('This field is required.'),
   project_id: NumberType().isRequired('This field is required.'),
-  resource_container: StringType().isRequired('This field is required.'),
+  ext_application_project: StringType().isRequired('This field is required.'),
   ext_workspace_id: StringType(),
 });
 
@@ -96,11 +96,13 @@ const Associations = () => {
     organization_id: '',
     project_id: '',
     application_id: '',
-    resource_container: '',
+    ext_application_project: '',
   });
 
   // Variable for fetching project based on organization ID
   const [queryParamId, setQueryParamId] = useState('');
+  const [workspace, setWorkspace] = useState('');
+  const [workspaceApp, setWorkspaceApp] = useState({});
 
   // Variables for OSLC dara
   const [oslcCatalogDropdown, setOslcCatalogDropdown] = useState(null);
@@ -133,7 +135,6 @@ const Associations = () => {
         }),
       );
     }
-
   };
 
   const fetchCatalogFromRootservices = (rootservicesUrl, applicationId) => {
@@ -181,6 +182,7 @@ const Associations = () => {
   };
 
   const handleAddAssociation = () => {
+    console.log(associationFormRef.current.check());
     if (!associationFormRef.current.check()) {
       return;
     } else if (isAdminEditing) {
@@ -195,13 +197,18 @@ const Associations = () => {
       );
     } else {
       const bodyData = { ...formValue };
-      const resourceContainerPayload = JSON.parse(bodyData.resource_container);
+      if (selectedAppData?.type === 'oslc') {
+        const resourceContainerPayload = JSON.parse(bodyData.ext_application_project);
 
-      const selectedServiceProvider = oslcCatalogResponse?.find(
-        (item) => item.value === resourceContainerPayload.value,
-      );
-      bodyData['service_provider_id'] = selectedServiceProvider?.serviceProviderId;
-      bodyData['service_provider_url'] = selectedServiceProvider?.value;
+        const selectedServiceProvider = oslcCatalogResponse?.find(
+          (item) => item.value === resourceContainerPayload.value,
+        );
+        bodyData['service_provider_id'] = selectedServiceProvider?.serviceProviderId;
+        bodyData['service_provider_url'] = selectedServiceProvider?.value;
+      } else if (WORKSPACE_APPLICATION_TYPES.includes(selectedAppData?.type)) {
+        bodyData['service_provider_id'] = workspaceApp?.id;
+        bodyData['service_provider_url'] = workspaceApp?.web_url;
+      }
 
       const postUrl = `${lmApiUrl}/association`;
       dispatch(
@@ -229,7 +236,7 @@ const Associations = () => {
       organization_id: '',
       project_id: '',
       application_id: '',
-      resource_container: '',
+      ext_application_project: '',
     });
     dispatch(actions.resetRootservicesResponse());
     dispatch(actions.resetOslcCatalogUrls());
@@ -278,7 +285,7 @@ const Associations = () => {
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
     setFormValue({
-      resource_container: data?.resource_container,
+      ext_application_project: data?.ext_application_project,
       resource_type: data?.resource_type,
     });
 
@@ -294,12 +301,37 @@ const Associations = () => {
       const extAppData = JSON.parse(value);
       console.log('extAppData', extAppData);
       setSelectedAppData(extAppData);
-      if (extAppData?.type ==='oslc'){
+      if (extAppData?.type === 'oslc') {
         fetchOslcConsumerToken(extAppData?.name);
+      } else {
+        const newFormValue = { ...formValue };
+        newFormValue['application_id'] = extAppData?.id;
+        setFormValue(newFormValue);
       }
     } else {
       dispatch(crudActions.removeCrudParameter('consumerToken'));
       setSelectedAppData({});
+      setFormValue({
+        application_id: '',
+        ...formValue,
+      });
+    }
+  };
+  
+  const handleWorkspaceChange = (value) => {
+    if (value) {
+      setWorkspace(value);
+    } else {
+      setWorkspace('');
+    }
+  };
+
+  const handleExtProjectWorkspaceChange = (value) => {
+    if (value) {
+      const workspaceData = JSON.parse(value);
+      setWorkspaceApp(workspaceData);
+    } else {
+      setWorkspaceApp({});
     }
   };
 
@@ -335,12 +367,10 @@ const Associations = () => {
     // eslint-disable-next-line max-len
     if (crudData?.consumerToken?.access_token && selectedAppData?.id) {
       const rootservicesUrl = selectedAppData?.authentication_server.filter(
-        (item) => item.type === 'rootservices');
-      console.log('rootservicesUrl', rootservicesUrl);
-      fetchCatalogFromRootservices(
-        rootservicesUrl[0]?.url,
-        selectedAppData?.id,
+        (item) => item.type === 'rootservices',
       );
+      console.log('rootservicesUrl', rootservicesUrl);
+      fetchCatalogFromRootservices(rootservicesUrl[0]?.url, selectedAppData?.id);
     }
   }, [crudData?.consumerToken?.access_token, selectedAppData]);
 
@@ -388,6 +418,9 @@ const Associations = () => {
     dispatch(handleIsOauth2ModalOpen(false));
   }, [isAuthorizeSuccess]);
 
+  useEffect(() => {
+    console.log('formValue', formValue);
+  }, [formValue]);
 
   // send props in the batch action table
   const tableProps = {
@@ -497,14 +530,14 @@ const Associations = () => {
                 ) : (
                   <>
                     {
-                      crudData?.consumerToken?.access_token && 
+                      crudData?.consumerToken?.access_token &&
                       oslcCatalogDropdown &&
                       selectedAppData?.type === 'oslc' && (
                         <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
                           <SelectField
                             size="lg"
                             block
-                            name="resource_container"
+                            name="ext_application_project"
                             label="Application project"
                             placeholder="Select an external app project"
                             options={oslcCatalogResponse}
@@ -516,25 +549,29 @@ const Associations = () => {
                             reqText="External app project is required"
                           />
                         </FlexboxGrid.Item>
-                      )}  { isOslcResourceLoading && (
+                      )}
+                    {isOslcResourceLoading && (
                       <FlexboxGrid.Item colspan={24}>
                         <UseLoader />
                       </FlexboxGrid.Item>
                     )}
-                    {( !crudData?.consumerToken?.access_token &&
-                          <p style={{ fontSize: '17px', marginTop: '5px' }}>
-                        Please <span
-                              style={{
-                                color: 'blue',
-                                textDecoration: 'underline',
-                                cursor: 'pointer',
-                              }}
-                              onClick={handleOauth2Modal}
-                            >authorize this application
-                            </span> to fetch the application projects.
-                          </p>
+                    {!crudData?.consumerToken?.access_token && (
+                      <p style={{ fontSize: '17px', marginTop: '5px' }}>
+                        Please{' '}
+                        <span
+                          style={{
+                            color: 'blue',
+                            textDecoration: 'underline',
+                            cursor: 'pointer',
+                          }}
+                          onClick={handleOauth2Modal}
+                        >
+                          authorize this application
+                        </span>{' '}
+                        to fetch the application projects.
+                      </p>
                     )}
-                    {(WORKSPACE_APPLICATION_TYPES.includes(selectedAppData?.type)) && (
+                    {WORKSPACE_APPLICATION_TYPES.includes(selectedAppData?.type) && (
                       <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
                         <SelectField
                           block
@@ -544,15 +581,34 @@ const Associations = () => {
                           label="External application workspace"
                           placeholder="Select an external workspace"
                           apiQueryParams={`application_id=${selectedAppData?.id}`}
-                          /* eslint-disable-next-line max-len */
                           apiURL={`${thirdPartyUrl}/${selectedAppData?.type}/workspace?`}
                           onChange={(value) => {
-                            getServiceProviderResources(value);
+                            handleWorkspaceChange(value);
                           }}
                           reqText="External app project is required"
                         />
                       </FlexboxGrid.Item>
                     )}
+                    {workspace && (
+                      <FlexboxGrid.Item style={{ marginBottom: '30px' }} colspan={24}>
+                        <SelectField
+                          block
+                          size="lg"
+                          accepter={CustomSelect}
+                          customLabelKey={'workTitle'}
+                          name="ext_application_project"
+                          label="External application project"
+                          placeholder="Select an external application"
+                          apiQueryParams={`application_id=${selectedAppData?.id}`}
+                          apiURL={`${thirdPartyUrl}/${selectedAppData?.type}/containers/${workspace}`}
+                          onChange={(value) => {
+                            handleExtProjectWorkspaceChange(value);
+                          }}
+                          reqText="External app project is required"
+                        />
+                      </FlexboxGrid.Item>
+                    )}
+                    
                   </>
                 )}
               </>
