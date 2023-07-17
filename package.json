@@ -1,7 +1,7 @@
 {
   "name": "link-manager",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "start": "vite",
@@ -14,7 +14,7 @@
   "dependencies": {
     "@reduxjs/toolkit": "^1.8.6",
     "@sentry/browser": "^7.45.0",
-    "@sentry/react": "^7.45.0",
+    "@sentry/react": "^7.58.1",
     "@sentry/tracing": "^7.44.2",
     "@tanstack/react-query": "^4.29.14",
     "@tanstack/react-table": "^8.9.3",
