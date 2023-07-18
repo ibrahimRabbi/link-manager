@@ -24,7 +24,7 @@ import {
 } from '../../../Redux/slices/useCRUDSlice';
 import Notification from '../../Shared/Notification';
 
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 // demo data
 const headerData = [

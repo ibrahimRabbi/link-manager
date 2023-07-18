@@ -33,7 +33,7 @@ import { actions as linkTypeActions } from '../../../Redux/slices/linkTypeSlice'
 import { actions as oslcActions } from '../../../Redux/slices/oslcResourcesSlice';
 import TextField from '../TextField.jsx';
 
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 // demo data
 const headerData = [

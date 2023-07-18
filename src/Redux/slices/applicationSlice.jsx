@@ -24,8 +24,8 @@ export const fetchApplicationPublisherIcon = createAsyncThunk(
       };
 
       try {
-        new URL(current.rootservicesUrl);
         if (current?.rootservicesUrl) {
+          new URL(current?.rootservicesUrl);
           const oslcResponse = await getOslcAPI({
             url: current.rootservicesUrl,
             token: 'dummy',
@@ -55,11 +55,11 @@ export const fetchApplicationPublisherIcon = createAsyncThunk(
             });
           }
         }
-        if (current.rootservicesUrl && appDataObj.icon) {
+        if (current?.rootservicesUrl && appDataObj?.icon) {
           const appWithIcon = {
             ...current,
-            iconUrl: appDataObj.icon,
-            publisherUrl: appDataObj.publisherUrl,
+            iconUrl: appDataObj?.icon,
+            publisherUrl: appDataObj?.publisherUrl,
           };
           const acc = await accumulator;
           acc.push(appWithIcon);

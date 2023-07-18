@@ -36,10 +36,23 @@ import WebBrowserExtension from './Components/WebBrowserExtension/WebBrowserExte
 import GitlabSelector from './Components/SelectionDialog/GitlabSelector/GitlabSelector';
 import GitlabLogin from './Components/SelectionDialog/GitlabSelector/GitlabLogin';
 import Graph from './Components/GraphView/Graph.jsx';
+// eslint-disable-next-line max-len
+import Oauth2Callback from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2Callback.jsx';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
 export const lightBgColor = 'white';
+
+export const OAUTH2_APPLICATION_TYPES = ['gitlab', 'jira'];
+export const MICROSERVICES_APPLICATION_TYPES = ['glideyoke'];
+export const BASIC_AUTH_APPLICATION_TYPES = ['valispace'];
+export const WORKSPACE_APPLICATION_TYPES = ['gitlab', 'valispace'];
+export const PROJECT_APPLICATION_TYPES = ['jira', 'glideyoke'];
+
+export const THIRD_PARTY_INTEGRATIONS =
+  OAUTH2_APPLICATION_TYPES +
+  MICROSERVICES_APPLICATION_TYPES +
+  BASIC_AUTH_APPLICATION_TYPES;
 
 function App() {
   const { isDark } = useSelector((state) => state.nav);
@@ -50,20 +63,6 @@ function App() {
     dispatch(handleIsDarkMode(isDark));
   }, []);
 
-  // resize observer loop disable
-  window.addEventListener('error', (e) => {
-    if (
-      e.message == 'ResizeObserver loop completed with undelivered notifications.' ||
-      e.message?.toLowerCase()?.includes('resizeObserver'?.toLocaleLowerCase())
-    ) {
-      const resizeIframe = document.getElementById('webpack-dev-server-client-overlay');
-      if (resizeIframe) {
-        resizeIframe.style.display = 'none';
-        return false;
-      }
-    }
-  });
-
   return (
     <CustomProvider theme={isDark}>
       <div
@@ -71,6 +70,7 @@ function App() {
         style={{ backgroundColor: isDark === 'dark' ? darkBgColor : lightBgColor }}
       >
         <Routes>
+          <Route path="/oauth2/callback" element={<Oauth2Callback />} />
           {/* This is WBE dashboard */}
           <Route
             path="/wbe"

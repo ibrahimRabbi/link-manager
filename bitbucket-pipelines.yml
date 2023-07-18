@@ -31,19 +31,19 @@ definitions:
         script:
           - touch .env
           - echo "NODE_ENV=development" >> .env
-          - echo "REACT_APP_LM_REST_API_URL=$LM_REST_API_URL" >> .env
-          - echo "REACT_APP_CONFIGURATION_AWARE=false" >> .env
-          - echo "REACT_APP_JIRA_DIALOG_URL=$JIRA_OSLC_API_URL" >> .env
-          - echo "REACT_APP_GITLAB_DIALOG_URL=$GITLAB_OSLC_API_URL" >> .env
-          - echo "REACT_APP_GLIDE_DIALOG_URL=$GLIDE_OSLC_API_URL" >> .env
-          - echo "REACT_APP_VALISPACE_DIALOG_URL=$VALISPACE_OSLC_API_URL" >> .env
-          - echo "REACT_APP_CODEBEAMER_DIALOG_URL=$CODEBEAMER_OSLC_API_URL" >> .env
-          - echo "REACT_APP_SENTRY_DSN=$SENTRY_DSN" >> .env
-          - echo "REACT_APP_MIXPANEL_TOKEN=$MIXPANEL_TOKEN" >> .env
+          - echo "VITE_LM_REST_API_URL=$LM_REST_API_URL" >> .env
+          - echo "VITE_CONFIGURATION_AWARE=false" >> .env
+          - echo "VITE_JIRA_DIALOG_URL=$JIRA_OSLC_API_URL" >> .env
+          - echo "VITE_GITLAB_DIALOG_URL=$GITLAB_OSLC_API_URL" >> .env
+          - echo "VITE_GLIDE_DIALOG_URL=$GLIDE_OSLC_API_URL" >> .env
+          - echo "VITE_VALISPACE_DIALOG_URL=$VALISPACE_OSLC_API_URL" >> .env
+          - echo "VITE_CODEBEAMER_DIALOG_URL=$CODEBEAMER_OSLC_API_URL" >> .env
+          - echo "VITE_SENTRY_DSN=$SENTRY_DSN" >> .env
+          - echo "VITE_MIXPANEL_TOKEN=$MIXPANEL_TOKEN" >> .env
           - yarn install
           - yarn build
         artifacts:
-          - build/**
+          - dist/**
 
     - step: &docker-build
         name: 'Docker Build'
@@ -74,7 +74,7 @@ pipelines:
                 USER: $SERVER_USER
                 SERVER: $SERVER_IP
                 REMOTE_PATH: '/var/www/lm-dev'
-                LOCAL_PATH: 'build/**'
+                LOCAL_PATH: 'dist/**'
 
     main:
       - step: *lint

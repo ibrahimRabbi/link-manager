@@ -28,7 +28,7 @@ export const fetchDeleteLink = createAsyncThunk(
   },
 );
 
-const gcmAware = JSON.parse(process.env.REACT_APP_CONFIGURATION_AWARE);
+let gcmAware = JSON.parse(import.meta.env.VITE_CONFIGURATION_AWARE);
 
 const initialState = {
   isTargetModalOpen: false,

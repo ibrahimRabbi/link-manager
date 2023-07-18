@@ -51,16 +51,15 @@ const paginationItems = [
 ];
 
 // OSLC API URLs
-const jiraURL = `${process.env.REACT_APP_JIRA_DIALOG_URL}`;
-const gitlabURL = `${process.env.REACT_APP_GITLAB_DIALOG_URL}`;
-const glideURL = `${process.env.REACT_APP_GLIDE_DIALOG_URL}`;
-const valispaceURL = `${process.env.REACT_APP_VALISPACE_DIALOG_URL}`;
-const codebeamerURL = `${process.env.REACT_APP_CODEBEAMER_DIALOG_URL}`;
+const jiraURL = `${import.meta.env.VITE_JIRA_DIALOG_URL}`;
+const gitlabURL = `${import.meta.env.VITE_GITLAB_DIALOG_URL}`;
+const glideURL = `${import.meta.env.VITE_GLIDE_DIALOG_URL}`;
+const valispaceURL = `${import.meta.env.VITE_VALISPACE_DIALOG_URL}`;
+const codebeamerURL = `${import.meta.env.VITE_CODEBEAMER_DIALOG_URL}`;
 
 const LinkManagerTable = ({ props }) => {
-  const { data, handleDeleteLink, totalItems } = props;
+  const { data, handleDeleteLink, totalItems, setSelectedRowData } = props;
   const { isDark } = useSelector((state) => state.nav);
-  const [actionData, setActionData] = useState({});
 
   // Action table cell control
   const renderMenu = ({ onClose, left, top, className }, ref) => {
@@ -74,7 +73,7 @@ const LinkManagerTable = ({ props }) => {
       } else if (key === 4) {
         //
       } else if (key === 5) {
-        handleDeleteLink(actionData);
+        handleDeleteLink();
       }
       onClose();
     };
@@ -263,17 +262,20 @@ const LinkManagerTable = ({ props }) => {
             <h6>Actions</h6>
           </div>
         ),
-        cell: ({ row }) => (
-          <div className={dataCell}>
-            <Whisper placement="auto" trigger="click" speaker={renderMenu}>
-              <IconButton
-                appearance="subtle"
-                icon={<MoreIcon />}
-                onClick={() => setActionData(row)}
-              />
-            </Whisper>
-          </div>
-        ),
+        cell: ({ row }) => {
+          const rowData = row?.original;
+          return (
+            <div className={dataCell}>
+              <Whisper placement="auto" trigger="click" speaker={renderMenu}>
+                <IconButton
+                  appearance="subtle"
+                  icon={<MoreIcon />}
+                  onClick={() => setSelectedRowData(rowData)}
+                />
+              </Whisper>
+            </div>
+          );
+        },
         footer: (props) => props.column.id,
       },
     ],
@@ -362,7 +364,7 @@ const LinkManagerTable = ({ props }) => {
       {!table.getRowModel().rows[0] && <p className={emptyTableContent}>No Data Found</p>}
 
       <div className={paginationContainer}>
-        <p>Total: {totalItems} </p>
+        <p>Total: {totalItems ? totalItems : 0} </p>
 
         <CustomFilterSelect
           items={paginationItems}

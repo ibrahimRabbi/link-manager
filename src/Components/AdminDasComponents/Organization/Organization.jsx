@@ -22,22 +22,19 @@ const headerData = [
   {
     header: 'ID',
     key: 'id',
-    width: 100,
+    width: 120,
   },
   {
     header: 'Organization',
     key: 'name',
-    width: 200,
   },
   {
     header: 'URL',
     key: 'url',
-    width: 200,
   },
   {
     header: 'Description',
     key: 'description',
-    width: 300,
   },
 ];
 

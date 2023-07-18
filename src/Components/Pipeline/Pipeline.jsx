@@ -14,7 +14,7 @@ const { Column, HeaderCell, Cell } = Table;
 
 const { tableContainer } = styles;
 
-const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/events`;
+const apiURL = `${import.meta.env.VITE_LM_REST_API_URL}/events`;
 
 const Pipeline = () => {
   const authCtx = useContext(AuthContext);
