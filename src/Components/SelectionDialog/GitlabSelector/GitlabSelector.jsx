@@ -9,7 +9,7 @@ import ButtonGroup from './ButtonGroup';
 import UseSelectPicker from '../../Shared/UseDropdown/UseSelectPicker';
 import AuthContext from '../../../Store/Auth-Context';
 
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 const GitlabSelector = () => {
   const [group, setGroup] = useState([]);

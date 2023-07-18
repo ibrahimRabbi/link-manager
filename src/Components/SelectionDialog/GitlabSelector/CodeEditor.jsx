@@ -4,7 +4,7 @@ import Editor from '@monaco-editor/react';
 import hljs from 'highlight.js';
 import AuthContext from '../../../Store/Auth-Context';
 
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 const CodeEditor = ({ code, fileExtension, setSelectedCodes, projectId, commitId }) => {
   const [fileCode, setFileCode] = useState('');

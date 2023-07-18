@@ -9,9 +9,9 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthContextProvider } from './Store/Auth-Context.jsx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// define global for the vite.js
-import process from 'process/browser';
-window.process = process;
+// // define global for the vite.js
+// import process from 'process/browser';
+// window.process = process;
 window.global = window;
 
 // Sentry error tracing setup
