@@ -110,6 +110,7 @@ const Associations = () => {
   const [workspaceContainer, setWorkspaceContainer] = useState('');
   const [workspace, setWorkspace] = useState('');
   const [workspaceApp, setWorkspaceApp] = useState({});
+  const [restartAppRequest, setRestartAppRequest] = useState(false);
   const [thirdPartyLogin, setThirdPartyLogin] = useState(false);
   const [authorizedThirdParty, setAuthorizedThirdParty] = useState(true);
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
@@ -182,10 +183,6 @@ const Associations = () => {
 
   const thirdPartyNotificationStatus = (type, res) => {
     // I am modifying this section to use login via 3rd party app
-    console.log('type', type);
-    console.log('res', res);
-    console.log('res?.status', res?.status);
-    console.log('body', res?.body);
     if (type === 'error' && res?.status === 401) {
       //Open Modal for Oauth2 or Basic Auth of 3rd party app
       setThirdPartyLogin(true);
@@ -196,7 +193,6 @@ const Associations = () => {
   };
 
   const closeThirdPartyModal = () => {
-    console.log('closeThirdPartyModal');
     setThirdPartyLogin(false);
   };
 
@@ -267,6 +263,11 @@ const Associations = () => {
     setAppData({});
     setOslcCatalogDropdown(null);
     setIsAuthorizeSuccess(false);
+    setThirdPartyLogin(false);
+    setAuthorizedThirdParty(true);
+    setRestartAppRequest(false);
+    setWorkspaceContainer('');
+    setWorkspaceApp({});
     setFormValue({
       ext_workspace_id: '',
       organization_id: '',
@@ -473,14 +474,36 @@ const Associations = () => {
 
   useEffect(() => {
     if (authorizedThirdParty) {
-      if (OAUTH2_APPLICATION_TYPES.includes(appData?.type)) {
-        setWorkspaceContainer(`${thirdPartyUrl}/${appData?.type}/containers`);
+      if (
+        OAUTH2_APPLICATION_TYPES.includes(appData?.type) &&
+        formValue?.ext_workspace_id
+      ) {
+        setWorkspaceContainer('');
+      }
+      if (WORKSPACE_APPLICATION_TYPES.includes(appData?.type)) {
+        setWorkspace('');
+      }
+      setRestartAppRequest(true);
+    }
+  }, [authorizedThirdParty]);
+
+  useEffect(() => {
+    if (restartAppRequest) {
+      if (
+        OAUTH2_APPLICATION_TYPES.includes(appData?.type) &&
+        formValue?.ext_workspace_id
+      ) {
+        // eslint-disable-next-line max-len
+        setWorkspaceContainer(
+          `${thirdPartyUrl}/${appData?.type}/containers/${formValue?.ext_workspace_id}`,
+        );
       }
       if (WORKSPACE_APPLICATION_TYPES.includes(appData?.type)) {
         setWorkspace(`${thirdPartyUrl}/${appData?.type}/workspace`);
       }
+      setRestartAppRequest(false);
     }
-  }, [authorizedThirdParty]);
+  }, [restartAppRequest]);
 
   // send props in the batch action table
   const tableProps = {
@@ -618,7 +641,7 @@ const Associations = () => {
                         <UseLoader />
                       </FlexboxGrid.Item>
                     )}
-                    {!oslcMissingConsumerToken && appData?.type === 'oslc' && (
+                    {oslcMissingConsumerToken && appData?.type === 'oslc' && (
                       <p style={{ fontSize: '17px', marginTop: '5px' }}>
                         <RemindOutlineIcon
                           style={{ marginRight: '5px', color: 'orange' }}
