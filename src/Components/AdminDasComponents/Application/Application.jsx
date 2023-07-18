@@ -498,8 +498,6 @@ const Application = () => {
     } else if (OAUTH2_APPLICATION_TYPES.includes(formValue?.type)) {
       setPayload({
         redirect_uris: [
-          // eslint-disable-next-line max-len
-          'https://0605-2806-2f0-a281-f410-80b4-93ca-90ae-c532.ngrok-free.app/oauth2/callback',
           `${window.location.origin}/oauth2/callback`,
         ],
       });
