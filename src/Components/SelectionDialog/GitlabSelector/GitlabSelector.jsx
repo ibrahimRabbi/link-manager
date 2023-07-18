@@ -57,7 +57,7 @@ const GitlabSelector = () => {
 
   useEffect(() => {
     setGroupId('');
-    fetch(`${lmApiUrl}/third_party/gitlab/workspace?application_id=185`, {
+    fetch(`${lmApiUrl}/third_party/gitlab/workspace?application_id=219`, {
       headers: {
         Authorization: `Bearer ${authCtx.token}`,
       },
@@ -73,10 +73,9 @@ const GitlabSelector = () => {
       setProjects([]);
       setTreeData([]);
       fetch(
-        `${lmApiUrl}/third_party/gitlab/containers/${groupId}?page=1&per_page=10&application_id=185`,
+        `${lmApiUrl}/third_party/gitlab/containers/${groupId}?page=1&per_page=10&application_id=219`,
         {
           headers: {
-            'X-Auth-Gitlab': 'glpat-3najbsK12RyxrdjpHphe',
             Authorization: `Bearer ${authCtx.token}`,
           },
         },
@@ -94,10 +93,9 @@ const GitlabSelector = () => {
   useEffect(() => {
     if (projectId) {
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/branch?page=1&per_page=10&application_id=185`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/branch?page=1&per_page=10&application_id=219`,
         {
           headers: {
-            'X-Auth-Gitlab': 'glpat-3najbsK12RyxrdjpHphe',
             Authorization: `Bearer ${authCtx.token}`,
           },
         },
@@ -113,10 +111,9 @@ const GitlabSelector = () => {
   useEffect(() => {
     if (projectId && branchId) {
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/commit?page=1&per_page=10&application_id=185&branch=${branchId}`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/commit?page=1&per_page=10&application_id=219&branch=${branchId}`,
         {
           headers: {
-            'X-Auth-Gitlab': 'glpat-3najbsK12RyxrdjpHphe',
             Authorization: `Bearer ${authCtx.token}`,
           },
         },
@@ -134,10 +131,9 @@ const GitlabSelector = () => {
       setTreeData([]);
       setLoading(true);
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?ref=${commitId}&application_id=185`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?ref=${commitId}&application_id=219`,
         {
           headers: {
-            'X-Auth-Gitlab': 'glpat-3najbsK12RyxrdjpHphe',
             Authorization: `Bearer ${authCtx.token}`,
           },
         },
@@ -253,7 +249,7 @@ const GitlabSelector = () => {
       {loading && (
         <div>
           <Placeholder.Paragraph rows={8} />
-          <Loader center content="loading" />
+          <Loader center content="loading" style={{ marginTop: '50px' }} />
         </div>
       )}
       {treeData.length > 0 && (
@@ -288,7 +284,7 @@ const GitlabSelector = () => {
                       fileExtension={fileExt}
                       setSelectedCodes={setSelectedCodes}
                       projectId={projectId}
-                      branchId={branchId}
+                      commitId={commitId}
                     ></CodeEditor>
                   )
                 )}

@@ -2,13 +2,15 @@
 import React, { useEffect, useRef, useCallback, useState, useContext } from 'react';
 import Editor from '@monaco-editor/react';
 import hljs from 'highlight.js';
-import SelectionAuthContext from '../../../Store/SelectionAuthContext';
+import AuthContext from '../../../Store/Auth-Context';
 
-const CodeEditor = ({ code, fileExtension, setSelectedCodes, projectId, branchId }) => {
+const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+
+const CodeEditor = ({ code, fileExtension, setSelectedCodes, projectId, commitId }) => {
   const [fileCode, setFileCode] = useState('');
   const [ext, setExt] = useState('');
   const [loading, setLoading] = useState(true);
-  const authCtx = useContext(SelectionAuthContext);
+  const authCtx = useContext(AuthContext);
   const editorOptions = {
     readOnly: true,
     loading: loading,
@@ -20,13 +22,14 @@ const CodeEditor = ({ code, fileExtension, setSelectedCodes, projectId, branchId
   };
   const editorRef = useRef(null);
   useEffect(() => {
-    if (code?.value && projectId && branchId) {
+    if (code?.value && projectId && commitId) {
       setLoading(true);
       setExt(getLanguageFromExtension(fileExtension).toLowerCase());
       let joinedFilePath = code?.value?.replaceAll('/', '%252F');
       fetch(
-        `https://gitlab-oslc-api-dev.koneksys.com/rest/v2/provider/${projectId}/file/${joinedFilePath}?branch_name=${branchId}`,
+        `${lmApiUrl}/third_party/gitlab/container/42854970/file?path=${joinedFilePath}&branch=${commitId}&application_id=219`,
         {
+          method: 'POST',
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
           },
@@ -34,13 +37,14 @@ const CodeEditor = ({ code, fileExtension, setSelectedCodes, projectId, branchId
       )
         .then((response) => response.json())
         .then((data) => {
-          let fileInfo = data.split('-');
-          let decode = window.atob(fileInfo[1]);
+          let fileInfo = data?.content;
+          let decode = window.atob(fileInfo);
+          console.log(decode);
           setFileCode(decode);
           setLoading(false); // Assign the decoded data to fileCode
         });
     }
-  }, [code, authCtx, projectId, branchId, fileExtension, ext]);
+  }, [code, authCtx, projectId, commitId, fileExtension, ext]);
   const handleCursorSelectionChange = useCallback(() => {
     const editor = editorRef.current;
     if (editor) {
