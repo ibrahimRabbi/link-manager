@@ -14,7 +14,7 @@ import {
   handleIsAddNewModal,
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
-import { FlexboxGrid, Form, Schema } from 'rsuite';
+import { FlexboxGrid, Form, Message, Schema, toaster } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
 import UseLoader from '../../Shared/UseLoader';
@@ -28,7 +28,6 @@ import {
 } from '../../../Redux/slices/useCRUDSlice.jsx';
 import { ROOTSERVICES_CATALOG_TYPES } from '../../../Redux/slices/oslcResourcesSlice.jsx';
 import { handleIsOauth2ModalOpen } from '../../../Redux/slices/oauth2ModalSlice';
-import Notification from '../../Shared/Notification';
 import { PROJECT_APPLICATION_TYPES, WORKSPACE_APPLICATION_TYPES } from '../../../App.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
@@ -89,8 +88,6 @@ const Associations = () => {
   const [editData, setEditData] = useState({});
   const [selectedAppData, setSelectedAppData] = useState({});
   const [formError, setFormError] = useState({});
-  const [notificationType, setNotificationType] = useState('');
-  const [notificationMessage, setNotificationMessage] = useState('');
   const [formValue, setFormValue] = useState({
     ext_workspace_id: '',
     organization_id: '',
@@ -117,8 +114,14 @@ const Associations = () => {
   } = useSelector((state) => state.oslcResources);
 
   const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
   };
 
   /*** Methods for OSLC data ***/
@@ -635,14 +638,6 @@ const Associations = () => {
       <Oauth2Modal setSelectedAppData={setSelectedAppData} ref={oauth2ModalRef} />
 
       {isAssocLoading && <UseLoader />}
-      {notificationType && notificationMessage && (
-        <Notification
-          type={notificationType}
-          message={notificationMessage}
-          setNotificationType={setNotificationType}
-          setNotificationMessage={setNotificationMessage}
-        />
-      )}
       <AdminDataTable props={tableProps} />
     </div>
   );

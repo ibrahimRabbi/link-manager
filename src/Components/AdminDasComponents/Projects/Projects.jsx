@@ -7,7 +7,7 @@ import {
   handleIsAddNewModal,
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
-import { FlexboxGrid, Form, Schema } from 'rsuite';
+import { FlexboxGrid, Form, Message, Schema, toaster } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
 import TextField from '../TextField';
@@ -17,7 +17,6 @@ import SelectField from '../SelectField.jsx';
 import CustomSelect from '../CustomSelect.jsx';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
-import Notification from '../../Shared/Notification';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -61,11 +60,15 @@ const Projects = () => {
     description: '',
     organization_id: '',
   });
-  const [notificationType, setNotificationType] = React.useState('');
-  const [notificationMessage, setNotificationMessage] = React.useState('');
   const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
   };
   const projectFormRef = useRef();
   const authCtx = useContext(AuthContext);
@@ -283,14 +286,6 @@ const Projects = () => {
       </AddNewModal>
 
       {(isLoading || createLoading || updateLoading || deleteLoading) && <UseLoader />}
-      {notificationType && notificationMessage && (
-        <Notification
-          type={notificationType}
-          message={notificationMessage}
-          setNotificationType={setNotificationType}
-          setNotificationMessage={setNotificationMessage}
-        />
-      )}
       <AdminDataTable props={tableProps} />
     </div>
   );

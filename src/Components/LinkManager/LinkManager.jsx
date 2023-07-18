@@ -2,7 +2,17 @@ import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchLinksData, handleIsWbe } from '../../Redux/slices/linksSlice';
-import { Button, FlexboxGrid, Form, IconButton, Loader, Schema, Stack } from 'rsuite';
+import {
+  Button,
+  FlexboxGrid,
+  Form,
+  IconButton,
+  Loader,
+  Message,
+  Schema,
+  Stack,
+  toaster,
+} from 'rsuite';
 import { handleCurrPageTitle, handleRefreshData } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import styles from './LinkManager.module.scss';
@@ -12,7 +22,6 @@ import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
 import { darkBgColor, lightBgColor } from '../../App';
 import Swal from 'sweetalert2';
-import Notification from '../Shared/Notification';
 import TextField from '../AdminDasComponents/TextField';
 import LinkManagerTable from './LinkManagerTable';
 import { useMutation } from '@tanstack/react-query';
@@ -48,13 +57,16 @@ const LinkManager = () => {
   const sourceFileURL = uri || sourceDataList?.uri;
   const searchRef = useRef();
 
-  const [notificationType, setNotificationType] = React.useState('');
-  const [notificationMessage, setNotificationMessage] = React.useState('');
   const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
   };
-
   useEffect(() => {
     dispatch(handleIsWbe(isWbe));
   }, [location]);
@@ -271,15 +283,6 @@ const LinkManager = () => {
               </FlexboxGrid>
 
               <LinkManagerTable props={tableProps} />
-
-              {notificationType && notificationMessage && (
-                <Notification
-                  type={notificationType}
-                  message={notificationMessage}
-                  setNotificationType={setNotificationType}
-                  setNotificationMessage={setNotificationMessage}
-                />
-              )}
             </div>
           </div>
         </div>

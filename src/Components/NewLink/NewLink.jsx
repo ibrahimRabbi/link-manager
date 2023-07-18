@@ -18,10 +18,9 @@ import AuthContext from '../../Store/Auth-Context.jsx';
 
 import styles from './NewLink.module.scss';
 import UseSelectPicker from '../Shared/UseDropdown/UseSelectPicker';
-import { FlexboxGrid, Col, Button } from 'rsuite';
+import { FlexboxGrid, Col, Button, Message, toaster } from 'rsuite';
 import SourceSection from '../SourceSection';
 import UseLoader from '../Shared/UseLoader';
-import Notification from '../Shared/Notification';
 const { targetContainer, targetIframe, targetBtnContainer, cancelMargin } = styles;
 
 const apiURL = `${import.meta.env.VITE_LM_REST_API_URL}/link`;
@@ -56,11 +55,15 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const location = useLocation();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
-  const [notificationType, setNotificationType] = React.useState('');
-  const [notificationMessage, setNotificationMessage] = React.useState('');
   const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
   };
 
   // Display project types conditionally by App name
@@ -417,14 +420,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           )}
 
           {linkCreateLoading && <UseLoader />}
-          {notificationType && notificationMessage && (
-            <Notification
-              type={notificationType}
-              message={notificationMessage}
-              setNotificationType={setNotificationType}
-              setNotificationMessage={setNotificationMessage}
-            />
-          )}
           {/* --- Target Selection dialog ---  */}
 
           {(withConfigAware || withoutConfigAware) && (
