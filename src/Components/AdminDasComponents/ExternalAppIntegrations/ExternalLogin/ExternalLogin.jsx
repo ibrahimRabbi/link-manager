@@ -55,7 +55,6 @@ const ExternalLogin = (props) => {
         showNotification: showNotification,
       }),
   );
-
   if (selectedExtLoginApplication) {
     if (appData?.type === 'glideyoke') {
       // eslint-disable-next-line max-len

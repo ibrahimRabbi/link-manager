@@ -34,6 +34,7 @@ import { ROOTSERVICES_CATALOG_TYPES } from '../../../Redux/slices/oslcResourcesS
 import { handleIsOauth2ModalOpen } from '../../../Redux/slices/oauth2ModalSlice';
 import {
   BASIC_AUTH_APPLICATION_TYPES,
+  MICROSERVICES_APPLICATION_TYPES,
   OAUTH2_APPLICATION_TYPES,
   PROJECT_APPLICATION_TYPES,
   WORKSPACE_APPLICATION_TYPES,
@@ -182,13 +183,19 @@ const Associations = () => {
   };
 
   const thirdPartyNotificationStatus = (type, res) => {
-    // I am modifying this section to use login via 3rd party app
     if (type === 'error' && res?.status === 401) {
       //Open Modal for Oauth2 or Basic Auth of 3rd party app
       setThirdPartyLogin(true);
       setAuthorizedThirdParty(false);
     } else {
       showNotification(type, res);
+    }
+  };
+
+  const getExtLoginData = (data) => {
+    if (data?.status) {
+      setAuthorizedThirdParty(true);
+      setThirdPartyLogin(false);
     }
   };
 
@@ -483,6 +490,9 @@ const Associations = () => {
       if (WORKSPACE_APPLICATION_TYPES.includes(appData?.type)) {
         setWorkspace('');
       }
+      if (PROJECT_APPLICATION_TYPES.includes(appData?.type)) {
+        setWorkspaceContainer('');
+      }
       setRestartAppRequest(true);
     }
   }, [authorizedThirdParty]);
@@ -500,6 +510,9 @@ const Associations = () => {
       }
       if (WORKSPACE_APPLICATION_TYPES.includes(appData?.type)) {
         setWorkspace(`${thirdPartyUrl}/${appData?.type}/workspace`);
+      }
+      if (PROJECT_APPLICATION_TYPES.includes(appData?.type)) {
+        setWorkspaceContainer(`${thirdPartyUrl}/${appData?.type}/containers`);
       }
       setRestartAppRequest(false);
     }
@@ -744,8 +757,10 @@ const Associations = () => {
           openedModal={thirdPartyLogin}
           closeModal={closeThirdPartyModal}
           isOauth2={OAUTH2_APPLICATION_TYPES.includes(appData?.type)}
-          isBasic={BASIC_AUTH_APPLICATION_TYPES.includes(appData?.type)}
-          onDataStatus={thirdPartyNotificationStatus}
+          isBasic={(
+            BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
+          ).includes(appData?.type)}
+          onDataStatus={getExtLoginData}
         />
       )}
 
