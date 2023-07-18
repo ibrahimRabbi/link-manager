@@ -28,6 +28,7 @@ const Oauth2Waiting = (props) => {
     }
   };
   const { data, message } = props;
+
   const { data: oauth2Data } = useQuery(['oauth2DataApp'], () =>
     fetchAPIRequest({
       // eslint-disable-next-line max-len

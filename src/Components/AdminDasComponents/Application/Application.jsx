@@ -277,6 +277,7 @@ const Application = () => {
   // Reset form
   const handleResetForm = () => {
     setEditData({});
+    setSteps(0);
     setFormValue({
       type: '',
       organization_id: '',
@@ -290,6 +291,8 @@ const Application = () => {
       tenant_id: '',
     });
     setAuthorizedAppConsumption(false);
+    setIsAppAuthorize(false);
+    setAuthorizeFrameSrc('');
     setPayload({});
   };
 
@@ -300,11 +303,11 @@ const Application = () => {
   };
   // handle close modal
   const handleCloseModal = () => {
+    setSteps(0);
     setOpenModal(false);
     setAppCreateSuccess(false);
     setTimeout(() => {
       handleResetForm();
-      setSteps(0);
       dispatch(handleIsAdminEditing(false));
     }, 500);
   };
