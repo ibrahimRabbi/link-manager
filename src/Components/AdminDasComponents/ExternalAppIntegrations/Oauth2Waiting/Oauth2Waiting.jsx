@@ -8,6 +8,9 @@ import AuthContext from '../../../../Store/Auth-Context.jsx';
 import Notification from '../../../Shared/Notification.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
+// eslint-disable-next-line max-len
+const defaultMessage =
+  'Once you have authenticated you will be redirected to the next step';
 
 const { appImage } = styles;
 const Oauth2Waiting = (props) => {
@@ -22,7 +25,7 @@ const Oauth2Waiting = (props) => {
     setNotificationType(type);
     setNotificationMessage(message);
   };
-  const { data } = props;
+  const { data, message } = props;
   const { data: oauth2Data } = useQuery(['oauth2DataApp'], () =>
     fetchAPIRequest({
       // eslint-disable-next-line max-len
@@ -75,7 +78,7 @@ const Oauth2Waiting = (props) => {
           click here
         </span>
       </p>
-      <p>Once you have authenticated you will be redirected to the next step.</p>
+      <p>{message ? message : defaultMessage}.</p>
       {notificationType && notificationMessage && (
         <Notification
           type={notificationType}
