@@ -10,7 +10,7 @@ import AuthContext from '../../Store/Auth-Context';
 import Notification from '../Shared/Notification';
 import UseLoader from '../Shared/UseLoader';
 import styles from './Graph.module.scss';
-import { Col, Grid, Row } from 'rsuite';
+import { Col, Grid, Message, Row, toaster } from 'rsuite';
 
 const { nodeInfoContainer, visGraphContainer, noDataTitle, infoRow, firstColumn } =
   styles;
@@ -28,8 +28,14 @@ const Graph = () => {
   }, []);
 
   const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
   };
 
   // get data using react-query

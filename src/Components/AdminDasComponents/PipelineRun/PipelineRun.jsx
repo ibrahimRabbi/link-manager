@@ -1,11 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Loader } from 'rsuite';
+import { Loader, Message, toaster } from 'rsuite';
 import { useDispatch, useSelector } from 'react-redux';
 import AdminDataTable from '../AdminDataTable.jsx';
 import { handleCurrPageTitle } from '../../../Redux/slices/navSlice.jsx';
 import AuthContext from '../../../Store/Auth-Context.jsx';
 import { fetchPipelineRun } from '../../../Redux/slices/pipelineRunSlice.jsx';
-import Notification from '../../Shared/Notification.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -45,11 +44,15 @@ const PipelineRun = () => {
   const [pageSize /*, setPageSize*/] = useState(10);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
-  const [notificationType, setNotificationType] = useState('');
-  const [notificationMessage, setNotificationMessage] = useState('');
   const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
   };
   const handlePagination = (value) => {
     setCurrPage(value);
@@ -96,14 +99,6 @@ const PipelineRun = () => {
           vertical
           content="Loading"
           style={{ zIndex: '10' }}
-        />
-      )}
-      {notificationType && notificationMessage && (
-        <Notification
-          type={notificationType}
-          message={notificationMessage}
-          setNotificationType={setNotificationType}
-          setNotificationMessage={setNotificationMessage}
         />
       )}
       <AdminDataTable props={tableProps} />

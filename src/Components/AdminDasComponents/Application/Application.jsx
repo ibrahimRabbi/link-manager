@@ -27,7 +27,6 @@ import Oauth2Modal from '../../Oauth2Modal/Oauth2Modal';
 import { handleIsOauth2ModalOpen } from '../../../Redux/slices/oauth2ModalSlice';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import Notification from '../../Shared/Notification';
 import styles from './Application.module.scss';
 import {
   MICROSERVICES_APPLICATION_TYPES,
@@ -100,8 +99,6 @@ const Application = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
-  const [notificationType, setNotificationType] = React.useState('');
-  const [notificationMessage, setNotificationMessage] = React.useState('');
 
   const [openModal, setOpenModal] = useState(false);
   const [formValue, setFormValue] = useState({
@@ -139,8 +136,14 @@ const Application = () => {
 
   /** Functions */
   const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
   };
 
   // GET: Fetch data using react-query
@@ -798,14 +801,6 @@ const Application = () => {
 
       {(isLoading || loading || createLoading || updateLoading || deleteLoading) && (
         <UseLoader />
-      )}
-      {notificationType && notificationMessage && (
-        <Notification
-          type={notificationType}
-          message={notificationMessage}
-          setNotificationType={setNotificationType}
-          setNotificationMessage={setNotificationMessage}
-        />
       )}
       <AdminDataTable props={tableProps} />
     </div>

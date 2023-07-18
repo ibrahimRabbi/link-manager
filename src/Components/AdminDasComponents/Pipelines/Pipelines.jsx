@@ -14,13 +14,21 @@ import {
 } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Form, Uploader, Toggle, Loader, Schema } from 'rsuite';
+import {
+  FlexboxGrid,
+  Form,
+  Uploader,
+  Toggle,
+  Loader,
+  Schema,
+  Message,
+  toaster,
+} from 'rsuite';
 import TextField from '../TextField';
 import { useRef } from 'react';
 import SelectField from '../SelectField.jsx';
 import CustomSelect from '../CustomSelect.jsx';
 import Swal from 'sweetalert2';
-import Notification from '../../Shared/Notification';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -77,11 +85,15 @@ const Pipelines = () => {
     is_polling: false,
     polling_period: 0,
   });
-  const [notificationType, setNotificationType] = useState('');
-  const [notificationMessage, setNotificationMessage] = useState('');
   const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
   };
   const pipelineFormRef = useRef();
   const authCtx = useContext(AuthContext);
@@ -296,14 +308,6 @@ const Pipelines = () => {
           vertical
           content="Loading"
           style={{ zIndex: '10' }}
-        />
-      )}
-      {notificationType && notificationMessage && (
-        <Notification
-          type={notificationType}
-          message={notificationMessage}
-          setNotificationType={setNotificationType}
-          setNotificationMessage={setNotificationMessage}
         />
       )}
       <AdminDataTable props={tableProps} />
