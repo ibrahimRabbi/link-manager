@@ -14,6 +14,7 @@ import {
   handleIsAddNewModal,
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
+import RemindOutlineIcon from '@rsuite/icons/RemindOutline';
 import { FlexboxGrid, Form, Message, Schema, toaster } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
@@ -22,13 +23,22 @@ import SelectField from '../SelectField.jsx';
 import CustomSelect from '../CustomSelect.jsx';
 import DefaultCustomSelect from '../DefaultCustomSelect';
 import Oauth2Modal from '../../Oauth2Modal/Oauth2Modal.jsx';
+// eslint-disable-next-line max-len
+import ExternalAppModal from '../ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
+
 import {
   actions as crudActions,
   fetchGetData,
 } from '../../../Redux/slices/useCRUDSlice.jsx';
 import { ROOTSERVICES_CATALOG_TYPES } from '../../../Redux/slices/oslcResourcesSlice.jsx';
 import { handleIsOauth2ModalOpen } from '../../../Redux/slices/oauth2ModalSlice';
-import { PROJECT_APPLICATION_TYPES, WORKSPACE_APPLICATION_TYPES } from '../../../App.jsx';
+import {
+  BASIC_AUTH_APPLICATION_TYPES,
+  MICROSERVICES_APPLICATION_TYPES,
+  OAUTH2_APPLICATION_TYPES,
+  PROJECT_APPLICATION_TYPES,
+  WORKSPACE_APPLICATION_TYPES,
+} from '../../../App.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 const thirdPartyUrl = `${lmApiUrl}/third_party`;
@@ -86,7 +96,7 @@ const Associations = () => {
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [editData, setEditData] = useState({});
-  const [selectedAppData, setSelectedAppData] = useState({});
+  const [appData, setAppData] = useState({});
   const [formError, setFormError] = useState({});
   const [formValue, setFormValue] = useState({
     ext_workspace_id: '',
@@ -98,8 +108,13 @@ const Associations = () => {
 
   // Variable for fetching project based on organization ID
   const [queryParamId, setQueryParamId] = useState('');
+  const [workspaceContainer, setWorkspaceContainer] = useState('');
   const [workspace, setWorkspace] = useState('');
   const [workspaceApp, setWorkspaceApp] = useState({});
+  const [restartAppRequest, setRestartAppRequest] = useState(false);
+  const [thirdPartyLogin, setThirdPartyLogin] = useState(false);
+  const [authorizedThirdParty, setAuthorizedThirdParty] = useState(true);
+  const broadcastChannel = new BroadcastChannel('oauth2-app-status');
 
   // Variables for OSLC dara
   const [oslcCatalogDropdown, setOslcCatalogDropdown] = useState(null);
@@ -142,7 +157,7 @@ const Associations = () => {
   const fetchCatalogFromRootservices = (rootservicesUrl) => {
     const consumerToken = crudData?.consumerToken?.access_token;
 
-    if (consumerToken && selectedAppData?.type === 'oslc') {
+    if (consumerToken && appData?.type === 'oslc') {
       dispatch(
         fetchOslcResource({
           url: rootservicesUrl,
@@ -168,9 +183,32 @@ const Associations = () => {
   };
 
   const thirdPartyNotificationStatus = (type, res) => {
-    // I am modifying this section to use login via 3rd party app
-    console.log('type', type);
-    console.log('res', res);
+    if (type === 'error' && res?.status === 401) {
+      //Open Modal for Oauth2 or Basic Auth of 3rd party app
+      setThirdPartyLogin(true);
+      setAuthorizedThirdParty(false);
+    } else {
+      showNotification(type, res);
+    }
+  };
+
+  const getExtLoginData = (data) => {
+    if (data?.status) {
+      setAuthorizedThirdParty(true);
+      setThirdPartyLogin(false);
+    }
+  };
+
+  const closeThirdPartyModal = () => {
+    setThirdPartyLogin(false);
+  };
+
+  broadcastChannel.onmessage = (event) => {
+    const { status } = event.data;
+    if (status === 'success') {
+      setAuthorizedThirdParty(true);
+      setThirdPartyLogin(false);
+    }
   };
 
   /*** Methods for Integration table ***/
@@ -199,7 +237,7 @@ const Associations = () => {
       );
     } else {
       const bodyData = { ...formValue };
-      if (selectedAppData?.type === 'oslc') {
+      if (appData?.type === 'oslc') {
         const resourceContainerPayload = JSON.parse(bodyData.ext_application_project);
 
         const selectedServiceProvider = oslcCatalogResponse?.find(
@@ -229,9 +267,14 @@ const Associations = () => {
   // Reset form
   const handleResetForm = () => {
     setEditData({});
-    setSelectedAppData({});
+    setAppData({});
     setOslcCatalogDropdown(null);
     setIsAuthorizeSuccess(false);
+    setThirdPartyLogin(false);
+    setAuthorizedThirdParty(true);
+    setRestartAppRequest(false);
+    setWorkspaceContainer('');
+    setWorkspaceApp({});
     setFormValue({
       ext_workspace_id: '',
       organization_id: '',
@@ -300,10 +343,11 @@ const Associations = () => {
   const handleExtAppChange = (value) => {
     dispatch(actions.resetOslcServiceProviderCatalogResponse());
     if (oslcCatalogDropdown) setOslcCatalogDropdown(null);
+    setAuthorizedThirdParty(true);
     if (value) {
       const extAppData = JSON.parse(value);
-      setSelectedAppData(extAppData);
-      setWorkspace('');
+      setAppData(extAppData);
+      setWorkspaceContainer('');
       setWorkspaceApp({});
 
       const newFormValue = { ...formValue };
@@ -315,26 +359,27 @@ const Associations = () => {
         fetchOslcConsumerToken(extAppData?.name);
       } else {
         if (PROJECT_APPLICATION_TYPES.includes(extAppData?.type)) {
-          setWorkspace(`${thirdPartyUrl}/${extAppData?.type}/containers`);
+          setWorkspaceContainer(`${thirdPartyUrl}/${extAppData?.type}/containers`);
         }
       }
     } else {
       dispatch(crudActions.removeCrudParameter('consumerToken'));
-      setSelectedAppData({});
+      setAppData({});
       const newFormValue = { ...formValue };
       newFormValue['ext_workspace_id'] = '';
       newFormValue['application_id'] = '';
       setFormValue(newFormValue);
-      setWorkspace('');
+      setWorkspaceContainer('');
       setWorkspaceApp({});
     }
   };
 
   const handleWorkspaceChange = (value) => {
     if (value) {
-      setWorkspace(`${thirdPartyUrl}/${selectedAppData?.type}/containers/${value}`);
+      // eslint-disable-next-line max-len
+      setWorkspaceContainer(`${thirdPartyUrl}/${appData?.type}/containers/${value}`);
     } else {
-      setWorkspace('');
+      setWorkspaceContainer('');
     }
   };
 
@@ -376,15 +421,15 @@ const Associations = () => {
   useEffect(() => {
     if (
       crudData?.consumerToken?.access_token &&
-      selectedAppData?.id &&
-      selectedAppData?.type === 'oslc'
+      appData?.id &&
+      appData?.type === 'oslc'
     ) {
-      const rootservicesUrl = selectedAppData?.authentication_server.filter(
+      const rootservicesUrl = appData?.authentication_server.filter(
         (item) => item.type === 'rootservices',
       );
-      fetchCatalogFromRootservices(rootservicesUrl[0]?.url, selectedAppData?.id);
+      fetchCatalogFromRootservices(rootservicesUrl[0]?.url, appData?.id);
     }
-  }, [crudData?.consumerToken?.access_token, selectedAppData]);
+  }, [crudData?.consumerToken?.access_token, appData]);
 
   // Get OSLC Service Providers through selected OSLC catalog
   useEffect(() => {
@@ -411,26 +456,67 @@ const Associations = () => {
   useEffect(() => {
     if (oslcResourceFailed && oslcUnauthorizedUser && oauth2ModalRef.current) {
       if (oauth2ModalRef.current.verifyAndOpenModal) {
-        oauth2ModalRef.current?.verifyAndOpenModal(
-          selectedAppData,
-          selectedAppData?.id,
-          true,
-        );
+        oauth2ModalRef.current?.verifyAndOpenModal(appData, appData?.id, true);
       }
     } else if (oslcResourceFailed && oslcMissingConsumerToken && oauth2ModalRef.current) {
       if (oauth2ModalRef.current?.verifyAndOpenModal) {
-        oauth2ModalRef.current?.verifyAndOpenModal(selectedAppData, selectedAppData?.id);
+        oauth2ModalRef.current?.verifyAndOpenModal(appData, appData?.id);
       }
     }
   }, [oslcResourceFailed, oslcUnauthorizedUser]);
 
   // Close Oauth2 Modal after successful authorization
   useEffect(() => {
-    fetchOslcConsumerToken(selectedAppData?.name);
+    fetchOslcConsumerToken(appData?.name);
     dispatch(handleIsOauth2ModalOpen(false));
   }, [isAuthorizeSuccess]);
 
   useEffect(() => {}, [formValue]);
+
+  useEffect(() => {
+    if (WORKSPACE_APPLICATION_TYPES.includes(appData?.type)) {
+      setWorkspace(`${thirdPartyUrl}/${appData?.type}/workspace`);
+    }
+  }, [appData]);
+
+  useEffect(() => {
+    if (authorizedThirdParty) {
+      if (
+        OAUTH2_APPLICATION_TYPES.includes(appData?.type) &&
+        formValue?.ext_workspace_id
+      ) {
+        setWorkspaceContainer('');
+      }
+      if (WORKSPACE_APPLICATION_TYPES.includes(appData?.type)) {
+        setWorkspace('');
+      }
+      if (PROJECT_APPLICATION_TYPES.includes(appData?.type)) {
+        setWorkspaceContainer('');
+      }
+      setRestartAppRequest(true);
+    }
+  }, [authorizedThirdParty]);
+
+  useEffect(() => {
+    if (restartAppRequest) {
+      if (
+        OAUTH2_APPLICATION_TYPES.includes(appData?.type) &&
+        formValue?.ext_workspace_id
+      ) {
+        // eslint-disable-next-line max-len
+        setWorkspaceContainer(
+          `${thirdPartyUrl}/${appData?.type}/containers/${formValue?.ext_workspace_id}`,
+        );
+      }
+      if (WORKSPACE_APPLICATION_TYPES.includes(appData?.type)) {
+        setWorkspace(`${thirdPartyUrl}/${appData?.type}/workspace`);
+      }
+      if (PROJECT_APPLICATION_TYPES.includes(appData?.type)) {
+        setWorkspaceContainer(`${thirdPartyUrl}/${appData?.type}/containers`);
+      }
+      setRestartAppRequest(false);
+    }
+  }, [restartAppRequest]);
 
   // send props in the batch action table
   const tableProps = {
@@ -452,8 +538,12 @@ const Associations = () => {
   // Call function of Oauth2Modal
   const handleOauth2Modal = () => {
     if (oauth2ModalRef.current && oauth2ModalRef.current?.verifyAndOpenModal) {
-      oauth2ModalRef.current?.verifyAndOpenModal(selectedAppData, selectedAppData?.id);
+      oauth2ModalRef.current?.verifyAndOpenModal(appData, appData?.id);
     }
+  };
+
+  const openLoginModal = () => {
+    setThirdPartyLogin(true);
   };
 
   // Get authorize response from oauth2 modal
@@ -532,7 +622,7 @@ const Associations = () => {
               />
             </FlexboxGrid.Item>
 
-            {selectedAppData?.id && (
+            {appData?.id && (
               <>
                 {isCrudLoading ? (
                   <FlexboxGrid.Item colspan={24}>
@@ -541,7 +631,7 @@ const Associations = () => {
                 ) : (
                   <>
                     {/* eslint-disable-next-line max-len */} {/* I had consumerToken */}
-                    {selectedAppData?.type === 'oslc' && oslcCatalogDropdown && (
+                    {appData?.type === 'oslc' && oslcCatalogDropdown && (
                       <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
                         <SelectField
                           size="lg"
@@ -564,9 +654,12 @@ const Associations = () => {
                         <UseLoader />
                       </FlexboxGrid.Item>
                     )}
-                    {!crudData?.consumerToken?.access_token && (
+                    {oslcMissingConsumerToken && appData?.type === 'oslc' && (
                       <p style={{ fontSize: '17px', marginTop: '5px' }}>
-                        Please{' '}
+                        <RemindOutlineIcon
+                          style={{ marginRight: '5px', color: 'orange' }}
+                          onClick={openLoginModal}
+                        />
                         <span
                           style={{
                             color: 'blue',
@@ -575,22 +668,42 @@ const Associations = () => {
                           }}
                           onClick={handleOauth2Modal}
                         >
-                          authorize this application
+                          Authorize this application
                         </span>{' '}
-                        to fetch the application projects.
+                        for accessing application data.
                       </p>
                     )}
-                    {WORKSPACE_APPLICATION_TYPES.includes(selectedAppData?.type) && (
+                    {!authorizedThirdParty && (
+                      <p style={{ fontSize: '17px', marginTop: '5px' }}>
+                        <RemindOutlineIcon
+                          style={{ marginRight: '5px', color: 'orange' }}
+                          onClick={openLoginModal}
+                        />
+                        <span
+                          style={{
+                            color: 'blue',
+                            textDecoration: 'underline',
+                            cursor: 'pointer',
+                          }}
+                          onClick={openLoginModal}
+                        >
+                          Authorize this application
+                        </span>{' '}
+                        for accessing application data.
+                      </p>
+                    )}
+                    {WORKSPACE_APPLICATION_TYPES.includes(appData?.type) && workspace && (
                       <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
                         <SelectField
                           block
                           size="lg"
                           accepter={CustomSelect}
                           name={'ext_workspace_id'}
+                          disabled={!authorizedThirdParty}
                           label="External application workspace"
                           placeholder="Select an external workspace"
-                          apiQueryParams={`application_id=${selectedAppData?.id}`}
-                          apiURL={`${thirdPartyUrl}/${selectedAppData?.type}/workspace`}
+                          apiQueryParams={`application_id=${appData?.id}`}
+                          apiURL={workspace}
                           requestStatus={thirdPartyNotificationStatus}
                           onChange={(value) => {
                             handleWorkspaceChange(value);
@@ -599,10 +712,10 @@ const Associations = () => {
                         />
                       </FlexboxGrid.Item>
                     )}
-                    {workspace && (
+                    {workspaceContainer && (
                       <FlexboxGrid.Item
                         style={
-                          !WORKSPACE_APPLICATION_TYPES.includes(selectedAppData?.type)
+                          !WORKSPACE_APPLICATION_TYPES.includes(appData?.type)
                             ? { margin: '30px 0' }
                             : { marginBottom: '30px' }
                         }
@@ -614,10 +727,11 @@ const Associations = () => {
                           accepter={CustomSelect}
                           customLabelKey={'workTitle'}
                           name="ext_application_project"
+                          disabled={!authorizedThirdParty}
                           label="External application project"
                           placeholder="Select an external application"
-                          apiQueryParams={`application_id=${selectedAppData?.id}`}
-                          apiURL={workspace}
+                          apiQueryParams={`application_id=${appData?.id}`}
+                          apiURL={workspaceContainer}
                           requestStatus={thirdPartyNotificationStatus}
                           onChange={(value) => {
                             handleExtProjectWorkspaceChange(value);
@@ -635,7 +749,20 @@ const Associations = () => {
       </AddNewModal>
 
       {/* --- oauth 2 modal ---  */}
-      <Oauth2Modal setSelectedAppData={setSelectedAppData} ref={oauth2ModalRef} />
+      <Oauth2Modal setAppData={setAppData} ref={oauth2ModalRef} />
+
+      {thirdPartyLogin && (
+        <ExternalAppModal
+          formValue={appData}
+          openedModal={thirdPartyLogin}
+          closeModal={closeThirdPartyModal}
+          isOauth2={OAUTH2_APPLICATION_TYPES.includes(appData?.type)}
+          isBasic={(
+            BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
+          ).includes(appData?.type)}
+          onDataStatus={getExtLoginData}
+        />
+      )}
 
       {isAssocLoading && <UseLoader />}
       <AdminDataTable props={tableProps} />
