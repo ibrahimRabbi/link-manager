@@ -6,7 +6,13 @@ import AuthContext from '../../../Store/Auth-Context';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
-const CodeEditor = ({ code, fileExtension, setSelectedCodes, projectId, commitId }) => {
+const CodeEditor = ({
+  singleSelected,
+  fileExtension,
+  setSelectedCodes,
+  projectId,
+  commitId,
+}) => {
   const [fileCode, setFileCode] = useState('');
   const [ext, setExt] = useState('');
   const [loading, setLoading] = useState(true);
@@ -22,12 +28,12 @@ const CodeEditor = ({ code, fileExtension, setSelectedCodes, projectId, commitId
   };
   const editorRef = useRef(null);
   useEffect(() => {
-    if (code?.value && projectId && commitId) {
+    if (singleSelected?.value && projectId && commitId) {
       setLoading(true);
       setExt(getLanguageFromExtension(fileExtension).toLowerCase());
-      let joinedFilePath = code?.value?.replaceAll('/', '%252F');
+      let joinedFilePath = singleSelected?.path;
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/42854970/file?path=${joinedFilePath}&branch=${commitId}&application_id=219`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/file?path=${joinedFilePath}&branch=${commitId}&application_id=219`,
         {
           method: 'POST',
           headers: {
@@ -39,12 +45,11 @@ const CodeEditor = ({ code, fileExtension, setSelectedCodes, projectId, commitId
         .then((data) => {
           let fileInfo = data?.content;
           let decode = window.atob(fileInfo);
-          console.log(decode);
           setFileCode(decode);
           setLoading(false); // Assign the decoded data to fileCode
         });
     }
-  }, [code, authCtx, projectId, commitId, fileExtension, ext]);
+  }, [singleSelected, authCtx, projectId, commitId, fileExtension, ext]);
   const handleCursorSelectionChange = useCallback(() => {
     const editor = editorRef.current;
     if (editor) {

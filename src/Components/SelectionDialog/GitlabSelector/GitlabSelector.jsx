@@ -141,6 +141,7 @@ const GitlabSelector = () => {
         .then((response) => response.json())
         .then((data) => {
           setTreeData(data?.items);
+          console.log(data.items);
           setLoading(false);
         });
     }
@@ -199,7 +200,7 @@ const GitlabSelector = () => {
   const getChildren = async (node) => {
     try {
       const response = await fetch(
-        `https://gitlab-oslc-api-dev.koneksys.com/rest/v2/provider/${projectId}/tree?path=${node.value}`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?path=${node?.path}&ref=${node?.branch}&application_id=219`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -207,7 +208,7 @@ const GitlabSelector = () => {
         },
       );
       const childrenData = await response.json();
-      return childrenData;
+      return childrenData?.items;
     } catch (error) {
       console.log(error);
     }
@@ -280,7 +281,7 @@ const GitlabSelector = () => {
                 ) : (
                   selectedFile && (
                     <CodeEditor
-                      code={singleSelected}
+                      singleSelected={singleSelected}
                       fileExtension={fileExt}
                       setSelectedCodes={setSelectedCodes}
                       projectId={projectId}
