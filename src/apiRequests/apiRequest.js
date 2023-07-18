@@ -1,4 +1,4 @@
-// const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+// const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 export default function fetchAPIRequest({

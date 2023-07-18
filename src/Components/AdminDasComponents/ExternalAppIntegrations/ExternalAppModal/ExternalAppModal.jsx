@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Col, Modal, FlexboxGrid } from 'rsuite';
+import { Modal, FlexboxGrid } from 'rsuite';
 import ExternalLogin from '../ExternalLogin/ExternalLogin.jsx';
 import Oauth2Waiting from '../Oauth2Waiting/Oauth2Waiting.jsx';
 const ExternalAppModal = (props) => {

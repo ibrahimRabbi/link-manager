@@ -15,10 +15,12 @@ const Notification = ({ type, message, setNotificationType, setNotificationMessa
 
   // Call the showNotification function when the component mounts
   React.useEffect(() => {
-    showNotification(type, message);
-    setNotificationMessage('');
-    setNotificationType('');
-  }, [type, message]);
+    if (type && message) {
+      showNotification(type, message);
+      setNotificationMessage('');
+      setNotificationType('');
+    }
+  }, [type, message, setNotificationMessage, setNotificationType]);
 
   return null;
 };

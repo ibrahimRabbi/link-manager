@@ -4,11 +4,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchPipelines } from '../../Redux/slices/pipelineSlice.jsx';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import styles from '../LinkManager/LinkManager.module.scss';
-import { Button, Drawer, Loader } from 'rsuite';
+import { Button, Drawer, Loader, Message, toaster } from 'rsuite';
 import { Table } from 'rsuite';
 import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
-import Notification from '../Shared/Notification.jsx';
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -24,11 +23,15 @@ const Pipeline = () => {
 
   const [openWithHeader, setOpenWithHeader] = useState(false);
   const [pipelineOutput, setPipelineOutput] = useState('');
-  const [notificationType, setNotificationType] = useState('');
-  const [notificationMessage, setNotificationMessage] = useState('');
   const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
   };
 
   useEffect(() => {
@@ -81,14 +84,6 @@ const Pipeline = () => {
     <div>
       <div className={wbePath ? 'wbeNavSpace' : ''}>
         <div className="mainContainer">
-          {notificationType && notificationMessage && (
-            <Notification
-              type={notificationType}
-              message={notificationMessage}
-              setNotificationType={setNotificationType}
-              setNotificationMessage={setNotificationMessage}
-            />
-          )}
           <div className="container">
             <div className={tableContainer}>
               {isPipelineLoading && (

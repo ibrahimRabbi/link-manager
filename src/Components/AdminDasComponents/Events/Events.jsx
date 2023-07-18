@@ -8,7 +8,7 @@ import {
 } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Form, Loader, Schema, Tree } from 'rsuite';
+import { FlexboxGrid, Form, Loader, Message, Schema, Tree, toaster } from 'rsuite';
 import TextField from '../TextField';
 import { useRef } from 'react';
 import TextArea from '../TextArea';
@@ -19,7 +19,6 @@ import {
   fetchGetData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
-import Notification from '../../Shared/Notification';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -67,11 +66,15 @@ const Events = () => {
     trigger_endpoint: '',
     description: '',
   });
-  const [notificationType, setNotificationType] = useState('');
-  const [notificationMessage, setNotificationMessage] = useState('');
   const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
   };
 
   const eventFormRef = useRef();
@@ -287,14 +290,6 @@ const Events = () => {
           vertical
           content="Loading"
           style={{ zIndex: '10' }}
-        />
-      )}
-      {notificationType && notificationMessage && (
-        <Notification
-          type={notificationType}
-          message={notificationMessage}
-          setNotificationType={setNotificationType}
-          setNotificationMessage={setNotificationMessage}
         />
       )}
       <AdminDataTable props={tableProps} />

@@ -7,12 +7,11 @@ import {
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
-import { Modal } from 'rsuite';
+import { Message, Modal, toaster } from 'rsuite';
 import AddUser from './AddUser';
 import UseLoader from '../../Shared/UseLoader';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
-import Notification from '../../Shared/Notification';
 
 // demo data
 const headerData = [
@@ -57,8 +56,21 @@ const Users = () => {
   const [notificationType, setNotificationType] = React.useState('');
   const [notificationMessage, setNotificationMessage] = React.useState('');
   const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    } else if (notificationMessage && notificationType) {
+      const messages = (
+        <Message closable showIcon type={notificationType}>
+          {notificationMessage}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
   };
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
@@ -214,14 +226,6 @@ const Users = () => {
       </Modal>
 
       {(isLoading || createUpdateLoading || deleteLoading) && <UseLoader />}
-      {notificationType && notificationMessage && (
-        <Notification
-          type={notificationType}
-          message={notificationMessage}
-          setNotificationType={setNotificationType}
-          setNotificationMessage={setNotificationMessage}
-        />
-      )}
       <AdminDataTable props={tableProps} />
     </div>
   );

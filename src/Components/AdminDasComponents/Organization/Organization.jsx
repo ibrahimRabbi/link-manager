@@ -9,13 +9,12 @@ import {
 } from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
-import { FlexboxGrid, Form, Schema } from 'rsuite';
+import { FlexboxGrid, Form, Message, Schema, toaster } from 'rsuite';
 import TextField from '../TextField';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
-import Notification from '../../Shared/Notification';
 
 // demo data
 const headerData = [
@@ -58,11 +57,15 @@ const Organization = () => {
     url: '',
     description: '',
   });
-  const [notificationType, setNotificationType] = React.useState('');
-  const [notificationMessage, setNotificationMessage] = React.useState('');
   const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
   };
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
@@ -289,14 +292,6 @@ const Organization = () => {
       </AddNewModal>
 
       {(isLoading || createLoading || updateLoading || deleteLoading) && <UseLoader />}
-      {notificationType && notificationMessage && (
-        <Notification
-          type={notificationType}
-          message={notificationMessage}
-          setNotificationType={setNotificationType}
-          setNotificationMessage={setNotificationMessage}
-        />
-      )}
       <AdminDataTable props={tableProps} />
     </div>
   );

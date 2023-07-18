@@ -1,11 +1,10 @@
 import React, { useContext } from 'react';
-import { Panel } from 'rsuite';
+import { Message, Panel, toaster } from 'rsuite';
 import ViewsAuthorizeIcon from '@rsuite/icons/ViewsAuthorize';
 import styles from './Oauth2Waiting.scss?inline';
 import { useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../../apiRequests/apiRequest.js';
 import AuthContext from '../../../../Store/Auth-Context.jsx';
-import Notification from '../../../Shared/Notification.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 // eslint-disable-next-line max-len
@@ -18,12 +17,15 @@ const Oauth2Waiting = (props) => {
   let iconUrl = '';
   let url = '';
   let defaultAppType = false;
-
-  const [notificationType, setNotificationType] = React.useState('');
-  const [notificationMessage, setNotificationMessage] = React.useState('');
   const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
   };
   const { data, message } = props;
   const { data: oauth2Data } = useQuery(['oauth2DataApp'], () =>
@@ -79,14 +81,6 @@ const Oauth2Waiting = (props) => {
         </span>
       </p>
       <p>{message ? message : defaultMessage}.</p>
-      {notificationType && notificationMessage && (
-        <Notification
-          type={notificationType}
-          message={notificationMessage}
-          setNotificationType={setNotificationType}
-          setNotificationMessage={setNotificationMessage}
-        />
-      )}
     </div>
   );
 };
