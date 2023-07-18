@@ -56,10 +56,17 @@ const Users = () => {
   const [notificationType, setNotificationType] = React.useState('');
   const [notificationMessage, setNotificationMessage] = React.useState('');
   const showNotification = (type, message) => {
-    if ((type && message) || (notificationType && notificationMessage)) {
+    if (type && message) {
       const messages = (
-        <Message closable showIcon type={type || notificationType}>
-          {message || notificationMessage}
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    } else if (notificationMessage && notificationType) {
+      const messages = (
+        <Message closable showIcon type={notificationType}>
+          {notificationMessage}
         </Message>
       );
       toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
