@@ -25,6 +25,7 @@ const { targetContainer, targetIframe, targetBtnContainer, cancelMargin } = styl
 
 const apiURL = `${import.meta.env.VITE_LM_REST_API_URL}/link`;
 const jiraDialogURL = import.meta.env.VITE_JIRA_DIALOG_URL;
+const gitlabDialogURL = import.meta.env.VITE_GITLAB_DIALOG_URL;
 const glideDialogURL = import.meta.env.VITE_GLIDE_DIALOG_URL;
 const valispaceDialogURL = import.meta.env.VITE_VALISPACE_DIALOG_URL;
 const codebeamerDialogURL = import.meta.env.VITE_CODEBEAMER_DIALOG_URL;
@@ -102,6 +103,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         if (curr.name.includes(applicationType)) acc.push(curr);
         return acc;
       }, []);
+      console.log('specificProject', specificProject);
       setProjectTypeItems(specificProject);
     })();
   }, [sourceDataList]);
@@ -115,7 +117,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
       // display projects conditionally
       const specificProject = projectsRes?.reduce((acc, curr) => {
-        if (curr.name.includes(applicationType)) acc.push(curr);
+        if (curr.name.includes(`(${applicationType})`)) acc.push(curr);
         return acc;
       }, []);
       setProjectTypeItems(specificProject);
@@ -134,8 +136,10 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // set iframe SRC conditionally
   useEffect(() => {
     if (projectType) {
+      console.log('projectType', projectType);
       const jiraApp = projectType?.includes('(JIRA)');
       const gitlabApp = projectType?.includes('(GITLAB)');
+      const gitlabAppNative = projectType?.includes('(GITLAB-NATIVE)');
       const glideApp = projectType?.includes('(GLIDE)');
       const valispaceApp = projectType?.includes('(VALISPACE)');
       const codebeamerApp = projectType?.includes('(CODEBEAMER)');
@@ -149,6 +153,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           `${jiraDialogURL}/oslc/provider/selector?provider_id=${projectId}#oslc-core-postMessage-1.0`,
         );
       } else if (gitlabApp) {
+        setProjectFrameSrc(
+          // eslint-disable-next-line max-len
+          `${gitlabDialogURL}/oslc/provider/selector?provider_id=${projectId}&gc_context=${'st-develop'}`,
+        );
+      } else if (gitlabAppNative) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
           `https://lm-dev.koneksys.com/gitlabselection/${projectId}`,

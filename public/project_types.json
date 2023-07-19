@@ -5,10 +5,18 @@
   },
   {
     "name": "Cross-Domain Integration Demo (GITLAB)",
+    "id": "41530067"
+  },
+  {
+  "name": "Drone Project (GITLAB)",
+  "id": "42854970"
+  },
+  {
+    "name": "Cross-Domain Integration Demo (GITLAB-NATIVE)",
     "id": "60998096"
   },
   {
-    "name": "Koneksys(GITLAB)",
+    "name": "Koneksys(GITLAB-NATIVE)",
     "id": "56139069"
   },
   {
