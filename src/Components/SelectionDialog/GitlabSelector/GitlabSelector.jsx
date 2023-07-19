@@ -200,7 +200,7 @@ const GitlabSelector = () => {
   const getChildren = async (node) => {
     try {
       const response = await fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?path=${node?.path}&ref=${node?.branch}&application_id=219`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?path=${node?.extended_properties?.path}&ref=${node?.extended_properties?.commit_id}&application_id=219`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -208,6 +208,7 @@ const GitlabSelector = () => {
         },
       );
       const childrenData = await response.json();
+      console.log(childrenData.items);
       return childrenData?.items;
     } catch (error) {
       console.log(error);
