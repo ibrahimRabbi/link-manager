@@ -40,6 +40,7 @@ export const fetchDeleteAssoc = createAsyncThunk(
 /// All user states
 const initialState = {
   allAssociations: {},
+  applicationsForDropdown: [],
   consumerTokens: {},
   isAssocCreated: false,
   isAssocUpdated: false,
@@ -51,7 +52,11 @@ export const associationSlice = createSlice({
   name: 'associations',
   initialState,
 
-  reducers: {},
+  reducers: {
+    handleStoreApplications: (state, { payload }) => {
+      state.applicationsForDropdown = payload;
+    },
+  },
   //----------------------\\
   extraReducers: (builder) => {
     // Get all Project
@@ -65,9 +70,21 @@ export const associationSlice = createSlice({
     builder.addCase(fetchAssociations.fulfilled, (state, { payload }) => {
       state.isAssocLoading = false;
       if (payload?.items) {
-        state.allAssociations = payload;
+        const mergeData = payload?.items?.reduce((accumulator, value) => {
+          const newValue = {
+            ...value,
+            project_name: value?.project?.name,
+            application_name: value?.application?.name,
+            organization_id: value?.application?.organization_id,
+          };
+          accumulator.push(newValue);
+          return accumulator;
+        }, []);
+        state.allAssociations = { ...payload, items: mergeData };
+        state.isAssocLoading = false;
       }
     });
+
     builder.addCase(fetchAssociations.rejected, (state) => {
       state.isAssocLoading = false;
     });
@@ -117,6 +134,6 @@ export const associationSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-// export const { } = associationSlice.actions;
+export const { handleStoreApplications } = associationSlice.actions;
 
 export default associationSlice.reducer;

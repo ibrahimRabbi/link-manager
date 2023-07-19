@@ -2,6 +2,8 @@ import React, { useContext, useState, useEffect } from 'react';
 import { SelectPicker } from 'rsuite';
 import AuthContext from '../../Store/Auth-Context';
 import SpinnerIcon from '@rsuite/icons/legacy/Spinner';
+import { useDispatch } from 'react-redux';
+import { handleStoreApplications } from '../../Redux/slices/associationSlice';
 
 const FixedLoader = () => (
   <h5
@@ -35,6 +37,7 @@ const CustomSelect = React.forwardRef((props, ref) => {
   const [page, setPage] = useState(1);
   const [dropDownData, setDropdownData] = useState([]);
   const authCtx = useContext(AuthContext);
+  const dispatch = useDispatch();
 
   const fetchOptions = async (page) => {
     setIsLoading(true);
@@ -101,10 +104,13 @@ const CustomSelect = React.forwardRef((props, ref) => {
   const getData = () => {
     let dropdownJsonData = [];
     if (customLabelKey) {
-      dropdownJsonData = option?.map((item) => ({
-        label: item[customLabelKey] ? item[customLabelKey] : item.name,
-        value: JSON.stringify(item),
-      }));
+      dispatch(handleStoreApplications(option));
+      dropdownJsonData = option?.map((item) => {
+        return {
+          label: item[customLabelKey] ? item[customLabelKey] : item.name,
+          value: item.id,
+        };
+      });
     } else {
       dropdownJsonData = option?.map((item) => ({
         label: item.name,
@@ -137,7 +143,7 @@ const CustomSelect = React.forwardRef((props, ref) => {
       ref={ref}
       data={dropDownData}
       menuMaxHeight={200}
-      onChange={(v) => onChange(v)}
+      onSelect={(value) => onChange(value)}
       searchable={dropDownData?.length > 5}
       placeholder={<p style={{ fontSize: '17px' }}>{placeholder}</p>}
       renderMenu={renderMenu}

@@ -277,6 +277,7 @@ const Application = () => {
   // Reset form
   const handleResetForm = () => {
     setEditData({});
+    setSteps(0);
     setFormValue({
       type: '',
       organization_id: '',
@@ -290,6 +291,8 @@ const Application = () => {
       tenant_id: '',
     });
     setAuthorizedAppConsumption(false);
+    setIsAppAuthorize(false);
+    setAuthorizeFrameSrc('');
     setPayload({});
   };
 
@@ -300,11 +303,11 @@ const Application = () => {
   };
   // handle close modal
   const handleCloseModal = () => {
+    setSteps(0);
     setOpenModal(false);
     setAppCreateSuccess(false);
     setTimeout(() => {
       handleResetForm();
-      setSteps(0);
       dispatch(handleIsAdminEditing(false));
     }, 500);
   };
@@ -500,11 +503,7 @@ const Application = () => {
       });
     } else if (OAUTH2_APPLICATION_TYPES.includes(formValue?.type)) {
       setPayload({
-        redirect_uris: [
-          // eslint-disable-next-line max-len
-          'https://0605-2806-2f0-a281-f410-80b4-93ca-90ae-c532.ngrok-free.app/oauth2/callback',
-          `${window.location.origin}/oauth2/callback`,
-        ],
+        redirect_uris: [`${window.location.origin}/oauth2/callback`],
       });
     } else if (MICROSERVICES_APPLICATION_TYPES.includes(formValue?.type)) {
       setPayload({
