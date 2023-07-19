@@ -179,7 +179,7 @@ const GitlabSelector = () => {
       selectedNodes[0].value.endsWith('.png') ||
       selectedNodes[0].value.endsWith('.jpg') ||
       selectedNodes[0].value.endsWith('.jpeg') ||
-      selectedNodes[0].isFolder === 'true' ||
+      selectedNodes[0].is_folder === true ||
       selectedNodes.length > 1
     ) {
       setSingleSelected('');
@@ -208,7 +208,6 @@ const GitlabSelector = () => {
         },
       );
       const childrenData = await response.json();
-      console.log(childrenData.items);
       return childrenData?.items;
     } catch (error) {
       console.log(error);
