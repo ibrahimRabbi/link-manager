@@ -48,18 +48,22 @@ const headerData = [
   {
     header: 'ID',
     key: 'id',
+    width: 60,
   },
   {
     header: 'Application',
-    key: 'application_id',
+    key: 'application_name',
+    width: 160,
   },
   {
     header: 'Project',
-    key: 'project_id',
+    key: 'project_name',
+    width: 160,
   },
   {
     header: 'Resource container',
     key: 'service_provider_id',
+    width: 200,
   },
   {
     header: 'Resource URL',
@@ -90,6 +94,7 @@ const Associations = () => {
     isAssocCreated,
     isAssocUpdated,
     isAssocDeleted,
+    applicationsForDropdown,
   } = useSelector((state) => state.associations);
   const { crudData, isCrudLoading } = useSelector((state) => state.crud);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
@@ -327,13 +332,16 @@ const Associations = () => {
   // Edit association
   const handleEdit = (data) => {
     setEditData(data);
+    setAppData(data?.application);
     dispatch(handleIsAdminEditing(true));
-    setFormValue({
-      ext_application_project: data?.ext_application_project,
-      resource_type: data?.resource_type,
+    const newData = {
+      organization_id: data?.organization_id,
       project_id: data?.project_id,
       application_id: data?.application_id,
-    });
+      ext_application_project: data?.ext_application_project,
+      resource_type: data?.resource_type,
+    };
+    setFormValue(newData);
 
     dispatch(handleIsAddNewModal(true));
   };
@@ -342,26 +350,12 @@ const Associations = () => {
   // Handle External application dropdown change
   const handleExtAppChange = (value) => {
     dispatch(actions.resetOslcServiceProviderCatalogResponse());
+
     if (oslcCatalogDropdown) setOslcCatalogDropdown(null);
     setAuthorizedThirdParty(true);
     if (value) {
-      const extAppData = JSON.parse(value);
+      const extAppData = applicationsForDropdown?.find((v) => v?.id === value);
       setAppData(extAppData);
-      setWorkspaceContainer('');
-      setWorkspaceApp({});
-
-      const newFormValue = { ...formValue };
-      newFormValue['application_id'] = extAppData?.id;
-      newFormValue['ext_workspace_id'] = '';
-      setFormValue(newFormValue);
-
-      if (extAppData?.type === 'oslc') {
-        fetchOslcConsumerToken(extAppData?.name);
-      } else {
-        if (PROJECT_APPLICATION_TYPES.includes(extAppData?.type)) {
-          setWorkspaceContainer(`${thirdPartyUrl}/${extAppData?.type}/containers`);
-        }
-      }
     } else {
       dispatch(crudActions.removeCrudParameter('consumerToken'));
       setAppData({});
@@ -373,6 +367,26 @@ const Associations = () => {
       setWorkspaceApp({});
     }
   };
+
+  // separated actions for showing default value in the edit integration form
+  useEffect(() => {
+    if (appData?.id) {
+      setWorkspaceContainer('');
+      setWorkspaceApp({});
+      const newFormValue = { ...formValue };
+      newFormValue['application_id'] = appData?.id;
+      newFormValue['ext_workspace_id'] = '';
+      setFormValue(newFormValue);
+
+      if (appData?.type === 'oslc') {
+        fetchOslcConsumerToken(appData?.name);
+      } else {
+        if (PROJECT_APPLICATION_TYPES.includes(appData?.type)) {
+          setWorkspaceContainer(`${thirdPartyUrl}/${appData?.type}/containers`);
+        }
+      }
+    }
+  }, [appData]);
 
   const handleWorkspaceChange = (value) => {
     if (value) {
@@ -503,7 +517,6 @@ const Associations = () => {
         OAUTH2_APPLICATION_TYPES.includes(appData?.type) &&
         formValue?.ext_workspace_id
       ) {
-        // eslint-disable-next-line max-len
         setWorkspaceContainer(
           `${thirdPartyUrl}/${appData?.type}/containers/${formValue?.ext_workspace_id}`,
         );
@@ -607,7 +620,7 @@ const Associations = () => {
 
             <FlexboxGrid.Item colspan={24}>
               <SelectField
-                name="application"
+                name="application_id"
                 label="External application"
                 placeholder="Select external application"
                 accepter={CustomSelect}
