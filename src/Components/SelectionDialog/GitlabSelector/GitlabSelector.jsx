@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import React, { useContext, useEffect, useState } from 'react';
-import { CheckTree, Loader, Placeholder } from 'rsuite';
+import { CheckTree, Loader, Message, Placeholder, toaster } from 'rsuite';
 import style from './GitlabSelector.module.css';
 import FolderFillIcon from '@rsuite/icons/FolderFill';
 import PageIcon from '@rsuite/icons/Page';
@@ -8,12 +8,14 @@ import CodeEditor from './CodeEditor';
 import ButtonGroup from './ButtonGroup';
 import UseSelectPicker from '../../Shared/UseDropdown/UseSelectPicker';
 import AuthContext from '../../../Store/Auth-Context';
+import { useParams } from 'react-router-dom';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 const GitlabSelector = () => {
-  const [group, setGroup] = useState([]);
-  const [groupId, setGroupId] = useState('');
+  const { id } = useParams();
+  // const [group, setGroup] = useState([]);
+  // const [groupId, setGroupId] = useState('');
   const [projects, setProjects] = useState([]);
   const [selectedFile, setSelectedFile] = useState('');
   const [selectedCodes, setSelectedCodes] = useState('');
@@ -30,15 +32,15 @@ const GitlabSelector = () => {
   const authCtx = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
 
-  const handleGroupChange = (selectedItem) => {
-    setGroupId(selectedItem?.id);
-    setProjectId('');
-    setProjects([]);
-    setBranchList([]);
-    setBranchId('');
-    setCommitList([]);
-    setCommitId('');
-  };
+  // const handleGroupChange = (selectedItem) => {
+  //   setGroupId(selectedItem?.id);
+  //   setProjectId('');
+  //   setProjects([]);
+  //   setBranchList([]);
+  //   setBranchId('');
+  //   setCommitList([]);
+  //   setCommitId('');
+  // };
   const handleProjectChange = (selectedItem) => {
     setProjectId(selectedItem?.id);
     setBranchList([]);
@@ -54,26 +56,35 @@ const GitlabSelector = () => {
   const handleCommitChange = (selectedItem) => {
     setCommitId(selectedItem?.id);
   };
-
+  const showNotification = (type, message) => {
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
+  };
+  // useEffect(() => {
+  //   setGroupId('');
+  //   fetch(`${lmApiUrl}/third_party/gitlab/workspace?application_id=219`, {
+  //     headers: {
+  //       Authorization: `Bearer ${authCtx.token}`,
+  //     },
+  //   })
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       setGroup(data?.items);
+  //     });
+  // }, [authCtx]);
   useEffect(() => {
-    setGroupId('');
-    fetch(`${lmApiUrl}/third_party/gitlab/workspace?application_id=219`, {
-      headers: {
-        Authorization: `Bearer ${authCtx.token}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setGroup(data?.items);
-      });
-  }, [authCtx]);
-  useEffect(() => {
-    if (groupId) {
+    if (id) {
       setProjectId(''); // Clear the project selection
       setProjects([]);
       setTreeData([]);
       fetch(
-        `${lmApiUrl}/third_party/gitlab/containers/${groupId}?page=1&per_page=10&application_id=219`,
+        `${lmApiUrl}/third_party/gitlab/containers/${id}?page=1&per_page=10&application_id=219`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -82,13 +93,17 @@ const GitlabSelector = () => {
       )
         .then((response) => response.json())
         .then((data) => {
-          setProjects(data?.items);
+          if (data.total_items === 0) {
+            showNotification('info', 'There is no project for selected group.');
+          } else {
+            setProjects(data?.items);
+          }
         });
     } else {
       setProjectId('');
       setProjects([]);
     }
-  }, [groupId, authCtx]);
+  }, [id, authCtx]);
 
   useEffect(() => {
     if (projectId) {
@@ -215,14 +230,14 @@ const GitlabSelector = () => {
   };
   return (
     <div className={style.mainDiv}>
-      <div className={style.select}>
+      {/* <div className={style.select}>
         <h6>Gitlab Group</h6>
         <UseSelectPicker
           placeholder="Choose Gitlab Group"
           onChange={handleGroupChange}
           items={group}
         />
-      </div>
+      </div> */}
       <div className={style.select}>
         <h6>Projects</h6>
         <UseSelectPicker

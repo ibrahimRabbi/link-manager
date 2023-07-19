@@ -25,7 +25,6 @@ const { targetContainer, targetIframe, targetBtnContainer, cancelMargin } = styl
 
 const apiURL = `${import.meta.env.VITE_LM_REST_API_URL}/link`;
 const jiraDialogURL = import.meta.env.VITE_JIRA_DIALOG_URL;
-const gitlabDialogURL = import.meta.env.VITE_GITLAB_DIALOG_URL;
 const glideDialogURL = import.meta.env.VITE_GLIDE_DIALOG_URL;
 const valispaceDialogURL = import.meta.env.VITE_VALISPACE_DIALOG_URL;
 const codebeamerDialogURL = import.meta.env.VITE_CODEBEAMER_DIALOG_URL;
@@ -152,7 +151,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       } else if (gitlabApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          `${gitlabDialogURL}/oslc/provider/selector?provider_id=${projectId}&gc_context=${'st-develop'}`,
+          `https://lm-dev.koneksys.com/gitlabselection/${projectId}`,
         );
       } else if (glideApp) {
         setProjectFrameSrc(
