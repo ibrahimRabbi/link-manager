@@ -79,7 +79,6 @@ const CodeEditor = ({
         endLineNumber: endPosition.lineNumber,
         code: editor.getModel().getValueInRange(selection),
       };
-      console.log(selectedCodeWithLineNumbers);
       setSelectedCodes(selectedCodeWithLineNumbers);
     }
   }, [setSelectedCodes]);

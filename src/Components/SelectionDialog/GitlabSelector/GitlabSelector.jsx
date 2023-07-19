@@ -14,8 +14,6 @@ const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 const GitlabSelector = () => {
   const { id } = useParams();
-  // const [group, setGroup] = useState([]);
-  // const [groupId, setGroupId] = useState('');
   const [projects, setProjects] = useState([]);
   const [selectedFile, setSelectedFile] = useState('');
   const [selectedCodes, setSelectedCodes] = useState('');
@@ -31,16 +29,6 @@ const GitlabSelector = () => {
   const [treeData, setTreeData] = useState([]);
   const authCtx = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
-
-  // const handleGroupChange = (selectedItem) => {
-  //   setGroupId(selectedItem?.id);
-  //   setProjectId('');
-  //   setProjects([]);
-  //   setBranchList([]);
-  //   setBranchId('');
-  //   setCommitList([]);
-  //   setCommitId('');
-  // };
   const handleProjectChange = (selectedItem) => {
     setProjectId(selectedItem?.id);
     setBranchList([]);
@@ -66,18 +54,6 @@ const GitlabSelector = () => {
       toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
     }
   };
-  // useEffect(() => {
-  //   setGroupId('');
-  //   fetch(`${lmApiUrl}/third_party/gitlab/workspace?application_id=219`, {
-  //     headers: {
-  //       Authorization: `Bearer ${authCtx.token}`,
-  //     },
-  //   })
-  //     .then((response) => response.json())
-  //     .then((data) => {
-  //       setGroup(data?.items);
-  //     });
-  // }, [authCtx]);
   useEffect(() => {
     if (id) {
       setProjectId(''); // Clear the project selection
@@ -156,7 +132,6 @@ const GitlabSelector = () => {
         .then((response) => response.json())
         .then((data) => {
           setTreeData(data?.items);
-          console.log(data.items);
           setLoading(false);
         });
     }
@@ -230,14 +205,6 @@ const GitlabSelector = () => {
   };
   return (
     <div className={style.mainDiv}>
-      {/* <div className={style.select}>
-        <h6>Gitlab Group</h6>
-        <UseSelectPicker
-          placeholder="Choose Gitlab Group"
-          onChange={handleGroupChange}
-          items={group}
-        />
-      </div> */}
       <div className={style.select}>
         <h6>Projects</h6>
         <UseSelectPicker
