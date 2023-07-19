@@ -84,6 +84,7 @@ export const associationSlice = createSlice({
         state.isAssocLoading = false;
       }
     });
+
     builder.addCase(fetchAssociations.rejected, (state) => {
       state.isAssocLoading = false;
     });
