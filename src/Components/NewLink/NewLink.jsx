@@ -333,7 +333,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       source_provider: appNameTwo,
       source_id: uri,
       relation: linkType,
-      status: 'active',
+      status: 'valid',
       target_data: targetsData,
     };
     console.log('Link Obj: ', linkObj);

@@ -212,7 +212,7 @@ const visGraphOptions = {
   configure: {
     enabled: false,
     filter: 'nodes, edges',
-    showButton: true,
+    showButton: false,
   },
 
   layout: {
@@ -235,12 +235,12 @@ const visGraphOptions = {
     enabled: true,
     // handle node and edges gravity
     barnesHut: {
-      gravitationalConstant: -3000,
+      gravitationalConstant: -2500,
       centralGravity: 0.1,
       springLength: 150,
       springConstant: 0.02,
       damping: 0.1,
-      avoidOverlap: 0,
+      avoidOverlap: 2,
     },
     forceAtlas2Based: {
       gravitationalConstant: -50,
@@ -286,12 +286,13 @@ const visGraphOptions = {
     hover: true,
     hoverConnectedEdges: true,
     keyboard: {
-      enabled: false,
+      enabled: true,
       speed: { x: 10, y: 10, zoom: 0.02 },
       bindToWindow: true,
     },
     multiselect: false,
-    navigationButtons: true,
+    /// if navigation button will true then zoom and drag buttons will be display
+    navigationButtons: false,
     selectable: true,
     selectConnectedEdges: true,
     tooltipDelay: 300,
@@ -304,7 +305,7 @@ const visGraphOptions = {
     addNode: true,
     addEdge: true,
     editNode: () => {},
-    editEdge: true,
+    editEdge: false,
     deleteNode: true,
     deleteEdge: true,
     controlNodeStyle: {},

@@ -1,6 +1,8 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 import { SelectPicker } from 'rsuite';
 import SpinnerIcon from '@rsuite/icons/legacy/Spinner';
+import { useDispatch } from 'react-redux';
+import { handleStoreDropdownItems } from '../../Redux/slices/associationSlice';
 
 const FixedLoader = () => (
   <h5
@@ -20,7 +22,8 @@ const FixedLoader = () => (
 
 const DefaultCustomSelect = forwardRef((props, ref) => {
   const { options, placeholder, onChange, customSelectLabel, ...rest } = props;
-
+  const [data, setData] = useState([]);
+  const dispatch = useDispatch();
   const renderMenu = (menu) => {
     if (options.length === 0) {
       return <FixedLoader />;
@@ -29,18 +32,26 @@ const DefaultCustomSelect = forwardRef((props, ref) => {
   };
 
   // The data is filtered according to the select picker's needs
-  let data = [];
-  if (customSelectLabel) {
-    data = options?.map((item) => ({
-      label: item[customSelectLabel],
-      value: JSON.stringify(item),
-    }));
-  } else {
-    data = options?.map((item) => ({
-      label: item.name,
-      value: item.id,
-    }));
-  }
+  useEffect(() => {
+    getData();
+  }, [options]);
+
+  const getData = () => {
+    if (customSelectLabel) {
+      dispatch(handleStoreDropdownItems({ label: customSelectLabel, data: options }));
+      const item1Data = options?.map((item) => ({
+        label: item[customSelectLabel],
+        value: item?.serviceProviderId,
+      }));
+      setData(item1Data);
+    } else {
+      const itemData = options?.map((item) => ({
+        label: item.name,
+        value: item.id,
+      }));
+      setData(itemData);
+    }
+  };
 
   return (
     <SelectPicker
@@ -51,7 +62,7 @@ const DefaultCustomSelect = forwardRef((props, ref) => {
       ref={ref}
       {...rest}
       data={data}
-      onChange={(v) => onChange(v)}
+      onSelect={(v) => onChange(v)}
       placeholder={<p style={{ fontSize: '17px' }}>{placeholder}</p>}
       renderMenu={renderMenu}
       renderMenuItem={(label) => {
