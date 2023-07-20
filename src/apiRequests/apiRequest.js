@@ -16,16 +16,13 @@ export default function fetchAPIRequest({
       authorization: 'Bearer ' + token,
     },
     body: JSON.stringify(body),
-  }).then(async (response) => {
+  }).then((response) => {
     if (method === 'GET' && response.status === 204) {
       return showNotification('success', 'No content available');
     } else if (method === 'DELETE' && response.status === 204) {
       return showNotification('success', 'The content was successfully deleted');
     } else if (response.ok) {
-      return response.json().then((data) => {
-        showNotification('success', data.message);
-        return data;
-      });
+      return response.json();
     } else {
       if (response.status === 401) {
         return response.json().then((data) => {

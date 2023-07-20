@@ -6,26 +6,31 @@
   canvas {
     min-height: 500px !important;
     height: 99vh !important;
+    min-width: 700px !important;
     width: 99% !important;
-    margin-left: 10px !important;
-    border-radius: 10px;
-    background-color: rgb(244, 244, 244);
+    margin-left: 5px !important;
   }
 
   .noDataTitle {
     margin: 50px;
     text-align: center;
   }
+
+  .refreshButton {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+  }
 }
 
 .nodeInfoContainer {
   position: absolute;
-  padding: 10px 15px 10px 5px;
+  padding: 10px 15px 20px 5px;
   top: 10px;
   right: 10px;
-  width: 400px;
-  min-height: 600px;
-  max-height: 700px;
+  width: 420px;
+  min-height: 450px;
+  max-height: 600px;
   overflow: hidden;
   overflow-y: auto;
   box-shadow: 1px 1px 15px lightgray;

@@ -41,6 +41,8 @@ export const fetchDeleteAssoc = createAsyncThunk(
 const initialState = {
   allAssociations: {},
   applicationsForDropdown: [],
+  projectsForDropdown: [],
+  projectsForDropdownOslc: [],
   consumerTokens: {},
   isAssocCreated: false,
   isAssocUpdated: false,
@@ -53,8 +55,14 @@ export const associationSlice = createSlice({
   initialState,
 
   reducers: {
-    handleStoreApplications: (state, { payload }) => {
-      state.applicationsForDropdown = payload;
+    handleStoreDropdownItems: (state, { payload }) => {
+      if (payload?.label === 'rootservices_url') {
+        state.applicationsForDropdown = payload?.data;
+      } else if (payload?.label === 'workTitle') {
+        state.projectsForDropdown = payload?.data;
+      } else if (payload?.label === 'label') {
+        state.projectsForDropdownOslc = payload?.data;
+      }
     },
   },
   //----------------------\\
@@ -134,6 +142,6 @@ export const associationSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { handleStoreApplications } = associationSlice.actions;
+export const { handleStoreDropdownItems } = associationSlice.actions;
 
 export default associationSlice.reducer;

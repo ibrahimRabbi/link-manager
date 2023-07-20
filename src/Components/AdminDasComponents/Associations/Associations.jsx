@@ -95,6 +95,8 @@ const Associations = () => {
     isAssocUpdated,
     isAssocDeleted,
     applicationsForDropdown,
+    projectsForDropdown,
+    projectsForDropdownOslc,
   } = useSelector((state) => state.associations);
   const { crudData, isCrudLoading } = useSelector((state) => state.crud);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
@@ -104,8 +106,8 @@ const Associations = () => {
   const [appData, setAppData] = useState({});
   const [formError, setFormError] = useState({});
   const [formValue, setFormValue] = useState({
-    ext_workspace_id: '',
     organization_id: '',
+    workspace_id: '',
     project_id: '',
     application_id: '',
     ext_application_project: '',
@@ -133,6 +135,21 @@ const Associations = () => {
     oslcMissingConsumerToken,
   } = useSelector((state) => state.oslcResources);
 
+  // GET all associations
+  useEffect(() => {
+    dispatch(handleCurrPageTitle('Integrations'));
+
+    const getUrl = `${lmApiUrl}/association?page=${currPage}&per_page=${pageSize}`;
+    dispatch(
+      fetchAssociations({
+        url: getUrl,
+        token: authCtx.token,
+        showNotification: showNotification,
+      }),
+    );
+  }, [isAssocCreated, isAssocUpdated, isAssocDeleted, pageSize, currPage, refreshData]);
+
+  // manage notifications
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -172,9 +189,16 @@ const Associations = () => {
     }
   };
 
+  // get service provider resources by id
+  const findServiceProviderById = (id) => {
+    const data = projectsForDropdownOslc?.find((v) => v?.serviceProviderId === id);
+    return data;
+  };
+
+  // handle get service provider resources
   const getServiceProviderResources = (payload) => {
     const consumerToken = crudData?.consumerToken?.access_token;
-    const data = JSON.parse(payload);
+    const data = findServiceProviderById(payload);
     const url = data?.value;
 
     if (url && consumerToken) {
@@ -231,25 +255,33 @@ const Associations = () => {
     if (!associationFormRef.current.check()) {
       return;
     } else if (isAdminEditing) {
+      // handle edit integration
+      const bodyData = { ...formValue };
+
+      if (appData?.type === 'oslc') {
+        const data = findServiceProviderById(formValue?.ext_application_project);
+        bodyData['service_provider_id'] = data?.serviceProviderId;
+        bodyData['service_provider_url'] = data?.value;
+      } else {
+        bodyData['service_provider_id'] = workspaceApp?.id;
+        bodyData['service_provider_url'] = workspaceApp?.link;
+      }
       const putUrl = `${lmApiUrl}/association/${editData?.id}`;
       dispatch(
         fetchUpdateAssoc({
           url: putUrl,
           token: authCtx.token,
-          bodyData: formValue,
+          bodyData: bodyData,
           showNotification: showNotification,
         }),
       );
     } else {
+      // handle create new integration
       const bodyData = { ...formValue };
       if (appData?.type === 'oslc') {
-        const resourceContainerPayload = JSON.parse(bodyData.ext_application_project);
-
-        const selectedServiceProvider = oslcCatalogResponse?.find(
-          (item) => item.value === resourceContainerPayload.value,
-        );
-        bodyData['service_provider_id'] = selectedServiceProvider?.serviceProviderId;
-        bodyData['service_provider_url'] = selectedServiceProvider?.value;
+        const data = findServiceProviderById(formValue?.ext_application_project);
+        bodyData['service_provider_id'] = data?.serviceProviderId;
+        bodyData['service_provider_url'] = data?.value;
       } else {
         bodyData['service_provider_id'] = workspaceApp?.id;
         bodyData['service_provider_url'] = workspaceApp?.link;
@@ -281,10 +313,10 @@ const Associations = () => {
     setWorkspaceContainer('');
     setWorkspaceApp({});
     setFormValue({
-      ext_workspace_id: '',
       organization_id: '',
       project_id: '',
       application_id: '',
+      workspace_id: '',
       ext_application_project: '',
     });
     dispatch(actions.resetRootservicesResponse());
@@ -338,13 +370,25 @@ const Associations = () => {
       organization_id: data?.organization_id,
       project_id: data?.project_id,
       application_id: data?.application_id,
-      ext_application_project: data?.ext_application_project,
-      resource_type: data?.resource_type,
+      workspace_id: data?.workspace_id,
+      ext_application_project: data?.service_provider_id,
     };
     setFormValue(newData);
-
     dispatch(handleIsAddNewModal(true));
   };
+
+  // set workspace container value after fulfil the edit form
+  useEffect(() => {
+    if (editData?.workspace_id && formValue?.workspace_id) {
+      // delay for loading upper dropdowns
+      setTimeout(() => {
+        // eslint-disable-next-line max-len
+        setWorkspaceContainer(
+          `${thirdPartyUrl}/${appData?.type}/containers/${editData?.workspace_id}`,
+        );
+      }, 500);
+    }
+  }, [editData, formValue]);
 
   /*** Methods for dropdowns ***/
   // Handle External application dropdown change
@@ -367,6 +411,26 @@ const Associations = () => {
       setWorkspaceApp({});
     }
   };
+
+  //
+  useEffect(() => {
+    if (editData?.service_provider_id && projectsForDropdownOslc?.length) {
+      const consumerToken = crudData?.consumerToken?.access_token;
+      const data = projectsForDropdownOslc?.find(
+        (v) => v?.serviceProviderId === editData?.service_provider_id,
+      );
+      const url = data?.value;
+
+      if (url && consumerToken) {
+        dispatch(
+          fetchOslcResource({
+            url: url,
+            token: 'Bearer ' + consumerToken,
+          }),
+        );
+      }
+    }
+  }, [editData, projectsForDropdownOslc]);
 
   // separated actions for showing default value in the edit integration form
   useEffect(() => {
@@ -399,28 +463,12 @@ const Associations = () => {
 
   const handleExtProjectWorkspaceChange = (value) => {
     if (value) {
-      const workspaceData = JSON.parse(value);
+      const workspaceData = projectsForDropdown?.find((v) => v?.id == value);
       setWorkspaceApp(workspaceData);
     } else {
       setWorkspaceApp({});
     }
   };
-
-  /** UseEffects for Association */
-
-  // GET all associations
-  useEffect(() => {
-    dispatch(handleCurrPageTitle('Integrations'));
-
-    const getUrl = `${lmApiUrl}/association?page=${currPage}&per_page=${pageSize}`;
-    dispatch(
-      fetchAssociations({
-        url: getUrl,
-        token: authCtx.token,
-        showNotification: showNotification,
-      }),
-    );
-  }, [isAssocCreated, isAssocUpdated, isAssocDeleted, pageSize, currPage, refreshData]);
 
   // Set the query param for filtering data based on organization ID
   useEffect(() => {
@@ -438,10 +486,12 @@ const Associations = () => {
       appData?.id &&
       appData?.type === 'oslc'
     ) {
-      const rootservicesUrl = appData?.authentication_server.filter(
+      const rootservicesUrl = appData?.authentication_server?.find(
         (item) => item.type === 'rootservices',
       );
-      fetchCatalogFromRootservices(rootservicesUrl[0]?.url, appData?.id);
+      if (rootservicesUrl) {
+        fetchCatalogFromRootservices(rootservicesUrl?.url, appData?.id);
+      }
     }
   }, [crudData?.consumerToken?.access_token, appData]);
 
@@ -711,7 +761,7 @@ const Associations = () => {
                           block
                           size="lg"
                           accepter={CustomSelect}
-                          name={'ext_workspace_id'}
+                          name={'workspace_id'}
                           disabled={!authorizedThirdParty}
                           label="External application workspace"
                           placeholder="Select an external workspace"
@@ -721,7 +771,7 @@ const Associations = () => {
                           onChange={(value) => {
                             handleWorkspaceChange(value);
                           }}
-                          reqText="External app project is required"
+                          reqText="External app workspace is required"
                         />
                       </FlexboxGrid.Item>
                     )}
@@ -737,9 +787,9 @@ const Associations = () => {
                         <SelectField
                           block
                           size="lg"
+                          name="ext_application_project"
                           accepter={CustomSelect}
                           customLabelKey={'workTitle'}
-                          name="ext_application_project"
                           disabled={!authorizedThirdParty}
                           label="External application project"
                           placeholder="Select an external application"
@@ -769,7 +819,7 @@ const Associations = () => {
           formValue={appData}
           openedModal={thirdPartyLogin}
           closeModal={closeThirdPartyModal}
-          isOauth2={OAUTH2_APPLICATION_TYPES.includes(appData?.type)}
+          isOauth2={OAUTH2_APPLICATION_TYPES?.includes(appData?.type)}
           isBasic={(
             BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
           ).includes(appData?.type)}
