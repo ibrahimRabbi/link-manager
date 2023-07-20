@@ -160,7 +160,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       } else if (gitlabAppNative) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          `https://lm-dev.koneksys.com/gitlabselection/${projectId}`,
+          `http://localhost:5173/gitlabselection/${projectId}`,
         );
       } else if (glideApp) {
         setProjectFrameSrc(

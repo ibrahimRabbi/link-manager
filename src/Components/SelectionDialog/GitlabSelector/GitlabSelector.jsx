@@ -198,7 +198,7 @@ const GitlabSelector = () => {
   return (
     <div className={style.mainDiv}>
       {pExist ? (
-        <h3 style={{ textAlign: 'center', marginTop: '50px', color: 'red' }}>
+        <h3 style={{ textAlign: 'center', marginTop: '50px', color: '#1675e0' }}>
           Selected group has no projects.
         </h3>
       ) : (
