@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import React, { useContext, useEffect, useState } from 'react';
-import { CheckTree, Loader, Message, Placeholder, toaster } from 'rsuite';
+import { CheckTree, Loader, Placeholder } from 'rsuite';
 import style from './GitlabSelector.module.css';
 import FolderFillIcon from '@rsuite/icons/FolderFill';
 import PageIcon from '@rsuite/icons/Page';
@@ -14,6 +14,7 @@ const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 const GitlabSelector = () => {
   const { id } = useParams();
+  const [pExist, setPExist] = useState(false);
   const [projects, setProjects] = useState([]);
   const [selectedFile, setSelectedFile] = useState('');
   const [selectedCodes, setSelectedCodes] = useState('');
@@ -44,16 +45,6 @@ const GitlabSelector = () => {
   const handleCommitChange = (selectedItem) => {
     setCommitId(selectedItem?.id);
   };
-  const showNotification = (type, message) => {
-    if (type && message) {
-      const messages = (
-        <Message closable showIcon type={type}>
-          {message}
-        </Message>
-      );
-      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
-    }
-  };
   useEffect(() => {
     if (id) {
       setProjectId(''); // Clear the project selection
@@ -70,7 +61,8 @@ const GitlabSelector = () => {
         .then((response) => response.json())
         .then((data) => {
           if (data.total_items === 0) {
-            showNotification('info', 'There is no project for selected group.');
+            setPExist(true);
+            // showNotification('info', 'There is no project for selected group.');
           } else {
             setProjects(data?.items);
           }
@@ -205,84 +197,92 @@ const GitlabSelector = () => {
   };
   return (
     <div className={style.mainDiv}>
-      <div className={style.select}>
-        <h6>Projects</h6>
-        <UseSelectPicker
-          placeholder="Choose Project"
-          onChange={handleProjectChange}
-          items={projects}
-        />
-      </div>
-      <div className={style.select}>
-        <h6>Branch</h6>
-        <UseSelectPicker
-          placeholder="Choose Branch"
-          onChange={handleBranchChange}
-          items={branchList}
-        />
-      </div>
-      <div className={style.select}>
-        <h6>Commit</h6>
-        <UseSelectPicker
-          placeholder="Choose Commit"
-          onChange={handleCommitChange}
-          items={commitList}
-        />
-      </div>
-      {loading && (
-        <div>
-          <Placeholder.Paragraph rows={8} />
-          <Loader center content="loading" style={{ marginTop: '50px' }} />
-        </div>
-      )}
-      {treeData.length > 0 && (
-        <div>
-          <div className={style.treeDiv}>
-            <div className={style.tree}>
-              <CheckTree
-                data={treeData}
-                style={{ width: 280 }}
-                value={checkedValues}
-                onChange={(value) => handleTreeChange(value)}
-                getChildren={getChildren}
-                renderTreeNode={(node) => {
-                  return (
-                    <>
-                      {node.children ? <FolderFillIcon /> : <PageIcon />} {node.label}
-                    </>
-                  );
-                }}
-              />
+      {pExist ? (
+        <h3 style={{ textAlign: 'center', marginTop: '50px', color: '#1675e0' }}>
+          Selected group has no projects.
+        </h3>
+      ) : (
+        <div className={style.mainDiv}>
+          <div className={style.select}>
+            <h6>Projects</h6>
+            <UseSelectPicker
+              placeholder="Choose Project"
+              onChange={handleProjectChange}
+              items={projects}
+            />
+          </div>
+          <div className={style.select}>
+            <h6>Branch</h6>
+            <UseSelectPicker
+              placeholder="Choose Branch"
+              onChange={handleBranchChange}
+              items={branchList}
+            />
+          </div>
+          <div className={style.select}>
+            <h6>Commit</h6>
+            <UseSelectPicker
+              placeholder="Choose Commit"
+              onChange={handleCommitChange}
+              items={commitList}
+            />
+          </div>
+          {loading && (
+            <div>
+              <Placeholder.Paragraph rows={8} />
+              <Loader center content="loading" style={{ marginTop: '50px' }} />
             </div>
-            <div className={style.codemirror}>
-              <div>
-                {multipleSelected.length > 1 ? (
-                  <div className={style.error}>
-                    File content cannot be displayed when multiple files are selected
+          )}
+          {treeData.length > 0 && (
+            <div>
+              <div className={style.treeDiv}>
+                <div className={style.tree}>
+                  <CheckTree
+                    data={treeData}
+                    style={{ width: 280 }}
+                    value={checkedValues}
+                    onChange={(value) => handleTreeChange(value)}
+                    getChildren={getChildren}
+                    renderTreeNode={(node) => {
+                      return (
+                        <>
+                          {node.children ? <FolderFillIcon /> : <PageIcon />} {node.label}
+                        </>
+                      );
+                    }}
+                  />
+                </div>
+                <div className={style.codemirror}>
+                  <div>
+                    {multipleSelected.length > 1 ? (
+                      <div className={style.error}>
+                        File content cannot be displayed when multiple files are selected
+                      </div>
+                    ) : (
+                      selectedFile && (
+                        <CodeEditor
+                          singleSelected={singleSelected}
+                          fileExtension={fileExt}
+                          setSelectedCodes={setSelectedCodes}
+                          projectId={projectId}
+                          commitId={commitId}
+                        ></CodeEditor>
+                      )
+                    )}
                   </div>
-                ) : (
-                  selectedFile && (
-                    <CodeEditor
-                      singleSelected={singleSelected}
-                      fileExtension={fileExt}
-                      setSelectedCodes={setSelectedCodes}
-                      projectId={projectId}
-                      commitId={commitId}
-                    ></CodeEditor>
-                  )
-                )}
+                </div>
+              </div>
+              <div className={style.buttonDiv}>
+                <ButtonGroup
+                  selectedCodes={selectedCodes}
+                  multipleSelected={multipleSelected}
+                  branchId={branchId}
+                  projectId={projectId}
+                  singleSelected={singleSelected}
+                ></ButtonGroup>
               </div>
             </div>
-          </div>
-          <div className={style.buttonDiv}>
-            <ButtonGroup
-              selectedCodes={selectedCodes}
-              multipleSelected={multipleSelected}
-              branchId={branchId}
-              projectId={projectId}
-              singleSelected={singleSelected}
-            ></ButtonGroup>
-          </div>
+          )}
         </div>
       )}
     </div>
