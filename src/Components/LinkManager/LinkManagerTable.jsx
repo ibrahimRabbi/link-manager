@@ -189,7 +189,7 @@ const LinkManagerTable = ({ props }) => {
     return (
       <div className={dataCell}>
         <h5 className={statusIcon}>
-          {status?.toLowerCase() === 'active' ? (
+          {status?.toLowerCase() === 'active' || status === 'valid' ? (
             <SuccessStatus color="#378f17" />
           ) : status?.toLowerCase() === 'invalid' ? (
             <FailedStatus color="#de1655" />

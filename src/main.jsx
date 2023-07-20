@@ -14,7 +14,7 @@ import process from 'process/browser';
 window.process = process;
 window.global = window;
 
-// Sentry error tracing setup
+//// Sentry error tracing setup
 import * as Sentry from '@sentry/react';
 import { BrowserTracing, Replay } from '@sentry/react';
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
@@ -38,7 +38,13 @@ Sentry.init({
   environment: ENVIRONMENT,
 });
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, // default: true
+    },
+  },
+});
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

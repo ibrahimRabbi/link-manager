@@ -3,7 +3,7 @@ import { SelectPicker } from 'rsuite';
 import AuthContext from '../../Store/Auth-Context';
 import SpinnerIcon from '@rsuite/icons/legacy/Spinner';
 import { useDispatch } from 'react-redux';
-import { handleStoreApplications } from '../../Redux/slices/associationSlice';
+import { handleStoreDropdownItems } from '../../Redux/slices/associationSlice';
 
 const FixedLoader = () => (
   <h5
@@ -53,15 +53,17 @@ const CustomSelect = React.forwardRef((props, ref) => {
           'Content-type': 'application/json',
           authorization: 'Bearer ' + authCtx.token,
         },
-      }).then((res) => {
-        if (res.ok) {
-          if (res.status !== 204) {
-            return res.json();
+      })
+        .then((res) => {
+          if (res.ok) {
+            if (res.status !== 204) {
+              return res.json();
+            }
+          } else {
+            requestStatus('error', res);
           }
-        } else {
-          requestStatus('error', res);
-        }
-      });
+        })
+        .catch((error) => console.log(error));
       setIsLoading(false);
       setCheckPagination(response);
       if (response?.items) return response.items;
@@ -104,7 +106,8 @@ const CustomSelect = React.forwardRef((props, ref) => {
   const getData = () => {
     let dropdownJsonData = [];
     if (customLabelKey) {
-      dispatch(handleStoreApplications(option));
+      dispatch(handleStoreDropdownItems({ label: customLabelKey, data: option }));
+
       dropdownJsonData = option?.map((item) => {
         return {
           label: item[customLabelKey] ? item[customLabelKey] : item.name,
