@@ -103,6 +103,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         if (curr.name.includes(applicationType)) acc.push(curr);
         return acc;
       }, []);
+      console.log('specificProject', specificProject);
       setProjectTypeItems(specificProject);
     })();
   }, [sourceDataList]);
@@ -116,7 +117,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
       // display projects conditionally
       const specificProject = projectsRes?.reduce((acc, curr) => {
-        if (curr.name.includes(applicationType)) acc.push(curr);
+        if (curr.name.includes(`(${applicationType})`)) acc.push(curr);
         return acc;
       }, []);
       setProjectTypeItems(specificProject);
@@ -135,8 +136,10 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // set iframe SRC conditionally
   useEffect(() => {
     if (projectType) {
+      console.log('projectType', projectType);
       const jiraApp = projectType?.includes('(JIRA)');
       const gitlabApp = projectType?.includes('(GITLAB)');
+      const gitlabAppNative = projectType?.includes('(GITLAB-NATIVE)');
       const glideApp = projectType?.includes('(GLIDE)');
       const valispaceApp = projectType?.includes('(VALISPACE)');
       const codebeamerApp = projectType?.includes('(CODEBEAMER)');
@@ -153,6 +156,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
           `${gitlabDialogURL}/oslc/provider/selector?provider_id=${projectId}&gc_context=${'st-develop'}`,
+        );
+      } else if (gitlabAppNative) {
+        setProjectFrameSrc(
+          // eslint-disable-next-line max-len
+          `https://lm-dev.koneksys.com/gitlabselection/${projectId}`,
         );
       } else if (glideApp) {
         setProjectFrameSrc(

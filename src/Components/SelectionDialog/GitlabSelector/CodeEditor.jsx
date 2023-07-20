@@ -31,7 +31,7 @@ const CodeEditor = ({
     if (singleSelected?.value && projectId && commitId) {
       setLoading(true);
       setExt(getLanguageFromExtension(fileExtension).toLowerCase());
-      let joinedFilePath = singleSelected?.path;
+      let joinedFilePath = singleSelected?.extended_properties?.path;
       fetch(
         `${lmApiUrl}/third_party/gitlab/container/${projectId}/file?path=${joinedFilePath}&branch=${commitId}&application_id=219`,
         {

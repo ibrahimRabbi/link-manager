@@ -1,24 +1,32 @@
 [
-    {
-        "name": "Cross-Domain Integration Demo (JIRA)",
-        "id": "CDID"
-    },
-    {
-        "name": "Cross-Domain Integration Demo (GITLAB)",
-        "id": "41530067"
-    },
-    {
-        "name": "Drone Project (GITLAB)",
-        "id": "42854970"
-    },
-    {
-        "name": "Jet Engine Design (GLIDE)"
-    },
-    {
-        "name": "Requirement Management template (CODEBEAMER)"
-    },
-    {
-        "name": "Valispace ST-100 (VALISPACE)",
-        "id": "24"
-    }
+  {
+    "name": "Cross-Domain Integration Demo (JIRA)",
+    "id": "CDID"
+  },
+  {
+    "name": "Cross-Domain Integration Demo (GITLAB)",
+    "id": "41530067"
+  },
+  {
+  "name": "Drone Project (GITLAB)",
+  "id": "42854970"
+  },
+  {
+    "name": "Cross-Domain Integration Demo (GITLAB-NATIVE)",
+    "id": "60998096"
+  },
+  {
+    "name": "Koneksys(GITLAB-NATIVE)",
+    "id": "56139069"
+  },
+  {
+    "name": "Jet Engine Design (GLIDE)"
+  },
+  {
+    "name": "Requirement Management template (CODEBEAMER)"
+  },
+  {
+    "name": "Valispace ST-100 (VALISPACE)",
+    "id": "24"
+  }
 ]

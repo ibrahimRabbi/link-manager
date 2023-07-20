@@ -8,12 +8,13 @@ import CodeEditor from './CodeEditor';
 import ButtonGroup from './ButtonGroup';
 import UseSelectPicker from '../../Shared/UseDropdown/UseSelectPicker';
 import AuthContext from '../../../Store/Auth-Context';
+import { useParams } from 'react-router-dom';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 const GitlabSelector = () => {
-  const [group, setGroup] = useState([]);
-  const [groupId, setGroupId] = useState('');
+  const { id } = useParams();
+  const [pExist, setPExist] = useState(false);
   const [projects, setProjects] = useState([]);
   const [selectedFile, setSelectedFile] = useState('');
   const [selectedCodes, setSelectedCodes] = useState('');
@@ -29,16 +30,6 @@ const GitlabSelector = () => {
   const [treeData, setTreeData] = useState([]);
   const authCtx = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
-
-  const handleGroupChange = (selectedItem) => {
-    setGroupId(selectedItem?.id);
-    setProjectId('');
-    setProjects([]);
-    setBranchList([]);
-    setBranchId('');
-    setCommitList([]);
-    setCommitId('');
-  };
   const handleProjectChange = (selectedItem) => {
     setProjectId(selectedItem?.id);
     setBranchList([]);
@@ -54,26 +45,13 @@ const GitlabSelector = () => {
   const handleCommitChange = (selectedItem) => {
     setCommitId(selectedItem?.id);
   };
-
   useEffect(() => {
-    setGroupId('');
-    fetch(`${lmApiUrl}/third_party/gitlab/workspace?application_id=219`, {
-      headers: {
-        Authorization: `Bearer ${authCtx.token}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setGroup(data?.items);
-      });
-  }, [authCtx]);
-  useEffect(() => {
-    if (groupId) {
+    if (id) {
       setProjectId(''); // Clear the project selection
       setProjects([]);
       setTreeData([]);
       fetch(
-        `${lmApiUrl}/third_party/gitlab/containers/${groupId}?page=1&per_page=10&application_id=219`,
+        `${lmApiUrl}/third_party/gitlab/containers/${id}?page=1&per_page=10&application_id=219`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -82,13 +60,18 @@ const GitlabSelector = () => {
       )
         .then((response) => response.json())
         .then((data) => {
-          setProjects(data?.items);
+          if (data.total_items === 0) {
+            setPExist(true);
+            // showNotification('info', 'There is no project for selected group.');
+          } else {
+            setProjects(data?.items);
+          }
         });
     } else {
       setProjectId('');
       setProjects([]);
     }
-  }, [groupId, authCtx]);
+  }, [id, authCtx]);
 
   useEffect(() => {
     if (projectId) {
@@ -141,7 +124,6 @@ const GitlabSelector = () => {
         .then((response) => response.json())
         .then((data) => {
           setTreeData(data?.items);
-          console.log(data.items);
           setLoading(false);
         });
     }
@@ -179,7 +161,7 @@ const GitlabSelector = () => {
       selectedNodes[0].value.endsWith('.png') ||
       selectedNodes[0].value.endsWith('.jpg') ||
       selectedNodes[0].value.endsWith('.jpeg') ||
-      selectedNodes[0].isFolder === 'true' ||
+      selectedNodes[0].is_folder === true ||
       selectedNodes.length > 1
     ) {
       setSingleSelected('');
@@ -200,7 +182,7 @@ const GitlabSelector = () => {
   const getChildren = async (node) => {
     try {
       const response = await fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?path=${node?.path}&ref=${node?.branch}&application_id=219`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?path=${node?.extended_properties?.path}&ref=${node?.extended_properties?.commit_id}&application_id=219`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -215,92 +197,92 @@ const GitlabSelector = () => {
   };
   return (
     <div className={style.mainDiv}>
-      <div className={style.select}>
-        <h6>Gitlab Group</h6>
-        <UseSelectPicker
-          placeholder="Choose Gitlab Group"
-          onChange={handleGroupChange}
-          items={group}
-        />
-      </div>
-      <div className={style.select}>
-        <h6>Projects</h6>
-        <UseSelectPicker
-          placeholder="Choose Project"
-          onChange={handleProjectChange}
-          items={projects}
-        />
-      </div>
-      <div className={style.select}>
-        <h6>Branch</h6>
-        <UseSelectPicker
-          placeholder="Choose Branch"
-          onChange={handleBranchChange}
-          items={branchList}
-        />
-      </div>
-      <div className={style.select}>
-        <h6>Commit</h6>
-        <UseSelectPicker
-          placeholder="Choose Commit"
-          onChange={handleCommitChange}
-          items={commitList}
-        />
-      </div>
-      {loading && (
-        <div>
-          <Placeholder.Paragraph rows={8} />
-          <Loader center content="loading" style={{ marginTop: '50px' }} />
-        </div>
-      )}
-      {treeData.length > 0 && (
-        <div>
-          <div className={style.treeDiv}>
-            <div className={style.tree}>
-              <CheckTree
-                data={treeData}
-                style={{ width: 280 }}
-                value={checkedValues}
-                onChange={(value) => handleTreeChange(value)}
-                getChildren={getChildren}
-                renderTreeNode={(node) => {
-                  return (
-                    <>
-                      {node.children ? <FolderFillIcon /> : <PageIcon />} {node.label}
-                    </>
-                  );
-                }}
-              />
+      {pExist ? (
+        <h3 style={{ textAlign: 'center', marginTop: '50px', color: '#1675e0' }}>
+          Selected group has no projects.
+        </h3>
+      ) : (
+        <div className={style.mainDiv}>
+          <div className={style.select}>
+            <h6>Projects</h6>
+            <UseSelectPicker
+              placeholder="Choose Project"
+              onChange={handleProjectChange}
+              items={projects}
+            />
+          </div>
+          <div className={style.select}>
+            <h6>Branch</h6>
+            <UseSelectPicker
+              placeholder="Choose Branch"
+              onChange={handleBranchChange}
+              items={branchList}
+            />
+          </div>
+          <div className={style.select}>
+            <h6>Commit</h6>
+            <UseSelectPicker
+              placeholder="Choose Commit"
+              onChange={handleCommitChange}
+              items={commitList}
+            />
+          </div>
+          {loading && (
+            <div>
+              <Placeholder.Paragraph rows={8} />
+              <Loader center content="loading" style={{ marginTop: '50px' }} />
             </div>
-            <div className={style.codemirror}>
-              <div>
-                {multipleSelected.length > 1 ? (
-                  <div className={style.error}>
-                    File content cannot be displayed when multiple files are selected
+          )}
+          {treeData.length > 0 && (
+            <div>
+              <div className={style.treeDiv}>
+                <div className={style.tree}>
+                  <CheckTree
+                    data={treeData}
+                    style={{ width: 280 }}
+                    value={checkedValues}
+                    onChange={(value) => handleTreeChange(value)}
+                    getChildren={getChildren}
+                    renderTreeNode={(node) => {
+                      return (
+                        <>
+                          {node.children ? <FolderFillIcon /> : <PageIcon />} {node.label}
+                        </>
+                      );
+                    }}
+                  />
+                </div>
+                <div className={style.codemirror}>
+                  <div>
+                    {multipleSelected.length > 1 ? (
+                      <div className={style.error}>
+                        File content cannot be displayed when multiple files are selected
+                      </div>
+                    ) : (
+                      selectedFile && (
+                        <CodeEditor
+                          singleSelected={singleSelected}
+                          fileExtension={fileExt}
+                          setSelectedCodes={setSelectedCodes}
+                          projectId={projectId}
+                          commitId={commitId}
+                        ></CodeEditor>
+                      )
+                    )}
                   </div>
-                ) : (
-                  selectedFile && (
-                    <CodeEditor
-                      singleSelected={singleSelected}
-                      fileExtension={fileExt}
-                      setSelectedCodes={setSelectedCodes}
-                      projectId={projectId}
-                      commitId={commitId}
-                    ></CodeEditor>
-                  )
-                )}
+                </div>
+              </div>
+              <div className={style.buttonDiv}>
+                <ButtonGroup
+                  selectedCodes={selectedCodes}
+                  multipleSelected={multipleSelected}
+                  branchId={branchId}
+                  projectId={projectId}
+                  singleSelected={singleSelected}
+                ></ButtonGroup>
               </div>
             </div>
-          </div>
-          <div className={style.buttonDiv}>
-            <ButtonGroup
-              selectedCodes={selectedCodes}
-              multipleSelected={multipleSelected}
-              branchId={branchId}
-              projectId={projectId}
-              singleSelected={singleSelected}
-            ></ButtonGroup>
-          </div>
+          )}
         </div>
       )}
     </div>

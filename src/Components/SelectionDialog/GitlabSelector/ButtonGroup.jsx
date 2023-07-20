@@ -1,29 +1,13 @@
 /* eslint-disable max-len */
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, ButtonToolbar, Loader, Placeholder } from 'rsuite';
 import CryptoJS from 'crypto-js';
-import SelectionAuthContext from '../../../Store/SelectionAuthContext';
 
-const ButtonGroup = ({
-  selectedCodes,
-  projectId,
-  branchId,
-  multipleSelected,
-  singleSelected,
-}) => {
+const ButtonGroup = ({ selectedCodes, multipleSelected, singleSelected }) => {
   const [loading, setLoading] = useState(false);
-  const authCtx = useContext(SelectionAuthContext);
   const handleSelect = async () => {
     setLoading(true);
-    const propsToRemove = [
-      'children',
-      'isFolder',
-      'label',
-      'value',
-      'expand',
-      'visible',
-      'refKey',
-    ];
+    const propsToRemove = ['children', 'is_folder', 'visible'];
     let value;
     if (singleSelected !== '') {
       value = JSON.parse(JSON.stringify(singleSelected));
@@ -51,68 +35,31 @@ const ButtonGroup = ({
       const data = encoder.encode(selecteCode);
       const hash = CryptoJS.SHA256(data);
       const hexString = hash.toString(CryptoJS.enc.Hex);
-      const initialOslcResponse = 'oslc-response:{ "oslc:results": [';
-      let oslcResponse = '';
-      const finalresponse = ']}';
+      const initialResponse = '[';
+      let Response = '';
+      const finalresponse = ']';
       let resultsPart = value;
 
       // Extract the contents of the square brackets
       if (Array.isArray(resultsPart)) {
         resultsPart = resultsPart[0];
       }
-      const url = resultsPart['rdf:resource'];
-      const subStr = '/component/';
-      const index = url.indexOf(subStr);
-      let resourceType = '';
-      let resourceId = '';
-      if (index !== -1) {
-        const result = url.substring(index + subStr.length);
-        const values = result.split('/');
-        resourceType = values[4];
-        let path = resultsPart['koatl:apiPath'];
-        path = path.replaceAll(' ', '%2520');
-        path = path.replaceAll('/', '%252F');
-        await fetch(
-          `https://gitlab-oslc-api-dev.koneksys.com/rest/v2/provider/${projectId}/file/${path}?branch_name=${branchId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${authCtx.token}`,
-            },
-          },
-        )
-          .then((response) => response.json())
-          .then((data) => {
-            // Assign the decoded data to fileCode
-            const res = data.split('-');
-            resourceId = res[0];
-          });
-      }
-
-      resultsPart['rdf:type'] += 'BlockOfCodeSelection';
-      resultsPart['oslc:content'] = hexString;
-      resultsPart[
-        'oslc:contentLine'
-      ] = `L${selectedCodes.startLineNumber}-L${selectedCodes.endLineNumber}`;
-      resultsPart['oslc:providerId'] = projectId;
-      resultsPart['oslc:resourceType'] = resourceType;
-      resultsPart['oslc:resourceId'] = resourceId;
-      resultsPart[
-        'oslc:selectedLines'
-      ] = `${selectedCodes.startLineNumber}-${selectedCodes.endLineNumber}`;
-      resultsPart['oslc:branchName'] = branchId;
-      resultsPart['oslc:api'] = 'gitlab';
+      resultsPart.description = '';
+      resultsPart.extended_properties.content_hash = hexString;
+      resultsPart.extended_properties.selected_lines = `${selectedCodes.startLineNumber}-${selectedCodes.endLineNumber}`;
+      resultsPart.type = 'RepositoryFileBlockOfCodeSelection';
       resultsPart = JSON.stringify(resultsPart);
-      oslcResponse += `${resultsPart}`;
+      Response += `${resultsPart}`;
 
-      oslcResponse = oslcResponse.replace(/^\[|\]$/g, '');
-      oslcResponse = initialOslcResponse + oslcResponse + finalresponse;
+      Response = Response.replace(/^\[|\]$/g, '');
+      Response = initialResponse + Response + finalresponse;
       setLoading(false);
-      console.log(oslcResponse);
-      respondWithPostMessage(oslcResponse);
+      console.log(Response);
+      respondWithPostMessage(Response);
     } else if (value.length > 1) {
-      const initialOslcResponse = 'oslc-response:{ "oslc:results": [';
-      let oslcResponse = '';
-      const finalresponse = ']}';
+      const initialResponse = '[';
+      let Response = '';
+      const finalResponse = ']';
 
       for (let i = 0; i < value.length; i++) {
         let resultsPart = value[i];
@@ -120,109 +67,47 @@ const ButtonGroup = ({
         if (Array.isArray(resultsPart)) {
           resultsPart = resultsPart[0];
         }
-        const url = resultsPart['rdf:resource'];
-        const subStr = '/component/';
-        const index = url.indexOf(subStr);
-        let resourceId = '';
-        if (index !== -1) {
-          let path = resultsPart['koatl:apiPath'];
-          path = path.replaceAll(' ', '%2520');
-          path = path.replaceAll('/', '%252F');
-          await fetch(
-            `https://gitlab-oslc-api-dev.koneksys.com/rest/v2/provider/${projectId}/file/${path}?branch_name=${branchId}`,
-            {
-              headers: {
-                Authorization: `Bearer ${authCtx.token}`,
-              },
-            },
-          )
-            .then((response) => response.json())
-            .then((data) => {
-              // Assign the decoded data to fileCode
-              const res = data.split('-');
-              resourceId = res[0];
-            });
-        }
-        resultsPart['oslc:content'] = '';
-        resultsPart['oslc:contentLine'] = '';
-        resultsPart['oslc:providerId'] = projectId;
-        resultsPart['oslc:resourceType'] = 'RepositoryFileBlockOfCodeSelection';
-        resultsPart['oslc:resourceId'] = resourceId;
-        resultsPart['oslc:selectedLines'] = '';
-        resultsPart['oslc:branchName'] = branchId;
-        resultsPart['oslc:api'] = 'gitlab';
+        resultsPart.extended_properties.content_hash = null;
+        resultsPart.extended_properties.selected_lines = null;
         resultsPart = JSON.stringify(resultsPart);
-        oslcResponse += `${resultsPart}`;
+        Response += `${resultsPart}`;
 
         if (i < value.length - 1) {
-          oslcResponse += ', ';
+          Response += ', ';
         }
       }
 
-      oslcResponse = oslcResponse.replace(/^\[|\]$/g, '');
-      oslcResponse = initialOslcResponse + oslcResponse + finalresponse;
+      Response = initialResponse + Response + finalResponse;
       setLoading(false);
-      console.log(oslcResponse);
-      respondWithPostMessage(oslcResponse);
+      console.log(Response);
+      respondWithPostMessage(Response);
     } else {
-      const initialOslcResponse = 'oslc-response:{ "oslc:results": [';
-      let oslcResponse = '';
-      const finalresponse = ']}';
+      const initialResponse = '[';
+      let Response = '';
+      const finalresponse = ']';
       let resultsPart = value;
 
       // Extract the contents of the square brackets
       if (Array.isArray(resultsPart)) {
         resultsPart = resultsPart[0];
       }
-      const url = resultsPart['rdf:resource'];
-      const subStr = '/component/';
-      const index = url.indexOf(subStr);
-      let resourceType = '';
-      let resourceId = '';
-      if (index !== -1) {
-        const result = url.substring(index + subStr.length);
-        const values = result.split('/');
-        resourceType = values[4];
-        let path = resultsPart['koatl:apiPath'];
-        path = path.replaceAll(' ', '%2520');
-        path = path.replaceAll('/', '%252F');
-        await fetch(
-          `https://gitlab-oslc-api-dev.koneksys.com/rest/v2/provider/${projectId}/file/${path}?branch_name=${branchId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${authCtx.token}`,
-            },
-          },
-        )
-          .then((response) => response.json())
-          .then((data) => {
-            // Assign the decoded data to fileCode
-            const res = data.split('-');
-            resourceId = res[0];
-          });
-      }
-      resultsPart['oslc:content'] = '';
-      resultsPart['oslc:contentLine'] = '';
-      resultsPart['oslc:providerId'] = projectId;
-      resultsPart['oslc:resourceType'] = resourceType;
-      resultsPart['oslc:resourceId'] = resourceId;
-      resultsPart['oslc:selectedLines'] = '';
-      resultsPart['oslc:branchName'] = branchId;
-      resultsPart['oslc:api'] = 'gitlab';
+      resultsPart.description = '';
+      resultsPart.extended_properties.content_hash = null;
+      resultsPart.extended_properties.selected_lines = null;
       resultsPart = JSON.stringify(resultsPart);
-      oslcResponse += `${resultsPart}`;
+      Response += `${resultsPart}`;
 
-      oslcResponse = oslcResponse.replace(/^\[|\]$/g, '');
-      oslcResponse = initialOslcResponse + oslcResponse + finalresponse;
+      Response = Response.replace(/^\[|\]$/g, '');
+      Response = initialResponse + Response + finalresponse;
       setLoading(false);
-      console.log(oslcResponse);
-      respondWithPostMessage(oslcResponse);
+      console.log(Response);
+      respondWithPostMessage(Response);
     }
   };
 
   // Function to send cancel response
   function sendCancelResponse() {
-    const oslcResponse = 'oslc-response:{ "oslc:results": [ ]}';
+    const oslcResponse = '[ ]';
     console.log(oslcResponse);
     if (window.location.hash === '#oslc-core-windowName-1.0') {
       // Window Name protocol in use
