@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import AuthContext from '../../../Store/Auth-Context';
-import { Form, Button, Schema, FlexboxGrid } from 'rsuite';
+import { Form, Button, Schema, FlexboxGrid, Message, toaster } from 'rsuite';
 import TextField from '../TextField';
 import { useContext } from 'react';
 import { useDispatch } from 'react-redux';
@@ -28,18 +28,26 @@ const AddUser = ({
   isAdminEditing,
   setCreateSuccess,
   setUpdateSuccess,
+  createSuccess,
+  updateSuccess,
   setCreateUpdateLoading,
-  setNotificationType,
-  setNotificationMessage,
 }) => {
   const [formError, setFormError] = React.useState({});
   const userFormRef = React.useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
+
   const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
   };
+
   // create data using react query
   const { isLoading: createLoading, mutate: createMutate } = useMutation(
     () =>
@@ -51,11 +59,9 @@ const AddUser = ({
         showNotification: showNotification,
       }),
     {
-      onSuccess: (value) => {
-        setCreateSuccess(value);
-      },
-      onError: () => {
+      onSettled: () => {
         setCreateUpdateLoading(false);
+        setCreateSuccess(!createSuccess);
       },
     },
   );
@@ -67,26 +73,21 @@ const AddUser = ({
         urlPath: `user/${editData?.id}`,
         token: authCtx.token,
         method: 'PUT',
-        body: { ...formValue },
+        body: { ...formValue, enabled: true },
         showNotification: showNotification,
       }),
     {
-      onSuccess: (value) => {
-        setUpdateSuccess(value);
-      },
-      onError: () => {
+      onSettled: () => {
         setCreateUpdateLoading(false);
+        setUpdateSuccess(!updateSuccess);
       },
     },
   );
-
+  // set Create and update loading
   useEffect(() => {
-    setCreateUpdateLoading(createLoading);
-  }, [createLoading]);
-
-  useEffect(() => {
-    setCreateUpdateLoading(updateLoading);
-  }, [updateLoading]);
+    if (createLoading) setCreateUpdateLoading(createLoading);
+    else if (updateLoading) setCreateUpdateLoading(updateLoading);
+  }, [createLoading, updateLoading]);
 
   // handle create and update form submit
   const handleSubmit = () => {

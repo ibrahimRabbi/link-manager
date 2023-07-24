@@ -216,6 +216,8 @@ const Users = () => {
             handleClose={handleClose}
             setCreateUpdateLoading={setCreateUpdateLoading}
             setUpdateSuccess={setUpdateSuccess}
+            createSuccess={createSuccess}
+            updateSuccess={updateSuccess}
             setCreateSuccess={setCreateSuccess}
             setNotificationType={setNotificationType}
             setNotificationMessage={setNotificationMessage}
