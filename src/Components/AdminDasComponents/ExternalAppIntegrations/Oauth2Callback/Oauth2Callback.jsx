@@ -54,7 +54,6 @@ const Oauth2Callback = () => {
 
   const { data: appData } = useQuery(['application'], () =>
     fetchAPIRequest({
-      // eslint-disable-next-line max-len
       urlPath: `application/${applicationId}`,
       token: authCtx.token,
       method: 'GET',
