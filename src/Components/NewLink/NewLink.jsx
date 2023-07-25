@@ -71,6 +71,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   };
   const dialogResponse = (res) => {
     setDialogRes(res);
+    console.log(res);
     console.log(dialogRes);
   };
   // Display project types conditionally by App name

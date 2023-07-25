@@ -60,7 +60,6 @@ const ButtonGroup = ({
       Response = initialResponse + Response + finalresponse;
       setLoading(false);
       dialogResponse(Response);
-      console.log(Response);
     } else if (value.length > 1) {
       const initialResponse = '[';
       let Response = '';
@@ -85,7 +84,6 @@ const ButtonGroup = ({
       Response = initialResponse + Response + finalResponse;
       setLoading(false);
       dialogResponse(Response);
-      console.log(Response);
     } else {
       const initialResponse = '[';
       let Response = '';
@@ -105,7 +103,6 @@ const ButtonGroup = ({
       Response = Response.replace(/^\[|\]$/g, '');
       Response = initialResponse + Response + finalresponse;
       setLoading(false);
-      console.log(Response);
       dialogResponse(Response);
     }
   };
