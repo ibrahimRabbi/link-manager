@@ -9,6 +9,7 @@ import {
   IconButton,
   Loader,
   Message,
+  Pagination,
   Schema,
   Stack,
   toaster,
@@ -27,7 +28,13 @@ import LinkManagerTable from './LinkManagerTable';
 import { useMutation } from '@tanstack/react-query';
 import fetchAPIRequest from '../../apiRequests/apiRequest';
 
-const { tableContainer } = styles;
+const {
+  tableContainer,
+  onlyTableContainer,
+  onlyTableContainerDark,
+  paginationStyle,
+  paginationStyleDark,
+} = styles;
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -44,6 +51,7 @@ const LinkManager = () => {
   const { linksStream, refreshData, isDark } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [page, setPage] = useState(1);
   const [searchValue, setSearchValue] = useState({ search_term: '' });
   const [isLinkSearching, setIsLinkSearching] = useState(false);
   const [selectedRowData, setSelectedRowData] = useState({});
@@ -57,16 +65,6 @@ const LinkManager = () => {
   const sourceFileURL = uri || sourceDataList?.uri;
   const searchRef = useRef();
 
-  const showNotification = (type, message) => {
-    if (type && message) {
-      const messages = (
-        <Message closable showIcon type={type}>
-          {message}
-        </Message>
-      );
-      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
-    }
-  };
   useEffect(() => {
     dispatch(handleIsWbe(isWbe));
   }, [location]);
@@ -98,15 +96,6 @@ const LinkManager = () => {
       },
     },
   );
-
-  // Handle pagination for the links table
-  const handlePagination = (value) => {
-    setCurrPage(value);
-  };
-  const handleChangeLimit = (dataKey) => {
-    setCurrPage(1);
-    setPageSize(dataKey);
-  };
 
   // get all links
   useEffect(() => {
@@ -140,6 +129,26 @@ const LinkManager = () => {
     })();
   }, [linksStream, pageSize, currPage, deleteSuccess, isLinkSearching, refreshData]);
 
+  const showNotification = (type, message) => {
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
+  };
+
+  useEffect(() => {
+    setCurrPage(page);
+  }, [page]);
+
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
+  };
+
   // handle search links
   const handleSearchLinks = () => {
     if (searchValue.search_term) {
@@ -168,15 +177,11 @@ const LinkManager = () => {
 
   const tableProps = {
     data: linksData?.items?.length ? linksData?.items : [],
-    handlePagination,
     handleChangeLimit,
     handleDeleteLink,
     setSelectedRowData: setSelectedRowData,
     totalItems: linksData?.total_items,
     totalPages: linksData?.total_pages,
-    setCurrPage,
-    pageSize,
-    page: linksData?.page,
   };
 
   return (
@@ -203,7 +208,7 @@ const LinkManager = () => {
                   display: 'flex',
                   alignItems: 'center',
                   backgroundColor: isDark === 'dark' ? darkBgColor : lightBgColor,
-                  padding: '10px 0',
+                  paddingBottom: '10px',
                 }}
               >
                 <FlexboxGrid.Item>
@@ -282,7 +287,32 @@ const LinkManager = () => {
                 </FlexboxGrid.Item>
               </FlexboxGrid>
 
-              <LinkManagerTable props={tableProps} />
+              <div
+                className={
+                  isDark === 'dark' ? onlyTableContainerDark : onlyTableContainer
+                }
+              >
+                <LinkManagerTable props={tableProps} />
+              </div>
+              {/* --- Table Pagination ---  */}
+              <Pagination
+                className={isDark === 'dark' ? paginationStyleDark : paginationStyle}
+                prev
+                next
+                first
+                last
+                ellipsis
+                boundaryLinks
+                maxButtons={2}
+                size="lg"
+                layout={['-', 'total', '|', 'limit', 'pager']}
+                total={tableProps?.totalItems ? tableProps?.totalItems : 0}
+                limitOptions={[5, 10, 25, 50, 100]}
+                limit={pageSize}
+                activePage={page}
+                onChangePage={setPage}
+                onChangeLimit={(v) => handleChangeLimit(v)}
+              />
             </div>
           </div>
         </div>

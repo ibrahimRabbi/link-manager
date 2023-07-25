@@ -22,7 +22,7 @@ const visGraphOptions = {
     },
     font: {
       color: '#1c1616',
-      size: 14, // px
+      size: 10, // px
       face: 'arial',
       background: 'none',
       strokeWidth: 0, // px
@@ -39,21 +39,21 @@ const visGraphOptions = {
       },
       ital: {
         color: '#343434',
-        size: 12, // px
+        size: 10, // px
         face: 'arial',
         vadjust: 0,
         mod: 'italic',
       },
       boldital: {
         color: '#343434',
-        size: 12, // px
+        size: 10, // px
         face: 'arial',
         vadjust: 0,
         mod: 'bold italic',
       },
       mono: {
         color: '#343434',
-        size: 12, // px
+        size: 10, // px
         face: 'courier new',
         vadjust: 2,
         mod: '',
@@ -62,7 +62,7 @@ const visGraphOptions = {
     group: undefined,
     labelHighlightBold: true,
     level: undefined,
-    mass: 1.1,
+    mass: 1,
     physics: true,
     scaling: {
       min: 29,
@@ -91,15 +91,15 @@ const visGraphOptions = {
       useBorderWithImage: false, // only for image shape
     },
     // size: 50,
-    widthConstraint: 65,
-    heightConstraint: 65,
+    widthConstraint: 45,
+    heightConstraint: 45,
   },
 
   edges: {
     arrows: {
       to: {
         enabled: true,
-        scaleFactor: 0.7,
+        scaleFactor: 1,
         type: 'arrow',
       },
       middle: {
@@ -135,7 +135,7 @@ const visGraphOptions = {
     dashes: false,
     font: {
       color: '#343434',
-      size: 12, // px
+      size: 10, // px
       face: 'arial',
       background: 'none',
       strokeWidth: 1.5, // px
@@ -173,7 +173,7 @@ const visGraphOptions = {
       },
     },
     hidden: false,
-    hoverWidth: 1,
+    hoverWidth: 0.8,
     label: undefined,
     labelHighlightBold: true,
     length: undefined,
@@ -189,7 +189,7 @@ const visGraphOptions = {
         drawThreshold: 10,
       },
     },
-    selectionWidth: 1,
+    selectionWidth: 0.5,
     shadow: {
       enabled: false,
       color: 'rgba(0,0,0,0.5)',
@@ -200,7 +200,7 @@ const visGraphOptions = {
     smooth: {
       enabled: true,
       type: 'dynamic',
-      roundness: 0.5,
+      roundness: 1,
     },
     title: undefined,
     value: undefined,
@@ -236,11 +236,11 @@ const visGraphOptions = {
     // handle node and edges gravity
     barnesHut: {
       gravitationalConstant: -2500,
-      centralGravity: 0.1,
+      centralGravity: 0.02,
       springLength: 150,
-      springConstant: 0.02,
-      damping: 0.1,
-      avoidOverlap: 2,
+      springConstant: 0.06,
+      damping: 0.5,
+      avoidOverlap: 0.2,
     },
     forceAtlas2Based: {
       gravitationalConstant: -50,
@@ -274,7 +274,7 @@ const visGraphOptions = {
       onlyDynamicEdges: false,
       fit: true,
     },
-    timestep: 0.5,
+    timestep: 1,
     adaptiveTimestep: true,
   },
   interaction: {
