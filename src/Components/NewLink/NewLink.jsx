@@ -54,6 +54,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   let [projectTypeItems, setProjectTypeItems] = useState([]);
   const [projectFrameSrc, setProjectFrameSrc] = useState('');
   const [projectId, setProjectId] = useState('');
+  const [appData, setAppData] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -160,6 +161,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           `${gitlabDialogURL}/oslc/provider/selector?provider_id=${projectId}&gc_context=${'st-develop'}`,
         );
       } else if (gitlabAppNative) {
+        const tempAppData = projectTypeItems?.filter((app) => {
+          if (app.name === projectType) return app;
+        });
+        tempAppData[0].name = tempAppData[0].appName;
+
+        setAppData(tempAppData[0]);
         setGitlabSelect(true);
         setGroupId(projectId);
         setProjectFrameSrc('');
@@ -443,6 +450,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               <GitlabSelector
                 id={groupId}
                 handleSaveLink={handleSaveLink}
+                appData={appData}
               ></GitlabSelector>
             )}
           </div>
