@@ -116,14 +116,14 @@ const LinkManagerTable = ({ props }) => {
           delayClose={800}
         >
           <a href={rowData?.id} target="_blank" rel="noopener noreferrer">
-            {rowData?.content_lines
+            {rowData?.selected_lines
               ? rowData?.name?.length > 15
                 ? rowData?.name?.slice(0, 15 - 1) +
                   '...' +
                   ' [' +
-                  rowData?.content_lines +
+                  rowData?.selected_lines +
                   ']'
-                : rowData?.name + ' [' + rowData?.content_lines + ']'
+                : rowData?.name + ' [' + rowData?.selected_lines + ']'
               : rowData?.name}
           </a>
         </Whisper>

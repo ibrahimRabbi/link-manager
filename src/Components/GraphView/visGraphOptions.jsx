@@ -22,38 +22,38 @@ const visGraphOptions = {
     },
     font: {
       color: '#1c1616',
-      size: 10, // px
+      size: 10,
       face: 'arial',
       background: 'none',
-      strokeWidth: 0, // px
+      strokeWidth: 0,
       strokeColor: '#ffffff',
       align: 'center',
       multi: true,
       vadjust: 0,
       bold: {
         color: '#343434',
-        size: 12, // px
+        size: 12,
         face: 'arial',
         vadjust: 0,
         mod: 'bold',
       },
       ital: {
         color: '#343434',
-        size: 10, // px
+        size: 10,
         face: 'arial',
         vadjust: 0,
         mod: 'italic',
       },
       boldital: {
         color: '#343434',
-        size: 10, // px
+        size: 10,
         face: 'arial',
         vadjust: 0,
         mod: 'bold italic',
       },
       mono: {
         color: '#343434',
-        size: 10, // px
+        size: 10,
         face: 'courier new',
         vadjust: 2,
         mod: '',
@@ -84,13 +84,12 @@ const visGraphOptions = {
     },
     shape: 'circle',
     shapeProperties: {
-      borderDashes: false, // only for borders
-      borderRadius: 50, // only for box shape
-      interpolation: false, // only for image and circularImage shapes
-      useImageSize: false, // only for image and circularImage shapes
-      useBorderWithImage: false, // only for image shape
+      borderDashes: false,
+      borderRadius: 50,
+      interpolation: false,
+      useImageSize: false,
+      useBorderWithImage: false,
     },
-    // size: 50,
     widthConstraint: 45,
     heightConstraint: 45,
   },
@@ -135,38 +134,38 @@ const visGraphOptions = {
     dashes: false,
     font: {
       color: '#343434',
-      size: 10, // px
+      size: 10,
       face: 'arial',
       background: 'none',
-      strokeWidth: 1.5, // px
+      strokeWidth: 1.5,
       strokeColor: '#ffffff',
       align: 'middle',
       multi: true,
       vadjust: 0,
       bold: {
         color: '#343434',
-        size: 14, // px
+        size: 14,
         face: 'arial',
         vadjust: 0,
         mod: 'bold',
       },
       ital: {
         color: '#343434',
-        size: 14, // px
+        size: 14,
         face: 'arial',
         vadjust: 0,
         mod: 'italic',
       },
       boldital: {
         color: '#343434',
-        size: 14, // px
+        size: 14,
         face: 'arial',
         vadjust: 0,
         mod: 'bold italic',
       },
       mono: {
         color: '#343434',
-        size: 15, // px
+        size: 15,
         face: 'courier new',
         vadjust: 2,
         mod: '',
