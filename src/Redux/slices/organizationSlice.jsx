@@ -1,8 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import deleteAPI from '../apiRequests/deleteAPI';
-import getAPI from '../apiRequests/getAPI';
-import postAPI from '../apiRequests/postAPI';
-import putAPI from '../apiRequests/putAPI';
+import getAPI, { deleteAPI, putAPI, saveResource } from '../apiRequests/API';
 
 // Fetch get all organizations
 export const fetchOrganizations = createAsyncThunk(
@@ -17,7 +14,7 @@ export const fetchOrganizations = createAsyncThunk(
 export const fetchCreateOrg = createAsyncThunk(
   'organizations/fetchCreateOrg',
   async ({ url, token, bodyData, message }) => {
-    const res = postAPI({ url, token, bodyData, message });
+    const res = saveResource({ url, token, bodyData, message });
     return res;
   },
 );

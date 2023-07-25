@@ -8,7 +8,7 @@ import {
 } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Form, Loader, Schema, Tree } from 'rsuite';
+import { FlexboxGrid, Form, Loader, Message, Schema, Tree, toaster } from 'rsuite';
 import TextField from '../TextField';
 import { useRef } from 'react';
 import TextArea from '../TextArea';
@@ -20,7 +20,7 @@ import {
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
 
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 // demo data
 const headerData = [
@@ -66,6 +66,16 @@ const Events = () => {
     trigger_endpoint: '',
     description: '',
   });
+  const showNotification = (type, message) => {
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
+  };
 
   const eventFormRef = useRef();
   const authCtx = useContext(AuthContext);
@@ -98,6 +108,7 @@ const Events = () => {
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
+          showNotification: showNotification,
         }),
       );
     } else {
@@ -108,6 +119,7 @@ const Events = () => {
           token: authCtx.token,
           bodyData: formValue,
           message: 'event',
+          showNotification: showNotification,
         }),
       );
     }
@@ -134,6 +146,7 @@ const Events = () => {
         url: getUrl,
         token: authCtx.token,
         stateName: 'allEvents',
+        showNotification: showNotification,
       }),
     );
   }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
@@ -152,7 +165,13 @@ const Events = () => {
     }).then((value) => {
       if (value.isConfirmed) {
         const deleteUrl = `${lmApiUrl}/events/${data?.id}`;
-        dispatch(fetchDeleteData({ url: deleteUrl, token: authCtx.token }));
+        dispatch(
+          fetchDeleteData({
+            url: deleteUrl,
+            token: authCtx.token,
+            showNotification: showNotification,
+          }),
+        );
       }
     });
   };

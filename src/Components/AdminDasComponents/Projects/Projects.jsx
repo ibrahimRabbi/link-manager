@@ -7,22 +7,18 @@ import {
   handleIsAddNewModal,
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
-import { FlexboxGrid, Form, Schema } from 'rsuite';
+import { FlexboxGrid, Form, Message, Schema, toaster } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
 import TextField from '../TextField';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
-import {
-  fetchCreateData,
-  fetchDeleteData,
-  fetchGetData,
-  fetchUpdateData,
-} from '../../../Redux/slices/useCRUDSlice';
 import SelectField from '../SelectField.jsx';
 import CustomSelect from '../CustomSelect.jsx';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import fetchAPIRequest from '../../../apiRequests/apiRequest';
 
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 // demo data
 const headerData = [
@@ -53,24 +49,107 @@ const model = Schema.Model({
 });
 
 const Projects = () => {
-  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
-    (state) => state.crud,
-  );
-
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
+  const [deleteData, setDeleteData] = useState({});
   const [formValue, setFormValue] = useState({
     name: '',
     description: '',
     organization_id: '',
   });
-
+  const showNotification = (type, message) => {
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
+  };
   const projectFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
+
+  // get projects using react-query
+  const {
+    data: allProjects,
+    isLoading,
+    refetch: refetchProjects,
+  } = useQuery(['project'], () =>
+    fetchAPIRequest({
+      urlPath: `project?page=${currPage}&per_page=${pageSize}`,
+      token: authCtx.token,
+      method: 'GET',
+      showNotification: showNotification,
+    }),
+  );
+
+  // create project using react query
+  const {
+    isLoading: createLoading,
+    isSuccess: createSuccess,
+    mutate: createMutate,
+  } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: 'project',
+        token: authCtx.token,
+        method: 'POST',
+        body: formValue,
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (value) => {
+        console.log(value);
+      },
+    },
+  );
+
+  // update project using react query
+  const {
+    isLoading: updateLoading,
+    isSuccess: updateSuccess,
+    mutate: updateMutate,
+  } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: `project/${editData?.id}`,
+        token: authCtx.token,
+        method: 'PUT',
+        body: formValue,
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (value) => {
+        console.log(value);
+      },
+    },
+  );
+
+  // Delete project using react query
+  const {
+    isLoading: deleteLoading,
+    isSuccess: deleteSuccess,
+    mutate: deleteMutate,
+  } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: `project/${deleteData?.id}`,
+        token: authCtx.token,
+        method: 'DELETE',
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (value) => {
+        console.log(value);
+        setDeleteData({});
+      },
+    },
+  );
 
   // Pagination
   const handlePagination = (value) => {
@@ -87,24 +166,9 @@ const Projects = () => {
       console.error('Form Error', formError);
       return;
     } else if (isAdminEditing) {
-      const putUrl = `${lmApiUrl}/project/${editData?.id}`;
-      dispatch(
-        fetchUpdateData({
-          url: putUrl,
-          token: authCtx.token,
-          bodyData: formValue,
-        }),
-      );
+      updateMutate();
     } else {
-      const postUrl = `${lmApiUrl}/project`;
-      dispatch(
-        fetchCreateData({
-          url: postUrl,
-          token: authCtx.token,
-          bodyData: formValue,
-          message: 'project',
-        }),
-      );
+      createMutate();
     }
 
     dispatch(handleIsAddNewModal(false));
@@ -125,15 +189,8 @@ const Projects = () => {
   useEffect(() => {
     dispatch(handleCurrPageTitle('Projects'));
 
-    const getUrl = `${lmApiUrl}/project?page=${currPage}&per_page=${pageSize}`;
-    dispatch(
-      fetchGetData({
-        url: getUrl,
-        token: authCtx.token,
-        stateName: 'allProjects',
-      }),
-    );
-  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
+    refetchProjects();
+  }, [createSuccess, updateSuccess, deleteSuccess, pageSize, currPage, refreshData]);
 
   // handle open add user modal
   const handleAddNew = () => {
@@ -143,6 +200,7 @@ const Projects = () => {
 
   // handle delete project
   const handleDelete = (data) => {
+    setDeleteData(data);
     Swal.fire({
       title: 'Are you sure',
       icon: 'info',
@@ -154,8 +212,7 @@ const Projects = () => {
       reverseButtons: true,
     }).then((value) => {
       if (value.isConfirmed) {
-        const deleteUrl = `${lmApiUrl}/project/${data?.id}`;
-        dispatch(fetchDeleteData({ url: deleteUrl, token: authCtx.token }));
+        deleteMutate();
       }
     });
   };
@@ -175,17 +232,17 @@ const Projects = () => {
   // send props in the batch action table
   const tableProps = {
     title: 'Projects',
-    rowData: crudData?.allProjects?.items?.length ? crudData?.allProjects?.items : [],
+    rowData: allProjects ? allProjects?.items : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: crudData?.allProjects?.total_items,
-    totalPages: crudData?.allProjects?.total_pages,
+    totalItems: allProjects?.total_items,
+    totalPages: allProjects?.total_pages,
     pageSize,
-    page: crudData?.allProjects?.page,
+    page: allProjects?.page,
     inpPlaceholder: 'Search Project',
   };
 
@@ -228,8 +285,7 @@ const Projects = () => {
         </Form>
       </AddNewModal>
 
-      {isCrudLoading && <UseLoader />}
-
+      {(isLoading || createLoading || updateLoading || deleteLoading) && <UseLoader />}
       <AdminDataTable props={tableProps} />
     </div>
   );

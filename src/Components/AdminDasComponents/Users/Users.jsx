@@ -7,12 +7,11 @@ import {
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
-import { Modal } from 'rsuite';
+import { Message, Modal, toaster } from 'rsuite';
 import AddUser from './AddUser';
 import UseLoader from '../../Shared/UseLoader';
-import { fetchDeleteData, fetchGetData } from '../../../Redux/slices/useCRUDSlice';
-
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+import { useMutation, useQuery } from '@tanstack/react-query';
+import fetchAPIRequest from '../../../apiRequests/apiRequest';
 
 // demo data
 const headerData = [
@@ -21,7 +20,7 @@ const headerData = [
     key: 'id',
   },
   {
-    header: 'User Name',
+    header: 'Users Name',
     key: 'username',
   },
   {
@@ -39,13 +38,13 @@ const headerData = [
 ];
 
 const Users = () => {
-  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
-    (state) => state.crud,
-  );
-
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [isAddModal, setIsAddModal] = useState(false);
+  const [createUpdateLoading, setCreateUpdateLoading] = useState(false);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
+  const [createSuccess, setCreateSuccess] = useState(false);
   const [editData, setEditData] = useState({});
+  const [deleteData, setDeleteData] = useState({});
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formValue, setFormValue] = React.useState({
@@ -54,9 +53,61 @@ const Users = () => {
     username: '',
     email: '',
   });
-
+  const [notificationType, setNotificationType] = React.useState('');
+  const [notificationMessage, setNotificationMessage] = React.useState('');
+  const showNotification = (type, message) => {
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    } else if (notificationMessage && notificationType) {
+      const messages = (
+        <Message closable showIcon type={notificationType}>
+          {notificationMessage}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
+  };
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
+
+  // get data using react-query
+  const {
+    data: allUsers,
+    isLoading,
+    refetch: refetchUsers,
+  } = useQuery(['user'], () =>
+    fetchAPIRequest({
+      urlPath: `user?page=${currPage}&per_page=${pageSize}`,
+      token: authCtx.token,
+      method: 'GET',
+      showNotification: showNotification,
+    }),
+  );
+
+  // Delete data using react query
+  const {
+    isLoading: deleteLoading,
+    isSuccess: deleteSuccess,
+    mutate: deleteMutate,
+  } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: `user/${deleteData?.id}`,
+        token: authCtx.token,
+        method: 'DELETE',
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: () => {
+        setDeleteData({});
+      },
+    },
+  );
 
   const handleClose = () => {
     setIsAddModal(false);
@@ -65,18 +116,22 @@ const Users = () => {
 
   // handle open add user modal
   const handleAddNew = () => {
+    dispatch(handleIsAdminEditing(false));
     setIsAddModal(true);
   };
 
   // reset form
   const handleResetForm = () => {
-    setEditData({});
-    setFormValue({
-      first_name: '',
-      last_name: '',
-      username: '',
-      email: '',
-    });
+    setTimeout(() => {
+      setEditData({});
+      if (isAdminEditing) dispatch(handleIsAdminEditing(false));
+      setFormValue({
+        first_name: '',
+        last_name: '',
+        username: '',
+        email: '',
+      });
+    }, 500);
   };
 
   // Pagination
@@ -92,23 +147,16 @@ const Users = () => {
   // get all users
   useEffect(() => {
     dispatch(handleCurrPageTitle('Users'));
-
-    const getUrl = `${lmApiUrl}/user?page=${currPage}&per_page=${pageSize}`;
-    dispatch(
-      fetchGetData({
-        url: getUrl,
-        token: authCtx.token,
-        stateName: 'allUsers',
-      }),
-    );
-  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
+    refetchUsers();
+  }, [createSuccess, updateSuccess, deleteSuccess, pageSize, currPage, refreshData]);
 
   // handle delete user
   const handleDelete = (data) => {
+    setDeleteData(data);
     Swal.fire({
       title: 'Are you sure',
       icon: 'info',
-      text: 'Do you want to delete the users!!',
+      text: 'Are you sure you want to delete this user?',
       cancelButtonColor: 'red',
       showCancelButton: true,
       confirmButtonText: 'Delete',
@@ -116,8 +164,7 @@ const Users = () => {
       reverseButtons: true,
     }).then((value) => {
       if (value.isConfirmed) {
-        const deleteUrl = `${lmApiUrl}/user/${data?.id}`;
-        dispatch(fetchDeleteData({ url: deleteUrl, token: authCtx.token }));
+        deleteMutate();
       }
     });
   };
@@ -138,17 +185,17 @@ const Users = () => {
   // send props in the batch action table
   const tableProps = {
     title: 'Users',
-    rowData: crudData?.allUsers?.items?.length ? crudData?.allUsers?.items : [],
+    rowData: allUsers ? allUsers?.items : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: crudData?.allUsers?.total_items,
-    totalPages: crudData?.allUsers?.total_pages,
+    totalItems: allUsers?.total_items,
+    totalPages: allUsers?.total_pages,
     pageSize,
-    page: crudData?.allUsers?.page,
+    page: allUsers?.page,
     inpPlaceholder: 'Search User',
   };
 
@@ -167,14 +214,20 @@ const Users = () => {
             setFormValue={setFormValue}
             editData={editData}
             handleClose={handleClose}
+            setCreateUpdateLoading={setCreateUpdateLoading}
+            setUpdateSuccess={setUpdateSuccess}
+            createSuccess={createSuccess}
+            updateSuccess={updateSuccess}
+            setCreateSuccess={setCreateSuccess}
+            setNotificationType={setNotificationType}
+            setNotificationMessage={setNotificationMessage}
             isUserSection={true}
           />
         </Modal.Body>
         <Modal.Footer></Modal.Footer>
       </Modal>
 
-      {isCrudLoading && <UseLoader />}
-
+      {(isLoading || createUpdateLoading || deleteLoading) && <UseLoader />}
       <AdminDataTable props={tableProps} />
     </div>
   );

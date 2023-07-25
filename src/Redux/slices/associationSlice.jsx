@@ -1,14 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import deleteAPI from '../apiRequests/deleteAPI';
-import getAPI from '../apiRequests/getAPI';
-import postAPI from '../apiRequests/postAPI';
-import putAPI from '../apiRequests/putAPI';
+import getAPI, { deleteAPI, putAPI, saveResource } from '../apiRequests/API';
 
 // Fetch get all associations
 export const fetchAssociations = createAsyncThunk(
   'associations/fetchAssociations',
-  async ({ url, token }) => {
-    const response = getAPI({ url, token });
+  async ({ url, token, showNotification }) => {
+    const response = getAPI({ url, token, showNotification });
     return response;
   },
 );
@@ -16,8 +13,8 @@ export const fetchAssociations = createAsyncThunk(
 // Create New Association
 export const fetchCreateAssoc = createAsyncThunk(
   'associations/fetchCreateAssoc',
-  async ({ url, token, bodyData, reset }) => {
-    const res = await postAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData, reset, showNotification }) => {
+    const res = await saveResource({ url, token, bodyData, reset, showNotification });
     return res;
   },
 );
@@ -25,8 +22,8 @@ export const fetchCreateAssoc = createAsyncThunk(
 // Update Association
 export const fetchUpdateAssoc = createAsyncThunk(
   'associations/fetchUpdateAssoc',
-  async ({ url, token, bodyData, reset }) => {
-    const res = putAPI({ url, token, bodyData, reset });
+  async ({ url, token, bodyData, reset, showNotification }) => {
+    const res = putAPI({ url, token, bodyData, reset, showNotification });
     return res;
   },
 );
@@ -34,8 +31,8 @@ export const fetchUpdateAssoc = createAsyncThunk(
 // Delete Association
 export const fetchDeleteAssoc = createAsyncThunk(
   'associations/fetchDeleteAssoc',
-  async ({ url, token }) => {
-    const response = await deleteAPI({ url, token });
+  async ({ url, token, showNotification }) => {
+    const response = await deleteAPI({ url, token, showNotification });
     return { ...response, message: 'deleted Response' };
   },
 );
@@ -43,6 +40,9 @@ export const fetchDeleteAssoc = createAsyncThunk(
 /// All user states
 const initialState = {
   allAssociations: {},
+  applicationsForDropdown: [],
+  projectsForDropdown: [],
+  projectsForDropdownOslc: [],
   consumerTokens: {},
   isAssocCreated: false,
   isAssocUpdated: false,
@@ -54,7 +54,17 @@ export const associationSlice = createSlice({
   name: 'associations',
   initialState,
 
-  reducers: {},
+  reducers: {
+    handleStoreDropdownItems: (state, { payload }) => {
+      if (payload?.label === 'rootservices_url') {
+        state.applicationsForDropdown = payload?.data;
+      } else if (payload?.label === 'workTitle') {
+        state.projectsForDropdown = payload?.data;
+      } else if (payload?.label === 'label') {
+        state.projectsForDropdownOslc = payload?.data;
+      }
+    },
+  },
   //----------------------\\
   extraReducers: (builder) => {
     // Get all Project
@@ -68,9 +78,21 @@ export const associationSlice = createSlice({
     builder.addCase(fetchAssociations.fulfilled, (state, { payload }) => {
       state.isAssocLoading = false;
       if (payload?.items) {
-        state.allAssociations = payload;
+        const mergeData = payload?.items?.reduce((accumulator, value) => {
+          const newValue = {
+            ...value,
+            project_name: value?.project?.name,
+            application_name: value?.application?.name,
+            organization_id: value?.application?.organization_id,
+          };
+          accumulator.push(newValue);
+          return accumulator;
+        }, []);
+        state.allAssociations = { ...payload, items: mergeData };
+        state.isAssocLoading = false;
       }
     });
+
     builder.addCase(fetchAssociations.rejected, (state) => {
       state.isAssocLoading = false;
     });
@@ -80,10 +102,9 @@ export const associationSlice = createSlice({
       state.isAssocLoading = true;
     });
 
-    builder.addCase(fetchCreateAssoc.fulfilled, (state, { payload }) => {
+    builder.addCase(fetchCreateAssoc.fulfilled, (state) => {
       state.isAssocLoading = false;
       state.isAssocCreated = true;
-      console.log('Creating association: ', payload);
     });
 
     builder.addCase(fetchCreateAssoc.rejected, (state) => {
@@ -95,9 +116,8 @@ export const associationSlice = createSlice({
       state.isAssocLoading = true;
     });
 
-    builder.addCase(fetchUpdateAssoc.fulfilled, (state, { payload }) => {
+    builder.addCase(fetchUpdateAssoc.fulfilled, (state) => {
       state.isAssocLoading = false;
-      console.log('Updating association: ', payload);
       state.isAssocUpdated = true;
     });
 
@@ -110,10 +130,9 @@ export const associationSlice = createSlice({
       state.isAssocLoading = true;
     });
 
-    builder.addCase(fetchDeleteAssoc.fulfilled, (state, { payload }) => {
+    builder.addCase(fetchDeleteAssoc.fulfilled, (state) => {
       state.isAssocLoading = false;
       state.isAssocDeleted = true;
-      console.log('Deleting association: ', payload);
     });
 
     builder.addCase(fetchDeleteAssoc.rejected, (state) => {
@@ -123,6 +142,6 @@ export const associationSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-// export const { } = associationSlice.actions;
+export const { handleStoreDropdownItems } = associationSlice.actions;
 
 export default associationSlice.reducer;

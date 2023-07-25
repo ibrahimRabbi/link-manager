@@ -1,9 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import deleteAPI from '../apiRequests/deleteAPI';
-import getAPI from '../apiRequests/getAPI';
-import postAPI from '../apiRequests/postAPI';
-import putAPI from '../apiRequests/putAPI';
 import getOslcAPI from '../oslcRequests/getOslcAPI.jsx';
+import getAPI, { deleteAPI, putAPI, saveResource } from '../apiRequests/API';
 
 const OSLC_PUBLISHER_URL = 'http://open-services.net/ns/core#publisher';
 const OSLC_PUBLISHER_ICON = 'http://open-services.net/ns/core#icon';
@@ -26,44 +23,49 @@ export const fetchApplicationPublisherIcon = createAsyncThunk(
         icon: null,
       };
 
-      if (current?.rootservicesUrl) {
-        const oslcResponse = await getOslcAPI({
-          url: current.rootservicesUrl,
-          token: 'dummy',
-        });
-
-        if (oslcResponse instanceof Array) {
-          oslcResponse.every((item) => {
-            if (item[OSLC_PUBLISHER_URL][0]['@id']) {
-              appDataObj['publisherUrl'] = item[OSLC_PUBLISHER_URL][0]['@id'];
-              return false;
-            }
-            return true;
-          });
-        }
-
-        if (appDataObj.publisherUrl) {
-          const publisherResponse = await getOslcAPI({
-            url: appDataObj.publisherUrl,
+      try {
+        if (current?.rootservicesUrl) {
+          new URL(current?.rootservicesUrl);
+          const oslcResponse = await getOslcAPI({
+            url: current.rootservicesUrl,
             token: 'dummy',
           });
-          publisherResponse.every((item) => {
-            if (item[OSLC_PUBLISHER_ICON][0]['@id']) {
-              appDataObj['icon'] = item[OSLC_PUBLISHER_ICON][0]['@id'];
-              return false;
-            }
-            return true;
-          });
+
+          if (oslcResponse instanceof Array) {
+            oslcResponse.every((item) => {
+              if (item[OSLC_PUBLISHER_URL][0]['@id']) {
+                appDataObj['publisherUrl'] = item[OSLC_PUBLISHER_URL][0]['@id'];
+                return false;
+              }
+              return true;
+            });
+          }
+
+          if (appDataObj.publisherUrl) {
+            const publisherResponse = await getOslcAPI({
+              url: appDataObj.publisherUrl,
+              token: 'dummy',
+            });
+            publisherResponse.every((item) => {
+              if (item[OSLC_PUBLISHER_ICON][0]['@id']) {
+                appDataObj['icon'] = item[OSLC_PUBLISHER_ICON][0]['@id'];
+                return false;
+              }
+              return true;
+            });
+          }
         }
-      }
-      if (current.rootservicesUrl && appDataObj.icon) {
-        const appWithIcon = {
-          ...current,
-          iconUrl: appDataObj.icon,
-          publisherUrl: appDataObj.publisherUrl,
-        };
-        const acc = await accumulator;
-        acc.push(appWithIcon);
+        if (current?.rootservicesUrl && appDataObj?.icon) {
+          const appWithIcon = {
+            ...current,
+            iconUrl: appDataObj?.icon,
+            publisherUrl: appDataObj?.publisherUrl,
+          };
+          const acc = await accumulator;
+          acc.push(appWithIcon);
+        }
+      } catch (error) {
+        console.log(error);
       }
 
       return await accumulator;
@@ -77,7 +79,7 @@ export const fetchApplicationPublisherIcon = createAsyncThunk(
 export const fetchCreateApp = createAsyncThunk(
   'applications/fetchCreateApp',
   async ({ url, token, bodyData, message }) => {
-    const res = await postAPI({ url, token, bodyData, message });
+    const res = await saveResource({ url, token, bodyData, message });
     return res;
   },
 );

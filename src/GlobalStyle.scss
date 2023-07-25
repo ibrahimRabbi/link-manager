@@ -1,6 +1,3 @@
-@use '@carbon/colors';
-@use '@carbon/type';
-
 .App {
   min-height: 100vh;
 
@@ -35,6 +32,10 @@
   input::placeholder {
     font-size: 17px !important;
   }
+
+  a {
+    font-size: 17px !important;
+  }
 }
 
 .mainContainer {
@@ -49,7 +50,7 @@
 
 .container {
   position: relative;
-  padding-bottom: 30px;
+  padding-bottom: 10px;
 }
 
 .show_nav {
@@ -78,8 +79,6 @@
   justify-content: space-between;
   padding: 10px 1vw;
   margin-bottom: 15px;
-  // border-radius: 10px;
-  // box-shadow: 0 0 5px 1px lightgray;
 
   button {
     border-radius: 5px;
@@ -103,12 +102,42 @@
 
 .graphContainer {
   width: 100%;
-  height: 97vh;
+  height: 90vh;
 }
 
 .wbeNavSpace {
   margin-top: 15px;
   margin-left: 5px;
+}
+
+// links side nav
+.links-components-sidebar {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100vh;
+
+  .links-side-nav-body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 20px;
+  }
+
+  .wbe-nav-setting {
+    margin: auto 0 20px;
+  }
+}
+
+// admin side nav
+.admin-components-sidebar {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 93vh;
+
+  .admin-side-nav-body {
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 20px;
+  }
 }
 
 .dropdown-text {
@@ -167,4 +196,22 @@
   height: 480px;
   border: 0;
   border: 1px dashed lightgray;
+}
+
+.toast-container {
+  margin-bottom: 40px;
+}
+
+.download-link:hover {
+  color: blue;
+}
+
+.column-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.rs-drawer-body {
+  padding: 30px 20px !important;
 }

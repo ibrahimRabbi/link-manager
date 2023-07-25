@@ -9,7 +9,7 @@ import {
 } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Form, Schema } from 'rsuite';
+import { FlexboxGrid, Form, Message, Schema, toaster } from 'rsuite';
 import TextField from '../TextField';
 import SelectField from '../SelectField';
 import { useRef } from 'react';
@@ -23,7 +23,7 @@ import {
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
 
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 // demo data
 const headerData = [
@@ -65,6 +65,16 @@ const Components = () => {
     project_id: '',
     description: '',
   });
+  const showNotification = (type, message) => {
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
+  };
 
   const componentFormRef = useRef();
   const authCtx = useContext(AuthContext);
@@ -97,6 +107,7 @@ const Components = () => {
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
+          showNotification: showNotification,
         }),
       );
     } else {
@@ -107,6 +118,7 @@ const Components = () => {
           token: authCtx.token,
           bodyData: formValue,
           message: 'component',
+          showNotification: showNotification,
         }),
       );
     }
@@ -133,6 +145,7 @@ const Components = () => {
         url: getUrl,
         token: authCtx.token,
         stateName: 'allComponents',
+        showNotification: showNotification,
       }),
     );
   }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
@@ -151,7 +164,13 @@ const Components = () => {
     }).then((value) => {
       if (value.isConfirmed) {
         const deleteUrl = `${lmApiUrl}/component/${data?.id}`;
-        dispatch(fetchDeleteData({ url: deleteUrl, token: authCtx.token }));
+        dispatch(
+          fetchDeleteData({
+            url: deleteUrl,
+            token: authCtx.token,
+            showNotification: showNotification,
+          }),
+        );
       }
     });
   };
@@ -231,7 +250,6 @@ const Components = () => {
       </AddNewModal>
 
       {isCrudLoading && <UseLoader />}
-
       <AdminDataTable props={tableProps} />
     </div>
   );

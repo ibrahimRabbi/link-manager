@@ -7,14 +7,13 @@ import {
   handleIsAddNewModal,
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
-import { FlexboxGrid, Form, Schema } from 'rsuite';
+import { Button, FlexboxGrid, Form, Schema } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
-import TextField from '../TextField';
 import { useRef } from 'react';
 import SelectField from '../SelectField';
 import CustomSelect from '../CustomSelect';
-import TextArea from '../TextArea';
+import ConversionIcon from '@rsuite/icons/Conversion';
 import UseLoader from '../../Shared/UseLoader';
 import {
   fetchCreateData,
@@ -22,8 +21,10 @@ import {
   fetchGetData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
+import Notification from '../../Shared/Notification';
+import PlusRoundIcon from '@rsuite/icons/PlusRound.js';
 
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 // demo data
 const headerData = [
@@ -36,11 +37,11 @@ const headerData = [
     key: 'name',
   },
   {
-    header: 'Source Url',
+    header: 'Source URL',
     key: 'source_url',
   },
   {
-    header: 'Target Url',
+    header: 'Target URL',
     key: 'target_url',
   },
   {
@@ -49,16 +50,7 @@ const headerData = [
   },
 ];
 
-const { StringType, NumberType } = Schema.Types;
-
-const model = Schema.Model({
-  name: StringType().isRequired('This field is required.'),
-  source_url: StringType().isRequired('This field is required.'),
-  target_url: StringType().isRequired('This field is required.'),
-  application_id: NumberType().isRequired('This field is required.'),
-  link_type_id: NumberType().isRequired('This field is required.'),
-  description: StringType().isRequired('This field is required.'),
-});
+const { StringType, ArrayType } = Schema.Types;
 
 const LinkConstraint = () => {
   const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
@@ -71,17 +63,64 @@ const LinkConstraint = () => {
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
   const [formValue, setFormValue] = useState({
-    name: '',
-    source_url: '',
-    target_url: '',
-    application_id: '',
-    link_type_id: '',
-    description: '',
+    source_resource_type_1: '',
+    source_label_1: '',
+    target_label_1: '',
+    target_resource_type_1: '',
   });
+  const [notificationType, setNotificationType] = useState('');
+  const [notificationMessage, setNotificationMessage] = useState('');
+  const showNotification = (type, message) => {
+    setNotificationType(type);
+    setNotificationMessage(message);
+  };
 
+  const [formElements, setFormElements] = useState([1]);
+  const [model, setModel] = useState(
+    Schema.Model({
+      source_resource_type_1: ArrayType().isRequired('This field is required.'),
+      source_label_1: StringType().isRequired('This field is required.'),
+      target_label_1: StringType().isRequired('This field is required.'),
+      target_resource_type_1: ArrayType().isRequired('This field is required.'),
+    }),
+  );
   const linkConstFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
+
+  const addExtraFormElements = () => {
+    let modelData = {};
+    let newFormValue = {};
+    const lastElement = formElements[formElements.length - 1];
+
+    const newElement = lastElement + 1;
+    setFormElements([...formElements, newElement]);
+    const newFormElements = [...formElements, newElement];
+
+    newFormElements.forEach((element) => {
+      modelData[`source_resource_type_${element}`] = ArrayType().isRequired(
+        'This field is required.',
+      );
+      modelData[`source_label_${element}`] = StringType().isRequired(
+        'This field is required.',
+      );
+      modelData[`target_label_${element}`] = StringType().isRequired(
+        'This field is required.',
+      );
+      modelData[`target_resource_type_${element}`] = ArrayType().isRequired(
+        'This field is required.',
+      );
+    });
+
+    const newModel = Schema.Model(modelData);
+    setModel(newModel);
+
+    newFormValue[`source_resource_type_${newElement}`] = '';
+    newFormValue[`source_label_${newElement}`] = '';
+    newFormValue[`target_label_${newElement}`] = '';
+    newFormValue[`target_resource_type_${newElement}`] = '';
+    setFormValue({ ...formValue, ...newFormValue });
+  };
 
   // Pagination
   const handlePagination = (value) => {
@@ -110,6 +149,7 @@ const LinkConstraint = () => {
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
+          showNotification: showNotification,
         }),
       );
     } else {
@@ -120,6 +160,7 @@ const LinkConstraint = () => {
           token: authCtx.token,
           bodyData: formValue,
           message: 'link constraint',
+          showNotification: showNotification,
         }),
       );
     }
@@ -149,6 +190,7 @@ const LinkConstraint = () => {
         url: getUrl,
         token: authCtx.token,
         stateName: 'allLinkConstraints',
+        showNotification: showNotification,
       }),
     );
   }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
@@ -167,7 +209,13 @@ const LinkConstraint = () => {
     }).then((value) => {
       if (value.isConfirmed) {
         const deleteUrl = `${lmApiUrl}/link-constraint/${data?.id}`;
-        dispatch(fetchDeleteData({ url: deleteUrl, token: authCtx.token }));
+        dispatch(
+          fetchDeleteData({
+            url: deleteUrl,
+            token: authCtx.token,
+            showNotification: showNotification,
+          }),
+        );
       }
     });
   };
@@ -210,7 +258,8 @@ const LinkConstraint = () => {
   return (
     <div>
       <AddNewModal
-        title={isAdminEditing ? 'Edit Link Constraint' : 'Add New Link Constraint'}
+        size="lg"
+        title={isAdminEditing ? 'Edit Link Constraint' : 'Add Link Constraint'}
         handleSubmit={handleAddLinkConstraint}
         handleReset={handleResetForm}
       >
@@ -223,67 +272,85 @@ const LinkConstraint = () => {
             formValue={formValue}
             model={model}
           >
-            <FlexboxGrid justify="space-between">
-              <FlexboxGrid.Item style={{ marginBottom: '30px' }} colspan={24}>
-                <TextField name="name" label="Name" reqText="Name is required" />
-              </FlexboxGrid.Item>
+            {formElements.map((value, index) => (
+              <React.Fragment key={index}>
+                <FlexboxGrid justify="space-between">
+                  <FlexboxGrid.Item colspan={5}>
+                    <SelectField
+                      name={`source_resource_type_${value}`}
+                      label="Resource Types"
+                      placeholder="Select resource type"
+                      accepter={CustomSelect}
+                      apiURL={`${lmApiUrl}/application`}
+                      error={formError.application_id}
+                      reqText="Application Id is required"
+                    />
+                  </FlexboxGrid.Item>
+                  <FlexboxGrid.Item colspan={5}>
+                    <SelectField
+                      name={`source_label_${value}`}
+                      label="Incoming label"
+                      placeholder="Select link type"
+                      accepter={CustomSelect}
+                      apiURL={`${lmApiUrl}/linkType`}
+                      reqText="Link type is required"
+                    />
+                  </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={11}>
-                <TextField
-                  name="source_url"
-                  label="Source URL"
-                  reqText="Source url is required"
-                />
-              </FlexboxGrid.Item>
+                  <ConversionIcon
+                    fontSize={'2em'}
+                    color={'#3498FF'}
+                    style={{ marginTop: '35px' }}
+                  />
 
-              <FlexboxGrid.Item colspan={11}>
-                <TextField
-                  name="target_url"
-                  label="Target URL"
-                  reqText="Target url is required"
-                />
-              </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item style={{ marginTop: '30px' }} colspan={24}>
-                <SelectField
-                  placeholder="Select application id"
-                  name="application_id"
-                  label="Application ID"
-                  accepter={CustomSelect}
-                  apiURL={`${lmApiUrl}/application`}
-                  error={formError.organization_id}
-                  reqText="Application ID is required"
-                />
-              </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                <SelectField
-                  placeholder="Select link type id"
-                  name="link_type_id"
-                  label="Link Type ID"
-                  accepter={CustomSelect}
-                  apiURL={`${lmApiUrl}/link-type`}
-                  error={formError.organization_id}
-                  reqText="Link type ID is required"
-                />
-              </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item colspan={24} style={{ marginBottom: '10px' }}>
-                <TextField
-                  name="description"
-                  label="Description"
-                  accepter={TextArea}
-                  rows={5}
-                  reqText="Description is required"
-                />
-              </FlexboxGrid.Item>
-            </FlexboxGrid>
+                  <FlexboxGrid.Item colspan={5}>
+                    <SelectField
+                      name={`target_resource_type_${value}`}
+                      label="Outcoming label"
+                      placeholder="Select link type"
+                      accepter={CustomSelect}
+                      apiURL={`${lmApiUrl}/linkType`}
+                      reqText="Link type is required"
+                    />
+                  </FlexboxGrid.Item>
+                  <FlexboxGrid.Item colspan={5}>
+                    <SelectField
+                      name={`target_resource_type_${value}`}
+                      label="Resource Types"
+                      placeholder="Select resource type"
+                      accepter={CustomSelect}
+                      apiURL={`${lmApiUrl}/application`}
+                      error={formError.application_id}
+                      reqText="Application Id is required"
+                    />
+                  </FlexboxGrid.Item>
+                </FlexboxGrid>
+              </React.Fragment>
+            ))}
+            <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+              <Button
+                appearance="subtle"
+                block
+                size={'lg'}
+                onClick={() => addExtraFormElements()}
+              >
+                <PlusRoundIcon fontSize={'2em'} color={'gray'} />
+                <br />
+              </Button>
+            </FlexboxGrid.Item>
           </Form>
         </div>
       </AddNewModal>
 
       {isCrudLoading && <UseLoader />}
-
+      {notificationType && notificationMessage && (
+        <Notification
+          type={notificationType}
+          message={notificationMessage}
+          setNotificationType={setNotificationType}
+          setNotificationMessage={setNotificationMessage}
+        />
+      )}
       <AdminDataTable props={tableProps} />
     </div>
   );

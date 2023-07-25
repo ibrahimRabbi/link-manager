@@ -1,7 +1,7 @@
 import Swal from 'sweetalert2';
 
 // handle report us message
-const handleReportUs =  () => {
+const handleReportUs = () => {
   console.log('Report sent');
 };
 

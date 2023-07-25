@@ -2,6 +2,8 @@ import React, { useContext, useState, useEffect } from 'react';
 import { SelectPicker } from 'rsuite';
 import AuthContext from '../../Store/Auth-Context';
 import SpinnerIcon from '@rsuite/icons/legacy/Spinner';
+import { useDispatch } from 'react-redux';
+import { handleStoreDropdownItems } from '../../Redux/slices/associationSlice';
 
 const FixedLoader = () => (
   <h5
@@ -20,22 +22,29 @@ const FixedLoader = () => (
 );
 
 const CustomSelect = React.forwardRef((props, ref) => {
-  // eslint-disable-next-line max-len
-  const { apiURL, placeholder, onChange, customSelectLabel, apiQueryParams, ...rest } =
-    props;
+  const {
+    apiURL,
+    apiQueryParams,
+    requestStatus,
+    placeholder,
+    onChange,
+    customLabelKey,
+    ...rest
+  } = props;
   const [option, setOption] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [checkPagination, setCheckPagination] = useState({});
   const [page, setPage] = useState(1);
   const [dropDownData, setDropdownData] = useState([]);
   const authCtx = useContext(AuthContext);
+  const dispatch = useDispatch();
 
-  async function fetchOptions(page) {
+  const fetchOptions = async (page) => {
     setIsLoading(true);
-    const queryParams = apiQueryParams ? apiQueryParams : null;
+    const queryPath = apiQueryParams ? apiQueryParams : null;
     let url = `${apiURL}?page=${page}&per_page=${'10'}`;
-    if (queryParams) {
-      url = `${url}&${queryParams}`;
+    if (queryPath) {
+      url = `${url}&${queryPath}`;
     }
     if (apiURL) {
       const response = await fetch(url, {
@@ -44,22 +53,26 @@ const CustomSelect = React.forwardRef((props, ref) => {
           'Content-type': 'application/json',
           authorization: 'Bearer ' + authCtx.token,
         },
-      }).then((res) => {
-        if (res.ok) {
-          if (res.status !== 204) {
-            return res.json();
+      })
+        .then((res) => {
+          if (res.ok) {
+            if (res.status !== 204) {
+              return res.json();
+            }
+          } else {
+            requestStatus('error', res);
           }
-        }
-      });
+        })
+        .catch((error) => console.log(error));
       setIsLoading(false);
       setCheckPagination(response);
       if (response?.items) return response.items;
     }
     return [];
-  }
+  };
 
   // handle load more
-  async function handleLoadMore() {
+  const handleLoadMore = async () => {
     if (option.length) {
       if (checkPagination?.has_next) {
         const newOptions = await fetchOptions(page + 1);
@@ -70,11 +83,13 @@ const CustomSelect = React.forwardRef((props, ref) => {
       const newOptions = await fetchOptions(page);
       setOption([...option, ...newOptions]);
     }
-  }
+  };
 
-  useEffect(async () => {
-    const newOptions = await fetchOptions(page);
-    setOption([...newOptions]);
+  useEffect(() => {
+    (async () => {
+      const newOptions = await fetchOptions(page);
+      setOption([...newOptions]);
+    })();
   }, [apiURL, apiQueryParams]);
 
   useEffect(() => {
@@ -90,11 +105,15 @@ const CustomSelect = React.forwardRef((props, ref) => {
 
   const getData = () => {
     let dropdownJsonData = [];
-    if (customSelectLabel) {
-      dropdownJsonData = option?.map((item) => ({
-        label: item.name + ' - ' + item[customSelectLabel],
-        value: JSON.stringify(item),
-      }));
+    if (customLabelKey) {
+      dispatch(handleStoreDropdownItems({ label: customLabelKey, data: option }));
+
+      dropdownJsonData = option?.map((item) => {
+        return {
+          label: item[customLabelKey] ? item[customLabelKey] : item.name,
+          value: item.id,
+        };
+      });
     } else {
       dropdownJsonData = option?.map((item) => ({
         label: item.name,
@@ -121,16 +140,15 @@ const CustomSelect = React.forwardRef((props, ref) => {
 
   return (
     <SelectPicker
-      menuMaxHeight={250}
-      size="lg"
       block
-      searchable={dropDownData?.length > 9 || dropDownData?.length === 0 ? true : false}
-      ref={ref}
+      size="lg"
       {...rest}
+      ref={ref}
       data={dropDownData}
-      onChange={(v) => onChange(v)}
+      menuMaxHeight={200}
+      onSelect={(value) => onChange(value)}
+      searchable={dropDownData?.length > 5}
       placeholder={<p style={{ fontSize: '17px' }}>{placeholder}</p>}
-      virtualized
       renderMenu={renderMenu}
       listProps={{ onItemsRendered }}
       renderMenuItem={(label) => {

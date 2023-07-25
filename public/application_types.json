@@ -10,6 +10,11 @@
         "alt_value": "GITLAB"
     },
     {
+        "name": "GITLAB-NATIVE",
+        "icon": "https://lm-dev.koneksys.com/gitlab_logo.png",
+        "alt_value": "GITLAB-NATIVE"
+    },
+    {
         "name": "GLIDE",
         "icon": "https://lm-dev.koneksys.com/glide_logo.png",
         "alt_value": "GLIDE"

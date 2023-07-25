@@ -22,6 +22,7 @@ const ProtectedRoute = ({ children }) => {
   const projectName = searchParams.get('project');
   const branch = searchParams.get('branch');
   const commit = searchParams.get('commit');
+  const logoUrl = searchParams.get('logoUrl');
 
   useEffect(() => {
     dispatch(handleIsWbe(wbePath));
@@ -39,15 +40,15 @@ const ProtectedRoute = ({ children }) => {
         origin,
         sourceType,
         appName,
+        logoUrl,
       };
-
       dispatch(handleGetSources(sources));
       sessionStorage.setItem('sourceData', JSON.stringify(sources));
     }
   }, [uri, title, projectName]);
 
-  // eslint-disable-next-line max-len
-  // When the token expires, the state data is emptied after the user re-logins, so the source data is stored and reused.
+  // When the token expires, the state data is emptied after the user re-logins,
+  // so the source data is stored and reused.
   useEffect(() => {
     const source = sessionStorage.getItem('sourceData');
     if (source) dispatch(handleGetSources(JSON.parse(source)));

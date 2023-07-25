@@ -1,10 +1,10 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import getAPI from '../apiRequests/getAPI.jsx';
+import getAPI from '../apiRequests/API';
 
 export const fetchPipelineRun = createAsyncThunk(
   'pipelineRun/fetchPipelineRun',
-  async ({ url, token, authCtx }) => {
-    return getAPI({ url, token, authCtx });
+  async ({ url, token, authCtx, showNotification }) => {
+    return getAPI({ url, token, authCtx, showNotification });
   },
 );
 

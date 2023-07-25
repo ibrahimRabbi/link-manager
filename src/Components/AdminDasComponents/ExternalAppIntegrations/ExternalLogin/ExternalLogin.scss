@@ -1,0 +1,55 @@
+.main {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  min-height: 100vh;
+  padding: 15vh 5vh;
+}
+
+.form {
+  input {
+    width: 100%;
+    border: 1px solid lightgray;
+    border-radius: 5px;
+    padding: 10px;
+  }
+
+  input:focus {
+    outline: none;
+  }
+}
+
+.container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 5vh 1vw 2vh;
+  border-radius: 5px;
+}
+
+.formContainer label {
+}
+
+.title {
+  text-align: center;
+}
+
+.titleSpan {
+  font-weight: bold;
+}
+
+.btnContainer button {
+  margin: 30px 0 0 auto;
+  display: flex;
+  width: 50%;
+}
+
+.errText {
+  margin-bottom: 20px;
+}
+
+.appImage {
+  width: 100px;
+  height: 100px;
+  background-size: contain;
+  background-position: center;
+}

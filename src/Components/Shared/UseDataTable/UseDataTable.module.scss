@@ -1,17 +1,10 @@
-@use '@carbon/colors';
-@use '@carbon/type';
-
 .tableContainer,
 .tableHeader,
 .pagination {
-  // background-color: white !important;
-  font-size: type.type-scale(3);
 }
 
 .tableCell {
   width: 200px;
-  font-size: type.type-scale(3);
-  // background-color: white !important;
 
   .sourceIdEl {
     width: 150px;
@@ -38,7 +31,6 @@
 }
 
 .boxCell {
-  border-left: 1px solid colors.$gray-30;
   width: 100px;
 }
 
@@ -51,7 +43,6 @@
 }
 
 .tableCellName {
-  color: colors.$blue-50;
   cursor: pointer;
 }
 
@@ -62,7 +53,6 @@
 .popoverContentStyle {
   position: relative;
   background-color: white;
-  // box-shadow: 0 0 15px lightgray;
   padding: 35px 0 0;
 
   iframe {
@@ -92,15 +82,13 @@
 }
 
 .validIcon {
-  color: colors.$green-50;
+  color: green;
 }
 
 .invalidIcon {
-  color: colors.$red-60;
 }
 
 .noStatusIcon {
-  color: colors.$gray-30;
 }
 
 #sourceProp {
@@ -115,5 +103,4 @@
 
 // links data table rsuite
 .tableContainerDiv {
-  // border: 1px dotted rgb(145, 141, 141);
 }

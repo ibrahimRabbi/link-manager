@@ -11,9 +11,6 @@ import {
   Pagination,
   FlexboxGrid,
   Button,
-  // Checkbox,
-  // Stack,
-  // Divider,
   Whisper,
   IconButton,
   Dropdown,
@@ -66,57 +63,6 @@ const AdminDataTable = ({ props }) => {
     }
   }, [tableFilterValue]);
 
-  // // handle check oll rows
-  // const CheckCell = ({ rowData, onChange, checkedKeys, dataKey, ...props }) => (
-  //   <Cell {...props} style={{ padding: 0 }}>
-  //     <div style={{ lineHeight: '46px' }}>
-  //       <Checkbox
-  //         value={rowData[dataKey]}
-  //         inline
-  //         onChange={onChange}
-  //         checked={checkedKeys.some((item) => item === rowData[dataKey])}
-  //       />
-  //     </div>
-  //   </Cell>
-  // );
-
-  // // handle check rows
-  // const [checkedKeys, setCheckedKeys] = useState([]);
-  // let checked = false;
-  // let indeterminate = false;
-
-  // if (checkedKeys.length === rowData.length) {
-  //   checked = true;
-  // } else if (checkedKeys.length === 0) {
-  //   checked = false;
-  // } else if (checkedKeys.length > 0 && checkedKeys.length < rowData.length) {
-  //   indeterminate = true;
-  // }
-
-  // const handleCheckAll = (value, checked) => {
-  //   const keys = checked ? rowData?.map((item) => item.id) : [];
-  //   setCheckedKeys(keys);
-  // };
-  // const handleCheck = (value, checked) => {
-  //   const keys = checked
-  //     ? [...checkedKeys, value]
-  //     : checkedKeys.filter((item) => item !== value);
-  //   setCheckedKeys(keys);
-  // };
-
-  // const [selectedData, setSelectedData] = useState([]);
-  // useEffect(() => {
-  //   const selectedRows = checkedKeys?.reduce((acc, curr) => {
-  //     if (curr) {
-  //       const selected = rowData?.find((v) => v.id == curr);
-  //       acc.push(selected);
-  //     }
-  //     return acc;
-  //   }, []);
-  //   console.log(selectedRows);
-  //   setSelectedData(selectedRows);
-  // }, [checkedKeys]);
-
   // Action cell
   // Action table cell control
   const renderMenu = ({ onClose, left, top, className }, ref) => {
@@ -154,7 +100,14 @@ const AdminDataTable = ({ props }) => {
   };
 
   // dynamic cell for the image
-  const DynamicCell = ({ rowData, dataKey, iconKey, statusKey, ...props }) => {
+  const DynamicCell = ({
+    rowData,
+    dataKey,
+    iconKey,
+    statusKey,
+    pipelinerunkey,
+    ...props
+  }) => {
     const logo = rowData[iconKey] ? rowData[iconKey] : defaultLogo;
     return (
       <Cell {...props}>
@@ -201,6 +154,28 @@ const AdminDataTable = ({ props }) => {
             <p style={{ marginTop: '2px' }}>{rowData[statusKey]}</p>
           </div>
         )}
+        {pipelinerunkey && (
+          <div
+            onClick={() => (authorizeModal ? authorizeModal(rowData) : null)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+            }}
+          >
+            <h5>
+              {rowData?.status === true ? (
+                <SuccessStatus color="#378f17" />
+              ) : (
+                rowData?.status === false && <FailedStatus color="#de1655" />
+              )}
+            </h5>
+
+            <p style={{ marginTop: '2px' }}>{rowData[statusKey]}</p>
+          </div>
+        )}
       </Cell>
     );
   };
@@ -216,33 +191,16 @@ const AdminDataTable = ({ props }) => {
         }}
       >
         <FlexboxGrid.Item>
-          {/* {checkedKeys.length > 0 ? (
-            <Stack divider={<Divider vertical />}>
-              <Button
-                onClick={() => handleDelete(selectedData)}
-                appearance="primary"
-                color="blue"
-              >
-                Delete
-              </Button>
-              <Button appearance="subtle" onClick={() => setCheckedKeys([])}>
-                Cancel
-              </Button>
-            </Stack>
-          ) : (
-            <> */}
           <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
             Add New
           </Button>
-          {/* </>
-          )} */}
         </FlexboxGrid.Item>
 
         <FlexboxGrid.Item>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             <InputGroup size="lg" inside style={{ width: '400px' }}>
               <Input
-                placeholder={'Search Table Item'}
+                placeholder={'Search...'}
                 value={tableFilterValue}
                 onChange={(v) => setTableFilterValue(v)}
               />
@@ -275,37 +233,27 @@ const AdminDataTable = ({ props }) => {
         data={tableFilterValue === '' ? rowData : displayTableData}
         id="admin-table"
       >
-        {/* --- check rows cell --- */}
-
-        {/* <Column width={50} align="center">
-          <HeaderCell style={{ padding: 0 }}>
-            <div style={{ lineHeight: '48px' }}>
-              <Checkbox
-                inline
-                checked={checked}
-                indeterminate={indeterminate}
-                onChange={handleCheckAll}
-              />
-            </div>
-          </HeaderCell>
-          <CheckCell dataKey="id" checkedKeys={checkedKeys} onChange={handleCheck} />
-        </Column> */}
-
         {headerData?.map((header, i) => (
           <Column
             key={i}
             width={header?.width ? header?.width : 70}
             flexGrow={header?.width || header?.header === 'ID' ? 0 : 1}
             fullText
+            align="left"
           >
             <HeaderCell>
               <h6>{header?.header}</h6>
             </HeaderCell>
             <DynamicCell
-              style={{ fontSize: '17px', display: 'flex', alignItems: 'center' }}
+              style={{
+                fontSize: '17px',
+                display: 'flex',
+                alignItems: 'center',
+              }}
               dataKey={header?.key}
               iconKey={header?.iconKey}
               statusKey={header?.statusKey}
+              pipelinerunkey={header?.pipelinerunkey}
             />
           </Column>
         ))}
@@ -341,7 +289,7 @@ const AdminDataTable = ({ props }) => {
         maxButtons={2}
         size="lg"
         layout={['-', 'total', '|', 'limit', 'pager']}
-        total={totalItems}
+        total={totalItems ? totalItems : 0}
         limitOptions={[5, 10, 25, 50, 100]}
         limit={pageSize}
         activePage={page}

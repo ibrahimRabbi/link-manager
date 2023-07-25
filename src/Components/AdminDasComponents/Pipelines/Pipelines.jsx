@@ -14,14 +14,23 @@ import {
 } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Form, Uploader, Toggle, Loader, Schema } from 'rsuite';
+import {
+  FlexboxGrid,
+  Form,
+  Uploader,
+  Toggle,
+  Loader,
+  Schema,
+  Message,
+  toaster,
+} from 'rsuite';
 import TextField from '../TextField';
 import { useRef } from 'react';
 import SelectField from '../SelectField.jsx';
 import CustomSelect from '../CustomSelect.jsx';
 import Swal from 'sweetalert2';
 
-const lmApiUrl = process.env.REACT_APP_LM_REST_API_URL;
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 // demo data
 const headerData = [
@@ -30,8 +39,8 @@ const headerData = [
     key: 'id',
   },
   {
-    header: 'Script Path',
-    key: 'script_path',
+    header: 'Script',
+    key: 'filename',
   },
   {
     header: 'Polling Period',
@@ -43,14 +52,7 @@ const headerData = [
   },
 ];
 
-const { ObjectType, BooleanType, NumberType } = Schema.Types;
-
-const model = Schema.Model({
-  event_id: NumberType().isRequired('Event is required.'),
-  script_path: ObjectType().isRequired('Please upload a file.'),
-  is_polling: BooleanType().isRequired('This field is required.'),
-  polling_period: NumberType().isRequired('This field is required.'),
-});
+const { ObjectType, StringType, BooleanType, NumberType } = Schema.Types;
 
 const Pipelines = () => {
   const {
@@ -62,6 +64,16 @@ const Pipelines = () => {
   } = useSelector((state) => state.pipelines);
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
 
+  const model = Schema.Model({
+    event_id: NumberType().isRequired('Event is required.'),
+    script_path: isAdminEditing
+      ? ObjectType()
+      : ObjectType().isRequired('Please upload a file.'),
+    filename: StringType(),
+    is_polling: BooleanType().isRequired('This field is required.'),
+    polling_period: NumberType().isRequired('This field is required.'),
+  });
+
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [formError, setFormError] = useState({});
@@ -69,10 +81,20 @@ const Pipelines = () => {
   const [formValue, setFormValue] = useState({
     event_id: 0,
     script_path: null,
+    filename: '',
     is_polling: false,
     polling_period: 0,
   });
-
+  const showNotification = (type, message) => {
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
+  };
   const pipelineFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
@@ -104,6 +126,7 @@ const Pipelines = () => {
           url: putUrl,
           token: authCtx.token,
           bodyData: formValue,
+          showNotification: showNotification,
         }),
       );
     } else {
@@ -114,6 +137,7 @@ const Pipelines = () => {
           token: authCtx.token,
           bodyData: formValue,
           message: 'pipeline',
+          showNotification: showNotification,
         }),
       );
     }
@@ -127,6 +151,7 @@ const Pipelines = () => {
     setFormValue({
       event_id: 0,
       script_path: null,
+      filename: '',
       is_polling: false,
       polling_period: 0,
     });
@@ -136,7 +161,14 @@ const Pipelines = () => {
     dispatch(handleCurrPageTitle('Pipelines'));
 
     const getUrl = `${lmApiUrl}/pipelines?page=${currPage}&per_page=${pageSize}`;
-    dispatch(fetchPipelines({ url: getUrl, token: authCtx.token, authCtx: authCtx }));
+    dispatch(
+      fetchPipelines({
+        url: getUrl,
+        token: authCtx.token,
+        authCtx: authCtx,
+        showNotification: showNotification,
+      }),
+    );
   }, [
     isPipelineCreated,
     isPipelineUpdated,
@@ -160,7 +192,13 @@ const Pipelines = () => {
     }).then((value) => {
       if (value.isConfirmed) {
         const deleteUrl = `${lmApiUrl}/pipelines/${data?.id}`;
-        dispatch(fetchDeletePipeline({ url: deleteUrl, token: authCtx.token }));
+        dispatch(
+          fetchDeletePipeline({
+            url: deleteUrl,
+            token: authCtx.token,
+            showNotification: showNotification,
+          }),
+        );
       }
     });
   };
@@ -171,7 +209,8 @@ const Pipelines = () => {
     dispatch(handleIsAdminEditing(true));
     setFormValue({
       event_id: data?.event_id,
-      script_path: data?.script_path,
+      script_path: null,
+      filename: data?.filename,
       is_polling: data?.is_polling ? data?.is_polling : false,
       polling_period: data?.polling_period,
     });
@@ -226,9 +265,15 @@ const Pipelines = () => {
 
               <FlexboxGrid.Item colspan={24}>
                 <TextField
+                  action=""
                   name="script_path"
                   label="Script Path"
-                  reqText="Path is required"
+                  defaultFileList={
+                    formValue.filename !== ''
+                      ? [{ fileKey: formValue.script_path, name: formValue.filename }]
+                      : []
+                  }
+                  reqText="File is required"
                   autoUpload={false}
                   accepter={Uploader}
                 />

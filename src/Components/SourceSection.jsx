@@ -28,7 +28,7 @@ const SourceSection = () => {
 
   return (
     <div className="mainContainer">
-      <FlexboxGrid style={{ marginTop: '20px' }} align="middle">
+      <FlexboxGrid align="middle">
         <FlexboxGrid.Item colspan={3} style={{ padding: '0' }}>
           <h3>Source: </h3>
         </FlexboxGrid.Item>
@@ -44,6 +44,14 @@ const SourceSection = () => {
                 flexWrap: 'wrap',
               }}
             >
+              {sourceDataList?.logoUrl && (
+                <img
+                  src={sourceDataList?.logoUrl}
+                  height={25}
+                  alt=""
+                  style={{ marginRight: '10px' }}
+                />
+              )}
               <span>{sourceDataList?.projectName}</span>
               {sourceDataList?.sourceType && <Divider style={dividerStyle}>|</Divider>}
 

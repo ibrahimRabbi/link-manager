@@ -9,7 +9,6 @@ import Organization from './Components/AdminDasComponents/Organization/Organizat
 import Projects from './Components/AdminDasComponents/Projects/Projects';
 import Users from './Components/AdminDasComponents/Users/Users';
 import EditLink from './Components/EditLink/EditLink';
-import GraphView from './Components/GraphView/GraphView';
 import LinkDetails from './Components/LinkDetails/LinkDetails';
 import LinkManager from './Components/LinkManager/LinkManager';
 import NewLink from './Components/NewLink/NewLink';
@@ -32,10 +31,27 @@ import Events from './Components/AdminDasComponents/Events/Events.jsx';
 import Pipelines from './Components/AdminDasComponents/Pipelines/Pipelines.jsx';
 import Associations from './Components/AdminDasComponents/Associations/Associations';
 import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun.jsx';
+import Pipeline from './Components/Pipeline/Pipeline.jsx';
+import WebBrowserExtension from './Components/WebBrowserExtension/WebBrowserExtension';
+import GitlabSelector from './Components/SelectionDialog/GitlabSelector/GitlabSelector';
+import Graph from './Components/GraphView/Graph.jsx';
+// eslint-disable-next-line max-len
+import Oauth2Callback from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2Callback.jsx';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
 export const lightBgColor = 'white';
+
+export const OAUTH2_APPLICATION_TYPES = ['gitlab', 'jira'];
+export const MICROSERVICES_APPLICATION_TYPES = ['glideyoke'];
+export const BASIC_AUTH_APPLICATION_TYPES = ['valispace'];
+export const WORKSPACE_APPLICATION_TYPES = ['gitlab', 'valispace'];
+export const PROJECT_APPLICATION_TYPES = ['jira', 'glideyoke'];
+
+export const THIRD_PARTY_INTEGRATIONS =
+  OAUTH2_APPLICATION_TYPES +
+  MICROSERVICES_APPLICATION_TYPES +
+  BASIC_AUTH_APPLICATION_TYPES;
 
 function App() {
   const { isDark } = useSelector((state) => state.nav);
@@ -53,6 +69,7 @@ function App() {
         style={{ backgroundColor: isDark === 'dark' ? darkBgColor : lightBgColor }}
       >
         <Routes>
+          <Route path="/oauth2/callback" element={<Oauth2Callback />} />
           {/* This is WBE dashboard */}
           <Route
             path="/wbe"
@@ -65,7 +82,8 @@ function App() {
             <Route path="/wbe/new-link" element={<NewLink />} />
             <Route path="/wbe/edit-link/:id" element={<EditLink />} />
             <Route path="/wbe/details/:id" element={<LinkDetails />} />
-            <Route path="/wbe/graph-view" element={<GraphView />} />
+            <Route path="/wbe/graph-view" element={<Graph />} />
+            <Route path="/wbe/pipeline" element={<Pipeline />} />
             <Route path="/wbe" element={<LinkManager />} />
           </Route>
 
@@ -81,7 +99,9 @@ function App() {
             <Route path="/new-link" element={<NewLink />} />
             <Route path="/edit-link/:id" element={<EditLink />} />
             <Route path="/details/:id" element={<LinkDetails />} />
-            <Route path="/graph-view" element={<GraphView />} />
+            <Route path="/graph-view" element={<Graph />} />
+            <Route path="/pipeline" element={<Pipeline />} />
+            <Route path="/extension" element={<WebBrowserExtension />} />
             <Route path="/" element={<LinkManager />} />
           </Route>
 
@@ -107,7 +127,7 @@ function App() {
             <Route path="/admin/pipelinerun" element={<PipelineRun />} />
             <Route path="/admin" element={<Users />} />
           </Route>
-
+          <Route path="/gitlabselection/:id" element={<GitlabSelector />}></Route>
           <Route path="/oauth2-status" element={<Oauth2Success />} />
           <Route path="/set-password" element={<UserVerify />} />
           <Route path="/login" element={<LoginPage />} />

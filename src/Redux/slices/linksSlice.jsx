@@ -1,13 +1,11 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import getAPI from '../apiRequests/getAPI';
-import postAPI from '../apiRequests/postAPI';
-import deleteAPI from '../apiRequests/deleteAPI';
+import getAPI, { deleteAPI, saveResource } from '../apiRequests/API';
 
 // Create New link
 export const fetchCreateLink = createAsyncThunk(
   'links/fetchCreateLink',
-  async ({ url, token, bodyData, message }) => {
-    const response = postAPI({ url, token, bodyData, message });
+  async ({ url, token, bodyData, message, showNotification }) => {
+    const response = saveResource({ url, token, bodyData, message, showNotification });
     return response;
   },
 );
@@ -15,8 +13,8 @@ export const fetchCreateLink = createAsyncThunk(
 // Fetch all created links for Link manager table
 export const fetchLinksData = createAsyncThunk(
   'links/fetchLinksData',
-  async ({ url, token }) => {
-    const response = getAPI({ url, token });
+  async ({ url, token, showNotification }) => {
+    const response = getAPI({ url, token, showNotification });
     return response;
   },
 );
@@ -24,13 +22,13 @@ export const fetchLinksData = createAsyncThunk(
 // Fetch delete Link from manager table
 export const fetchDeleteLink = createAsyncThunk(
   'links/fetchDeleteLink',
-  async ({ url, token }) => {
-    const response = await deleteAPI({ url, token });
+  async ({ url, token, showNotification }) => {
+    const response = await deleteAPI({ url, token, showNotification });
     return response;
   },
 );
 
-const gcmAware = JSON.parse(process.env.REACT_APP_CONFIGURATION_AWARE);
+let gcmAware = JSON.parse(import.meta.env.VITE_CONFIGURATION_AWARE);
 
 const initialState = {
   isTargetModalOpen: false,
@@ -38,6 +36,7 @@ const initialState = {
   sourceDataList: {},
   isWbe: false,
   oslcResponse: null,
+  oslcCancelResponse: false,
   isLinkCreate: false,
   isLinkDeleting: false,
   isLoading: false,
@@ -73,6 +72,14 @@ export const linksSlice = createSlice({
 
     handleOslcResponse: (state, { payload }) => {
       state.oslcResponse = payload;
+    },
+
+    handleOslcCancelResponse: (state) => {
+      state.oslcCancelResponse = true;
+    },
+
+    resetOslcCancelResponse: (state) => {
+      state.oslcCancelResponse = false;
     },
 
     // get sources in wbe
@@ -275,6 +282,8 @@ export const {
   handleDeleteLink,
   handleCancelLink,
   handleIsTargetModalOpen,
+  handleOslcCancelResponse,
+  resetOslcCancelResponse,
 } = linksSlice.actions;
 
 export default linksSlice.reducer;

@@ -1,64 +1,101 @@
-import { Button, FlexboxGrid, Input, InputGroup, Loader } from 'rsuite';
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { fetchLinksData, handleIsWbe } from '../../Redux/slices/linksSlice';
 import {
-  fetchDeleteLink,
-  fetchLinksData,
-  handleIsWbe,
-} from '../../Redux/slices/linksSlice';
+  Button,
+  FlexboxGrid,
+  Form,
+  IconButton,
+  Loader,
+  Message,
+  Pagination,
+  Schema,
+  Stack,
+  toaster,
+} from 'rsuite';
 import { handleCurrPageTitle, handleRefreshData } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import styles from './LinkManager.module.scss';
 import SourceSection from '../SourceSection';
-import LinksDataTable from '../Shared/UseDataTable/LinksDataTable';
 import { HiRefresh } from 'react-icons/hi';
 import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
 import { darkBgColor, lightBgColor } from '../../App';
 import Swal from 'sweetalert2';
+import TextField from '../AdminDasComponents/TextField';
+import LinkManagerTable from './LinkManagerTable';
+import { useMutation } from '@tanstack/react-query';
+import fetchAPIRequest from '../../apiRequests/apiRequest';
 
-const { tableContainer } = styles;
+const {
+  tableContainer,
+  onlyTableContainer,
+  onlyTableContainerDark,
+  paginationStyle,
+  paginationStyleDark,
+} = styles;
 
-const headerData = [
-  { key: 'status', header: 'Status' },
-  { key: 'link_type', header: 'Link type' },
-  { key: 'target', header: 'Target' },
-  { key: 'actions', header: 'Actions' },
-];
+const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 
-const apiURL = `${process.env.REACT_APP_LM_REST_API_URL}/link/resource`;
+const { StringType } = Schema.Types;
+const model = Schema.Model({
+  search_term: StringType(),
+});
 
 const LinkManager = () => {
-  const { sourceDataList, linksData, isLoading, isLinkDeleting, configuration_aware } =
-    useSelector((state) => state.links);
+  const { sourceDataList, linksData, isLoading, configuration_aware } = useSelector(
+    (state) => state.links,
+  );
 
   const { linksStream, refreshData, isDark } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [tableFilterValue, setTableFilterValue] = useState('');
-  const [displayTableData, setDisplayTableData] = useState([]);
+  const [page, setPage] = useState(1);
+  const [searchValue, setSearchValue] = useState({ search_term: '' });
+  const [isLinkSearching, setIsLinkSearching] = useState(false);
+  const [selectedRowData, setSelectedRowData] = useState({});
+  const authCtx = useContext(AuthContext);
   const location = useLocation();
   const isWbe = location.pathname?.includes('wbe');
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const authCtx = useContext(AuthContext);
   const [searchParams] = useSearchParams();
   const uri = searchParams.get('uri');
   const sourceFileURL = uri || sourceDataList?.uri;
+  const searchRef = useRef();
 
   useEffect(() => {
     dispatch(handleIsWbe(isWbe));
   }, [location]);
 
-  // Handle pagination for the links table
-  const handlePagination = (value) => {
-    setCurrPage(value);
-  };
-  const handleChangeLimit = (dataKey) => {
-    setCurrPage(1);
-    setPageSize(dataKey);
-  };
+  // delete link using react-query
+  const deleteURl = `link/resource?source_id=${encodeURIComponent(
+    sourceFileURL,
+  )}&target_id=${encodeURIComponent(selectedRowData?.id)}&link_type=${
+    selectedRowData?.link_type
+  }`;
+  const {
+    isLoading: deleteLoading,
+    isSuccess: deleteSuccess,
+    mutate: deleteMutate,
+  } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: deleteURl,
+        token: authCtx.token,
+        method: 'DELETE',
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: () => {
+        setSelectedRowData({});
+      },
+      onError: () => {
+        setSelectedRowData({});
+      },
+    },
+  );
 
   // get all links
   useEffect(() => {
@@ -76,21 +113,51 @@ const LinkManager = () => {
 
       // Get all links
       if (sourceFileURL) {
+        // eslint-disable-next-line max-len
+        const getLinkUrl = `${apiURL}/link/resource?stream=${stream}&resource_id=${encodeURIComponent(
+          sourceFileURL,
+        )}&page=${currPage}&per_page=${pageSize}&search_term=${searchValue.search_term}`;
+
         dispatch(
           fetchLinksData({
-            // eslint-disable-next-line max-len
-            url: `${apiURL}?stream=${stream}&resource_id=${encodeURIComponent(
-              sourceFileURL,
-            )}&page=${currPage}&per_page=${pageSize}`,
+            url: getLinkUrl,
             token: authCtx.token,
+            showNotification: showNotification,
           }),
         );
       }
     })();
-  }, [linksStream, pageSize, currPage, isLinkDeleting, refreshData]);
+  }, [linksStream, pageSize, currPage, deleteSuccess, isLinkSearching, refreshData]);
+
+  const showNotification = (type, message) => {
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
+  };
+
+  useEffect(() => {
+    setCurrPage(page);
+  }, [page]);
+
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
+  };
+
+  // handle search links
+  const handleSearchLinks = () => {
+    if (searchValue.search_term) {
+      setIsLinkSearching((prevValue) => !prevValue);
+    }
+  };
 
   // handle delete link
-  const handleDeleteLink = (value) => {
+  const handleDeleteLink = () => {
     Swal.fire({
       title: 'Are you sure?',
       text: 'You want to delete this link!',
@@ -101,51 +168,20 @@ const LinkManager = () => {
       confirmButtonText: 'Delete',
       reverseButtons: true,
     }).then(async (result) => {
-      if (result.isConfirmed) {
-        // eslint-disable-next-line max-len
-        const deleteURl = `${apiURL}?source_id=${encodeURIComponent(
-          sourceFileURL,
-        )}&target_id=${encodeURIComponent(value.id)}&link_type=${value?.link_type}`;
-        dispatch(
-          fetchDeleteLink({
-            url: deleteURl,
-            token: authCtx.token,
-          }),
-        );
+      if (result.isConfirmed) deleteMutate();
+      else {
+        setSelectedRowData({});
       }
     });
   };
 
-  // filter table
-  useEffect(() => {
-    if (tableFilterValue) {
-      const filteredData = linksData?.items?.filter((row) => {
-        // eslint-disable-next-line max-len
-        return Object.values(row)
-          ?.toString()
-          ?.toLowerCase()
-          .includes(tableFilterValue?.toLowerCase());
-      });
-      setDisplayTableData(filteredData);
-    }
-  }, [tableFilterValue]);
-
   const tableProps = {
-    rowData:
-      tableFilterValue === ''
-        ? linksData?.items?.length
-          ? linksData?.items
-          : []
-        : displayTableData,
-    headerData,
-    handlePagination,
+    data: linksData?.items?.length ? linksData?.items : [],
     handleChangeLimit,
     handleDeleteLink,
+    setSelectedRowData: setSelectedRowData,
     totalItems: linksData?.total_items,
     totalPages: linksData?.total_pages,
-    setCurrPage,
-    pageSize,
-    page: linksData?.page,
   };
 
   return (
@@ -155,7 +191,7 @@ const LinkManager = () => {
         <div className="mainContainer">
           <div className="container">
             <div className={tableContainer}>
-              {isLoading && (
+              {(isLoading || deleteLoading) && (
                 <Loader
                   backdrop
                   center
@@ -169,29 +205,62 @@ const LinkManager = () => {
               <FlexboxGrid
                 justify="space-between"
                 style={{
+                  display: 'flex',
+                  alignItems: 'center',
                   backgroundColor: isDark === 'dark' ? darkBgColor : lightBgColor,
-                  padding: '10px 0',
+                  paddingBottom: '10px',
                 }}
               >
                 <FlexboxGrid.Item>
-                  <InputGroup size="lg" inside style={{ width: '400px' }}>
-                    <Input
-                      placeholder={'Search Links'}
-                      type="text"
-                      value={tableFilterValue}
-                      onChange={(v) => setTableFilterValue(v)}
-                    />
+                  <Form
+                    fluid
+                    ref={searchRef}
+                    onChange={setSearchValue}
+                    formValue={searchValue}
+                    model={model}
+                  >
+                    <Stack style={{ position: 'relative' }}>
+                      <TextField
+                        style={{
+                          width: '400px',
+                          borderRadius: '6px 0 0 6px',
+                          height: '36px',
+                        }}
+                        placeholder="Search..."
+                        type="text"
+                        name="search_term"
+                      />
 
-                    {tableFilterValue ? (
-                      <InputGroup.Button onClick={() => setTableFilterValue('')}>
-                        <CloseIcon />
-                      </InputGroup.Button>
-                    ) : (
-                      <InputGroup.Button>
-                        <SearchIcon />
-                      </InputGroup.Button>
-                    )}
-                  </InputGroup>
+                      {searchValue?.search_term && (
+                        <IconButton
+                          onClick={() => {
+                            setSearchValue({ search_term: '' });
+                            setIsLinkSearching((prevValue) => !prevValue);
+                          }}
+                          icon={<CloseIcon />}
+                          style={{
+                            position: 'absolute',
+                            top: '1px',
+                            bottom: '1px',
+                            right: '91px',
+                            borderRadius: '0',
+                          }}
+                        />
+                      )}
+
+                      <Button
+                        color="blue"
+                        appearance="primary"
+                        size="md"
+                        style={{ borderRadius: '0 6px 6px 0' }}
+                        type="submit"
+                        startIcon={<SearchIcon style={{ marginLeft: '-5px' }} />}
+                        onClick={handleSearchLinks}
+                      >
+                        Search
+                      </Button>
+                    </Stack>
+                  </Form>
                 </FlexboxGrid.Item>
 
                 <FlexboxGrid.Item>
@@ -204,7 +273,6 @@ const LinkManager = () => {
                         isWbe ? navigate('/wbe/new-link') : navigate('/new-link')
                       }
                     >
-                      {' '}
                       Create Link
                     </Button>
 
@@ -219,7 +287,32 @@ const LinkManager = () => {
                 </FlexboxGrid.Item>
               </FlexboxGrid>
 
-              <LinksDataTable props={tableProps} />
+              <div
+                className={
+                  isDark === 'dark' ? onlyTableContainerDark : onlyTableContainer
+                }
+              >
+                <LinkManagerTable props={tableProps} />
+              </div>
+              {/* --- Table Pagination ---  */}
+              <Pagination
+                className={isDark === 'dark' ? paginationStyleDark : paginationStyle}
+                prev
+                next
+                first
+                last
+                ellipsis
+                boundaryLinks
+                maxButtons={2}
+                size="lg"
+                layout={['-', 'total', '|', 'limit', 'pager']}
+                total={tableProps?.totalItems ? tableProps?.totalItems : 0}
+                limitOptions={[5, 10, 25, 50, 100]}
+                limit={pageSize}
+                activePage={page}
+                onChangePage={setPage}
+                onChangeLimit={(v) => handleChangeLimit(v)}
+              />
             </div>
           </div>
         </div>
@@ -227,4 +320,4 @@ const LinkManager = () => {
     </div>
   );
 };
-export default LinkManager;
+export default React.memo(LinkManager);
