@@ -1,18 +1,17 @@
 import React, { useMemo, useState } from 'react';
 import { FaChevronRight } from 'react-icons/fa';
-import MoreIcon from '@rsuite/icons/legacy/More';
+import { CgMoreVertical } from 'react-icons/cg';
 import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
 import InfoStatus from '@rsuite/icons/InfoRound';
 import {
   useReactTable,
   getCoreRowModel,
-  getPaginationRowModel,
   getFilteredRowModel,
   getExpandedRowModel,
   flexRender,
 } from '@tanstack/react-table';
-import { Button, Dropdown, IconButton, Input, Popover, Whisper } from 'rsuite';
+import { Dropdown, IconButton, Input, Popover, Whisper } from 'rsuite';
 import cssStyles from './LinkManager.module.scss';
 import { useSelector } from 'react-redux';
 import CustomFilterSelect from './CustomFilterSelect';
@@ -30,25 +29,15 @@ const {
   headerExpand,
   headerCell,
   dataCell,
+  actionDataCell,
   tableStyle,
-  paginationContainer,
   filterContainer,
-  pageTitle,
-  pageInput,
   filterInput,
   emptyTableContent,
   iconRotate,
   allIconRotate,
   statusFilterClass,
 } = cssStyles;
-
-const paginationItems = [
-  { label: 'Rows per page 5', value: 5 },
-  { label: 'Rows per page 10', value: 10 },
-  { label: 'Rows per page 25', value: 25 },
-  { label: 'Rows per page 50', value: 50 },
-  { label: 'Rows per page 100', value: 100 },
-];
 
 // OSLC API URLs
 const jiraURL = `${import.meta.env.VITE_JIRA_DIALOG_URL}`;
@@ -58,21 +47,14 @@ const valispaceURL = `${import.meta.env.VITE_VALISPACE_DIALOG_URL}`;
 const codebeamerURL = `${import.meta.env.VITE_CODEBEAMER_DIALOG_URL}`;
 
 const LinkManagerTable = ({ props }) => {
-  const { data, handleDeleteLink, totalItems, setSelectedRowData } = props;
+  const { data, handleDeleteLink, setSelectedRowData } = props;
   const { isDark } = useSelector((state) => state.nav);
-
   // Action table cell control
   const renderMenu = ({ onClose, left, top, className }, ref) => {
     const handleSelect = (key) => {
       if (key === 1) {
         //
       } else if (key === 2) {
-        //
-      } else if (key === 3) {
-        //
-      } else if (key === 4) {
-        //
-      } else if (key === 5) {
         handleDeleteLink();
       }
       onClose();
@@ -80,11 +62,8 @@ const LinkManagerTable = ({ props }) => {
     return (
       <Popover ref={ref} className={className} style={{ left, top }} full>
         <Dropdown.Menu onSelect={handleSelect} style={{ fontSize: '17px' }}>
-          <Dropdown.Item eventKey={1}>Details</Dropdown.Item>
-          <Dropdown.Item eventKey={2}>Edit</Dropdown.Item>
-          <Dropdown.Item eventKey={3}>Set Status - Valid </Dropdown.Item>
-          <Dropdown.Item eventKey={4}>Set Status - Invalid</Dropdown.Item>
-          <Dropdown.Item eventKey={5}>Delete</Dropdown.Item>
+          <Dropdown.Item eventKey={1}>Edit</Dropdown.Item>
+          <Dropdown.Item eventKey={2}>Delete</Dropdown.Item>
         </Dropdown.Menu>
       </Popover>
     );
@@ -265,11 +244,11 @@ const LinkManagerTable = ({ props }) => {
         cell: ({ row }) => {
           const rowData = row?.original;
           return (
-            <div className={dataCell}>
+            <div className={actionDataCell}>
               <Whisper placement="auto" trigger="click" speaker={renderMenu}>
                 <IconButton
                   appearance="subtle"
-                  icon={<MoreIcon />}
+                  icon={<CgMoreVertical />}
                   onClick={() => setSelectedRowData(rowData)}
                 />
               </Whisper>
@@ -293,7 +272,6 @@ const LinkManagerTable = ({ props }) => {
     onExpandedChange: setExpanded,
     getSubRows: (row) => row.children,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
   });
@@ -362,76 +340,12 @@ const LinkManagerTable = ({ props }) => {
       <div />
 
       {!table.getRowModel().rows[0] && <p className={emptyTableContent}>No Data Found</p>}
-
-      <div className={paginationContainer}>
-        <p>Total: {totalItems ? totalItems : 0} </p>
-
-        <CustomFilterSelect
-          items={paginationItems}
-          placeholder={'Rows per page ' + table.getState().pagination.pageSize}
-          onChange={(value) => {
-            if (value) table.setPageSize(value);
-            else {
-              table.setPageSize(10);
-            }
-          }}
-        />
-
-        <Button
-          onClick={() => table.setPageIndex(0)}
-          disabled={!table.getCanPreviousPage()}
-          appearance="default"
-        >
-          {'<<'}
-        </Button>
-        <Button
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-          appearance="default"
-        >
-          {'<'}
-        </Button>
-
-        <p className={pageTitle}>
-          Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
-        </p>
-
-        <Button
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-          appearance="default"
-        >
-          {'>'}
-        </Button>
-        <Button
-          onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-          disabled={!table.getCanNextPage()}
-          appearance="default"
-        >
-          {'>>'}
-        </Button>
-
-        <span className={pageTitle}>
-          <p> | Go to page: </p>
-          <Input
-            type="number"
-            defaultValue={table.getState().pagination.pageIndex + 1}
-            onChange={(value) => {
-              const page = value ? Number(value) - 1 : 0;
-              table.setPageIndex(page);
-            }}
-            className={pageInput}
-            size="sm"
-          />
-        </span>
-      </div>
     </div>
   );
 };
 
 function Filter({ column, table, isAction, isStatusFilter }) {
   const firstValue = table.getPreFilteredRowModel().flatRows[0]?.getValue(column.id);
-
   const columnFilterValue = column.getFilterValue();
 
   const statusFilterItems = [
@@ -454,13 +368,14 @@ function Filter({ column, table, isAction, isStatusFilter }) {
 
   return typeof firstValue === 'number' ? null : (
     <>
-      {!isAction && !isStatusFilter && (
+      {!isStatusFilter && (
         <Input
           type="text"
           value={columnFilterValue ?? ''}
           onChange={(value) => column.setFilterValue(value)}
           placeholder={'Search...'}
           size="sm"
+          style={{ visibility: isAction ? 'hidden' : 'visible' }}
           className={filterInput}
         />
       )}
