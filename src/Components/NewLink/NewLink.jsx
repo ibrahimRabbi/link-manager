@@ -24,7 +24,7 @@ import UseLoader from '../Shared/UseLoader';
 import GitlabSelector from '../SelectionDialog/GitlabSelector/GitlabSelector';
 const { targetContainer, targetIframe, targetBtnContainer, cancelMargin } = styles;
 
-const apiURL = `${import.meta.env.VITE_LM_REST_API_URL}/link`;
+const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const jiraDialogURL = import.meta.env.VITE_JIRA_DIALOG_URL;
 const gitlabDialogURL = import.meta.env.VITE_GITLAB_DIALOG_URL;
 const glideDialogURL = import.meta.env.VITE_GLIDE_DIALOG_URL;
@@ -105,7 +105,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         if (curr.name.includes(applicationType)) acc.push(curr);
         return acc;
       }, []);
-      console.log('specificProject', specificProject);
       setProjectTypeItems(specificProject);
     })();
   }, [sourceDataList]);
@@ -138,7 +137,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // set iframe SRC conditionally
   useEffect(() => {
     if (projectType) {
-      console.log('projectType', projectType);
       const jiraApp = projectType?.includes('(JIRA)');
       const gitlabApp = projectType?.includes('(GITLAB)');
       const gitlabAppNative = projectType?.includes('(GITLAB-NATIVE)');
@@ -294,59 +292,130 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Create new link
   const handleSaveLink = (res) => {
-    console.log(JSON.parse(res));
-    const { projectName, sourceType, title, uri, appName } = sourceDataList;
+    const { projectName, sourceType, title, uri, appName, branch, commit } =
+      sourceDataList;
+    const selectedLines = title?.split('#');
 
-    const targetsData = targetDataArr?.map((data) => {
-      const id = data?.selected_lines
-        ? data.koatl_uri + '#' + data?.selected_lines
-        : data.koatl_uri;
-      const platform_uri = data?.uri;
-      return {
-        koatl_uri: platform_uri,
-        koatl_path: data.koatl_path ? data.koatl_path : '',
-        content_lines: data.content_lines ? data.content_lines : '',
-        selected_lines: data.selected_lines ? data.selected_lines : '',
-        branch_name: data.branch_name ? data.branch_name : '',
-        provider_id: data.provider_id ? data.provider_id : '',
-        resource_id: data.resource_id ? data.resource_id : '',
-        resource_type: data.type ? data.type : '',
-        content: data.content ? data.content : '',
-        target_type: data.resource_type ? data.resource_type : '',
-        target_title: data.label ? data.label : '',
-        target_id: id,
-        target_project: projectType,
-        target_provider: data.target_provider,
+    // create link with new response formate with new endpoint
+    if (res) {
+      const targetRes = JSON.parse(res);
+      const mappedTargetData = targetRes?.map((item) => {
+        const properties = item?.extended_properties;
+        // eslint-disable-next-line max-len
+        const targetUri = properties?.selected_lines
+          ? item?.uri + '#' + properties?.selected_lines
+          : item?.uri;
+        return {
+          target_properties: {
+            type: item?.type,
+            uri: targetUri,
+            title: item?.label,
+            provider_id: item?.provider_id,
+            provider_name: item?.provider_name,
+            api: item?.api,
+            description: item?.description ? item?.description : '',
+            extra_properties: {
+              branch_name: properties?.branch_name ? properties?.branch_name : '',
+              commit_id: properties?.commit_id ? properties?.commit_id : '',
+              content_hash: properties?.content_hash ? properties?.content_hash : '',
+              selected_lines: properties?.selected_lines
+                ? properties?.selected_lines
+                : '',
+              path: properties?.path ? properties?.path : '',
+              web_url: item?.web_url ? item?.web_url : '',
+            },
+          },
+        };
+      });
+
+      const linkBodyData = {
+        source_properties: {
+          type: sourceType,
+          uri: uri,
+          title: title ? title : '',
+          provider_id: '',
+          provider_name: projectName,
+          api: appName,
+          description: '',
+          extra_properties: {
+            branch_name: branch ? branch : '',
+            commit_id: commit ? commit : '',
+            selected_lines: selectedLines[1] ? selectedLines[1] : '',
+            content_hash: '',
+            path: '',
+            web_url: '',
+          },
+        },
+        link_properties: {
+          relation: linkType,
+          status: 'valid',
+        },
+        target_data: mappedTargetData,
       };
-    });
-    let appNameTwo = '';
-    if (appName === null) {
-      appNameTwo = 'JIRA';
-    } else {
-      appNameTwo = appName;
-    }
 
-    const linkObj = {
-      stream: streamType ? streamType : '',
-      source_type: sourceType ? sourceType : '',
-      source_title: title ? title : '',
-      source_project: projectName,
-      source_provider: appNameTwo,
-      source_id: uri,
-      relation: linkType,
-      status: 'valid',
-      target_data: targetsData,
-    };
-    console.log('Link Obj: ', linkObj);
-    dispatch(
-      fetchCreateLink({
-        url: apiURL,
-        token: authCtx.token,
-        bodyData: linkObj,
-        message: 'link',
-        showNotification: showNotification,
-      }),
-    );
+      console.log('New Response: ', linkBodyData);
+
+      dispatch(
+        fetchCreateLink({
+          url: `${apiURL}/link/new_link`,
+          token: authCtx.token,
+          bodyData: linkBodyData,
+          message: 'link',
+          showNotification: showNotification,
+        }),
+      );
+    } else {
+      const targetsData = targetDataArr?.map((data) => {
+        const id = data?.selected_lines
+          ? data.koatl_uri + '#' + data?.selected_lines
+          : data.koatl_uri;
+        const platform_uri = data?.uri;
+        return {
+          koatl_uri: platform_uri,
+          koatl_path: data.koatl_path ? data.koatl_path : '',
+          content_lines: data.content_lines ? data.content_lines : '',
+          selected_lines: data.selected_lines ? data.selected_lines : '',
+          branch_name: data.branch_name ? data.branch_name : '',
+          provider_id: data.provider_id ? data.provider_id : '',
+          resource_id: data.resource_id ? data.resource_id : '',
+          resource_type: data.type ? data.type : '',
+          content: data.content ? data.content : '',
+          target_type: data.resource_type ? data.resource_type : '',
+          target_title: data.label ? data.label : '',
+          target_id: id,
+          target_project: projectType,
+          target_provider: data.target_provider,
+        };
+      });
+      let appNameTwo = '';
+      if (appName === null) {
+        appNameTwo = 'JIRA';
+      } else {
+        appNameTwo = appName;
+      }
+
+      const linkObj = {
+        stream: streamType ? streamType : '',
+        source_type: sourceType ? sourceType : '',
+        source_title: title ? title : '',
+        source_project: projectName,
+        source_provider: appNameTwo,
+        source_id: uri,
+        relation: linkType,
+        status: 'valid',
+        target_data: targetsData,
+      };
+      console.log('Link Obj: ', linkObj);
+      dispatch(
+        fetchCreateLink({
+          url: `${apiURL}/link`,
+          token: authCtx.token,
+          bodyData: linkObj,
+          message: 'link',
+          showNotification: showNotification,
+        }),
+      );
+    }
   };
 
   // eslint-disable-next-line max-len
