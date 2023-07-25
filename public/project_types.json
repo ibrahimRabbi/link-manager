@@ -20,6 +20,14 @@
     "application_id": "219"
   },
   {
+    "name": "Master tenant (GLIDE-NATIVE)",
+    "appName": "Glideyoke",
+    "id": "master",
+    "type": "glideyoke",
+    "organization_id": "1",
+    "application_id": "135"
+  },
+  {
     "name": "Koneksys (GITLAB-NATIVE)",
     "appName": "Gitlab",
     "id": "56139069",

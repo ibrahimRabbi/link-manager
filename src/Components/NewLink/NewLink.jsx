@@ -22,6 +22,7 @@ import { FlexboxGrid, Col, Button, Message, toaster } from 'rsuite';
 import SourceSection from '../SourceSection';
 import UseLoader from '../Shared/UseLoader';
 import GitlabSelector from '../SelectionDialog/GitlabSelector/GitlabSelector';
+import ListView from '../SelectionDialog/ListView/ListView.jsx';
 const { targetContainer, targetIframe, targetBtnContainer, cancelMargin } = styles;
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
@@ -48,6 +49,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     oslcCancelResponse,
   } = useSelector((state) => state.links);
   const [gitlabSelect, setGitlabSelect] = useState(false);
+  const [nativeListView, setNativeListView] = useState(false);
   const [groupId, setGroupId] = useState('');
   const [linkTypeItems, setLinkTypeItems] = useState([]);
   const [applicationTypeItems, setApplicationTypeItems] = useState([]);
@@ -142,6 +144,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       const gitlabApp = projectType?.includes('(GITLAB)');
       const gitlabAppNative = projectType?.includes('(GITLAB-NATIVE)');
       const glideApp = projectType?.includes('(GLIDE)');
+      const glideAppNative = projectType?.includes('(GLIDE-NATIVE)');
       const valispaceApp = projectType?.includes('(VALISPACE)');
       const codebeamerApp = projectType?.includes('(CODEBEAMER)');
       const jiraProjectApp = projectType?.includes('(JIRA-PROJECTS)');
@@ -167,6 +170,14 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         setAppData(tempAppData[0]);
         setGitlabSelect(true);
         setGroupId(projectId);
+        setProjectFrameSrc('');
+      } else if (glideAppNative) {
+        const tempAppData = projectTypeItems?.filter((app) => {
+          if (app.name === projectType) return app;
+        });
+        tempAppData[0].name = tempAppData[0].appName;
+        setAppData(tempAppData[0]);
+        setNativeListView(true);
         setProjectFrameSrc('');
       } else if (glideApp) {
         setProjectFrameSrc(
@@ -521,6 +532,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                 handleSaveLink={handleSaveLink}
                 appData={appData}
               ></GitlabSelector>
+            )}
+            {linkType && projectType && nativeListView && (
+              <ListView
+                handleSaveLink={handleSaveLink}
+                appData={appData}
+              ></ListView>
             )}
           </div>
 
