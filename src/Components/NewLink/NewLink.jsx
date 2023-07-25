@@ -163,6 +163,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       } else if (gitlabAppNative) {
         setGitlabSelect(true);
         setGroupId(projectId);
+        setProjectFrameSrc('');
       } else if (glideApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
