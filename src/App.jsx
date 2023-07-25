@@ -34,7 +34,6 @@ import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun
 import Pipeline from './Components/Pipeline/Pipeline.jsx';
 import WebBrowserExtension from './Components/WebBrowserExtension/WebBrowserExtension';
 import GitlabSelector from './Components/SelectionDialog/GitlabSelector/GitlabSelector';
-import GitlabLogin from './Components/SelectionDialog/GitlabSelector/GitlabLogin';
 import Graph from './Components/GraphView/Graph.jsx';
 // eslint-disable-next-line max-len
 import Oauth2Callback from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2Callback.jsx';
@@ -129,7 +128,6 @@ function App() {
             <Route path="/admin" element={<Users />} />
           </Route>
           <Route path="/gitlabselection/:id" element={<GitlabSelector />}></Route>
-          <Route path="/gitlablogin" element={<GitlabLogin />}></Route>
           <Route path="/oauth2-status" element={<Oauth2Success />} />
           <Route path="/set-password" element={<UserVerify />} />
           <Route path="/login" element={<LoginPage />} />

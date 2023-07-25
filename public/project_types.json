@@ -16,14 +16,16 @@
     "appName": "Gitlab",
     "id": "60998096",
     "type": "gitlab",
-    "organization_id": "1"
+    "organization_id": "1",
+    "application_id": "212"
   },
   {
     "name": "Koneksys (GITLAB-NATIVE)",
     "appName": "Gitlab",
     "id": "56139069",
     "type": "gitlab",
-    "organization_id": "1"
+    "organization_id": "1",
+    "application_id": "212"
   },
   {
     "name": "Jet Engine Design (GLIDE)"

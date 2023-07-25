@@ -20,8 +20,32 @@
 
 .tableContainer {
   position: relative;
-  padding: 10px 0;
+  padding: 10px 0 0;
   border-radius: 5px;
+}
+
+.onlyTableContainer {
+  border: 0.5px solid rgb(238, 238, 238);
+  height: 70vh;
+  overflow-y: auto;
+}
+
+.onlyTableContainerDark {
+  border: 0.5px solid #3c3f43;
+  height: 70vh;
+  overflow-y: auto;
+}
+
+.paginationStyle {
+  border: 0.5px solid rgb(239, 238, 238);
+  border-top: 0;
+  padding: 3px 0;
+}
+
+.paginationStyleDark {
+  border: 0.5px solid #3c3f43;
+  border-top: 0;
+  padding: 3px 0;
 }
 
 .searchBox {
@@ -60,10 +84,22 @@
 // link manager table style
 .table_row_light {
   height: 40px;
+  border-bottom: 0.5px solid rgba(246, 241, 241, 0.81);
 }
 
 .table_row_dark {
   height: 40px;
+  border-bottom: 0.5px solid rgb(42, 41, 41);
+}
+
+.table_row_light:last-child {
+  height: 40px;
+  border-bottom: 0;
+}
+
+.table_row_dark:last-child {
+  height: 40px;
+  border-bottom: 0;
 }
 
 .table_row_light:hover {
@@ -83,14 +119,14 @@
     width: 15px;
     cursor: pointer;
     margin-right: 2px;
-    margin-bottom: -3px;
+    margin-bottom: 0px;
   }
 
   .toggleExpand {
     cursor: pointer;
     margin: 0 2px;
     transition: 0.1s;
-    margin-top: 3px;
+    margin-bottom: -4px;
   }
 
   .iconRotate {
@@ -99,7 +135,6 @@
 
   .emptyExpand {
     margin: 0 2px;
-    // width: 13px;
   }
 
   .statusIcon {
@@ -121,12 +156,14 @@
     height: 16px;
     width: 16px;
     cursor: pointer;
+    margin-bottom: -2px;
   }
 }
 
 .headerExpand {
   cursor: pointer;
   transition: 0.1s;
+  margin-bottom: -5px;
 }
 
 .allIconRotate {
@@ -145,6 +182,10 @@
   margin-left: 20px;
 }
 
+.actionDataCell {
+  margin-left: 5px;
+}
+
 .statusCellWidth {
   width: 100px;
 }
@@ -152,7 +193,6 @@
 .tableStyle {
   padding: 20px;
   width: 100%;
-  border: 1px solid lightgray;
 }
 
 .emptyTableContent {
@@ -160,7 +200,7 @@
   align-items: center;
   justify-content: center;
   height: 200px;
-  border: 1px solid lightgray;
+  // border: 1px solid lightgray;
   border-top: 0;
 }
 
@@ -172,26 +212,6 @@
 
 .statusFilterClass {
   width: 100px;
-}
-
-.paginationContainer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  border: 1px solid lightgray;
-
-  .pageTitle {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-
-  .pageInput {
-    border: 1px solid lightgray;
-    width: 80px;
-    border-radius: 3px;
-  }
 }
 
 .filterInput {
