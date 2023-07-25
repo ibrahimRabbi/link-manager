@@ -44,11 +44,9 @@ const Oauth2Waiting = (props) => {
   };
 
   if (oauth2Data) {
-    if (data?.type === 'gitlab') {
-      // eslint-disable-next-line max-len
-      url = `${lmApiUrl}/third_party/gitlab/oauth2/login?application_id=${oauth2Data?.items[0]?.id}`;
-      openOauth2Login(url);
-    }
+    // eslint-disable-next-line max-len
+    url = `${lmApiUrl}/third_party/${data?.type}/oauth2/login?application_id=${oauth2Data?.items[0]?.id}`;
+    openOauth2Login(url);
   }
 
   // prettier-ignore
@@ -75,7 +73,7 @@ const Oauth2Waiting = (props) => {
       <h3>Waiting for user verification</h3>
       {/* eslint-disable-next-line max-len */}
       <p>
-        A new tab will de displayed in the browser to authenticate with{' '}
+        A new tab will be displayed in the browser to authenticate with{' '}
         {data?.type.charAt(0).toUpperCase() + data?.type.slice(1)}. If not{' '}
         <span style={{ color: 'blue' }} onClick={() => openOauth2Login(url)}>
           click here
