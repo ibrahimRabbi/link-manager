@@ -7,7 +7,7 @@ const ButtonGroup = ({
   selectedCodes,
   multipleSelected,
   singleSelected,
-  dialogResponse,
+  handleSaveLink,
 }) => {
   const [loading, setLoading] = useState(false);
   const handleSelect = () => {
@@ -59,7 +59,7 @@ const ButtonGroup = ({
       Response = Response.replace(/^\[|\]$/g, '');
       Response = initialResponse + Response + finalresponse;
       setLoading(false);
-      dialogResponse(Response);
+      handleSaveLink(Response);
     } else if (value.length > 1) {
       const initialResponse = '[';
       let Response = '';
@@ -83,7 +83,7 @@ const ButtonGroup = ({
 
       Response = initialResponse + Response + finalResponse;
       setLoading(false);
-      dialogResponse(Response);
+      handleSaveLink(Response);
     } else {
       const initialResponse = '[';
       let Response = '';
@@ -103,13 +103,13 @@ const ButtonGroup = ({
       Response = Response.replace(/^\[|\]$/g, '');
       Response = initialResponse + Response + finalresponse;
       setLoading(false);
-      dialogResponse(Response);
+      handleSaveLink(Response);
     }
   };
 
   // Function to handle cancel
   function cancel() {
-    dialogResponse('');
+    handleSaveLink('');
   }
   return (
     <div>
