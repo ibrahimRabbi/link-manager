@@ -49,6 +49,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   } = useSelector((state) => state.links);
   const [gitlabSelect, setGitlabSelect] = useState(false);
   const [groupId, setGroupId] = useState('');
+  const [dialogRes, setDialogRes] = useState(null);
   const [linkTypeItems, setLinkTypeItems] = useState([]);
   const [applicationTypeItems, setApplicationTypeItems] = useState([]);
   let [projectTypeItems, setProjectTypeItems] = useState([]);
@@ -68,7 +69,10 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
     }
   };
-
+  const dialogResponse = (res) => {
+    setDialogRes(res);
+    console.log(dialogRes);
+  };
   // Display project types conditionally by App name
   useEffect(() => {
     (async () => {
@@ -197,7 +201,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       }
     }
   }, [projectType]);
-
   //// Get Selection dialog response data
   window.addEventListener(
     'message',
@@ -441,7 +444,10 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           )}
           <div>
             {linkType && projectType && gitlabSelect && (
-              <GitlabSelector id={groupId}></GitlabSelector>
+              <GitlabSelector
+                id={groupId}
+                dialogResponse={dialogResponse}
+              ></GitlabSelector>
             )}
           </div>
 

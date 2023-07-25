@@ -12,7 +12,7 @@ import UseLoader from '../../Shared/UseLoader';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
-const GitlabSelector = ({ id }) => {
+const GitlabSelector = ({ id, dialogResponse }) => {
   const [pExist, setPExist] = useState(false);
   const [projects, setProjects] = useState([]);
   const [selectedFile, setSelectedFile] = useState('');
@@ -279,10 +279,9 @@ const GitlabSelector = ({ id }) => {
               </div>
               <div className={style.buttonDiv}>
                 <ButtonGroup
+                  dialogResponse={dialogResponse}
                   selectedCodes={selectedCodes}
                   multipleSelected={multipleSelected}
-                  branchId={branchId}
-                  projectId={projectId}
                   singleSelected={singleSelected}
                 ></ButtonGroup>
               </div>

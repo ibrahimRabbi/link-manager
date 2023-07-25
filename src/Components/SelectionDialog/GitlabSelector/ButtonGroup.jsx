@@ -3,11 +3,16 @@ import React, { useState } from 'react';
 import { Button, ButtonToolbar, Loader, Placeholder } from 'rsuite';
 import CryptoJS from 'crypto-js';
 
-const ButtonGroup = ({ selectedCodes, multipleSelected, singleSelected }) => {
+const ButtonGroup = ({
+  selectedCodes,
+  multipleSelected,
+  singleSelected,
+  dialogResponse,
+}) => {
   const [loading, setLoading] = useState(false);
-  const handleSelect = async () => {
+  const handleSelect = () => {
     setLoading(true);
-    const propsToRemove = ['children', 'is_folder', 'visible'];
+    const propsToRemove = ['children', 'is_folder', 'visible', 'id'];
     let value;
     if (singleSelected !== '') {
       value = JSON.parse(JSON.stringify(singleSelected));
@@ -54,8 +59,8 @@ const ButtonGroup = ({ selectedCodes, multipleSelected, singleSelected }) => {
       Response = Response.replace(/^\[|\]$/g, '');
       Response = initialResponse + Response + finalresponse;
       setLoading(false);
+      dialogResponse(Response);
       console.log(Response);
-      respondWithPostMessage(Response);
     } else if (value.length > 1) {
       const initialResponse = '[';
       let Response = '';
@@ -79,8 +84,8 @@ const ButtonGroup = ({ selectedCodes, multipleSelected, singleSelected }) => {
 
       Response = initialResponse + Response + finalResponse;
       setLoading(false);
+      dialogResponse(Response);
       console.log(Response);
-      respondWithPostMessage(Response);
     } else {
       const initialResponse = '[';
       let Response = '';
@@ -101,42 +106,13 @@ const ButtonGroup = ({ selectedCodes, multipleSelected, singleSelected }) => {
       Response = initialResponse + Response + finalresponse;
       setLoading(false);
       console.log(Response);
-      respondWithPostMessage(Response);
+      dialogResponse(Response);
     }
   };
 
-  // Function to send cancel response
-  function sendCancelResponse() {
-    const oslcResponse = '[ ]';
-    console.log(oslcResponse);
-    if (window.location.hash === '#oslc-core-windowName-1.0') {
-      // Window Name protocol in use
-      respondWithWindowName(oslcResponse);
-    } else if (window.location.hash === '#oslc-core-postMessage-1.0') {
-      // Post Message protocol in use
-      respondWithPostMessage(oslcResponse);
-    }
-  }
-
-  // Function to respond with Window Name protocol
-  function respondWithWindowName(response) {
-    const returnURL = window.name;
-    window.name = response;
-    window.location.href = returnURL;
-  }
-
-  // Function to respond with Post Message protocol
-  function respondWithPostMessage(response) {
-    if (window.parent != null) {
-      window.parent.postMessage(response, '*');
-    } else {
-      window.postMessage(response, '*');
-    }
-  }
-
   // Function to handle cancel
   function cancel() {
-    sendCancelResponse();
+    dialogResponse('');
   }
   return (
     <div>
