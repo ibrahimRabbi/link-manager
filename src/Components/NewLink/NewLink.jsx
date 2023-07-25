@@ -21,6 +21,7 @@ import UseSelectPicker from '../Shared/UseDropdown/UseSelectPicker';
 import { FlexboxGrid, Col, Button, Message, toaster } from 'rsuite';
 import SourceSection from '../SourceSection';
 import UseLoader from '../Shared/UseLoader';
+import GitlabSelector from '../SelectionDialog/GitlabSelector/GitlabSelector';
 const { targetContainer, targetIframe, targetBtnContainer, cancelMargin } = styles;
 
 const apiURL = `${import.meta.env.VITE_LM_REST_API_URL}/link`;
@@ -46,6 +47,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     linkCreateLoading,
     oslcCancelResponse,
   } = useSelector((state) => state.links);
+  const [gitlabSelect, setGitlabSelect] = useState(false);
+  const [groupId, setGroupId] = useState('');
   const [linkTypeItems, setLinkTypeItems] = useState([]);
   const [applicationTypeItems, setApplicationTypeItems] = useState([]);
   let [projectTypeItems, setProjectTypeItems] = useState([]);
@@ -65,7 +68,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
     }
   };
-
   // Display project types conditionally by App name
   useEffect(() => {
     (async () => {
@@ -158,10 +160,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           `${gitlabDialogURL}/oslc/provider/selector?provider_id=${projectId}&gc_context=${'st-develop'}`,
         );
       } else if (gitlabAppNative) {
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `https://lm-dev.koneksys.com/gitlabselection/${projectId}`,
-        );
+        setGitlabSelect(true);
+        setGroupId(projectId);
+        setProjectFrameSrc('');
       } else if (glideApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
@@ -195,7 +196,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       }
     }
   }, [projectType]);
-
   //// Get Selection dialog response data
   window.addEventListener(
     'message',
@@ -293,7 +293,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   };
 
   // Create new link
-  const handleSaveLink = () => {
+  const handleSaveLink = (res) => {
+    console.log(JSON.parse(res));
     const { projectName, sourceType, title, uri, appName } = sourceDataList;
 
     const targetsData = targetDataArr?.map((data) => {
@@ -437,6 +438,14 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               )}
             </div>
           )}
+          <div>
+            {linkType && projectType && gitlabSelect && (
+              <GitlabSelector
+                id={groupId}
+                handleSaveLink={handleSaveLink}
+              ></GitlabSelector>
+            )}
+          </div>
 
           {/* Target Cancel button  */}
           <div
