@@ -8,12 +8,11 @@ import CodeEditor from './CodeEditor';
 import ButtonGroup from './ButtonGroup';
 import UseSelectPicker from '../../Shared/UseDropdown/UseSelectPicker';
 import AuthContext from '../../../Store/Auth-Context';
-import { useParams } from 'react-router-dom';
+import UseLoader from '../../Shared/UseLoader';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
-const GitlabSelector = () => {
-  const { id } = useParams();
+const GitlabSelector = ({ id }) => {
   const [pExist, setPExist] = useState(false);
   const [projects, setProjects] = useState([]);
   const [selectedFile, setSelectedFile] = useState('');
@@ -50,6 +49,7 @@ const GitlabSelector = () => {
       setProjectId(''); // Clear the project selection
       setProjects([]);
       setTreeData([]);
+      setLoading(true);
       fetch(
         `${lmApiUrl}/third_party/gitlab/containers/${id}?page=1&per_page=10&application_id=219`,
         {
@@ -60,10 +60,13 @@ const GitlabSelector = () => {
       )
         .then((response) => response.json())
         .then((data) => {
-          if (data.total_items === 0) {
+          if (data?.total_items === 0) {
+            setLoading(false);
             setPExist(true);
             // showNotification('info', 'There is no project for selected group.');
           } else {
+            setLoading(false);
+            setPExist(false);
             setProjects(data?.items);
           }
         });
@@ -112,7 +115,6 @@ const GitlabSelector = () => {
   useEffect(() => {
     if (projectId && commitId) {
       setTreeData([]);
-      setLoading(true);
       fetch(
         `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?ref=${commitId}&application_id=219`,
         {
@@ -124,7 +126,6 @@ const GitlabSelector = () => {
         .then((response) => response.json())
         .then((data) => {
           setTreeData(data?.items);
-          setLoading(false);
         });
     }
   }, [projectId, authCtx, commitId]);
@@ -197,7 +198,11 @@ const GitlabSelector = () => {
   };
   return (
     <div className={style.mainDiv}>
-      {pExist ? (
+      {loading ? (
+        <div style={{ marginTop: '50px' }}>
+          <UseLoader />
+        </div>
+      ) : pExist ? (
         <h3 style={{ textAlign: 'center', marginTop: '50px', color: '#1675e0' }}>
           Selected group has no projects.
         </h3>
