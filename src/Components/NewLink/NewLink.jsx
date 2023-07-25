@@ -518,7 +518,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             {linkType && projectType && gitlabSelect && (
               <GitlabSelector
                 id={groupId}
-                appId={'219'}
                 handleSaveLink={handleSaveLink}
                 appData={appData}
               ></GitlabSelector>
