@@ -12,7 +12,7 @@ import UseLoader from '../../Shared/UseLoader';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
-const GitlabSelector = ({ id, handleSaveLink }) => {
+const GitlabSelector = ({ id, handleSaveLink, appId }) => {
   const [pExist, setPExist] = useState(false);
   const [projects, setProjects] = useState([]);
   const [selectedFile, setSelectedFile] = useState('');
@@ -51,7 +51,7 @@ const GitlabSelector = ({ id, handleSaveLink }) => {
       setTreeData([]);
       setLoading(true);
       fetch(
-        `${lmApiUrl}/third_party/gitlab/containers/${id}?page=1&per_page=10&application_id=219`,
+        `${lmApiUrl}/third_party/gitlab/containers/${id}?page=1&per_page=10&application_id=${appId}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -79,7 +79,7 @@ const GitlabSelector = ({ id, handleSaveLink }) => {
   useEffect(() => {
     if (projectId) {
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/branch?page=1&per_page=10&application_id=219`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/branch?page=1&per_page=10&application_id=${appId}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -97,7 +97,7 @@ const GitlabSelector = ({ id, handleSaveLink }) => {
   useEffect(() => {
     if (projectId && branchId) {
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/commit?page=1&per_page=10&application_id=219&branch=${branchId}`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/commit?page=1&per_page=10&application_id=${appId}&branch=${branchId}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -116,7 +116,7 @@ const GitlabSelector = ({ id, handleSaveLink }) => {
     if (projectId && commitId) {
       setTreeData([]);
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?ref=${commitId}&application_id=219`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?ref=${commitId}&application_id=${appId}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -183,7 +183,7 @@ const GitlabSelector = ({ id, handleSaveLink }) => {
   const getChildren = async (node) => {
     try {
       const response = await fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?path=${node?.extended_properties?.path}&ref=${node?.extended_properties?.commit_id}&application_id=219`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?path=${node?.extended_properties?.path}&ref=${node?.extended_properties?.commit_id}&application_id=${appId}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -271,6 +271,7 @@ const GitlabSelector = ({ id, handleSaveLink }) => {
                           setSelectedCodes={setSelectedCodes}
                           projectId={projectId}
                           commitId={commitId}
+                          appId={appId}
                         ></CodeEditor>
                       )
                     )}
