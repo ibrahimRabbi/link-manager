@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 /* eslint-disable max-len */
 import React, { useContext, useEffect, useState } from 'react';
 import style from './GlideSelector.module.scss';
@@ -10,6 +11,8 @@ import {
   MICROSERVICES_APPLICATION_TYPES,
   OAUTH2_APPLICATION_TYPES,
 } from '../../../App.jsx';
+import { useReactTable, flexRender, getCoreRowModel } from '@tanstack/react-table';
+import { columnDefWithCheckBox } from './Columns';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -17,6 +20,7 @@ const GlideSelector = ({ appData }) => {
   const [pExist, setPExist] = useState(false);
   const [projects, setProjects] = useState([]);
   const [resourceTypes, setResourceTypes] = useState([]);
+  const [tableData, setTableData] = useState([]);
 
   const [projectId, setProjectId] = useState('');
   const [resourceTypeId, setResourceTypeId] = useState('');
@@ -52,6 +56,7 @@ const GlideSelector = ({ appData }) => {
     setProjectId(''); // Clear the project selection
     setProjects([]);
     setLoading(true);
+    setTableData([]);
     fetch(
       `${lmApiUrl}/third_party/${appData?.type}/containers?page=1&per_page=10&application_id=${appData?.application_id}`,
       {
@@ -84,6 +89,7 @@ const GlideSelector = ({ appData }) => {
 
   useEffect(() => {
     if (projectId) {
+      setTableData([]);
       fetch(`${lmApiUrl}/third_party/${appData?.type}/resource_types`)
         .then((response) => {
           if (response.status === 200) {
@@ -122,12 +128,27 @@ const GlideSelector = ({ appData }) => {
         })
         .then((data) => {
           console.log(data);
-          // setBranchList(data?.items);
+          setTableData(data.items);
         });
     } else {
-      // setBranchList([]);
+      setTableData([]);
     }
   }, [projectId, resourceTypeId, authCtx]);
+  const finalData = React.useMemo(() => tableData);
+  const finalColumnDef = React.useMemo(() => columnDefWithCheckBox);
+
+  const [rowSelection, setRowSelection] = React.useState({});
+
+  const tableInstance = useReactTable({
+    columns: finalColumnDef,
+    data: finalData,
+    getCoreRowModel: getCoreRowModel(),
+    state: {
+      rowSelection: rowSelection,
+    },
+    onRowSelectionChange: setRowSelection,
+    enableRowSelection: true,
+  });
 
   return (
     <div className={style.mainDiv}>
@@ -169,6 +190,56 @@ const GlideSelector = ({ appData }) => {
               disabled={authenticatedThirdApp}
               items={resourceTypes}
             />
+          </div>
+          {tableData && (
+            <table>
+              <thead>
+                {tableInstance.getHeaderGroups().map((headerEl) => {
+                  return (
+                    <tr key={headerEl.id}>
+                      {headerEl.headers.map((columnEl) => {
+                        return (
+                          <th key={columnEl.id} colSpan={columnEl.colSpan}>
+                            {columnEl.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  columnEl.column.columnDef.header,
+                                  columnEl.getContext(),
+                                )}
+                          </th>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </thead>
+              <tbody>
+                {tableInstance.getRowModel().rows.map((rowEl) => {
+                  return (
+                    <tr key={rowEl.id}>
+                      {rowEl.getVisibleCells().map((cellEl) => {
+                        return (
+                          <td key={cellEl.id}>
+                            {flexRender(
+                              cellEl.column.columnDef.cell,
+                              cellEl.getContext(),
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+          <hr />
+          <div>
+            <ul>
+              {tableInstance.getSelectedRowModel().flatRows.map((el) => {
+                return <li key={el.id}>{JSON.stringify(el.original)}</li>;
+              })}
+            </ul>
           </div>
         </div>
       )}
