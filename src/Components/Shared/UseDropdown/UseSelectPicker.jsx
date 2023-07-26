@@ -18,7 +18,7 @@ const FixedLoader = () => (
   </h5>
 );
 
-const UseSelectPicker = ({ items, onChange, placeholder, className }) => {
+const UseSelectPicker = ({ items, onChange, placeholder, className, disabled }) => {
   const [selectItems, setSelectItems] = useState([]);
   const [selectedValue, setSelectedValue] = useState(null);
 
@@ -68,6 +68,7 @@ const UseSelectPicker = ({ items, onChange, placeholder, className }) => {
       size="md"
       block
       value={selectedValue}
+      disabled={disabled}
       onChange={(v) => {
         setSelectedValue(v);
         handleSelect(v);

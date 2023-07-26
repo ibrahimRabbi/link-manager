@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import React, { useContext, useEffect, useState } from 'react';
-import { CheckTree, Loader, Placeholder } from 'rsuite';
+import { CheckTree, Loader, Placeholder, SelectPicker } from 'rsuite';
 import style from './GitlabSelector.module.css';
 import FolderFillIcon from '@rsuite/icons/FolderFill';
 import PageIcon from '@rsuite/icons/Page';
@@ -8,12 +8,17 @@ import CodeEditor from './CodeEditor';
 import ButtonGroup from './ButtonGroup';
 import UseSelectPicker from '../../Shared/UseDropdown/UseSelectPicker';
 import AuthContext from '../../../Store/Auth-Context';
-import { useParams } from 'react-router-dom';
+import UseLoader from '../../Shared/UseLoader';
+import ExternalAppModal from '../../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
+import {
+  BASIC_AUTH_APPLICATION_TYPES,
+  MICROSERVICES_APPLICATION_TYPES,
+  OAUTH2_APPLICATION_TYPES,
+} from '../../../App.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
-const GitlabSelector = () => {
-  const { id } = useParams();
+const GitlabSelector = ({ id, handleSaveLink, appData }) => {
   const [pExist, setPExist] = useState(false);
   const [projects, setProjects] = useState([]);
   const [selectedFile, setSelectedFile] = useState('');
@@ -30,60 +35,112 @@ const GitlabSelector = () => {
   const [treeData, setTreeData] = useState([]);
   const authCtx = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
+  const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
+  const broadcastChannel = new BroadcastChannel('oauth2-app-status');
+
+  const getExtLoginData = (data) => {
+    if (data?.status) {
+      setAuthenticatedThirdApp(false);
+    }
+  };
+
+  broadcastChannel.onmessage = (event) => {
+    const { status } = event.data;
+    if (status === 'success') {
+      setAuthenticatedThirdApp(false);
+    }
+  };
+  const commit = commitList.map((item) => ({
+    label: item?.name,
+    value: item?.id,
+    data: item,
+  }));
   const handleProjectChange = (selectedItem) => {
     setProjectId(selectedItem?.id);
     setBranchList([]);
     setBranchId('');
     setCommitList([]);
     setCommitId('');
+    setTreeData([]);
   };
   const handleBranchChange = (selectedItem) => {
     setBranchId(selectedItem?.id);
+    setTreeData([]);
     setCommitList([]);
     setCommitId('');
   };
-  const handleCommitChange = (selectedItem) => {
+  const handleCommit = (value) => {
+    const selectedItem = commitList?.find((v) => v?.id === value);
     setCommitId(selectedItem?.id);
+    setTreeData([]);
+  };
+  const renderMenuC = (menu) => {
+    if (commitList.length === 0) {
+      return <UseLoader />;
+    }
+    return menu;
   };
   useEffect(() => {
     if (id) {
       setProjectId(''); // Clear the project selection
       setProjects([]);
       setTreeData([]);
+      setLoading(true);
       fetch(
-        `${lmApiUrl}/third_party/gitlab/containers/${id}?page=1&per_page=10&application_id=219`,
+        `${lmApiUrl}/third_party/gitlab/containers/${id}?page=1&per_page=10&application_id=${appData?.application_id}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
           },
         },
       )
-        .then((response) => response.json())
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            if (response.status === 401) {
+              setAuthenticatedThirdApp(true);
+              return { items: [] };
+            }
+          }
+        })
         .then((data) => {
-          if (data.total_items === 0) {
+          if (data?.total_items === 0) {
+            setLoading(false);
             setPExist(true);
             // showNotification('info', 'There is no project for selected group.');
           } else {
-            setProjects(data?.items);
+            setLoading(false);
+            setPExist(false);
+            setProjects(data?.items ? data?.items : []);
           }
         });
     } else {
       setProjectId('');
       setProjects([]);
     }
-  }, [id, authCtx]);
+  }, [id, authCtx, authenticatedThirdApp]);
 
   useEffect(() => {
     if (projectId) {
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/branch?page=1&per_page=10&application_id=219`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/branch?page=1&per_page=10&application_id=${appData?.application_id}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
           },
         },
       )
-        .then((response) => response.json())
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            if (response.status === 401) {
+              setAuthenticatedThirdApp(true);
+              return { items: [] };
+            }
+          }
+        })
         .then((data) => {
           setBranchList(data?.items);
         });
@@ -94,14 +151,23 @@ const GitlabSelector = () => {
   useEffect(() => {
     if (projectId && branchId) {
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/commit?page=1&per_page=10&application_id=219&branch=${branchId}`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/commit?page=1&per_page=10&application_id=${appData?.application_id}&branch=${branchId}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
           },
         },
       )
-        .then((response) => response.json())
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            if (response.status === 401) {
+              setAuthenticatedThirdApp(true);
+              return { items: [] };
+            }
+          }
+        })
         .then((data) => {
           setCommitList(data?.items);
         });
@@ -112,9 +178,8 @@ const GitlabSelector = () => {
   useEffect(() => {
     if (projectId && commitId) {
       setTreeData([]);
-      setLoading(true);
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?ref=${commitId}&application_id=219`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?ref=${commitId}&application_id=${appData?.application_id}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -124,7 +189,6 @@ const GitlabSelector = () => {
         .then((response) => response.json())
         .then((data) => {
           setTreeData(data?.items);
-          setLoading(false);
         });
     }
   }, [projectId, authCtx, commitId]);
@@ -182,7 +246,7 @@ const GitlabSelector = () => {
   const getChildren = async (node) => {
     try {
       const response = await fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?path=${node?.extended_properties?.path}&ref=${node?.extended_properties?.commit_id}&application_id=219`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?path=${node?.extended_properties?.path}&ref=${node?.extended_properties?.commit_id}&application_id=${appData?.application_id}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -197,10 +261,25 @@ const GitlabSelector = () => {
   };
   return (
     <div className={style.mainDiv}>
-      {pExist ? (
+      {loading ? (
+        <div style={{ marginTop: '50px' }}>
+          <UseLoader />
+        </div>
+      ) : pExist ? (
         <h3 style={{ textAlign: 'center', marginTop: '50px', color: '#1675e0' }}>
           Selected group has no projects.
         </h3>
+      ) : authenticatedThirdApp ? (
+        <ExternalAppModal
+          showInNewLink={true}
+          formValue={appData}
+          isOauth2={OAUTH2_APPLICATION_TYPES?.includes(appData?.type)}
+          isBasic={(
+            BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
+          ).includes(appData?.type)}
+          onDataStatus={getExtLoginData}
+          integrated={false}
+        />
       ) : (
         <div className={style.mainDiv}>
           <div className={style.select}>
@@ -208,6 +287,7 @@ const GitlabSelector = () => {
             <UseSelectPicker
               placeholder="Choose Project"
               onChange={handleProjectChange}
+              disabled={authenticatedThirdApp}
               items={projects}
             />
           </div>
@@ -216,15 +296,27 @@ const GitlabSelector = () => {
             <UseSelectPicker
               placeholder="Choose Branch"
               onChange={handleBranchChange}
+              disabled={authenticatedThirdApp}
               items={branchList}
             />
           </div>
           <div className={style.select}>
             <h6>Commit</h6>
-            <UseSelectPicker
-              placeholder="Choose Commit"
-              onChange={handleCommitChange}
-              items={commitList}
+            <SelectPicker
+              placeholder={'Choose Commit'}
+              data={commit}
+              menuMaxHeight={250}
+              size="md"
+              block
+              searchable={commit.length > 9}
+              className="selectPicker"
+              onChange={(v) => handleCommit(v)}
+              renderMenu={renderMenuC}
+              renderMenuItem={(label) => (
+                <div className="selectPickerMenu">
+                  <p style={{ fontSize: '17px', margin: 0 }}>{label}</p>
+                </div>
+              )}
             />
           </div>
           {loading && (
@@ -266,6 +358,7 @@ const GitlabSelector = () => {
                           setSelectedCodes={setSelectedCodes}
                           projectId={projectId}
                           commitId={commitId}
+                          appId={appData?.application_id}
                         ></CodeEditor>
                       )
                     )}
@@ -274,10 +367,9 @@ const GitlabSelector = () => {
               </div>
               <div className={style.buttonDiv}>
                 <ButtonGroup
+                  handleSaveLink={handleSaveLink}
                   selectedCodes={selectedCodes}
                   multipleSelected={multipleSelected}
-                  branchId={branchId}
-                  projectId={projectId}
                   singleSelected={singleSelected}
                 ></ButtonGroup>
               </div>

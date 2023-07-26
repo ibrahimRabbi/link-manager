@@ -12,6 +12,7 @@ const CodeEditor = ({
   setSelectedCodes,
   projectId,
   commitId,
+  appId,
 }) => {
   const [fileCode, setFileCode] = useState('');
   const [ext, setExt] = useState('');
@@ -33,7 +34,7 @@ const CodeEditor = ({
       setExt(getLanguageFromExtension(fileExtension).toLowerCase());
       let joinedFilePath = singleSelected?.extended_properties?.path;
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/file?path=${joinedFilePath}&branch=${commitId}&application_id=219`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/file?path=${joinedFilePath}&branch=${commitId}&application_id=${appId}`,
         {
           method: 'POST',
           headers: {

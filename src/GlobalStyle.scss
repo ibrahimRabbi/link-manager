@@ -50,7 +50,7 @@
 
 .container {
   position: relative;
-  padding-bottom: 30px;
+  padding-bottom: 10px;
 }
 
 .show_nav {
@@ -214,4 +214,10 @@
 
 .rs-drawer-body {
   padding: 30px 20px !important;
+}
+.rs-picker-toggle-placeholder {
+  font-size: 17px;
+}
+.rs-picker-toggle-value {
+  font-size: 17px;
 }
