@@ -534,10 +534,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               ></GitlabSelector>
             )}
             {linkType && projectType && nativeListView && (
-              <ListView
-                handleSaveLink={handleSaveLink}
-                appData={appData}
-              ></ListView>
+              <ListView handleSaveLink={handleSaveLink} appData={appData}></ListView>
             )}
           </div>
 

@@ -96,10 +96,8 @@ const ListView = ({ handleSaveLink, appData }) => {
   }, [authCtx, authenticatedThirdApp]);
 
   useEffect(() => {
-    if (projectId){
-      fetch(
-        `${lmApiUrl}/third_party/${appData?.type}/resource_types`,
-      )
+    if (projectId) {
+      fetch(`${lmApiUrl}/third_party/${appData?.type}/resource_types`)
         .then((response) => {
           if (response.status === 200) {
             return response.json();
@@ -143,8 +141,6 @@ const ListView = ({ handleSaveLink, appData }) => {
       // setBranchList([]);
     }
   }, [projectId, resourceTypeId, authCtx]);
-
-
 
   return (
     <div className={style.mainDiv}>

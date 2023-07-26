@@ -26,7 +26,7 @@ import TaskIcon from '@rsuite/icons/Task';
 
 import styles from './ExternalPreview.module.scss';
 import PreviewRow from './PreviewRow/PreviewRow.jsx';
-import {faCodeCommit} from '@fortawesome/free-solid-svg-icons';
+import { faCodeCommit } from '@fortawesome/free-solid-svg-icons';
 
 const { title, iconStatus, iconButton, applicationIcon } = styles;
 const ExternalPreview = (props) => {
@@ -40,18 +40,18 @@ const ExternalPreview = (props) => {
   // Get icon URL
   let iconUrl = '';
   switch (nodeData?.api) {
-  case 'gitlab':
-    iconUrl = '/gitlab_logo.png';
-    break;
-  case 'jira':
-    iconUrl = '/jira_logo.png';
-    break;
-  case 'valispace':
-    iconUrl = '/valispace_logo.png';
-    break;
-  case 'glideyoke':
-    iconUrl = '/glideyoke_logo.png';
-    break;
+    case 'gitlab':
+      iconUrl = '/gitlab_logo.png';
+      break;
+    case 'jira':
+      iconUrl = '/jira_logo.png';
+      break;
+    case 'valispace':
+      iconUrl = '/valispace_logo.png';
+      break;
+    case 'glideyoke':
+      iconUrl = '/glideyoke_logo.png';
+      break;
   }
 
   const nodeTooltip = <Tooltip>Check node in graph view.</Tooltip>;
@@ -61,6 +61,7 @@ const ExternalPreview = (props) => {
   const closeTooltip = <Tooltip>Close preview.</Tooltip>;
 
   const getIconStatus = (status) => {
+    // prettier-ignore
     switch (status.toLowerCase()) {
     case 'valid':
       return <CheckRoundIcon className={iconStatus} style={{ color: 'green' }} />;
@@ -76,7 +77,6 @@ const ExternalPreview = (props) => {
   const validateLinkType = (linkType, linkList) => {
     return linkList.some((substring) => linkType.includes(substring));
   };
-
 
   const getIconResourceType = (resourceType) => {
     let resource = resourceType.toLowerCase().split('#');
@@ -157,24 +157,18 @@ const ExternalPreview = (props) => {
         <h4>Overview</h4>
       </Divider>
       {nodeData?.description && (
-        <PreviewRow
-          name="Description"
-          value={nodeData?.description}
-        />
+        <PreviewRow name="Description" value={nodeData?.description} />
       )}
       {nodeData?.status && (
         <PreviewRow
           name="Status"
-          value={nodeData?.status}  
+          value={nodeData?.status}
           functionForIcon={getIconStatus}
           firstLetter={true}
         />
       )}
       {nodeData?.project_id && (
-        <PreviewRow
-          name="Project"
-          value={nodeData?.project?.name}
-        />
+        <PreviewRow name="Project" value={nodeData?.project?.name} />
       )}
       {nodeData?.resource_type && (
         <PreviewRow
@@ -199,14 +193,12 @@ const ExternalPreview = (props) => {
           titleIcon={<SingleSourceIcon className={iconStatus} />}
         />
       )}
-      
+
       {nodeData?.commit_id && (
         <PreviewRow
           name="Commit ID"
           value={nodeData?.commit_id}
-          titleIcon={
-            <FontAwesomeIcon icon={faCodeCommit} className={iconStatus} />
-          }
+          titleIcon={<FontAwesomeIcon icon={faCodeCommit} className={iconStatus} />}
         />
       )}
       {nodeData?.branch_name && (
@@ -224,8 +216,6 @@ const ExternalPreview = (props) => {
           titleIcon={<CodeIcon className={iconStatus} />}
         />
       )}
-
-
     </div>
   );
 };

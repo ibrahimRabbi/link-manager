@@ -101,8 +101,8 @@ const LinkManagerTable = ({ props }) => {
     // eslint-disable-next-line max-len
     const uiPreviewURL = `${oslcObj?.URL}/oslc/provider/${providerId}/resources/${type}/${resourceId}/smallPreview?branch_name=${branch}&file_content=${content}&file_lines=${selectedLine}&file_path=${koatlPath}`;
 
-    const speaker = (rowData) =>{
-      if (rowData){
+    const speaker = (rowData) => {
+      if (rowData) {
         return (
           <Popover>
             <ExternalPreview nodeData={rowData} />
