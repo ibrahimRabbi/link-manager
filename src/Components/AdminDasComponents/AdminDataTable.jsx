@@ -6,21 +6,9 @@ import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
 import InfoStatus from '@rsuite/icons/InfoRound';
 
-import {
-  Table,
-  Pagination,
-  FlexboxGrid,
-  Button,
-  // Whisper,
-  // IconButton,
-  // Dropdown,
-  // Popover,
-  InputGroup,
-  Input,
-} from 'rsuite';
+import { Table, Pagination, FlexboxGrid, Button, InputGroup, Input } from 'rsuite';
 import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
-// import MoreIcon from '@rsuite/icons/legacy/More';
 import { handleRefreshData } from '../../Redux/slices/navSlice';
 import { darkBgColor, lightBgColor } from '../../App';
 import { MdDelete, MdEdit, MdLock } from 'react-icons/md';
@@ -41,7 +29,6 @@ const AdminDataTable = ({ props }) => {
     pageSize,
   } = props;
   const { isDark, refreshData } = useSelector((state) => state.nav);
-  // const [actionData, setActionData] = useState({});
   const [tableFilterValue, setTableFilterValue] = useState('');
   const [displayTableData, setDisplayTableData] = useState([]);
   const [page, setPage] = useState(1);
@@ -63,42 +50,6 @@ const AdminDataTable = ({ props }) => {
       setDisplayTableData(filteredData);
     }
   }, [tableFilterValue]);
-
-  // Action cell
-  // Action table cell control
-  // const renderMenu = ({ onClose, left, top, className }, ref) => {
-  //   const handleSelect = (eventKey) => {
-  //     if (eventKey === 1) {
-  //       handleEdit(actionData);
-  //     } else if (eventKey === 2) {
-  //       handleDelete(actionData);
-  //     } else if (eventKey === 3) {
-  //       authorizeModal(actionData);
-  //     }
-  //     onClose();
-  //     setActionData({});
-  //   };
-
-  //   return (
-  //     <Popover ref={ref} className={className} style={{ left, top }} full>
-  //       <Dropdown.Menu onSelect={handleSelect}>
-  //         <Dropdown.Item eventKey={1}>
-  //           <p>Edit</p>
-  //         </Dropdown.Item>
-
-  //         <Dropdown.Item eventKey={2}>
-  //           <p>Delete</p>
-  //         </Dropdown.Item>
-
-  //         {authorizeModal && (
-  //           <Dropdown.Item eventKey={3}>
-  //             <p>Authorize App</p>
-  //           </Dropdown.Item>
-  //         )}
-  //       </Dropdown.Menu>
-  //     </Popover>
-  //   );
-  // };
 
   // Action cell
   // Action table cell control
@@ -302,15 +253,6 @@ const AdminDataTable = ({ props }) => {
           </HeaderCell>
           <Cell className="link-group">
             {(rowData) => <ActionMenu rowData={rowData} />}
-            {/* {(rowData) => (
-              <Whisper placement="auto" trigger="click" speaker={renderMenu}>
-                <IconButton
-                  appearance="subtle"
-                  icon={<MoreIcon />}
-                  onClick={() => setActionData(rowData)}
-                />
-              </Whisper>
-            )} */}
           </Cell>
         </Column>
       </Table>
