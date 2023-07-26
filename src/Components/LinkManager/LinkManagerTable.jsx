@@ -15,6 +15,8 @@ import { Dropdown, IconButton, Input, Popover, Whisper } from 'rsuite';
 import cssStyles from './LinkManager.module.scss';
 import { useSelector } from 'react-redux';
 import CustomFilterSelect from './CustomFilterSelect';
+// eslint-disable-next-line max-len
+import ExternalPreview from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreview.jsx';
 const {
   table_row_dark,
   table_row_light,
@@ -99,19 +101,29 @@ const LinkManagerTable = ({ props }) => {
     // eslint-disable-next-line max-len
     const uiPreviewURL = `${oslcObj?.URL}/oslc/provider/${providerId}/resources/${type}/${resourceId}/smallPreview?branch_name=${branch}&file_content=${content}&file_lines=${selectedLine}&file_path=${koatlPath}`;
 
-    const speaker = (
-      <Popover title="Preview">
-        <iframe src={uiPreviewURL} width="450" height="300" />
-      </Popover>
-    );
-
+    const speaker = (rowData) =>{
+      if (rowData){
+        return (
+          <Popover>
+            <ExternalPreview nodeData={rowData} />
+          </Popover>
+        );
+      } else {
+        return (
+          <Popover title="Preview">
+            <iframe src={uiPreviewURL} width="450" height="300" />
+          </Popover>
+        );
+      }
+    };
+    console.log('rowData', rowData);
     return (
       <div className={uiPreviewStyle}>
         <Whisper
           trigger="hover"
           enterable
           placement="auto"
-          speaker={speaker}
+          speaker={rowData?.api ? speaker(rowData) : speaker(null)}
           delayOpen={800}
           delayClose={800}
         >
