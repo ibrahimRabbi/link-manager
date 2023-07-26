@@ -1,6 +1,8 @@
-import React, {useContext} from 'react';
+import React, { useContext } from 'react';
 import AuthContext from '../../../../Store/Auth-Context.jsx';
-import {Button, Col, Divider, FlexboxGrid, Tooltip, Whisper} from 'rsuite';
+import { Button, Col, Divider, FlexboxGrid, Tooltip, Whisper } from 'rsuite';
+
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import ScatterIcon from '@rsuite/icons/Scatter';
 import CloseIcon from '@rsuite/icons/Close';
 import GlobalIcon from '@rsuite/icons/Global';
@@ -8,6 +10,9 @@ import CheckRoundIcon from '@rsuite/icons/CheckRound';
 import RemindFillIcon from '@rsuite/icons/RemindFill';
 import WarningRoundIcon from '@rsuite/icons/WarningRound';
 import MinusRoundIcon from '@rsuite/icons/MinusRound';
+
+import SingleSourceIcon from '@rsuite/icons/SingleSource';
+import BranchIcon from '@rsuite/icons/Branch';
 
 //Icons for resource type
 //files in Gitlab
@@ -20,13 +25,15 @@ import ChangeListIcon from '@rsuite/icons/ChangeList';
 import TaskIcon from '@rsuite/icons/Task';
 
 import styles from './ExternalPreview.module.scss';
+import PreviewRow from './PreviewRow/PreviewRow.jsx';
+import {faCodeCommit} from '@fortawesome/free-solid-svg-icons';
 
-const { title, description, iconStatus, iconButton, applicationIcon } = styles;
+const { title, iconStatus, iconButton, applicationIcon } = styles;
 const ExternalPreview = (props) => {
   console.log('title', title);
   const authCtx = useContext(AuthContext);
   let { nodeData } = props;
-  nodeData = {...nodeData, resource_type: 'blockofCode'};
+  nodeData = { ...nodeData, resource_type: 'blockofCode' };
   console.log('ExternalPreview', authCtx.token);
   console.log('ExternalPreview', nodeData);
 
@@ -47,40 +54,29 @@ const ExternalPreview = (props) => {
     break;
   }
 
-  const nodeTooltip = (
-    <Tooltip>
-        Check node in graph view.
-    </Tooltip>
-  );
-  
-  const webAppTooltip = (
-    <Tooltip>
-            Open link in web application.
-    </Tooltip>
-  );
-  
-  const closeTooltip = (
-    <Tooltip>
-            Close preview.
-    </Tooltip>
-  );
-  
+  const nodeTooltip = <Tooltip>Check node in graph view.</Tooltip>;
+
+  const webAppTooltip = <Tooltip>Open link in web application.</Tooltip>;
+
+  const closeTooltip = <Tooltip>Close preview.</Tooltip>;
+
   const getIconStatus = (status) => {
     switch (status.toLowerCase()) {
     case 'valid':
-      return <CheckRoundIcon className={iconStatus} style={{ color: 'green' }}/>;
+      return <CheckRoundIcon className={iconStatus} style={{ color: 'green' }} />;
     case 'suspect':
-      return <RemindFillIcon className={iconStatus} style={{ color: 'orange' }}/>;
+      return <RemindFillIcon className={iconStatus} style={{ color: 'orange' }} />;
     case 'invalid':
-      return <WarningRoundIcon className={iconStatus} style={{ color: 'red' }}/>;
+      return <WarningRoundIcon className={iconStatus} style={{ color: 'red' }} />;
     default:
-      return <MinusRoundIcon className={iconStatus} style={{ color: 'grey' }}/>;
+      return <MinusRoundIcon className={iconStatus} style={{ color: 'grey' }} />;
     }
   };
 
   const validateLinkType = (linkType, linkList) => {
-    return linkList.some(substring => linkType.includes(substring));
+    return linkList.some((substring) => linkType.includes(substring));
   };
+
 
   const getIconResourceType = (resourceType) => {
     let resource = resourceType.toLowerCase().split('#');
@@ -92,37 +88,35 @@ const ExternalPreview = (props) => {
 
     const isFile = validateLinkType(resource, files);
     if (isFile) {
-      return <CodeIcon className={iconStatus} style={{ color: 'blue' }}/>;
+      return <CodeIcon className={iconStatus} style={{ color: 'blue' }} />;
     }
     const isDocument = validateLinkType(resource, documents);
-    if (isDocument){
-      return <IdInfoIcon className={iconStatus} style={{ color: 'blue' }}/>;
+    if (isDocument) {
+      return <IdInfoIcon className={iconStatus} style={{ color: 'blue' }} />;
     }
     const isChangeRequest = validateLinkType(resource, changeRequests);
-    if (isChangeRequest){
-      return <ChangeListIcon className={iconStatus} style={{ color: 'blue' }}/>;
+    if (isChangeRequest) {
+      return <ChangeListIcon className={iconStatus} style={{ color: 'blue' }} />;
     }
     const isTask = validateLinkType(resource, tasks);
-    if (isTask){
-      return <TaskIcon className={iconStatus} style={{ color: 'blue' }}/>;
+    if (isTask) {
+      return <TaskIcon className={iconStatus} style={{ color: 'blue' }} />;
     }
-    return <GlobalIcon className={iconStatus} style={{ color: 'blue' }}/>;
+    return <GlobalIcon className={iconStatus} style={{ color: 'blue' }} />;
   };
-  
+
   const sendToWebApplication = () => {
     window.open(nodeData?.web_url, '_blank');
   };
-    
+
   return (
-    <div style={{width: '500px'}}>
+    <div style={{ width: '500px' }}>
       <FlexboxGrid justify="space-around">
         <FlexboxGrid.Item as={Col} colspan={2}>
-          <img src={iconUrl} alt="icon" className={applicationIcon}/>
+          <img src={iconUrl} alt="icon" className={applicationIcon} />
         </FlexboxGrid.Item>
         <FlexboxGrid.Item as={Col} colspan={14}>
-          <h4>
-            {nodeData?.name ? nodeData.name : 'External link overview'}
-          </h4>
+          <h4>{nodeData?.name ? nodeData.name : 'External link overview'}</h4>
         </FlexboxGrid.Item>
         <FlexboxGrid.Item as={Col} colspan={7}>
           <Whisper
@@ -131,7 +125,9 @@ const ExternalPreview = (props) => {
             trigger="hover"
             speaker={nodeTooltip}
           >
-            <Button><ScatterIcon className={iconButton}/></Button>
+            <Button>
+              <ScatterIcon className={iconButton} />
+            </Button>
           </Whisper>
 
           <Whisper
@@ -141,10 +137,7 @@ const ExternalPreview = (props) => {
             speaker={webAppTooltip}
           >
             <Button>
-              <GlobalIcon
-                className={iconButton}
-                onClick={sendToWebApplication}
-              />
+              <GlobalIcon className={iconButton} onClick={sendToWebApplication} />
             </Button>
           </Whisper>
 
@@ -155,7 +148,7 @@ const ExternalPreview = (props) => {
             speaker={closeTooltip}
           >
             <Button>
-              <CloseIcon className={iconButton}/>
+              <CloseIcon className={iconButton} />
             </Button>
           </Whisper>
         </FlexboxGrid.Item>
@@ -163,58 +156,76 @@ const ExternalPreview = (props) => {
       <Divider>
         <h4>Overview</h4>
       </Divider>
-      { nodeData?.description && (
-        <FlexboxGrid justify="space-around">
-          <FlexboxGrid.Item as={Col} colspan={6}>
-            <p className={title}>Description</p>
-          </FlexboxGrid.Item>
-          <FlexboxGrid.Item as={Col} colspan={14}>
-            <p className={description}>{nodeData?.description}</p>
-          </FlexboxGrid.Item>
-        </FlexboxGrid>
+      {nodeData?.description && (
+        <PreviewRow
+          name="Description"
+          value={nodeData?.description}
+        />
       )}
-      { nodeData?.status && (
-        <FlexboxGrid justify="space-around">
-          <FlexboxGrid.Item as={Col} colspan={6}>
-            <p className={title}>Status</p>
-          </FlexboxGrid.Item>
-          <FlexboxGrid.Item as={Col} colspan={14}>
-            <p className={description}>
-              {getIconStatus(nodeData?.status)}
-              {nodeData?.status.charAt(0).toUpperCase() + nodeData?.status.slice(1)}
-            </p>
-          </FlexboxGrid.Item>
-        </FlexboxGrid>
+      {nodeData?.status && (
+        <PreviewRow
+          name="Status"
+          value={nodeData?.status}  
+          functionForIcon={getIconStatus}
+          firstLetter={true}
+        />
       )}
-      { nodeData?.project_id && (
-        <FlexboxGrid justify="space-around">
-          <FlexboxGrid.Item as={Col} colspan={6}>
-            <p className={title}>Project</p>
-          </FlexboxGrid.Item>
-          <FlexboxGrid.Item as={Col} colspan={14}>
-            <p className={description}>{nodeData?.project?.name}</p>
-          </FlexboxGrid.Item>
-        </FlexboxGrid>
+      {nodeData?.project_id && (
+        <PreviewRow
+          name="Project"
+          value={nodeData?.project?.name}
+        />
       )}
-      { nodeData?.resource_type && (
-        <FlexboxGrid justify="space-around">
-          <FlexboxGrid.Item as={Col} colspan={6}>
-            <p className={title}>Type</p>
-          </FlexboxGrid.Item>
-          <FlexboxGrid.Item as={Col} colspan={14}>
-            <p className={description}>
-              {getIconResourceType(nodeData?.resource_type)}
-              {nodeData?.resource_type}
-            </p>
-          </FlexboxGrid.Item>
-        </FlexboxGrid>
+      {nodeData?.resource_type && (
+        <PreviewRow
+          name="Type"
+          value={nodeData?.resource_type}
+          functionForIcon={getIconResourceType}
+        />
+      )}
+      <Divider>
+        <h4>Details</h4>
+      </Divider>
+      {nodeData?.api === 'gitlab' ? (
+        <PreviewRow
+          name="Repository"
+          value={nodeData?.provider_name}
+          titleIcon={<SingleSourceIcon className={iconStatus} />}
+        />
+      ) : (
+        <PreviewRow
+          name="Project"
+          value={nodeData?.provider_name}
+          titleIcon={<SingleSourceIcon className={iconStatus} />}
+        />
       )}
       
-  
-        
-    
-  
-      
+      {nodeData?.commit_id && (
+        <PreviewRow
+          name="Commit ID"
+          value={nodeData?.commit_id}
+          titleIcon={
+            <FontAwesomeIcon icon={faCodeCommit} className={iconStatus} />
+          }
+        />
+      )}
+      {nodeData?.branch_name && (
+        <PreviewRow
+          name="Branch"
+          value={nodeData?.branch_name}
+          titleIcon={<BranchIcon className={iconStatus} />}
+        />
+      )}
+      {nodeData?.selected_lines && (
+        <PreviewRow
+          name="Selected lines"
+          value={nodeData?.selected_lines}
+          urlDescription={nodeData?.web_url}
+          titleIcon={<CodeIcon className={iconStatus} />}
+        />
+      )}
+
+
     </div>
   );
 };
