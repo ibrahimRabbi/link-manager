@@ -18,6 +18,7 @@ import {
   getFilteredRowModel,
 } from '@tanstack/react-table';
 import { columnDefWithCheckBox } from './Columns';
+import { Pagination } from 'rsuite';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -29,6 +30,11 @@ const GlideSelector = ({ appData }) => {
 
   const [projectId, setProjectId] = useState('');
   const [resourceTypeId, setResourceTypeId] = useState('');
+  const [currPage, setCurrPage] = useState(1);
+  const [limit, setLimit] = React.useState(25);
+  const [page, setPage] = React.useState(1);
+  const [rowSelection, setRowSelection] = React.useState({});
+  const [filtering, setFiltering] = useState('');
 
   const authCtx = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
@@ -116,10 +122,10 @@ const GlideSelector = ({ appData }) => {
   }, [authCtx, projectId]);
 
   useEffect(() => {
-    if (projectId && resourceTypeId) {
+    if (projectId && resourceTypeId && currPage && limit) {
       setTableLoading(true);
       fetch(
-        `${lmApiUrl}/third_party/${appData?.type}/container/tenant/${resourceTypeId}?page=1&per_page=10&application_id=${appData?.application_id}`,
+        `${lmApiUrl}/third_party/${appData?.type}/container/tenant/${resourceTypeId}?page=${currPage}&per_page=${limit}&application_id=${appData?.application_id}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -137,19 +143,18 @@ const GlideSelector = ({ appData }) => {
           }
         })
         .then((data) => {
+          console.log(data);
           setTableLoading(false);
           setTableShow(true);
-          setTableData(data.items);
+          setTableData(data);
         });
     } else {
       setTableData([]);
     }
-  }, [projectId, resourceTypeId, authCtx]);
-  const finalData = React.useMemo(() => tableData);
-  const finalColumnDef = React.useMemo(() => columnDefWithCheckBox);
+  }, [projectId, resourceTypeId, authCtx, currPage, limit]);
 
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [filtering, setFiltering] = useState('');
+  const finalData = React.useMemo(() => tableData?.items);
+  const finalColumnDef = React.useMemo(() => columnDefWithCheckBox);
   const tableInstance = useReactTable({
     columns: finalColumnDef,
     data: finalData,
@@ -164,7 +169,20 @@ const GlideSelector = ({ appData }) => {
     enableRowSelection: true,
   });
   // console.log(tableInstance.getSelectedRowModel().flatRows.map((el) => el.original));
+  useEffect(() => {
+    console.log(page);
+    setCurrPage(page);
+  }, [page]);
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setLimit(dataKey);
+  };
 
+  // const data = tableData.filter((v, i) => {
+  //   const start = limit * (page - 1);
+  //   const end = start + limit;
+  //   return i >= start && i < end;
+  // });
   return (
     <div className={style.mainDiv}>
       {loading ? (
@@ -260,6 +278,25 @@ const GlideSelector = ({ appData }) => {
                     })}
                   </tbody>
                 </table>
+                <div style={{ padding: 20 }}>
+                  <Pagination
+                    prev
+                    next
+                    first
+                    last
+                    ellipsis
+                    boundaryLinks
+                    maxButtons={2}
+                    size="md"
+                    layout={['total', '-', 'limit', '|', 'pager', 'skip']}
+                    total={tableData?.total_items}
+                    limitOptions={[5, 10, 25, 50, 100]}
+                    limit={limit}
+                    activePage={page}
+                    onChangePage={setPage}
+                    onChangeLimit={(v) => handleChangeLimit(v)}
+                  />
+                </div>
               </div>
             )
           )}
