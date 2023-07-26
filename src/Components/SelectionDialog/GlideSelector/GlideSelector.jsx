@@ -11,7 +11,12 @@ import {
   MICROSERVICES_APPLICATION_TYPES,
   OAUTH2_APPLICATION_TYPES,
 } from '../../../App.jsx';
-import { useReactTable, flexRender, getCoreRowModel } from '@tanstack/react-table';
+import {
+  useReactTable,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+} from '@tanstack/react-table';
 import { columnDefWithCheckBox } from './Columns';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
@@ -134,7 +139,6 @@ const GlideSelector = ({ appData }) => {
         .then((data) => {
           setTableLoading(false);
           setTableShow(true);
-          console.log(data);
           setTableData(data.items);
         });
     } else {
@@ -145,17 +149,21 @@ const GlideSelector = ({ appData }) => {
   const finalColumnDef = React.useMemo(() => columnDefWithCheckBox);
 
   const [rowSelection, setRowSelection] = React.useState({});
-
+  const [filtering, setFiltering] = useState('');
   const tableInstance = useReactTable({
     columns: finalColumnDef,
     data: finalData,
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     state: {
       rowSelection: rowSelection,
+      globalFilter: filtering,
     },
     onRowSelectionChange: setRowSelection,
+    onGlobalFilterChange: setFiltering,
     enableRowSelection: true,
   });
+  // console.log(tableInstance.getSelectedRowModel().flatRows.map((el) => el.original));
 
   return (
     <div className={style.mainDiv}>
@@ -204,7 +212,14 @@ const GlideSelector = ({ appData }) => {
             </div>
           ) : (
             tableshow && (
-              <div className="w3-container">
+              <div className="w3-container" style={{ marginTop: '20px', padding: '0' }}>
+                <input
+                  style={{ marginBottom: '5px' }}
+                  type="text"
+                  placeholder="search data"
+                  value={filtering}
+                  onChange={(e) => setFiltering(e.target.value)}
+                />
                 <table className="w3-table-all w3-centered">
                   <thead>
                     {tableInstance.getHeaderGroups().map((headerEl) => {
@@ -248,14 +263,6 @@ const GlideSelector = ({ appData }) => {
               </div>
             )
           )}
-          <hr />
-          <div>
-            <ul>
-              {tableInstance.getSelectedRowModel().flatRows.map((el) => {
-                return <li key={el.id}>{JSON.stringify(el.original)}</li>;
-              })}
-            </ul>
-          </div>
         </div>
       )}
     </div>
