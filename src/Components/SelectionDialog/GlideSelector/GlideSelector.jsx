@@ -27,6 +27,8 @@ const GlideSelector = ({ appData }) => {
 
   const authCtx = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
+  const [tableLoading, setTableLoading] = useState(false);
+  const [tableshow, setTableShow] = useState(false);
   const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
 
@@ -53,6 +55,8 @@ const GlideSelector = ({ appData }) => {
   };
 
   useEffect(() => {
+    setResourceTypes([]);
+    setResourceTypeId('');
     setProjectId(''); // Clear the project selection
     setProjects([]);
     setLoading(true);
@@ -108,6 +112,7 @@ const GlideSelector = ({ appData }) => {
 
   useEffect(() => {
     if (projectId && resourceTypeId) {
+      setTableLoading(true);
       fetch(
         `${lmApiUrl}/third_party/${appData?.type}/container/tenant/${resourceTypeId}?page=1&per_page=10&application_id=${appData?.application_id}`,
         {
@@ -127,6 +132,8 @@ const GlideSelector = ({ appData }) => {
           }
         })
         .then((data) => {
+          setTableLoading(false);
+          setTableShow(true);
           console.log(data);
           setTableData(data.items);
         });
@@ -183,7 +190,7 @@ const GlideSelector = ({ appData }) => {
             />
           </div>
           <div className={style.select}>
-            <h6>Branch</h6>
+            <h6>Resource Type</h6>
             <UseSelectPicker
               placeholder="Choose a resource type"
               onChange={handleResourceTypeChange}
@@ -191,47 +198,55 @@ const GlideSelector = ({ appData }) => {
               items={resourceTypes}
             />
           </div>
-          {tableData && (
-            <table>
-              <thead>
-                {tableInstance.getHeaderGroups().map((headerEl) => {
-                  return (
-                    <tr key={headerEl.id}>
-                      {headerEl.headers.map((columnEl) => {
-                        return (
-                          <th key={columnEl.id} colSpan={columnEl.colSpan}>
-                            {columnEl.isPlaceholder
-                              ? null
-                              : flexRender(
-                                  columnEl.column.columnDef.header,
-                                  columnEl.getContext(),
+          {tableLoading ? (
+            <div style={{ marginTop: '50px' }}>
+              <UseLoader />
+            </div>
+          ) : (
+            tableshow && (
+              <div className="w3-container">
+                <table className="w3-table-all w3-centered">
+                  <thead>
+                    {tableInstance.getHeaderGroups().map((headerEl) => {
+                      return (
+                        <tr key={headerEl.id}>
+                          {headerEl.headers.map((columnEl) => {
+                            return (
+                              <th key={columnEl.id} colSpan={columnEl.colSpan}>
+                                {columnEl.isPlaceholder
+                                  ? null
+                                  : flexRender(
+                                      columnEl.column.columnDef.header,
+                                      columnEl.getContext(),
+                                    )}
+                              </th>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
+                  </thead>
+                  <tbody>
+                    {tableInstance.getRowModel().rows.map((rowEl) => {
+                      return (
+                        <tr key={rowEl.id}>
+                          {rowEl.getVisibleCells().map((cellEl) => {
+                            return (
+                              <td key={cellEl.id} style={{ width: '100px' }}>
+                                {flexRender(
+                                  cellEl.column.columnDef.cell,
+                                  cellEl.getContext(),
                                 )}
-                          </th>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
-              </thead>
-              <tbody>
-                {tableInstance.getRowModel().rows.map((rowEl) => {
-                  return (
-                    <tr key={rowEl.id}>
-                      {rowEl.getVisibleCells().map((cellEl) => {
-                        return (
-                          <td key={cellEl.id}>
-                            {flexRender(
-                              cellEl.column.columnDef.cell,
-                              cellEl.getContext(),
-                            )}
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )
           )}
           <hr />
           <div>

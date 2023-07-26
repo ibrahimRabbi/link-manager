@@ -140,6 +140,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // set iframe SRC conditionally
   useEffect(() => {
     if (projectType) {
+      setGitlabDialog(false);
+      setGlideDialog(false);
       const jiraApp = projectType?.includes('(JIRA)');
       const gitlabApp = projectType?.includes('(GITLAB)');
       const gitlabAppNative = projectType?.includes('(GITLAB-NATIVE)');
