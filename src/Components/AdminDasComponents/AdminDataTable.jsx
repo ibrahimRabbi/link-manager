@@ -11,18 +11,19 @@ import {
   Pagination,
   FlexboxGrid,
   Button,
-  Whisper,
-  IconButton,
-  Dropdown,
-  Popover,
+  // Whisper,
+  // IconButton,
+  // Dropdown,
+  // Popover,
   InputGroup,
   Input,
 } from 'rsuite';
 import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
-import MoreIcon from '@rsuite/icons/legacy/More';
+// import MoreIcon from '@rsuite/icons/legacy/More';
 import { handleRefreshData } from '../../Redux/slices/navSlice';
 import { darkBgColor, lightBgColor } from '../../App';
+import { MdDelete, MdEdit, MdLock } from 'react-icons/md';
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -40,7 +41,7 @@ const AdminDataTable = ({ props }) => {
     pageSize,
   } = props;
   const { isDark, refreshData } = useSelector((state) => state.nav);
-  const [actionData, setActionData] = useState({});
+  // const [actionData, setActionData] = useState({});
   const [tableFilterValue, setTableFilterValue] = useState('');
   const [displayTableData, setDisplayTableData] = useState([]);
   const [page, setPage] = useState(1);
@@ -65,37 +66,72 @@ const AdminDataTable = ({ props }) => {
 
   // Action cell
   // Action table cell control
-  const renderMenu = ({ onClose, left, top, className }, ref) => {
-    const handleSelect = (eventKey) => {
-      if (eventKey === 1) {
-        handleEdit(actionData);
-      } else if (eventKey === 2) {
-        handleDelete(actionData);
-      } else if (eventKey === 3) {
-        authorizeModal(actionData);
-      }
-      onClose();
-      setActionData({});
+  // const renderMenu = ({ onClose, left, top, className }, ref) => {
+  //   const handleSelect = (eventKey) => {
+  //     if (eventKey === 1) {
+  //       handleEdit(actionData);
+  //     } else if (eventKey === 2) {
+  //       handleDelete(actionData);
+  //     } else if (eventKey === 3) {
+  //       authorizeModal(actionData);
+  //     }
+  //     onClose();
+  //     setActionData({});
+  //   };
+
+  //   return (
+  //     <Popover ref={ref} className={className} style={{ left, top }} full>
+  //       <Dropdown.Menu onSelect={handleSelect}>
+  //         <Dropdown.Item eventKey={1}>
+  //           <p>Edit</p>
+  //         </Dropdown.Item>
+
+  //         <Dropdown.Item eventKey={2}>
+  //           <p>Delete</p>
+  //         </Dropdown.Item>
+
+  //         {authorizeModal && (
+  //           <Dropdown.Item eventKey={3}>
+  //             <p>Authorize App</p>
+  //           </Dropdown.Item>
+  //         )}
+  //       </Dropdown.Menu>
+  //     </Popover>
+  //   );
+  // };
+
+  // Action cell
+  // Action table cell control
+  const ActionMenu = ({ rowData }) => {
+    const editSelected = () => {
+      handleEdit(rowData);
+    };
+
+    const deleteSelected = () => {
+      handleDelete(rowData);
+    };
+
+    const authorizeModalSelected = () => {
+      authorizeModal(rowData);
     };
 
     return (
-      <Popover ref={ref} className={className} style={{ left, top }} full>
-        <Dropdown.Menu onSelect={handleSelect}>
-          <Dropdown.Item eventKey={1}>
-            <p>Edit</p>
-          </Dropdown.Item>
-
-          <Dropdown.Item eventKey={2}>
-            <p>Delete</p>
-          </Dropdown.Item>
-
-          {authorizeModal && (
-            <Dropdown.Item eventKey={3}>
-              <p>Authorize App</p>
-            </Dropdown.Item>
-          )}
-        </Dropdown.Menu>
-      </Popover>
+      <FlexboxGrid
+        justify="center"
+        onClick={({ target }) => (target.style.color = 'white')}
+      >
+        <FlexboxGrid.Item colspan={7} onClick={editSelected}>
+          <MdEdit size={20} title="Edit" />
+        </FlexboxGrid.Item>
+        <FlexboxGrid.Item colspan={7} onClick={deleteSelected}>
+          <MdDelete size={20} title="Delete" />
+        </FlexboxGrid.Item>
+        {authorizeModal && (
+          <FlexboxGrid.Item colspan={7} onClick={authorizeModalSelected}>
+            <MdLock size={20} title="Authorize App" />
+          </FlexboxGrid.Item>
+        )}
+      </FlexboxGrid>
     );
   };
 
@@ -265,7 +301,8 @@ const AdminDataTable = ({ props }) => {
             <h5>Action</h5>
           </HeaderCell>
           <Cell className="link-group">
-            {(rowData) => (
+            {(rowData) => <ActionMenu rowData={rowData} />}
+            {/* {(rowData) => (
               <Whisper placement="auto" trigger="click" speaker={renderMenu}>
                 <IconButton
                   appearance="subtle"
@@ -273,7 +310,7 @@ const AdminDataTable = ({ props }) => {
                   onClick={() => setActionData(rowData)}
                 />
               </Whisper>
-            )}
+            )} */}
           </Cell>
         </Column>
       </Table>
