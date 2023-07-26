@@ -22,7 +22,7 @@ import { FlexboxGrid, Col, Button, Message, toaster } from 'rsuite';
 import SourceSection from '../SourceSection';
 import UseLoader from '../Shared/UseLoader';
 import GitlabSelector from '../SelectionDialog/GitlabSelector/GitlabSelector';
-import ListView from '../SelectionDialog/ListView/ListView.jsx';
+import GlideSelector from '../SelectionDialog/GlideSelector/GlideSelector';
 const { targetContainer, targetIframe, targetBtnContainer, cancelMargin } = styles;
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
@@ -48,8 +48,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     linkCreateLoading,
     oslcCancelResponse,
   } = useSelector((state) => state.links);
-  const [gitlabSelect, setGitlabSelect] = useState(false);
-  const [nativeListView, setNativeListView] = useState(false);
+  const [gitlabDialog, setGitlabDialog] = useState(false);
+  const [glideDialog, setGlideDialog] = useState(false);
   const [groupId, setGroupId] = useState('');
   const [linkTypeItems, setLinkTypeItems] = useState([]);
   const [applicationTypeItems, setApplicationTypeItems] = useState([]);
@@ -168,7 +168,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         tempAppData[0].name = tempAppData[0].appName;
 
         setAppData(tempAppData[0]);
-        setGitlabSelect(true);
+        setGitlabDialog(true);
+        setGlideDialog(false);
         setGroupId(projectId);
         setProjectFrameSrc('');
       } else if (glideAppNative) {
@@ -177,7 +178,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         });
         tempAppData[0].name = tempAppData[0].appName;
         setAppData(tempAppData[0]);
-        setNativeListView(true);
+        setGlideDialog(true);
+        setGitlabDialog(false);
         setProjectFrameSrc('');
       } else if (glideApp) {
         setProjectFrameSrc(
@@ -526,18 +528,18 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             </div>
           )}
           <div>
-            {linkType && projectType && gitlabSelect && (
+            {linkType && projectType && gitlabDialog && (
               <GitlabSelector
                 id={groupId}
                 handleSaveLink={handleSaveLink}
                 appData={appData}
               ></GitlabSelector>
             )}
-            {linkType && projectType && nativeListView && (
-              <ListView
+            {linkType && projectType && glideDialog && (
+              <GlideSelector
                 handleSaveLink={handleSaveLink}
                 appData={appData}
-              ></ListView>
+              ></GlideSelector>
             )}
           </div>
 

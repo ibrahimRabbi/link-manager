@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import React, { useContext, useEffect, useState } from 'react';
-import { CheckTree, Loader, Placeholder } from 'rsuite';
-import style from './GitlabSelector.module.css';
+import { CheckTree } from 'rsuite';
+import style from './GitlabSelector.module.scss';
 import FolderFillIcon from '@rsuite/icons/FolderFill';
 import PageIcon from '@rsuite/icons/Page';
 import CodeEditor from './CodeEditor';
@@ -35,6 +35,7 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
   const [treeData, setTreeData] = useState([]);
   const authCtx = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
+  const [treeLoading, setTreeLoading] = useState(false);
   const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
 
@@ -94,7 +95,6 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
           if (data?.total_items === 0) {
             setLoading(false);
             setPExist(true);
-            // showNotification('info', 'There is no project for selected group.');
           } else {
             setLoading(false);
             setPExist(false);
@@ -163,6 +163,7 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
   }, [projectId, branchId, authCtx]);
   useEffect(() => {
     if (projectId && commitId) {
+      setTreeLoading(true);
       setTreeData([]);
       fetch(
         `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?ref=${commitId}&application_id=${appData?.application_id}`,
@@ -172,8 +173,18 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
           },
         },
       )
-        .then((response) => response.json())
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            if (response.status === 401) {
+              setAuthenticatedThirdApp(true);
+              return { items: [] };
+            }
+          }
+        })
         .then((data) => {
+          setTreeLoading(false);
           setTreeData(data?.items);
         });
     }
@@ -200,7 +211,6 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
 
       return findNode(treeData);
     });
-    // setCheckedNodes(selectedNodes);
     setMultipleSelected([]);
     setSelectedFile('');
     if (selectedNodes.length === 0) {
@@ -295,10 +305,9 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
               items={commitList}
             />
           </div>
-          {loading && (
-            <div>
-              <Placeholder.Paragraph rows={8} />
-              <Loader center content="loading" style={{ marginTop: '50px' }} />
+          {treeLoading && (
+            <div style={{ marginTop: '50px' }}>
+              <UseLoader />
             </div>
           )}
           {treeData.length > 0 && (

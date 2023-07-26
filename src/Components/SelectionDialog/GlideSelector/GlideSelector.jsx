@@ -1,7 +1,6 @@
 /* eslint-disable max-len */
 import React, { useContext, useEffect, useState } from 'react';
-import { Loader, Placeholder } from 'rsuite';
-import style from './ListView.module.css';
+import style from './GlideSelector.module.scss';
 import UseSelectPicker from '../../Shared/UseDropdown/UseSelectPicker';
 import AuthContext from '../../../Store/Auth-Context';
 import UseLoader from '../../Shared/UseLoader';
@@ -14,7 +13,7 @@ import {
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
-const ListView = ({ handleSaveLink, appData }) => {
+const GlideSelector = ({ appData }) => {
   const [pExist, setPExist] = useState(false);
   const [projects, setProjects] = useState([]);
   const [resourceTypes, setResourceTypes] = useState([]);
@@ -22,17 +21,6 @@ const ListView = ({ handleSaveLink, appData }) => {
   const [projectId, setProjectId] = useState('');
   const [resourceTypeId, setResourceTypeId] = useState('');
 
-  // const [selectedFile, setSelectedFile] = useState('');
-  // const [selectedCodes, setSelectedCodes] = useState('');
-  // const [fileExt, setFileExt] = useState('');
-  // const [multipleSelected, setMultipleSelected] = useState([]);
-  // const [singleSelected, setSingleSelected] = useState('');
-  // const [checkedValues, setCheckedValues] = React.useState([]);
-  // const [branchList, setBranchList] = useState([]);
-  // const [commitId, setCommitId] = useState('');
-  // const [commitList, setCommitList] = useState([]);
-
-  const [treeData, setTreeData] = useState([]);
   const authCtx = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
@@ -63,7 +51,6 @@ const ListView = ({ handleSaveLink, appData }) => {
   useEffect(() => {
     setProjectId(''); // Clear the project selection
     setProjects([]);
-    setTreeData([]);
     setLoading(true);
     fetch(
       `${lmApiUrl}/third_party/${appData?.type}/containers?page=1&per_page=10&application_id=${appData?.application_id}`,
@@ -96,10 +83,8 @@ const ListView = ({ handleSaveLink, appData }) => {
   }, [authCtx, authenticatedThirdApp]);
 
   useEffect(() => {
-    if (projectId){
-      fetch(
-        `${lmApiUrl}/third_party/${appData?.type}/resource_types`,
-      )
+    if (projectId) {
+      fetch(`${lmApiUrl}/third_party/${appData?.type}/resource_types`)
         .then((response) => {
           if (response.status === 200) {
             return response.json();
@@ -118,7 +103,7 @@ const ListView = ({ handleSaveLink, appData }) => {
   useEffect(() => {
     if (projectId && resourceTypeId) {
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/tenant/${resourceTypeId}?page=1&per_page=10&application_id=${appData?.application_id}`,
+        `${lmApiUrl}/third_party/${appData?.type}/container/tenant/${resourceTypeId}?page=1&per_page=10&application_id=${appData?.application_id}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -143,8 +128,6 @@ const ListView = ({ handleSaveLink, appData }) => {
       // setBranchList([]);
     }
   }, [projectId, resourceTypeId, authCtx]);
-
-
 
   return (
     <div className={style.mainDiv}>
@@ -187,46 +170,10 @@ const ListView = ({ handleSaveLink, appData }) => {
               items={resourceTypes}
             />
           </div>
-          {loading && (
-            <div>
-              <Placeholder.Paragraph rows={8} />
-              <Loader center content="loading" style={{ marginTop: '50px' }} />
-            </div>
-          )}
-          {treeData.length > 0 && (
-            <div>
-              <div className={style.treeDiv}>
-                <div className={style.tree}>
-                  {/*<CheckTree*/}
-                  {/*  data={treeData}*/}
-                  {/*  style={{ width: 280 }}*/}
-                  {/*  value={checkedValues}*/}
-                  {/*  onChange={(value) => handleTreeChange(value)}*/}
-                  {/*  getChildren={getChildren}*/}
-                  {/*  renderTreeNode={(node) => {*/}
-                  {/*    return (*/}
-                  {/*      <>*/}
-                  {/*        {node.children ? <FolderFillIcon /> : <PageIcon />} {node.label}*/}
-                  {/*      </>*/}
-                  {/*    );*/}
-                  {/*  }}*/}
-                  {/*/>*/}
-                </div>
-              </div>
-              <div className={style.buttonDiv}>
-                {/*<ButtonGroup*/}
-                {/*  handleSaveLink={handleSaveLink}*/}
-                {/*  // selectedCodes={selectedCodes}*/}
-                {/*  // multipleSelected={multipleSelected}*/}
-                {/*  // singleSelected={singleSelected}*/}
-                {/*></ButtonGroup>*/}
-              </div>
-            </div>
-          )}
         </div>
       )}
     </div>
   );
 };
 
-export default ListView;
+export default GlideSelector;
