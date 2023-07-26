@@ -116,7 +116,6 @@ const LinkManagerTable = ({ props }) => {
         );
       }
     };
-    console.log('rowData', rowData);
     return (
       <div className={uiPreviewStyle}>
         <Whisper

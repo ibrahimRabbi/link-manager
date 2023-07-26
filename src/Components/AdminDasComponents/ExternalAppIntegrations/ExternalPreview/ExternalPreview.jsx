@@ -1,20 +1,20 @@
-import React, { useContext } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import AuthContext from '../../../../Store/Auth-Context.jsx';
 import { Button, Col, Divider, FlexboxGrid, Tooltip, Whisper } from 'rsuite';
+import Editor from '@monaco-editor/react';
+import hljs from 'highlight.js';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCodeCommit, faFileCode } from '@fortawesome/free-solid-svg-icons';
 import ScatterIcon from '@rsuite/icons/Scatter';
-import CloseIcon from '@rsuite/icons/Close';
 import GlobalIcon from '@rsuite/icons/Global';
 import CheckRoundIcon from '@rsuite/icons/CheckRound';
 import RemindFillIcon from '@rsuite/icons/RemindFill';
 import WarningRoundIcon from '@rsuite/icons/WarningRound';
 import MinusRoundIcon from '@rsuite/icons/MinusRound';
-
 import SingleSourceIcon from '@rsuite/icons/SingleSource';
 import BranchIcon from '@rsuite/icons/Branch';
 
-//Icons for resource type
 //files in Gitlab
 import CodeIcon from '@rsuite/icons/Code';
 //Documents in Glideyoke
@@ -26,39 +26,47 @@ import TaskIcon from '@rsuite/icons/Task';
 
 import styles from './ExternalPreview.module.scss';
 import PreviewRow from './PreviewRow/PreviewRow.jsx';
-import { faCodeCommit } from '@fortawesome/free-solid-svg-icons';
+
 
 const { title, iconStatus, iconButton, applicationIcon } = styles;
 const ExternalPreview = (props) => {
-  console.log('title', title);
   const authCtx = useContext(AuthContext);
   let { nodeData } = props;
   nodeData = { ...nodeData, resource_type: 'blockofCode' };
-  console.log('ExternalPreview', authCtx.token);
-  console.log('ExternalPreview', nodeData);
-
-  // Get icon URL
   let iconUrl = '';
+
+  // prettier-ignore
   switch (nodeData?.api) {
-    case 'gitlab':
-      iconUrl = '/gitlab_logo.png';
-      break;
-    case 'jira':
-      iconUrl = '/jira_logo.png';
-      break;
-    case 'valispace':
-      iconUrl = '/valispace_logo.png';
-      break;
-    case 'glideyoke':
-      iconUrl = '/glideyoke_logo.png';
-      break;
+  case 'gitlab':
+    iconUrl = '/gitlab_logo.png';
+    break;
+  case 'jira':
+    iconUrl = '/jira_logo.png';
+    break;
+  case 'valispace':
+    iconUrl = '/valispace_logo.png';
+    break;
+  case 'glideyoke':
+    iconUrl = '/glideyoke_logo.png';
+    break;
   }
 
-  const nodeTooltip = <Tooltip>Check node in graph view.</Tooltip>;
+  const [extension, setExtension] = useState('');
 
+
+  const nodeTooltip = <Tooltip>Check node in graph view.</Tooltip>;
   const webAppTooltip = <Tooltip>Open link in web application.</Tooltip>;
 
-  const closeTooltip = <Tooltip>Close preview.</Tooltip>;
+  let decodedData = '';
+  if (nodeData?.content_hash){
+    decodedData = atob(nodeData?.content_hash);
+  }
+
+  const getLanguageFromExtension = (extension) => {
+    // Remove the leading dot if present
+    const language = hljs.getLanguage(extension);
+    return language ? language.name : 'XML';
+  };
 
   const getIconStatus = (status) => {
     // prettier-ignore
@@ -109,16 +117,23 @@ const ExternalPreview = (props) => {
     window.open(nodeData?.web_url, '_blank');
   };
 
+  useEffect(() => {
+    if (nodeData.api === 'gitlab') {
+      const extension = nodeData?.name.split('.')[1];
+      setExtension(getLanguageFromExtension(extension).toLowerCase());
+    }
+  }, []);
+
   return (
-    <div style={{ width: '500px' }}>
-      <FlexboxGrid justify="space-around">
+    <div style={{ width: '550px' }}>
+      <FlexboxGrid>
         <FlexboxGrid.Item as={Col} colspan={2}>
           <img src={iconUrl} alt="icon" className={applicationIcon} />
         </FlexboxGrid.Item>
-        <FlexboxGrid.Item as={Col} colspan={14}>
+        <FlexboxGrid.Item as={Col} colspan={17}>
           <h4>{nodeData?.name ? nodeData.name : 'External link overview'}</h4>
         </FlexboxGrid.Item>
-        <FlexboxGrid.Item as={Col} colspan={7}>
+        <FlexboxGrid.Item as={Col} colspan={5}>
           <Whisper
             placement="topEnd"
             controlId="control-id-hover"
@@ -141,20 +156,10 @@ const ExternalPreview = (props) => {
             </Button>
           </Whisper>
 
-          <Whisper
-            placement="topEnd"
-            controlId="control-id-hover"
-            trigger="hover"
-            speaker={closeTooltip}
-          >
-            <Button>
-              <CloseIcon className={iconButton} />
-            </Button>
-          </Whisper>
         </FlexboxGrid.Item>
       </FlexboxGrid>
       <Divider>
-        <h4>Overview</h4>
+        <h5>Overview</h5>
       </Divider>
       {nodeData?.description && (
         <PreviewRow name="Description" value={nodeData?.description} />
@@ -177,8 +182,8 @@ const ExternalPreview = (props) => {
           functionForIcon={getIconResourceType}
         />
       )}
-      <Divider>
-        <h4>Details</h4>
+      <Divider style={{paddingRight: '250px', right: 0, display: 'flex'}}>
+        <h5>Details</h5>
       </Divider>
       {nodeData?.api === 'gitlab' ? (
         <PreviewRow
@@ -210,11 +215,32 @@ const ExternalPreview = (props) => {
       )}
       {nodeData?.selected_lines && (
         <PreviewRow
-          name="Selected lines"
+          name="Selected lines in file"
           value={nodeData?.selected_lines}
           urlDescription={nodeData?.web_url}
           titleIcon={<CodeIcon className={iconStatus} />}
         />
+      )}
+      { decodedData && (
+        <FlexboxGrid justify="space-around">
+          <FlexboxGrid.Item as={Col} colspan={24}>
+            <p className={title} style={{marginBottom: '10px'}}>
+              <FontAwesomeIcon icon={faFileCode} className={iconStatus} />
+                Selected code
+            </p>
+          </FlexboxGrid.Item>
+          <FlexboxGrid.Item as={Col} colspan={24}>
+            <Editor
+              height="200px"
+              theme="light"
+              language={extension}
+              value={decodedData}
+              options={{
+                readOnly: true,
+              }}
+            />
+          </FlexboxGrid.Item>
+        </FlexboxGrid>
       )}
     </div>
   );
