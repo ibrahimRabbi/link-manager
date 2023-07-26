@@ -61,9 +61,11 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
     setBranchId('');
     setCommitList([]);
     setCommitId('');
+    setTreeData([]);
   };
   const handleBranchChange = (selectedItem) => {
     setBranchId(selectedItem?.id);
+    setTreeData([]);
     setCommitList([]);
     setCommitId('');
   };
@@ -257,15 +259,6 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
       console.log(error);
     }
   };
-  const renderValue = (value, item) => {
-    if (value) {
-      return (
-        <div className="selectPickerMenu">
-          <p style={{ margin: 0 }}>{item.label}</p>
-        </div>
-      );
-    }
-  };
   return (
     <div className={style.mainDiv}>
       {loading ? (
@@ -324,7 +317,6 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
                   <p style={{ fontSize: '17px', margin: 0 }}>{label}</p>
                 </div>
               )}
-              renderValue={renderValue}
             />
           </div>
           {loading && (
