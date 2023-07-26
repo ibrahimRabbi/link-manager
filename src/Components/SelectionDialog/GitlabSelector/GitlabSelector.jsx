@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import React, { useContext, useEffect, useState } from 'react';
-import { CheckTree, Loader, Placeholder } from 'rsuite';
+import { CheckTree, Loader, Placeholder, SelectPicker } from 'rsuite';
 import style from './GitlabSelector.module.css';
 import FolderFillIcon from '@rsuite/icons/FolderFill';
 import PageIcon from '@rsuite/icons/Page';
@@ -50,7 +50,11 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
       setAuthenticatedThirdApp(false);
     }
   };
-
+  const commit = commitList.map((item) => ({
+    label: item?.name,
+    value: item?.id,
+    data: item,
+  }));
   const handleProjectChange = (selectedItem) => {
     setProjectId(selectedItem?.id);
     setBranchList([]);
@@ -63,8 +67,16 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
     setCommitList([]);
     setCommitId('');
   };
-  const handleCommitChange = (selectedItem) => {
+  const handleCommit = (value) => {
+    const selectedItem = commitList?.find((v) => v?.id === value);
     setCommitId(selectedItem?.id);
+    setTreeData([]);
+  };
+  const renderMenuC = (menu) => {
+    if (commitList.length === 0) {
+      return <UseLoader />;
+    }
+    return menu;
   };
   useEffect(() => {
     if (id) {
@@ -245,6 +257,15 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
       console.log(error);
     }
   };
+  const renderValue = (value, item) => {
+    if (value) {
+      return (
+        <div className="selectPickerMenu">
+          <p style={{ margin: 0 }}>{item.label}</p>
+        </div>
+      );
+    }
+  };
   return (
     <div className={style.mainDiv}>
       {loading ? (
@@ -288,11 +309,22 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
           </div>
           <div className={style.select}>
             <h6>Commit</h6>
-            <UseSelectPicker
-              placeholder="Choose Commit"
-              onChange={handleCommitChange}
-              disabled={authenticatedThirdApp}
-              items={commitList}
+            <SelectPicker
+              placeholder={'Choose Commit'}
+              data={commit}
+              menuMaxHeight={250}
+              size="md"
+              block
+              searchable={commit.length > 9}
+              className="selectPicker"
+              onChange={(v) => handleCommit(v)}
+              renderMenu={renderMenuC}
+              renderMenuItem={(label) => (
+                <div className="selectPickerMenu">
+                  <p style={{ fontSize: '17px', margin: 0 }}>{label}</p>
+                </div>
+              )}
+              renderValue={renderValue}
             />
           </div>
           {loading && (
