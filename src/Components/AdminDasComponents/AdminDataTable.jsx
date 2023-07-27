@@ -253,7 +253,12 @@ const AdminDataTable = ({ props }) => {
           <HeaderCell>
             <h5>Action</h5>
           </HeaderCell>
-          <Cell className="link-group">
+          <Cell
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
             {(rowData) => <ActionMenu rowData={rowData} />}
           </Cell>
         </Column>
