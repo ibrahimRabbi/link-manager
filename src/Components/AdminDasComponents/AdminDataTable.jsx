@@ -7,6 +7,7 @@ import FailedStatus from '@rsuite/icons/WarningRound';
 import InfoStatus from '@rsuite/icons/InfoRound';
 
 import { Table, Pagination, FlexboxGrid, Button, InputGroup, Input } from 'rsuite';
+import { IconButton, ButtonToolbar } from 'rsuite';
 import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
 import { handleRefreshData } from '../../Redux/slices/navSlice';
@@ -67,22 +68,13 @@ const AdminDataTable = ({ props }) => {
     };
 
     return (
-      <FlexboxGrid
-        justify="center"
-        onClick={({ target }) => (target.style.color = 'white')}
-      >
-        <FlexboxGrid.Item colspan={7} onClick={editSelected}>
-          <MdEdit size={20} title="Edit" />
-        </FlexboxGrid.Item>
-        <FlexboxGrid.Item colspan={7} onClick={deleteSelected}>
-          <MdDelete size={20} title="Delete" />
-        </FlexboxGrid.Item>
+      <ButtonToolbar>
+        <IconButton size="sm" icon={<MdEdit />} onClick={editSelected} />
+        <IconButton size="sm" icon={<MdDelete />} onClick={deleteSelected} />
         {authorizeModal && (
-          <FlexboxGrid.Item colspan={7} onClick={authorizeModalSelected}>
-            <MdLock size={20} title="Authorize App" />
-          </FlexboxGrid.Item>
+          <IconButton size="sm" icon={<MdLock />} onClick={authorizeModalSelected} />
         )}
-      </FlexboxGrid>
+      </ButtonToolbar>
     );
   };
 
@@ -247,7 +239,7 @@ const AdminDataTable = ({ props }) => {
 
         {/* -- action --  */}
 
-        <Column width={100} align="center">
+        <Column width={140} align="left">
           <HeaderCell>
             <h5>Action</h5>
           </HeaderCell>
