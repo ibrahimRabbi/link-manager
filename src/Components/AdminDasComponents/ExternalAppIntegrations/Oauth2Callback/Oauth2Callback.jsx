@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../../apiRequests/apiRequest.js';
 import Notification from '../../../Shared/Notification';
 
@@ -27,7 +27,7 @@ const Oauth2Callback = () => {
     code: code,
     state: state,
   };
-
+  const requestSentRef = useRef(false);
   const [notificationType, setNotificationType] = React.useState('');
   const [notificationMessage, setNotificationMessage] = React.useState('');
   const sendSuccessMessage = () => {
@@ -52,10 +52,19 @@ const Oauth2Callback = () => {
     }
   };
 
-  const { mutate: createMutate, isLoading } = useMutation(
+  const { data: appData } = useQuery(['application'], () =>
+    fetchAPIRequest({
+      urlPath: `application/${applicationId}`,
+      token: authCtx.token,
+      method: 'GET',
+      showNotification: showNotification,
+    }),
+  );
+
+  const { mutate: createMutate } = useMutation(
     () =>
       fetchAPIRequest({
-        urlPath: 'third_party/gitlab/oauth2/token',
+        urlPath: `third_party/${appData?.type}/oauth2/token`,
         token: authCtx.token,
         method: 'POST',
         body: payload,
@@ -75,13 +84,16 @@ const Oauth2Callback = () => {
   );
 
   useEffect(() => {
-    createMutate();
-  }, []);
+    if (!requestSentRef.current && authCtx.token && appData) {
+      createMutate();
+      requestSentRef.current = true;
+    }
+  }, [appData]);
 
   return (
     <>
       <FlexboxGrid style={{ marginTop: '50px' }} justify="center">
-        {!isLoading && (
+        {requestSentRef.current && (
           <FlexboxGrid.Item colspan={16} style={{ padding: '0' }}>
             <Panel style={{ textAlign: 'center' }}>
               {notificationType === 'error' ? (

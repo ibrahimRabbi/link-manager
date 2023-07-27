@@ -1,7 +1,6 @@
 /* eslint-disable max-len */
 import React, { useState } from 'react';
 import { Button, ButtonToolbar, Loader, Placeholder } from 'rsuite';
-import CryptoJS from 'crypto-js';
 
 const ButtonGroup = ({
   selectedCodes,
@@ -36,10 +35,7 @@ const ButtonGroup = ({
     }
     if (selectedCodes.code !== '' && multipleSelected.length < 1) {
       const selecteCode = selectedCodes.code;
-      const encoder = new TextEncoder();
-      const data = encoder.encode(selecteCode);
-      const hash = CryptoJS.SHA256(data);
-      const hexString = hash.toString(CryptoJS.enc.Hex);
+      const hexString = window.btoa(selecteCode);
       const initialResponse = '[';
       let Response = '';
       const finalresponse = ']';

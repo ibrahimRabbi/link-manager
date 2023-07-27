@@ -13,11 +13,19 @@
   },
   {
     "name": "Cross-Domain Integration Demo (GITLAB-NATIVE)",
-    "id": "60998096"
+    "appName": "Gitlab",
+    "id": "60998096",
+    "type": "gitlab",
+    "organization_id": "1",
+    "application_id": "219"
   },
   {
-    "name": "Koneksys(GITLAB-NATIVE)",
-    "id": "56139069"
+    "name": "Koneksys (GITLAB-NATIVE)",
+    "appName": "Gitlab",
+    "id": "56139069",
+    "type": "gitlab",
+    "organization_id": "1",
+    "application_id": "219"
   },
   {
     "name": "Jet Engine Design (GLIDE)"

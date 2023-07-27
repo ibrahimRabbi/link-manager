@@ -85,7 +85,7 @@
   }
 }
 
-.linkFileContainer > h5 {
+.linkFileContainer>h5 {
   span {
     margin-left: 10px;
     margin-bottom: -10px;
@@ -216,8 +216,17 @@
   padding: 30px 20px !important;
 }
 
+.rs-picker-toggle-placeholder {
+  font-size: 17px;
+}
+
+.rs-picker-toggle-value {
+  font-size: 17px;
+}
+
 // react select styles for dark theme --- start
 .reactSelectContainer {
+
   // react select value container style
   .reactSelect__control {
     background-color: transparent;

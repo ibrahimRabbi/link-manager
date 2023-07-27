@@ -8,11 +8,17 @@ import CodeEditor from './CodeEditor';
 import ButtonGroup from './ButtonGroup';
 import AuthContext from '../../../Store/Auth-Context';
 import UseLoader from '../../Shared/UseLoader';
+import ExternalAppModal from '../../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
+import {
+  BASIC_AUTH_APPLICATION_TYPES,
+  MICROSERVICES_APPLICATION_TYPES,
+  OAUTH2_APPLICATION_TYPES,
+} from '../../../App.jsx';
 import UseReactSelect from '../../NewLink/UseReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
-const GitlabSelector = ({ id, handleSaveLink, appId }) => {
+const GitlabSelector = ({ id, handleSaveLink, appData }) => {
   const [pExist, setPExist] = useState(false);
   const [projects, setProjects] = useState([]);
   const [selectedFile, setSelectedFile] = useState('');
@@ -29,21 +35,42 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
   const [treeData, setTreeData] = useState([]);
   const authCtx = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
+  const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
+  const broadcastChannel = new BroadcastChannel('oauth2-app-status');
+
+  const getExtLoginData = (data) => {
+    if (data?.status) {
+      setAuthenticatedThirdApp(false);
+    }
+  };
+
+  broadcastChannel.onmessage = (event) => {
+    const { status } = event.data;
+    if (status === 'success') {
+      setAuthenticatedThirdApp(false);
+    }
+  };
+
   const handleProjectChange = (selectedItem) => {
     setProjectId(selectedItem?.id);
     setBranchList([]);
     setBranchId('');
     setCommitList([]);
     setCommitId('');
+    setTreeData([]);
   };
   const handleBranchChange = (selectedItem) => {
     setBranchId(selectedItem?.id);
+    setTreeData([]);
     setCommitList([]);
     setCommitId('');
   };
-  const handleCommitChange = (selectedItem) => {
+  const handleCommit = (selectedItem) => {
+    console.log(selectedItem);
     setCommitId(selectedItem?.id);
+    setTreeData([]);
   };
+
   useEffect(() => {
     if (id) {
       setProjectId(''); // Clear the project selection
@@ -51,14 +78,23 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
       setTreeData([]);
       setLoading(true);
       fetch(
-        `${lmApiUrl}/third_party/gitlab/containers/${id}?page=1&per_page=100&application_id=${appId}`,
+        `${lmApiUrl}/third_party/gitlab/containers/${id}?page=1&per_page=10&application_id=${appData?.application_id}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
           },
         },
       )
-        .then((response) => response.json())
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            if (response.status === 401) {
+              setAuthenticatedThirdApp(true);
+              return { items: [] };
+            }
+          }
+        })
         .then((data) => {
           if (data?.total_items === 0) {
             setLoading(false);
@@ -66,26 +102,35 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
           } else {
             setLoading(false);
             setPExist(false);
-            setProjects(data?.items);
+            setProjects(data?.items ? data?.items : []);
           }
         });
     } else {
       setProjectId('');
       setProjects([]);
     }
-  }, [id, authCtx]);
+  }, [id, authCtx, authenticatedThirdApp]);
 
   useEffect(() => {
     if (projectId) {
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/branch?page=1&per_page=100&application_id=${appId}`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/branch?page=1&per_page=10&application_id=${appData?.application_id}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
           },
         },
       )
-        .then((response) => response.json())
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            if (response.status === 401) {
+              setAuthenticatedThirdApp(true);
+              return { items: [] };
+            }
+          }
+        })
         .then((data) => {
           setBranchList(data?.items);
         });
@@ -93,18 +138,26 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
       setBranchList([]);
     }
   }, [projectId, authCtx]);
-
   useEffect(() => {
     if (projectId && branchId) {
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/commit?page=1&per_page=100&application_id=${appId}&branch=${branchId}`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/commit?page=1&per_page=10&application_id=${appData?.application_id}&branch=${branchId}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
           },
         },
       )
-        .then((response) => response.json())
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            if (response.status === 401) {
+              setAuthenticatedThirdApp(true);
+              return { items: [] };
+            }
+          }
+        })
         .then((data) => {
           setCommitList(data?.items);
         });
@@ -116,7 +169,7 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
     if (projectId && commitId) {
       setTreeData([]);
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?ref=${commitId}&application_id=${appId}`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?ref=${commitId}&application_id=${appData?.application_id}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -183,7 +236,7 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
   const getChildren = async (node) => {
     try {
       const response = await fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?path=${node?.extended_properties?.path}&ref=${node?.extended_properties?.commit_id}&application_id=${appId}`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?path=${node?.extended_properties?.path}&ref=${node?.extended_properties?.commit_id}&application_id=${appData?.application_id}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -197,7 +250,7 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
     }
   };
   return (
-    <>
+    <div className={style.mainDiv}>
       {loading ? (
         <div style={{ marginTop: '50px' }}>
           <UseLoader />
@@ -206,8 +259,19 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
         <h3 style={{ textAlign: 'center', marginTop: '50px', color: '#1675e0' }}>
           Selected group has no projects.
         </h3>
+      ) : authenticatedThirdApp ? (
+        <ExternalAppModal
+          showInNewLink={true}
+          formValue={appData}
+          isOauth2={OAUTH2_APPLICATION_TYPES?.includes(appData?.type)}
+          isBasic={(
+            BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
+          ).includes(appData?.type)}
+          onDataStatus={getExtLoginData}
+          integrated={false}
+        />
       ) : (
-        <div className={style.mainDiv}>
+        <div>
           {/* --- Projects ---  */}
           <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
             <FlexboxGrid.Item colspan={3}>
@@ -219,6 +283,7 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
                 name="gitlab_native_projects"
                 placeholder="Choose Project"
                 onChange={handleProjectChange}
+                disabled={authenticatedThirdApp}
                 items={projects?.length ? projects : []}
               />
             </FlexboxGrid.Item>
@@ -235,6 +300,7 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
                 name="gitlab_native_branches"
                 placeholder="Choose Branch"
                 onChange={handleBranchChange}
+                disabled={authenticatedThirdApp}
                 items={branchList?.length ? branchList : []}
               />
             </FlexboxGrid.Item>
@@ -250,7 +316,8 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
               <UseReactSelect
                 name="gitlab_native_commits"
                 placeholder="Choose Commit"
-                onChange={handleCommitChange}
+                onChange={handleCommit}
+                disabled={authenticatedThirdApp}
                 items={commitList?.length ? commitList : []}
               />
             </FlexboxGrid.Item>
@@ -295,7 +362,7 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
                           setSelectedCodes={setSelectedCodes}
                           projectId={projectId}
                           commitId={commitId}
-                          appId={appId}
+                          appId={appData?.application_id}
                         ></CodeEditor>
                       )
                     )}
@@ -314,7 +381,7 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
           )}
         </div>
       )}
-    </>
+    </div>
   );
 };
 

@@ -4,7 +4,9 @@ import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import Select, { components } from 'react-select';
 
-const UseReactSelect = ({ name, items, onChange, placeholder, isLoading = false }) => {
+const UseReactSelect = (props) => {
+  const { name, items, onChange, placeholder, disabled, isLoading = false } = props;
+
   const [selectOptions, setSelectOptions] = useState([]);
   const { isDark } = useSelector((state) => state.nav);
   const { SingleValue, Option } = components;
@@ -70,14 +72,10 @@ const UseReactSelect = ({ name, items, onChange, placeholder, isLoading = false 
       options={selectOptions}
       placeholder={<p>{placeholder}</p>}
       onChange={(v) => {
-        console.log(v);
         onChange(v);
       }}
-      onScroll={(v) => {
-        console.log(v);
-      }}
       captureMenuScroll={true}
-      isDisabled={false}
+      isDisabled={disabled}
       isLoading={isLoading}
       isMulti={false}
       isClearable={true}
