@@ -69,10 +69,20 @@ const AdminDataTable = ({ props }) => {
 
     return (
       <ButtonToolbar>
-        <IconButton size="sm" icon={<MdEdit />} onClick={editSelected} />
-        <IconButton size="sm" icon={<MdDelete />} onClick={deleteSelected} />
+        <IconButton size="sm" title="Edit" icon={<MdEdit />} onClick={editSelected} />
+        <IconButton
+          size="sm"
+          title="Delete"
+          icon={<MdDelete />}
+          onClick={deleteSelected}
+        />
         {authorizeModal && (
-          <IconButton size="sm" icon={<MdLock />} onClick={authorizeModalSelected} />
+          <IconButton
+            size="sm"
+            title="Authorize App"
+            icon={<MdLock />}
+            onClick={authorizeModalSelected}
+          />
         )}
       </ButtonToolbar>
     );
