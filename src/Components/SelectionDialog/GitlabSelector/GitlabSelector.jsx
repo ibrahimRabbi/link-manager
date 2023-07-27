@@ -66,7 +66,6 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
     setCommitId('');
   };
   const handleCommit = (selectedItem) => {
-    console.log(selectedItem);
     setCommitId(selectedItem?.id);
     setTreeData([]);
   };
@@ -204,7 +203,6 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
 
       return findNode(treeData);
     });
-    // setCheckedNodes(selectedNodes);
     setMultipleSelected([]);
     setSelectedFile('');
     if (selectedNodes.length === 0) {
@@ -375,6 +373,7 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
                   selectedCodes={selectedCodes}
                   multipleSelected={multipleSelected}
                   singleSelected={singleSelected}
+                  branchName={branchId}
                 ></ButtonGroup>
               </div>
             </div>
