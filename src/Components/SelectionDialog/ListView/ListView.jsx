@@ -14,7 +14,7 @@ import {
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
-const ListView = ({ handleSaveLink, appData }) => {
+const ListView = ({ appData }) => {
   const [pExist, setPExist] = useState(false);
   const [projects, setProjects] = useState([]);
   const [resourceTypes, setResourceTypes] = useState([]);
