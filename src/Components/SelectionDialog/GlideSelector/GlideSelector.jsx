@@ -18,7 +18,7 @@ import {
   getFilteredRowModel,
 } from '@tanstack/react-table';
 import { columnDefWithCheckBox } from './Columns';
-import { Button, ButtonToolbar, Input, Pagination } from 'rsuite';
+import { Button, ButtonToolbar, Pagination } from 'rsuite';
 import { useSelector } from 'react-redux';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
@@ -235,8 +235,8 @@ const GlideSelector = ({ appData }) => {
           ) : (
             tableshow && (
               <div className="w3-container" style={{ marginTop: '20px', padding: '0' }}>
-                <Input
-                  className="w3-input w3-border"
+                <input
+                  className="w3-input w3-border rs-input"
                   style={{ marginBottom: '5px', width: '300px' }}
                   type="text"
                   placeholder="search data"

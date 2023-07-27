@@ -10,7 +10,9 @@ function IndeterminateCheckbox({ indeterminate, ...rest }) {
     }
   }, [ref, indeterminate]);
 
-  return <input type="checkbox" ref={ref} {...rest} />;
+  return (
+    <input type="checkbox" style={{ transform: 'scale(1.2)' }} ref={ref} {...rest} />
+  );
 }
 const columnHelper = createColumnHelper();
 export const columnDefWithCheckBox = [
