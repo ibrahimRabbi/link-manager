@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import AuthContext from '../../../../Store/Auth-Context.jsx';
 import { Button, Col, Divider, FlexboxGrid, Tooltip, Whisper } from 'rsuite';
 import Editor from '@monaco-editor/react';
@@ -6,7 +6,6 @@ import hljs from 'highlight.js';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCodeCommit, faFileCode } from '@fortawesome/free-solid-svg-icons';
-import ScatterIcon from '@rsuite/icons/Scatter';
 import GlobalIcon from '@rsuite/icons/Global';
 import CheckRoundIcon from '@rsuite/icons/CheckRound';
 import RemindFillIcon from '@rsuite/icons/RemindFill';
@@ -27,8 +26,9 @@ import TaskIcon from '@rsuite/icons/Task';
 import styles from './ExternalPreview.module.scss';
 import PreviewRow from './PreviewRow/PreviewRow.jsx';
 
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
+const { title, iconStatus, applicationIcon, buttonTitle } = styles;
 
-const { title, iconStatus, iconButton, applicationIcon } = styles;
 const ExternalPreview = (props) => {
   const authCtx = useContext(AuthContext);
   let { nodeData } = props;
@@ -52,15 +52,9 @@ const ExternalPreview = (props) => {
   }
 
   const [extension, setExtension] = useState('');
+  const [decodedCodeLines, setDecodedCodeLines] = useState('');
 
-
-  const nodeTooltip = <Tooltip>Check node in graph view.</Tooltip>;
-  const webAppTooltip = <Tooltip>Open link in web application.</Tooltip>;
-
-  let decodedData = '';
-  if (nodeData?.content_hash){
-    decodedData = atob(nodeData?.content_hash);
-  }
+  const webAppTooltip = <Tooltip>Click to open link in web application.</Tooltip>;
 
   const getLanguageFromExtension = (extension) => {
     // Remove the leading dot if present
@@ -122,6 +116,30 @@ const ExternalPreview = (props) => {
       const extension = nodeData?.name.split('.')[1];
       setExtension(getLanguageFromExtension(extension).toLowerCase());
     }
+    console.log(nodeData?.content_hash);
+    if (nodeData?.content_hash) {
+      fetch(`${lmApiUrl}/third_party/${nodeData.api}/decode_selected_content`, {
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: `Bearer ${authCtx.token}`,
+        },
+        body: JSON.stringify({
+          selected_content: nodeData.content_hash,
+        }),
+        method: 'POST',
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          }
+          return null;
+        })
+        .then((data) => {
+          if (data) {
+            setDecodedCodeLines(data.selected_content);
+          }
+        });
+    }
   }, []);
 
   return (
@@ -131,34 +149,21 @@ const ExternalPreview = (props) => {
           <img src={iconUrl} alt="icon" className={applicationIcon} />
         </FlexboxGrid.Item>
         <FlexboxGrid.Item as={Col} colspan={17}>
-          <h4>{nodeData?.name ? nodeData.name : 'External link overview'}</h4>
-        </FlexboxGrid.Item>
-        <FlexboxGrid.Item as={Col} colspan={5}>
-          <Whisper
-            placement="topEnd"
-            controlId="control-id-hover"
-            trigger="hover"
-            speaker={nodeTooltip}
-          >
-            <Button>
-              <ScatterIcon className={iconButton} />
-            </Button>
-          </Whisper>
-
           <Whisper
             placement="topEnd"
             controlId="control-id-hover"
             trigger="hover"
             speaker={webAppTooltip}
           >
-            <Button>
-              <GlobalIcon className={iconButton} onClick={sendToWebApplication} />
+            <Button appearance="subtle" onClick={sendToWebApplication}>
+              <h4 className={buttonTitle}>
+                {nodeData?.name ? nodeData.name : 'External link overview'}
+              </h4>
             </Button>
           </Whisper>
-
         </FlexboxGrid.Item>
       </FlexboxGrid>
-      <Divider>
+      <Divider style={{ marginTop: '-2px' }}>
         <h5>Overview</h5>
       </Divider>
       {nodeData?.description && (
@@ -182,7 +187,7 @@ const ExternalPreview = (props) => {
           functionForIcon={getIconResourceType}
         />
       )}
-      <Divider style={{paddingRight: '250px', right: 0, display: 'flex'}}>
+      <Divider style={{ marginTop: '18px' }}>
         <h5>Details</h5>
       </Divider>
       {nodeData?.api === 'gitlab' ? (
@@ -215,18 +220,18 @@ const ExternalPreview = (props) => {
       )}
       {nodeData?.selected_lines && (
         <PreviewRow
-          name="Selected lines in file"
+          name="Selected code lines"
           value={nodeData?.selected_lines}
           urlDescription={nodeData?.web_url}
           titleIcon={<CodeIcon className={iconStatus} />}
         />
       )}
-      { decodedData && (
+      {decodedCodeLines && (
         <FlexboxGrid justify="space-around">
           <FlexboxGrid.Item as={Col} colspan={24}>
-            <p className={title} style={{marginBottom: '10px'}}>
+            <p className={title} style={{ marginBottom: '10px' }}>
               <FontAwesomeIcon icon={faFileCode} className={iconStatus} />
-                Selected code
+              Selected code
             </p>
           </FlexboxGrid.Item>
           <FlexboxGrid.Item as={Col} colspan={24}>
@@ -234,7 +239,7 @@ const ExternalPreview = (props) => {
               height="200px"
               theme="light"
               language={extension}
-              value={decodedData}
+              value={decodedCodeLines}
               options={{
                 readOnly: true,
               }}
