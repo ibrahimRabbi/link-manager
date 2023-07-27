@@ -126,7 +126,11 @@ const LinkManagerTable = ({ props }) => {
           delayOpen={800}
           delayClose={800}
         >
-          <a href={rowData?.id} target="_blank" rel="noopener noreferrer">
+          <a
+            href={rowData?.api ? rowData?.web_url : rowData?.id}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {rowData?.selected_lines
               ? rowData?.name?.length > 15
                 ? rowData?.name?.slice(0, 15 - 1) +
