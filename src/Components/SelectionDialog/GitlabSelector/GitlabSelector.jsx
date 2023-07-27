@@ -1,14 +1,14 @@
 /* eslint-disable max-len */
 import React, { useContext, useEffect, useState } from 'react';
-import { CheckTree, Loader, Placeholder } from 'rsuite';
+import { CheckTree, FlexboxGrid, Loader, Placeholder } from 'rsuite';
 import style from './GitlabSelector.module.css';
 import FolderFillIcon from '@rsuite/icons/FolderFill';
 import PageIcon from '@rsuite/icons/Page';
 import CodeEditor from './CodeEditor';
 import ButtonGroup from './ButtonGroup';
-import UseSelectPicker from '../../Shared/UseDropdown/UseSelectPicker';
 import AuthContext from '../../../Store/Auth-Context';
 import UseLoader from '../../Shared/UseLoader';
+import UseReactSelect from '../../NewLink/UseReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -51,7 +51,7 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
       setTreeData([]);
       setLoading(true);
       fetch(
-        `${lmApiUrl}/third_party/gitlab/containers/${id}?page=1&per_page=10&application_id=${appId}`,
+        `${lmApiUrl}/third_party/gitlab/containers/${id}?page=1&per_page=100&application_id=${appId}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -63,7 +63,6 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
           if (data?.total_items === 0) {
             setLoading(false);
             setPExist(true);
-            // showNotification('info', 'There is no project for selected group.');
           } else {
             setLoading(false);
             setPExist(false);
@@ -79,7 +78,7 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
   useEffect(() => {
     if (projectId) {
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/branch?page=1&per_page=10&application_id=${appId}`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/branch?page=1&per_page=100&application_id=${appId}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -94,10 +93,11 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
       setBranchList([]);
     }
   }, [projectId, authCtx]);
+
   useEffect(() => {
     if (projectId && branchId) {
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/commit?page=1&per_page=10&application_id=${appId}&branch=${branchId}`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/commit?page=1&per_page=100&application_id=${appId}&branch=${branchId}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -197,7 +197,7 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
     }
   };
   return (
-    <div className={style.mainDiv}>
+    <>
       {loading ? (
         <div style={{ marginTop: '50px' }}>
           <UseLoader />
@@ -208,30 +208,54 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
         </h3>
       ) : (
         <div className={style.mainDiv}>
-          <div className={style.select}>
-            <h6>Projects</h6>
-            <UseSelectPicker
-              placeholder="Choose Project"
-              onChange={handleProjectChange}
-              items={projects}
-            />
-          </div>
-          <div className={style.select}>
-            <h6>Branch</h6>
-            <UseSelectPicker
-              placeholder="Choose Branch"
-              onChange={handleBranchChange}
-              items={branchList}
-            />
-          </div>
-          <div className={style.select}>
-            <h6>Commit</h6>
-            <UseSelectPicker
-              placeholder="Choose Commit"
-              onChange={handleCommitChange}
-              items={commitList}
-            />
-          </div>
+          {/* --- Projects ---  */}
+          <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
+            <FlexboxGrid.Item colspan={3}>
+              <h3>Projects: </h3>
+            </FlexboxGrid.Item>
+
+            <FlexboxGrid.Item colspan={21}>
+              <UseReactSelect
+                name="gitlab_native_projects"
+                placeholder="Choose Project"
+                onChange={handleProjectChange}
+                items={projects?.length ? projects : []}
+              />
+            </FlexboxGrid.Item>
+          </FlexboxGrid>
+
+          {/* --- Branches ---  */}
+          <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
+            <FlexboxGrid.Item colspan={3}>
+              <h3>Branches: </h3>
+            </FlexboxGrid.Item>
+
+            <FlexboxGrid.Item colspan={21}>
+              <UseReactSelect
+                name="gitlab_native_branches"
+                placeholder="Choose Branch"
+                onChange={handleBranchChange}
+                items={branchList?.length ? branchList : []}
+              />
+            </FlexboxGrid.Item>
+          </FlexboxGrid>
+
+          {/* --- Commits ---  */}
+          <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
+            <FlexboxGrid.Item colspan={3}>
+              <h3>Commits: </h3>
+            </FlexboxGrid.Item>
+
+            <FlexboxGrid.Item colspan={21}>
+              <UseReactSelect
+                name="gitlab_native_commits"
+                placeholder="Choose Commit"
+                onChange={handleCommitChange}
+                items={commitList?.length ? commitList : []}
+              />
+            </FlexboxGrid.Item>
+          </FlexboxGrid>
+
           {loading && (
             <div>
               <Placeholder.Paragraph rows={8} />
@@ -290,7 +314,7 @@ const GitlabSelector = ({ id, handleSaveLink, appId }) => {
           )}
         </div>
       )}
-    </div>
+    </>
   );
 };
 
