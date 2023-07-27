@@ -95,7 +95,7 @@ const options = [
     path: ['/'],
     navigateTo: '/',
     icon: <TiArrowBackOutline size={22} style={{ ...iconStyle, marginLeft: '-36px' }} />,
-    content: <span>Back To Home</span>,
+    content: <span>Home</span>,
   },
 ];
 
