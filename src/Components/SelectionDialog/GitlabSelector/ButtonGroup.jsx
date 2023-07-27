@@ -1,7 +1,8 @@
 /* eslint-disable max-len */
 import React, { useState } from 'react';
-import { Button, ButtonToolbar, Loader, Placeholder } from 'rsuite';
+import { Button, ButtonToolbar } from 'rsuite';
 import CryptoJS from 'crypto-js';
+import UseLoader from '../../Shared/UseLoader';
 
 const ButtonGroup = ({
   selectedCodes,
@@ -114,9 +115,8 @@ const ButtonGroup = ({
   return (
     <div>
       {loading && (
-        <div>
-          <Placeholder.Paragraph rows={8} />
-          <Loader backdrop content="loading..." vertical />
+        <div style={{ marginTop: '50px' }}>
+          <UseLoader />
         </div>
       )}
       <ButtonToolbar>

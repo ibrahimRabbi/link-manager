@@ -18,11 +18,13 @@ import {
   getFilteredRowModel,
 } from '@tanstack/react-table';
 import { columnDefWithCheckBox } from './Columns';
-import { Pagination } from 'rsuite';
+import { Button, ButtonToolbar, Input, Pagination } from 'rsuite';
+import { useSelector } from 'react-redux';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 const GlideSelector = ({ appData }) => {
+  const { isDark } = useSelector((state) => state.nav);
   const [pExist, setPExist] = useState(false);
   const [projects, setProjects] = useState([]);
   const [resourceTypes, setResourceTypes] = useState([]);
@@ -31,7 +33,7 @@ const GlideSelector = ({ appData }) => {
   const [projectId, setProjectId] = useState('');
   const [resourceTypeId, setResourceTypeId] = useState('');
   const [currPage, setCurrPage] = useState(1);
-  const [limit, setLimit] = React.useState(25);
+  const [limit, setLimit] = React.useState(10);
   const [page, setPage] = React.useState(1);
   const [rowSelection, setRowSelection] = React.useState({});
   const [filtering, setFiltering] = useState('');
@@ -143,7 +145,6 @@ const GlideSelector = ({ appData }) => {
           }
         })
         .then((data) => {
-          console.log(data);
           setTableLoading(false);
           setTableShow(true);
           setTableData(data);
@@ -168,21 +169,24 @@ const GlideSelector = ({ appData }) => {
     onGlobalFilterChange: setFiltering,
     enableRowSelection: true,
   });
-  // console.log(tableInstance.getSelectedRowModel().flatRows.map((el) => el.original));
   useEffect(() => {
-    console.log(page);
     setCurrPage(page);
   }, [page]);
   const handleChangeLimit = (dataKey) => {
     setCurrPage(1);
     setLimit(dataKey);
   };
-
-  // const data = tableData.filter((v, i) => {
-  //   const start = limit * (page - 1);
-  //   const end = start + limit;
-  //   return i >= start && i < end;
-  // });
+  const handleSelect = () => {
+    let selectd = tableInstance.getSelectedRowModel().flatRows.map((el) => el.original);
+    let items = selectd
+      .map((row) => {
+        return JSON.stringify(row);
+      })
+      .filter((item) => item !== null);
+    let response = `[${items.join(',')}]`;
+    setRowSelection({});
+    console.log(response);
+  };
   return (
     <div className={style.mainDiv}>
       {loading ? (
@@ -231,21 +235,25 @@ const GlideSelector = ({ appData }) => {
           ) : (
             tableshow && (
               <div className="w3-container" style={{ marginTop: '20px', padding: '0' }}>
-                <input
-                  style={{ marginBottom: '5px' }}
+                <Input
+                  className="w3-input w3-border"
+                  style={{ marginBottom: '5px', width: '300px' }}
                   type="text"
                   placeholder="search data"
                   value={filtering}
                   onChange={(e) => setFiltering(e.target.value)}
                 />
-                <table className="w3-table-all w3-centered">
+                <table
+                  className="w3-table w3-bordered w3-border w3-centered"
+                  style={{ height: '20px' }}
+                >
                   <thead>
                     {tableInstance.getHeaderGroups().map((headerEl) => {
                       return (
-                        <tr key={headerEl.id}>
+                        <tr key={headerEl.id} style={{ fontSize: '20px' }}>
                           {headerEl.headers.map((columnEl) => {
                             return (
-                              <th key={columnEl.id} colSpan={columnEl.colSpan}>
+                              <th key={columnEl.id}>
                                 {columnEl.isPlaceholder
                                   ? null
                                   : flexRender(
@@ -262,10 +270,20 @@ const GlideSelector = ({ appData }) => {
                   <tbody>
                     {tableInstance.getRowModel().rows.map((rowEl) => {
                       return (
-                        <tr key={rowEl.id}>
+                        <tr
+                          key={rowEl.id}
+                          className={
+                            isDark === 'dark'
+                              ? style.table_row_dark
+                              : style.table_row_light
+                          }
+                        >
                           {rowEl.getVisibleCells().map((cellEl) => {
                             return (
-                              <td key={cellEl.id} style={{ width: '100px' }}>
+                              <td
+                                key={cellEl.id}
+                                style={{ width: '50px', fontSize: '17px' }}
+                              >
                                 {flexRender(
                                   cellEl.column.columnDef.cell,
                                   cellEl.getContext(),
@@ -287,15 +305,28 @@ const GlideSelector = ({ appData }) => {
                     ellipsis
                     boundaryLinks
                     maxButtons={2}
-                    size="md"
+                    size="lg"
                     layout={['total', '-', 'limit', '|', 'pager', 'skip']}
                     total={tableData?.total_items}
-                    limitOptions={[5, 10, 25, 50, 100]}
+                    limitOptions={[5, 10, 25, 50]}
                     limit={limit}
                     activePage={page}
                     onChangePage={setPage}
                     onChangeLimit={(v) => handleChangeLimit(v)}
                   />
+                </div>
+                <div className={style.buttonDiv}>
+                  <ButtonToolbar>
+                    <Button appearance="ghost">Cancel</Button>
+                    <Button
+                      appearance="primary"
+                      size="md"
+                      style={{ width: '65px' }}
+                      onClick={handleSelect}
+                    >
+                      OK
+                    </Button>
+                  </ButtonToolbar>
                 </div>
               </div>
             )
