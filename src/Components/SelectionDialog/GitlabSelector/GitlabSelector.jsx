@@ -1,12 +1,11 @@
 /* eslint-disable max-len */
 import React, { useContext, useEffect, useState } from 'react';
-import { CheckTree } from 'rsuite';
+import { CheckTree, FlexboxGrid } from 'rsuite';
 import style from './GitlabSelector.module.scss';
 import FolderFillIcon from '@rsuite/icons/FolderFill';
 import PageIcon from '@rsuite/icons/Page';
 import CodeEditor from './CodeEditor';
 import ButtonGroup from './ButtonGroup';
-import UseSelectPicker from '../../Shared/UseDropdown/UseSelectPicker';
 import AuthContext from '../../../Store/Auth-Context';
 import UseLoader from '../../Shared/UseLoader';
 import ExternalAppModal from '../../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
@@ -15,6 +14,7 @@ import {
   MICROSERVICES_APPLICATION_TYPES,
   OAUTH2_APPLICATION_TYPES,
 } from '../../../App.jsx';
+import UseReactSelect from '../../NewLink/UseReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -58,15 +58,19 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
     setBranchId('');
     setCommitList([]);
     setCommitId('');
+    setTreeData([]);
   };
   const handleBranchChange = (selectedItem) => {
     setBranchId(selectedItem?.id);
+    setTreeData([]);
     setCommitList([]);
     setCommitId('');
   };
-  const handleCommitChange = (selectedItem) => {
+  const handleCommit = (selectedItem) => {
     setCommitId(selectedItem?.id);
+    setTreeData([]);
   };
+
   useEffect(() => {
     if (id) {
       setProjectId(''); // Clear the project selection
@@ -277,34 +281,58 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
           integrated={false}
         />
       ) : (
-        <div className={style.mainDiv}>
-          <div className={style.select}>
-            <h6>Projects</h6>
-            <UseSelectPicker
-              placeholder="Choose Project"
-              onChange={handleProjectChange}
-              disabled={authenticatedThirdApp}
-              items={projects}
-            />
-          </div>
-          <div className={style.select}>
-            <h6>Branch</h6>
-            <UseSelectPicker
-              placeholder="Choose Branch"
-              onChange={handleBranchChange}
-              disabled={authenticatedThirdApp}
-              items={branchList}
-            />
-          </div>
-          <div className={style.select}>
-            <h6>Commit</h6>
-            <UseSelectPicker
-              placeholder="Choose Commit"
-              onChange={handleCommitChange}
-              disabled={authenticatedThirdApp}
-              items={commitList}
-            />
-          </div>
+        <div>
+          {/* --- Projects ---  */}
+          <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
+            <FlexboxGrid.Item colspan={3}>
+              <h3>Projects: </h3>
+            </FlexboxGrid.Item>
+
+            <FlexboxGrid.Item colspan={21}>
+              <UseReactSelect
+                name="gitlab_native_projects"
+                placeholder="Choose Project"
+                onChange={handleProjectChange}
+                disabled={authenticatedThirdApp}
+                items={projects?.length ? projects : []}
+              />
+            </FlexboxGrid.Item>
+          </FlexboxGrid>
+
+          {/* --- Branches ---  */}
+          <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
+            <FlexboxGrid.Item colspan={3}>
+              <h3>Branches: </h3>
+            </FlexboxGrid.Item>
+
+            <FlexboxGrid.Item colspan={21}>
+              <UseReactSelect
+                name="gitlab_native_branches"
+                placeholder="Choose Branch"
+                onChange={handleBranchChange}
+                disabled={authenticatedThirdApp}
+                items={branchList?.length ? branchList : []}
+              />
+            </FlexboxGrid.Item>
+          </FlexboxGrid>
+
+          {/* --- Commits ---  */}
+          <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
+            <FlexboxGrid.Item colspan={3}>
+              <h3>Commits: </h3>
+            </FlexboxGrid.Item>
+
+            <FlexboxGrid.Item colspan={21}>
+              <UseReactSelect
+                name="gitlab_native_commits"
+                placeholder="Choose Commit"
+                onChange={handleCommit}
+                disabled={authenticatedThirdApp}
+                items={commitList?.length ? commitList : []}
+              />
+            </FlexboxGrid.Item>
+          </FlexboxGrid>
+
           {treeLoading && (
             <div style={{ marginTop: '50px' }}>
               <UseLoader />
@@ -356,6 +384,7 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
                   selectedCodes={selectedCodes}
                   multipleSelected={multipleSelected}
                   singleSelected={singleSelected}
+                  branchName={branchId}
                 ></ButtonGroup>
               </div>
             </div>

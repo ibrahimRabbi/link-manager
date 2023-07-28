@@ -1,7 +1,6 @@
 /* eslint-disable max-len */
 import React, { useState } from 'react';
 import { Button, ButtonToolbar } from 'rsuite';
-import CryptoJS from 'crypto-js';
 import UseLoader from '../../Shared/UseLoader';
 
 const ButtonGroup = ({
@@ -9,6 +8,7 @@ const ButtonGroup = ({
   multipleSelected,
   singleSelected,
   handleSaveLink,
+  branchName,
 }) => {
   const [loading, setLoading] = useState(false);
   const handleSelect = () => {
@@ -20,8 +20,10 @@ const ButtonGroup = ({
     } else {
       value = JSON.parse(JSON.stringify(multipleSelected));
     }
+
     if (Array.isArray(value)) {
       for (const obj of value) {
+        obj.extended_properties.branch_name = branchName;
         for (const prop in obj) {
           if (propsToRemove.includes(prop)) {
             delete obj[prop];
@@ -29,6 +31,7 @@ const ButtonGroup = ({
         }
       }
     } else {
+      value.extended_properties.branch_name = branchName;
       for (const prop in value) {
         if (propsToRemove.includes(prop)) {
           delete value[prop];
@@ -37,10 +40,7 @@ const ButtonGroup = ({
     }
     if (selectedCodes.code !== '' && multipleSelected.length < 1) {
       const selecteCode = selectedCodes.code;
-      const encoder = new TextEncoder();
-      const data = encoder.encode(selecteCode);
-      const hash = CryptoJS.SHA256(data);
-      const hexString = hash.toString(CryptoJS.enc.Hex);
+      const hexString = window.btoa(selecteCode);
       const initialResponse = '[';
       let Response = '';
       const finalresponse = ']';
