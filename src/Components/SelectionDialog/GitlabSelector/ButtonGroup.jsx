@@ -9,6 +9,7 @@ const ButtonGroup = ({
   singleSelected,
   handleSaveLink,
   branchName,
+  cancelLinkHandler,
 }) => {
   const [loading, setLoading] = useState(false);
   const handleSelect = () => {
@@ -110,7 +111,7 @@ const ButtonGroup = ({
 
   // Function to handle cancel
   function cancel() {
-    handleSaveLink('');
+    cancelLinkHandler('Link create cancel');
   }
   return (
     <div>

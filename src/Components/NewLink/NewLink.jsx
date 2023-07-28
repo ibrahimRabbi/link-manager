@@ -561,6 +561,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                 <GlideSelector
                   handleSaveLink={handleSaveLink}
                   appData={appData}
+                  cancelLinkHandler={cancelLinkHandler}
                 ></GlideSelector>
               )}
             </div>

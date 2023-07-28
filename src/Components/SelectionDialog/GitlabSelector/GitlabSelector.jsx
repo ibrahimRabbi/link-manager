@@ -18,7 +18,7 @@ import UseReactSelect from '../../NewLink/UseReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
-const GitlabSelector = ({ id, handleSaveLink, appData }) => {
+const GitlabSelector = ({ id, handleSaveLink, appData, cancelLinkHandler }) => {
   const [pExist, setPExist] = useState(false);
   const [projects, setProjects] = useState([]);
   const [selectedFile, setSelectedFile] = useState('');
@@ -36,6 +36,8 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
   const authCtx = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [treeLoading, setTreeLoading] = useState(false);
+  const [branchLoading, setBranchLoading] = useState(false);
+  const [commitLoading, setCommitLoading] = useState(false);
   const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
 
@@ -113,6 +115,7 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
 
   useEffect(() => {
     if (projectId) {
+      setBranchLoading(true);
       fetch(
         `${lmApiUrl}/third_party/gitlab/container/${projectId}/branch?page=1&per_page=10&application_id=${appData?.application_id}`,
         {
@@ -132,6 +135,7 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
           }
         })
         .then((data) => {
+          setBranchLoading(false);
           setBranchList(data?.items);
         });
     } else {
@@ -140,6 +144,7 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
   }, [projectId, authCtx]);
   useEffect(() => {
     if (projectId && branchId) {
+      setCommitLoading(true);
       fetch(
         `${lmApiUrl}/third_party/gitlab/container/${projectId}/commit?page=1&per_page=10&application_id=${appData?.application_id}&branch=${branchId}`,
         {
@@ -159,6 +164,7 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
           }
         })
         .then((data) => {
+          setCommitLoading(false);
           setCommitList(data?.items);
         });
     } else {
@@ -260,7 +266,7 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
     }
   };
   return (
-    <div className={style.mainDiv}>
+    <div>
       {loading ? (
         <div style={{ marginTop: '50px' }}>
           <UseLoader />
@@ -300,45 +306,51 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
           </FlexboxGrid>
 
           {/* --- Branches ---  */}
-          <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
-            <FlexboxGrid.Item colspan={3}>
-              <h3>Branches: </h3>
-            </FlexboxGrid.Item>
+          {projectId && (
+            <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
+              <FlexboxGrid.Item colspan={3}>
+                <h3>Branches: </h3>
+              </FlexboxGrid.Item>
 
-            <FlexboxGrid.Item colspan={21}>
-              <UseReactSelect
-                name="gitlab_native_branches"
-                placeholder="Choose Branch"
-                onChange={handleBranchChange}
-                disabled={authenticatedThirdApp}
-                items={branchList?.length ? branchList : []}
-              />
-            </FlexboxGrid.Item>
-          </FlexboxGrid>
+              <FlexboxGrid.Item colspan={21}>
+                <UseReactSelect
+                  name="gitlab_native_branches"
+                  placeholder="Choose Branch"
+                  onChange={handleBranchChange}
+                  disabled={authenticatedThirdApp}
+                  isLoading={branchLoading}
+                  items={branchList?.length ? branchList : []}
+                />
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          )}
 
           {/* --- Commits ---  */}
-          <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
-            <FlexboxGrid.Item colspan={3}>
-              <h3>Commits: </h3>
-            </FlexboxGrid.Item>
+          {projectId && branchId && (
+            <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
+              <FlexboxGrid.Item colspan={3}>
+                <h3>Commits: </h3>
+              </FlexboxGrid.Item>
 
-            <FlexboxGrid.Item colspan={21}>
-              <UseReactSelect
-                name="gitlab_native_commits"
-                placeholder="Choose Commit"
-                onChange={handleCommit}
-                disabled={authenticatedThirdApp}
-                items={commitList?.length ? commitList : []}
-              />
-            </FlexboxGrid.Item>
-          </FlexboxGrid>
+              <FlexboxGrid.Item colspan={21}>
+                <UseReactSelect
+                  name="gitlab_native_commits"
+                  placeholder="Choose Commit"
+                  onChange={handleCommit}
+                  isLoading={commitLoading}
+                  disabled={authenticatedThirdApp}
+                  items={commitList?.length ? commitList : []}
+                />
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          )}
 
           {treeLoading && (
             <div style={{ marginTop: '50px' }}>
               <UseLoader />
             </div>
           )}
-          {treeData.length > 0 && (
+          {treeData.length > 0 && projectId && branchId && commitId && (
             <div>
               <div className={style.treeDiv}>
                 <div className={style.tree}>
@@ -385,6 +397,7 @@ const GitlabSelector = ({ id, handleSaveLink, appData }) => {
                   multipleSelected={multipleSelected}
                   singleSelected={singleSelected}
                   branchName={branchId}
+                  cancelLinkHandler={cancelLinkHandler}
                 ></ButtonGroup>
               </div>
             </div>

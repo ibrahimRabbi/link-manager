@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import Select, { components } from 'react-select';
 
 const UseReactSelect = (props) => {
-  const { name, items, onChange, placeholder, disabled, isLoading = false } = props;
+  const { name, items, onChange, placeholder, disabled, isLoading } = props;
 
   const [selectOptions, setSelectOptions] = useState([]);
   const { isDark } = useSelector((state) => state.nav);
