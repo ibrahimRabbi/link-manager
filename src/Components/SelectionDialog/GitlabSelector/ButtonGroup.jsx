@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import React, { useState } from 'react';
-import { Button, ButtonToolbar, Loader, Placeholder } from 'rsuite';
+import { Button, ButtonToolbar } from 'rsuite';
+import UseLoader from '../../Shared/UseLoader';
 
 const ButtonGroup = ({
   selectedCodes,
@@ -8,6 +9,7 @@ const ButtonGroup = ({
   singleSelected,
   handleSaveLink,
   branchName,
+  cancelLinkHandler,
 }) => {
   const [loading, setLoading] = useState(false);
   const handleSelect = () => {
@@ -109,14 +111,13 @@ const ButtonGroup = ({
 
   // Function to handle cancel
   function cancel() {
-    handleSaveLink('');
+    cancelLinkHandler('Link create cancel');
   }
   return (
     <div>
       {loading && (
-        <div>
-          <Placeholder.Paragraph rows={8} />
-          <Loader backdrop content="loading..." vertical />
+        <div style={{ marginTop: '50px' }}>
+          <UseLoader />
         </div>
       )}
       <ButtonToolbar>

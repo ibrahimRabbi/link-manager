@@ -8,8 +8,8 @@
     "id": "41530067"
   },
   {
-  "name": "Drone Project (GITLAB)",
-  "id": "42854970"
+    "name": "Drone Project (GITLAB)",
+    "id": "42854970"
   },
   {
     "name": "Cross-Domain Integration Demo (GITLAB-NATIVE)",
@@ -18,6 +18,14 @@
     "type": "gitlab",
     "organization_id": "1",
     "application_id": "219"
+  },
+  {
+    "name": "Master tenant (GLIDE-NATIVE)",
+    "appName": "Glideyoke",
+    "id": "master",
+    "type": "glideyoke",
+    "organization_id": "1",
+    "application_id": "242"
   },
   {
     "name": "Koneksys (GITLAB-NATIVE)",

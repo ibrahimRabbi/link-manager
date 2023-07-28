@@ -22,6 +22,7 @@ import UseLoader from '../Shared/UseLoader';
 import GitlabSelector from '../SelectionDialog/GitlabSelector/GitlabSelector';
 import UseReactSelect from './UseReactSelect';
 import styles from './NewLink.module.scss';
+import GlideSelector from '../SelectionDialog/GlideSelector/GlideSelector';
 
 const { newLinkMainContainer, targetContainer, targetIframe, targetBtnContainer } =
   styles;
@@ -49,7 +50,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     linkCreateLoading,
     oslcCancelResponse,
   } = useSelector((state) => state.links);
-  const [gitlabSelect, setGitlabSelect] = useState(false);
+  const [gitlabDialog, setGitlabDialog] = useState(false);
+  const [glideDialog, setGlideDialog] = useState(false);
   const [groupId, setGroupId] = useState('');
   const [linkTypeItems, setLinkTypeItems] = useState([]);
   const [applicationTypeItems, setApplicationTypeItems] = useState([]);
@@ -140,10 +142,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // set iframe SRC conditionally
   useEffect(() => {
     if (projectType) {
+      setGitlabDialog(false);
+      setGlideDialog(false);
       const jiraApp = projectType?.includes('(JIRA)');
       const gitlabApp = projectType?.includes('(GITLAB)');
       const gitlabAppNative = projectType?.includes('(GITLAB-NATIVE)');
       const glideApp = projectType?.includes('(GLIDE)');
+      const glideAppNative = projectType?.includes('(GLIDE-NATIVE)');
       const valispaceApp = projectType?.includes('(VALISPACE)');
       const codebeamerApp = projectType?.includes('(CODEBEAMER)');
       const jiraProjectApp = projectType?.includes('(JIRA-PROJECTS)');
@@ -167,8 +172,18 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         tempAppData[0].name = tempAppData[0]?.appName;
 
         setAppData(tempAppData[0]);
-        setGitlabSelect(true);
+        setGitlabDialog(true);
+        setGlideDialog(false);
         setGroupId(projectId);
+        setProjectFrameSrc('');
+      } else if (glideAppNative) {
+        const tempAppData = projectTypeItems?.filter((app) => {
+          if (app.name === projectType) return app;
+        });
+        tempAppData[0].name = tempAppData[0].appName;
+        setAppData(tempAppData[0]);
+        setGlideDialog(true);
+        setGitlabDialog(false);
         setProjectFrameSrc('');
       } else if (glideApp) {
         setProjectFrameSrc(
@@ -534,13 +549,20 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               </div>
             )}
             <div>
-              {linkType && projectType && gitlabSelect && (
+              {linkType && projectType && gitlabDialog && (
                 <GitlabSelector
                   id={groupId}
                   appData={appData}
                   handleSaveLink={handleSaveLink}
                   cancelLinkHandler={cancelLinkHandler}
                 ></GitlabSelector>
+              )}
+              {linkType && projectType && glideDialog && (
+                <GlideSelector
+                  handleSaveLink={handleSaveLink}
+                  appData={appData}
+                  cancelLinkHandler={cancelLinkHandler}
+                ></GlideSelector>
               )}
             </div>
           </div>
