@@ -8,18 +8,26 @@ import { useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../apiRequests/apiRequest.js';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import { Message, toaster } from 'rsuite';
-// eslint-disable-next-line max-len
-import ExternalPreview from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreview.jsx';
-import styles from './CytosGraphView.module.scss';
 
-const { nodeInfoContainer } = styles;
+import ExternalPreview from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreview.jsx';
+import styles from './CytoscapeGraphView.module.scss';
+import { useDispatch, useSelector } from 'react-redux';
+import { handleCurrPageTitle } from '../../Redux/slices/navSlice.jsx';
+import { graphLayout, graphStyle } from './CytoscapeGraphConfig.jsx';
+import UseLoader from '../Shared/UseLoader.jsx';
+
+const { nodeInfoContainer, noDataTitle } = styles;
 const CytoscapeGraphView = () => {
   // Create your graph elements and layout
   cytoscape.use(cxtmenu);
+  const { sourceDataList, isWbe } = useSelector((state) => state.links);
   const authCtx = useContext(AuthContext);
   const [selectedNode, setSelectedNode] = React.useState(null);
   const [isContainerVisible, setIsContainerVisible] = useState(false);
+  const [updatedGraphLayout, setUpdatedGraphLayout] = useState(graphLayout);
+  const dispatch = useDispatch();
   const containerRef = useRef(null);
+  const graphContainerRef = useRef(null);
 
   const showNotification = (type, message) => {
     if (type && message) {
@@ -32,56 +40,14 @@ const CytoscapeGraphView = () => {
     }
   };
 
-  // const layout = { name: 'preset' };
-  // const layout = { name: 'random' };
-  const layout = {
-    name: 'random',
-    // fit: true, // Adjust the viewport to fit the graph
-    // padding: 30, // Padding around the graph
-    // boundingBox: { x1: 0, y1: 0, x2: 800, y2: 600 }, // Set the bounds of the layout
-    // randomize: true, // Randomize node positions on each render
-    // seed: 1234, // Use a specific seed for reproducibility
-  };
-
-  const style = [
-    {
-      selector: 'node',
-      style: {
-        'background-color': '#666',
-        label: 'data(label)',
-      },
-    },
-    {
-      selector: 'edge',
-      style: {
-        width: 3,
-        'curve-style': 'straight',
-        'target-arrow-shape': 'triangle',
-      },
-    },
-    {
-      selector: 'edge[label]',
-      style: {
-        label: 'data(label)',
-        width: 4,
-      },
-    },
-    {
-      selector: '.autorotate',
-      style: {
-        'edge-text-rotation': 'autorotate',
-      },
-    },
-  ];
   // eslint-disable-next-line max-len
-  const testUri =
-    'https://ui-stage.glideyoke.com/detail/CustomerProject/888d0f20-ff34-4f59-a9d0-0c81f3ea87f6/process?processInstanceId=a3403349-034e-11ee-8633-f62ce1aaf40f';
-  const { data } = useQuery({
+
+  const { data, isLoading } = useQuery({
     queryKey: ['vis-graph'],
     queryFn: () =>
       fetchAPIRequest({
         urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
-          testUri,
+          sourceDataList?.uri,
         )}&direction=outgoing&max_depth_outgoing=4`,
         token: authCtx.token,
         showNotification: showNotification,
@@ -100,7 +66,7 @@ const CytoscapeGraphView = () => {
     }
   };
 
-  // Define the commands for the context menu
+  // Define the commands for the cytoscape context menu
   const contextMenuCommands = [
     {
       content: 'Show data',
@@ -145,6 +111,7 @@ const CytoscapeGraphView = () => {
           },
         };
       });
+      console.log('nodeData', nodeData);
       let edges = data?.data?.edges?.map((item) => {
         return {
           data: {
@@ -155,6 +122,7 @@ const CytoscapeGraphView = () => {
           },
         };
       });
+      console.log('edges', edges);
       nodeData = nodeData.concat(edges);
       return nodeData ? nodeData : [];
     }
@@ -162,6 +130,15 @@ const CytoscapeGraphView = () => {
   }, [data]);
 
   useEffect(() => {
+    dispatch(handleCurrPageTitle('Graph view'));
+
+    const graphContainer = graphContainerRef.current;
+    const graphContainerRect = graphContainer.getBoundingClientRect();
+    setUpdatedGraphLayout({
+      ...graphLayout,
+      width: graphContainerRect.width,
+      height: graphContainerRect.height,
+    });
     // Add a click event listener to the document
     document.addEventListener('click', handleClickOutside);
 
@@ -171,27 +148,51 @@ const CytoscapeGraphView = () => {
     };
   }, []);
 
+  useEffect(() => {
+    console.log('updatedGraphLayout', updatedGraphLayout);
+  }, [updatedGraphLayout]);
+
   return (
-    <div style={{ height: '1000px' }}>
-      <CytoscapeComponent
-        elements={memoizedData}
-        layout={layout}
-        stylesheet={style}
-        style={{ width: '100%', height: '100%' }}
-        cy={(cy) => {
-          // Add context menu configuration to the Cytoscape instance
-          cy.cxtmenu({
-            selector: 'node', // Display context menu only for nodes
-            commands: contextMenuCommands,
-          });
-        }}
-      />
-      {selectedNode && isContainerVisible && (
-        <div ref={containerRef} className={nodeInfoContainer}>
-          <ExternalPreview nodeData={selectedNode} />
-        </div>
-      )}
-    </div>
+    <>
+      <div ref={graphContainerRef}>
+        {isWbe && isLoading && <UseLoader />}
+
+        {isWbe && data && (
+          <>
+            {memoizedData ? (
+              <>
+                <CytoscapeComponent
+                  elements={memoizedData}
+                  layout={updatedGraphLayout}
+                  stylesheet={graphStyle}
+                  style={{ width: '99%', height: '99vh' }}
+                  cy={(cy) => {
+                    // Add context menu configuration to the Cytoscape instance
+                    cy.cxtmenu({
+                      selector: 'node', // Display context menu only for nodes
+                      commands: contextMenuCommands,
+                    });
+                  }}
+                />
+              </>
+            ) : (
+              <h5 className={noDataTitle}>
+                {isWbe
+                  ? 'No content available for this source'
+                  : 'No source found to display the graph'}
+              </h5>
+            )}
+          </>
+        )}
+
+        {/* node details section  */}
+        {selectedNode && isContainerVisible && (
+          <div ref={containerRef} className={nodeInfoContainer}>
+            <ExternalPreview nodeData={selectedNode} />
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

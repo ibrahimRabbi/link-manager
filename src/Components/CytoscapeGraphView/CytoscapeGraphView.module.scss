@@ -45,3 +45,26 @@
     }
   }
 }
+
+.visGraphContainer {
+  position: relative !important;
+
+  canvas {
+    min-height: 500px !important;
+    height: 99vh !important;
+    min-width: 700px !important;
+    width: 99% !important;
+    margin-left: 5px !important;
+  }
+
+  .noDataTitle {
+    margin: 50px;
+    text-align: center;
+  }
+
+  .refreshButton {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+  }
+}
