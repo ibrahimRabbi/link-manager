@@ -31,4 +31,8 @@ export const nodeColorStyles = {
     'background-color': 'pink',
     shape: 'round-hexagon',
   },
+  default: {
+    'background-color': '#3596ea',
+    shape: 'ellipse',
+  },
 };

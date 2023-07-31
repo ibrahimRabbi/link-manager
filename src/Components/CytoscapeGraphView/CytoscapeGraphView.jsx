@@ -1,5 +1,3 @@
-/* eslint-disable indent */
-/* eslint-disable max-len */
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import CytoscapeComponent from 'react-cytoscapejs';
 import cytoscape from 'cytoscape';
@@ -9,6 +7,7 @@ import fetchAPIRequest from '../../apiRequests/apiRequest.js';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import { Message, toaster } from 'rsuite';
 
+// eslint-disable-next-line max-len
 import ExternalPreview from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreview.jsx';
 import styles from './CytoscapeGraphView.module.scss';
 import { useDispatch, useSelector } from 'react-redux';
@@ -103,18 +102,18 @@ const CytoscapeGraphView = () => {
       const resourceType = value?.split('#')[1];
       for (const key in nodeColorStyles) {
         if (key === resourceType) {
-          return nodeColorStyles[key]; // Return the key if the value matches
+          return nodeColorStyles[key];
         }
       }
     }
-    return null; // Return null if the value is not found in the dictionary
+    return nodeColorStyles['default'];
   };
 
   const memoizedData = useMemo(() => {
     if (data) {
       let nodeData = data?.data?.nodes?.map((item) => {
         let nodeStyle = checkNodeStyle(item?.properties?.resource_type);
-        if (sourceDataList?.uri === item?.id) {
+        if (sourceDataList?.uri === item?.properties?.id) {
           nodeStyle = null;
         }
         return {
@@ -166,10 +165,6 @@ const CytoscapeGraphView = () => {
     };
   }, []);
 
-  useEffect(() => {
-    console.log('updatedGraphLayout', updatedGraphLayout);
-  }, [updatedGraphLayout]);
-
   return (
     <>
       <div ref={graphContainerRef}>
@@ -206,7 +201,7 @@ const CytoscapeGraphView = () => {
         {/* node details section  */}
         {selectedNode && isContainerVisible && (
           <div ref={containerRef} className={nodeInfoContainer}>
-            <ExternalPreview nodeData={selectedNode} />
+            <ExternalPreview nodeData={selectedNode} fromGraphView={true} />
           </div>
         )}
       </div>
