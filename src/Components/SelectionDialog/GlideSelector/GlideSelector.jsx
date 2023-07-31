@@ -19,7 +19,7 @@ import {
 import { columnDefWithCheckBox } from './Columns';
 import { Button, ButtonToolbar, FlexboxGrid, Pagination } from 'rsuite';
 import { useSelector } from 'react-redux';
-import UseReactSelect from '../../NewLink/UseReactSelect';
+import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
