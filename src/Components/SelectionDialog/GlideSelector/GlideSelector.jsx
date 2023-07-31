@@ -20,6 +20,7 @@ import { columnDefWithCheckBox } from './Columns';
 import { Button, ButtonToolbar, FlexboxGrid, Pagination } from 'rsuite';
 import { useSelector } from 'react-redux';
 import UseReactSelect from '../../NewLink/UseReactSelect';
+import Filter from './FilterFunction';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -158,6 +159,7 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
 
   const finalData = React.useMemo(() => tableData?.items);
   const finalColumnDef = React.useMemo(() => columnDefWithCheckBox);
+  const [columnFilters, setColumnFilters] = React.useState([]);
   const tableInstance = useReactTable({
     columns: finalColumnDef,
     data: finalData,
@@ -165,8 +167,10 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
     getFilteredRowModel: getFilteredRowModel(),
     state: {
       rowSelection: rowSelection,
+      columnFilters: columnFilters,
     },
     onRowSelectionChange: setRowSelection,
+    onColumnFiltersChange: setColumnFilters,
     enableRowSelection: true,
   });
   useEffect(() => {
@@ -256,7 +260,7 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
           ) : tableshow && projectId && resourceTypeId && finalData?.length > 0 ? (
             <div className="w3-container" style={{ marginTop: '20px', padding: '0' }}>
               <table
-                className="w3-table w3-bordered w3-border w3-centered"
+                className="w3-table w3-border w3-centered"
                 style={{ height: '20px' }}
               >
                 <thead>
@@ -272,6 +276,14 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
                                     columnEl.column.columnDef.header,
                                     columnEl.getContext(),
                                   )}
+                              {columnEl.column.getCanFilter() ? (
+                                <div>
+                                  <Filter
+                                    column={columnEl.column}
+                                    table={tableInstance}
+                                  />
+                                </div>
+                              ) : null}
                             </th>
                           );
                         })}

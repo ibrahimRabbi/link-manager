@@ -20,7 +20,6 @@ export const columnDefWithCheckBox = [
     id: 'select',
     header: ({ table }) => (
       <IndeterminateCheckbox
-        // className={style.checkBox}
         {...{
           checked: table.getIsAllRowsSelected(),
           indeterminate: table.getIsSomeRowsSelected(),
@@ -43,7 +42,7 @@ export const columnDefWithCheckBox = [
     header: 'Id',
   }),
   {
-    accessorFn: (row) => `${row?.name}`,
+    accessorFn: (row) => `${row?.label}`,
     header: 'Name',
   },
   {
