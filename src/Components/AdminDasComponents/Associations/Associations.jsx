@@ -20,8 +20,6 @@ import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
 import UseLoader from '../../Shared/UseLoader';
 import SelectField from '../SelectField.jsx';
-import CustomSelect from '../CustomSelect.jsx';
-import DefaultCustomSelect from '../DefaultCustomSelect';
 import Oauth2Modal from '../../Oauth2Modal/Oauth2Modal.jsx';
 // eslint-disable-next-line max-len
 import ExternalAppModal from '../ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
@@ -39,6 +37,8 @@ import {
   PROJECT_APPLICATION_TYPES,
   WORKSPACE_APPLICATION_TYPES,
 } from '../../../App.jsx';
+import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
+import DefaultCustomReactSelect from '../../Shared/Dropdowns/DefaultCustomReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 const thirdPartyUrl = `${lmApiUrl}/third_party`;
@@ -647,7 +647,7 @@ const Associations = () => {
                 name="organization_id"
                 label="Organization"
                 placeholder="Select Organization"
-                accepter={CustomSelect}
+                accepter={CustomReactSelect}
                 apiURL={`${lmApiUrl}/organization`}
                 error={formError.organization_id}
                 reqText="Organization is required"
@@ -659,7 +659,7 @@ const Associations = () => {
                 name="project_id"
                 label="Workspace"
                 placeholder="Select workspace"
-                accepter={CustomSelect}
+                accepter={CustomReactSelect}
                 apiURL={queryParamId ? `${lmApiUrl}/project` : ''}
                 error={formError.project_id}
                 apiQueryParams={queryParamId}
@@ -673,7 +673,7 @@ const Associations = () => {
                 name="application_id"
                 label="External application"
                 placeholder="Select external application"
-                accepter={CustomSelect}
+                accepter={CustomReactSelect}
                 apiURL={queryParamId ? `${lmApiUrl}/application` : ''}
                 customLabelKey="rootservices_url"
                 error={formError.application_id}
@@ -704,7 +704,7 @@ const Associations = () => {
                           placeholder="Select an external app project"
                           options={oslcCatalogResponse}
                           customSelectLabel="label"
-                          accepter={DefaultCustomSelect}
+                          accepter={DefaultCustomReactSelect}
                           onChange={(value) => {
                             getServiceProviderResources(value);
                           }}
@@ -760,7 +760,7 @@ const Associations = () => {
                         <SelectField
                           block
                           size="lg"
-                          accepter={CustomSelect}
+                          accepter={CustomReactSelect}
                           name={'workspace_id'}
                           disabled={!authorizedThirdParty}
                           label="External application workspace"
@@ -788,7 +788,7 @@ const Associations = () => {
                           block
                           size="lg"
                           name="ext_application_project"
-                          accepter={CustomSelect}
+                          accepter={CustomReactSelect}
                           customLabelKey={'workTitle'}
                           disabled={!authorizedThirdParty}
                           label="External application project"

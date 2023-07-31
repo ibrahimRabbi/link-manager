@@ -20,7 +20,7 @@ import { FlexboxGrid, Col, Button, Message, toaster } from 'rsuite';
 import SourceSection from '../SourceSection';
 import UseLoader from '../Shared/UseLoader';
 import GitlabSelector from '../SelectionDialog/GitlabSelector/GitlabSelector';
-import UseReactSelect from './UseReactSelect';
+import UseReactSelect from '../Shared/Dropdowns/UseReactSelect';
 import styles from './NewLink.module.scss';
 import GlideSelector from '../SelectionDialog/GlideSelector/GlideSelector';
 
@@ -63,6 +63,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const location = useLocation();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
+
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -180,7 +181,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         const tempAppData = projectTypeItems?.filter((app) => {
           if (app.name === projectType) return app;
         });
-        tempAppData[0].name = tempAppData[0].appName;
+
+        tempAppData[0].name = tempAppData[0]?.appName;
         setAppData(tempAppData[0]);
         setGlideDialog(true);
         setGitlabDialog(false);
@@ -315,8 +317,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   };
 
   // cancel link handler
-  const cancelLinkHandler = (value) => {
-    console.log(value);
+  const cancelLinkHandler = () => {
+    dispatch(handleCancelLink());
+    isWbe ? navigate('/wbe') : navigate('/');
   };
 
   // Create new link
@@ -328,6 +331,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     // create link with new response formate with new endpoint
     if (res) {
       const targetRes = JSON.parse(res);
+      console.log(targetRes);
       const mappedTargetData = targetRes?.map((item) => {
         const properties = item?.extended_properties;
         // eslint-disable-next-line max-len
@@ -336,12 +340,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           : item?.uri;
         return {
           target_properties: {
-            type: item?.type,
-            uri: targetUri,
-            title: item?.label,
-            provider_id: item?.provider_id,
-            provider_name: item?.provider_name,
-            api: item?.api,
+            type: item?.type || item?.resource_type,
+            uri: targetUri || item?.link,
+            title: item?.label || item?.name,
+            provider_id: item?.provider_id || item?.id,
+            provider_name: item?.provider_name ? item?.provider_name : '',
+            api: item?.api ? item?.api : '',
             description: item?.description ? item?.description : '',
             extra_properties: {
               branch_name: properties?.branch_name ? properties?.branch_name : '',
@@ -388,15 +392,19 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
       console.log('New Response: ', linkBodyData);
 
-      dispatch(
-        fetchCreateLink({
-          url: `${apiURL}/link/new_link`,
-          token: authCtx.token,
-          bodyData: linkBodyData,
-          message: 'link',
-          showNotification: showNotification,
-        }),
-      );
+      if (sourceDataList?.uri) {
+        dispatch(
+          fetchCreateLink({
+            url: `${apiURL}/link/new_link`,
+            token: authCtx.token,
+            bodyData: linkBodyData,
+            message: 'link',
+            showNotification: showNotification,
+          }),
+        );
+      } else {
+        showNotification('info', 'Sorry, Source data not found found !!!');
+      }
     } else if (!res && targetDataArr?.length) {
       const targetsData = targetDataArr?.map((data) => {
         const id = data?.selected_lines
@@ -439,15 +447,19 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         target_data: targetsData,
       };
       console.log('Link Obj: ', linkObj);
-      dispatch(
-        fetchCreateLink({
-          url: `${apiURL}/link`,
-          token: authCtx.token,
-          bodyData: linkObj,
-          message: 'link',
-          showNotification: showNotification,
-        }),
-      );
+      if (sourceDataList?.uri) {
+        dispatch(
+          fetchCreateLink({
+            url: `${apiURL}/link`,
+            token: authCtx.token,
+            bodyData: linkObj,
+            message: 'link',
+            showNotification: showNotification,
+          }),
+        );
+      } else {
+        showNotification('info', 'Sorry, Source data not found found !!!');
+      }
     }
   };
 
@@ -568,19 +580,25 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           </div>
 
           {/* Target Cancel button  */}
-          <div className={targetBtnContainer}>
-            <Button
-              appearance="default"
-              size="md"
-              type="submit"
-              onClick={() => {
-                dispatch(handleCancelLink());
-                isWbe ? navigate('/wbe') : navigate('/');
-              }}
-            >
-              Cancel
-            </Button>
-          </div>
+          {gitlabDialog || glideDialog ? (
+            ''
+          ) : (
+            <div className={targetBtnContainer}>
+              <Button
+                appearance="ghost"
+                size="md"
+                onClick={() => {
+                  dispatch(handleCancelLink());
+                  isWbe ? navigate('/wbe') : navigate('/');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button appearance="primary" size="md" disabled={true}>
+                OK
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </>

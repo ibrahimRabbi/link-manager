@@ -17,7 +17,6 @@ import { FlexboxGrid, Form, Schema, Col, Button, Stack, Tooltip, Whisper } from 
 import AddNewModal from '../AddNewModal';
 import { useRef } from 'react';
 import SelectField from '../SelectField';
-import CustomSelect from '../CustomSelect';
 import UseLoader from '../../Shared/UseLoader';
 import {
   fetchCreateData,
@@ -32,6 +31,7 @@ import { fetchOslcResource } from '../../../Redux/slices/oslcResourcesSlice.jsx'
 import { actions as linkTypeActions } from '../../../Redux/slices/linkTypeSlice';
 import { actions as oslcActions } from '../../../Redux/slices/oslcResourcesSlice';
 import TextField from '../TextField.jsx';
+import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -570,7 +570,7 @@ const LinkTypes = () => {
                       name="application_id"
                       label="Application"
                       placeholder="Select Application"
-                      accepter={CustomSelect}
+                      accepter={CustomReactSelect}
                       apiURL={`${lmApiUrl}/application`}
                       onChange={handleApplication}
                     />
@@ -578,7 +578,6 @@ const LinkTypes = () => {
 
                   {linkTypeResourceTypes.length > 0 && (
                     <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                      {/* eslint-disable-next-line max-len */}
                       <p
                         style={{
                           fontSize: '17px',

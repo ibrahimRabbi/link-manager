@@ -19,7 +19,6 @@ import {
 import AdminDataTable from '../AdminDataTable';
 import TextField from '../TextField';
 import SelectField from '../SelectField';
-import CustomSelect from '../CustomSelect';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
 import { fetchApplicationPublisherIcon } from '../../../Redux/slices/applicationSlice';
@@ -35,6 +34,7 @@ import {
 } from '../../../App.jsx';
 import Oauth2Waiting from '../ExternalAppIntegrations/Oauth2Waiting/Oauth2Waiting.jsx';
 import ExternalLogin from '../ExternalAppIntegrations/ExternalLogin/ExternalLogin.jsx';
+import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 
 const { modalBodyStyle, step1Container, step2Container, skipBtn } = styles;
 
@@ -608,7 +608,7 @@ const Application = () => {
                       name="organization_id"
                       label="Organization"
                       placeholder="Select Organization"
-                      accepter={CustomSelect}
+                      accepter={CustomReactSelect}
                       apiURL={`${lmApiUrl}/organization`}
                       error={formError.organization_id}
                       reqText="Organization Id is required"
@@ -620,7 +620,7 @@ const Application = () => {
                       name="type"
                       label="Application type"
                       placeholder="Select application type"
-                      accepter={CustomSelect}
+                      accepter={CustomReactSelect}
                       apiURL={`${lmApiUrl}/external-integrations`}
                       error={formError.type}
                       reqText="Application type is required"
@@ -801,6 +801,7 @@ const Application = () => {
       {(isLoading || loading || createLoading || updateLoading || deleteLoading) && (
         <UseLoader />
       )}
+
       <AdminDataTable props={tableProps} />
     </div>
   );

@@ -83,7 +83,11 @@ export async function saveResource({ url, token, bodyData, showNotification }) {
         return data;
       });
     } else {
-      if (res.status === 401) {
+      if (res.status === 400) {
+        return res.json().then((data) => {
+          showNotification('error', data?.message?.message);
+        });
+      } else if (res.status === 401) {
         return res.json().then((data) => {
           showNotification('error', data.message);
           window.location.replace('/login');
