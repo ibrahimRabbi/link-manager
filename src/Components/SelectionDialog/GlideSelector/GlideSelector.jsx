@@ -192,7 +192,9 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
           if (data.items.length > 0) {
             setFilterLoad(false);
             setTableData(data);
+            setColumnFilters([]);
           } else {
+            setFilterLoad(false);
             setFilterIn('');
           }
         });
@@ -207,7 +209,6 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
     getFilteredRowModel: getFilteredRowModel(),
     state: {
       rowSelection: rowSelection,
-      // columnFilters: columnFilters,
     },
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
@@ -292,15 +293,15 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
               </FlexboxGrid.Item>
             </FlexboxGrid>
           )}
+          {filterLoad && (
+            <Loader backdrop center size="md" vertical style={{ zIndex: '10' }} />
+          )}
           {tableLoading ? (
             <div style={{ marginTop: '50px' }}>
               <UseLoader />
             </div>
           ) : tableshow && projectId && resourceTypeId && finalData?.length > 0 ? (
             <div className="w3-container" style={{ marginTop: '20px', padding: '0' }}>
-              {filterLoad && (
-                <Loader backdrop center size="md" vertical style={{ zIndex: '10' }} />
-              )}
               <table
                 className="w3-table w3-border w3-centered"
                 style={{ height: '20px' }}
