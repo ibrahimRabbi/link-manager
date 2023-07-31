@@ -32,7 +32,6 @@ const { title, iconStatus, applicationIcon, buttonTitle } = styles;
 const ExternalPreview = (props) => {
   const authCtx = useContext(AuthContext);
   let { nodeData } = props;
-  nodeData = { ...nodeData, resource_type: 'blockofCode' };
   let iconUrl = '';
 
   // prettier-ignore
@@ -119,7 +118,6 @@ const ExternalPreview = (props) => {
       const extension = nodeData?.name.split('.')[1];
       setExtension(getLanguageFromExtension(extension).toLowerCase());
     }
-    console.log(nodeData?.content_hash);
     if (nodeData?.content_hash) {
       fetch(`${lmApiUrl}/third_party/${nodeData.api}/decode_selected_content`, {
         headers: {
