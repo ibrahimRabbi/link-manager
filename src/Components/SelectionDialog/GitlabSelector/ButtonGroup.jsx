@@ -1,12 +1,15 @@
 /* eslint-disable max-len */
 import React, { useState } from 'react';
-import { Button, ButtonToolbar, Loader, Placeholder } from 'rsuite';
+import { Button, ButtonToolbar } from 'rsuite';
+import UseLoader from '../../Shared/UseLoader';
 
 const ButtonGroup = ({
   selectedCodes,
   multipleSelected,
   singleSelected,
   handleSaveLink,
+  branchName,
+  cancelLinkHandler,
 }) => {
   const [loading, setLoading] = useState(false);
   const handleSelect = () => {
@@ -18,8 +21,10 @@ const ButtonGroup = ({
     } else {
       value = JSON.parse(JSON.stringify(multipleSelected));
     }
+
     if (Array.isArray(value)) {
       for (const obj of value) {
+        obj.extended_properties.branch_name = branchName;
         for (const prop in obj) {
           if (propsToRemove.includes(prop)) {
             delete obj[prop];
@@ -27,6 +32,7 @@ const ButtonGroup = ({
         }
       }
     } else {
+      value.extended_properties.branch_name = branchName;
       for (const prop in value) {
         if (propsToRemove.includes(prop)) {
           delete value[prop];
@@ -105,14 +111,13 @@ const ButtonGroup = ({
 
   // Function to handle cancel
   function cancel() {
-    handleSaveLink('');
+    cancelLinkHandler('Link create cancel');
   }
   return (
     <div>
       {loading && (
-        <div>
-          <Placeholder.Paragraph rows={8} />
-          <Loader backdrop content="loading..." vertical />
+        <div style={{ marginTop: '50px' }}>
+          <UseLoader />
         </div>
       )}
       <ButtonToolbar>
