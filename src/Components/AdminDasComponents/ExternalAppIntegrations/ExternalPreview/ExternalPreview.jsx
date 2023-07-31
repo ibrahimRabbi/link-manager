@@ -47,7 +47,10 @@ const ExternalPreview = (props) => {
     iconUrl = '/valispace_logo.png';
     break;
   case 'glideyoke':
-    iconUrl = '/glideyoke_logo.png';
+    iconUrl = '/glide_logo.png';
+    break;
+  case 'glide':
+    iconUrl = '/glide_logo.png';
     break;
   }
 
