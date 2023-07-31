@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice.jsx';
 import { graphLayout, graphStyle } from './CytoscapeGraphConfig.jsx';
 import UseLoader from '../Shared/UseLoader.jsx';
+import { nodeColorStyles } from './NodeStyles.jsx';
 
 const { nodeInfoContainer, noDataTitle } = styles;
 const CytoscapeGraphView = () => {
@@ -48,7 +49,7 @@ const CytoscapeGraphView = () => {
       fetchAPIRequest({
         urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
           sourceDataList?.uri,
-        )}&direction=outgoing&max_depth_outgoing=4`,
+        )}&direction=outgoing&max_depth_outgoing=2`,
         token: authCtx.token,
         showNotification: showNotification,
         method: 'GET',
@@ -72,7 +73,6 @@ const CytoscapeGraphView = () => {
       content: 'Show data',
       select: function (ele) {
         const foundGraph = findSelectedNode(ele.id());
-        console.log('foundGraph', foundGraph);
         setSelectedNode(foundGraph[0]?.data?.nodeData);
         setIsContainerVisible(true);
       },
@@ -91,7 +91,6 @@ const CytoscapeGraphView = () => {
           // Todo: replace it by web_url from nodeData
           const url = selectedNode[0]?.data?.nodeData.id;
           if (url) {
-            console.log(url);
             window.open(url, '_blank');
           }
         }
@@ -99,9 +98,25 @@ const CytoscapeGraphView = () => {
     },
   ];
 
+  const checkNodeStyle = (value) => {
+    if (value) {
+      const resourceType = value?.split('#')[1];
+      for (const key in nodeColorStyles) {
+        if (key === resourceType) {
+          return nodeColorStyles[key]; // Return the key if the value matches
+        }
+      }
+    }
+    return null; // Return null if the value is not found in the dictionary
+  };
+
   const memoizedData = useMemo(() => {
     if (data) {
       let nodeData = data?.data?.nodes?.map((item) => {
+        let nodeStyle = checkNodeStyle(item?.properties?.resource_type);
+        if (sourceDataList?.uri === item?.id) {
+          nodeStyle = null;
+        }
         return {
           data: {
             id: item.id.toString(),
@@ -109,6 +124,10 @@ const CytoscapeGraphView = () => {
             classes: 'bottom-center',
             nodeData: item?.properties,
           },
+          style: nodeStyle ? nodeStyle : {},
+          // style: {
+          //   'background-color': 'red',
+          // },
         };
       });
       console.log('nodeData', nodeData);
@@ -122,7 +141,6 @@ const CytoscapeGraphView = () => {
           },
         };
       });
-      console.log('edges', edges);
       nodeData = nodeData.concat(edges);
       return nodeData ? nodeData : [];
     }

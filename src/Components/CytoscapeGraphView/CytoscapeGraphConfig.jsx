@@ -13,6 +13,8 @@ export const graphStyle = [
     style: {
       'background-color': '#666',
       label: 'data(label)',
+      width: 50,
+      height: 50,
     },
   },
   {
