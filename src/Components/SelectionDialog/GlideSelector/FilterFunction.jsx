@@ -1,38 +1,18 @@
 import React from 'react';
 import DebouncedInput from './DebouncedInput';
 
-function Filter({ column, table }) {
+function Filter({ column, table, setFilterIn }) {
   const firstValue = table.getPreFilteredRowModel().flatRows[0]?.getValue(column.id);
-
   const columnFilterValue = column.getFilterValue();
-
-  return typeof firstValue === 'number' ? (
-    <div>
-      <div>
-        <DebouncedInput
-          type="number"
-          min={Number(column.getFacetedMinMaxValues()?.[0] ?? '')}
-          max={Number(column.getFacetedMinMaxValues()?.[1] ?? '')}
-          value={columnFilterValue?.[0] ?? ''}
-          onChange={(value) => column.setFilterValue((old) => [value, old?.[1]])}
-          placeholder="min"
-        />
-        <DebouncedInput
-          type="number"
-          min={Number(column.getFacetedMinMaxValues()?.[0] ?? '')}
-          max={Number(column.getFacetedMinMaxValues()?.[1] ?? '')}
-          value={columnFilterValue?.[1] ?? ''}
-          onChange={(value) => column.setFilterValue((old) => [old?.[0], value])}
-          placeholder="max"
-        />
-      </div>
-    </div>
-  ) : (
+  return typeof firstValue === 'number' ? null : (
     <>
       <DebouncedInput
         type="text"
         value={columnFilterValue ?? ''}
-        onChange={(value) => column.setFilterValue(value)}
+        onChange={(value) => {
+          column.setFilterValue(value);
+          setFilterIn(value);
+        }}
         placeholder={'Search... '}
         list={column.id + 'list'}
       />

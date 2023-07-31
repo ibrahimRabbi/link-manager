@@ -37,7 +37,10 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
   const [limit, setLimit] = React.useState(10);
   const [page, setPage] = React.useState(1);
   const [rowSelection, setRowSelection] = React.useState({});
+  const [columnFilters, setColumnFilters] = React.useState([]);
   const [resourceLoading, setResourceLoading] = useState(false);
+  const [prev, setPrev] = useState(false);
+  const [filterIn, setFilterIn] = useState('');
 
   const authCtx = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
@@ -148,18 +151,61 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
           }
         })
         .then((data) => {
+          console.log(data);
           setTableLoading(false);
           setTableShow(true);
+          setPrev(false);
           setTableData(data);
         });
     } else {
       setTableData([]);
     }
-  }, [projectId, resourceTypeId, authCtx, currPage, limit]);
-
+    // }
+  }, [projectId, resourceTypeId, authCtx, currPage, limit, prev]);
+  useEffect(() => {
+    // console.log(filterIn);
+    if (columnFilters[0]?.id && columnFilters[0]?.value) {
+      console.log(columnFilters[0]?.id, columnFilters[0]?.value);
+      fetch(
+        `${lmApiUrl}/third_party/${
+          appData?.type
+        }/container/tenant/${resourceTypeId}?page=1&per_page=10&application_id=${
+          appData?.application_id
+        }&${columnFilters[0]?.id.toLowerCase()}=${columnFilters[0]?.value}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authCtx.token}`,
+          },
+        },
+      )
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            if (response.status === 401) {
+              setAuthenticatedThirdApp(true);
+              return { items: [] };
+            }
+          }
+        })
+        .then((data) => {
+          if (data.items.length > 0) {
+            // console.log(data);
+            setTableShow(true);
+            setTableData(data);
+          } else {
+            setPrev(true);
+          }
+        });
+    }
+  }, [columnFilters[0]]);
+  useEffect(() => {
+    if (filterIn === '') {
+      setPrev(true);
+    }
+  }, [filterIn]);
   const finalData = React.useMemo(() => tableData?.items);
   const finalColumnDef = React.useMemo(() => columnDefWithCheckBox);
-  const [columnFilters, setColumnFilters] = React.useState([]);
   const tableInstance = useReactTable({
     columns: finalColumnDef,
     data: finalData,
@@ -167,7 +213,7 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
     getFilteredRowModel: getFilteredRowModel(),
     state: {
       rowSelection: rowSelection,
-      columnFilters: columnFilters,
+      // columnFilters: columnFilters,
     },
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
@@ -281,6 +327,7 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
                                   <Filter
                                     column={columnEl.column}
                                     table={tableInstance}
+                                    setFilterIn={setFilterIn}
                                   />
                                 </div>
                               ) : null}
