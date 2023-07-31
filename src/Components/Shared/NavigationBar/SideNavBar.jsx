@@ -16,7 +16,7 @@ import DashboardIcon from '@rsuite/icons/Dashboard';
 import AttachmentIcon from '@rsuite/icons/Attachment';
 import { darkColor, lightBgColor } from '../../../App';
 import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
-import PiGraphFill from 'react-icons/pi';
+import { PiGraphFill } from 'react-icons/pi';
 
 const iconStyle = {
   marginLeft: '-35px',
