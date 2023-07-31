@@ -29,7 +29,6 @@ const { newLinkMainContainer, targetContainer, targetIframe, targetBtnContainer 
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const jiraDialogURL = import.meta.env.VITE_JIRA_DIALOG_URL;
-const gitlabDialogURL = import.meta.env.VITE_GITLAB_DIALOG_URL;
 const glideDialogURL = import.meta.env.VITE_GLIDE_DIALOG_URL;
 const valispaceDialogURL = import.meta.env.VITE_VALISPACE_DIALOG_URL;
 const codebeamerDialogURL = import.meta.env.VITE_CODEBEAMER_DIALOG_URL;
@@ -146,7 +145,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       setGlideDialog(false);
       const jiraApp = projectType?.includes('(JIRA)');
       const gitlabApp = projectType?.includes('(GITLAB)');
-      const gitlabAppNative = projectType?.includes('(GITLAB-NATIVE)');
       const glideApp = projectType?.includes('(GLIDE)');
       const glideAppNative = projectType?.includes('(GLIDE-NATIVE)');
       const valispaceApp = projectType?.includes('(VALISPACE)');
@@ -161,16 +159,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           `${jiraDialogURL}/oslc/provider/selector?provider_id=${projectId}#oslc-core-postMessage-1.0`,
         );
       } else if (gitlabApp) {
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `${gitlabDialogURL}/oslc/provider/selector?provider_id=${projectId}&gc_context=${'st-develop'}`,
-        );
-      } else if (gitlabAppNative) {
         const tempAppData = projectTypeItems?.filter((app) => {
           if (app.name === projectType) return app;
         });
-        tempAppData[0].name = tempAppData[0]?.appName;
-
         setAppData(tempAppData[0]);
         setGitlabDialog(true);
         setGlideDialog(false);
@@ -180,7 +171,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         const tempAppData = projectTypeItems?.filter((app) => {
           if (app.name === projectType) return app;
         });
-        tempAppData[0].name = tempAppData[0].appName;
         setAppData(tempAppData[0]);
         setGlideDialog(true);
         setGitlabDialog(false);
