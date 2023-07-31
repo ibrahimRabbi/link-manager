@@ -17,7 +17,7 @@ import {
   getFilteredRowModel,
 } from '@tanstack/react-table';
 import { columnDefWithCheckBox } from './Columns';
-import { Button, ButtonToolbar, FlexboxGrid, Pagination } from 'rsuite';
+import { Button, ButtonToolbar, FlexboxGrid, Loader, Pagination } from 'rsuite';
 import { useSelector } from 'react-redux';
 import UseReactSelect from '../../NewLink/UseReactSelect';
 import Filter from './FilterFunction';
@@ -39,7 +39,7 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnFilters, setColumnFilters] = React.useState([]);
   const [resourceLoading, setResourceLoading] = useState(false);
-  const [prev, setPrev] = useState(false);
+  const [filterLoad, setFilterLoad] = useState(false);
   const [filterIn, setFilterIn] = useState('');
 
   const authCtx = useContext(AuthContext);
@@ -130,41 +130,41 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
   }, [authCtx, projectId]);
 
   useEffect(() => {
-    if (projectId && resourceTypeId && currPage && limit) {
-      setTableLoading(true);
-      fetch(
-        `${lmApiUrl}/third_party/${appData?.type}/container/tenant/${resourceTypeId}?page=${currPage}&per_page=${limit}&application_id=${appData?.application_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${authCtx.token}`,
+    if (filterIn === '') {
+      if (projectId && resourceTypeId && currPage && limit) {
+        setTableLoading(true);
+        fetch(
+          `${lmApiUrl}/third_party/${appData?.type}/container/tenant/${resourceTypeId}?page=${currPage}&per_page=${limit}&application_id=${appData?.application_id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${authCtx.token}`,
+            },
           },
-        },
-      )
-        .then((response) => {
-          if (response.status === 200) {
-            return response.json();
-          } else {
-            if (response.status === 401) {
-              setAuthenticatedThirdApp(true);
-              return { items: [] };
+        )
+          .then((response) => {
+            if (response.status === 200) {
+              return response.json();
+            } else {
+              if (response.status === 401) {
+                setAuthenticatedThirdApp(true);
+                return { items: [] };
+              }
             }
-          }
-        })
-        .then((data) => {
-          console.log(data);
-          setTableLoading(false);
-          setTableShow(true);
-          setPrev(false);
-          setTableData(data);
-        });
-    } else {
-      setTableData([]);
+          })
+          .then((data) => {
+            setTableLoading(false);
+            setTableShow(true);
+            setTableData(data);
+          });
+      } else {
+        setTableData([]);
+      }
     }
     // }
-  }, [projectId, resourceTypeId, authCtx, currPage, limit, prev]);
+  }, [projectId, resourceTypeId, authCtx, currPage, limit, filterIn]);
   useEffect(() => {
-    // console.log(filterIn);
     if (columnFilters[0]?.id && columnFilters[0]?.value) {
+      setFilterLoad(true);
       console.log(columnFilters[0]?.id, columnFilters[0]?.value);
       fetch(
         `${lmApiUrl}/third_party/${
@@ -190,20 +190,14 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
         })
         .then((data) => {
           if (data.items.length > 0) {
-            // console.log(data);
-            setTableShow(true);
+            setFilterLoad(false);
             setTableData(data);
           } else {
-            setPrev(true);
+            setFilterIn('');
           }
         });
     }
   }, [columnFilters[0]]);
-  useEffect(() => {
-    if (filterIn === '') {
-      setPrev(true);
-    }
-  }, [filterIn]);
   const finalData = React.useMemo(() => tableData?.items);
   const finalColumnDef = React.useMemo(() => columnDefWithCheckBox);
   const tableInstance = useReactTable({
@@ -263,7 +257,7 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
           integrated={false}
         />
       ) : (
-        <div>
+        <div style={{ position: 'relative' }}>
           <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
             <FlexboxGrid.Item colspan={3}>
               <h3>Projects: </h3>
@@ -298,13 +292,15 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
               </FlexboxGrid.Item>
             </FlexboxGrid>
           )}
-
           {tableLoading ? (
             <div style={{ marginTop: '50px' }}>
               <UseLoader />
             </div>
           ) : tableshow && projectId && resourceTypeId && finalData?.length > 0 ? (
             <div className="w3-container" style={{ marginTop: '20px', padding: '0' }}>
+              {filterLoad && (
+                <Loader backdrop center size="md" vertical style={{ zIndex: '10' }} />
+              )}
               <table
                 className="w3-table w3-border w3-centered"
                 style={{ height: '20px' }}
