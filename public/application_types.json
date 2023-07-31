@@ -1,37 +1,32 @@
 [
-    {
-        "name": "JIRA",
-        "icon": "https://lm-dev.koneksys.com/jira_logo.png",
-        "alt_value": "JIRA"
-    },
-    {
-        "name": "GITLAB",
-        "icon": "https://lm-dev.koneksys.com/gitlab_logo.png",
-        "alt_value": "GITLAB"
-    },
-    {
-        "name": "GITLAB-NATIVE",
-        "icon": "https://lm-dev.koneksys.com/gitlab_logo.png",
-        "alt_value": "GITLAB-NATIVE"
-    },
-    {
-        "name": "GLIDE",
-        "icon": "https://lm-dev.koneksys.com/glide_logo.png",
-        "alt_value": "GLIDE"
-    },
-    {
-        "name": "GLIDE-NATIVE",
-        "icon": "https://lm-dev.koneksys.com/glide_logo.png",
-        "alt_value": "GLIDE-NATIVE"
-    },
-    {
-        "name": "VALISPACE",
-        "icon": "https://lm-dev.koneksys.com/valispace_logo_img.png",
-        "alt_value": "VALISPACE"
-    },
-    {
-        "name": "CODEBEAMER",
-        "icon": "https://lm-dev.koneksys.com/codebeamer_logo.png",
-        "alt_value": "CODEBEAMER"
-    }
+  {
+    "name": "JIRA",
+    "icon": "https://lm-dev.koneksys.com/jira_logo.png",
+    "alt_value": "JIRA"
+  },
+  {
+    "name": "GITLAB",
+    "icon": "https://lm-dev.koneksys.com/gitlab_logo.png",
+    "alt_value": "GITLAB"
+  },
+  {
+    "name": "GLIDE",
+    "icon": "https://lm-dev.koneksys.com/glide_logo.png",
+    "alt_value": "GLIDE"
+  },
+  {
+    "name": "GLIDE-NATIVE",
+    "icon": "https://lm-dev.koneksys.com/glide_logo.png",
+    "alt_value": "GLIDE-NATIVE"
+  },
+  {
+    "name": "VALISPACE",
+    "icon": "https://lm-dev.koneksys.com/valispace_logo_img.png",
+    "alt_value": "VALISPACE"
+  },
+  {
+    "name": "CODEBEAMER",
+    "icon": "https://lm-dev.koneksys.com/codebeamer_logo.png",
+    "alt_value": "CODEBEAMER"
+  }
 ]
