@@ -31,7 +31,7 @@ const { title, iconStatus, applicationIcon, buttonTitle } = styles;
 
 const ExternalPreview = (props) => {
   const authCtx = useContext(AuthContext);
-  let { nodeData } = props;
+  let { nodeData, fromGraphView } = props;
   let iconUrl = '';
 
   // prettier-ignore
@@ -82,9 +82,14 @@ const ExternalPreview = (props) => {
     return linkList.some((substring) => linkType.includes(substring));
   };
 
-  const getIconResourceType = (resourceType) => {
+  const getResourceType = (resourceType) => {
     let resource = resourceType.toLowerCase().split('#');
     resource = resource[resource.length - 1];
+    return resource;
+  };
+
+  const getIconResourceType = (resourceType) => {
+    const resource = getResourceType(resourceType);
     const files = ['file', 'ofcode', 'folder'];
     const documents = ['document'];
     const changeRequests = ['changerequest'];
@@ -144,7 +149,7 @@ const ExternalPreview = (props) => {
   }, []);
 
   return (
-    <div style={{ width: '550px' }}>
+    <div style={!fromGraphView ? { width: '350px' } : {}}>
       <FlexboxGrid>
         <FlexboxGrid.Item as={Col} colspan={2}>
           <img src={iconUrl} alt="icon" className={applicationIcon} />
@@ -184,8 +189,9 @@ const ExternalPreview = (props) => {
       {nodeData?.resource_type && (
         <PreviewRow
           name="Type"
-          value={nodeData?.resource_type}
           functionForIcon={getIconResourceType}
+          firstLetter={true}
+          value={getResourceType(nodeData?.resource_type)}
         />
       )}
       <Divider style={{ marginTop: '18px' }}>
