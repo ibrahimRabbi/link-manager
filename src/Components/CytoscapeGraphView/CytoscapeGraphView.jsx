@@ -13,7 +13,7 @@ import ExternalPreview from '../AdminDasComponents/ExternalAppIntegrations/Exter
 import styles from './CytosGraphView.module.scss';
 
 const { nodeInfoContainer } = styles;
-const MyGraphComponent = () => {
+const CytoscapeGraphView = () => {
   // Create your graph elements and layout
   cytoscape.use(cxtmenu);
   const authCtx = useContext(AuthContext);
@@ -195,4 +195,4 @@ const MyGraphComponent = () => {
   );
 };
 
-export default MyGraphComponent;
+export default CytoscapeGraphView;
