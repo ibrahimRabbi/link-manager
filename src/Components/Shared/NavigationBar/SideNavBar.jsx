@@ -6,7 +6,6 @@ import { ImBrightnessContrast } from 'react-icons/im';
 import { BiLogOut } from 'react-icons/bi';
 import { Sidebar, Sidenav, Navbar, Nav, Divider } from 'rsuite';
 import CogIcon from '@rsuite/icons/legacy/Cog';
-import ShareOutlineIcon from '@rsuite/icons/ShareOutline';
 import TableColumnIcon from '@rsuite/icons/TableColumn';
 import Swal from 'sweetalert2';
 import AuthContext from '../../../Store/Auth-Context';
@@ -17,6 +16,13 @@ import DashboardIcon from '@rsuite/icons/Dashboard';
 import AttachmentIcon from '@rsuite/icons/Attachment';
 import { darkColor, lightBgColor } from '../../../App';
 import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
+import { PiGraphFill } from 'react-icons/pi';
+
+const iconStyle = {
+  marginLeft: '-35px',
+  marginBottom: '-3px',
+  marginRight: '20px',
+};
 
 const baseOptions = [
   {
@@ -28,7 +34,7 @@ const baseOptions = [
   {
     path: '/graph-view',
     navigateTo: '/graph-view',
-    icon: <ShareOutlineIcon />,
+    icon: <PiGraphFill style={iconStyle} />,
     content: <span>Graph View</span>,
   },
   {

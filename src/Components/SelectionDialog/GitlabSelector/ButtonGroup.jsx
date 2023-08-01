@@ -111,7 +111,7 @@ const ButtonGroup = ({
 
   // Function to handle cancel
   function cancel() {
-    cancelLinkHandler('Link create cancel');
+    cancelLinkHandler();
   }
   return (
     <div>

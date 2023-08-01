@@ -14,9 +14,9 @@ import TextField from '../TextField';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
 import SelectField from '../SelectField.jsx';
-import CustomSelect from '../CustomSelect.jsx';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
+import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -36,7 +36,7 @@ const headerData = [
   },
   {
     header: 'Organization',
-    key: 'organization_id',
+    key: 'organization_name',
   },
 ];
 
@@ -79,13 +79,23 @@ const Projects = () => {
     data: allProjects,
     isLoading,
     refetch: refetchProjects,
-  } = useQuery(['project'], () =>
-    fetchAPIRequest({
-      urlPath: `project?page=${currPage}&per_page=${pageSize}`,
-      token: authCtx.token,
-      method: 'GET',
-      showNotification: showNotification,
-    }),
+  } = useQuery(
+    ['project'],
+    () =>
+      fetchAPIRequest({
+        urlPath: `project?page=${currPage}&per_page=${pageSize}`,
+        token: authCtx.token,
+        method: 'GET',
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (allProjects) => {
+        for (let i = 0; i < allProjects.items.length; i++) {
+          allProjects.items[i]['organization_name'] =
+            allProjects.items[i].organization.name;
+        }
+      },
+    },
   );
 
   // create project using react query
@@ -276,7 +286,7 @@ const Projects = () => {
               name="organization_id"
               label="Organization"
               placeholder="Select Organization"
-              accepter={CustomSelect}
+              accepter={CustomReactSelect}
               apiURL={`${lmApiUrl}/organization`}
               error={formError.organization_id}
               reqText="Organization Id is required"
