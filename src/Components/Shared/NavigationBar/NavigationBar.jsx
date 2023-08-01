@@ -104,9 +104,7 @@ const NavigationBar = () => {
           <h3>TraceLynx</h3>
         </Navbar.Brand>
         <Nav style={{ textAlign: 'center', marginLeft: '35%' }}>
-          <Nav.Item>
-            <h3 style={{ textAlign: 'center' }}>{currPageTitle}</h3>
-          </Nav.Item>
+          <h3 style={{ textAlign: 'center' }}>{currPageTitle}</h3>
         </Nav>
 
         <Nav pullRight style={{ padding: '5px 20px 0 0' }}>
