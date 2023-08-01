@@ -165,7 +165,6 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
   useEffect(() => {
     if (columnFilters[0]?.id && columnFilters[0]?.value) {
       setFilterLoad(true);
-      console.log(columnFilters[0]?.id, columnFilters[0]?.value);
       fetch(
         `${lmApiUrl}/third_party/${
           appData?.type
@@ -234,7 +233,7 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
     console.log(response);
   };
   const handleCancel = () => {
-    cancelLinkHandler('cancel');
+    cancelLinkHandler();
   };
   return (
     <div>
@@ -258,7 +257,7 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
           integrated={false}
         />
       ) : (
-        <div style={{ position: 'relative' }}>
+        <div className={style.mainContainer}>
           <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
             <FlexboxGrid.Item colspan={3}>
               <h3>Projects: </h3>
@@ -301,67 +300,75 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
               <UseLoader />
             </div>
           ) : tableshow && projectId && resourceTypeId && finalData?.length > 0 ? (
-            <div className="w3-container" style={{ marginTop: '20px', padding: '0' }}>
-              <table
-                className="w3-table w3-border w3-centered"
-                style={{ height: '20px' }}
+            <div>
+              <div
+                style={{
+                  marginTop: '20px',
+                  padding: '0',
+                  overflowY: 'auto',
+                  height: '70vh',
+                }}
               >
-                <thead>
-                  {tableInstance.getHeaderGroups().map((headerEl) => {
-                    return (
-                      <tr key={headerEl.id} style={{ fontSize: '20px' }}>
-                        {headerEl.headers.map((columnEl) => {
-                          return (
-                            <th key={columnEl.id}>
-                              {columnEl.isPlaceholder
-                                ? null
-                                : flexRender(
-                                    columnEl.column.columnDef.header,
-                                    columnEl.getContext(),
-                                  )}
-                              {columnEl.column.getCanFilter() ? (
-                                <div>
-                                  <Filter
-                                    column={columnEl.column}
-                                    table={tableInstance}
-                                    setFilterIn={setFilterIn}
-                                  />
-                                </div>
-                              ) : null}
-                            </th>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })}
-                </thead>
-                <tbody>
-                  {tableInstance.getRowModel().rows.map((rowEl) => {
-                    return (
-                      <tr
-                        key={rowEl.id}
-                        className={
-                          isDark === 'dark' ? style.table_row_dark : style.table_row_light
-                        }
-                      >
-                        {rowEl.getVisibleCells().map((cellEl) => {
-                          return (
-                            <td
-                              key={cellEl.id}
-                              style={{ width: '50px', fontSize: '17px' }}
-                            >
-                              {flexRender(
-                                cellEl.column.columnDef.cell,
-                                cellEl.getContext(),
-                              )}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                <table className={`${style.styled_table} w3-center`}>
+                  <thead>
+                    {tableInstance.getHeaderGroups().map((headerEl) => {
+                      return (
+                        <tr key={headerEl.id} style={{ fontSize: '20px' }}>
+                          {headerEl.headers.map((columnEl) => {
+                            return (
+                              <th key={columnEl.id}>
+                                {columnEl.isPlaceholder
+                                  ? null
+                                  : flexRender(
+                                      columnEl.column.columnDef.header,
+                                      columnEl.getContext(),
+                                    )}
+                                {columnEl.column.getCanFilter() ? (
+                                  <div>
+                                    <Filter
+                                      column={columnEl.column}
+                                      table={tableInstance}
+                                      setFilterIn={setFilterIn}
+                                    />
+                                  </div>
+                                ) : null}
+                              </th>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
+                  </thead>
+                  <tbody>
+                    {tableInstance.getRowModel().rows.map((rowEl) => {
+                      return (
+                        <tr
+                          key={rowEl.id}
+                          className={
+                            isDark === 'dark'
+                              ? style.table_row_dark
+                              : style.table_row_light
+                          }
+                        >
+                          {rowEl.getVisibleCells().map((cellEl) => {
+                            return (
+                              <td
+                                key={cellEl.id}
+                                style={{ width: '50px', fontSize: '17px' }}
+                              >
+                                {flexRender(
+                                  cellEl.column.columnDef.cell,
+                                  cellEl.getContext(),
+                                )}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
               <div style={{ padding: 20 }}>
                 <Pagination
                   prev
@@ -381,25 +388,28 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
                   onChangeLimit={(v) => handleChangeLimit(v)}
                 />
               </div>
-              <div className={style.buttonDiv}>
-                <ButtonToolbar>
-                  <Button appearance="ghost" onClick={handleCancel}>
-                    Cancel
-                  </Button>
-                  <Button
-                    appearance="primary"
-                    size="md"
-                    style={{ width: '65px' }}
-                    onClick={handleSelect}
-                  >
-                    OK
-                  </Button>
-                </ButtonToolbar>
-              </div>
             </div>
           ) : (
             ''
           )}
+        </div>
+      )}
+      {!loading && (
+        <div className={style.buttonDiv}>
+          <ButtonToolbar>
+            <Button appearance="ghost" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button
+              appearance="primary"
+              size="md"
+              disabled={Object.keys(rowSelection).length > 0 ? false : true}
+              style={{ width: '65px' }}
+              onClick={handleSelect}
+            >
+              OK
+            </Button>
+          </ButtonToolbar>
         </div>
       )}
     </div>
