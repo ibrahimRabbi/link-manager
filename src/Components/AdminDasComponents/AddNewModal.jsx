@@ -22,8 +22,10 @@ const AddNewModal = ({ children, handleSubmit, title, handleReset, size = null }
       <Modal.Header>
         <Modal.Title className="adminModalTitle">{title}</Modal.Title>
       </Modal.Header>
-      <Modal.Body style={{ padding: '10px 10px 30px' }}>{children}</Modal.Body>
-      <Modal.Footer>
+      <Modal.Body style={{ padding: '10px 10px 30px', minHeight: '400px' }}>
+        {children}
+      </Modal.Body>
+      <Modal.Footer style={{ marginTop: '20px' }}>
         <Button
           onClick={handleClose}
           appearance="default"

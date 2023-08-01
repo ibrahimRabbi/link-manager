@@ -215,6 +215,7 @@
 .rs-drawer-body {
   padding: 30px 20px !important;
 }
+
 .w3-table td,
 .w3-table th,
 .w3-table-all td,
@@ -234,7 +235,7 @@
 .reactSelectContainer {
   // react select value container style
   .reactSelect__control {
-    background-color: transparent;
+    background-color: #1a1d24;
     border: 0.5px solid #3c3f43;
 
     .reactSelect__value-container {
@@ -268,6 +269,16 @@
         background-color: #006199;
       }
     }
+  }
+}
+
+.react-select-display-icon-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  p {
+    font-size: 17px;
   }
 }
 

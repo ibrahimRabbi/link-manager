@@ -53,12 +53,18 @@
 
 .targetBtnContainer {
   margin-top: 10px;
+  padding-right: 10px;
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 10px;
 
   button {
     border-radius: 5px;
+  }
+
+  button:last-child {
+    padding: 10px 15px;
   }
 }
 

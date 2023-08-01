@@ -12,7 +12,6 @@ import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
 import { useRef } from 'react';
 import SelectField from '../SelectField';
-import CustomSelect from '../CustomSelect';
 import ConversionIcon from '@rsuite/icons/Conversion';
 import UseLoader from '../../Shared/UseLoader';
 import {
@@ -23,6 +22,7 @@ import {
 } from '../../../Redux/slices/useCRUDSlice';
 import Notification from '../../Shared/Notification';
 import PlusRoundIcon from '@rsuite/icons/PlusRound.js';
+import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -171,6 +171,7 @@ const LinkConstraint = () => {
   // reset form
   const handleResetForm = () => {
     setEditData({});
+    setFormElements([1]);
     setFormValue({
       name: '',
       url: '',
@@ -274,13 +275,13 @@ const LinkConstraint = () => {
           >
             {formElements.map((value, index) => (
               <React.Fragment key={index}>
-                <FlexboxGrid justify="space-between">
+                <FlexboxGrid justify="space-between" style={{ marginBottom: '20px' }}>
                   <FlexboxGrid.Item colspan={5}>
                     <SelectField
                       name={`source_resource_type_${value}`}
                       label="Resource Types"
-                      placeholder="Select resource type"
-                      accepter={CustomSelect}
+                      placeholder="Resource type"
+                      accepter={CustomReactSelect}
                       apiURL={`${lmApiUrl}/application`}
                       error={formError.application_id}
                       reqText="Application Id is required"
@@ -290,9 +291,9 @@ const LinkConstraint = () => {
                     <SelectField
                       name={`source_label_${value}`}
                       label="Incoming label"
-                      placeholder="Select link type"
-                      accepter={CustomSelect}
-                      apiURL={`${lmApiUrl}/linkType`}
+                      placeholder="Link type"
+                      accepter={CustomReactSelect}
+                      apiURL={`${lmApiUrl}/link-type`}
                       reqText="Link type is required"
                     />
                   </FlexboxGrid.Item>
@@ -307,9 +308,9 @@ const LinkConstraint = () => {
                     <SelectField
                       name={`target_resource_type_${value}`}
                       label="Outcoming label"
-                      placeholder="Select link type"
-                      accepter={CustomSelect}
-                      apiURL={`${lmApiUrl}/linkType`}
+                      placeholder="Link type"
+                      accepter={CustomReactSelect}
+                      apiURL={`${lmApiUrl}/link-type`}
                       reqText="Link type is required"
                     />
                   </FlexboxGrid.Item>
@@ -317,8 +318,8 @@ const LinkConstraint = () => {
                     <SelectField
                       name={`target_resource_type_${value}`}
                       label="Resource Types"
-                      placeholder="Select resource type"
-                      accepter={CustomSelect}
+                      placeholder="Resource type"
+                      accepter={CustomReactSelect}
                       apiURL={`${lmApiUrl}/application`}
                       error={formError.application_id}
                       reqText="Application Id is required"

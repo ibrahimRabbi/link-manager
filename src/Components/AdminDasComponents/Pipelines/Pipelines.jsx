@@ -27,8 +27,8 @@ import {
 import TextField from '../TextField';
 import { useRef } from 'react';
 import SelectField from '../SelectField.jsx';
-import CustomSelect from '../CustomSelect.jsx';
 import Swal from 'sweetalert2';
+import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -256,7 +256,7 @@ const Pipelines = () => {
                   placeholder="Select Event"
                   name="event_id"
                   label="Event"
-                  accepter={CustomSelect}
+                  accepter={CustomReactSelect}
                   apiURL={`${lmApiUrl}/events`}
                   error={formError.event_id}
                   reqText="Event is required"

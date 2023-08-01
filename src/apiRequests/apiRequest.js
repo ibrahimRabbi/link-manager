@@ -24,7 +24,11 @@ export default function fetchAPIRequest({
     } else if (response.ok) {
       return response.json();
     } else {
-      if (response.status === 401) {
+      if (response.status === 400) {
+        return response.json().then((data) => {
+          showNotification('error', data.message);
+        });
+      } else if (response.status === 401) {
         return response.json().then((data) => {
           showNotification('error', data.message);
           window.location.replace('/login');

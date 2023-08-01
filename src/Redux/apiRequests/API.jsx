@@ -82,8 +82,15 @@ export async function saveResource({ url, token, bodyData, showNotification }) {
         showNotification('success', data.message);
         return data;
       });
+    } else if (res.status === 304) {
+      showNotification('success', 'Resource already linked');
+      return { message: 'Resource already linked' };
     } else {
-      if (res.status === 401) {
+      if (res.status === 400) {
+        return res.json().then((data) => {
+          showNotification('error', data?.message?.message);
+        });
+      } else if (res.status === 401) {
         return res.json().then((data) => {
           showNotification('error', data.message);
           window.location.replace('/login');
@@ -94,10 +101,6 @@ export async function saveResource({ url, token, bodyData, showNotification }) {
         } else {
           window.location.replace('/login');
         }
-      } else if (res.status === 400) {
-        return res.json().then((data) => {
-          showNotification('error', data?.message?.message);
-        });
       } else {
         return res.json().then((data) => {
           showNotification('error', data.message);
