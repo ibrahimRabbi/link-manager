@@ -27,7 +27,6 @@ const CytoscapeGraphView = () => {
   const [expandedNodeData, setExpandedNodeData] = useState(null);
   const [expandNode, setExpandNode] = useState(false);
 
-  const [updatedGraphLayout, setUpdatedGraphLayout] = useState(graphLayout);
   const dispatch = useDispatch();
   const containerRef = useRef(null);
   const graphContainerRef = useRef(null);
@@ -203,6 +202,7 @@ const CytoscapeGraphView = () => {
           },
         };
       });
+      setExpandNode(null);
       setExpandedNodeData(null);
       setGraphData([...graphData, ...updatedNodes, ...updatedEdges]);
     }
@@ -234,15 +234,6 @@ const CytoscapeGraphView = () => {
   useEffect(() => {
     cytoscape.use(cxtmenu);
     dispatch(handleCurrPageTitle('Graph view'));
-
-    const graphContainer = graphContainerRef.current;
-    const graphContainerRect = graphContainer.getBoundingClientRect();
-    setUpdatedGraphLayout({
-      ...graphLayout,
-      width: graphContainerRect.width,
-      height: graphContainerRect.height,
-    });
-    // Add a click event listener to the document
     document.addEventListener('click', handleClickOutside);
 
     return () => {
@@ -262,8 +253,9 @@ const CytoscapeGraphView = () => {
               <>
                 <CytoscapeComponent
                   elements={graphData}
-                  layout={updatedGraphLayout}
+                  layout={graphLayout}
                   stylesheet={graphStyle}
+                  userZoomingEnabled={false}
                   style={{ width: '99%', height: '99vh' }}
                   cy={(cy) => {
                     // Add context menu configuration to the Cytoscape instance
@@ -271,6 +263,7 @@ const CytoscapeGraphView = () => {
                       selector: 'node', // Display context menu only for nodes
                       commands: contextMenuCommands,
                     });
+                    cy.fit(50); // Adjust the padding as needed
                   }}
                 />
               </>
