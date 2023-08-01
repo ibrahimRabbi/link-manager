@@ -2,9 +2,9 @@ export const graphLayout = {
   name: 'random',
   fit: true, // Adjust the viewport to fit the graph
   padding: 30, // Padding around the graph
-  boundingBox: { x1: 0, y1: 0, x2: 750, y2: 1000 }, // Set the bounds of the layout
+  // boundingBox: { x1: 0, y1: 0, x2: 750, y2: 1000 }, // Set the bounds of the layout
   randomize: true, // Randomize node positions on each render
-  seed: 1234, // Use a specific seed for reproducibility
+  // seed: 1234, // Use a specific seed for reproducibility
 };
 
 export const graphStyle = [
