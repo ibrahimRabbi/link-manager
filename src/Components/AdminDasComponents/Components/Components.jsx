@@ -13,7 +13,6 @@ import { FlexboxGrid, Form, Message, Schema, toaster } from 'rsuite';
 import TextField from '../TextField';
 import SelectField from '../SelectField';
 import { useRef } from 'react';
-import CustomSelect from '../CustomSelect';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
 import {
@@ -22,6 +21,7 @@ import {
   fetchGetData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
+import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -228,7 +228,7 @@ const Components = () => {
                   placeholder="Select project"
                   name="project_id"
                   label="Project"
-                  accepter={CustomSelect}
+                  accepter={CustomReactSelect}
                   apiURL={`${lmApiUrl}/project`}
                   error={formError.project_id}
                   reqText="Project ID is required"

@@ -14,9 +14,9 @@ import TextField from '../TextField';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
 import SelectField from '../SelectField.jsx';
-import CustomSelect from '../CustomSelect.jsx';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
+import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -286,7 +286,7 @@ const Projects = () => {
               name="organization_id"
               label="Organization"
               placeholder="Select Organization"
-              accepter={CustomSelect}
+              accepter={CustomReactSelect}
               apiURL={`${lmApiUrl}/organization`}
               error={formError.organization_id}
               reqText="Organization Id is required"
