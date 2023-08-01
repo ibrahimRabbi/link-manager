@@ -36,7 +36,7 @@ const headerData = [
   },
   {
     header: 'Organization',
-    key: 'organization_id',
+    key: 'organization_name',
   },
 ];
 
@@ -79,13 +79,23 @@ const Projects = () => {
     data: allProjects,
     isLoading,
     refetch: refetchProjects,
-  } = useQuery(['project'], () =>
-    fetchAPIRequest({
-      urlPath: `project?page=${currPage}&per_page=${pageSize}`,
-      token: authCtx.token,
-      method: 'GET',
-      showNotification: showNotification,
-    }),
+  } = useQuery(
+    ['project'],
+    () =>
+      fetchAPIRequest({
+        urlPath: `project?page=${currPage}&per_page=${pageSize}`,
+        token: authCtx.token,
+        method: 'GET',
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (allProjects) => {
+        for (let i = 0; i < allProjects.items.length; i++) {
+          allProjects.items[i]['organization_name'] =
+            allProjects.items[i].organization.name;
+        }
+      },
+    },
   );
 
   // create project using react query
