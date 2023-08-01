@@ -21,7 +21,7 @@ const CytoscapeGraphView = () => {
   const { sourceDataList, isWbe } = useSelector((state) => state.links);
   const authCtx = useContext(AuthContext);
   const [selectedNode, setSelectedNode] = React.useState(null);
-  const[graphData, setGraphData] = React.useState([]);
+  const [graphData, setGraphData] = React.useState([]);
 
   const [openedExternalPreview, setOpenedExternalPreview] = useState(false);
   const [expandedNodeData, setExpandedNodeData] = useState(null);
@@ -58,15 +58,16 @@ const CytoscapeGraphView = () => {
 
   const fetchNodeData = async (nodeId) => {
     try {
-      if (nodeId){
+      if (nodeId) {
         // Make an API request to get the data for the node
         const response = await fetchAPIRequest({
-          urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(nodeId)}`,
+          urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
+            nodeId,
+          )}&direction=outgoing`,
           token: authCtx.token,
           showNotification: showNotification,
           method: 'GET',
         });
-        console.log('response', response.data);
         setExpandedNodeData(response.data);
       }
       return null;
@@ -75,15 +76,6 @@ const CytoscapeGraphView = () => {
       return null;
     }
   };
-
-  // const { data: selectedNodeData } = useQuery({
-  //   // queryKey: [expandNode?.data?.nodeData?.id],
-  //   queryFn: () => fetchNodeData(expandNode?.data?.nodeData?.id)
-  //     .then((res) => {
-  //       console.log('res', res);
-  //       setExpandedNodeData(res);
-  //     }),
-  // });
 
   const findSelectedNode = (nodeId) => {
     return graphData?.filter((item) => item?.data?.id === nodeId);
@@ -148,6 +140,8 @@ const CytoscapeGraphView = () => {
           nodeStyle = null;
           item.expanded = true;
         }
+        const randomX = Math.random() * 720;
+        const randomY = Math.random() * 980;
         return {
           data: {
             id: item.id.toString(),
@@ -156,6 +150,7 @@ const CytoscapeGraphView = () => {
             nodeData: item?.properties,
           },
           style: nodeStyle ? nodeStyle : {},
+          position: { x: randomX, y: randomY },
         };
       });
       let edges = data?.data?.edges?.map((item) => {
@@ -175,11 +170,17 @@ const CytoscapeGraphView = () => {
   }, [data]);
 
   useEffect(() => {
-    console.log('expandedNodeData', expandedNodeData);
-    // console.log('selectedNodeData', selectedNodeData);
-    if (expandedNodeData){
+    if (expandedNodeData) {
       let updatedNodes = expandedNodeData?.nodes?.map((item) => {
         let nodeStyle = checkNodeStyle(item?.properties?.resource_type);
+        const randomX = Math.random() * 720;
+        const randomY = Math.random() * 980;
+
+        let position = { x: randomX, y: randomY };
+        if (expandNode?.data?.nodeData.id === item?.properties?.id) {
+          position = {};
+        }
+
         return {
           data: {
             id: item.id.toString(),
@@ -188,6 +189,7 @@ const CytoscapeGraphView = () => {
             nodeData: item?.properties,
           },
           style: nodeStyle ? nodeStyle : {},
+          position: position,
         };
       });
 
@@ -202,11 +204,6 @@ const CytoscapeGraphView = () => {
         };
       });
       setExpandedNodeData(null);
-      console.log('updatedNodes', updatedNodes);
-      console.log('updatedEdges', updatedEdges);
-      console.log('graphData', graphData);
-      const newData = [...graphData, ...updatedNodes, ...updatedEdges];
-      console.log('newData', newData);
       setGraphData([...graphData, ...updatedNodes, ...updatedEdges]);
     }
   }, [expandedNodeData]);
@@ -226,7 +223,6 @@ const CytoscapeGraphView = () => {
       } else {
         fetchNodeData(expandNode?.data?.nodeData?.web_url);
       }
-
     }
   }, [expandNode]);
 
