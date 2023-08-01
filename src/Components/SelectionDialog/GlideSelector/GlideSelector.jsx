@@ -17,8 +17,9 @@ import {
   getFilteredRowModel,
 } from '@tanstack/react-table';
 import { columnDefWithCheckBox } from './Columns';
-import { Button, ButtonToolbar, FlexboxGrid, Pagination } from 'rsuite';
+import { Button, ButtonToolbar, FlexboxGrid, Loader, Pagination } from 'rsuite';
 import { useSelector } from 'react-redux';
+import Filter from './FilterFunction';
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
@@ -36,7 +37,10 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
   const [limit, setLimit] = React.useState(10);
   const [page, setPage] = React.useState(1);
   const [rowSelection, setRowSelection] = React.useState({});
+  const [columnFilters, setColumnFilters] = React.useState([]);
   const [resourceLoading, setResourceLoading] = useState(false);
+  const [filterLoad, setFilterLoad] = useState(false);
+  const [filterIn, setFilterIn] = useState('');
 
   const authCtx = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
@@ -126,10 +130,47 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
   }, [authCtx, projectId]);
 
   useEffect(() => {
-    if (projectId && resourceTypeId && currPage && limit) {
-      setTableLoading(true);
+    if (filterIn === '') {
+      if (projectId && resourceTypeId && currPage && limit) {
+        setTableLoading(true);
+        fetch(
+          `${lmApiUrl}/third_party/${appData?.type}/container/tenant/${resourceTypeId}?page=${currPage}&per_page=${limit}&application_id=${appData?.application_id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${authCtx.token}`,
+            },
+          },
+        )
+          .then((response) => {
+            if (response.status === 200) {
+              return response.json();
+            } else {
+              if (response.status === 401) {
+                setAuthenticatedThirdApp(true);
+                return { items: [] };
+              }
+            }
+          })
+          .then((data) => {
+            setTableLoading(false);
+            setTableShow(true);
+            setTableData(data);
+          });
+      } else {
+        setTableData([]);
+      }
+    }
+    // }
+  }, [projectId, resourceTypeId, authCtx, currPage, limit, filterIn]);
+  useEffect(() => {
+    if (columnFilters[0]?.id && columnFilters[0]?.value) {
+      setFilterLoad(true);
       fetch(
-        `${lmApiUrl}/third_party/${appData?.type}/container/tenant/${resourceTypeId}?page=${currPage}&per_page=${limit}&application_id=${appData?.application_id}`,
+        `${lmApiUrl}/third_party/${
+          appData?.type
+        }/container/tenant/${resourceTypeId}?page=1&per_page=10&application_id=${
+          appData?.application_id
+        }&${columnFilters[0]?.id.toLowerCase()}=${columnFilters[0]?.value}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -147,15 +188,17 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
           }
         })
         .then((data) => {
-          setTableLoading(false);
-          setTableShow(true);
-          setTableData(data);
+          if (data.items.length > 0) {
+            setFilterLoad(false);
+            setTableData(data);
+            setColumnFilters([]);
+          } else {
+            setFilterLoad(false);
+            setFilterIn('');
+          }
         });
-    } else {
-      setTableData([]);
     }
-  }, [projectId, resourceTypeId, authCtx, currPage, limit]);
-
+  }, [columnFilters[0]]);
   const finalData = React.useMemo(() => tableData?.items);
   const finalColumnDef = React.useMemo(() => columnDefWithCheckBox);
   const tableInstance = useReactTable({
@@ -167,6 +210,7 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
       rowSelection: rowSelection,
     },
     onRowSelectionChange: setRowSelection,
+    onColumnFiltersChange: setColumnFilters,
     enableRowSelection: true,
   });
   useEffect(() => {
@@ -189,7 +233,7 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
     console.log(response);
   };
   const handleCancel = () => {
-    cancelLinkHandler('cancel');
+    cancelLinkHandler();
   };
   return (
     <div>
@@ -213,7 +257,7 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
           integrated={false}
         />
       ) : (
-        <div>
+        <div className={style.mainContainer}>
           <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
             <FlexboxGrid.Item colspan={3}>
               <h3>Projects: </h3>
@@ -248,64 +292,83 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
               </FlexboxGrid.Item>
             </FlexboxGrid>
           )}
-
+          {filterLoad && (
+            <Loader backdrop center size="md" vertical style={{ zIndex: '10' }} />
+          )}
           {tableLoading ? (
             <div style={{ marginTop: '50px' }}>
               <UseLoader />
             </div>
           ) : tableshow && projectId && resourceTypeId && finalData?.length > 0 ? (
-            <div className="w3-container" style={{ marginTop: '20px', padding: '0' }}>
-              <table
-                className="w3-table w3-bordered w3-border w3-centered"
-                style={{ height: '20px' }}
+            <div>
+              <div
+                style={{
+                  marginTop: '20px',
+                  padding: '0',
+                  overflowY: 'auto',
+                  height: '70vh',
+                }}
               >
-                <thead>
-                  {tableInstance.getHeaderGroups().map((headerEl) => {
-                    return (
-                      <tr key={headerEl.id} style={{ fontSize: '20px' }}>
-                        {headerEl.headers.map((columnEl) => {
-                          return (
-                            <th key={columnEl.id}>
-                              {columnEl.isPlaceholder
-                                ? null
-                                : flexRender(
-                                    columnEl.column.columnDef.header,
-                                    columnEl.getContext(),
-                                  )}
-                            </th>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })}
-                </thead>
-                <tbody>
-                  {tableInstance.getRowModel().rows.map((rowEl) => {
-                    return (
-                      <tr
-                        key={rowEl.id}
-                        className={
-                          isDark === 'dark' ? style.table_row_dark : style.table_row_light
-                        }
-                      >
-                        {rowEl.getVisibleCells().map((cellEl) => {
-                          return (
-                            <td
-                              key={cellEl.id}
-                              style={{ width: '50px', fontSize: '17px' }}
-                            >
-                              {flexRender(
-                                cellEl.column.columnDef.cell,
-                                cellEl.getContext(),
-                              )}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                <table className={`${style.styled_table} w3-center`}>
+                  <thead>
+                    {tableInstance.getHeaderGroups().map((headerEl) => {
+                      return (
+                        <tr key={headerEl.id} style={{ fontSize: '20px' }}>
+                          {headerEl.headers.map((columnEl) => {
+                            return (
+                              <th key={columnEl.id}>
+                                {columnEl.isPlaceholder
+                                  ? null
+                                  : flexRender(
+                                      columnEl.column.columnDef.header,
+                                      columnEl.getContext(),
+                                    )}
+                                {columnEl.column.getCanFilter() ? (
+                                  <div>
+                                    <Filter
+                                      column={columnEl.column}
+                                      table={tableInstance}
+                                      setFilterIn={setFilterIn}
+                                    />
+                                  </div>
+                                ) : null}
+                              </th>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
+                  </thead>
+                  <tbody>
+                    {tableInstance.getRowModel().rows.map((rowEl) => {
+                      return (
+                        <tr
+                          key={rowEl.id}
+                          className={
+                            isDark === 'dark'
+                              ? style.table_row_dark
+                              : style.table_row_light
+                          }
+                        >
+                          {rowEl.getVisibleCells().map((cellEl) => {
+                            return (
+                              <td
+                                key={cellEl.id}
+                                style={{ width: '50px', fontSize: '17px' }}
+                              >
+                                {flexRender(
+                                  cellEl.column.columnDef.cell,
+                                  cellEl.getContext(),
+                                )}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
               <div style={{ padding: 20 }}>
                 <Pagination
                   prev
@@ -325,25 +388,28 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
                   onChangeLimit={(v) => handleChangeLimit(v)}
                 />
               </div>
-              <div className={style.buttonDiv}>
-                <ButtonToolbar>
-                  <Button appearance="ghost" onClick={handleCancel}>
-                    Cancel
-                  </Button>
-                  <Button
-                    appearance="primary"
-                    size="md"
-                    style={{ width: '65px' }}
-                    onClick={handleSelect}
-                  >
-                    OK
-                  </Button>
-                </ButtonToolbar>
-              </div>
             </div>
           ) : (
             ''
           )}
+        </div>
+      )}
+      {!loading && (
+        <div className={style.buttonDiv}>
+          <ButtonToolbar>
+            <Button appearance="ghost" onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button
+              appearance="primary"
+              size="md"
+              disabled={Object.keys(rowSelection).length > 0 ? false : true}
+              style={{ width: '65px' }}
+              onClick={handleSelect}
+            >
+              OK
+            </Button>
+          </ButtonToolbar>
         </div>
       )}
     </div>
