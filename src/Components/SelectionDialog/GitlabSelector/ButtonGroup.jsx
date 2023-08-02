@@ -9,6 +9,7 @@ const ButtonGroup = ({
   handleSaveLink,
   branchName,
   cancelLinkHandler,
+  checkedValues,
 }) => {
   const [loading, setLoading] = useState(false);
   const handleSelect = () => {
@@ -135,6 +136,7 @@ const ButtonGroup = ({
           appearance="primary"
           size="md"
           style={{ width: '65px' }}
+          disabled={checkedValues?.length > 0 ? false : true}
           onClick={handleSelect}
         >
           OK

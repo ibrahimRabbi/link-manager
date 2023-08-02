@@ -58,7 +58,7 @@ const ExternalLogin = (props) => {
   if (selectedExtLoginApplication) {
     if (appData?.type === 'glideyoke') {
       // eslint-disable-next-line max-len
-      loginUrl = `${lmApiUrl}/third_party/glideyoke/auth/login?application_id=${selectedExtLoginApplication?.items[0]?.id}`;
+      loginUrl = `${lmApiUrl}/third_party/glideyoke/auth/login?application_id=${appData?.application_id}`;
     }
   }
 
