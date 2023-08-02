@@ -17,6 +17,8 @@ import { useSelector } from 'react-redux';
 import CustomFilterSelect from './CustomFilterSelect';
 // eslint-disable-next-line max-len
 import ExternalPreview from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreview.jsx';
+// eslint-disable-next-line max-len
+import { showOslcData } from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreviewConfig.jsx';
 const {
   table_row_dark,
   table_row_light,
@@ -92,7 +94,6 @@ const LinkManagerTable = ({ props }) => {
     }
 
     const speaker = (rowData, native = false) => {
-      console.log('rowData', rowData);
       if (rowData && native) {
         return (
           <Popover>
@@ -100,36 +101,7 @@ const LinkManagerTable = ({ props }) => {
           </Popover>
         );
       } else {
-        /* prettier-ignore */
-        const updatedRowData = {
-          api: rowData?.koatl_uri?.includes('gitlab-oslc-api-dev')
-            ? 'gitlab'
-            : rowData?.koatl_uri?.includes('jira-oslc-api-dev')
-              ? 'jira'
-              : rowData?.koatl_uri?.includes('glide-oslc-api-dev')
-                ? 'glide'
-                : rowData?.koatl_uri?.includes('valispace-oslc-api-dev')
-                  ? 'valispace'
-                  : // eslint-disable-next-line max-len
-                  rowData?.koatl_uri?.includes('codebeamer-oslc-api-dev')
-                    ? 'codebeamer'
-                    : 'unknown',
-          /* prettier-ignore */
-          branch_name: rowData?.branch_name ? rowData?.branch_name : '',
-          commit_id: '',
-          content_hash: rowData?.content ? rowData?.content : '',
-          description: rowData?.content_path ? rowData?.content_path : '',
-          id: rowData?.id,
-          link_type: rowData?.link_type,
-          name: rowData?.name ? rowData?.name : '',
-          path: rowData?.koatl_path ? rowData?.koatl_path : '',
-          provider_id: rowData?.provider_id,
-          provider_name: rowData?.project,
-          selected_lines: rowData?.content_lines ? rowData?.content_lines : '',
-          status: rowData?.status,
-          unique_node_id: rowData?.unique_node_id,
-          web_url: rowData?.id,
-        };
+        const updatedRowData = showOslcData(rowData);
         return (
           <Popover>
             <ExternalPreview nodeData={updatedRowData} />
