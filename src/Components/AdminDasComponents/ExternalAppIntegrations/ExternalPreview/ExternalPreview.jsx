@@ -27,7 +27,14 @@ import styles from './ExternalPreview.module.scss';
 import PreviewRow from './PreviewRow/PreviewRow.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
-const { title, iconStatus, applicationIcon, buttonTitle } = styles;
+const {
+  title,
+  iconStatus,
+  applicationIcon,
+  buttonTitle,
+  tablePreviewContainer,
+  graphPreviewContainer,
+} = styles;
 
 const ExternalPreview = (props) => {
   const authCtx = useContext(AuthContext);
@@ -50,6 +57,9 @@ const ExternalPreview = (props) => {
     break;
   case 'glide':
     iconUrl = '/glide_logo.png';
+    break;
+  default:
+    iconUrl = '/default_preview_logo.svg';
     break;
   }
 
@@ -147,9 +157,8 @@ const ExternalPreview = (props) => {
         });
     }
   }, []);
-
   return (
-    <div style={!fromGraphView ? { width: '350px' } : {}}>
+    <div className={fromGraphView ? graphPreviewContainer : tablePreviewContainer}>
       <FlexboxGrid>
         <FlexboxGrid.Item as={Col} colspan={2}>
           <img src={iconUrl} alt="icon" className={applicationIcon} />

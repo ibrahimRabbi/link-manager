@@ -91,12 +91,8 @@ const LinkManagerTable = ({ props }) => {
       oslcObj['URL'] = codebeamerURL;
     }
 
-    const branch = rowData?.branch_name ? rowData?.branch_name : '';
-    const content = rowData?.content ? rowData?.content : '';
-    const selectedLine = rowData?.selected_lines ? rowData?.selected_lines : '';
-    const koatlPath = rowData?.koatl_path ? rowData?.koatl_path : '';
-
     const speaker = (rowData, native = false) => {
+      console.log('rowData', rowData);
       if (rowData && native) {
         return (
           <Popover>
@@ -104,11 +100,39 @@ const LinkManagerTable = ({ props }) => {
           </Popover>
         );
       } else {
-        // eslint-disable-next-line max-len
-        const oslcUri = `${rowData?.koatl_uri}/smallPreview?branch_name=${branch}&file_content=${content}&file_lines=${selectedLine}&file_path=${koatlPath}`;
+        /* prettier-ignore */
+        const updatedRowData = {
+          api: rowData?.koatl_uri?.includes('gitlab-oslc-api-dev')
+            ? 'gitlab'
+            : rowData?.koatl_uri?.includes('jira-oslc-api-dev')
+              ? 'jira'
+              : rowData?.koatl_uri?.includes('glide-oslc-api-dev')
+                ? 'glide'
+                : rowData?.koatl_uri?.includes('valispace-oslc-api-dev')
+                  ? 'valispace'
+                  : // eslint-disable-next-line max-len
+                  rowData?.koatl_uri?.includes('codebeamer-oslc-api-dev')
+                    ? 'codebeamer'
+                    : 'unknown',
+          /* prettier-ignore */
+          branch_name: rowData?.branch_name ? rowData?.branch_name : '',
+          commit_id: '',
+          content_hash: rowData?.content ? rowData?.content : '',
+          description: rowData?.content_path ? rowData?.content_path : '',
+          id: rowData?.id,
+          link_type: rowData?.link_type,
+          name: rowData?.name ? rowData?.name : '',
+          path: rowData?.koatl_path ? rowData?.koatl_path : '',
+          provider_id: rowData?.provider_id,
+          provider_name: rowData?.project,
+          selected_lines: rowData?.content_lines ? rowData?.content_lines : '',
+          status: rowData?.status,
+          unique_node_id: rowData?.unique_node_id,
+          web_url: rowData?.id,
+        };
         return (
-          <Popover title="Preview">
-            <iframe src={oslcUri} width="450" height="300" />
+          <Popover>
+            <ExternalPreview nodeData={updatedRowData} />
           </Popover>
         );
       }
@@ -120,8 +144,8 @@ const LinkManagerTable = ({ props }) => {
           enterable
           placement="auto"
           speaker={rowData?.api ? speaker(rowData, true) : speaker(rowData)}
-          delayOpen={800}
-          delayClose={800}
+          delayOpen={550}
+          delayClose={550}
         >
           <a
             href={rowData?.api ? rowData?.web_url : rowData?.id}
