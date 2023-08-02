@@ -1,7 +1,6 @@
 /* eslint-disable max-len */
 import React, { useState } from 'react';
-import { Button, ButtonToolbar } from 'rsuite';
-import UseLoader from '../../Shared/UseLoader';
+import { Button, ButtonToolbar, Loader } from 'rsuite';
 
 const ButtonGroup = ({
   selectedCodes,
@@ -14,10 +13,17 @@ const ButtonGroup = ({
   const [loading, setLoading] = useState(false);
   const handleSelect = () => {
     setLoading(true);
-    const propsToRemove = ['children', 'is_folder', 'visible', 'id'];
+    const propsToRemove = ['children', 'is_folder', 'visible', 'id', 'value', 'refKey'];
     let value;
+    let parent;
     if (singleSelected !== '') {
       value = JSON.parse(JSON.stringify(singleSelected));
+      parent = { ...singleSelected };
+      for (const prop of propsToRemove) {
+        delete parent[prop];
+        delete parent?.extended_properties?.content_hash;
+        delete parent?.extended_properties?.selected_lines;
+      }
     } else {
       value = JSON.parse(JSON.stringify(multipleSelected));
     }
@@ -55,6 +61,7 @@ const ButtonGroup = ({
       resultsPart.extended_properties.content_hash = hexString;
       resultsPart.extended_properties.selected_lines = `${selectedCodes.startLineNumber}-${selectedCodes.endLineNumber}`;
       resultsPart.type = 'RepositoryFileBlockOfCodeSelection';
+      resultsPart.parent_properties = parent;
       resultsPart = JSON.stringify(resultsPart);
       Response += `${resultsPart}`;
 
@@ -117,7 +124,7 @@ const ButtonGroup = ({
     <div>
       {loading && (
         <div style={{ marginTop: '50px' }}>
-          <UseLoader />
+          <Loader backdrop center size="md" vertical style={{ zIndex: '10' }} />
         </div>
       )}
       <ButtonToolbar>
