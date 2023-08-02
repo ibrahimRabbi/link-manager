@@ -90,28 +90,25 @@ const LinkManagerTable = ({ props }) => {
     } else if (rowData?.provider?.toLowerCase() === 'codebeamer') {
       oslcObj['URL'] = codebeamerURL;
     }
-    const providerId = rowData?.provider_id ? rowData?.provider_id : '';
-    const type = rowData?.Type ? rowData?.Type : '';
-    const resourceId = rowData?.resource_id ? rowData?.resource_id : '';
+
     const branch = rowData?.branch_name ? rowData?.branch_name : '';
     const content = rowData?.content ? rowData?.content : '';
     const selectedLine = rowData?.selected_lines ? rowData?.selected_lines : '';
     const koatlPath = rowData?.koatl_path ? rowData?.koatl_path : '';
 
-    // eslint-disable-next-line max-len
-    const uiPreviewURL = `${oslcObj?.URL}/oslc/provider/${providerId}/resources/${type}/${resourceId}/smallPreview?branch_name=${branch}&file_content=${content}&file_lines=${selectedLine}&file_path=${koatlPath}`;
-
-    const speaker = (rowData) => {
-      if (rowData) {
+    const speaker = (rowData, native = false) => {
+      if (rowData && native) {
         return (
           <Popover>
             <ExternalPreview nodeData={rowData} />
           </Popover>
         );
       } else {
+        // eslint-disable-next-line max-len
+        const oslcUri = `${rowData?.koatl_uri}/smallPreview?branch_name=${branch}&file_content=${content}&file_lines=${selectedLine}&file_path=${koatlPath}`;
         return (
           <Popover title="Preview">
-            <iframe src={uiPreviewURL} width="450" height="300" />
+            <iframe src={oslcUri} width="450" height="300" />
           </Popover>
         );
       }
@@ -122,7 +119,7 @@ const LinkManagerTable = ({ props }) => {
           trigger="hover"
           enterable
           placement="auto"
-          speaker={rowData?.api ? speaker(rowData) : speaker(null)}
+          speaker={rowData?.api ? speaker(rowData, true) : speaker(rowData)}
           delayOpen={800}
           delayClose={800}
         >
