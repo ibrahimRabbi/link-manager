@@ -64,7 +64,7 @@ const CytoscapeGraphView = () => {
         const response = await fetchAPIRequest({
           urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
             nodeId,
-          )}&direction=outgoing`,
+          )}&direction=outgoing&max_depth_outgoing=1`,
           token: authCtx.token,
           showNotification: showNotification,
           method: 'GET',
