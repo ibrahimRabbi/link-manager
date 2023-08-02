@@ -398,6 +398,7 @@ const GitlabSelector = ({ id, handleSaveLink, appData, cancelLinkHandler }) => {
                   singleSelected={singleSelected}
                   branchName={branchId}
                   cancelLinkHandler={cancelLinkHandler}
+                  checkedValues={checkedValues}
                 ></ButtonGroup>
               </div>
             </div>

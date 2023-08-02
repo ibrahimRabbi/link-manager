@@ -17,7 +17,15 @@ import {
   getFilteredRowModel,
 } from '@tanstack/react-table';
 import { columnDefWithCheckBox } from './Columns';
-import { Button, ButtonToolbar, FlexboxGrid, Loader, Pagination } from 'rsuite';
+import {
+  Button,
+  ButtonToolbar,
+  FlexboxGrid,
+  Loader,
+  Message,
+  Pagination,
+  toaster,
+} from 'rsuite';
 import { useSelector } from 'react-redux';
 import Filter from './FilterFunction';
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
@@ -49,6 +57,16 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
   const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
 
+  const showNotification = (type, message) => {
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
+  };
   const getExtLoginData = (data) => {
     if (data?.status) {
       setAuthenticatedThirdApp(false);
@@ -90,9 +108,29 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
         if (response.status === 200) {
           return response.json();
         } else {
-          if (response.status === 401) {
+          if (response.status === 400) {
             setAuthenticatedThirdApp(true);
-            return { items: [] };
+            return response.json().then((data) => {
+              showNotification('error', data?.message?.message);
+              return { items: [] };
+            });
+          } else if (response.status === 401) {
+            setAuthenticatedThirdApp(true);
+            return response.json().then((data) => {
+              showNotification('error', data?.message);
+              return { items: [] };
+            });
+          } else if (response.status === 403) {
+            if (authCtx.token) {
+              showNotification('error', 'You do not have permission to access');
+            } else {
+              setAuthenticatedThirdApp(true);
+              return { items: [] };
+            }
+          } else {
+            return response.json().then((data) => {
+              showNotification('error', data.message);
+            });
           }
         }
       })
@@ -116,6 +154,10 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
         .then((response) => {
           if (response.status === 200) {
             return response.json();
+          } else {
+            return response.json().then((data) => {
+              showNotification('error', data.message);
+            });
           }
         })
         .then((data) => {
@@ -145,9 +187,29 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
             if (response.status === 200) {
               return response.json();
             } else {
-              if (response.status === 401) {
+              if (response.status === 400) {
                 setAuthenticatedThirdApp(true);
-                return { items: [] };
+                return response.json().then((data) => {
+                  showNotification('error', data?.message?.message);
+                  return { items: [] };
+                });
+              } else if (response.status === 401) {
+                setAuthenticatedThirdApp(true);
+                return response.json().then((data) => {
+                  showNotification('error', data?.message);
+                  return { items: [] };
+                });
+              } else if (response.status === 403) {
+                if (authCtx.token) {
+                  showNotification('error', 'You do not have permission to access');
+                } else {
+                  setAuthenticatedThirdApp(true);
+                  return { items: [] };
+                }
+              } else {
+                return response.json().then((data) => {
+                  showNotification('error', data.message);
+                });
               }
             }
           })
@@ -181,9 +243,29 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
           if (response.status === 200) {
             return response.json();
           } else {
-            if (response.status === 401) {
+            if (response.status === 400) {
               setAuthenticatedThirdApp(true);
-              return { items: [] };
+              return response.json().then((data) => {
+                showNotification('error', data?.message?.message);
+                return { items: [] };
+              });
+            } else if (response.status === 401) {
+              setAuthenticatedThirdApp(true);
+              return response.json().then((data) => {
+                showNotification('error', data?.message);
+                return { items: [] };
+              });
+            } else if (response.status === 403) {
+              if (authCtx.token) {
+                showNotification('error', 'You do not have permission to access');
+              } else {
+                setAuthenticatedThirdApp(true);
+                return { items: [] };
+              }
+            } else {
+              return response.json().then((data) => {
+                showNotification('error', data.message);
+              });
             }
           }
         })
