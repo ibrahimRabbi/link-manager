@@ -128,11 +128,7 @@ const ExternalPreview = (props) => {
     window.open(nodeData?.web_url, '_blank');
   };
 
-  useEffect(() => {
-    if (nodeData.api === 'gitlab') {
-      const extension = nodeData?.name.split('.')[1];
-      setExtension(getLanguageFromExtension(extension).toLowerCase());
-    }
+  const decodeContent = (nodeData) => {
     if (nodeData?.content_hash) {
       fetch(`${lmApiUrl}/third_party/${nodeData.api}/decode_selected_content`, {
         headers: {
@@ -155,8 +151,23 @@ const ExternalPreview = (props) => {
             setDecodedCodeLines(data.selected_content);
           }
         });
+    } else {
+      setDecodedCodeLines('');
     }
-  }, []);
+  };
+
+  const getLanguageExtension = (nodeData) => {
+    if (nodeData.api === 'gitlab') {
+      const extension = nodeData?.name.split('.')[1];
+      setExtension(getLanguageFromExtension(extension).toLowerCase());
+    }
+  };
+
+  useEffect(() => {
+    getLanguageExtension(nodeData);
+    decodeContent(nodeData);
+  }, [nodeData]);
+
   return (
     <div className={fromGraphView ? graphPreviewContainer : tablePreviewContainer}>
       <FlexboxGrid>
@@ -178,34 +189,41 @@ const ExternalPreview = (props) => {
           </Whisper>
         </FlexboxGrid.Item>
       </FlexboxGrid>
-      <Divider style={{ marginTop: '-2px' }}>
-        <h5>Overview</h5>
-      </Divider>
-      {nodeData?.description && (
-        <PreviewRow name="Description" value={nodeData?.description} />
-      )}
-      {nodeData?.status && (
-        <PreviewRow
-          name="Status"
-          value={nodeData?.status}
-          functionForIcon={getIconStatus}
-          firstLetter={true}
-        />
-      )}
-      {nodeData?.project_id && (
-        <PreviewRow name="Project" value={nodeData?.project?.name} />
-      )}
-      {nodeData?.resource_type && (
-        <PreviewRow
-          name="Type"
-          functionForIcon={getIconResourceType}
-          firstLetter={true}
-          value={getResourceType(nodeData?.resource_type)}
-        />
+      {!fromGraphView && (
+        <>
+          <Divider style={{ marginTop: '-2px' }}>
+            <h5>Overview</h5>
+          </Divider>
+          {nodeData?.description && (
+            <PreviewRow name="Description" value={nodeData?.description} />
+          )}
+          {nodeData?.status && (
+            <PreviewRow
+              name="Status"
+              value={nodeData?.status}
+              functionForIcon={getIconStatus}
+              firstLetter={true}
+            />
+          )}
+          {nodeData?.project_id && (
+            <PreviewRow name="Project" value={nodeData?.project?.name} />
+          )}
+          {nodeData?.resource_type && (
+            <PreviewRow
+              name="Type"
+              functionForIcon={getIconResourceType}
+              firstLetter={true}
+              value={getResourceType(nodeData?.resource_type)}
+            />
+          )}
+        </>
       )}
       <Divider style={{ marginTop: '18px' }}>
         <h5>Details</h5>
       </Divider>
+      {nodeData?.description && fromGraphView && (
+        <PreviewRow name="Description" value={nodeData?.description} />
+      )}
       {nodeData?.api === 'gitlab' ? (
         <PreviewRow
           name="Repository"
