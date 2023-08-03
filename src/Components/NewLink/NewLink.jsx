@@ -337,6 +337,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             api: item?.api ? item?.api : '',
             description: item?.description ? item?.description : '',
             extra_properties: {
+              parent_properties: item?.parent_properties ? item?.parent_properties : '',
               branch_name: properties?.branch_name ? properties?.branch_name : '',
               commit_id: properties?.commit_id ? properties?.commit_id : '',
               content_hash: properties?.content_hash ? properties?.content_hash : '',
