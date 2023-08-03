@@ -49,15 +49,15 @@ const queryClient = new QueryClient({
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <MixpanelProvider>
-      <AuthContextProvider>
-        <Provider store={store}>
-          <QueryClientProvider client={queryClient}>
-            <BrowserRouter>
+      <BrowserRouter>
+        <AuthContextProvider>
+          <Provider store={store}>
+            <QueryClientProvider client={queryClient}>
               <App />
-            </BrowserRouter>
-          </QueryClientProvider>
-        </Provider>
-      </AuthContextProvider>
+            </QueryClientProvider>
+          </Provider>
+        </AuthContextProvider>
+      </BrowserRouter>
     </MixpanelProvider>
   </React.StrictMode>,
 );

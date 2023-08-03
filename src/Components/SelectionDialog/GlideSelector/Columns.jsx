@@ -11,7 +11,12 @@ function IndeterminateCheckbox({ indeterminate, ...rest }) {
   }, [ref, indeterminate]);
 
   return (
-    <input type="checkbox" style={{ transform: 'scale(1.2)' }} ref={ref} {...rest} />
+    <input
+      type="checkbox"
+      style={{ transform: 'scale(1.4)', cursor: 'pointer' }}
+      ref={ref}
+      {...rest}
+    />
   );
 }
 const columnHelper = createColumnHelper();

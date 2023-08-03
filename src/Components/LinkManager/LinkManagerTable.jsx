@@ -17,6 +17,8 @@ import { useSelector } from 'react-redux';
 import CustomFilterSelect from './CustomFilterSelect';
 // eslint-disable-next-line max-len
 import ExternalPreview from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreview.jsx';
+// eslint-disable-next-line max-len
+import { showOslcData } from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreviewConfig.jsx';
 const {
   table_row_dark,
   table_row_light,
@@ -91,11 +93,6 @@ const LinkManagerTable = ({ props }) => {
       oslcObj['URL'] = codebeamerURL;
     }
 
-    const branch = rowData?.branch_name ? rowData?.branch_name : '';
-    const content = rowData?.content ? rowData?.content : '';
-    const selectedLine = rowData?.selected_lines ? rowData?.selected_lines : '';
-    const koatlPath = rowData?.koatl_path ? rowData?.koatl_path : '';
-
     const speaker = (rowData, native = false) => {
       if (rowData && native) {
         return (
@@ -104,11 +101,10 @@ const LinkManagerTable = ({ props }) => {
           </Popover>
         );
       } else {
-        // eslint-disable-next-line max-len
-        const oslcUri = `${rowData?.koatl_uri}/smallPreview?branch_name=${branch}&file_content=${content}&file_lines=${selectedLine}&file_path=${koatlPath}`;
+        const updatedRowData = showOslcData(rowData);
         return (
-          <Popover title="Preview">
-            <iframe src={oslcUri} width="450" height="300" />
+          <Popover>
+            <ExternalPreview nodeData={updatedRowData} />
           </Popover>
         );
       }
@@ -120,8 +116,8 @@ const LinkManagerTable = ({ props }) => {
           enterable
           placement="auto"
           speaker={rowData?.api ? speaker(rowData, true) : speaker(rowData)}
-          delayOpen={800}
-          delayClose={800}
+          delayOpen={550}
+          delayClose={550}
         >
           <a
             href={rowData?.api ? rowData?.web_url : rowData?.id}

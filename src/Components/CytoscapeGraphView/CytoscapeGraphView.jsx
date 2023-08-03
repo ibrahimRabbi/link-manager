@@ -15,6 +15,8 @@ import { handleCurrPageTitle } from '../../Redux/slices/navSlice.jsx';
 import { graphLayout, graphStyle } from './CytoscapeGraphConfig.jsx';
 import UseLoader from '../Shared/UseLoader.jsx';
 import { nodeColorStyles } from './NodeStyles.jsx';
+// eslint-disable-next-line max-len
+import { showOslcData } from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreviewConfig.jsx';
 
 const { nodeInfoContainer, noDataTitle } = styles;
 const CytoscapeGraphView = () => {
@@ -48,7 +50,7 @@ const CytoscapeGraphView = () => {
       fetchAPIRequest({
         urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
           sourceDataList?.uri,
-        )}&direction=outgoing&max_depth_outgoing=2`,
+        )}&direction=outgoing&max_depth_outgoing=1`,
         token: authCtx.token,
         showNotification: showNotification,
         method: 'GET',
@@ -62,7 +64,7 @@ const CytoscapeGraphView = () => {
         const response = await fetchAPIRequest({
           urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
             nodeId,
-          )}&direction=outgoing`,
+          )}&direction=outgoing&max_depth_outgoing=1`,
           token: authCtx.token,
           showNotification: showNotification,
           method: 'GET',
@@ -93,7 +95,11 @@ const CytoscapeGraphView = () => {
       content: 'Show data',
       select: function (ele) {
         const foundGraph = findSelectedNode(ele.id());
-        setSelectedNode(foundGraph[0]?.data?.nodeData);
+        let nodeData = foundGraph[0]?.data?.nodeData;
+        if (foundGraph[0]?.data?.nodeData?.koatl_uri) {
+          nodeData = showOslcData(nodeData);
+        }
+        setSelectedNode(nodeData);
         setOpenedExternalPreview(true);
       },
     },
