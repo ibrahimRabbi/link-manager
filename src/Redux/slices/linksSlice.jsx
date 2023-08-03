@@ -101,29 +101,6 @@ export const linksSlice = createSlice({
       state.editLinkData = payload;
     },
 
-    // edit link
-    handleUpdateCreatedLink: (state) => {
-      const index = state.allLinks.findIndex(
-        (item) => item?.id === state.editLinkData?.id,
-      );
-      state.allLinks[index] = {
-        ...state.allLinks[index],
-        ...{
-          targetData: state.editTargetData,
-          linkType: state.linkType ? state?.linkType : state.editLinkData?.linkType,
-          project: state.projectType ? state.projectType : state.editLinkData?.project,
-          resource: state.resourceType
-            ? state.resourceType
-            : state.editLinkData?.resource,
-        },
-      };
-      state.linkType = null;
-      state.projectType = null;
-      state.resourceType = null;
-      state.editTargetData = {};
-      state.targetDataArr = [];
-    },
-
     // edit target data
     handleEditTargetData: (state, { payload }) => {
       state.editTargetData = payload;
@@ -135,22 +112,14 @@ export const linksSlice = createSlice({
     },
 
     handleLinkType: (state, { payload }) => {
-      if (payload) {
-        state.linkType = payload;
-      } else {
-        state.linkType = null;
-        state.applicationType = null;
-        state.projectType = null;
-      }
+      state.applicationType = null;
+      state.projectType = null;
+      state.linkType = payload;
     },
 
     handleApplicationType: (state, { payload }) => {
-      if (payload) {
-        state.applicationType = payload;
-      } else {
-        state.applicationType = null;
-        state.projectType = null;
-      }
+      state.projectType = null;
+      state.applicationType = payload;
     },
 
     handleStreamType: (state, { payload }) => {
@@ -158,11 +127,7 @@ export const linksSlice = createSlice({
     },
 
     handleProjectType: (state, { payload }) => {
-      if (payload) {
-        state.projectType = payload;
-      } else {
-        state.projectType = null;
-      }
+      state.projectType = payload;
     },
 
     handleResourceType: (state, { payload }) => {
