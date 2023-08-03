@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 let logoutTimer;
 
@@ -39,6 +40,7 @@ export const AuthContextProvider = (props) => {
   }
 
   const [token, setToken] = useState(initialToken);
+  const navigate = useNavigate();
 
   const userIsLoggedIn = !!token;
 
@@ -46,7 +48,7 @@ export const AuthContextProvider = (props) => {
     setToken(null);
     localStorage.removeItem('token');
     localStorage.removeItem('expirationTime');
-    window.location.replace('/login'); // Redirect to the login page
+    navigate('/login', { replace: true });
     if (logoutTimer) {
       clearTimeout(logoutTimer);
     }

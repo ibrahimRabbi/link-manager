@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
 import { handleIsDarkMode, handleIsProfileOpen } from '../../../Redux/slices/navSlice';
 import AuthContext from '../../../Store/Auth-Context.jsx';
 
@@ -14,38 +13,33 @@ const { userContainer, content, popButton } = styles;
 
 import { ImBrightnessContrast } from 'react-icons/im';
 import { darkColor, lightBgColor } from '../../../App';
+import AlertModal from '../AlertModal';
+import { useState } from 'react';
+import { useEffect } from 'react';
 const NavigationBar = () => {
   const authCtx = useContext(AuthContext);
   const { currPageTitle, isDark, isProfileOpen } = useSelector((state) => state.nav);
+  const [open, setOpen] = React.useState(false);
+  const [confirm, setConfirm] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const toaster = useToaster();
 
   const handleLogout = () => {
     dispatch(handleIsProfileOpen(!isProfileOpen));
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'You want to logout!',
-      icon: 'warning',
-      cancelButtonColor: '#d33',
-      confirmButtonColor: '#3085d6',
-      showCancelButton: true,
-      confirmButtonText: 'Yes',
-      reverseButtons: true,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        authCtx.logout();
-        // toast.success('Logut successfull');
-        const message = (
-          <Message closable showIcon type="success">
-            Logut successfull
-          </Message>
-        );
-        toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
-        navigate('/login', { replace: true });
-      }
-    });
+    setOpen(true);
   };
+  useEffect(() => {
+    if (confirm) {
+      authCtx.logout();
+      const message = (
+        <Message closable showIcon type="success">
+          Logut successfull
+        </Message>
+      );
+      toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
+    }
+  }, [confirm]);
 
   const darkModeText =
     isDark === 'dark' ? 'Light Mode' : isDark === 'light' ? 'Dark Mode' : 'Dark Mode';
@@ -96,6 +90,7 @@ const NavigationBar = () => {
           boxShadow: `2px 2px 5px ${isDark === 'light' ? 'lightgray' : '#292D33'}`,
         }}
       >
+        <AlertModal open={open} setOpen={setOpen} setConfirm={setConfirm} />
         <Navbar.Brand
           onClick={() => navigate('/')}
           style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}
