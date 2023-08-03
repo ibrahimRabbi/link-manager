@@ -546,7 +546,6 @@ const LinkTypes = () => {
                         colspan={2}
                       >
                         <Button size={'sm'} onClick={() => removeFormElement(index)}>
-                          {/* eslint-disable-next-line max-len */}
                           <WarningRoundIcon fontSize={'2em'} color={'red'} />
                         </Button>
                       </FlexboxGrid.Item>
@@ -573,6 +572,7 @@ const LinkTypes = () => {
                       accepter={CustomReactSelect}
                       apiURL={`${lmApiUrl}/application`}
                       onChange={handleApplication}
+                      isApplication={true}
                     />
                   </FlexboxGrid.Item>
 

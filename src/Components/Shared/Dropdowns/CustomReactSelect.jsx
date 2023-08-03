@@ -5,17 +5,31 @@ import { useDispatch, useSelector } from 'react-redux';
 import Select, { components } from 'react-select';
 import AuthContext from '../../../Store/Auth-Context';
 import { handleStoreDropdownItems } from '../../../Redux/slices/associationSlice';
+import { Message, toaster } from 'rsuite';
+
+const icons = {
+  jira: 'https://lm-dev.koneksys.com/jira_logo.png',
+  gitlab: 'https://lm-dev.koneksys.com/gitlab_logo.png',
+  glide: 'https://lm-dev.koneksys.com/glide_logo.png',
+  valispace: 'https://lm-dev.koneksys.com/valispace_logo.png',
+  codebeamer: 'https://lm-dev.koneksys.com/codebeamer_logo.png',
+  default: 'https://lm-dev.koneksys.com/default_logo.png',
+};
 
 const CustomReactSelect = forwardRef((props, ref) => {
   const {
     apiURL,
     apiQueryParams,
-    requestStatus,
     placeholder,
     onChange,
     disabled,
     customLabelKey,
     value,
+    isLinkCreation,
+    isApplication,
+    isIntegration,
+    isEventAssociation,
+    isUpdateState,
     ...rest
   } = props;
 
@@ -23,14 +37,26 @@ const CustomReactSelect = forwardRef((props, ref) => {
   const [isLoading, setIsLoading] = useState(false);
   const [checkPagination, setCheckPagination] = useState({});
   const [page, setPage] = useState(1);
+  const [pageSize] = useState(100);
   const [dropdownData, setDropdownData] = useState([]);
   const { isDark } = useSelector((state) => state.nav);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
-  const fetchOptions = async (page) => {
-    const queryPath = apiQueryParams ? apiQueryParams : null;
-    let url = `${apiURL}?page=${page}&per_page=${'25'}`;
+  const showNotification = (type, message) => {
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
+  };
+
+  const fetchOptions = async (pageNumber, itemsPerPage) => {
+    const queryPath = apiQueryParams ? apiQueryParams : '';
+    let url = `${apiURL}?page=${pageNumber}&per_page=${itemsPerPage}`;
     if (queryPath) url = `${url}&${queryPath}`;
 
     if (apiURL) {
@@ -48,10 +74,12 @@ const CustomReactSelect = forwardRef((props, ref) => {
               return res.json();
             }
           } else {
-            requestStatus('error', res);
+            res.json().then((data) => {
+              showNotification('error', data?.message);
+            });
           }
         })
-        .catch((error) => console.log(error));
+        .catch(() => {});
       setIsLoading(false);
       setCheckPagination(response);
       if (response?.items) return response.items;
@@ -60,37 +88,61 @@ const CustomReactSelect = forwardRef((props, ref) => {
   };
 
   // handle load more
-  const handleLoadMore = async () => {
+  const handleLoadMore = async (isNotScrolled = false) => {
     if (option?.length) {
       if (checkPagination?.has_next) {
-        const newOptions = await fetchOptions(page + 1);
-        setOption([...option, ...newOptions]);
+        const newOptions = await fetchOptions(page + 1, pageSize);
+        setOption((prevOptions) => [...prevOptions, ...newOptions]);
         setPage(page + 1);
+        return;
       }
-    } else {
-      const newOptions = await fetchOptions(page);
-      setOption([...option, ...newOptions]);
+    }
+    if (isNotScrolled) {
+      const newOptions = await fetchOptions(page, pageSize);
+      setOption(newOptions);
     }
   };
 
   // map dropdown items
   useEffect(() => {
     let dropdownJsonData = [];
-    if (customLabelKey) {
-      dispatch(handleStoreDropdownItems({ label: customLabelKey, data: option }));
-
+    if (isApplication) {
       dropdownJsonData = option?.map((item) => {
+        let appIcon = '';
+        if (item?.type === 'gitlab') appIcon = icons.gitlab;
+        else if (item?.type === 'glideyoke') appIcon = icons.glide;
+        else if (item?.type === 'jira') appIcon = icons.jira;
+        else {
+          appIcon = icons.default;
+        }
+
         return {
-          label: item[customLabelKey] ? item[customLabelKey] : item.name,
-          value: item.id,
-          item,
+          ...item,
+          label: item?.name,
+          value: item?.id,
+          icon: appIcon,
         };
       });
+    } else if (customLabelKey) {
+      dispatch(handleStoreDropdownItems({ label: customLabelKey, data: option }));
+      dropdownJsonData = option?.map((item) => {
+        return {
+          ...item,
+          label: item[customLabelKey] ? item[customLabelKey] : item.name,
+          value: item.id,
+        };
+      });
+    } else if (isEventAssociation) {
+      dropdownJsonData = option?.map((item) => ({
+        ...item,
+        label: item?.service_provider_id,
+        value: item?.id,
+      }));
     } else {
       dropdownJsonData = option?.map((item) => ({
-        label: item?.name || item?.label,
+        ...item,
+        label: isIntegration ? item?.project?.name : item?.name || item?.label,
         value: item?.id,
-        item,
       }));
     }
     setDropdownData(dropdownJsonData);
@@ -98,10 +150,9 @@ const CustomReactSelect = forwardRef((props, ref) => {
 
   // load dropdown item first time
   useEffect(() => {
-    if (option.length === 0) {
-      handleLoadMore();
-    }
-  }, [apiQueryParams, apiURL]);
+    let isNotScrolled = true;
+    handleLoadMore(isNotScrolled);
+  }, [isUpdateState]);
 
   // react select menu items style
   const customOption = (props) => {
@@ -109,9 +160,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
       <components.Option {...props}>
         <div className="react-select-display-icon-container">
           {props.data?.icon && (
-            <img src={props.data?.icon} style={{ height: 20 }} alt={props.data?.label} />
+            <img src={props.data.icon} style={{ height: 20 }} alt={props.data?.label} />
           )}
-
           <p>{props.data?.label}</p>
         </div>
       </components.Option>
@@ -135,39 +185,35 @@ const CustomReactSelect = forwardRef((props, ref) => {
     );
   };
 
-  // handle load more data on Scroll
-  const handleScroll = (event) => {
-    const { scrollTop, clientHeight, scrollHeight } = event.target;
-    const nearBottomThreshold = 10;
-
-    if (scrollTop + clientHeight > scrollHeight - nearBottomThreshold) {
-      handleLoadMore();
-    }
-  };
-
   // control menu list for loading data by scroll bottom
   const MenuList = (props) => {
     const menuListRef = useRef(null);
+
     useEffect(() => {
       if (menuListRef.current) {
         const menuDiv = menuListRef.current.querySelector('div');
-        menuDiv.onscroll = (e) => handleScroll(e);
+        // handleScroll
+        menuDiv.onscroll = (event) => {
+          const { scrollTop, clientHeight, scrollHeight } = event.target;
+          const nearBottomThreshold = 10;
+          if (scrollTop + clientHeight > scrollHeight - nearBottomThreshold) {
+            handleLoadMore();
+          }
+        };
         menuDiv.style.maxHeight = '200px';
       }
     }, [menuListRef]);
 
     return (
       <div ref={menuListRef}>
-        <components.MenuList {...props}>
-          <div>{props.children}</div>
-        </components.MenuList>
+        <components.MenuList {...props}>{props.children}</components.MenuList>
       </div>
     );
   };
 
   return (
     <Select
-      value={dropdownData?.find((v) => v?.value === value)}
+      value={value ? dropdownData?.find((v) => v?.value === value) : null}
       ref={ref}
       {...rest}
       className={isDark === 'dark' ? 'reactSelectContainer' : ''}
@@ -175,7 +221,10 @@ const CustomReactSelect = forwardRef((props, ref) => {
       options={dropdownData}
       placeholder={<p style={{ fontSize: '17px' }}>{placeholder}</p>}
       onChange={(v) => {
-        onChange(v?.value || null);
+        if (isLinkCreation) onChange(v || null);
+        else {
+          onChange(v?.value || null);
+        }
       }}
       isClearable
       isDisabled={disabled}

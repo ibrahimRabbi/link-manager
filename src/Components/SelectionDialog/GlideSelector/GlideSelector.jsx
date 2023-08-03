@@ -97,7 +97,7 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
     setLoading(true);
     setTableData([]);
     fetch(
-      `${lmApiUrl}/third_party/${appData?.type}/containers?page=1&per_page=10&application_id=${appData?.application_id}`,
+      `${lmApiUrl}/third_party/${appData?.application?.type}/containers?page=1&per_page=10&application_id=${appData?.application_id}`,
       {
         headers: {
           Authorization: `Bearer ${authCtx.token}`,
@@ -150,7 +150,7 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
     if (projectId) {
       setResourceLoading(true);
       setTableData([]);
-      fetch(`${lmApiUrl}/third_party/${appData?.type}/resource_types`)
+      fetch(`${lmApiUrl}/third_party/${appData?.application?.type}/resource_types`)
         .then((response) => {
           if (response.status === 200) {
             return response.json();
@@ -176,7 +176,7 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
       if (projectId && resourceTypeId && currPage && limit) {
         setTableLoading(true);
         fetch(
-          `${lmApiUrl}/third_party/${appData?.type}/container/tenant/${resourceTypeId}?page=${currPage}&per_page=${limit}&application_id=${appData?.application_id}`,
+          `${lmApiUrl}/third_party/${appData?.application?.type}/container/tenant/${resourceTypeId}?page=${currPage}&per_page=${limit}&application_id=${appData?.application_id}`,
           {
             headers: {
               Authorization: `Bearer ${authCtx.token}`,
@@ -229,7 +229,7 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
       setFilterLoad(true);
       fetch(
         `${lmApiUrl}/third_party/${
-          appData?.type
+          appData?.application?.type
         }/container/tenant/${resourceTypeId}?page=1&per_page=10&application_id=${
           appData?.application_id
         }&${columnFilters[0]?.id.toLowerCase()}=${columnFilters[0]?.value}`,
