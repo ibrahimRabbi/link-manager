@@ -19,7 +19,9 @@ import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
 import { PiGraphFill } from 'react-icons/pi';
 
 const iconStyle = {
-  marginLeft: '-38px',
+  marginLeft: '-35px',
+  marginBottom: '-3px',
+  marginRight: '20px',
 };
 
 const baseOptions = [
@@ -32,7 +34,7 @@ const baseOptions = [
   {
     path: '/graph-view',
     navigateTo: '/graph-view',
-    icon: <PiGraphFill size={20} style={iconStyle} />,
+    icon: <PiGraphFill style={iconStyle} />,
     content: <span>Graph View</span>,
   },
   {

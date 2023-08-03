@@ -20,9 +20,9 @@ import { FlexboxGrid, Col, Button, Message, toaster } from 'rsuite';
 import SourceSection from '../SourceSection';
 import UseLoader from '../Shared/UseLoader';
 import GitlabSelector from '../SelectionDialog/GitlabSelector/GitlabSelector';
+import UseReactSelect from '../Shared/Dropdowns/UseReactSelect';
 import styles from './NewLink.module.scss';
 import GlideSelector from '../SelectionDialog/GlideSelector/GlideSelector';
-import CustomReactSelect from '../Shared/Dropdowns/CustomReactSelect';
 
 const { newLinkMainContainer, targetContainer, targetIframe, targetBtnContainer } =
   styles;
@@ -49,13 +49,15 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     linkCreateLoading,
     oslcCancelResponse,
   } = useSelector((state) => state.links);
-  const [, /*gitlabDialog*/ setGitlabDialog] = useState(false);
-  const [, /*glideDialog*/ setGlideDialog] = useState(false);
-  const [, /*groupId*/ setGroupId] = useState('');
+  const [gitlabDialog, setGitlabDialog] = useState(false);
+  const [glideDialog, setGlideDialog] = useState(false);
+  const [groupId, setGroupId] = useState('');
+  const [linkTypeItems, setLinkTypeItems] = useState([]);
+  const [applicationTypeItems, setApplicationTypeItems] = useState([]);
   let [projectTypeItems, setProjectTypeItems] = useState([]);
   const [projectFrameSrc, setProjectFrameSrc] = useState('');
   const [projectId, setProjectId] = useState('');
-  const [, /*appData*/ setAppData] = useState([]);
+  const [appData, setAppData] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -71,7 +73,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
     }
   };
-
   // Display project types conditionally by App name
   useEffect(() => {
     (async () => {
@@ -79,6 +80,24 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       fetch('.././gcm_context.json')
         .then((res) => res.json())
         // .then((data) => setStreamItems(data))
+        .catch((err) => console.log(err));
+
+      // get link_types dropdown items
+      fetch('.././link_types.json')
+        .then((res) => res.json())
+        .then((data) => setLinkTypeItems(data))
+        .catch((err) => console.log(err));
+
+      // get application_types dropdown items
+      fetch('.././application_types.json')
+        .then((res) => res.json())
+        .then((data) => {
+          const { appName } = sourceDataList;
+          const filteredApplications = data?.filter((app) => {
+            if (app.name !== appName?.toUpperCase()) return app;
+          });
+          setApplicationTypeItems(filteredApplications);
+        })
         .catch((err) => console.log(err));
 
       // get project_types dropdown items
@@ -125,15 +144,15 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     if (projectType) {
       setGitlabDialog(false);
       setGlideDialog(false);
-      const jiraApp = projectType?.label?.includes('(JIRA)');
-      const gitlabApp = projectType?.label?.includes('(GITLAB)');
-      const glideApp = projectType?.label?.includes('(GLIDE)');
-      const glideAppNative = projectType?.label?.includes('(GLIDE-NATIVE)');
-      const valispaceApp = projectType?.label.includes('(VALISPACE)');
-      const codebeamerApp = projectType?.label?.includes('(CODEBEAMER)');
-      const jiraProjectApp = projectType?.label?.includes('(JIRA-PROJECTS)');
-      const valispaceProjectApp = projectType?.label?.includes('(VALISPACE-PROJECTS)');
-      const codebeamerProjectApp = projectType?.label?.includes('(CODEBEAMER-PROJECTS)');
+      const jiraApp = projectType?.includes('(JIRA)');
+      const gitlabApp = projectType?.includes('(GITLAB)');
+      const glideApp = projectType?.includes('(GLIDE)');
+      const glideAppNative = projectType?.includes('(GLIDE-NATIVE)');
+      const valispaceApp = projectType?.includes('(VALISPACE)');
+      const codebeamerApp = projectType?.includes('(CODEBEAMER)');
+      const jiraProjectApp = projectType?.includes('(JIRA-PROJECTS)');
+      const valispaceProjectApp = projectType?.includes('(VALISPACE-PROJECTS)');
+      const codebeamerProjectApp = projectType?.includes('(CODEBEAMER-PROJECTS)');
 
       if (jiraApp) {
         setProjectFrameSrc(
@@ -269,17 +288,20 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Link type dropdown
   const handleLinkTypeChange = (selectedItem) => {
-    dispatch(handleLinkType(selectedItem));
+    dispatch(handleLinkType(selectedItem?.name));
   };
 
   // Link type dropdown
   const handleApplicationChange = (selectedItem) => {
-    dispatch(handleApplicationType(selectedItem));
+    dispatch(handleApplicationType(null));
+    setTimeout(() => {
+      dispatch(handleApplicationType(selectedItem?.name));
+    }, 50);
   };
 
   // Project type dropdown
   const handleTargetProject = (selectedItem) => {
-    dispatch(handleProjectType(selectedItem));
+    dispatch(handleProjectType(selectedItem?.name));
     setProjectId(selectedItem?.id);
   };
 
@@ -315,7 +337,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             api: item?.api ? item?.api : '',
             description: item?.description ? item?.description : '',
             extra_properties: {
-              parent_properties: item?.parent_properties ? item?.parent_properties : '',
               branch_name: properties?.branch_name ? properties?.branch_name : '',
               commit_id: properties?.commit_id ? properties?.commit_id : '',
               content_hash: properties?.content_hash ? properties?.content_hash : '',
@@ -352,7 +373,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           },
         },
         link_properties: {
-          relation: linkType?.label,
+          relation: linkType,
           status: 'valid',
         },
         target_data: mappedTargetData,
@@ -464,14 +485,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item colspan={21}>
-                <CustomReactSelect
+                <UseReactSelect
                   name="link_type"
                   placeholder="Choose Link Type"
-                  apiURL={sourceDataList?.sourceType ? `${apiURL}/link-type` : ''}
-                  // apiQueryParams={`source_resource=${sourceDataList?.sourceType}`}
                   onChange={handleLinkTypeChange}
-                  isLinkCreation={true}
-                  value={linkType?.label}
+                  items={linkTypeItems?.length ? linkTypeItems : []}
                 />
               </FlexboxGrid.Item>
             </FlexboxGrid>
@@ -492,37 +510,26 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                         colspan={11}
                         style={{ paddingLeft: '0' }}
                       >
-                        <CustomReactSelect
+                        <UseReactSelect
                           name="application_type"
                           placeholder="Choose Application"
-                          apiURL={
-                            sourceDataList?.sourceType ? `${apiURL}/application` : ''
-                          }
                           onChange={handleApplicationChange}
-                          isLinkCreation={true}
-                          value={applicationType?.label}
-                          isUpdateState={linkType?.label}
-                          isApplication={true}
+                          items={applicationTypeItems?.length ? applicationTypeItems : []}
                         />
                       </FlexboxGrid.Item>
 
                       {/* --- Project dropdown ---   */}
-                      {applicationType?.name && (
+                      {applicationType && (
                         <FlexboxGrid.Item
                           as={Col}
                           colspan={11}
                           style={{ paddingRight: '0', marginLeft: 'auto' }}
                         >
-                          <CustomReactSelect
-                            name="target_project_type"
+                          <UseReactSelect
+                            name="target_project"
                             placeholder="Choose Project"
-                            apiURL={`${apiURL}/association`}
-                            apiQueryParams={`application_id=${applicationType?.id}`}
                             onChange={handleTargetProject}
-                            isLinkCreation={true}
-                            isIntegration={true}
-                            isUpdateState={applicationType?.label}
-                            value={projectType?.label}
+                            items={projectTypeItems?.length ? projectTypeItems : []}
                           />
                         </FlexboxGrid.Item>
                       )}
@@ -543,17 +550,18 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               </div>
             )}
             <div>
-              {linkType && projectType?.application?.type === 'gitlab' && (
+              {linkType && projectType && gitlabDialog && (
                 <GitlabSelector
-                  appData={projectType}
+                  id={groupId}
+                  appData={appData}
                   handleSaveLink={handleSaveLink}
                   cancelLinkHandler={cancelLinkHandler}
                 ></GitlabSelector>
               )}
-              {linkType && projectType?.application?.type === 'glideyoke' && (
+              {linkType && projectType && glideDialog && (
                 <GlideSelector
                   handleSaveLink={handleSaveLink}
-                  appData={projectType}
+                  appData={appData}
                   cancelLinkHandler={cancelLinkHandler}
                 ></GlideSelector>
               )}
@@ -561,24 +569,25 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           </div>
 
           {/* Target Cancel button  */}
-          {projectType?.application?.type !== 'gitlab' ||
-            (projectType?.application?.type !== 'glideyoke' && (
-              <div className={targetBtnContainer}>
-                <Button
-                  appearance="ghost"
-                  size="md"
-                  onClick={() => {
-                    dispatch(handleCancelLink());
-                    isWbe ? navigate('/wbe') : navigate('/');
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button appearance="primary" size="md" disabled={true}>
-                  OK
-                </Button>
-              </div>
-            ))}
+          {gitlabDialog || glideDialog ? (
+            ''
+          ) : (
+            <div className={targetBtnContainer}>
+              <Button
+                appearance="ghost"
+                size="md"
+                onClick={() => {
+                  dispatch(handleCancelLink());
+                  isWbe ? navigate('/wbe') : navigate('/');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button appearance="primary" size="md" disabled={true}>
+                OK
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </>

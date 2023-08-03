@@ -18,7 +18,7 @@ import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
-const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
+const GitlabSelector = ({ id, handleSaveLink, appData, cancelLinkHandler }) => {
   const [pExist, setPExist] = useState(false);
   const [projects, setProjects] = useState([]);
   const [selectedFile, setSelectedFile] = useState('');
@@ -74,13 +74,13 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
   };
 
   useEffect(() => {
-    if (appData?.workspace_id) {
+    if (id) {
       setProjectId(''); // Clear the project selection
       setProjects([]);
       setTreeData([]);
       setLoading(true);
       fetch(
-        `${lmApiUrl}/third_party/gitlab/containers/${appData?.workspace_id}?page=1&per_page=10&application_id=${appData?.application_id}`,
+        `${lmApiUrl}/third_party/gitlab/containers/${id}?page=1&per_page=10&application_id=${appData?.application_id}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -111,7 +111,7 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
       setProjectId('');
       setProjects([]);
     }
-  }, [appData?.workspace_id, authCtx, authenticatedThirdApp]);
+  }, [id, authCtx, authenticatedThirdApp]);
 
   useEffect(() => {
     if (projectId) {
