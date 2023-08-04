@@ -2,10 +2,10 @@ import React from 'react';
 import { Button, Modal } from 'rsuite';
 import InfoRoundIcon from '@rsuite/icons/InfoRound';
 
-const AlertModal = ({ setOpen, open, setConfirm }) => {
+const AlertModal = ({ setOpen, open, content, handleConfirmed }) => {
   const handleClose = () => setOpen(false);
   const handleConfirm = () => {
-    setConfirm(true);
+    handleConfirmed(true);
     setOpen(false);
   };
   return (
@@ -28,15 +28,16 @@ const AlertModal = ({ setOpen, open, setConfirm }) => {
             <InfoRoundIcon />
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{ fontSize: '17px', fontWeight: 'bold' }}>
-          Are you sure? You want to logout!
+        <Modal.Body style={{ fontSize: '18px', fontWeight: 'bold', textAlign: 'center' }}>
+          Are you sure? <br />
+          {content}
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={handleConfirm} appearance="primary">
-            Yes
-          </Button>
           <Button onClick={handleClose} appearance="subtle">
             Cancel
+          </Button>
+          <Button onClick={handleConfirm} appearance="primary">
+            Yes
           </Button>
         </Modal.Footer>
       </Modal>

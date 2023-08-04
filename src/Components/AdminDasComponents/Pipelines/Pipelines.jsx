@@ -27,8 +27,8 @@ import {
 import TextField from '../TextField';
 import { useRef } from 'react';
 import SelectField from '../SelectField.jsx';
-import Swal from 'sweetalert2';
 import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
+import AlertModal from '../../Shared/AlertModal';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -85,6 +85,8 @@ const Pipelines = () => {
     is_polling: false,
     polling_period: 0,
   });
+  const [open, setOpen] = useState(false);
+  const [deleteData, setDeleteData] = useState({});
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -180,27 +182,20 @@ const Pipelines = () => {
 
   // handle delete pipeline
   const handleDelete = (data) => {
-    Swal.fire({
-      title: 'Are you sure',
-      icon: 'info',
-      text: 'Do you want to delete the Pipeline!!',
-      cancelButtonColor: 'red',
-      showCancelButton: true,
-      confirmButtonText: 'Delete',
-      confirmButtonColor: '#3085d6',
-      reverseButtons: true,
-    }).then((value) => {
-      if (value.isConfirmed) {
-        const deleteUrl = `${lmApiUrl}/pipelines/${data?.id}`;
-        dispatch(
-          fetchDeletePipeline({
-            url: deleteUrl,
-            token: authCtx.token,
-            showNotification: showNotification,
-          }),
-        );
-      }
-    });
+    setDeleteData(data);
+    setOpen(true);
+  };
+  const handleConfirmed = (value) => {
+    if (value) {
+      const deleteUrl = `${lmApiUrl}/pipelines/${deleteData?.id}`;
+      dispatch(
+        fetchDeletePipeline({
+          url: deleteUrl,
+          token: authCtx.token,
+          showNotification: showNotification,
+        }),
+      );
+    }
   };
 
   // handle Edit Pipeline
@@ -310,6 +305,13 @@ const Pipelines = () => {
           style={{ zIndex: '10' }}
         />
       )}
+      {/* confirmation modal  */}
+      <AlertModal
+        open={open}
+        setOpen={setOpen}
+        content={'Do you want to delete the pipeline?'}
+        handleConfirmed={handleConfirmed}
+      />
       <AdminDataTable props={tableProps} />
     </div>
   );

@@ -12,13 +12,13 @@ import { FlexboxGrid, Form, Loader, Message, Schema, Tree, toaster } from 'rsuit
 import TextField from '../TextField';
 import { useRef } from 'react';
 import TextArea from '../TextArea';
-import Swal from 'sweetalert2';
 import {
   fetchCreateData,
   fetchDeleteData,
   fetchGetData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
+import AlertModal from '../../Shared/AlertModal';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -66,6 +66,8 @@ const Events = () => {
     trigger_endpoint: '',
     description: '',
   });
+  const [open, setOpen] = useState(false);
+  const [deleteData, setDeleteData] = useState({});
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -153,29 +155,21 @@ const Events = () => {
 
   // handle delete event
   const handleDelete = (data) => {
-    Swal.fire({
-      title: 'Are you sure',
-      icon: 'info',
-      text: 'Do you want to delete the Event!!',
-      cancelButtonColor: 'red',
-      showCancelButton: true,
-      confirmButtonText: 'Delete',
-      confirmButtonColor: '#3085d6',
-      reverseButtons: true,
-    }).then((value) => {
-      if (value.isConfirmed) {
-        const deleteUrl = `${lmApiUrl}/events/${data?.id}`;
-        dispatch(
-          fetchDeleteData({
-            url: deleteUrl,
-            token: authCtx.token,
-            showNotification: showNotification,
-          }),
-        );
-      }
-    });
+    setDeleteData(data);
+    setOpen(true);
   };
-
+  const handleConfirmed = (value) => {
+    if (value) {
+      const deleteUrl = `${lmApiUrl}/events/${deleteData?.id}`;
+      dispatch(
+        fetchDeleteData({
+          url: deleteUrl,
+          token: authCtx.token,
+          showNotification: showNotification,
+        }),
+      );
+    }
+  };
   // handle Edit Event
   const handleEdit = (data) => {
     setEditData(data);
@@ -292,6 +286,13 @@ const Events = () => {
           style={{ zIndex: '10' }}
         />
       )}
+      {/* confirmation modal  */}
+      <AlertModal
+        open={open}
+        setOpen={setOpen}
+        content={'Do you want to delete the event?'}
+        handleConfirmed={handleConfirmed}
+      />
       <AdminDataTable props={tableProps} />
       {treedata && <Tree data={treedata} getChildren={console.log(0)}></Tree>}
     </div>

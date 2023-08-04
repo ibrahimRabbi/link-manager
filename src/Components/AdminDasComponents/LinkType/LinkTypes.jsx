@@ -5,7 +5,6 @@ import AppSelectIcon from '@rsuite/icons/AppSelect';
 import ScatterIcon from '@rsuite/icons/Scatter';
 import WarningRoundIcon from '@rsuite/icons/WarningRound';
 import PlusRoundIcon from '@rsuite/icons/PlusRound';
-import Swal from 'sweetalert2';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
@@ -13,7 +12,18 @@ import {
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Form, Schema, Col, Button, Stack, Tooltip, Whisper } from 'rsuite';
+import {
+  FlexboxGrid,
+  Form,
+  Schema,
+  Col,
+  Button,
+  Stack,
+  Tooltip,
+  Whisper,
+  Message,
+  toaster,
+} from 'rsuite';
 import AddNewModal from '../AddNewModal';
 import { useRef } from 'react';
 import SelectField from '../SelectField';
@@ -24,7 +34,6 @@ import {
   fetchGetData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
-import Notification from '../../Shared/Notification';
 
 import { fetchOslcResource } from '../../../Redux/slices/oslcResourcesSlice.jsx';
 
@@ -32,6 +41,7 @@ import { actions as linkTypeActions } from '../../../Redux/slices/linkTypeSlice'
 import { actions as oslcActions } from '../../../Redux/slices/oslcResourcesSlice';
 import TextField from '../TextField.jsx';
 import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
+import AlertModal from '../../Shared/AlertModal';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -87,11 +97,17 @@ const LinkTypes = () => {
     label_1: '',
     selectedOption: '',
   });
-  const [notificationType, setNotificationType] = useState('');
-  const [notificationMessage, setNotificationMessage] = useState('');
+  const [open, setOpen] = useState(false);
+  const [deleteData, setDeleteData] = useState({});
   const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
   };
 
   const [model, setModel] = useState(
@@ -421,27 +437,20 @@ const LinkTypes = () => {
 
   // handle delete link type
   const handleDelete = (data) => {
-    Swal.fire({
-      title: 'Are you sure',
-      icon: 'info',
-      text: 'Do you want to delete the link type!!',
-      cancelButtonColor: 'red',
-      showCancelButton: true,
-      confirmButtonText: 'Delete',
-      confirmButtonColor: '#3085d6',
-      reverseButtons: true,
-    }).then((value) => {
-      if (value.isConfirmed) {
-        const deleteUrl = `${lmApiUrl}/link-type/${data?.id}`;
-        dispatch(
-          fetchDeleteData({
-            url: deleteUrl,
-            token: authCtx.token,
-            showNotification: showNotification,
-          }),
-        );
-      }
-    });
+    setDeleteData(data);
+    setOpen(true);
+  };
+  const handleConfirmed = (value) => {
+    if (value) {
+      const deleteUrl = `${lmApiUrl}/link-type/${deleteData?.id}`;
+      dispatch(
+        fetchDeleteData({
+          url: deleteUrl,
+          token: authCtx.token,
+          showNotification: showNotification,
+        }),
+      );
+    }
   };
   // handle Edit link type
   const handleEdit = (data) => {
@@ -630,14 +639,13 @@ const LinkTypes = () => {
       </AddNewModal>
 
       {isCrudLoading && <UseLoader />}
-      {notificationType && notificationMessage && (
-        <Notification
-          type={notificationType}
-          message={notificationMessage}
-          setNotificationType={setNotificationType}
-          setNotificationMessage={setNotificationMessage}
-        />
-      )}
+      {/* confirmation modal  */}
+      <AlertModal
+        open={open}
+        setOpen={setOpen}
+        content={'Do you want to delete the this link type?'}
+        handleConfirmed={handleConfirmed}
+      />
       <AdminDataTable props={tableProps} />
     </div>
   );

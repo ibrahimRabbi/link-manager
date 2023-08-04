@@ -4,10 +4,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import './NavigationBar.module.scss';
 import { ImBrightnessContrast } from 'react-icons/im';
 import { BiLogOut } from 'react-icons/bi';
-import { Sidebar, Sidenav, Navbar, Nav, Divider } from 'rsuite';
+import { Sidebar, Sidenav, Navbar, Nav, Divider, Message, useToaster } from 'rsuite';
 import CogIcon from '@rsuite/icons/legacy/Cog';
 import TableColumnIcon from '@rsuite/icons/TableColumn';
-import Swal from 'sweetalert2';
 import AuthContext from '../../../Store/Auth-Context';
 import { handleIsDarkMode, handleIsSidebarOpen } from '../../../Redux/slices/navSlice';
 import MenuIcon from '@rsuite/icons/Menu';
@@ -17,6 +16,8 @@ import AttachmentIcon from '@rsuite/icons/Attachment';
 import { darkColor, lightBgColor } from '../../../App';
 import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
 import { PiGraphFill } from 'react-icons/pi';
+import { useState } from 'react';
+import AlertModal from '../AlertModal';
 
 const iconStyle = {
   marginLeft: '-35px',
@@ -63,31 +64,33 @@ const SideNavBar = ({ isWbe }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
+  const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
+  const toaster = useToaster();
   const handleLogout = () => {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'You want to logout!',
-      icon: 'warning',
-      cancelButtonColor: '#d33',
-      confirmButtonColor: '#3085d6',
-      showCancelButton: true,
-      confirmButtonText: 'Yes',
-      reverseButtons: true,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        authCtx.logout();
-        Swal.fire({
-          title: 'Logged out successful',
-          icon: 'success',
-        });
-        navigate('/login', { replace: true });
-      }
-    });
+    setOpen(true);
+  };
+  const handleConfirmed = (value) => {
+    if (value) {
+      authCtx.logout();
+      const message = (
+        <Message closable showIcon type="success">
+          Logut successfull
+        </Message>
+      );
+      toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
+    }
   };
 
   return (
     <>
+      {/* confirmation modal  */}
+      <AlertModal
+        open={open}
+        setOpen={setOpen}
+        content={'You want to logout!'}
+        handleConfirmed={handleConfirmed}
+      />
       <Sidebar
         style={{
           // minHeight: isWbe ? '100vh' : '94vh',
