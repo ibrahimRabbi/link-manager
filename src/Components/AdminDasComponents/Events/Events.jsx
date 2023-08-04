@@ -15,7 +15,6 @@ import TextArea from '../TextArea';
 import {
   fetchCreateData,
   fetchDeleteData,
-  // fetchGetData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
 import { useQuery } from '@tanstack/react-query';
@@ -152,11 +151,7 @@ const Events = () => {
   };
 
   // get all events
-  const {
-    data: allEvents,
-    // isLoading: createLoading,
-    refetch: refetchEvents,
-  } = useQuery(
+  const { data: allEvents, refetch: refetchEvents } = useQuery(
     ['events'],
     () =>
       fetchAPIRequest({
@@ -182,20 +177,6 @@ const Events = () => {
     dispatch(handleCurrPageTitle('Events'));
     refetchEvents();
   }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
-
-  // useEffect(() => {
-  //   dispatch(handleCurrPageTitle('Events'));
-
-  //   const getUrl = `${lmApiUrl}/events?page=${currPage}&per_page=${pageSize}`;
-  //   dispatch(
-  //     fetchGetData({
-  //       url: getUrl,
-  //       token: authCtx.token,
-  //       stateName: 'allEvents',
-  //       showNotification: showNotification,
-  //     }),
-  //   );
-  // }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
 
   // handle delete event
   const handleDelete = (data) => {
@@ -224,10 +205,7 @@ const Events = () => {
       description: data?.description,
       application_id: data?.application_id,
       association_id: data?.association_id,
-      // association_name:
     });
-    // console.log(data.association_id)
-    // console.log(data)
     dispatch(handleIsAddNewModal(true));
   };
 
@@ -248,40 +226,6 @@ const Events = () => {
     inpPlaceholder: 'Search Events',
   };
 
-  // const treedata = crudData?.allEvents?.items.map((item) => {
-  //   return { label: item.name, value: item.name, isFolder: true, children: [] };
-  // });
-  // {
-  //   limits: [3, 3, 4],
-  //   labels: (layer, value, faker) => {
-  //     const methodName = ['jobArea', 'jobType', 'firstName'];
-  //     return faker.person[methodName[layer]]();
-  //   },
-  //
-  //   Array(5) [Object,
-  //   Object,
-  //   Object,
-  //   Object,
-  //   Object]
-  //
-  //
-  // {
-  //   "label": "Embedded Software",
-  //   "value": "Embedded Software",
-  //   "isFolder": "true",
-  //   "children": [],
-  //   "oslc:label": "Embedded Software",
-  //   "rdf:type": "http://open-services.net/ns/scm#RepositoryTree",
-  //   "koatl:apiPath": "Embedded Software",
-  //   "oslc:providerId": "42854970",
-  //   "oslc:resourceType": "files",
-  //   "oslc:resourceId": "f921876d132d886e141e3a62a408cc0efcec9f52",
-  //   "oslc:branchName": "main",
-  //   "oslc:api": "gitlab"
-  // }
-  //
-  //
-  // };
   return (
     <div>
       <AddNewModal
@@ -364,7 +308,6 @@ const Events = () => {
         handleConfirmed={handleConfirmed}
       />
       <AdminDataTable props={tableProps} />
-      {/* {treedata && <Tree data={treedata} getChildren={{}}></Tree>} */}
     </div>
   );
 };
