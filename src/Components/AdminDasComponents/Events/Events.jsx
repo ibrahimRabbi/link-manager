@@ -8,16 +8,20 @@ import {
 } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Form, Loader, Message, Schema, Tree, toaster } from 'rsuite';
+import { FlexboxGrid, Form, Loader, Message, Schema, toaster } from 'rsuite';
 import TextField from '../TextField';
 import { useRef } from 'react';
 import TextArea from '../TextArea';
 import {
   fetchCreateData,
   fetchDeleteData,
-  fetchGetData,
+  // fetchGetData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
+import { useQuery } from '@tanstack/react-query';
+import SelectField from '../SelectField.jsx';
+import fetchAPIRequest from '../../../apiRequests/apiRequest';
+import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 import AlertModal from '../../Shared/AlertModal';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
@@ -40,6 +44,14 @@ const headerData = [
     header: 'Description',
     key: 'description',
   },
+  {
+    header: 'Application',
+    key: 'application_name',
+  },
+  {
+    header: 'Integration',
+    key: 'service_provider_id',
+  },
 ];
 
 const { StringType } = Schema.Types;
@@ -51,7 +63,7 @@ const model = Schema.Model({
 });
 
 const Events = () => {
-  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
+  const { isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
     (state) => state.crud,
   );
 
@@ -139,19 +151,51 @@ const Events = () => {
     });
   };
 
-  useEffect(() => {
-    dispatch(handleCurrPageTitle('Events'));
-
-    const getUrl = `${lmApiUrl}/events?page=${currPage}&per_page=${pageSize}`;
-    dispatch(
-      fetchGetData({
-        url: getUrl,
+  // get all events
+  const {
+    data: allEvents,
+    // isLoading: createLoading,
+    refetch: refetchEvents,
+  } = useQuery(
+    ['events'],
+    () =>
+      fetchAPIRequest({
+        urlPath: `events?page=${currPage}&per_page=${pageSize}`,
         token: authCtx.token,
-        stateName: 'allEvents',
+        method: 'GET',
         showNotification: showNotification,
       }),
-    );
+    {
+      onSuccess(allEvents) {
+        for (let i = 0; i < allEvents.items.length; i++) {
+          allEvents.items[i]['application_name'] =
+            allEvents.items[i].associations.application.name;
+          allEvents.items[i]['service_provider_id'] =
+            allEvents.items[i].associations.service_provider_id;
+        }
+      },
+    },
+  );
+
+  // get all events
+  useEffect(() => {
+    dispatch(handleCurrPageTitle('Events'));
+    refetchEvents();
   }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
+
+  // useEffect(() => {
+  //   dispatch(handleCurrPageTitle('Events'));
+
+  //   const getUrl = `${lmApiUrl}/events?page=${currPage}&per_page=${pageSize}`;
+  //   dispatch(
+  //     fetchGetData({
+  //       url: getUrl,
+  //       token: authCtx.token,
+  //       stateName: 'allEvents',
+  //       showNotification: showNotification,
+  //     }),
+  //   );
+  // }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
 
   // handle delete event
   const handleDelete = (data) => {
@@ -178,30 +222,35 @@ const Events = () => {
       name: data?.name,
       trigger_endpoint: data?.trigger_endpoint,
       description: data?.description,
+      application_id: data?.application_id,
+      association_id: data?.association_id,
+      // association_name:
     });
+    // console.log(data.association_id)
+    // console.log(data)
     dispatch(handleIsAddNewModal(true));
   };
 
   // send props in the batch action table
   const tableProps = {
     title: 'Events',
-    rowData: crudData?.allEvents?.items?.length ? crudData?.allEvents?.items : [],
+    rowData: allEvents?.items?.length ? allEvents?.items : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: crudData?.allEvents?.total_items,
-    totalPages: crudData?.allEvents?.total_pages,
+    totalItems: allEvents?.total_items,
+    totalPages: allEvents?.total_pages,
     pageSize,
-    page: crudData?.allEvents?.page,
+    page: allEvents?.page,
     inpPlaceholder: 'Search Events',
   };
 
-  const treedata = crudData?.allEvents?.items.map((item) => {
-    return { label: item.name, value: item.name, isFolder: true, children: [] };
-  });
+  // const treedata = crudData?.allEvents?.items.map((item) => {
+  //   return { label: item.name, value: item.name, isFolder: true, children: [] };
+  // });
   // {
   //   limits: [3, 3, 4],
   //   labels: (layer, value, faker) => {
@@ -261,7 +310,28 @@ const Events = () => {
                   reqText="Trigger Endpoint is required"
                 />
               </FlexboxGrid.Item>
-
+              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                <SelectField
+                  name="application_id"
+                  label="Application"
+                  placeholder="Select Application"
+                  accepter={CustomReactSelect}
+                  apiURL={`${lmApiUrl}/application`}
+                  error={formError.application_id}
+                  reqText="Application Id is required"
+                />
+              </FlexboxGrid.Item>
+              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                <SelectField
+                  name="association_id"
+                  label="Integration"
+                  placeholder="Select Integration"
+                  accepter={CustomReactSelect}
+                  apiURL={`${lmApiUrl}/association`}
+                  error={formError.association_id}
+                  reqText="Integration Id is required"
+                />
+              </FlexboxGrid.Item>
               <FlexboxGrid.Item colspan={24} style={{ marginBottom: '10px' }}>
                 <TextField
                   name="description"
@@ -294,7 +364,7 @@ const Events = () => {
         handleConfirmed={handleConfirmed}
       />
       <AdminDataTable props={tableProps} />
-      {treedata && <Tree data={treedata} getChildren={console.log(0)}></Tree>}
+      {/* {treedata && <Tree data={treedata} getChildren={{}}></Tree>} */}
     </div>
   );
 };
