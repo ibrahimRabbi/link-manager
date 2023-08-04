@@ -138,6 +138,7 @@ const Events = () => {
     }
     dispatch(handleIsAddNewModal(false));
     if (isAdminEditing) dispatch(handleIsAdminEditing(false));
+    refetchEvents();
   };
 
   // reset form
@@ -269,6 +270,7 @@ const Events = () => {
                 <SelectField
                   name="association_id"
                   label="Integration"
+                  customLabelKey="service_provider_id"
                   placeholder="Select Integration"
                   accepter={CustomReactSelect}
                   apiURL={`${lmApiUrl}/association`}
