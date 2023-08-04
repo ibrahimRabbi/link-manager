@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Swal from 'sweetalert2';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
@@ -12,6 +11,7 @@ import AddUser from './AddUser';
 import UseLoader from '../../Shared/UseLoader';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
+import AlertModal from '../../Shared/AlertModal';
 
 // demo data
 const headerData = [
@@ -53,6 +53,7 @@ const Users = () => {
     username: '',
     email: '',
   });
+  const [open, setOpen] = useState(false);
   const [notificationType, setNotificationType] = React.useState('');
   const [notificationMessage, setNotificationMessage] = React.useState('');
   const showNotification = (type, message) => {
@@ -153,20 +154,12 @@ const Users = () => {
   // handle delete user
   const handleDelete = (data) => {
     setDeleteData(data);
-    Swal.fire({
-      title: 'Are you sure',
-      icon: 'info',
-      text: 'Are you sure you want to delete this user?',
-      cancelButtonColor: 'red',
-      showCancelButton: true,
-      confirmButtonText: 'Delete',
-      confirmButtonColor: '#3085d6',
-      reverseButtons: true,
-    }).then((value) => {
-      if (value.isConfirmed) {
-        deleteMutate();
-      }
-    });
+    setOpen(true);
+  };
+  const handleConfirmed = (value) => {
+    if (value) {
+      deleteMutate();
+    }
   };
 
   // handle Edit user
@@ -228,6 +221,13 @@ const Users = () => {
       </Modal>
 
       {(isLoading || createUpdateLoading || deleteLoading) && <UseLoader />}
+      {/* confirmation modal  */}
+      <AlertModal
+        open={open}
+        setOpen={setOpen}
+        content={'Do you want to delete the user?'}
+        handleConfirmed={handleConfirmed}
+      />
       <AdminDataTable props={tableProps} />
     </div>
   );

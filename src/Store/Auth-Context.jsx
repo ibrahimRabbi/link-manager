@@ -65,10 +65,12 @@ export const AuthContextProvider = (props) => {
   useEffect(() => {
     if (token) {
       const expirationTime = parseInt(localStorage.getItem('expirationTime'));
-
       const timer = setInterval(() => {
         const updatedRemainingTime = expirationTime - Math.floor(Date.now() / 1000);
-
+        const storedToken = localStorage.getItem('token');
+        if (!storedToken) {
+          logoutHandler();
+        }
         if (updatedRemainingTime <= 0) {
           logoutHandler();
         }

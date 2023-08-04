@@ -15,12 +15,10 @@ import { ImBrightnessContrast } from 'react-icons/im';
 import { darkColor, lightBgColor } from '../../../App';
 import AlertModal from '../AlertModal';
 import { useState } from 'react';
-import { useEffect } from 'react';
 const NavigationBar = () => {
   const authCtx = useContext(AuthContext);
   const { currPageTitle, isDark, isProfileOpen } = useSelector((state) => state.nav);
-  const [open, setOpen] = React.useState(false);
-  const [confirm, setConfirm] = useState(false);
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const toaster = useToaster();
@@ -29,8 +27,8 @@ const NavigationBar = () => {
     dispatch(handleIsProfileOpen(!isProfileOpen));
     setOpen(true);
   };
-  useEffect(() => {
-    if (confirm) {
+  const handleConfirmed = (value) => {
+    if (value) {
       authCtx.logout();
       const message = (
         <Message closable showIcon type="success">
@@ -39,7 +37,7 @@ const NavigationBar = () => {
       );
       toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
     }
-  }, [confirm]);
+  };
 
   const darkModeText =
     isDark === 'dark' ? 'Light Mode' : isDark === 'light' ? 'Dark Mode' : 'Dark Mode';
@@ -90,7 +88,13 @@ const NavigationBar = () => {
           boxShadow: `2px 2px 5px ${isDark === 'light' ? 'lightgray' : '#292D33'}`,
         }}
       >
-        <AlertModal open={open} setOpen={setOpen} setConfirm={setConfirm} />
+        {/* confirmation modal  */}
+        <AlertModal
+          open={open}
+          setOpen={setOpen}
+          content={'You want to logout!'}
+          handleConfirmed={handleConfirmed}
+        />
         <Navbar.Brand
           onClick={() => navigate('/')}
           style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}

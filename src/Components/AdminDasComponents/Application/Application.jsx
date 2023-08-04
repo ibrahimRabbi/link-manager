@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Swal from 'sweetalert2';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
@@ -35,6 +34,7 @@ import {
 import Oauth2Waiting from '../ExternalAppIntegrations/Oauth2Waiting/Oauth2Waiting.jsx';
 import ExternalLogin from '../ExternalAppIntegrations/ExternalLogin/ExternalLogin.jsx';
 import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
+import AlertModal from '../../Shared/AlertModal';
 
 const { modalBodyStyle, step1Container, step2Container, skipBtn } = styles;
 
@@ -121,6 +121,7 @@ const Application = () => {
   const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
   const [authorizedAppConsumption, setAuthorizedAppConsumption] = useState(false);
   const [isAppAuthorize, setIsAppAuthorize] = useState(false);
+  const [open, setOpen] = useState(false);
 
   // required data for create the application using OSLC APIs
   const redirect_uris = [
@@ -357,20 +358,10 @@ const Application = () => {
   // Open deletion modal
   const handleDelete = (data) => {
     setDeleteData(data);
-    Swal.fire({
-      title: 'Are you sure',
-      icon: 'info',
-      text: 'Do you want to delete the Application!!',
-      cancelButtonColor: 'red',
-      showCancelButton: true,
-      confirmButtonText: 'Delete',
-      confirmButtonColor: '#3085d6',
-      reverseButtons: true,
-    }).then((value) => {
-      if (value.isConfirmed) {
-        deleteMutate();
-      }
-    });
+    setOpen(true);
+  };
+  const handleConfirmed = (value) => {
+    if (value) deleteMutate();
   };
   // Open edit application modal
   const handleEdit = (data) => {
@@ -801,6 +792,13 @@ const Application = () => {
       {(isLoading || loading || createLoading || updateLoading || deleteLoading) && (
         <UseLoader />
       )}
+      {/* confirmation modal  */}
+      <AlertModal
+        open={open}
+        setOpen={setOpen}
+        content={'Do you want to delete the application?'}
+        handleConfirmed={handleConfirmed}
+      />
 
       <AdminDataTable props={tableProps} />
     </div>

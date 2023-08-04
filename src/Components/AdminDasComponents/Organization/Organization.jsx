@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Swal from 'sweetalert2';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
@@ -15,6 +14,7 @@ import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
+import AlertModal from '../../Shared/AlertModal';
 
 // demo data
 const headerData = [
@@ -57,6 +57,7 @@ const Organization = () => {
     url: '',
     description: '',
   });
+  const [open, setOpen] = useState(false);
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -101,7 +102,7 @@ const Organization = () => {
       }),
     {
       onSuccess: (value) => {
-        console.log(value);
+        showNotification(value?.status, value?.message);
       },
       onError: (value) => {
         console.log(value);
@@ -125,7 +126,7 @@ const Organization = () => {
       }),
     {
       onSuccess: (value) => {
-        console.log(value);
+        showNotification(value?.status, value?.message);
       },
       onSettled: (value) => {
         console.log(value);
@@ -208,20 +209,12 @@ const Organization = () => {
   // handle delete Org
   const handleDelete = (data) => {
     setDeleteData(data);
-    Swal.fire({
-      title: 'Are you sure',
-      icon: 'info',
-      text: 'Do you want to delete the organization!!',
-      cancelButtonColor: 'red',
-      showCancelButton: true,
-      confirmButtonText: 'Delete',
-      confirmButtonColor: '#3085d6',
-      reverseButtons: true,
-    }).then((value) => {
-      if (value.isConfirmed) {
-        deleteMutate();
-      }
-    });
+    setOpen(true);
+  };
+  const handleConfirmed = (value) => {
+    if (value) {
+      deleteMutate();
+    }
   };
 
   // handle Edit org
@@ -292,6 +285,13 @@ const Organization = () => {
       </AddNewModal>
 
       {(isLoading || createLoading || updateLoading || deleteLoading) && <UseLoader />}
+      {/* confirmation modal  */}
+      <AlertModal
+        open={open}
+        setOpen={setOpen}
+        content={'Do you want to delete the organization?'}
+        handleConfirmed={handleConfirmed}
+      />
       <AdminDataTable props={tableProps} />
     </div>
   );
