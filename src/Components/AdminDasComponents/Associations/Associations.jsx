@@ -825,7 +825,7 @@ const Associations = () => {
       <AlertModal
         open={open}
         setOpen={setOpen}
-        content={'Do you want to delete the association?'}
+        content={'Do you want to delete the Integration?'}
         handleConfirmed={handleConfirmed}
       />
       <AdminDataTable props={tableProps} />
