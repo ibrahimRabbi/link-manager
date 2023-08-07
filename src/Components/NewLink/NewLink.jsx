@@ -500,6 +500,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                           value={applicationType?.label}
                           isUpdateState={linkType?.label}
                           isApplication={true}
+                          removeApplication={sourceDataList?.appName}
                         />
                       </FlexboxGrid.Item>
 
@@ -570,6 +571,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                 <GlideSelector
                   handleSaveLink={handleSaveLink}
                   appData={projectType}
+                  defaultProject={projectType}
                   cancelLinkHandler={cancelLinkHandler}
                 ></GlideSelector>
               )}
