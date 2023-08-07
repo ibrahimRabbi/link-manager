@@ -6,7 +6,6 @@ import Select, { components } from 'react-select';
 import AuthContext from '../../../Store/Auth-Context';
 import { handleStoreDropdownItems } from '../../../Redux/slices/associationSlice';
 import { Message, toaster } from 'rsuite';
-
 const icons = {
   jira: 'https://lm-dev.koneksys.com/jira_logo.png',
   gitlab: 'https://lm-dev.koneksys.com/gitlab_logo.png',
@@ -55,7 +54,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
   };
 
   const fetchOptions = async (pageNumber, itemsPerPage) => {
-    const queryPath = apiQueryParams ? apiQueryParams : '';
+    const queryPath = apiQueryParams ? apiQueryParams : null;
     let url = `${apiURL}?page=${pageNumber}&per_page=${itemsPerPage}`;
     if (queryPath) url = `${url}&${queryPath}`;
 
@@ -94,7 +93,6 @@ const CustomReactSelect = forwardRef((props, ref) => {
         const newOptions = await fetchOptions(page + 1, pageSize);
         setOption((prevOptions) => [...prevOptions, ...newOptions]);
         setPage(page + 1);
-        return;
       }
     }
     if (isNotScrolled) {
@@ -112,10 +110,11 @@ const CustomReactSelect = forwardRef((props, ref) => {
         if (item?.type === 'gitlab') appIcon = icons.gitlab;
         else if (item?.type === 'glideyoke') appIcon = icons.glide;
         else if (item?.type === 'jira') appIcon = icons.jira;
+        else if (item?.type === 'valispace') appIcon = icons.valispace;
+        else if (item?.type === 'codebeamer') appIcon = icons.codebeamer;
         else {
           appIcon = icons.default;
         }
-
         return {
           ...item,
           label: item?.name,
@@ -125,11 +124,12 @@ const CustomReactSelect = forwardRef((props, ref) => {
       });
     } else if (customLabelKey) {
       dispatch(handleStoreDropdownItems({ label: customLabelKey, data: option }));
+
       dropdownJsonData = option?.map((item) => {
         return {
-          ...item,
           label: item[customLabelKey] ? item[customLabelKey] : item.name,
           value: item.id,
+          item,
         };
       });
     } else if (isEventAssociation) {
@@ -160,8 +160,9 @@ const CustomReactSelect = forwardRef((props, ref) => {
       <components.Option {...props}>
         <div className="react-select-display-icon-container">
           {props.data?.icon && (
-            <img src={props.data.icon} style={{ height: 20 }} alt={props.data?.label} />
+            <img src={props.data?.icon} style={{ height: 20 }} alt={props.data?.label} />
           )}
+
           <p>{props.data?.label}</p>
         </div>
       </components.Option>
@@ -185,21 +186,23 @@ const CustomReactSelect = forwardRef((props, ref) => {
     );
   };
 
+  // handle load more data on Scroll
+  const handleScroll = (event) => {
+    const { scrollTop, clientHeight, scrollHeight } = event.target;
+    const nearBottomThreshold = 10;
+
+    if (scrollTop + clientHeight > scrollHeight - nearBottomThreshold) {
+      handleLoadMore();
+    }
+  };
+
   // control menu list for loading data by scroll bottom
   const MenuList = (props) => {
     const menuListRef = useRef(null);
-
     useEffect(() => {
       if (menuListRef.current) {
         const menuDiv = menuListRef.current.querySelector('div');
-        // handleScroll
-        menuDiv.onscroll = (event) => {
-          const { scrollTop, clientHeight, scrollHeight } = event.target;
-          const nearBottomThreshold = 10;
-          if (scrollTop + clientHeight > scrollHeight - nearBottomThreshold) {
-            handleLoadMore();
-          }
-        };
+        menuDiv.onscroll = (e) => handleScroll(e);
         menuDiv.style.maxHeight = '200px';
       }
     }, [menuListRef]);

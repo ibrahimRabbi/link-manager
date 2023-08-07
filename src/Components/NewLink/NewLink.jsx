@@ -341,7 +341,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         source_project: projectName,
         source_provider: appNameTwo,
         source_id: uri,
-        relation: linkType,
+        relation: linkType?.label,
         status: 'valid',
         target_data: targetsData,
       };
@@ -399,6 +399,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                   name="link_type"
                   placeholder="Choose Link Type"
                   apiURL={sourceDataList?.sourceType ? `${apiURL}/link-type` : ''}
+                  // after configure the source_type endpoints we need to uncomment line
                   // apiQueryParams={`source_resource=${sourceDataList?.sourceType}`}
                   onChange={handleLinkTypeChange}
                   isLinkCreation={true}

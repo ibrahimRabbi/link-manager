@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Swal from 'sweetalert2';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
@@ -17,6 +16,7 @@ import SelectField from '../SelectField.jsx';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
 import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
+import AlertModal from '../../Shared/AlertModal';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -60,6 +60,7 @@ const Projects = () => {
     description: '',
     organization_id: '',
   });
+  const [open, setOpen] = useState(false);
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -114,7 +115,7 @@ const Projects = () => {
       }),
     {
       onSuccess: (value) => {
-        console.log(value);
+        showNotification(value?.status, value?.message);
       },
     },
   );
@@ -135,7 +136,7 @@ const Projects = () => {
       }),
     {
       onSuccess: (value) => {
-        console.log(value);
+        showNotification(value?.status, value?.message);
       },
     },
   );
@@ -211,20 +212,12 @@ const Projects = () => {
   // handle delete project
   const handleDelete = (data) => {
     setDeleteData(data);
-    Swal.fire({
-      title: 'Are you sure',
-      icon: 'info',
-      text: 'Do you want to delete the project!!',
-      cancelButtonColor: 'red',
-      showCancelButton: true,
-      confirmButtonText: 'Delete',
-      confirmButtonColor: '#3085d6',
-      reverseButtons: true,
-    }).then((value) => {
-      if (value.isConfirmed) {
-        deleteMutate();
-      }
-    });
+    setOpen(true);
+  };
+  const handleConfirmed = (value) => {
+    if (value) {
+      deleteMutate();
+    }
   };
   // handle Edit project
   const handleEdit = (data) => {
@@ -296,6 +289,13 @@ const Projects = () => {
       </AddNewModal>
 
       {(isLoading || createLoading || updateLoading || deleteLoading) && <UseLoader />}
+      {/* confirmation modal  */}
+      <AlertModal
+        open={open}
+        setOpen={setOpen}
+        content={'Do you want to delete the project?'}
+        handleConfirmed={handleConfirmed}
+      />
       <AdminDataTable props={tableProps} />
     </div>
   );

@@ -331,10 +331,10 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
         <ExternalAppModal
           showInNewLink={true}
           formValue={appData}
-          isOauth2={OAUTH2_APPLICATION_TYPES?.includes(appData?.type)}
+          isOauth2={OAUTH2_APPLICATION_TYPES?.includes(appData?.application?.type)}
           isBasic={(
             BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
-          ).includes(appData?.type)}
+          ).includes(appData?.application?.type)}
           onDataStatus={getExtLoginData}
           integrated={false}
         />

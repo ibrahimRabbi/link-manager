@@ -16,8 +16,8 @@ const { tableContainer } = styles;
 const apiURL = `${import.meta.env.VITE_LM_REST_API_URL}/events`;
 
 const Pipeline = () => {
-  const authCtx = useContext(AuthContext);
   const { allPipelines, isPipelineLoading } = useSelector((state) => state.pipelines);
+  const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
   const wbePath = location.pathname?.includes('wbe');
 
@@ -172,7 +172,9 @@ const Pipeline = () => {
               <Drawer open={openWithHeader} onClose={() => setOpenWithHeader(false)}>
                 <Drawer.Header>
                   <Drawer.Title>
-                    <h5 style={{ marginTop: '5px' }}>Output</h5>
+                    <p style={{ marginTop: '5px', fontSize: '19px', fontWeight: 'bold' }}>
+                      Output
+                    </p>
                   </Drawer.Title>
                   <Drawer.Actions>
                     <Button

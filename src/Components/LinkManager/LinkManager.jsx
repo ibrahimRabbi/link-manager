@@ -22,11 +22,11 @@ import { HiRefresh } from 'react-icons/hi';
 import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
 import { darkBgColor, lightBgColor } from '../../App';
-import Swal from 'sweetalert2';
 import TextField from '../AdminDasComponents/TextField';
 import LinkManagerTable from './LinkManagerTable';
 import { useMutation } from '@tanstack/react-query';
 import fetchAPIRequest from '../../apiRequests/apiRequest';
+import AlertModal from '../Shared/AlertModal';
 
 const {
   tableContainer,
@@ -55,6 +55,7 @@ const LinkManager = () => {
   const [searchValue, setSearchValue] = useState({ search_term: '' });
   const [isLinkSearching, setIsLinkSearching] = useState(false);
   const [selectedRowData, setSelectedRowData] = useState({});
+  const [open, setOpen] = useState(false);
   const authCtx = useContext(AuthContext);
   const location = useLocation();
   const isWbe = location.pathname?.includes('wbe');
@@ -158,21 +159,13 @@ const LinkManager = () => {
 
   // handle delete link
   const handleDeleteLink = () => {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'You want to delete this link!',
-      icon: 'question',
-      cancelButtonColor: '#d33',
-      confirmButtonColor: '#3085d6',
-      showCancelButton: true,
-      confirmButtonText: 'Delete',
-      reverseButtons: true,
-    }).then(async (result) => {
-      if (result.isConfirmed) deleteMutate();
-      else {
-        setSelectedRowData({});
-      }
-    });
+    setOpen(true);
+  };
+  const handleConfirmed = (value) => {
+    if (value) deleteMutate();
+    else {
+      setSelectedRowData({});
+    }
   };
 
   const tableProps = {
@@ -187,6 +180,13 @@ const LinkManager = () => {
   return (
     <div>
       <SourceSection />
+      {/* confirmation modal  */}
+      <AlertModal
+        open={open}
+        setOpen={setOpen}
+        content={'You want to delete this link!'}
+        handleConfirmed={handleConfirmed}
+      />
       <div className={isWbe ? 'wbeNavSpace' : ''}>
         <div className="mainContainer">
           <div className="container">

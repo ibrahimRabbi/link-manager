@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import Swal from 'sweetalert2';
 
 // Fetch data for show the graph view
 export const fetchGraphData = createAsyncThunk(
@@ -17,20 +16,17 @@ export const fetchGraphData = createAsyncThunk(
           if (res.status !== 204) {
             return res.json();
           } else {
-            Swal.fire({
-              text: 'No Links Created for this source',
-              icon: 'info',
-            });
+            console.log('No Links Created for this source');
             return null;
           }
         } else {
           return res.json().then((data) => {
-            Swal.fire({ title: data.status, text: data.message, icon: 'error' });
+            console.log({ title: data.status, text: data.message, icon: 'error' });
             return null;
           });
         }
       })
-      .catch((err) => Swal.fire({ title: 'Error', text: err.message, icon: 'error' }));
+      .catch((err) => console.log({ title: 'Error', text: err.message, icon: 'error' }));
 
     return res;
   },
