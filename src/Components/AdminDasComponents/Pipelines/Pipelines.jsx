@@ -18,7 +18,7 @@ import {
   FlexboxGrid,
   Form,
   Uploader,
-  Toggle,
+  // Toggle,
   Loader,
   Schema,
   Message,
@@ -42,17 +42,22 @@ const headerData = [
     header: 'Script',
     key: 'filename',
   },
-  {
-    header: 'Polling Period',
-    key: 'polling_period',
-  },
-  {
-    header: 'Is Polling?',
-    key: 'is_polling',
-  },
+  // {
+  //   header: 'Polling Period',
+  //   key: 'polling_period',
+  // },
+  // {
+  //   header: 'Is Polling?',
+  //   key: 'is_polling',
+  // },
 ];
 
-const { ObjectType, StringType, BooleanType, NumberType } = Schema.Types;
+const {
+  ObjectType,
+  StringType,
+  // BooleanType,
+  NumberType,
+} = Schema.Types;
 
 const Pipelines = () => {
   const {
@@ -70,8 +75,8 @@ const Pipelines = () => {
       ? ObjectType()
       : ObjectType().isRequired('Please upload a file.'),
     filename: StringType(),
-    is_polling: BooleanType().isRequired('This field is required.'),
-    polling_period: NumberType().isRequired('This field is required.'),
+    // is_polling: BooleanType().isRequired('This field is required.'),
+    // polling_period: NumberType().isRequired('This field is required.'),
   });
 
   const [currPage, setCurrPage] = useState(1);
@@ -82,8 +87,8 @@ const Pipelines = () => {
     event_id: 0,
     script_path: null,
     filename: '',
-    is_polling: false,
-    polling_period: 0,
+    // is_polling: false,
+    // polling_period: 0,
   });
   const [open, setOpen] = useState(false);
   const [deleteData, setDeleteData] = useState({});
@@ -154,8 +159,8 @@ const Pipelines = () => {
       event_id: 0,
       script_path: null,
       filename: '',
-      is_polling: false,
-      polling_period: 0,
+      // is_polling: false,
+      // polling_period: 0,
     });
   };
 
@@ -206,8 +211,8 @@ const Pipelines = () => {
       event_id: data?.event_id,
       script_path: null,
       filename: data?.filename,
-      is_polling: data?.is_polling ? data?.is_polling : false,
-      polling_period: data?.polling_period,
+      // is_polling: data?.is_polling ? data?.is_polling : false,
+      // polling_period: data?.polling_period,
     });
     dispatch(handleIsAddNewModal(true));
   };
@@ -274,22 +279,22 @@ const Pipelines = () => {
                 />
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={24}>
+              {/* <FlexboxGrid.Item colspan={24}>
                 <TextField
                   name="is_polling"
                   label="Is Polling"
                   reqText="Path is required"
                   accepter={Toggle}
                 />
-              </FlexboxGrid.Item>
+              </FlexboxGrid.Item> */}
 
-              <FlexboxGrid.Item colspan={24}>
+              {/* <FlexboxGrid.Item colspan={24}>
                 <TextField
                   name="polling_period"
                   label="Polling Period"
                   reqText="Polling Period is required"
                 />
-              </FlexboxGrid.Item>
+              </FlexboxGrid.Item> */}
             </FlexboxGrid>
           </Form>
         </div>
