@@ -23,11 +23,13 @@ import GitlabSelector from '../SelectionDialog/GitlabSelector/GitlabSelector';
 import styles from './NewLink.module.scss';
 import GlideSelector from '../SelectionDialog/GlideSelector/GlideSelector';
 import CustomReactSelect from '../Shared/Dropdowns/CustomReactSelect';
+// import application from "../AdminDasComponents/Application/Application.jsx";
 
 const { newLinkMainContainer, targetContainer, targetIframe, targetBtnContainer } =
   styles;
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
+const thirdApiURL = `${apiURL}/third_party`;
 const gitlabDialogOslcURL = import.meta.env.VITE_GITLAB_DIALOG_URL;
 const jiraDialogURL = import.meta.env.VITE_JIRA_DIALOG_URL;
 const valispaceDialogURL = import.meta.env.VITE_VALISPACE_DIALOG_URL;
@@ -52,6 +54,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const [gitlabDialog, setGitlabDialog] = useState(false);
   const [glideDialog, setGlideDialog] = useState(false);
   const [projectFrameSrc, setProjectFrameSrc] = useState('');
+  const [externalProjectUrl, setExternalProjectUrl] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -82,6 +85,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     setGlideDialog(false);
     setProjectFrameSrc('');
     if (projectType) {
+      console.log('projectType', projectType);
+      const valispaceApp = projectType?.application?.type?.includes('valispace');
+      const jiraApp = projectType?.application?.type?.includes('jira');
       if (projectType?.application?.type) {
         const jiraApp = projectType?.application?.type?.includes('jira');
         const gitlabApp = projectType?.application?.type?.includes('gitlab');
@@ -118,6 +124,24 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             `${codebeamerDialogURL}/oslc/provider/selector?provider_id=${project_id}#oslc-core-postMessage-1.0`,
           );
         }
+      }
+      else if (projectType?.value && applicationType.type === 'gitlab'){
+        setGitlabDialog(true);
+      }
+      else if (projectType?.value && applicationType?.type === 'glideyoke'){
+        setGlideDialog(true);
+      }
+      else if (valispaceApp) {
+        setProjectFrameSrc(
+          // eslint-disable-next-line max-len
+          `${valispaceDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
+        );
+      } else if (jiraApp) {
+        const project_id = projectType?.service_provider_id;
+        setProjectFrameSrc(
+          // eslint-disable-next-line max-len
+          `${jiraDialogURL}/oslc/provider/selector?provider_id=${project_id}#oslc-core-postMessage-1.0`,
+        );
       }
     }
   }, [projectType]);
@@ -210,7 +234,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Project type dropdown
   const handleTargetProject = (selectedItem) => {
-    dispatch(handleProjectType(selectedItem));
+    const newSelectedItem = {
+      ...selectedItem,
+      application_id: applicationType?.id,
+      workspace_id: selectedItem?.id,
+      application_type: applicationType?.type,
+    };
+    dispatch(handleProjectType(newSelectedItem));
   };
 
   // cancel link handler
@@ -355,6 +385,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             showNotification: showNotification,
           }),
         );
+        setExternalProjectUrl('');
       } else {
         showNotification('info', 'Sorry, Source data not found found !!!');
       }
@@ -379,6 +410,28 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       dispatch(handleIsTargetModalOpen(true));
     }
   }, [linkType, projectType]);
+
+  useEffect(() => {
+    console.log(applicationType);
+    switch(applicationType?.type){
+    case 'gitlab':
+      setExternalProjectUrl(`${thirdApiURL}/gitlab/workspace`);
+      break;
+    case 'valispace':
+      setExternalProjectUrl(`${thirdApiURL}/valispace/workspace`);
+      break;
+    case 'jira':
+      setExternalProjectUrl(`${thirdApiURL}/jira/containers`);
+      break;
+    case 'glideyoke':
+      setExternalProjectUrl(`${thirdApiURL}/glideyoke/containers`);
+      break;
+    }
+  }, [applicationType]);
+
+  useEffect(() => {
+    console.log('externalProjectUrl', externalProjectUrl);
+  }, [externalProjectUrl]);
 
   return (
     <>
@@ -438,7 +491,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                       </FlexboxGrid.Item>
 
                       {/* --- Project dropdown ---   */}
-                      {applicationType?.name && (
+                      {applicationType?.name && externalProjectUrl && (
                         <FlexboxGrid.Item
                           as={Col}
                           colspan={11}
@@ -447,11 +500,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                           <CustomReactSelect
                             name="target_project_type"
                             placeholder="Choose Project"
-                            apiURL={`${apiURL}/association`}
-                            apiQueryParams={`application_id=${applicationType?.id}`}
+                            apiURL={externalProjectUrl}
+                            apiQueryParams={
+                              // eslint-disable-next-line max-len
+                              applicationType?.id? `application_id=${applicationType?.id}` : ''
+                            }
                             onChange={handleTargetProject}
                             isLinkCreation={true}
-                            isIntegration={true}
                             isUpdateState={applicationType?.label}
                             isValispace={applicationType?.label === 'Valispace'}
                             value={projectType?.label}
