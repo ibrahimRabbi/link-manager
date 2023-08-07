@@ -57,7 +57,6 @@ const { StringType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
-  trigger_endpoint: StringType().isRequired('This field is required.'),
   description: StringType().isRequired('This field is required.'),
 });
 
@@ -74,7 +73,6 @@ const Events = () => {
   const [editData, setEditData] = useState({});
   const [formValue, setFormValue] = useState({
     name: '',
-    trigger_endpoint: '',
     description: '',
   });
   const [open, setOpen] = useState(false);
@@ -146,7 +144,6 @@ const Events = () => {
     setEditData({});
     setFormValue({
       name: '',
-      trigger_endpoint: '',
       description: '',
     });
   };
@@ -202,7 +199,6 @@ const Events = () => {
     dispatch(handleIsAdminEditing(true));
     setFormValue({
       name: data?.name,
-      trigger_endpoint: data?.trigger_endpoint,
       description: data?.description,
       application_id: data?.application_id,
       association_id: data?.association_id,
@@ -246,14 +242,6 @@ const Events = () => {
             <FlexboxGrid justify="space-between">
               <FlexboxGrid.Item colspan={24}>
                 <TextField name="name" label="Name" reqText="Name is required" />
-              </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                <TextField
-                  name="trigger_endpoint"
-                  label="Trigger Endpoint"
-                  reqText="Trigger Endpoint is required"
-                />
               </FlexboxGrid.Item>
               <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
                 <SelectField
