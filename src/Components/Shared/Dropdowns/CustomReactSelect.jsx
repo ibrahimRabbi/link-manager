@@ -26,6 +26,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
     value,
     isLinkCreation,
     isApplication,
+    isValispace,
     isIntegration,
     isEventAssociation,
     isUpdateState,
@@ -105,7 +106,13 @@ const CustomReactSelect = forwardRef((props, ref) => {
   useEffect(() => {
     let dropdownJsonData = [];
     if (isApplication) {
-      dropdownJsonData = option?.map((item) => {
+      const valispaceApp = {
+        name: 'Valispace',
+        id: 50010,
+        type: 'valispace',
+      };
+      const withHardCodeOption = [...option, valispaceApp];
+      dropdownJsonData = withHardCodeOption?.map((item) => {
         let appIcon = '';
         if (item?.type === 'gitlab') appIcon = icons.gitlab;
         else if (item?.type === 'glideyoke') appIcon = icons.glide;
@@ -136,6 +143,19 @@ const CustomReactSelect = forwardRef((props, ref) => {
       dropdownJsonData = option?.map((item) => ({
         ...item,
         label: item?.service_provider_id,
+        value: item?.id,
+      }));
+    } else if (isValispace) {
+      const hardCodeProject = [
+        {
+          name: 'Valispace ST-100 (VALISPACE)',
+          id: 1000010,
+          application: { type: 'valispace' },
+        },
+      ];
+      dropdownJsonData = hardCodeProject?.map((item) => ({
+        ...item,
+        label: item?.name || item?.label,
         value: item?.id,
       }));
     } else {

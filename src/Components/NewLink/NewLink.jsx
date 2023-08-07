@@ -110,7 +110,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         } else if (valispaceApp) {
           setProjectFrameSrc(
             // eslint-disable-next-line max-len
-            `${valispaceDialogURL}/oslc/provider/selector?provider_id=${project_id}#oslc-core-postMessage-1.0`,
+            `${valispaceDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
           );
         } else if (codebeamerApp) {
           setProjectFrameSrc(
@@ -205,6 +205,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Link type dropdown
   const handleApplicationChange = (selectedItem) => {
+    console.log(selectedItem);
     dispatch(handleApplicationType(selectedItem));
   };
 
@@ -302,10 +303,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           }),
         );
       } else {
-        showNotification('info', 'Sorry, Source data not found found !!!');
+        showNotification('info', 'Sorry, Source data not found !!!');
       }
     } else if (!res && targetDataArr?.length) {
       const targetsData = targetDataArr?.map((data) => {
+        console.log(data);
         const id = data?.selected_lines
           ? data.koatl_uri + '#' + data?.selected_lines
           : data.koatl_uri;
@@ -323,8 +325,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           target_type: data.resource_type ? data.resource_type : '',
           target_title: data.label ? data.label : '',
           target_id: id,
-          target_project: projectType?.label,
-          target_provider: data.target_provider,
+          target_project: projectType?.label ? projectType?.label : '',
+          target_provider: data.target_provider ? data?.target_provider : '',
         };
       });
       let appNameTwo = '';
@@ -454,6 +456,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                             isLinkCreation={true}
                             isIntegration={true}
                             isUpdateState={applicationType?.label}
+                            isValispace={applicationType?.label === 'Valispace'}
                             value={projectType?.label}
                           />
                         </FlexboxGrid.Item>
