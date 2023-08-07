@@ -571,6 +571,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                 <GlideSelector
                   handleSaveLink={handleSaveLink}
                   appData={projectType}
+                  defaultProject={projectType}
                   cancelLinkHandler={cancelLinkHandler}
                 ></GlideSelector>
               )}

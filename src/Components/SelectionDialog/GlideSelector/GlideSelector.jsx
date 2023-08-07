@@ -33,14 +33,21 @@ import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
-const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
+const GlideSelector = ({
+  appData,
+  defaultProject,
+  cancelLinkHandler,
+  handleSaveLink,
+}) => {
   const { isDark } = useSelector((state) => state.nav);
   const [pExist, setPExist] = useState(false);
   const [projects, setProjects] = useState([]);
   const [resourceTypes, setResourceTypes] = useState([]);
   const [tableData, setTableData] = useState([]);
 
-  const [projectId, setProjectId] = useState('');
+  const [projectId, setProjectId] = useState(
+    defaultProject?.id ? defaultProject?.id : '',
+  );
   const [resourceTypeId, setResourceTypeId] = useState('');
   const [currPage, setCurrPage] = useState(1);
   const [limit, setLimit] = React.useState(10);
@@ -93,7 +100,11 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
   useEffect(() => {
     setResourceTypes([]);
     setResourceTypeId('');
-    setProjectId(''); // Clear the project selection
+    if (defaultProject) {
+      setProjectId(defaultProject?.id);
+    } else {
+      setProjectId(''); // Clear the project selection
+    }
     setProjects([]);
     setLoading(true);
     setTableData([]);
@@ -331,7 +342,6 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
     let response = `[${items.join(',')}]`;
     handleSaveLink(response);
     setRowSelection({});
-    console.log(response);
   };
   const handleCancel = () => {
     cancelLinkHandler();
@@ -359,22 +369,23 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
         />
       ) : (
         <div className={style.mainContainer}>
-          <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
-            <FlexboxGrid.Item colspan={3}>
-              <h3>Projects: </h3>
-            </FlexboxGrid.Item>
+          {!defaultProject && (
+            <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
+              <FlexboxGrid.Item colspan={3}>
+                <h3>Projects: </h3>
+              </FlexboxGrid.Item>
 
-            <FlexboxGrid.Item colspan={21}>
-              <UseReactSelect
-                name="glide_native_projects"
-                placeholder="Choose Project"
-                onChange={handleProjectChange}
-                disabled={authenticatedThirdApp}
-                items={projects?.length ? projects : []}
-              />
-            </FlexboxGrid.Item>
-          </FlexboxGrid>
-
+              <FlexboxGrid.Item colspan={21}>
+                <UseReactSelect
+                  name="glide_native_projects"
+                  placeholder="Choose Project"
+                  onChange={handleProjectChange}
+                  disabled={authenticatedThirdApp}
+                  items={projects?.length ? projects : []}
+                />
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          )}
           {projectId && (
             <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
               <FlexboxGrid.Item colspan={3}>
@@ -384,7 +395,7 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
               <FlexboxGrid.Item colspan={21}>
                 <UseReactSelect
                   name="glide_native_resource_type"
-                  placeholder="Choose Project"
+                  placeholder="Choose resource type"
                   onChange={handleResourceTypeChange}
                   disabled={authenticatedThirdApp}
                   isLoading={resourceLoading}
