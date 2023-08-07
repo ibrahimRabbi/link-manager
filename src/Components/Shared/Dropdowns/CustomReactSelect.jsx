@@ -30,6 +30,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
     isIntegration,
     isEventAssociation,
     isUpdateState,
+    removeApplication,
     ...rest
   } = props;
 
@@ -165,6 +166,15 @@ const CustomReactSelect = forwardRef((props, ref) => {
         value: item?.id,
       }));
     }
+    if (removeApplication) {
+      const newDropdownJsonData = dropdownJsonData.filter((item) => {
+        if (item?.type !== removeApplication) {
+          return item;
+        }
+      });
+      dropdownJsonData = newDropdownJsonData;
+    }
+
     setDropdownData(dropdownJsonData);
   }, [option]);
 

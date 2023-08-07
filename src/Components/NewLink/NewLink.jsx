@@ -500,6 +500,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                           value={applicationType?.label}
                           isUpdateState={linkType?.label}
                           isApplication={true}
+                          removeApplication={sourceDataList?.appName}
                         />
                       </FlexboxGrid.Item>
 
