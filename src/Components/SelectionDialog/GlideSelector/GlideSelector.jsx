@@ -421,8 +421,8 @@ const GlideSelector = ({
                   height: '70vh',
                 }}
               >
-                <table className={`${style.styled_table} w3-center`}>
-                  <thead>
+                <table className={`${style.styled_table}`}>
+                  <thead style={{ borderBottom: '0.5px solid rgb(238, 238, 238)' }}>
                     {tableInstance.getHeaderGroups().map((headerEl) => {
                       return (
                         <tr key={headerEl.id} style={{ fontSize: '20px' }}>
