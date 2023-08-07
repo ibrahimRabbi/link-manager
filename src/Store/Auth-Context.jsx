@@ -1,6 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
 let logoutTimer;
 
 const AuthContext = React.createContext({
@@ -40,15 +38,14 @@ export const AuthContextProvider = (props) => {
   }
 
   const [token, setToken] = useState(initialToken);
-  const navigate = useNavigate();
 
-  const userIsLoggedIn = !!token;
+  var userIsLoggedIn = !!token;
 
   const logoutHandler = useCallback(() => {
     setToken(null);
     localStorage.removeItem('token');
     localStorage.removeItem('expirationTime');
-    navigate('/login', { replace: true });
+    userIsLoggedIn = false;
     if (logoutTimer) {
       clearTimeout(logoutTimer);
     }

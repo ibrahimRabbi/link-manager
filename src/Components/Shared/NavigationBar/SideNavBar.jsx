@@ -20,9 +20,7 @@ import { useState } from 'react';
 import AlertModal from '../AlertModal';
 
 const iconStyle = {
-  marginLeft: '-35px',
-  marginBottom: '-3px',
-  marginRight: '20px',
+  marginLeft: '-38px',
 };
 
 const baseOptions = [
@@ -35,7 +33,7 @@ const baseOptions = [
   {
     path: '/graph-view',
     navigateTo: '/graph-view',
-    icon: <PiGraphFill style={iconStyle} />,
+    icon: <PiGraphFill size={20} style={iconStyle} />,
     content: <span>Graph View</span>,
   },
   {
@@ -59,8 +57,9 @@ const baseOptions = [
   },
 ];
 
-const SideNavBar = ({ isWbe }) => {
+const SideNavBar = () => {
   const { isDark, isSidebarOpen } = useSelector((state) => state.nav);
+  const { isWbe } = useSelector((state) => state.links);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
@@ -134,9 +133,12 @@ const SideNavBar = ({ isWbe }) => {
                         : `/wbe${option.path}` === pathname
                     }
                     icon={option.icon}
-                    onClick={() =>
-                      navigate(!isWbe ? option.navigateTo : `/wbe${option.navigateTo}`)
-                    }
+                    onClick={() => {
+                      // eslint-disable-next-line max-len
+                      isWbe
+                        ? navigate(`/wbe${option.navigateTo}`)
+                        : navigate(option.navigateTo);
+                    }}
                   >
                     {option.content}
                   </Nav.Item>
