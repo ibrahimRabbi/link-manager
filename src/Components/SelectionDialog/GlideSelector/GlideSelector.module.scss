@@ -191,7 +191,7 @@
   border: 0.5px solid rgb(238, 238, 238);
 }
 .styled_table thead tr {
-  text-align: center;
+  text-align: left;
 }
 .styled_table th,
 .styled_table td {
@@ -201,8 +201,5 @@
   border-bottom: 1px solid #dddddd;
 }
 .mainContainer {
-  height: 100vh;
-  // overflow-y: auto;
-  // padding-right: 2px;
-  // border: 0.5px solid rgb(227, 227, 227);
+  min-height: 100vh;
 }
