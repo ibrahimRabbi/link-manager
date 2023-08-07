@@ -18,7 +18,7 @@ function DebouncedInput({ value: initialValue, onChange, debounce = 500, ...prop
 
   return (
     <Input
-      width={100}
+      // style={{ width: '250px' }}
       {...props}
       value={value}
       onChange={(e) => setValue(e.target.value)}
