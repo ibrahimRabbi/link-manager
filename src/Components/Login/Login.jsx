@@ -54,7 +54,6 @@ const Login = () => {
 
   useEffect(() => {
     if (sourceData) {
-      console.log(sourceData);
       dispatch(handleGetSources(JSON.parse(sourceData)));
     }
   }, [sourceData]);
