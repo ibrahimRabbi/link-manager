@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import style from './Login.module.scss';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useMixpanel } from 'react-mixpanel-browser';
 import {
   FlexboxGrid,
@@ -17,6 +17,7 @@ import {
 } from 'rsuite';
 import TextField from '../AdminDasComponents/TextField.jsx';
 import PasswordField from '../AdminDasComponents/PasswordField.jsx';
+import { handleGetSources } from '../../Redux/slices/linksSlice.jsx';
 
 const { titleSpan, main, title } = style;
 const loginURL = `${import.meta.env.VITE_LM_REST_API_URL}/auth/login`;
@@ -33,7 +34,7 @@ const model = Schema.Model({
 });
 
 const Login = () => {
-  const { isWbe } = useSelector((state) => state.links);
+  const { isWbe, sourceDataList } = useSelector((state) => state.links);
   const [isLoading, setIsLoading] = useState(false);
   const [setFormError] = useState({});
   const [formValue, setFormValue] = useState({
@@ -46,7 +47,16 @@ const Login = () => {
   const navigate = useNavigate();
   const toaster = useToaster();
   const mixpanel = useMixpanel();
+  const dispatch = useDispatch();
   const isMounted = useRef(null); // Variable to track component mount state
+  const sourceData = sessionStorage.getItem('sourceData');
+  const isSource = sourceDataList?.uri ? sourceDataList?.uri : sourceData;
+
+  useEffect(() => {
+    if (sourceData) {
+      dispatch(handleGetSources(JSON.parse(sourceData)));
+    }
+  }, [sourceData]);
 
   useEffect(() => {
     return () => {
@@ -97,7 +107,11 @@ const Login = () => {
           // Manage redirect
           if (location.state) navigate(location.state.from.pathname);
           else {
-            isWbe ? navigate('/wbe') : navigate('/');
+            if (isSource) navigate('/wbe');
+            else if (isWbe) navigate('/wbe');
+            else {
+              navigate('/');
+            }
           }
         } else {
           let errorMessage = 'Authentication failed: ';

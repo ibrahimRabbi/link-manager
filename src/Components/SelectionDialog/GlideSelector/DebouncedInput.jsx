@@ -16,7 +16,14 @@ function DebouncedInput({ value: initialValue, onChange, debounce = 500, ...prop
     return () => clearTimeout(timeout);
   }, [value]);
 
-  return <Input {...props} value={value} onChange={(e) => setValue(e.target.value)} />;
+  return (
+    <Input
+      // style={{ width: '250px' }}
+      {...props}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+    />
+  );
 }
 
 export default DebouncedInput;
