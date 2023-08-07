@@ -131,6 +131,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       else if (projectType?.value && applicationType?.type === 'glideyoke'){
         setGlideDialog(true);
       }
+      else if (projectType?.value && applicationType?.type === 'jira'){
+        setGlideDialog(true);
+      }
       else if (valispaceApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
@@ -229,6 +232,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Link type dropdown
   const handleApplicationChange = (selectedItem) => {
+    setExternalProjectUrl('');
     dispatch(handleApplicationType(selectedItem));
   };
 
@@ -428,6 +432,10 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       break;
     }
   }, [applicationType]);
+
+  useEffect(() => {
+    console.log('externalProject', externalProjectUrl);
+  }, [externalProjectUrl]);
 
   useEffect(() => {
     console.log('externalProjectUrl', externalProjectUrl);
