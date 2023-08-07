@@ -205,13 +205,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Link type dropdown
   const handleApplicationChange = (selectedItem) => {
-    console.log(selectedItem);
     dispatch(handleApplicationType(selectedItem));
   };
 
   // Project type dropdown
   const handleTargetProject = (selectedItem) => {
-    console.log(selectedItem);
     dispatch(handleProjectType(selectedItem));
   };
 
@@ -307,7 +305,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       }
     } else if (!res && targetDataArr?.length) {
       const targetsData = targetDataArr?.map((data) => {
-        console.log(data);
         const id = data?.selected_lines
           ? data.koatl_uri + '#' + data?.selected_lines
           : data.koatl_uri;
