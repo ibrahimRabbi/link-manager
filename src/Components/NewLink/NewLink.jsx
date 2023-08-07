@@ -23,6 +23,14 @@ import GitlabSelector from '../SelectionDialog/GitlabSelector/GitlabSelector';
 import styles from './NewLink.module.scss';
 import GlideSelector from '../SelectionDialog/GlideSelector/GlideSelector';
 import CustomReactSelect from '../Shared/Dropdowns/CustomReactSelect';
+// eslint-disable-next-line max-len
+import {
+  BASIC_AUTH_APPLICATION_TYPES,
+  MICROSERVICES_APPLICATION_TYPES,
+  OAUTH2_APPLICATION_TYPES,
+} from '../../App.jsx';
+// eslint-disable-next-line max-len
+import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
 // import application from "../AdminDasComponents/Application/Application.jsx";
 
 const { newLinkMainContainer, targetContainer, targetIframe, targetBtnContainer } =
@@ -55,6 +63,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const [glideDialog, setGlideDialog] = useState(false);
   const [projectFrameSrc, setProjectFrameSrc] = useState('');
   const [externalProjectUrl, setExternalProjectUrl] = useState('');
+  const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -85,7 +94,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     setGlideDialog(false);
     setProjectFrameSrc('');
     if (projectType) {
-      console.log('projectType', projectType);
       const valispaceApp = projectType?.application?.type?.includes('valispace');
       const jiraApp = projectType?.application?.type?.includes('jira');
       if (projectType?.application?.type) {
@@ -124,17 +132,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             `${codebeamerDialogURL}/oslc/provider/selector?provider_id=${project_id}#oslc-core-postMessage-1.0`,
           );
         }
-      }
-      else if (projectType?.value && applicationType.type === 'gitlab'){
+      } else if (projectType?.value && applicationType.type === 'gitlab') {
         setGitlabDialog(true);
-      }
-      else if (projectType?.value && applicationType?.type === 'glideyoke'){
+      } else if (projectType?.value && applicationType?.type === 'glideyoke') {
         setGlideDialog(true);
-      }
-      else if (projectType?.value && applicationType?.type === 'jira'){
+      } else if (projectType?.value && applicationType?.type === 'jira') {
         setGlideDialog(true);
-      }
-      else if (valispaceApp) {
+      } else if (valispaceApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
           `${valispaceDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
@@ -253,6 +257,16 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     isWbe ? navigate('/wbe') : navigate('/');
   };
 
+  const getExtLoginData = (data) => {
+    if (data?.status) {
+      setAuthenticatedThirdApp(false);
+    }
+  };
+
+  const enableExtLoginData = () => {
+    setAuthenticatedThirdApp(true);
+  };
+
   // Create new link
   const handleSaveLink = (res) => {
     const { projectName, sourceType, title, uri, appName, branch, commit } =
@@ -262,7 +276,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     // create link with new response formate with new endpoint
     if (res) {
       const targetRes = JSON.parse(res);
-      console.log(targetRes);
       const mappedTargetData = targetRes?.map((item) => {
         const properties = item?.extended_properties;
         // eslint-disable-next-line max-len
@@ -322,7 +335,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         target_data: mappedTargetData,
       };
 
-      console.log('New Response: ', linkBodyData);
+      // console.log('New Response: ', linkBodyData);
 
       if (sourceDataList?.uri) {
         dispatch(
@@ -378,7 +391,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         status: 'valid',
         target_data: targetsData,
       };
-      console.log('Link Obj: ', linkObj);
+      // console.log('Link Obj: ', linkObj);
       if (sourceDataList?.uri) {
         dispatch(
           fetchCreateLink({
@@ -416,8 +429,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   }, [linkType, projectType]);
 
   useEffect(() => {
-    console.log(applicationType);
-    switch(applicationType?.type){
+    // prettier-ignore
+    switch (applicationType?.type) {
     case 'gitlab':
       setExternalProjectUrl(`${thirdApiURL}/gitlab/workspace`);
       break;
@@ -432,14 +445,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       break;
     }
   }, [applicationType]);
-
-  useEffect(() => {
-    console.log('externalProject', externalProjectUrl);
-  }, [externalProjectUrl]);
-
-  useEffect(() => {
-    console.log('externalProjectUrl', externalProjectUrl);
-  }, [externalProjectUrl]);
 
   return (
     <>
@@ -511,12 +516,15 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                             apiURL={externalProjectUrl}
                             apiQueryParams={
                               // eslint-disable-next-line max-len
-                              applicationType?.id? `application_id=${applicationType?.id}` : ''
+                              applicationType?.id
+                                ? `application_id=${applicationType?.id}`
+                                : ''
                             }
                             onChange={handleTargetProject}
                             isLinkCreation={true}
                             isUpdateState={applicationType?.label}
                             isValispace={applicationType?.label === 'Valispace'}
+                            validateAccess={enableExtLoginData}
                             value={projectType?.label}
                           />
                         </FlexboxGrid.Item>
@@ -539,6 +547,18 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             )}
 
             <div>
+              {authenticatedThirdApp && (
+                <ExternalAppModal
+                  showInNewLink={true}
+                  formValue={applicationType}
+                  isOauth2={OAUTH2_APPLICATION_TYPES?.includes(applicationType?.type)}
+                  isBasic={(
+                    BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
+                  ).includes(applicationType?.type)}
+                  onDataStatus={getExtLoginData}
+                  integrated={false}
+                />
+              )}
               {linkType && gitlabDialog && (
                 <GitlabSelector
                   appData={projectType}

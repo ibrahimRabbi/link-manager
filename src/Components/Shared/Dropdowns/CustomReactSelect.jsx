@@ -59,7 +59,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
     let url = `${apiURL}?page=${pageNumber}&per_page=${itemsPerPage}`;
     if (queryPath) url = `${url}&${queryPath}`;
 
-    if (apiURL) {
+    if (apiURL && !isValispace) {
       setIsLoading(true);
       const response = await fetch(url, {
         method: 'GET',

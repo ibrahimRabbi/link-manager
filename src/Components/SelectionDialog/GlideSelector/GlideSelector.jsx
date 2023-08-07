@@ -97,7 +97,9 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
     setLoading(true);
     setTableData([]);
     fetch(
-      `${lmApiUrl}/third_party/${appData?.application?.type || appData?.application_type}/containers?page=1&per_page=10&application_id=${appData?.application_id}`,
+      `${lmApiUrl}/third_party/${
+        appData?.application?.type || appData?.application_type
+      }/containers?page=1&per_page=10&application_id=${appData?.application_id}`,
       {
         headers: {
           Authorization: `Bearer ${authCtx.token}`,
@@ -150,7 +152,11 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
     if (projectId) {
       setResourceLoading(true);
       setTableData([]);
-      fetch(`${lmApiUrl}/third_party/${appData?.application?.type || appData?.application_type}/resource_types`)
+      fetch(
+        `${lmApiUrl}/third_party/${
+          appData?.application?.type || appData?.application_type
+        }/resource_types`,
+      )
         .then((response) => {
           if (response.status === 200) {
             return response.json();
@@ -176,7 +182,13 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
       if (projectId && resourceTypeId && currPage && limit) {
         setTableLoading(true);
         fetch(
-          `${lmApiUrl}/third_party/${appData?.application?.type || appData?.application_type}/container/${appData?.application_type !== 'glideyoke' ? appData?.id: 'tenant'}/${resourceTypeId}?page=${currPage}&per_page=${limit}&application_id=${appData?.application_id}`,
+          `${lmApiUrl}/third_party/${
+            appData?.application?.type || appData?.application_type
+          }/container/${
+            appData?.application_type !== 'glideyoke' ? appData?.id : 'tenant'
+          }/${resourceTypeId}?page=${currPage}&per_page=${limit}&application_id=${
+            appData?.application_id
+          }`,
           {
             headers: {
               Authorization: `Bearer ${authCtx.token}`,
@@ -229,7 +241,7 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
       setFilterLoad(true);
       fetch(
         `${lmApiUrl}/third_party/${
-            appData?.application?.type || appData?.application_type
+          appData?.application?.type || appData?.application_type
         }/container/${appData?.id}/${resourceTypeId}?page=1&per_page=10&application_id=${
           appData?.application_id
         }&${columnFilters[0]?.id.toLowerCase()}=${columnFilters[0]?.value}`,
