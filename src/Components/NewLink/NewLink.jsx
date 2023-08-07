@@ -20,16 +20,26 @@ import { FlexboxGrid, Col, Button, Message, toaster } from 'rsuite';
 import SourceSection from '../SourceSection';
 import UseLoader from '../Shared/UseLoader';
 import GitlabSelector from '../SelectionDialog/GitlabSelector/GitlabSelector';
-import UseReactSelect from '../Shared/Dropdowns/UseReactSelect';
 import styles from './NewLink.module.scss';
 import GlideSelector from '../SelectionDialog/GlideSelector/GlideSelector';
+import CustomReactSelect from '../Shared/Dropdowns/CustomReactSelect';
+// eslint-disable-next-line max-len
+import {
+  BASIC_AUTH_APPLICATION_TYPES,
+  MICROSERVICES_APPLICATION_TYPES,
+  OAUTH2_APPLICATION_TYPES,
+} from '../../App.jsx';
+// eslint-disable-next-line max-len
+import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
+// import application from "../AdminDasComponents/Application/Application.jsx";
 
 const { newLinkMainContainer, targetContainer, targetIframe, targetBtnContainer } =
   styles;
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
+const thirdApiURL = `${apiURL}/third_party`;
+const gitlabDialogOslcURL = import.meta.env.VITE_GITLAB_DIALOG_URL;
 const jiraDialogURL = import.meta.env.VITE_JIRA_DIALOG_URL;
-const glideDialogURL = import.meta.env.VITE_GLIDE_DIALOG_URL;
 const valispaceDialogURL = import.meta.env.VITE_VALISPACE_DIALOG_URL;
 const codebeamerDialogURL = import.meta.env.VITE_CODEBEAMER_DIALOG_URL;
 
@@ -51,13 +61,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   } = useSelector((state) => state.links);
   const [gitlabDialog, setGitlabDialog] = useState(false);
   const [glideDialog, setGlideDialog] = useState(false);
-  const [groupId, setGroupId] = useState('');
-  const [linkTypeItems, setLinkTypeItems] = useState([]);
-  const [applicationTypeItems, setApplicationTypeItems] = useState([]);
-  let [projectTypeItems, setProjectTypeItems] = useState([]);
   const [projectFrameSrc, setProjectFrameSrc] = useState('');
-  const [projectId, setProjectId] = useState('');
-  const [appData, setAppData] = useState([]);
+  const [externalProjectUrl, setExternalProjectUrl] = useState('');
+  const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -73,63 +79,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
     }
   };
-  // Display project types conditionally by App name
-  useEffect(() => {
-    (async () => {
-      // get link_types dropdown items
-      fetch('.././gcm_context.json')
-        .then((res) => res.json())
-        // .then((data) => setStreamItems(data))
-        .catch((err) => console.log(err));
-
-      // get link_types dropdown items
-      fetch('.././link_types.json')
-        .then((res) => res.json())
-        .then((data) => setLinkTypeItems(data))
-        .catch((err) => console.log(err));
-
-      // get application_types dropdown items
-      fetch('.././application_types.json')
-        .then((res) => res.json())
-        .then((data) => {
-          const { appName } = sourceDataList;
-          const filteredApplications = data?.filter((app) => {
-            if (app.name !== appName?.toUpperCase()) return app;
-          });
-          setApplicationTypeItems(filteredApplications);
-        })
-        .catch((err) => console.log(err));
-
-      // get project_types dropdown items
-      const projectsRes = await fetch('.././project_types.json')
-        .then((res) => res.json())
-        .catch((err) => console.log(err));
-
-      // display projects conditionally
-      const specificProject = projectsRes?.reduce((acc, curr) => {
-        if (curr.name.includes(applicationType)) acc.push(curr);
-        return acc;
-      }, []);
-      setProjectTypeItems(specificProject);
-    })();
-  }, [sourceDataList]);
-
-  useEffect(() => {
-    const updateProjectTypeItems = async () => {
-      // get project_types dropdown items
-      const projectsRes = await fetch('.././project_types.json')
-        .then((res) => res.json())
-        .catch((err) => console.log(err));
-
-      // display projects conditionally
-      const specificProject = projectsRes?.reduce((acc, curr) => {
-        if (curr.name.includes(`(${applicationType})`)) acc.push(curr);
-        return acc;
-      }, []);
-      setProjectTypeItems(specificProject);
-    };
-    updateProjectTypeItems();
-  }, [applicationType]);
 
   useEffect(() => {
     dispatch(handleCurrPageTitle(isEditLinkPage ? isEditLinkPage : 'New Link'));
@@ -141,74 +90,69 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // set iframe SRC conditionally
   useEffect(() => {
+    setGitlabDialog(false);
+    setGlideDialog(false);
+    setProjectFrameSrc('');
     if (projectType) {
-      setGitlabDialog(false);
-      setGlideDialog(false);
-      const jiraApp = projectType?.includes('(JIRA)');
-      const gitlabApp = projectType?.includes('(GITLAB)');
-      const glideApp = projectType?.includes('(GLIDE)');
-      const glideAppNative = projectType?.includes('(GLIDE-NATIVE)');
-      const valispaceApp = projectType?.includes('(VALISPACE)');
-      const codebeamerApp = projectType?.includes('(CODEBEAMER)');
-      const jiraProjectApp = projectType?.includes('(JIRA-PROJECTS)');
-      const valispaceProjectApp = projectType?.includes('(VALISPACE-PROJECTS)');
-      const codebeamerProjectApp = projectType?.includes('(CODEBEAMER-PROJECTS)');
+      const valispaceApp = projectType?.application?.type?.includes('valispace');
+      const jiraApp = projectType?.application?.type?.includes('jira');
+      if (projectType?.application?.type) {
+        const jiraApp = projectType?.application?.type?.includes('jira');
+        const gitlabApp = projectType?.application?.type?.includes('gitlab');
+        const glideApp = projectType?.application?.type?.includes('glide');
+        const valispaceApp = projectType?.application?.type?.includes('valispace');
+        const codebeamerApp = projectType?.application?.type?.includes('codebeamer');
+        const isOslc = projectType?.application?.type?.includes('oslc');
 
-      if (jiraApp) {
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `${jiraDialogURL}/oslc/provider/selector?provider_id=${projectId}#oslc-core-postMessage-1.0`,
-        );
-      } else if (gitlabApp) {
-        const tempAppData = projectTypeItems?.filter((app) => {
-          if (app.name === projectType) return app;
-        });
-        setAppData(tempAppData[0]);
+        // get service provider id
+        const project_id = projectType?.service_provider_id;
+
+        if (isOslc) {
+          setProjectFrameSrc(
+            // eslint-disable-next-line max-len
+            `${gitlabDialogOslcURL}/oslc/provider/selector?provider_id=${project_id}#oslc-core-postMessage-1.0`,
+          );
+        } else if (gitlabApp) {
+          setGitlabDialog(true);
+        } else if (glideApp) {
+          setGlideDialog(true);
+        } else if (jiraApp) {
+          setProjectFrameSrc(
+            // eslint-disable-next-line max-len
+            `${jiraDialogURL}/oslc/provider/selector?provider_id=${project_id}#oslc-core-postMessage-1.0`,
+          );
+        } else if (valispaceApp) {
+          setProjectFrameSrc(
+            // eslint-disable-next-line max-len
+            `${valispaceDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
+          );
+        } else if (codebeamerApp) {
+          setProjectFrameSrc(
+            // eslint-disable-next-line max-len
+            `${codebeamerDialogURL}/oslc/provider/selector?provider_id=${project_id}#oslc-core-postMessage-1.0`,
+          );
+        }
+      } else if (projectType?.value && applicationType.type === 'gitlab') {
         setGitlabDialog(true);
-        setGlideDialog(false);
-        setGroupId(projectId);
-        setProjectFrameSrc('');
-      } else if (glideAppNative) {
-        const tempAppData = projectTypeItems?.filter((app) => {
-          if (app.name === projectType) return app;
-        });
-        setAppData(tempAppData[0]);
+      } else if (projectType?.value && applicationType?.type === 'glideyoke') {
         setGlideDialog(true);
-        setGitlabDialog(false);
-        setProjectFrameSrc('');
-      } else if (glideApp) {
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `${glideDialogURL}/oslc/provider/selector?gc_context=${streamType}#oslc-core-postMessage-1.0`,
-        );
+      } else if (projectType?.value && applicationType?.type === 'jira') {
+        setGlideDialog(true);
       } else if (valispaceApp) {
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `${valispaceDialogURL}/oslc/provider/selector?provider_id=${projectId}#oslc-core-postMessage-1.0`,
-        );
-      } else if (codebeamerApp) {
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `${codebeamerDialogURL}/oslc/provider/selector?provider_id=${projectId}#oslc-core-postMessage-1.0`,
-        );
-      } else if (jiraProjectApp) {
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `${jiraDialogURL}/oslc/provider/selector-project?provider_id=${projectId}`,
-        );
-      } else if (valispaceProjectApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
           `${valispaceDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
         );
-      } else if (codebeamerProjectApp) {
+      } else if (jiraApp) {
+        const project_id = projectType?.service_provider_id;
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
-          `${codebeamerDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
+          `${jiraDialogURL}/oslc/provider/selector?provider_id=${project_id}#oslc-core-postMessage-1.0`,
         );
       }
     }
   }, [projectType]);
+
   //// Get Selection dialog response data
   window.addEventListener(
     'message',
@@ -269,7 +213,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       setTimeout(() => {
         dispatch(handleApplicationType(applicationType));
       }, 50);
-      setProjectId('');
     }
   }, [oslcCancelResponse]);
 
@@ -288,27 +231,40 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Link type dropdown
   const handleLinkTypeChange = (selectedItem) => {
-    dispatch(handleLinkType(selectedItem?.name));
+    dispatch(handleLinkType(selectedItem));
   };
 
   // Link type dropdown
   const handleApplicationChange = (selectedItem) => {
-    dispatch(handleApplicationType(null));
-    setTimeout(() => {
-      dispatch(handleApplicationType(selectedItem?.name));
-    }, 50);
+    setExternalProjectUrl('');
+    dispatch(handleApplicationType(selectedItem));
   };
 
   // Project type dropdown
   const handleTargetProject = (selectedItem) => {
-    dispatch(handleProjectType(selectedItem?.name));
-    setProjectId(selectedItem?.id);
+    const newSelectedItem = {
+      ...selectedItem,
+      application_id: applicationType?.id,
+      workspace_id: selectedItem?.id,
+      application_type: applicationType?.type,
+    };
+    dispatch(handleProjectType(newSelectedItem));
   };
 
   // cancel link handler
   const cancelLinkHandler = () => {
     dispatch(handleCancelLink());
     isWbe ? navigate('/wbe') : navigate('/');
+  };
+
+  const getExtLoginData = (data) => {
+    if (data?.status) {
+      setAuthenticatedThirdApp(false);
+    }
+  };
+
+  const enableExtLoginData = () => {
+    setAuthenticatedThirdApp(true);
   };
 
   // Create new link
@@ -320,7 +276,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     // create link with new response formate with new endpoint
     if (res) {
       const targetRes = JSON.parse(res);
-      console.log(targetRes);
       const mappedTargetData = targetRes?.map((item) => {
         const properties = item?.extended_properties;
         // eslint-disable-next-line max-len
@@ -374,13 +329,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           },
         },
         link_properties: {
-          relation: linkType,
+          relation: linkType?.label,
           status: 'valid',
         },
         target_data: mappedTargetData,
       };
 
-      console.log('New Response: ', linkBodyData);
+      // console.log('New Response: ', linkBodyData);
 
       if (sourceDataList?.uri) {
         dispatch(
@@ -393,7 +348,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           }),
         );
       } else {
-        showNotification('info', 'Sorry, Source data not found found !!!');
+        showNotification('info', 'Sorry, Source data not found !!!');
       }
     } else if (!res && targetDataArr?.length) {
       const targetsData = targetDataArr?.map((data) => {
@@ -414,8 +369,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           target_type: data.resource_type ? data.resource_type : '',
           target_title: data.label ? data.label : '',
           target_id: id,
-          target_project: projectType,
-          target_provider: data.target_provider,
+          target_project: projectType?.label ? projectType?.label : '',
+          target_provider: data.target_provider ? data?.target_provider : '',
         };
       });
       let appNameTwo = '';
@@ -432,11 +387,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         source_project: projectName,
         source_provider: appNameTwo,
         source_id: uri,
-        relation: linkType,
+        relation: linkType?.label,
         status: 'valid',
         target_data: targetsData,
       };
-      console.log('Link Obj: ', linkObj);
+      // console.log('Link Obj: ', linkObj);
       if (sourceDataList?.uri) {
         dispatch(
           fetchCreateLink({
@@ -447,6 +402,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             showNotification: showNotification,
           }),
         );
+        setExternalProjectUrl('');
       } else {
         showNotification('info', 'Sorry, Source data not found found !!!');
       }
@@ -472,6 +428,24 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     }
   }, [linkType, projectType]);
 
+  useEffect(() => {
+    // prettier-ignore
+    switch (applicationType?.type) {
+    case 'gitlab':
+      setExternalProjectUrl(`${thirdApiURL}/gitlab/workspace`);
+      break;
+    case 'valispace':
+      setExternalProjectUrl(`${thirdApiURL}/valispace/workspace`);
+      break;
+    case 'jira':
+      setExternalProjectUrl(`${thirdApiURL}/jira/containers`);
+      break;
+    case 'glideyoke':
+      setExternalProjectUrl(`${thirdApiURL}/glideyoke/containers`);
+      break;
+    }
+  }, [applicationType]);
+
   return (
     <>
       <SourceSection />
@@ -486,11 +460,15 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item colspan={21}>
-                <UseReactSelect
+                <CustomReactSelect
                   name="link_type"
                   placeholder="Choose Link Type"
+                  apiURL={sourceDataList?.sourceType ? `${apiURL}/link-type` : ''}
+                  // after configure the source_type endpoints we need to uncomment line
+                  // apiQueryParams={`source_resource=${sourceDataList?.sourceType}`}
                   onChange={handleLinkTypeChange}
-                  items={linkTypeItems?.length ? linkTypeItems : []}
+                  isLinkCreation={true}
+                  value={linkType?.label}
                 />
               </FlexboxGrid.Item>
             </FlexboxGrid>
@@ -511,26 +489,43 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                         colspan={11}
                         style={{ paddingLeft: '0' }}
                       >
-                        <UseReactSelect
+                        <CustomReactSelect
                           name="application_type"
                           placeholder="Choose Application"
+                          apiURL={
+                            sourceDataList?.sourceType ? `${apiURL}/application` : ''
+                          }
                           onChange={handleApplicationChange}
-                          items={applicationTypeItems?.length ? applicationTypeItems : []}
+                          isLinkCreation={true}
+                          value={applicationType?.label}
+                          isUpdateState={linkType?.label}
+                          isApplication={true}
                         />
                       </FlexboxGrid.Item>
 
                       {/* --- Project dropdown ---   */}
-                      {applicationType && (
+                      {applicationType?.name && externalProjectUrl && (
                         <FlexboxGrid.Item
                           as={Col}
                           colspan={11}
                           style={{ paddingRight: '0', marginLeft: 'auto' }}
                         >
-                          <UseReactSelect
-                            name="target_project"
+                          <CustomReactSelect
+                            name="target_project_type"
                             placeholder="Choose Project"
+                            apiURL={externalProjectUrl}
+                            apiQueryParams={
+                              // eslint-disable-next-line max-len
+                              applicationType?.id
+                                ? `application_id=${applicationType?.id}`
+                                : ''
+                            }
                             onChange={handleTargetProject}
-                            items={projectTypeItems?.length ? projectTypeItems : []}
+                            isLinkCreation={true}
+                            isUpdateState={applicationType?.label}
+                            isValispace={applicationType?.label === 'Valispace'}
+                            validateAccess={enableExtLoginData}
+                            value={projectType?.label}
                           />
                         </FlexboxGrid.Item>
                       )}
@@ -550,19 +545,31 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                 )}
               </div>
             )}
+
             <div>
-              {linkType && projectType && gitlabDialog && (
+              {authenticatedThirdApp && (
+                <ExternalAppModal
+                  showInNewLink={true}
+                  formValue={applicationType}
+                  isOauth2={OAUTH2_APPLICATION_TYPES?.includes(applicationType?.type)}
+                  isBasic={(
+                    BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
+                  ).includes(applicationType?.type)}
+                  onDataStatus={getExtLoginData}
+                  integrated={false}
+                />
+              )}
+              {linkType && gitlabDialog && (
                 <GitlabSelector
-                  id={groupId}
-                  appData={appData}
+                  appData={projectType}
                   handleSaveLink={handleSaveLink}
                   cancelLinkHandler={cancelLinkHandler}
                 ></GitlabSelector>
               )}
-              {linkType && projectType && glideDialog && (
+              {linkType && glideDialog && (
                 <GlideSelector
                   handleSaveLink={handleSaveLink}
-                  appData={appData}
+                  appData={projectType}
                   cancelLinkHandler={cancelLinkHandler}
                 ></GlideSelector>
               )}
@@ -570,9 +577,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           </div>
 
           {/* Target Cancel button  */}
-          {gitlabDialog || glideDialog ? (
-            ''
-          ) : (
+          {!projectType?.id && (
             <div className={targetBtnContainer}>
               <Button
                 appearance="ghost"

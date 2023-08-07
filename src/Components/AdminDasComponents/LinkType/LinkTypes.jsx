@@ -582,6 +582,7 @@ const LinkTypes = () => {
                       accepter={CustomReactSelect}
                       apiURL={`${lmApiUrl}/application`}
                       onChange={handleApplication}
+                      isApplication={true}
                     />
                   </FlexboxGrid.Item>
 
