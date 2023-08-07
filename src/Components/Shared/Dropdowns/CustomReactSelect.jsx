@@ -7,12 +7,12 @@ import AuthContext from '../../../Store/Auth-Context';
 import { handleStoreDropdownItems } from '../../../Redux/slices/associationSlice';
 import { Message, toaster } from 'rsuite';
 const icons = {
-  jira: 'https://lm-dev.koneksys.com/jira_logo.png',
-  gitlab: 'https://lm-dev.koneksys.com/gitlab_logo.png',
-  glide: 'https://lm-dev.koneksys.com/glide_logo.png',
-  valispace: 'https://lm-dev.koneksys.com/valispace_logo.png',
-  codebeamer: 'https://lm-dev.koneksys.com/codebeamer_logo.png',
-  default: 'https://lm-dev.koneksys.com/default_logo.png',
+  jira: '/jira_logo.png',
+  gitlab: '/gitlab_logo.png',
+  glide: '/glide_logo.png',
+  valispace: '/valispace_logo.png',
+  codebeamer: '/codebeamer_logo.png',
+  default: '/default_logo.png',
 };
 
 const CustomReactSelect = forwardRef((props, ref) => {

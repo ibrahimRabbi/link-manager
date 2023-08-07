@@ -16,7 +16,8 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
 } from '@tanstack/react-table';
-import { columnDefWithCheckBox } from './Columns';
+import { columnDefWithCheckBox as glideColumns } from './Columns';
+import { columnDefWithCheckBox as jiraColumns } from './JiraColumns';
 import {
   Button,
   ButtonToolbar,
@@ -294,7 +295,13 @@ const GlideSelector = ({ appData, cancelLinkHandler, handleSaveLink }) => {
     }
   }, [columnFilters[0]]);
   const finalData = React.useMemo(() => tableData?.items);
-  const finalColumnDef = React.useMemo(() => columnDefWithCheckBox);
+  const finalColumnDef = React.useMemo(() => {
+    if (appData?.application_type === 'jira') {
+      return jiraColumns;
+    } else {
+      return glideColumns;
+    }
+  });
   const tableInstance = useReactTable({
     columns: finalColumnDef,
     data: finalData,
