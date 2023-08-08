@@ -5,6 +5,8 @@ import AdminDataTable from '../AdminDataTable.jsx';
 import { handleCurrPageTitle } from '../../../Redux/slices/navSlice.jsx';
 import AuthContext from '../../../Store/Auth-Context.jsx';
 import { fetchPipelineRun } from '../../../Redux/slices/pipelineRunSlice.jsx';
+import { fetchDeleteData } from '../../../Redux/slices/useCRUDSlice';
+import AlertModal from '../../Shared/AlertModal';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -41,9 +43,12 @@ const PipelineRun = () => {
   );
   const { refreshData /*, isAdminEditing*/ } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
-  const [pageSize /*, setPageSize*/] = useState(10);
+  const [pageSize, setPageSize] = useState(10);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
+  const [deleteData, setDeleteData] = useState({});
+  const [open, setOpen] = useState(false);
+
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -72,15 +77,36 @@ const PipelineRun = () => {
     );
   }, [pageSize, currPage, refreshData]);
 
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
+  };
+
+  const handleDelete = (data) => {
+    setDeleteData(data);
+    setOpen(true);
+  };
+
+  const handleConfirmed = (value) => {
+    if (value) {
+      const deleteUrl = `${lmApiUrl}/pipeline_run/${deleteData?.id}`;
+      dispatch(
+        fetchDeleteData({
+          url: deleteUrl,
+          token: authCtx.token,
+          showNotification: showNotification,
+        }),
+      );
+    }
+  };
+
   const tableProps = {
     title: 'Pipeline Results',
     rowData: allPipelineRun?.items?.length ? allPipelineRun?.items : [],
     headerData,
-    // handleEdit,
-    // handleDelete,
-    // handleAddNew,
+    handleDelete,
     handlePagination,
-    // handleChangeLimit,
+    handleChangeLimit,
     totalItems: allPipelineRun?.total_items,
     totalPages: allPipelineRun?.total_pages,
     pageSize,
@@ -90,7 +116,6 @@ const PipelineRun = () => {
 
   return (
     <div>
-      <h1>PipelineRun</h1>
       {isPipelineRunLoading && (
         <Loader
           backdrop
@@ -101,6 +126,13 @@ const PipelineRun = () => {
           style={{ zIndex: '10' }}
         />
       )}
+      {/* confirmation modal  */}
+      <AlertModal
+        open={open}
+        setOpen={setOpen}
+        content={'Do you want to delete the pipeline run?'}
+        handleConfirmed={handleConfirmed}
+      />
       <AdminDataTable props={tableProps} />
     </div>
   );
