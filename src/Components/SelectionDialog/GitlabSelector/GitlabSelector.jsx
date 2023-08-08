@@ -354,7 +354,7 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
                 <h3>Commits: </h3>
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={20}>
+              <FlexboxGrid.Item colspan={21}>
                 <UseDefaultSelect
                   name="gitlab_native_commits"
                   placeholder="Choose Commit"
