@@ -56,9 +56,12 @@ const ExternalLogin = (props) => {
       }),
   );
   if (selectedExtLoginApplication) {
+    const foundAppId = selectedExtLoginApplication?.items[0]?.id;
     if (appData?.type === 'glideyoke') {
       // eslint-disable-next-line max-len
-      loginUrl = `${lmApiUrl}/third_party/glideyoke/auth/login?application_id=${appData?.application_id}`;
+      loginUrl = `${lmApiUrl}/third_party/glideyoke/auth/login?application_id=${
+        appData?.application_id || appData?.id || foundAppId
+      }`;
     }
   }
 
