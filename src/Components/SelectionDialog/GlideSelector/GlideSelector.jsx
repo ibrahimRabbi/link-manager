@@ -254,7 +254,9 @@ const GlideSelector = ({
       fetch(
         `${lmApiUrl}/third_party/${
           appData?.application?.type || appData?.application_type
-        }/container/${appData?.id}/${resourceTypeId}?page=1&per_page=10&application_id=${
+        }/container/${
+          appData?.application_type !== 'glideyoke' ? appData?.id : 'tenant'
+        }/${resourceTypeId}?page=1&per_page=10&application_id=${
           appData?.application_id
         }&${columnFilters[0]?.id.toLowerCase()}=${columnFilters[0]?.value}`,
         {
@@ -411,6 +413,10 @@ const GlideSelector = ({
             <div style={{ marginTop: '50px' }}>
               <UseLoader />
             </div>
+          ) : tableData?.items?.length < 1 ? (
+            <h3 style={{ textAlign: 'center', marginTop: '50px', color: '#1675e0' }}>
+              Selected resource type has no data.
+            </h3>
           ) : tableshow && projectId && resourceTypeId && finalData?.length > 0 ? (
             <div>
               <div
