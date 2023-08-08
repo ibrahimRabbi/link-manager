@@ -63,11 +63,40 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const [glideDialog, setGlideDialog] = useState(false);
   const [projectFrameSrc, setProjectFrameSrc] = useState('');
   const [externalProjectUrl, setExternalProjectUrl] = useState('');
+  const [externalProjectDisabled, setExternalProjectDisabled] = useState(false);
   const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
+  const [restartExternalRequest, setRestartExternalRequest] = useState(false);
+  const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
+
+  const closeExternalAppResetRequest = () => {
+    setAuthenticatedThirdApp(false);
+    setExternalProjectDisabled(false);
+    setRestartExternalRequest(true);
+  };
+
+  broadcastChannel.onmessage = (event) => {
+    const { status } = event.data;
+    if (status === 'success') {
+      closeExternalAppResetRequest();
+    }
+  };
+
+  const getFailedExternalAuthentication = () => {
+    // Deactivate project dropdown
+    setExternalProjectDisabled(true);
+    // Send option to show external authentication method
+    setAuthenticatedThirdApp(true);
+  };
+
+  const getExtLoginData = (data) => {
+    if (data?.status) {
+      closeExternalAppResetRequest();
+    }
+  };
 
   const showNotification = (type, message) => {
     if (type && message) {
@@ -83,6 +112,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   useEffect(() => {
     dispatch(handleCurrPageTitle(isEditLinkPage ? isEditLinkPage : 'New Link'));
   }, []);
+
+  useEffect(() => {
+    if (restartExternalRequest) {
+      setRestartExternalRequest(false);
+    }
+  }, [restartExternalRequest]);
 
   useEffect(() => {
     isEditLinkPage ? null : dispatch(handleCancelLink());
@@ -255,16 +290,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const cancelLinkHandler = () => {
     dispatch(handleCancelLink());
     isWbe ? navigate('/wbe') : navigate('/');
-  };
-
-  const getExtLoginData = (data) => {
-    if (data?.status) {
-      setAuthenticatedThirdApp(false);
-    }
-  };
-
-  const enableExtLoginData = () => {
-    setAuthenticatedThirdApp(true);
   };
 
   // Create new link
@@ -525,8 +550,10 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                             isLinkCreation={true}
                             isUpdateState={applicationType?.label}
                             isValispace={applicationType?.label === 'Valispace'}
-                            validateAccess={enableExtLoginData}
                             value={projectType?.label}
+                            disabled={externalProjectDisabled}
+                            restartRequest={restartExternalRequest}
+                            getErrorStatus={getFailedExternalAuthentication}
                           />
                         </FlexboxGrid.Item>
                       )}

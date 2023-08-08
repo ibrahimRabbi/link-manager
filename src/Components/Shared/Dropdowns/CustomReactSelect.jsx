@@ -30,7 +30,9 @@ const CustomReactSelect = forwardRef((props, ref) => {
     isIntegration,
     isEventAssociation,
     isUpdateState,
+    restartRequest,
     removeApplication,
+    getErrorStatus,
     ...rest
   } = props;
 
@@ -75,6 +77,9 @@ const CustomReactSelect = forwardRef((props, ref) => {
               return res.json();
             }
           } else {
+            if (getErrorStatus) {
+              getErrorStatus();
+            }
             res.json().then((data) => {
               showNotification('error', data?.message);
             });
@@ -182,7 +187,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
   useEffect(() => {
     let isNotScrolled = true;
     handleLoadMore(isNotScrolled);
-  }, [isUpdateState]);
+  }, [isUpdateState, restartRequest]);
 
   // react select menu items style
   const customOption = (props) => {
