@@ -75,19 +75,23 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
     setTreeData([]);
   };
   const handleBranchChange = (selectedItem) => {
-    setBranchId(selectedItem?.id);
-    setDefaultBranch('');
-    setDefaultCommit('');
-    setDefaultCommitId('');
-    setTreeData([]);
-    setCommitList([]);
-    setCommitId('');
+    if (branchId !== selectedItem?.id) {
+      setDefaultBranch('');
+      setDefaultCommit('');
+      setDefaultCommitId('');
+      setBranchId(selectedItem?.id);
+      setTreeData([]);
+      setCommitList([]);
+      setCommitId('');
+    }
   };
   const handleCommit = (selectedItem) => {
-    setCommitId(selectedItem?.id);
-    setDefaultCommit('');
-    setDefaultCommitId('');
-    setTreeData([]);
+    if (commitId !== selectedItem?.id) {
+      setCommitId(selectedItem?.id);
+      setDefaultCommit('');
+      setDefaultCommitId('');
+      setTreeData([]);
+    }
   };
 
   useEffect(() => {

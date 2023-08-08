@@ -12,12 +12,17 @@ const UseDefaultSelect = (props) => {
 
   // map dropdown items
   useEffect(() => {
-    const newItems = items?.map((item) => ({
-      ...item,
-      label: item?.name,
-      value: item?.name,
-    }));
-    setSelectOptions(newItems);
+    if (items?.length > 0) {
+      const newItems = items?.map((item) => ({
+        ...item,
+        label: item?.name,
+        value: item?.name,
+      }));
+      setSelectOptions(newItems);
+    } else {
+      setSelectedValue(null);
+      setSelectOptions([]);
+    }
   }, [items]);
 
   // react select menu items style
