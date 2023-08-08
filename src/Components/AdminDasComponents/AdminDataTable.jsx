@@ -184,9 +184,11 @@ const AdminDataTable = ({ props }) => {
         }}
       >
         <FlexboxGrid.Item>
-          <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
-            Add New
-          </Button>
+          {handleAddNew && (
+            <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
+              Add New
+            </Button>
+          )}
         </FlexboxGrid.Item>
 
         <FlexboxGrid.Item>
