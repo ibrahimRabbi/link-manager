@@ -5,6 +5,8 @@ import AdminDataTable from '../AdminDataTable.jsx';
 import { handleCurrPageTitle } from '../../../Redux/slices/navSlice.jsx';
 import AuthContext from '../../../Store/Auth-Context.jsx';
 import { fetchPipelineRun } from '../../../Redux/slices/pipelineRunSlice.jsx';
+import { fetchDeleteData } from '../../../Redux/slices/useCRUDSlice';
+import AlertModal from '../../Shared/AlertModal';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -44,6 +46,9 @@ const PipelineRun = () => {
   const [pageSize /*, setPageSize*/] = useState(10);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
+  const [deleteData, setDeleteData] = useState({});
+  const [open, setOpen] = useState(false);
+
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -72,12 +77,31 @@ const PipelineRun = () => {
     );
   }, [pageSize, currPage, refreshData]);
 
+  const handleDelete = (data) => {
+    console.log(data);
+    setDeleteData(data);
+    setOpen(true);
+  };
+
+  const handleConfirmed = (value) => {
+    if (value) {
+      const deleteUrl = `${lmApiUrl}/pipeline_run/${deleteData?.id}`;
+      dispatch(
+        fetchDeleteData({
+          url: deleteUrl,
+          token: authCtx.token,
+          showNotification: showNotification,
+        }),
+      );
+    }
+  };
+
   const tableProps = {
     title: 'Pipeline Results',
     rowData: allPipelineRun?.items?.length ? allPipelineRun?.items : [],
     headerData,
     // handleEdit,
-    // handleDelete,
+    handleDelete,
     // handleAddNew,
     handlePagination,
     // handleChangeLimit,
@@ -101,6 +125,13 @@ const PipelineRun = () => {
           style={{ zIndex: '10' }}
         />
       )}
+      {/* confirmation modal  */}
+      <AlertModal
+        open={open}
+        setOpen={setOpen}
+        content={'Do you want to delete the event?'}
+        handleConfirmed={handleConfirmed}
+      />
       <AdminDataTable props={tableProps} />
     </div>
   );
