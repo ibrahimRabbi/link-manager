@@ -43,7 +43,7 @@ const PipelineRun = () => {
   );
   const { refreshData /*, isAdminEditing*/ } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
-  const [pageSize /*, setPageSize*/] = useState(10);
+  const [pageSize, setPageSize] = useState(10);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
   const [deleteData, setDeleteData] = useState({});
@@ -77,8 +77,12 @@ const PipelineRun = () => {
     );
   }, [pageSize, currPage, refreshData]);
 
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
+  };
+
   const handleDelete = (data) => {
-    console.log(data);
     setDeleteData(data);
     setOpen(true);
   };
@@ -104,7 +108,7 @@ const PipelineRun = () => {
     handleDelete,
     // handleAddNew,
     handlePagination,
-    // handleChangeLimit,
+    handleChangeLimit,
     totalItems: allPipelineRun?.total_items,
     totalPages: allPipelineRun?.total_pages,
     pageSize,
