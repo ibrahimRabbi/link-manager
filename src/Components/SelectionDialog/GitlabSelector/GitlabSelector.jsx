@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 /* eslint-disable max-len */
 import React, { useContext, useEffect, useState } from 'react';
 import { CheckTree, FlexboxGrid } from 'rsuite';
@@ -15,6 +16,7 @@ import {
   OAUTH2_APPLICATION_TYPES,
 } from '../../../App.jsx';
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
+import UseDefaultSelect from './UseDefaultSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -40,6 +42,9 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
   const [commitLoading, setCommitLoading] = useState(false);
   const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
+  const [defaultBranch, setDefaultBranch] = useState('');
+  const [defaultCommit, setDefaultCommit] = useState('');
+  const [defaultCommitId, setDefaultCommitId] = useState('');
 
   const getExtLoginData = (data) => {
     if (data?.status) {
@@ -55,22 +60,38 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
   };
 
   const handleProjectChange = (selectedItem) => {
-    setProjectId(selectedItem?.id);
+    setDefaultBranch('');
+    setDefaultCommit('');
+    setDefaultCommitId('');
     setBranchList([]);
     setBranchId('');
     setCommitList([]);
     setCommitId('');
+    setProjectId(selectedItem?.id);
+    setDefaultBranch(selectedItem?.default_branch);
+    setDefaultCommit(selectedItem?.last_commit?.name);
+    setDefaultCommitId(selectedItem?.last_commit?.id);
+    setBranchList([]);
     setTreeData([]);
   };
   const handleBranchChange = (selectedItem) => {
-    setBranchId(selectedItem?.id);
-    setTreeData([]);
-    setCommitList([]);
-    setCommitId('');
+    if (branchId !== selectedItem?.id) {
+      setDefaultBranch('');
+      setDefaultCommit('');
+      setDefaultCommitId('');
+      setBranchId(selectedItem?.id);
+      setTreeData([]);
+      setCommitList([]);
+      setCommitId('');
+    }
   };
   const handleCommit = (selectedItem) => {
-    setCommitId(selectedItem?.id);
-    setTreeData([]);
+    if (commitId !== selectedItem?.id) {
+      setCommitId(selectedItem?.id);
+      setDefaultCommit('');
+      setDefaultCommitId('');
+      setTreeData([]);
+    }
   };
 
   useEffect(() => {
@@ -143,10 +164,12 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
     }
   }, [projectId, authCtx]);
   useEffect(() => {
-    if (projectId && branchId) {
+    if ((projectId && branchId) || (projectId && defaultBranch)) {
       setCommitLoading(true);
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/commit?page=1&per_page=10&application_id=${appData?.application_id}&branch=${branchId}`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/commit?page=1&per_page=10&application_id=${
+          appData?.application_id
+        }&branch=${branchId || defaultBranch}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -170,13 +193,15 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
     } else {
       setCommitList([]);
     }
-  }, [projectId, branchId, authCtx]);
+  }, [projectId, branchId, defaultBranch, authCtx]);
   useEffect(() => {
-    if (projectId && commitId) {
+    if ((projectId && commitId) || (projectId && defaultCommitId)) {
       setTreeLoading(true);
       setTreeData([]);
       fetch(
-        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?ref=${commitId}&application_id=${appData?.application_id}`,
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}/files?ref=${
+          commitId || defaultCommitId
+        }&application_id=${appData?.application_id}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -198,7 +223,7 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
           setTreeData(data?.items);
         });
     }
-  }, [projectId, authCtx, commitId]);
+  }, [projectId, authCtx, defaultCommitId, commitId]);
 
   const handleTreeChange = (value) => {
     setCheckedValues(value);
@@ -306,103 +331,109 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
           </FlexboxGrid>
 
           {/* --- Branches ---  */}
-          {projectId && (
+          {(projectId || defaultBranch) && (
             <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
               <FlexboxGrid.Item colspan={3}>
                 <h3>Branches: </h3>
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item colspan={21}>
-                <UseReactSelect
+                <UseDefaultSelect
                   name="gitlab_native_branches"
                   placeholder="Choose Branch"
                   onChange={handleBranchChange}
                   disabled={authenticatedThirdApp}
                   isLoading={branchLoading}
                   items={branchList?.length ? branchList : []}
+                  value={defaultBranch}
                 />
               </FlexboxGrid.Item>
             </FlexboxGrid>
           )}
 
           {/* --- Commits ---  */}
-          {projectId && branchId && (
+          {(projectId && branchId) || defaultCommit || defaultBranch ? (
             <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
               <FlexboxGrid.Item colspan={3}>
                 <h3>Commits: </h3>
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item colspan={21}>
-                <UseReactSelect
+                <UseDefaultSelect
                   name="gitlab_native_commits"
                   placeholder="Choose Commit"
                   onChange={handleCommit}
                   isLoading={commitLoading}
                   disabled={authenticatedThirdApp}
                   items={commitList?.length ? commitList : []}
+                  value={defaultCommit}
                 />
               </FlexboxGrid.Item>
             </FlexboxGrid>
-          )}
+          ) : null}
 
           {treeLoading && (
             <div style={{ marginTop: '50px' }}>
               <UseLoader />
             </div>
           )}
-          {treeData.length > 0 && projectId && branchId && commitId && (
-            <div>
-              <div className={style.treeDiv}>
-                <div className={style.tree}>
-                  <CheckTree
-                    data={treeData}
-                    style={{ width: 280 }}
-                    value={checkedValues}
-                    onChange={(value) => handleTreeChange(value)}
-                    getChildren={getChildren}
-                    renderTreeNode={(node) => {
-                      return (
-                        <>
-                          {node.children ? <FolderFillIcon /> : <PageIcon />} {node.label}
-                        </>
-                      );
-                    }}
-                  />
-                </div>
-                <div className={style.codemirror}>
-                  <div>
-                    {multipleSelected.length > 1 ? (
-                      <div className={style.error}>
-                        File content cannot be displayed when multiple files are selected
-                      </div>
-                    ) : (
-                      selectedFile && (
-                        <CodeEditor
-                          singleSelected={singleSelected}
-                          fileExtension={fileExt}
-                          setSelectedCodes={setSelectedCodes}
-                          projectId={projectId}
-                          commitId={commitId}
-                          appId={appData?.application_id}
-                        ></CodeEditor>
-                      )
-                    )}
+          {treeData.length > 0 &&
+            projectId &&
+            ((branchId && commitId) || defaultCommitId || defaultBranch) && (
+              <div>
+                <div className={style.treeDiv}>
+                  <div className={style.tree}>
+                    <CheckTree
+                      data={treeData}
+                      style={{ width: 280 }}
+                      value={checkedValues}
+                      onChange={(value) => handleTreeChange(value)}
+                      getChildren={getChildren}
+                      renderTreeNode={(node) => {
+                        return (
+                          <>
+                            {node.children ? <FolderFillIcon /> : <PageIcon />}{' '}
+                            {node.label}
+                          </>
+                        );
+                      }}
+                    />
+                  </div>
+                  <div className={style.codemirror}>
+                    <div>
+                      {multipleSelected.length > 1 ? (
+                        <div className={style.error}>
+                          File content cannot be displayed when multiple files are
+                          selected
+                        </div>
+                      ) : (
+                        selectedFile && (
+                          <CodeEditor
+                            singleSelected={singleSelected}
+                            fileExtension={fileExt}
+                            setSelectedCodes={setSelectedCodes}
+                            projectId={projectId}
+                            commitId={commitId ? commitId : defaultCommitId}
+                            appId={appData?.application_id}
+                          ></CodeEditor>
+                        )
+                      )}
+                    </div>
                   </div>
                 </div>
+                <div className={style.buttonDiv}>
+                  <ButtonGroup
+                    handleSaveLink={handleSaveLink}
+                    selectedCodes={selectedCodes}
+                    multipleSelected={multipleSelected}
+                    singleSelected={singleSelected}
+                    branchName={branchId ? branchId : defaultBranch}
+                    cancelLinkHandler={cancelLinkHandler}
+                    checkedValues={checkedValues}
+                  ></ButtonGroup>
+                </div>
               </div>
-              <div className={style.buttonDiv}>
-                <ButtonGroup
-                  handleSaveLink={handleSaveLink}
-                  selectedCodes={selectedCodes}
-                  multipleSelected={multipleSelected}
-                  singleSelected={singleSelected}
-                  branchName={branchId}
-                  cancelLinkHandler={cancelLinkHandler}
-                  checkedValues={checkedValues}
-                ></ButtonGroup>
-              </div>
-            </div>
-          )}
+            )}
         </div>
       )}
     </div>

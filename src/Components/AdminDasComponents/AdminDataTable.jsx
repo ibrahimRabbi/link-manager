@@ -69,13 +69,17 @@ const AdminDataTable = ({ props }) => {
 
     return (
       <ButtonToolbar>
-        <IconButton size="sm" title="Edit" icon={<MdEdit />} onClick={editSelected} />
-        <IconButton
-          size="sm"
-          title="Delete"
-          icon={<MdDelete />}
-          onClick={deleteSelected}
-        />
+        {handleEdit && (
+          <IconButton size="sm" title="Edit" icon={<MdEdit />} onClick={editSelected} />
+        )}
+        {handleDelete && (
+          <IconButton
+            size="sm"
+            title="Delete"
+            icon={<MdDelete />}
+            onClick={deleteSelected}
+          />
+        )}
         {authorizeModal && (
           <IconButton
             size="sm"
@@ -180,9 +184,11 @@ const AdminDataTable = ({ props }) => {
         }}
       >
         <FlexboxGrid.Item>
-          <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
-            Add New
-          </Button>
+          {handleAddNew && (
+            <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
+              Add New
+            </Button>
+          )}
         </FlexboxGrid.Item>
 
         <FlexboxGrid.Item>
