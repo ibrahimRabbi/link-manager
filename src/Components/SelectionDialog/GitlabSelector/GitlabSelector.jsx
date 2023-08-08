@@ -64,14 +64,14 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
     setDefaultCommit('');
     setDefaultCommitId('');
     setBranchList([]);
+    setBranchId('');
+    setCommitList([]);
+    setCommitId('');
     setProjectId(selectedItem?.id);
     setDefaultBranch(selectedItem?.default_branch);
     setDefaultCommit(selectedItem?.last_commit?.name);
     setDefaultCommitId(selectedItem?.last_commit?.id);
     setBranchList([]);
-    setBranchId('');
-    setCommitList([]);
-    setCommitId('');
     setTreeData([]);
   };
   const handleBranchChange = (selectedItem) => {
@@ -85,6 +85,8 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
   };
   const handleCommit = (selectedItem) => {
     setCommitId(selectedItem?.id);
+    setDefaultCommit('');
+    setDefaultCommitId('');
     setTreeData([]);
   };
 
@@ -346,13 +348,13 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
           )}
 
           {/* --- Commits ---  */}
-          {(projectId && branchId) || defaultCommit ? (
+          {(projectId && branchId) || defaultCommit || defaultBranch ? (
             <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
               <FlexboxGrid.Item colspan={3}>
                 <h3>Commits: </h3>
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={21}>
+              <FlexboxGrid.Item colspan={20}>
                 <UseDefaultSelect
                   name="gitlab_native_commits"
                   placeholder="Choose Commit"
@@ -373,7 +375,7 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
           )}
           {treeData.length > 0 &&
             projectId &&
-            ((branchId && commitId) || defaultCommitId) && (
+            ((branchId && commitId) || defaultCommitId || defaultBranch) && (
               <div>
                 <div className={style.treeDiv}>
                   <div className={style.tree}>
