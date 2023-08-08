@@ -116,7 +116,6 @@ const PipelineRun = () => {
 
   return (
     <div>
-      <h1>PipelineRun</h1>
       {isPipelineRunLoading && (
         <Loader
           backdrop
