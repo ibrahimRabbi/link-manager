@@ -130,7 +130,7 @@ const PipelineRun = () => {
       <AlertModal
         open={open}
         setOpen={setOpen}
-        content={'Do you want to delete the event?'}
+        content={'Do you want to delete the pipeline run?'}
         handleConfirmed={handleConfirmed}
       />
       <AdminDataTable props={tableProps} />
