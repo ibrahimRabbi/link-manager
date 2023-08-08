@@ -1,5 +1,4 @@
 import React from 'react';
-import { createColumnHelper } from '@tanstack/react-table';
 
 function IndeterminateCheckbox({ indeterminate, ...rest }) {
   const ref = React.useRef(null);
@@ -19,7 +18,7 @@ function IndeterminateCheckbox({ indeterminate, ...rest }) {
     />
   );
 }
-const columnHelper = createColumnHelper();
+
 export const columnDefWithCheckBox = [
   {
     id: 'select',
@@ -43,9 +42,6 @@ export const columnDefWithCheckBox = [
       />
     ),
   },
-  columnHelper.accessor('id', {
-    header: 'Id',
-  }),
   {
     accessorFn: (row) => `${row?.name}`,
     header: 'Name',

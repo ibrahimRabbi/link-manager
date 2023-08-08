@@ -1,5 +1,4 @@
 import React from 'react';
-import { Input } from 'rsuite';
 
 function DebouncedInput({ value: initialValue, onChange, debounce = 500, ...props }) {
   const [value, setValue] = React.useState(initialValue);
@@ -17,8 +16,8 @@ function DebouncedInput({ value: initialValue, onChange, debounce = 500, ...prop
   }, [value]);
 
   return (
-    <Input
-      // style={{ width: '250px' }}
+    <input
+      className="rs-input"
       {...props}
       value={value}
       onChange={(e) => setValue(e.target.value)}
