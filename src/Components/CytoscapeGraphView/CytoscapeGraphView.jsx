@@ -145,8 +145,8 @@ const CytoscapeGraphView = () => {
           nodeStyle = null;
           item.expanded = true;
         }
-        const randomX = Math.random() * 720;
-        const randomY = Math.random() * 980;
+        // const randomX = Math.random() * 720;
+        // const randomY = Math.random() * 980;
         return {
           data: {
             id: item.id.toString(),
@@ -155,7 +155,7 @@ const CytoscapeGraphView = () => {
             nodeData: item?.properties,
           },
           style: nodeStyle ? nodeStyle : {},
-          position: { x: randomX, y: randomY },
+          // position: { x: randomX, y: randomY },
         };
       });
       let edges = data?.data?.edges?.map((item) => {
@@ -164,24 +164,25 @@ const CytoscapeGraphView = () => {
             source: item.from.toString(),
             target: item.to.toString(),
             label: item.label,
-            classes: 'autorotate',
           },
+          classes: 'unbundled-bezier',
         };
       });
       nodeData = nodeData.concat(edges);
       return nodeData ? nodeData : [];
     }
     return [];
-  }, [data]);
+  }, [data, expandedNodeData]);
 
   useEffect(() => {
     if (expandedNodeData) {
       let updatedNodes = expandedNodeData?.nodes?.map((item) => {
         let nodeStyle = checkNodeStyle(item?.properties?.resource_type);
-        const randomX = Math.random() * 720;
-        const randomY = Math.random() * 980;
+        // const randomX = Math.random() * 720;
+        // const randomY = Math.random() * 980;
 
-        let position = { x: randomX, y: randomY };
+        let position = {};
+        // let position = { x: randomX, y: randomY };
         if (expandNode?.data?.nodeData.id === item?.properties?.id) {
           position = {};
         }
@@ -216,6 +217,7 @@ const CytoscapeGraphView = () => {
 
   // Request data of the node to expand
   useEffect(() => {
+    console.log('expandNode', expandNode);
     if (expandNode) {
       let updatedGraphData = graphData.map((item) => {
         if (item?.data?.id === expandNode?.data?.id) {
@@ -234,6 +236,7 @@ const CytoscapeGraphView = () => {
 
   // Store the graph data in the state
   useEffect(() => {
+    console.log('memoizedData', memoizedData);
     setGraphData(memoizedData);
   }, [memoizedData]);
 
@@ -258,7 +261,7 @@ const CytoscapeGraphView = () => {
             {memoizedData ? (
               <>
                 <CytoscapeComponent
-                  elements={graphData}
+                  elements={memoizedData}
                   layout={graphLayout}
                   stylesheet={graphStyle}
                   userZoomingEnabled={false}
