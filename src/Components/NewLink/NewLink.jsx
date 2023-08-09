@@ -21,7 +21,6 @@ import SourceSection from '../SourceSection';
 import UseLoader from '../Shared/UseLoader';
 import GitlabSelector from '../SelectionDialog/GitlabSelector/GitlabSelector';
 import styles from './NewLink.module.scss';
-import GlideSelector from '../SelectionDialog/GlideSelector/GlideSelector';
 import CustomReactSelect from '../Shared/Dropdowns/CustomReactSelect';
 // eslint-disable-next-line max-len
 import {
@@ -31,6 +30,7 @@ import {
 } from '../../App.jsx';
 // eslint-disable-next-line max-len
 import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
+import GlobalSelector from '../SelectionDialog/GlobalSelector/GlobalSelector';
 // import application from "../AdminDasComponents/Application/Application.jsx";
 
 const { newLinkMainContainer, targetContainer, targetIframe, targetBtnContainer } =
@@ -60,7 +60,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     oslcCancelResponse,
   } = useSelector((state) => state.links);
   const [gitlabDialog, setGitlabDialog] = useState(false);
-  const [glideDialog, setGlideDialog] = useState(false);
+  const [globalDialog, setGlobalDialog] = useState(false);
   const [projectFrameSrc, setProjectFrameSrc] = useState('');
   const [externalProjectUrl, setExternalProjectUrl] = useState('');
   const [externalProjectDisabled, setExternalProjectDisabled] = useState(false);
@@ -126,7 +126,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // set iframe SRC conditionally
   useEffect(() => {
     setGitlabDialog(false);
-    setGlideDialog(false);
+    setGlobalDialog(false);
     setProjectFrameSrc('');
     if (projectType) {
       const valispaceApp = projectType?.application?.type?.includes('valispace');
@@ -150,7 +150,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         } else if (gitlabApp) {
           setGitlabDialog(true);
         } else if (glideApp) {
-          setGlideDialog(true);
+          setGlobalDialog(true);
         } else if (jiraApp) {
           setProjectFrameSrc(
             // eslint-disable-next-line max-len
@@ -170,9 +170,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       } else if (projectType?.value && applicationType.type === 'gitlab') {
         setGitlabDialog(true);
       } else if (projectType?.value && applicationType?.type === 'glideyoke') {
-        setGlideDialog(true);
+        setGlobalDialog(true);
       } else if (projectType?.value && applicationType?.type === 'jira') {
-        setGlideDialog(true);
+        setGlobalDialog(true);
       } else if (valispaceApp) {
         setProjectFrameSrc(
           // eslint-disable-next-line max-len
@@ -594,13 +594,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                   cancelLinkHandler={cancelLinkHandler}
                 ></GitlabSelector>
               )}
-              {linkType && glideDialog && (
-                <GlideSelector
+              {linkType && globalDialog && (
+                <GlobalSelector
                   handleSaveLink={handleSaveLink}
                   appData={projectType}
                   defaultProject={projectType}
                   cancelLinkHandler={cancelLinkHandler}
-                ></GlideSelector>
+                />
               )}
             </div>
           </div>

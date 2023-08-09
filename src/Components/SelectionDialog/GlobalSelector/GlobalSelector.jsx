@@ -1,7 +1,7 @@
 /* eslint-disable indent */
 /* eslint-disable max-len */
 import React, { useContext, useEffect, useState } from 'react';
-import style from './GlideSelector.module.scss';
+import style from './GlobalSelector.module.scss';
 import AuthContext from '../../../Store/Auth-Context';
 import UseLoader from '../../Shared/UseLoader';
 import ExternalAppModal from '../../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
@@ -16,7 +16,7 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
 } from '@tanstack/react-table';
-import { columnDefWithCheckBox as glideColumns } from './Columns';
+import { columnDefWithCheckBox as glideColumns } from './GlideColumns';
 import { columnDefWithCheckBox as jiraColumns } from './JiraColumns';
 import {
   Button,
@@ -33,7 +33,7 @@ import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
-const GlideSelector = ({
+const GlobalSelector = ({
   appData,
   defaultProject,
   cancelLinkHandler,
@@ -98,8 +98,9 @@ const GlideSelector = ({
   };
 
   useEffect(() => {
-    setResourceTypes([]);
-    setResourceTypeId('');
+    console.log('1');
+    // setResourceTypes([]);
+    // setResourceTypeId('');
     if (defaultProject) {
       setProjectId(defaultProject?.id);
     } else {
@@ -191,6 +192,9 @@ const GlideSelector = ({
 
   useEffect(() => {
     if (filterIn === '') {
+      console.log('2');
+      console.log(resourceTypeId);
+      console.log(projectId, resourceTypeId, currPage, limit);
       if (projectId && resourceTypeId && currPage && limit) {
         setTableLoading(true);
         fetch(
@@ -241,6 +245,7 @@ const GlideSelector = ({
             setTableLoading(false);
             setTableShow(true);
             setTableData(data);
+            console.log(data);
           });
       } else {
         setTableData([]);
@@ -250,6 +255,7 @@ const GlideSelector = ({
   }, [projectId, resourceTypeId, authCtx, currPage, limit, filterIn]);
   useEffect(() => {
     if (columnFilters[0]?.id && columnFilters[0]?.value) {
+      console.log(columnFilters[0]?.id, columnFilters[0]?.value);
       setFilterLoad(true);
       fetch(
         `${lmApiUrl}/third_party/${
@@ -258,7 +264,13 @@ const GlideSelector = ({
           appData?.application_type !== 'glideyoke' ? appData?.id : 'tenant'
         }/${resourceTypeId}?page=1&per_page=10&application_id=${
           appData?.application_id
-        }&${columnFilters[0]?.id.toLowerCase()}=${columnFilters[0]?.value}`,
+        }&${
+          appData?.application_type !== 'glideyoke'
+            ? columnFilters[0]?.id.toLowerCase() === 'name'
+              ? 'key'
+              : columnFilters[0]?.id.toLowerCase()
+            : columnFilters[0]?.id.toLowerCase()
+        }=${columnFilters[0]?.value}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -302,6 +314,8 @@ const GlideSelector = ({
             setColumnFilters([]);
           } else {
             setFilterLoad(false);
+            setColumnFilters([]);
+            console.log(resourceTypeId);
             setFilterIn('');
           }
         });
@@ -534,4 +548,4 @@ const GlideSelector = ({
   );
 };
 
-export default GlideSelector;
+export default GlobalSelector;
