@@ -6,7 +6,6 @@ import { useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../apiRequests/apiRequest.js';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import { Message, toaster } from 'rsuite';
-import 'cytoscape-cose-bilkent'; // Import the cose-bilkent layout extension
 
 // eslint-disable-next-line max-len
 import ExternalPreview from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreview.jsx';
@@ -26,7 +25,6 @@ const CytoscapeGraphView = () => {
   const [selectedNode, setSelectedNode] = React.useState(null);
   const [nodeData, setNodeData] = React.useState(null);
   const [edgeData, setEdgeData] = React.useState(null);
-  // const [graphData, setGraphData] = React.useState([]);
 
   const [openedExternalPreview, setOpenedExternalPreview] = useState(false);
   const [expandedNodeData, setExpandedNodeData] = useState(null);
@@ -194,7 +192,6 @@ const CytoscapeGraphView = () => {
     }
   }, [expandNode]);
 
-
   useEffect(() => {
     cytoscape.use(cxtmenu);
     dispatch(handleCurrPageTitle('Graph view'));
@@ -234,41 +231,10 @@ const CytoscapeGraphView = () => {
           classes: 'unbundled-bezier',
         };
       });
-      setNodeData(nodeData? nodeData : []);
-      setEdgeData(edges? edges : []);
+      setNodeData(nodeData ? nodeData : []);
+      setEdgeData(edges ? edges : []);
     }
   }, [data]);
-
-  // const handleCyInit = cy => {
-  //   console.log('cy', cy);
-  //   cyRef.current = cy;
-  //   cy.contextMenus({
-  //     menuItems: contextMenuCommands,
-  //   });
-  // };
-
-  // const handleCyInit = cy => {
-  //   cyRef.current = cy;
-  //
-  //   // Apply the concentric layout to the graph
-  //   cy.layout(graphLayout).run();
-  //
-  //   cy.fit(50); // Adjust the padding as needed
-  // };
-
-  useEffect(() => {
-    console.log('cyref', cyRef.current);
-    if (cyRef.current) {
-      const cy = cyRef.current.getCy();
-
-      // Apply the concentric layout to the graph
-      console.log('executing layout');
-      cy.layout(graphLayout).run();
-
-
-      cy.fit(50); // Adjust the padding as needed
-    }
-  }, [nodeData]);
 
   return (
     <>
@@ -281,21 +247,19 @@ const CytoscapeGraphView = () => {
               <>
                 <Cytoscape
                   containerID="cy"
-                  // onCy={handleCyInit}
                   elements={nodeData?.concat(edgeData)}
                   layout={graphLayout}
                   stylesheet={graphStyle}
                   // userZoomingEnabled={false}
                   style={{ width: '99%', height: '99vh' }}
                   cy={(cy) => {
-                    // cyRef.current = cy;
-                    // Add context menu configuration to the Cytoscape instance
+                    cyRef.current = cy;
                     cy.cxtmenu({
-                      selector: 'node', // Display context menu only for nodes
+                      selector: 'node',
                       commands: contextMenuCommands,
                     });
                     cy.layout(graphLayout).run();
-                    cy.fit(50); // Adjust the padding as needed
+                    cy.fit(10); // Adjust the padding as needed
                   }}
                 />
               </>
