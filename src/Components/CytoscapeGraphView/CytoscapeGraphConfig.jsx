@@ -1,7 +1,11 @@
 export const graphLayout = {
   name: 'concentric',
   spacingFactor: 2, // Adjust this value to control node separation
-
+  // concentric: function (node) {
+  //   // console.log(node.data().id);
+  //   return 2; // Place 'a' node in inner circle and others in outer circle
+  // },
+  levelWidth: () => 1,
 };
 
 export const graphStyle = [

@@ -1,11 +1,12 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import CytoscapeComponent from 'react-cytoscapejs';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import Cytoscape from 'react-cytoscapejs';
 import cytoscape from 'cytoscape';
 import cxtmenu from 'cytoscape-cxtmenu';
 import { useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../apiRequests/apiRequest.js';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import { Message, toaster } from 'rsuite';
+import 'cytoscape-cose-bilkent'; // Import the cose-bilkent layout extension
 
 // eslint-disable-next-line max-len
 import ExternalPreview from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreview.jsx';
@@ -23,7 +24,9 @@ const CytoscapeGraphView = () => {
   const { sourceDataList, isWbe } = useSelector((state) => state.links);
   const authCtx = useContext(AuthContext);
   const [selectedNode, setSelectedNode] = React.useState(null);
-  const [graphData, setGraphData] = React.useState([]);
+  const [nodeData, setNodeData] = React.useState(null);
+  const [edgeData, setEdgeData] = React.useState(null);
+  // const [graphData, setGraphData] = React.useState([]);
 
   const [openedExternalPreview, setOpenedExternalPreview] = useState(false);
   const [expandedNodeData, setExpandedNodeData] = useState(null);
@@ -32,6 +35,7 @@ const CytoscapeGraphView = () => {
   const dispatch = useDispatch();
   const containerRef = useRef(null);
   const graphContainerRef = useRef(null);
+  const cyRef = useRef(null);
 
   const showNotification = (type, message) => {
     if (type && message) {
@@ -69,7 +73,8 @@ const CytoscapeGraphView = () => {
           showNotification: showNotification,
           method: 'GET',
         });
-        setExpandedNodeData(response.data);
+        console.log('response', response);
+        setExpandedNodeData(response?.data);
       }
       return null;
     } catch (error) {
@@ -79,7 +84,7 @@ const CytoscapeGraphView = () => {
   };
 
   const findSelectedNode = (nodeId) => {
-    return graphData?.filter((item) => item?.data?.id === nodeId);
+    return nodeData?.filter((item) => item?.data?.id === nodeId);
   };
 
   const handleClickOutside = (event) => {
@@ -137,55 +142,11 @@ const CytoscapeGraphView = () => {
     return nodeColorStyles['default'];
   };
 
-  const memoizedData = useMemo(() => {
-    if (data) {
-      let nodeData = data?.data?.nodes?.map((item) => {
-        let nodeStyle = checkNodeStyle(item?.properties?.resource_type);
-        if (sourceDataList?.uri === item?.properties?.id) {
-          nodeStyle = null;
-          item.expanded = true;
-        }
-        // const randomX = Math.random() * 720;
-        // const randomY = Math.random() * 980;
-        return {
-          data: {
-            id: item.id.toString(),
-            label: item.label,
-            classes: 'bottom-center',
-            nodeData: item?.properties,
-          },
-          style: nodeStyle ? nodeStyle : {},
-          // position: { x: randomX, y: randomY },
-        };
-      });
-      let edges = data?.data?.edges?.map((item) => {
-        return {
-          data: {
-            source: item.from.toString(),
-            target: item.to.toString(),
-            label: item.label,
-          },
-          classes: 'unbundled-bezier',
-        };
-      });
-      nodeData = nodeData.concat(edges);
-      return nodeData ? nodeData : [];
-    }
-    return [];
-  }, [data, expandedNodeData]);
-
   useEffect(() => {
+    console.log('expandedNodeData', expandedNodeData);
     if (expandedNodeData) {
       let updatedNodes = expandedNodeData?.nodes?.map((item) => {
         let nodeStyle = checkNodeStyle(item?.properties?.resource_type);
-        // const randomX = Math.random() * 720;
-        // const randomY = Math.random() * 980;
-
-        let position = {};
-        // let position = { x: randomX, y: randomY };
-        if (expandNode?.data?.nodeData.id === item?.properties?.id) {
-          position = {};
-        }
 
         return {
           data: {
@@ -195,7 +156,6 @@ const CytoscapeGraphView = () => {
             nodeData: item?.properties,
           },
           style: nodeStyle ? nodeStyle : {},
-          position: position,
         };
       });
 
@@ -211,21 +171,21 @@ const CytoscapeGraphView = () => {
       });
       setExpandNode(null);
       setExpandedNodeData(null);
-      setGraphData([...graphData, ...updatedNodes, ...updatedEdges]);
+      setNodeData([...nodeData, ...updatedNodes]);
+      setEdgeData([...edgeData, ...updatedEdges]);
     }
   }, [expandedNodeData]);
 
   // Request data of the node to expand
   useEffect(() => {
-    console.log('expandNode', expandNode);
     if (expandNode) {
-      let updatedGraphData = graphData.map((item) => {
+      let updatedGraphData = nodeData.map((item) => {
         if (item?.data?.id === expandNode?.data?.id) {
           item.data.getChildData = true;
         }
         return item;
       });
-      setGraphData(updatedGraphData);
+      setNodeData(updatedGraphData);
       if (!expandNode?.data?.nodeData?.id.includes('lm-api-dev')) {
         fetchNodeData(expandNode?.data?.nodeData?.id);
       } else {
@@ -234,11 +194,6 @@ const CytoscapeGraphView = () => {
     }
   }, [expandNode]);
 
-  // Store the graph data in the state
-  useEffect(() => {
-    console.log('memoizedData', memoizedData);
-    setGraphData(memoizedData);
-  }, [memoizedData]);
 
   useEffect(() => {
     cytoscape.use(cxtmenu);
@@ -251,6 +206,70 @@ const CytoscapeGraphView = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (data) {
+      let nodeData = data?.data?.nodes?.map((item) => {
+        let nodeStyle = checkNodeStyle(item?.properties?.resource_type);
+        if (sourceDataList?.uri === item?.properties?.id) {
+          nodeStyle = null;
+          item.expanded = true;
+        }
+        return {
+          data: {
+            id: item.id.toString(),
+            label: item.label,
+            classes: 'bottom-center',
+            nodeData: item?.properties,
+          },
+          style: nodeStyle ? nodeStyle : {},
+        };
+      });
+      let edges = data?.data?.edges?.map((item) => {
+        return {
+          data: {
+            source: item.from.toString(),
+            target: item.to.toString(),
+            label: item.label,
+          },
+          classes: 'unbundled-bezier',
+        };
+      });
+      setNodeData(nodeData? nodeData : []);
+      setEdgeData(edges? edges : []);
+    }
+  }, [data]);
+
+  // const handleCyInit = cy => {
+  //   console.log('cy', cy);
+  //   cyRef.current = cy;
+  //   cy.contextMenus({
+  //     menuItems: contextMenuCommands,
+  //   });
+  // };
+
+  // const handleCyInit = cy => {
+  //   cyRef.current = cy;
+  //
+  //   // Apply the concentric layout to the graph
+  //   cy.layout(graphLayout).run();
+  //
+  //   cy.fit(50); // Adjust the padding as needed
+  // };
+
+  useEffect(() => {
+    console.log('cyref', cyRef.current);
+    if (cyRef.current) {
+      const cy = cyRef.current.getCy();
+
+      // Apply the concentric layout to the graph
+      console.log('executing layout');
+      cy.layout(graphLayout).run();
+
+
+      cy.fit(50); // Adjust the padding as needed
+    }
+  }, [nodeData]);
+
   return (
     <>
       <div ref={graphContainerRef}>
@@ -258,20 +277,24 @@ const CytoscapeGraphView = () => {
 
         {isWbe && data && (
           <>
-            {memoizedData ? (
+            {nodeData || edgeData ? (
               <>
-                <CytoscapeComponent
-                  elements={memoizedData}
+                <Cytoscape
+                  containerID="cy"
+                  // onCy={handleCyInit}
+                  elements={nodeData?.concat(edgeData)}
                   layout={graphLayout}
                   stylesheet={graphStyle}
-                  userZoomingEnabled={false}
+                  // userZoomingEnabled={false}
                   style={{ width: '99%', height: '99vh' }}
                   cy={(cy) => {
+                    // cyRef.current = cy;
                     // Add context menu configuration to the Cytoscape instance
                     cy.cxtmenu({
                       selector: 'node', // Display context menu only for nodes
                       commands: contextMenuCommands,
                     });
+                    cy.layout(graphLayout).run();
                     cy.fit(50); // Adjust the padding as needed
                   }}
                 />
