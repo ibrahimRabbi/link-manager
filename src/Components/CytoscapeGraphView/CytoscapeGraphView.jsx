@@ -71,12 +71,10 @@ const CytoscapeGraphView = () => {
           showNotification: showNotification,
           method: 'GET',
         });
-        console.log('response', response);
         setExpandedNodeData(response?.data);
       }
       return null;
     } catch (error) {
-      console.error('Error fetching node data:', error);
       return null;
     }
   };
@@ -141,7 +139,6 @@ const CytoscapeGraphView = () => {
   };
 
   useEffect(() => {
-    console.log('expandedNodeData', expandedNodeData);
     if (expandedNodeData) {
       let updatedNodes = expandedNodeData?.nodes?.map((item) => {
         let nodeStyle = checkNodeStyle(item?.properties?.resource_type);
