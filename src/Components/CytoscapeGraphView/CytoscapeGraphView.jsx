@@ -173,10 +173,10 @@ const CytoscapeGraphView = () => {
 
   // Request data of the node to expand
   useEffect(() => {
-    if (expandNode) {
+    if (expandNode && !expandNode?.data?.nodeData?.childData) {
       let updatedGraphData = nodeData.map((item) => {
         if (item?.data?.id === expandNode?.data?.id) {
-          item.data.getChildData = true;
+          item.data.nodeData.childData = true;
         }
         return item;
       });
@@ -213,7 +213,10 @@ const CytoscapeGraphView = () => {
             id: item.id.toString(),
             label: item.label,
             classes: 'bottom-center',
-            nodeData: item?.properties,
+            nodeData: {
+              ...item?.properties,
+              childData: sourceDataList?.uri === item?.properties?.id,
+            },
           },
           style: nodeStyle ? nodeStyle : {},
         };
