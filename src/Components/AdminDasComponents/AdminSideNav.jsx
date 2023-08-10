@@ -13,8 +13,7 @@ import { SiAzurepipelines, SiWebcomponentsdotorg } from 'react-icons/si';
 import { TbApps } from 'react-icons/tb';
 import { VscProject } from 'react-icons/vsc';
 import { CgLink } from 'react-icons/cg';
-import { MdEvent } from 'react-icons/md';
-import { GrIntegration } from 'react-icons/gr';
+import { MdEvent, MdOutlineIntegrationInstructions } from 'react-icons/md';
 import { darkColor, lightBgColor } from '../../App';
 import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
 
@@ -46,7 +45,12 @@ const options = [
   {
     path: ['/admin/integrations'],
     navigateTo: '/admin/integrations',
-    icon: <GrIntegration size={17} style={{ ...iconStyle, color: '#8e8e93' }} />,
+    icon: (
+      <MdOutlineIntegrationInstructions
+        size={20}
+        style={{ ...iconStyle, marginLeft: '-37px' }}
+      />
+    ),
     content: <span>Integrations</span>,
   },
   {
@@ -64,7 +68,12 @@ const options = [
   {
     path: ['/admin/link-constraint'],
     navigateTo: '/admin/link-constraint',
-    icon: <CgLink size={25} style={{ ...iconStyle, marginLeft: '-39px' }} />,
+    icon: (
+      <CgLink
+        size={24}
+        style={{ ...iconStyle, marginLeft: '-40px', marginRight: '17px' }}
+      />
+    ),
     content: <span>Link Constraint</span>,
   },
   {

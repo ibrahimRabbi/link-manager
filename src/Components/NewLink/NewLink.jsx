@@ -23,7 +23,6 @@ import GitlabSelector from '../SelectionDialog/GitlabSelector/GitlabSelector';
 import styles from './NewLink.module.scss';
 import GlideSelector from '../SelectionDialog/GlideSelector/GlideSelector';
 import CustomReactSelect from '../Shared/Dropdowns/CustomReactSelect';
-// eslint-disable-next-line max-len
 import {
   BASIC_AUTH_APPLICATION_TYPES,
   MICROSERVICES_APPLICATION_TYPES,
@@ -31,7 +30,6 @@ import {
 } from '../../App.jsx';
 // eslint-disable-next-line max-len
 import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
-// import application from "../AdminDasComponents/Application/Application.jsx";
 
 const { newLinkMainContainer, targetContainer, targetIframe, targetBtnContainer } =
   styles;
@@ -523,7 +521,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                           onChange={handleApplicationChange}
                           isLinkCreation={true}
                           value={applicationType?.label}
-                          isUpdateState={linkType?.label}
+                          isUpdateState={linkType}
+                          selectedLinkType={linkType}
                           isApplication={true}
                           removeApplication={sourceDataList?.appName}
                         />
