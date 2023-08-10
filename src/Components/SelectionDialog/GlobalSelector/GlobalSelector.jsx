@@ -98,9 +98,8 @@ const GlobalSelector = ({
   };
 
   useEffect(() => {
-    console.log('1');
-    // setResourceTypes([]);
-    // setResourceTypeId('');
+    setResourceTypes([]);
+    setResourceTypeId('');
     if (defaultProject) {
       setProjectId(defaultProject?.id);
     } else {
@@ -159,7 +158,7 @@ const GlobalSelector = ({
           setProjects(data?.items ? data?.items : []);
         }
       });
-  }, [authCtx, authenticatedThirdApp]);
+  }, [authCtx, defaultProject, authenticatedThirdApp]);
 
   useEffect(() => {
     if (projectId) {
@@ -192,9 +191,6 @@ const GlobalSelector = ({
 
   useEffect(() => {
     if (filterIn === '') {
-      console.log('2');
-      console.log(resourceTypeId);
-      console.log(projectId, resourceTypeId, currPage, limit);
       if (projectId && resourceTypeId && currPage && limit) {
         setTableLoading(true);
         fetch(
@@ -245,7 +241,6 @@ const GlobalSelector = ({
             setTableLoading(false);
             setTableShow(true);
             setTableData(data);
-            console.log(data);
           });
       } else {
         setTableData([]);
@@ -255,7 +250,6 @@ const GlobalSelector = ({
   }, [projectId, resourceTypeId, authCtx, currPage, limit, filterIn]);
   useEffect(() => {
     if (columnFilters[0]?.id && columnFilters[0]?.value) {
-      console.log(columnFilters[0]?.id, columnFilters[0]?.value);
       setFilterLoad(true);
       fetch(
         `${lmApiUrl}/third_party/${
