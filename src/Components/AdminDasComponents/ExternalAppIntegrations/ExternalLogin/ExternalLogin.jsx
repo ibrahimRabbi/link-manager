@@ -57,12 +57,10 @@ const ExternalLogin = (props) => {
   );
   if (selectedExtLoginApplication) {
     const foundAppId = selectedExtLoginApplication?.items[0]?.id;
-    if (appData?.type === 'glideyoke') {
-      // eslint-disable-next-line max-len
-      loginUrl = `${lmApiUrl}/third_party/glideyoke/auth/login?application_id=${
-        appData?.application_id || appData?.id || foundAppId
-      }`;
-    }
+    // eslint-disable-next-line max-len
+    loginUrl = `${lmApiUrl}/third_party/${appData?.type}/auth/login?application_id=${
+      appData?.application_id || appData?.id || foundAppId
+    }`;
   }
 
   const convertToUppercase = (str) => {
@@ -71,15 +69,30 @@ const ExternalLogin = (props) => {
 
   const onSubmit = async () => {
     setIsLoading(true);
+    let headers = {};
 
     try {
       const authData = window.btoa(formValue.username + ':' + formValue.password);
+      // prettier-ignore
+      switch (appData?.type) {
+      case 'glideyoke':
+        headers = {
+          'X-Auth-GlideYoke': 'Basic ' + authData,
+        };
+        break;
+      case 'valispace':
+        headers = {
+          'X-Auth-Valispace': 'Basic ' + authData,
+        };
+        break;
+      }
+
       const response = await fetch(loginUrl, {
         method: 'POST',
         headers: {
           'Content-type': 'application/json',
           Authorization: `Bearer ${authCtx.token}`,
-          'X-Auth-GlideYoke': 'Basic ' + authData,
+          ...headers,
         },
       });
       const data = await response.json();
