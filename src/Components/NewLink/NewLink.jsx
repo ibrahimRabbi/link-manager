@@ -310,7 +310,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           target_properties: {
             type: item?.type || item?.resource_type,
             uri: targetUri || item?.link,
-            title: item?.label || item?.name,
+            title: item?.name || item?.label,
             provider_id: item?.provider_id || item?.id,
             provider_name: item?.provider_name ? item?.provider_name : '',
             api: item?.api ? item?.api : '',
