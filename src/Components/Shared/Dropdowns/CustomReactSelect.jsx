@@ -1,6 +1,5 @@
-import React, { useContext, useRef, forwardRef } from 'react';
+import React, { useContext, useRef, forwardRef, useEffect } from 'react';
 import { useState } from 'react';
-import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Select, { components } from 'react-select';
 import AuthContext from '../../../Store/Auth-Context';
@@ -171,6 +170,15 @@ const CustomReactSelect = forwardRef((props, ref) => {
           [],
         );
       }
+
+      if (removeApplication) {
+        applicationsForLinks = applicationsForLinks.filter((item) => {
+          if (item?.type !== removeApplication) {
+            return item;
+          }
+        });
+      }
+
       const mapData = isLinkCreation ? applicationsForLinks : option;
       const newApps = mapData?.map((item) => {
         let appIcon = '';
@@ -225,14 +233,6 @@ const CustomReactSelect = forwardRef((props, ref) => {
         label: isIntegration ? item?.project?.name : item?.name || item?.label,
         value: item?.id,
       }));
-    }
-    if (removeApplication) {
-      const newDropdownJsonData = dropdownJsonData.filter((item) => {
-        if (item?.type !== removeApplication) {
-          return item;
-        }
-      });
-      dropdownJsonData = newDropdownJsonData;
     }
 
     setDropdownData(dropdownJsonData);
@@ -303,7 +303,6 @@ const CustomReactSelect = forwardRef((props, ref) => {
       </div>
     );
   };
-
   return (
     <Select
       value={value ? dropdownData?.find((v) => v?.value === value) : null}
