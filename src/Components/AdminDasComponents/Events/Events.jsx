@@ -8,17 +8,20 @@ import {
 } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Form, Loader, Message, Schema, Tree, toaster } from 'rsuite';
+import { FlexboxGrid, Form, Loader, Message, Schema, toaster } from 'rsuite';
 import TextField from '../TextField';
 import { useRef } from 'react';
 import TextArea from '../TextArea';
-import Swal from 'sweetalert2';
 import {
   fetchCreateData,
   fetchDeleteData,
-  fetchGetData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
+import { useQuery } from '@tanstack/react-query';
+import SelectField from '../SelectField.jsx';
+import fetchAPIRequest from '../../../apiRequests/apiRequest';
+import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
+import AlertModal from '../../Shared/AlertModal';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -40,18 +43,25 @@ const headerData = [
     header: 'Description',
     key: 'description',
   },
+  {
+    header: 'Application',
+    key: 'application_name',
+  },
+  {
+    header: 'Integration',
+    key: 'service_provider_id',
+  },
 ];
 
 const { StringType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
-  trigger_endpoint: StringType().isRequired('This field is required.'),
   description: StringType().isRequired('This field is required.'),
 });
 
 const Events = () => {
-  const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
+  const { isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
     (state) => state.crud,
   );
 
@@ -63,9 +73,10 @@ const Events = () => {
   const [editData, setEditData] = useState({});
   const [formValue, setFormValue] = useState({
     name: '',
-    trigger_endpoint: '',
     description: '',
   });
+  const [open, setOpen] = useState(false);
+  const [deleteData, setDeleteData] = useState({});
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -125,6 +136,7 @@ const Events = () => {
     }
     dispatch(handleIsAddNewModal(false));
     if (isAdminEditing) dispatch(handleIsAdminEditing(false));
+    refetchEvents();
   };
 
   // reset form
@@ -132,58 +144,64 @@ const Events = () => {
     setEditData({});
     setFormValue({
       name: '',
-      trigger_endpoint: '',
       description: '',
     });
   };
 
-  useEffect(() => {
-    dispatch(handleCurrPageTitle('Events'));
-
-    const getUrl = `${lmApiUrl}/events?page=${currPage}&per_page=${pageSize}`;
-    dispatch(
-      fetchGetData({
-        url: getUrl,
+  // get all events
+  const { data: allEvents, refetch: refetchEvents } = useQuery(
+    ['events'],
+    () =>
+      fetchAPIRequest({
+        urlPath: `events?page=${currPage}&per_page=${pageSize}`,
         token: authCtx.token,
-        stateName: 'allEvents',
+        method: 'GET',
         showNotification: showNotification,
       }),
-    );
+    {
+      onSuccess(allEvents) {
+        for (let i = 0; i < allEvents.items.length; i++) {
+          allEvents.items[i]['application_name'] =
+            allEvents.items[i].associations.application.name;
+          allEvents.items[i]['service_provider_id'] =
+            allEvents.items[i].associations.service_provider_id;
+        }
+      },
+    },
+  );
+
+  // get all events
+  useEffect(() => {
+    dispatch(handleCurrPageTitle('Events'));
+    refetchEvents();
   }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
 
   // handle delete event
   const handleDelete = (data) => {
-    Swal.fire({
-      title: 'Are you sure',
-      icon: 'info',
-      text: 'Do you want to delete the Event!!',
-      cancelButtonColor: 'red',
-      showCancelButton: true,
-      confirmButtonText: 'Delete',
-      confirmButtonColor: '#3085d6',
-      reverseButtons: true,
-    }).then((value) => {
-      if (value.isConfirmed) {
-        const deleteUrl = `${lmApiUrl}/events/${data?.id}`;
-        dispatch(
-          fetchDeleteData({
-            url: deleteUrl,
-            token: authCtx.token,
-            showNotification: showNotification,
-          }),
-        );
-      }
-    });
+    setDeleteData(data);
+    setOpen(true);
   };
-
+  const handleConfirmed = (value) => {
+    if (value) {
+      const deleteUrl = `${lmApiUrl}/events/${deleteData?.id}`;
+      dispatch(
+        fetchDeleteData({
+          url: deleteUrl,
+          token: authCtx.token,
+          showNotification: showNotification,
+        }),
+      );
+    }
+  };
   // handle Edit Event
   const handleEdit = (data) => {
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
     setFormValue({
       name: data?.name,
-      trigger_endpoint: data?.trigger_endpoint,
       description: data?.description,
+      application_id: data?.application_id,
+      association_id: data?.association_id,
     });
     dispatch(handleIsAddNewModal(true));
   };
@@ -191,54 +209,20 @@ const Events = () => {
   // send props in the batch action table
   const tableProps = {
     title: 'Events',
-    rowData: crudData?.allEvents?.items?.length ? crudData?.allEvents?.items : [],
+    rowData: allEvents?.items?.length ? allEvents?.items : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: crudData?.allEvents?.total_items,
-    totalPages: crudData?.allEvents?.total_pages,
+    totalItems: allEvents?.total_items,
+    totalPages: allEvents?.total_pages,
     pageSize,
-    page: crudData?.allEvents?.page,
+    page: allEvents?.page,
     inpPlaceholder: 'Search Events',
   };
 
-  const treedata = crudData?.allEvents?.items.map((item) => {
-    return { label: item.name, value: item.name, isFolder: true, children: [] };
-  });
-  // {
-  //   limits: [3, 3, 4],
-  //   labels: (layer, value, faker) => {
-  //     const methodName = ['jobArea', 'jobType', 'firstName'];
-  //     return faker.person[methodName[layer]]();
-  //   },
-  //
-  //   Array(5) [Object,
-  //   Object,
-  //   Object,
-  //   Object,
-  //   Object]
-  //
-  //
-  // {
-  //   "label": "Embedded Software",
-  //   "value": "Embedded Software",
-  //   "isFolder": "true",
-  //   "children": [],
-  //   "oslc:label": "Embedded Software",
-  //   "rdf:type": "http://open-services.net/ns/scm#RepositoryTree",
-  //   "koatl:apiPath": "Embedded Software",
-  //   "oslc:providerId": "42854970",
-  //   "oslc:resourceType": "files",
-  //   "oslc:resourceId": "f921876d132d886e141e3a62a408cc0efcec9f52",
-  //   "oslc:branchName": "main",
-  //   "oslc:api": "gitlab"
-  // }
-  //
-  //
-  // };
   return (
     <div>
       <AddNewModal
@@ -259,15 +243,29 @@ const Events = () => {
               <FlexboxGrid.Item colspan={24}>
                 <TextField name="name" label="Name" reqText="Name is required" />
               </FlexboxGrid.Item>
-
               <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                <TextField
-                  name="trigger_endpoint"
-                  label="Trigger Endpoint"
-                  reqText="Trigger Endpoint is required"
+                <SelectField
+                  name="application_id"
+                  label="Application"
+                  placeholder="Select Application"
+                  accepter={CustomReactSelect}
+                  apiURL={`${lmApiUrl}/application`}
+                  error={formError.application_id}
+                  reqText="Application Id is required"
                 />
               </FlexboxGrid.Item>
-
+              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                <SelectField
+                  name="association_id"
+                  label="Integration"
+                  customLabelKey="service_provider_id"
+                  placeholder="Select Integration"
+                  accepter={CustomReactSelect}
+                  apiURL={`${lmApiUrl}/association`}
+                  error={formError.association_id}
+                  reqText="Integration Id is required"
+                />
+              </FlexboxGrid.Item>
               <FlexboxGrid.Item colspan={24} style={{ marginBottom: '10px' }}>
                 <TextField
                   name="description"
@@ -292,8 +290,14 @@ const Events = () => {
           style={{ zIndex: '10' }}
         />
       )}
+      {/* confirmation modal  */}
+      <AlertModal
+        open={open}
+        setOpen={setOpen}
+        content={'Do you want to delete the event?'}
+        handleConfirmed={handleConfirmed}
+      />
       <AdminDataTable props={tableProps} />
-      {treedata && <Tree data={treedata} getChildren={console.log(0)}></Tree>}
     </div>
   );
 };

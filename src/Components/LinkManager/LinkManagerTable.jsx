@@ -15,6 +15,10 @@ import { Dropdown, IconButton, Input, Popover, Whisper } from 'rsuite';
 import cssStyles from './LinkManager.module.scss';
 import { useSelector } from 'react-redux';
 import CustomFilterSelect from './CustomFilterSelect';
+// eslint-disable-next-line max-len
+import ExternalPreview from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreview.jsx';
+// eslint-disable-next-line max-len
+import { showOslcData } from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreviewConfig.jsx';
 const {
   table_row_dark,
   table_row_light,
@@ -88,34 +92,38 @@ const LinkManagerTable = ({ props }) => {
     } else if (rowData?.provider?.toLowerCase() === 'codebeamer') {
       oslcObj['URL'] = codebeamerURL;
     }
-    const providerId = rowData?.provider_id ? rowData?.provider_id : '';
-    const type = rowData?.Type ? rowData?.Type : '';
-    const resourceId = rowData?.resource_id ? rowData?.resource_id : '';
-    const branch = rowData?.branch_name ? rowData?.branch_name : '';
-    const content = rowData?.content ? rowData?.content : '';
-    const selectedLine = rowData?.selected_lines ? rowData?.selected_lines : '';
-    const koatlPath = rowData?.koatl_path ? rowData?.koatl_path : '';
 
-    // eslint-disable-next-line max-len
-    const uiPreviewURL = `${oslcObj?.URL}/oslc/provider/${providerId}/resources/${type}/${resourceId}/smallPreview?branch_name=${branch}&file_content=${content}&file_lines=${selectedLine}&file_path=${koatlPath}`;
-
-    const speaker = (
-      <Popover title="Preview">
-        <iframe src={uiPreviewURL} width="450" height="300" />
-      </Popover>
-    );
-
+    const speaker = (rowData, native = false) => {
+      if (rowData && native) {
+        return (
+          <Popover>
+            <ExternalPreview nodeData={rowData} />
+          </Popover>
+        );
+      } else {
+        const updatedRowData = showOslcData(rowData);
+        return (
+          <Popover>
+            <ExternalPreview nodeData={updatedRowData} />
+          </Popover>
+        );
+      }
+    };
     return (
       <div className={uiPreviewStyle}>
         <Whisper
           trigger="hover"
           enterable
           placement="auto"
-          speaker={speaker}
-          delayOpen={800}
-          delayClose={800}
+          speaker={rowData?.api ? speaker(rowData, true) : speaker(rowData)}
+          delayOpen={550}
+          delayClose={550}
         >
-          <a href={rowData?.id} target="_blank" rel="noopener noreferrer">
+          <a
+            href={rowData?.api ? rowData?.web_url : rowData?.id}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             {rowData?.selected_lines
               ? rowData?.name?.length > 15
                 ? rowData?.name?.slice(0, 15 - 1) +

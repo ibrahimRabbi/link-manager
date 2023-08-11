@@ -215,3 +215,71 @@
 .rs-drawer-body {
   padding: 30px 20px !important;
 }
+
+.w3-table td,
+.w3-table th,
+.w3-table-all td,
+.w3-table-all th {
+  vertical-align: middle;
+}
+
+.rs-picker-toggle-placeholder {
+  font-size: 17px;
+}
+
+.rs-picker-toggle-value {
+  font-size: 17px;
+}
+
+// react select styles for dark theme --- start
+.reactSelectContainer {
+  // react select value container style
+  .reactSelect__control {
+    background-color: #1a1d24;
+    border: 0.5px solid #3c3f43;
+
+    .reactSelect__value-container {
+      outline: none;
+    }
+
+    .reactSelect__indicators {
+      font-size: 18px;
+    }
+  }
+
+  .reactSelect__control:hover {
+    border: 1px solid #52565b;
+  }
+
+  // react select menu container style
+  .reactSelect__menu {
+    background-color: #292d33;
+    margin-top: 5px;
+
+    .reactSelect__menu-list {
+      .reactSelect__option {
+        background-color: transparent;
+      }
+
+      .reactSelect__option:hover {
+        background-color: #515151;
+      }
+
+      .reactSelect__option--is-selected {
+        background-color: #006199;
+      }
+    }
+  }
+}
+
+.react-select-display-icon-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  p {
+    font-size: 17px;
+  }
+}
+
+// react select styles for dark theme --- end

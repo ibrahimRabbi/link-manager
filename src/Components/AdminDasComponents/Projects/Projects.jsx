@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Swal from 'sweetalert2';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
@@ -14,9 +13,10 @@ import TextField from '../TextField';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
 import SelectField from '../SelectField.jsx';
-import CustomSelect from '../CustomSelect.jsx';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
+import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
+import AlertModal from '../../Shared/AlertModal';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -36,7 +36,7 @@ const headerData = [
   },
   {
     header: 'Organization',
-    key: 'organization_id',
+    key: 'organization_name',
   },
 ];
 
@@ -60,6 +60,7 @@ const Projects = () => {
     description: '',
     organization_id: '',
   });
+  const [open, setOpen] = useState(false);
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -79,13 +80,23 @@ const Projects = () => {
     data: allProjects,
     isLoading,
     refetch: refetchProjects,
-  } = useQuery(['project'], () =>
-    fetchAPIRequest({
-      urlPath: `project?page=${currPage}&per_page=${pageSize}`,
-      token: authCtx.token,
-      method: 'GET',
-      showNotification: showNotification,
-    }),
+  } = useQuery(
+    ['project'],
+    () =>
+      fetchAPIRequest({
+        urlPath: `project?page=${currPage}&per_page=${pageSize}`,
+        token: authCtx.token,
+        method: 'GET',
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (allProjects) => {
+        for (let i = 0; i < allProjects.items.length; i++) {
+          allProjects.items[i]['organization_name'] =
+            allProjects.items[i].organization.name;
+        }
+      },
+    },
   );
 
   // create project using react query
@@ -104,7 +115,7 @@ const Projects = () => {
       }),
     {
       onSuccess: (value) => {
-        console.log(value);
+        showNotification(value?.status, value?.message);
       },
     },
   );
@@ -125,7 +136,7 @@ const Projects = () => {
       }),
     {
       onSuccess: (value) => {
-        console.log(value);
+        showNotification(value?.status, value?.message);
       },
     },
   );
@@ -201,20 +212,12 @@ const Projects = () => {
   // handle delete project
   const handleDelete = (data) => {
     setDeleteData(data);
-    Swal.fire({
-      title: 'Are you sure',
-      icon: 'info',
-      text: 'Do you want to delete the project!!',
-      cancelButtonColor: 'red',
-      showCancelButton: true,
-      confirmButtonText: 'Delete',
-      confirmButtonColor: '#3085d6',
-      reverseButtons: true,
-    }).then((value) => {
-      if (value.isConfirmed) {
-        deleteMutate();
-      }
-    });
+    setOpen(true);
+  };
+  const handleConfirmed = (value) => {
+    if (value) {
+      deleteMutate();
+    }
   };
   // handle Edit project
   const handleEdit = (data) => {
@@ -276,7 +279,7 @@ const Projects = () => {
               name="organization_id"
               label="Organization"
               placeholder="Select Organization"
-              accepter={CustomSelect}
+              accepter={CustomReactSelect}
               apiURL={`${lmApiUrl}/organization`}
               error={formError.organization_id}
               reqText="Organization Id is required"
@@ -286,6 +289,13 @@ const Projects = () => {
       </AddNewModal>
 
       {(isLoading || createLoading || updateLoading || deleteLoading) && <UseLoader />}
+      {/* confirmation modal  */}
+      <AlertModal
+        open={open}
+        setOpen={setOpen}
+        content={'Do you want to delete the project?'}
+        handleConfirmed={handleConfirmed}
+      />
       <AdminDataTable props={tableProps} />
     </div>
   );

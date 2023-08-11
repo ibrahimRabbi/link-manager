@@ -1,26 +1,37 @@
 /* eslint-disable max-len */
 import React, { useState } from 'react';
-import { Button, ButtonToolbar, Loader, Placeholder } from 'rsuite';
-import CryptoJS from 'crypto-js';
+import { Button, ButtonToolbar, Loader } from 'rsuite';
 
 const ButtonGroup = ({
   selectedCodes,
   multipleSelected,
   singleSelected,
   handleSaveLink,
+  branchName,
+  cancelLinkHandler,
+  checkedValues,
 }) => {
   const [loading, setLoading] = useState(false);
   const handleSelect = () => {
     setLoading(true);
-    const propsToRemove = ['children', 'is_folder', 'visible', 'id'];
+    const propsToRemove = ['children', 'is_folder', 'visible', 'id', 'value', 'refKey'];
     let value;
+    let parent;
     if (singleSelected !== '') {
       value = JSON.parse(JSON.stringify(singleSelected));
+      parent = { ...singleSelected };
+      for (const prop of propsToRemove) {
+        delete parent[prop];
+        delete parent?.extended_properties?.content_hash;
+        delete parent?.extended_properties?.selected_lines;
+      }
     } else {
       value = JSON.parse(JSON.stringify(multipleSelected));
     }
+
     if (Array.isArray(value)) {
       for (const obj of value) {
+        obj.extended_properties.branch_name = branchName;
         for (const prop in obj) {
           if (propsToRemove.includes(prop)) {
             delete obj[prop];
@@ -28,6 +39,7 @@ const ButtonGroup = ({
         }
       }
     } else {
+      value.extended_properties.branch_name = branchName;
       for (const prop in value) {
         if (propsToRemove.includes(prop)) {
           delete value[prop];
@@ -36,10 +48,7 @@ const ButtonGroup = ({
     }
     if (selectedCodes.code !== '' && multipleSelected.length < 1) {
       const selecteCode = selectedCodes.code;
-      const encoder = new TextEncoder();
-      const data = encoder.encode(selecteCode);
-      const hash = CryptoJS.SHA256(data);
-      const hexString = hash.toString(CryptoJS.enc.Hex);
+      const hexString = window.btoa(selecteCode);
       const initialResponse = '[';
       let Response = '';
       const finalresponse = ']';
@@ -53,6 +62,7 @@ const ButtonGroup = ({
       resultsPart.extended_properties.content_hash = hexString;
       resultsPart.extended_properties.selected_lines = `${selectedCodes.startLineNumber}-${selectedCodes.endLineNumber}`;
       resultsPart.type = 'RepositoryFileBlockOfCodeSelection';
+      resultsPart.parent_properties = parent;
       resultsPart = JSON.stringify(resultsPart);
       Response += `${resultsPart}`;
 
@@ -109,14 +119,13 @@ const ButtonGroup = ({
 
   // Function to handle cancel
   function cancel() {
-    handleSaveLink('');
+    cancelLinkHandler();
   }
   return (
     <div>
       {loading && (
-        <div>
-          <Placeholder.Paragraph rows={8} />
-          <Loader backdrop content="loading..." vertical />
+        <div style={{ marginTop: '50px' }}>
+          <Loader backdrop center size="md" vertical style={{ zIndex: '10' }} />
         </div>
       )}
       <ButtonToolbar>
@@ -127,6 +136,7 @@ const ButtonGroup = ({
           appearance="primary"
           size="md"
           style={{ width: '65px' }}
+          disabled={checkedValues?.length > 0 ? false : true}
           onClick={handleSelect}
         >
           OK

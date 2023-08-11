@@ -53,7 +53,7 @@ const AddUser = ({
     () =>
       fetchAPIRequest({
         urlPath: 'user',
-        token: authCtx.token,
+        token: authCtx?.token,
         method: 'POST',
         body: { ...formValue, enabled: true },
         showNotification: showNotification,
@@ -71,7 +71,7 @@ const AddUser = ({
     () =>
       fetchAPIRequest({
         urlPath: `user/${editData?.id}`,
-        token: authCtx.token,
+        token: authCtx?.token,
         method: 'PUT',
         body: { ...formValue, enabled: true },
         showNotification: showNotification,

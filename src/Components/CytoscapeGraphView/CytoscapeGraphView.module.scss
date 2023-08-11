@@ -1,0 +1,71 @@
+.nodeInfoContainer {
+  position: absolute;
+  margin-top: 20px;
+  padding: 10px 15px 20px 5px;
+  top: 10px;
+  right: 10px;
+  width: 450px;
+  min-height: 400px;
+  max-height: 600px;
+  overflow: hidden;
+  overflow-y: auto;
+  box-shadow: 1px 1px 15px lightgray;
+  background-color: rgba(255, 255, 255, 0.903);
+  border-radius: 5px;
+
+  h6 {
+    text-align: center;
+    border-bottom: 1px solid lightgray;
+    margin-bottom: 10px;
+  }
+
+  .infoRow {
+    display: flex;
+    border-bottom: 1px solid lightgray;
+    padding: 5px 0;
+
+    .firstColumn {
+      border-right: 1px solid lightgray;
+    }
+  }
+
+  p {
+    overflow: hidden;
+    font-size: 14px !important;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    white-space: pre-wrap;
+    color: rgb(0, 0, 0);
+    font-weight: 500 !important;
+
+    span {
+      font-weight: 600;
+      margin-right: 5px;
+      color: black;
+    }
+  }
+}
+
+.visGraphContainer {
+  position: relative !important;
+
+  canvas {
+    min-height: 500px !important;
+    height: 99vh !important;
+    min-width: 700px !important;
+    width: 99% !important;
+    margin-left: 5px !important;
+  }
+
+  .noDataTitle {
+    margin: 50px;
+    text-align: center;
+  }
+
+  .refreshButton {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+  }
+}

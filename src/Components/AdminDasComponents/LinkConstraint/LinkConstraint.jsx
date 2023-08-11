@@ -1,18 +1,16 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Swal from 'sweetalert2';
 import AuthContext from '../../../Store/Auth-Context';
 import {
   handleCurrPageTitle,
   handleIsAddNewModal,
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
-import { Button, FlexboxGrid, Form, Schema } from 'rsuite';
+import { Button, FlexboxGrid, Form, Message, Schema, toaster } from 'rsuite';
 import AdminDataTable from '../AdminDataTable';
 import AddNewModal from '../AddNewModal';
 import { useRef } from 'react';
 import SelectField from '../SelectField';
-import CustomSelect from '../CustomSelect';
 import ConversionIcon from '@rsuite/icons/Conversion';
 import UseLoader from '../../Shared/UseLoader';
 import {
@@ -21,8 +19,9 @@ import {
   fetchGetData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
-import Notification from '../../Shared/Notification';
 import PlusRoundIcon from '@rsuite/icons/PlusRound.js';
+import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
+import AlertModal from '../../Shared/AlertModal';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -68,11 +67,17 @@ const LinkConstraint = () => {
     target_label_1: '',
     target_resource_type_1: '',
   });
-  const [notificationType, setNotificationType] = useState('');
-  const [notificationMessage, setNotificationMessage] = useState('');
+  const [open, setOpen] = useState(false);
+  const [deleteData, setDeleteData] = useState({});
   const showNotification = (type, message) => {
-    setNotificationType(type);
-    setNotificationMessage(message);
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
   };
 
   const [formElements, setFormElements] = useState([1]);
@@ -171,6 +176,7 @@ const LinkConstraint = () => {
   // reset form
   const handleResetForm = () => {
     setEditData({});
+    setFormElements([1]);
     setFormValue({
       name: '',
       url: '',
@@ -197,27 +203,20 @@ const LinkConstraint = () => {
 
   // handle delete LinkConstraint
   const handleDelete = (data) => {
-    Swal.fire({
-      title: 'Are you sure',
-      icon: 'info',
-      text: 'Do you want to delete the this link constraint!!',
-      cancelButtonColor: 'red',
-      showCancelButton: true,
-      confirmButtonText: 'Delete',
-      confirmButtonColor: '#3085d6',
-      reverseButtons: true,
-    }).then((value) => {
-      if (value.isConfirmed) {
-        const deleteUrl = `${lmApiUrl}/link-constraint/${data?.id}`;
-        dispatch(
-          fetchDeleteData({
-            url: deleteUrl,
-            token: authCtx.token,
-            showNotification: showNotification,
-          }),
-        );
-      }
-    });
+    setDeleteData(data);
+    setOpen(true);
+  };
+  const handleConfirmed = (value) => {
+    if (value) {
+      const deleteUrl = `${lmApiUrl}/link-constraint/${deleteData?.id}`;
+      dispatch(
+        fetchDeleteData({
+          url: deleteUrl,
+          token: authCtx.token,
+          showNotification: showNotification,
+        }),
+      );
+    }
   };
 
   // handle Edit LinkConstraint
@@ -274,13 +273,13 @@ const LinkConstraint = () => {
           >
             {formElements.map((value, index) => (
               <React.Fragment key={index}>
-                <FlexboxGrid justify="space-between">
+                <FlexboxGrid justify="space-between" style={{ marginBottom: '20px' }}>
                   <FlexboxGrid.Item colspan={5}>
                     <SelectField
                       name={`source_resource_type_${value}`}
                       label="Resource Types"
-                      placeholder="Select resource type"
-                      accepter={CustomSelect}
+                      placeholder="Resource type"
+                      accepter={CustomReactSelect}
                       apiURL={`${lmApiUrl}/application`}
                       error={formError.application_id}
                       reqText="Application Id is required"
@@ -290,9 +289,9 @@ const LinkConstraint = () => {
                     <SelectField
                       name={`source_label_${value}`}
                       label="Incoming label"
-                      placeholder="Select link type"
-                      accepter={CustomSelect}
-                      apiURL={`${lmApiUrl}/linkType`}
+                      placeholder="Link type"
+                      accepter={CustomReactSelect}
+                      apiURL={`${lmApiUrl}/link-type`}
                       reqText="Link type is required"
                     />
                   </FlexboxGrid.Item>
@@ -307,9 +306,9 @@ const LinkConstraint = () => {
                     <SelectField
                       name={`target_resource_type_${value}`}
                       label="Outcoming label"
-                      placeholder="Select link type"
-                      accepter={CustomSelect}
-                      apiURL={`${lmApiUrl}/linkType`}
+                      placeholder="Link type"
+                      accepter={CustomReactSelect}
+                      apiURL={`${lmApiUrl}/link-type`}
                       reqText="Link type is required"
                     />
                   </FlexboxGrid.Item>
@@ -317,8 +316,8 @@ const LinkConstraint = () => {
                     <SelectField
                       name={`target_resource_type_${value}`}
                       label="Resource Types"
-                      placeholder="Select resource type"
-                      accepter={CustomSelect}
+                      placeholder="Resource type"
+                      accepter={CustomReactSelect}
                       apiURL={`${lmApiUrl}/application`}
                       error={formError.application_id}
                       reqText="Application Id is required"
@@ -343,14 +342,13 @@ const LinkConstraint = () => {
       </AddNewModal>
 
       {isCrudLoading && <UseLoader />}
-      {notificationType && notificationMessage && (
-        <Notification
-          type={notificationType}
-          message={notificationMessage}
-          setNotificationType={setNotificationType}
-          setNotificationMessage={setNotificationMessage}
-        />
-      )}
+      {/* confirmation modal  */}
+      <AlertModal
+        open={open}
+        setOpen={setOpen}
+        content={'Do you want to delete the this link constraint?'}
+        handleConfirmed={handleConfirmed}
+      />
       <AdminDataTable props={tableProps} />
     </div>
   );

@@ -6,23 +6,13 @@ import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
 import InfoStatus from '@rsuite/icons/InfoRound';
 
-import {
-  Table,
-  Pagination,
-  FlexboxGrid,
-  Button,
-  Whisper,
-  IconButton,
-  Dropdown,
-  Popover,
-  InputGroup,
-  Input,
-} from 'rsuite';
+import { Table, Pagination, FlexboxGrid, Button, InputGroup, Input } from 'rsuite';
+import { IconButton, ButtonToolbar } from 'rsuite';
 import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
-import MoreIcon from '@rsuite/icons/legacy/More';
 import { handleRefreshData } from '../../Redux/slices/navSlice';
 import { darkBgColor, lightBgColor } from '../../App';
+import { MdDelete, MdEdit, MdLock } from 'react-icons/md';
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -40,7 +30,6 @@ const AdminDataTable = ({ props }) => {
     pageSize,
   } = props;
   const { isDark, refreshData } = useSelector((state) => state.nav);
-  const [actionData, setActionData] = useState({});
   const [tableFilterValue, setTableFilterValue] = useState('');
   const [displayTableData, setDisplayTableData] = useState([]);
   const [page, setPage] = useState(1);
@@ -65,37 +54,41 @@ const AdminDataTable = ({ props }) => {
 
   // Action cell
   // Action table cell control
-  const renderMenu = ({ onClose, left, top, className }, ref) => {
-    const handleSelect = (eventKey) => {
-      if (eventKey === 1) {
-        handleEdit(actionData);
-      } else if (eventKey === 2) {
-        handleDelete(actionData);
-      } else if (eventKey === 3) {
-        authorizeModal(actionData);
-      }
-      onClose();
-      setActionData({});
+  const ActionMenu = ({ rowData }) => {
+    const editSelected = () => {
+      handleEdit(rowData);
+    };
+
+    const deleteSelected = () => {
+      handleDelete(rowData);
+    };
+
+    const authorizeModalSelected = () => {
+      authorizeModal(rowData);
     };
 
     return (
-      <Popover ref={ref} className={className} style={{ left, top }} full>
-        <Dropdown.Menu onSelect={handleSelect}>
-          <Dropdown.Item eventKey={1}>
-            <p>Edit</p>
-          </Dropdown.Item>
-
-          <Dropdown.Item eventKey={2}>
-            <p>Delete</p>
-          </Dropdown.Item>
-
-          {authorizeModal && (
-            <Dropdown.Item eventKey={3}>
-              <p>Authorize App</p>
-            </Dropdown.Item>
-          )}
-        </Dropdown.Menu>
-      </Popover>
+      <ButtonToolbar>
+        {handleEdit && (
+          <IconButton size="sm" title="Edit" icon={<MdEdit />} onClick={editSelected} />
+        )}
+        {handleDelete && (
+          <IconButton
+            size="sm"
+            title="Delete"
+            icon={<MdDelete />}
+            onClick={deleteSelected}
+          />
+        )}
+        {authorizeModal && (
+          <IconButton
+            size="sm"
+            title="Authorize App"
+            icon={<MdLock />}
+            onClick={authorizeModalSelected}
+          />
+        )}
+      </ButtonToolbar>
     );
   };
 
@@ -191,9 +184,11 @@ const AdminDataTable = ({ props }) => {
         }}
       >
         <FlexboxGrid.Item>
-          <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
-            Add New
-          </Button>
+          {handleAddNew && (
+            <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
+              Add New
+            </Button>
+          )}
         </FlexboxGrid.Item>
 
         <FlexboxGrid.Item>
@@ -260,20 +255,17 @@ const AdminDataTable = ({ props }) => {
 
         {/* -- action --  */}
 
-        <Column width={100} align="center">
+        <Column width={140} align="left">
           <HeaderCell>
             <h5>Action</h5>
           </HeaderCell>
-          <Cell className="link-group">
-            {(rowData) => (
-              <Whisper placement="auto" trigger="click" speaker={renderMenu}>
-                <IconButton
-                  appearance="subtle"
-                  icon={<MoreIcon />}
-                  onClick={() => setActionData(rowData)}
-                />
-              </Whisper>
-            )}
+          <Cell
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            {(rowData) => <ActionMenu rowData={rowData} />}
           </Cell>
         </Column>
       </Table>

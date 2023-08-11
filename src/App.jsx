@@ -34,9 +34,10 @@ import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun
 import Pipeline from './Components/Pipeline/Pipeline.jsx';
 import WebBrowserExtension from './Components/WebBrowserExtension/WebBrowserExtension';
 import GitlabSelector from './Components/SelectionDialog/GitlabSelector/GitlabSelector';
-import Graph from './Components/GraphView/Graph.jsx';
+// import Graph from './Components/GraphView/Graph.jsx';
 // eslint-disable-next-line max-len
 import Oauth2Callback from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2Callback.jsx';
+import CytoscapeGraphView from './Components/CytoscapeGraphView/CytoscapeGraphView.jsx';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -70,6 +71,7 @@ function App() {
       >
         <Routes>
           <Route path="/oauth2/callback" element={<Oauth2Callback />} />
+          <Route path="/graph-cytoscape" element={<CytoscapeGraphView />} />
           {/* This is WBE dashboard */}
           <Route
             path="/wbe"
@@ -82,7 +84,7 @@ function App() {
             <Route path="/wbe/new-link" element={<NewLink />} />
             <Route path="/wbe/edit-link/:id" element={<EditLink />} />
             <Route path="/wbe/details/:id" element={<LinkDetails />} />
-            <Route path="/wbe/graph-view" element={<Graph />} />
+            <Route path="/wbe/graph-view" element={<CytoscapeGraphView />} />
             <Route path="/wbe/pipeline" element={<Pipeline />} />
             <Route path="/wbe" element={<LinkManager />} />
           </Route>
@@ -99,7 +101,7 @@ function App() {
             <Route path="/new-link" element={<NewLink />} />
             <Route path="/edit-link/:id" element={<EditLink />} />
             <Route path="/details/:id" element={<LinkDetails />} />
-            <Route path="/graph-view" element={<Graph />} />
+            <Route path="/graph-view" element={<CytoscapeGraphView />} />
             <Route path="/pipeline" element={<Pipeline />} />
             <Route path="/extension" element={<WebBrowserExtension />} />
             <Route path="/" element={<LinkManager />} />

@@ -14,21 +14,12 @@ import {
 } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import AdminDataTable from '../AdminDataTable';
-import {
-  FlexboxGrid,
-  Form,
-  Uploader,
-  Toggle,
-  Loader,
-  Schema,
-  Message,
-  toaster,
-} from 'rsuite';
+import { FlexboxGrid, Form, Uploader, Loader, Schema, Message, toaster } from 'rsuite';
 import TextField from '../TextField';
 import { useRef } from 'react';
 import SelectField from '../SelectField.jsx';
-import CustomSelect from '../CustomSelect.jsx';
-import Swal from 'sweetalert2';
+import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
+import AlertModal from '../../Shared/AlertModal';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -42,17 +33,9 @@ const headerData = [
     header: 'Script',
     key: 'filename',
   },
-  {
-    header: 'Polling Period',
-    key: 'polling_period',
-  },
-  {
-    header: 'Is Polling?',
-    key: 'is_polling',
-  },
 ];
 
-const { ObjectType, StringType, BooleanType, NumberType } = Schema.Types;
+const { ObjectType, StringType, NumberType } = Schema.Types;
 
 const Pipelines = () => {
   const {
@@ -70,8 +53,6 @@ const Pipelines = () => {
       ? ObjectType()
       : ObjectType().isRequired('Please upload a file.'),
     filename: StringType(),
-    is_polling: BooleanType().isRequired('This field is required.'),
-    polling_period: NumberType().isRequired('This field is required.'),
   });
 
   const [currPage, setCurrPage] = useState(1);
@@ -82,9 +63,9 @@ const Pipelines = () => {
     event_id: 0,
     script_path: null,
     filename: '',
-    is_polling: false,
-    polling_period: 0,
   });
+  const [open, setOpen] = useState(false);
+  const [deleteData, setDeleteData] = useState({});
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -152,8 +133,6 @@ const Pipelines = () => {
       event_id: 0,
       script_path: null,
       filename: '',
-      is_polling: false,
-      polling_period: 0,
     });
   };
 
@@ -180,27 +159,20 @@ const Pipelines = () => {
 
   // handle delete pipeline
   const handleDelete = (data) => {
-    Swal.fire({
-      title: 'Are you sure',
-      icon: 'info',
-      text: 'Do you want to delete the Pipeline!!',
-      cancelButtonColor: 'red',
-      showCancelButton: true,
-      confirmButtonText: 'Delete',
-      confirmButtonColor: '#3085d6',
-      reverseButtons: true,
-    }).then((value) => {
-      if (value.isConfirmed) {
-        const deleteUrl = `${lmApiUrl}/pipelines/${data?.id}`;
-        dispatch(
-          fetchDeletePipeline({
-            url: deleteUrl,
-            token: authCtx.token,
-            showNotification: showNotification,
-          }),
-        );
-      }
-    });
+    setDeleteData(data);
+    setOpen(true);
+  };
+  const handleConfirmed = (value) => {
+    if (value) {
+      const deleteUrl = `${lmApiUrl}/pipelines/${deleteData?.id}`;
+      dispatch(
+        fetchDeletePipeline({
+          url: deleteUrl,
+          token: authCtx.token,
+          showNotification: showNotification,
+        }),
+      );
+    }
   };
 
   // handle Edit Pipeline
@@ -211,8 +183,6 @@ const Pipelines = () => {
       event_id: data?.event_id,
       script_path: null,
       filename: data?.filename,
-      is_polling: data?.is_polling ? data?.is_polling : false,
-      polling_period: data?.polling_period,
     });
     dispatch(handleIsAddNewModal(true));
   };
@@ -256,7 +226,7 @@ const Pipelines = () => {
                   placeholder="Select Event"
                   name="event_id"
                   label="Event"
-                  accepter={CustomSelect}
+                  accepter={CustomReactSelect}
                   apiURL={`${lmApiUrl}/events`}
                   error={formError.event_id}
                   reqText="Event is required"
@@ -278,23 +248,6 @@ const Pipelines = () => {
                   accepter={Uploader}
                 />
               </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item colspan={24}>
-                <TextField
-                  name="is_polling"
-                  label="Is Polling"
-                  reqText="Path is required"
-                  accepter={Toggle}
-                />
-              </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item colspan={24}>
-                <TextField
-                  name="polling_period"
-                  label="Polling Period"
-                  reqText="Polling Period is required"
-                />
-              </FlexboxGrid.Item>
             </FlexboxGrid>
           </Form>
         </div>
@@ -310,6 +263,13 @@ const Pipelines = () => {
           style={{ zIndex: '10' }}
         />
       )}
+      {/* confirmation modal  */}
+      <AlertModal
+        open={open}
+        setOpen={setOpen}
+        content={'Do you want to delete the pipeline?'}
+        handleConfirmed={handleConfirmed}
+      />
       <AdminDataTable props={tableProps} />
     </div>
   );
