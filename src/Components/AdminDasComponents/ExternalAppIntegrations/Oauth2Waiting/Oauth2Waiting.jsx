@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Message, Panel, toaster } from 'rsuite';
 import ViewsAuthorizeIcon from '@rsuite/icons/ViewsAuthorize';
 import styles from './Oauth2Waiting.scss?inline';
@@ -7,7 +7,6 @@ import fetchAPIRequest from '../../../../apiRequests/apiRequest.js';
 import AuthContext from '../../../../Store/Auth-Context.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
-// eslint-disable-next-line max-len
 const defaultMessage =
   'Once you have authenticated you will be redirected to the next step';
 
@@ -17,6 +16,7 @@ const Oauth2Waiting = (props) => {
   let iconUrl = '';
   let url = '';
   let defaultAppType = false;
+
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -29,25 +29,32 @@ const Oauth2Waiting = (props) => {
   };
   const { data, message } = props;
 
-  const { data: oauth2Data } = useQuery(['oauth2DataApp'], () =>
-    fetchAPIRequest({
-      // eslint-disable-next-line max-len
-      urlPath: `application?name=${data?.name}&organization_id=${data?.organization_id}`,
-      token: authCtx.token,
-      method: 'GET',
-      showNotification: showNotification,
-    }),
+  const { data: oauth2Data, refetch: refetchOauth2Data } = useQuery(
+    ['oauth2DataApp'],
+    () =>
+      fetchAPIRequest({
+        // eslint-disable-next-line max-len
+        urlPath: `application?name=${data?.name}&organization_id=${data?.organization_id}`,
+        token: authCtx.token,
+        method: 'GET',
+        showNotification: showNotification,
+      }),
   );
-
   const openOauth2Login = (url) => {
     window.open(url, '_blank');
   };
 
-  if (oauth2Data) {
-    // eslint-disable-next-line max-len
-    url = `${lmApiUrl}/third_party/${data?.type}/oauth2/login?application_id=${oauth2Data?.items[0]?.id}`;
-    openOauth2Login(url);
-  }
+  useEffect(() => {
+    if (oauth2Data) {
+      // eslint-disable-next-line max-len
+      url = `${lmApiUrl}/third_party/${data?.type}/oauth2/login?application_id=${oauth2Data?.items[0]?.id}`;
+      openOauth2Login(url);
+    }
+  }, [oauth2Data]);
+
+  useEffect(() => {
+    refetchOauth2Data({ data: null });
+  }, [data]);
 
   // prettier-ignore
   switch (data?.type) {

@@ -270,6 +270,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // Link type dropdown
   const handleApplicationChange = (selectedItem) => {
     setExternalProjectUrl('');
+    closeExternalAppResetRequest();
     dispatch(handleApplicationType(selectedItem));
   };
 
@@ -468,7 +469,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       break;
     }
   }, [applicationType]);
-
   return (
     <>
       <SourceSection />
