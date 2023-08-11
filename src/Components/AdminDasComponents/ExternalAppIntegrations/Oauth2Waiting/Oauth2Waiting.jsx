@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Message, Panel, toaster } from 'rsuite';
 import ViewsAuthorizeIcon from '@rsuite/icons/ViewsAuthorize';
 import styles from './Oauth2Waiting.scss?inline';
@@ -14,7 +14,7 @@ const { appImage } = styles;
 const Oauth2Waiting = (props) => {
   const authCtx = useContext(AuthContext);
   let iconUrl = '';
-  let url = '';
+  const [url, setUrl] = useState('');
   let defaultAppType = false;
 
   const showNotification = (type, message) => {
@@ -40,20 +40,27 @@ const Oauth2Waiting = (props) => {
         showNotification: showNotification,
       }),
   );
-  const openOauth2Login = (url) => {
+  const openOauth2Login = () => {
     window.open(url, '_blank');
   };
 
   useEffect(() => {
     if (oauth2Data) {
       // eslint-disable-next-line max-len
-      url = `${lmApiUrl}/third_party/${data?.type}/oauth2/login?application_id=${oauth2Data?.items[0]?.id}`;
-      openOauth2Login(url);
+      const openUrl = `${lmApiUrl}/third_party/${data?.type}/oauth2/login?application_id=${oauth2Data?.items[0]?.id}`;
+      setUrl(openUrl);
     }
   }, [oauth2Data]);
 
   useEffect(() => {
+    if (url) {
+      openOauth2Login();
+    }
+  }, [url]);
+
+  useEffect(() => {
     refetchOauth2Data({ data: null });
+    setUrl('');
   }, [data]);
 
   // prettier-ignore
