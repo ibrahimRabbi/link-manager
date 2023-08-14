@@ -1,7 +1,7 @@
 /* eslint-disable indent */
 /* eslint-disable max-len */
 import React, { useContext, useEffect, useState } from 'react';
-import style from './GlideSelector.module.scss';
+import style from './GlobalSelector.module.scss';
 import AuthContext from '../../../Store/Auth-Context';
 import UseLoader from '../../Shared/UseLoader';
 import ExternalAppModal from '../../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
@@ -16,9 +16,8 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
 } from '@tanstack/react-table';
-import { columnDefWithCheckBox as glideColumns } from './Columns';
+import { columnDefWithCheckBox as glideColumns } from './GlideColumns';
 import { columnDefWithCheckBox as jiraColumns } from './JiraColumns';
-import { columnDefWithCheckBox as valispaceColumns } from '../GlobalSelector/ValispaceColumns.jsx';
 import {
   Button,
   ButtonToolbar,
@@ -33,13 +32,12 @@ import Filter from './FilterFunction';
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
-const nativeAppUrl = `${lmApiUrl}/third_party/`;
-const GlideSelector = ({
+
+const GlobalSelector = ({
   appData,
   defaultProject,
   cancelLinkHandler,
   handleSaveLink,
-  workspace,
 }) => {
   const { isDark } = useSelector((state) => state.nav);
   const [pExist, setPExist] = useState(false);
@@ -50,10 +48,9 @@ const GlideSelector = ({
   const [projectId, setProjectId] = useState(
     defaultProject?.id ? defaultProject?.id : '',
   );
-  const [projectName, setProjectName] = useState('');
   const [resourceTypeId, setResourceTypeId] = useState('');
   const [currPage, setCurrPage] = useState(1);
-  const [limit, setLimit] = React.useState(50);
+  const [limit, setLimit] = React.useState(10);
   const [page, setPage] = React.useState(1);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnFilters, setColumnFilters] = React.useState([]);
@@ -93,57 +90,11 @@ const GlideSelector = ({
 
   const handleProjectChange = (selectedItem) => {
     setProjectId(selectedItem?.id);
-    setProjectName(selectedItem?.name);
     setResourceTypes([]);
     setResourceTypeId('');
   };
   const handleResourceTypeChange = (selectedItem) => {
     setResourceTypeId(selectedItem?.name);
-  };
-
-  const getProjectUrl = () => {
-    let url = '';
-    if (appData) {
-      url = nativeAppUrl;
-      if (workspace) {
-        url += `${appData?.application?.type || appData?.application_type}/containers/${
-          appData?.workspace_id
-        }`;
-      } else {
-        url += `${appData?.application?.type || appData?.application_type}/containers`;
-      }
-      url = getQueryArgs(url);
-    }
-    return url;
-  };
-
-  const getResourceTypeUrl = () => {
-    return `${nativeAppUrl}${
-      appData?.application?.type || appData?.application_type
-    }/resource_types`;
-  };
-
-  const getResourceListUrl = () => {
-    let url = '';
-    if (appData) {
-      url = nativeAppUrl;
-      if (workspace) {
-        url += `${
-          appData?.application?.type || appData?.application_type
-        }/container/${projectId}/${resourceTypeId}`;
-      } else {
-        url += `${appData?.application?.type || appData?.application_type}/container/${
-          appData?.application_type !== 'glideyoke' ? appData?.id : 'tenant'
-        }/${resourceTypeId}`;
-      }
-      url = getQueryArgs(url);
-    }
-    return url;
-  };
-
-  const getQueryArgs = (url) => {
-    url += `?page=1&per_page=${limit}&application_id=${appData?.application_id}`;
-    return url;
   };
 
   useEffect(() => {
@@ -157,61 +108,67 @@ const GlideSelector = ({
     setProjects([]);
     setLoading(true);
     setTableData([]);
-    const url = getProjectUrl();
-    if (url) {
-      fetch(getProjectUrl(), {
+    fetch(
+      `${lmApiUrl}/third_party/${
+        appData?.application?.type || appData?.application_type
+      }/containers?page=1&per_page=10&application_id=${appData?.application_id}`,
+      {
         headers: {
           Authorization: `Bearer ${authCtx.token}`,
         },
-      })
-        .then((response) => {
-          if (response.status === 200) {
-            return response.json();
-          } else {
-            if (response.status === 400) {
-              setAuthenticatedThirdApp(true);
-              return response.json().then((data) => {
-                showNotification('error', data?.message?.message);
-                return { items: [] };
-              });
-            } else if (response.status === 401) {
-              setAuthenticatedThirdApp(true);
-              return response.json().then((data) => {
-                showNotification('error', data?.message);
-                return { items: [] };
-              });
-            } else if (response.status === 403) {
-              if (authCtx.token) {
-                showNotification('error', 'You do not have permission to access');
-              } else {
-                setAuthenticatedThirdApp(true);
-                return { items: [] };
-              }
+      },
+    )
+      .then((response) => {
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          if (response.status === 400) {
+            setAuthenticatedThirdApp(true);
+            return response.json().then((data) => {
+              showNotification('error', data?.message?.message);
+              return { items: [] };
+            });
+          } else if (response.status === 401) {
+            setAuthenticatedThirdApp(true);
+            return response.json().then((data) => {
+              showNotification('error', data?.message);
+              return { items: [] };
+            });
+          } else if (response.status === 403) {
+            if (authCtx.token) {
+              showNotification('error', 'You do not have permission to access');
             } else {
-              return response.json().then((data) => {
-                showNotification('error', data.message);
-              });
+              setAuthenticatedThirdApp(true);
+              return { items: [] };
             }
-          }
-        })
-        .then((data) => {
-          if (data?.total_items === 0) {
-            setLoading(false);
-            setPExist(true);
           } else {
-            setLoading(false);
-            setPExist(false);
-            setProjects(data?.items ? data?.items : []);
+            return response.json().then((data) => {
+              showNotification('error', data.message);
+            });
           }
-        });
-    }
-  }, [authCtx, authenticatedThirdApp, appData]);
+        }
+      })
+      .then((data) => {
+        if (data?.total_items === 0) {
+          setLoading(false);
+          setPExist(true);
+        } else {
+          setLoading(false);
+          setPExist(false);
+          setProjects(data?.items ? data?.items : []);
+        }
+      });
+  }, [authCtx, defaultProject, authenticatedThirdApp]);
 
   useEffect(() => {
     if (projectId) {
       setResourceLoading(true);
       setTableData([]);
-      fetch(getResourceTypeUrl())
+      fetch(
+        `${lmApiUrl}/third_party/${
+          appData?.application?.type || appData?.application_type
+        }/resource_types`,
+      )
         .then((response) => {
           if (response.status === 200) {
             return response.json();
@@ -236,49 +193,55 @@ const GlideSelector = ({
     if (filterIn === '') {
       if (projectId && resourceTypeId && currPage && limit) {
         setTableLoading(true);
-        const url = getResourceListUrl();
-        if (url) {
-          fetch(url, {
+        fetch(
+          `${lmApiUrl}/third_party/${
+            appData?.application?.type || appData?.application_type
+          }/container/${
+            appData?.application_type !== 'glideyoke' ? appData?.id : 'tenant'
+          }/${resourceTypeId}?page=${currPage}&per_page=${limit}&application_id=${
+            appData?.application_id
+          }`,
+          {
             headers: {
               Authorization: `Bearer ${authCtx.token}`,
             },
-          })
-            .then((response) => {
-              if (response.status === 200) {
-                return response.json();
-              } else {
-                if (response.status === 400) {
-                  setAuthenticatedThirdApp(true);
-                  return response.json().then((data) => {
-                    showNotification('error', data?.message?.message);
-                    return { items: [] };
-                  });
-                } else if (response.status === 401) {
-                  setAuthenticatedThirdApp(true);
-                  return response.json().then((data) => {
-                    showNotification('error', data?.message);
-                    return { items: [] };
-                  });
-                } else if (response.status === 403) {
-                  if (authCtx.token) {
-                    showNotification('error', 'You do not have permission to access');
-                  } else {
-                    setAuthenticatedThirdApp(true);
-                    return { items: [] };
-                  }
+          },
+        )
+          .then((response) => {
+            if (response.status === 200) {
+              return response.json();
+            } else {
+              if (response.status === 400) {
+                setAuthenticatedThirdApp(true);
+                return response.json().then((data) => {
+                  showNotification('error', data?.message?.message);
+                  return { items: [] };
+                });
+              } else if (response.status === 401) {
+                setAuthenticatedThirdApp(true);
+                return response.json().then((data) => {
+                  showNotification('error', data?.message);
+                  return { items: [] };
+                });
+              } else if (response.status === 403) {
+                if (authCtx.token) {
+                  showNotification('error', 'You do not have permission to access');
                 } else {
-                  return response.json().then((data) => {
-                    showNotification('error', data.message);
-                  });
+                  setAuthenticatedThirdApp(true);
+                  return { items: [] };
                 }
+              } else {
+                return response.json().then((data) => {
+                  showNotification('error', data.message);
+                });
               }
-            })
-            .then((data) => {
-              setTableLoading(false);
-              setTableShow(true);
-              setTableData(data);
-            });
-        }
+            }
+          })
+          .then((data) => {
+            setTableLoading(false);
+            setTableShow(true);
+            setTableData(data);
+          });
       } else {
         setTableData([]);
       }
@@ -288,13 +251,26 @@ const GlideSelector = ({
   useEffect(() => {
     if (columnFilters[0]?.id && columnFilters[0]?.value) {
       setFilterLoad(true);
-      let url = getResourceListUrl();
-      url += `&${columnFilters[0]?.id.toLowerCase()}=${columnFilters[0]?.value}`;
-      fetch(url, {
-        headers: {
-          Authorization: `Bearer ${authCtx.token}`,
+      fetch(
+        `${lmApiUrl}/third_party/${
+          appData?.application?.type || appData?.application_type
+        }/container/${
+          appData?.application_type !== 'glideyoke' ? appData?.id : 'tenant'
+        }/${resourceTypeId}?page=1&per_page=10&application_id=${
+          appData?.application_id
+        }&${
+          appData?.application_type !== 'glideyoke'
+            ? columnFilters[0]?.id.toLowerCase() === 'name'
+              ? 'key'
+              : columnFilters[0]?.id.toLowerCase()
+            : columnFilters[0]?.id.toLowerCase()
+        }=${columnFilters[0]?.value}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authCtx.token}`,
+          },
         },
-      })
+      )
         .then((response) => {
           if (response.status === 200) {
             return response.json();
@@ -332,24 +308,17 @@ const GlideSelector = ({
             setColumnFilters([]);
           } else {
             setFilterLoad(false);
+            setColumnFilters([]);
+            console.log(resourceTypeId);
             setFilterIn('');
           }
         });
     }
   }, [columnFilters[0]]);
-
-  useEffect(() => {
-    if (resourceTypes.length === 1) {
-      setResourceTypeId(resourceTypes[0]?.name);
-    }
-  }, [resourceTypes]);
-
   const finalData = React.useMemo(() => tableData?.items);
   const finalColumnDef = React.useMemo(() => {
     if (appData?.application_type === 'jira') {
       return jiraColumns;
-    } else if (appData?.application_type === 'valispace') {
-      return valispaceColumns;
     } else {
       return glideColumns;
     }
@@ -377,14 +346,7 @@ const GlideSelector = ({
     let selectd = tableInstance.getSelectedRowModel().flatRows.map((el) => el.original);
     let items = selectd
       .map((row) => {
-        let newRow = row;
-        if (!newRow?.provider_name) {
-          newRow = { ...newRow, provider_name: projectName };
-        }
-        if (!newRow?.label) {
-          newRow = { ...newRow, label: newRow?.label };
-        }
-        return JSON.stringify(newRow);
+        return JSON.stringify(row);
       })
       .filter((item) => item !== null);
     let response = `[${items.join(',')}]`;
@@ -434,11 +396,12 @@ const GlideSelector = ({
               </FlexboxGrid.Item>
             </FlexboxGrid>
           )}
-          {projectId && resourceTypes.length > 1 && (
+          {projectId && (
             <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
               <FlexboxGrid.Item colspan={3}>
                 <h3>Resource: </h3>
               </FlexboxGrid.Item>
+
               <FlexboxGrid.Item colspan={21}>
                 <UseReactSelect
                   name="glide_native_resource_type"
@@ -579,4 +542,4 @@ const GlideSelector = ({
   );
 };
 
-export default GlideSelector;
+export default GlobalSelector;
