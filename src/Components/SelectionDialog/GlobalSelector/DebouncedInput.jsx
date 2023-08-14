@@ -1,6 +1,6 @@
 import React from 'react';
 
-function DebouncedInput({ value: initialValue, onChange, debounce = 500, ...props }) {
+function DebouncedInput({ value: initialValue, onChange, debounce = 1000, ...props }) {
   const [value, setValue] = React.useState(initialValue);
 
   React.useEffect(() => {
