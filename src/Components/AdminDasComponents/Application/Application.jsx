@@ -30,6 +30,7 @@ import {
   MICROSERVICES_APPLICATION_TYPES,
   OAUTH2_APPLICATION_TYPES,
   THIRD_PARTY_INTEGRATIONS,
+  USER_PASSWORD_APPLICATION_TYPES,
 } from '../../../App.jsx';
 import Oauth2Waiting from '../ExternalAppIntegrations/Oauth2Waiting/Oauth2Waiting.jsx';
 import ExternalLogin from '../ExternalAppIntegrations/ExternalLogin/ExternalLogin.jsx';
@@ -739,9 +740,15 @@ const Application = () => {
               {(formValue?.type === 'gitlab' || formValue?.type === 'jira') &&
                 steps === 1 &&
                 createSuccess && <Oauth2Waiting data={formValue} />}
-              {formValue?.type === 'glideyoke' && steps === 1 && createSuccess && (
-                <ExternalLogin appData={formValue} onDataStatus={getExtLoginData} />
-              )}
+
+              {
+                // prettier-ignore
+                USER_PASSWORD_APPLICATION_TYPES.includes(formValue?.type) &&
+                steps === 1 &&
+                createSuccess && (
+                  <ExternalLogin appData={formValue} onDataStatus={getExtLoginData} />
+                )
+              }
               <FlexboxGrid justify="end" className={skipBtn}>
                 <Button
                   appearance="ghost"

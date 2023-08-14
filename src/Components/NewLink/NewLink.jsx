@@ -22,7 +22,6 @@ import UseLoader from '../Shared/UseLoader';
 import GitlabSelector from '../SelectionDialog/GitlabSelector/GitlabSelector';
 import styles from './NewLink.module.scss';
 import CustomReactSelect from '../Shared/Dropdowns/CustomReactSelect';
-// eslint-disable-next-line max-len
 import {
   BASIC_AUTH_APPLICATION_TYPES,
   MICROSERVICES_APPLICATION_TYPES,
@@ -272,6 +271,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // Link type dropdown
   const handleApplicationChange = (selectedItem) => {
     setExternalProjectUrl('');
+    closeExternalAppResetRequest();
     dispatch(handleApplicationType(selectedItem));
   };
 
@@ -311,12 +311,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           target_properties: {
             type: item?.type || item?.resource_type,
             uri: targetUri || item?.link,
-            title: item?.label || item?.name,
+            title: item?.name || item?.label,
             provider_id: item?.provider_id || item?.id,
             provider_name: item?.provider_name ? item?.provider_name : '',
             api: item?.api ? item?.api : '',
             description: item?.description ? item?.description : '',
             extra_properties: {
+              application_id: applicationType?.id,
               parent_properties: item?.parent_properties ? item?.parent_properties : '',
               branch_name: properties?.branch_name ? properties?.branch_name : '',
               commit_id: properties?.commit_id ? properties?.commit_id : '',
@@ -470,7 +471,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       break;
     }
   }, [applicationType]);
-
   return (
     <>
       <SourceSection />
@@ -523,7 +523,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                           onChange={handleApplicationChange}
                           isLinkCreation={true}
                           value={applicationType?.label}
-                          isUpdateState={linkType?.label}
+                          isUpdateState={linkType}
+                          selectedLinkType={linkType}
                           isApplication={true}
                           removeApplication={sourceDataList?.appName}
                         />

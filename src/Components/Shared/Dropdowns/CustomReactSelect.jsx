@@ -1,6 +1,5 @@
-import React, { useContext, useRef, forwardRef } from 'react';
+import React, { useContext, useRef, forwardRef, useEffect } from 'react';
 import { useState } from 'react';
-import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Select, { components } from 'react-select';
 import AuthContext from '../../../Store/Auth-Context';
@@ -26,6 +25,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
     value,
     isLinkCreation,
     isApplication,
+    selectedLinkType,
     isValispace,
     isIntegration,
     isEventAssociation,
@@ -88,7 +88,17 @@ const CustomReactSelect = forwardRef((props, ref) => {
         .catch(() => {});
       setIsLoading(false);
       setCheckPagination(response);
-      if (response?.items) return response.items;
+      if (response?.items) {
+        if (isApplication) {
+          const valispaceApp = {
+            name: 'Valispace',
+            id: 50010,
+            type: 'valispace',
+          };
+          return [...response.items, valispaceApp];
+        }
+        return response.items;
+      }
     }
     return [];
   };
@@ -112,13 +122,65 @@ const CustomReactSelect = forwardRef((props, ref) => {
   useEffect(() => {
     let dropdownJsonData = [];
     if (isApplication) {
-      const valispaceApp = {
-        name: 'Valispace',
-        id: 50010,
-        type: 'valispace',
-      };
-      const withHardCodeOption = [...option, valispaceApp];
-      dropdownJsonData = withHardCodeOption?.map((item) => {
+      let applicationsForLinks = [];
+      if (isLinkCreation) {
+        // filter application by domain
+        applicationsForLinks = selectedLinkType?.target_resource?.reduce(
+          (accumulator, item) => {
+            const apps = { gitlab: '', glideYoke: '', jira: '', valispace: '' };
+            // domains for the filter application when creating links
+            const gitlabDomain = ['http://open-services.net/ns/scm#'];
+            const valispaceDomain = ['http://open-services.net/ns/rm#'];
+            const jiraDomain = [
+              'http://open-services.net/ns/cm#',
+              'http://open-services.net/ns/rm#',
+            ];
+            const glideYokeDomain = [
+              'http://open-services.net/ns/plm#',
+              'http://open-services.net/ns/cm#',
+            ];
+
+            const urlType = item?.type;
+
+            if (urlType?.includes(gitlabDomain[0])) apps['gitlab'] = 'gitlab';
+            if (urlType?.includes(valispaceDomain[0])) apps['valispace'] = 'valispace';
+            if (urlType?.includes(jiraDomain[0])) apps['jira'] = 'jira';
+            if (urlType?.includes(jiraDomain[1])) apps['jira'] = 'jira';
+            if (urlType?.includes(glideYokeDomain[0])) apps['glideYoke'] = 'glideyoke';
+            if (urlType?.includes(glideYokeDomain[1])) apps['glideYoke'] = 'glideyoke';
+
+            option?.forEach((app) => {
+              // eslint-disable-next-line max-len
+              if (
+                app.type === apps.gitlab ||
+                app.type === apps.glideYoke ||
+                app.type === apps.jira ||
+                app.type === apps.valispace
+              ) {
+                const existingObject = accumulator.find(
+                  (obj) => obj.id === app.id && obj.name === app.name,
+                );
+                if (!existingObject) {
+                  accumulator.push(app);
+                }
+              }
+            });
+            return accumulator;
+          },
+          [],
+        );
+      }
+
+      if (removeApplication) {
+        applicationsForLinks = applicationsForLinks.filter((item) => {
+          if (item?.type !== removeApplication) {
+            return item;
+          }
+        });
+      }
+
+      const mapData = isLinkCreation ? applicationsForLinks : option;
+      const newApps = mapData?.map((item) => {
         let appIcon = '';
         if (item?.type === 'gitlab') appIcon = icons.gitlab;
         else if (item?.type === 'glideyoke') appIcon = icons.glide;
@@ -135,6 +197,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
           icon: appIcon,
         };
       });
+      return setDropdownData(newApps);
     } else if (customLabelKey) {
       dispatch(handleStoreDropdownItems({ label: customLabelKey, data: option }));
 
@@ -170,14 +233,6 @@ const CustomReactSelect = forwardRef((props, ref) => {
         label: isIntegration ? item?.project?.name : item?.name || item?.label,
         value: item?.id,
       }));
-    }
-    if (removeApplication) {
-      const newDropdownJsonData = dropdownJsonData.filter((item) => {
-        if (item?.type !== removeApplication) {
-          return item;
-        }
-      });
-      dropdownJsonData = newDropdownJsonData;
     }
 
     setDropdownData(dropdownJsonData);
@@ -248,7 +303,6 @@ const CustomReactSelect = forwardRef((props, ref) => {
       </div>
     );
   };
-
   return (
     <Select
       value={value ? dropdownData?.find((v) => v?.value === value) : null}

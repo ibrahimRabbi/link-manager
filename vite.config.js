@@ -20,6 +20,9 @@ export default defineConfig(({ mode }) => {
       },
     },
     define: {},
+    optimizeDeps: {
+      exclude: ['js-big-decimal'],
+    },
   };
 
   if (mode === 'development') {
