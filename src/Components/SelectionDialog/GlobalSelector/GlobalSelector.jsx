@@ -16,9 +16,9 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
 } from '@tanstack/react-table';
-import { columnDefWithCheckBox as glideColumns } from './Columns';
+import { columnDefWithCheckBox as glideColumns } from './GlideColumns';
 import { columnDefWithCheckBox as jiraColumns } from './JiraColumns';
-import { columnDefWithCheckBox as valispaceColumns } from '../GlobalSelector/ValispaceColumns.jsx';
+import { columnDefWithCheckBox as valispaceColumns } from './ValispaceColumns.jsx';
 import {
   Button,
   ButtonToolbar,
