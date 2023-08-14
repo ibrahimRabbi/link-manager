@@ -32,12 +32,13 @@ import Filter from './FilterFunction';
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
-
+const nativeAppUrl = `${lmApiUrl}/third_party/`;
 const GlideSelector = ({
   appData,
   defaultProject,
   cancelLinkHandler,
   handleSaveLink,
+  workspace,
 }) => {
   const { isDark } = useSelector((state) => state.nav);
   const [pExist, setPExist] = useState(false);
@@ -50,7 +51,7 @@ const GlideSelector = ({
   );
   const [resourceTypeId, setResourceTypeId] = useState('');
   const [currPage, setCurrPage] = useState(1);
-  const [limit, setLimit] = React.useState(10);
+  const [limit, setLimit] = React.useState(50);
   const [page, setPage] = React.useState(1);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnFilters, setColumnFilters] = React.useState([]);
@@ -97,6 +98,46 @@ const GlideSelector = ({
     setResourceTypeId(selectedItem?.name);
   };
 
+  const getProjectUrl = () => {
+    let url = nativeAppUrl;
+    if (workspace) {
+      url += `${appData?.application?.type || appData?.application_type}/containers/${
+        appData?.workspace_id
+      }`;
+    } else {
+      url += `${appData?.application?.type || appData?.application_type}/containers`;
+    }
+    url = getQueryArgs(url);
+    return url;
+  };
+
+  const getResourceTypeUrl = () => {
+    return `${nativeAppUrl}${
+      appData?.application?.type || appData?.application_type
+    }/resource_types`;
+  };
+
+  const getResourceListUrl = () => {
+    let url = nativeAppUrl;
+    if (workspace) {
+      url += `${
+        appData?.application?.type || appData?.application_type
+      }/container/${projectId}/${resourceTypeId}`;
+    } else {
+      url += `${appData?.application?.type || appData?.application_type}/container/${
+        appData?.application_type !== 'glideyoke' ? appData?.id : 'tenant'
+      }/${resourceTypeId}`;
+    }
+
+    url = getQueryArgs(url);
+    return url;
+  };
+
+  const getQueryArgs = (url) => {
+    url += `?page=1&per_page=${limit}&application_id=${appData?.application_id}`;
+    return url;
+  };
+
   useEffect(() => {
     setResourceTypes([]);
     setResourceTypeId('');
@@ -108,16 +149,11 @@ const GlideSelector = ({
     setProjects([]);
     setLoading(true);
     setTableData([]);
-    fetch(
-      `${lmApiUrl}/third_party/${
-        appData?.application?.type || appData?.application_type
-      }/containers?page=1&per_page=10&application_id=${appData?.application_id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${authCtx.token}`,
-        },
+    fetch(getProjectUrl(), {
+      headers: {
+        Authorization: `Bearer ${authCtx.token}`,
       },
-    )
+    })
       .then((response) => {
         if (response.status === 200) {
           return response.json();
@@ -158,17 +194,13 @@ const GlideSelector = ({
           setProjects(data?.items ? data?.items : []);
         }
       });
-  }, [authCtx, authenticatedThirdApp]);
+  }, [authCtx, authenticatedThirdApp, appData]);
 
   useEffect(() => {
     if (projectId) {
       setResourceLoading(true);
       setTableData([]);
-      fetch(
-        `${lmApiUrl}/third_party/${
-          appData?.application?.type || appData?.application_type
-        }/resource_types`,
-      )
+      fetch(getResourceTypeUrl())
         .then((response) => {
           if (response.status === 200) {
             return response.json();
@@ -193,20 +225,11 @@ const GlideSelector = ({
     if (filterIn === '') {
       if (projectId && resourceTypeId && currPage && limit) {
         setTableLoading(true);
-        fetch(
-          `${lmApiUrl}/third_party/${
-            appData?.application?.type || appData?.application_type
-          }/container/${
-            appData?.application_type !== 'glideyoke' ? appData?.id : 'tenant'
-          }/${resourceTypeId}?page=${currPage}&per_page=${limit}&application_id=${
-            appData?.application_id
-          }`,
-          {
-            headers: {
-              Authorization: `Bearer ${authCtx.token}`,
-            },
+        fetch(getResourceListUrl(), {
+          headers: {
+            Authorization: `Bearer ${authCtx.token}`,
           },
-        )
+        })
           .then((response) => {
             if (response.status === 200) {
               return response.json();
@@ -251,20 +274,13 @@ const GlideSelector = ({
   useEffect(() => {
     if (columnFilters[0]?.id && columnFilters[0]?.value) {
       setFilterLoad(true);
-      fetch(
-        `${lmApiUrl}/third_party/${
-          appData?.application?.type || appData?.application_type
-        }/container/${
-          appData?.application_type !== 'glideyoke' ? appData?.id : 'tenant'
-        }/${resourceTypeId}?page=1&per_page=10&application_id=${
-          appData?.application_id
-        }&${columnFilters[0]?.id.toLowerCase()}=${columnFilters[0]?.value}`,
-        {
-          headers: {
-            Authorization: `Bearer ${authCtx.token}`,
-          },
+      let url = getResourceListUrl();
+      url += `&${columnFilters[0]?.id.toLowerCase()}=${columnFilters[0]?.value}`;
+      fetch(url, {
+        headers: {
+          Authorization: `Bearer ${authCtx.token}`,
         },
-      )
+      })
         .then((response) => {
           if (response.status === 200) {
             return response.json();
@@ -307,6 +323,13 @@ const GlideSelector = ({
         });
     }
   }, [columnFilters[0]]);
+
+  useEffect(() => {
+    if (resourceTypes.length === 1) {
+      setResourceTypeId(resourceTypes[0]?.name);
+    }
+  }, [resourceTypes]);
+
   const finalData = React.useMemo(() => tableData?.items);
   const finalColumnDef = React.useMemo(() => {
     if (appData?.application_type === 'jira') {
@@ -388,12 +411,11 @@ const GlideSelector = ({
               </FlexboxGrid.Item>
             </FlexboxGrid>
           )}
-          {projectId && (
+          {projectId && resourceTypes.length > 1 && (
             <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
               <FlexboxGrid.Item colspan={3}>
                 <h3>Resource: </h3>
               </FlexboxGrid.Item>
-
               <FlexboxGrid.Item colspan={21}>
                 <UseReactSelect
                   name="glide_native_resource_type"

@@ -59,6 +59,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   } = useSelector((state) => state.links);
   const [gitlabDialog, setGitlabDialog] = useState(false);
   const [glideDialog, setGlideDialog] = useState(false);
+  const [valispaceDialog, setValispaceDialog] = useState(true);
   const [projectFrameSrc, setProjectFrameSrc] = useState('');
   const [externalProjectUrl, setExternalProjectUrl] = useState('');
   const [externalProjectDisabled, setExternalProjectDisabled] = useState(false);
@@ -125,6 +126,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   useEffect(() => {
     setGitlabDialog(false);
     setGlideDialog(false);
+    setValispaceDialog(false);
     setProjectFrameSrc('');
     if (projectType) {
       const valispaceApp = projectType?.application?.type?.includes('valispace');
@@ -176,6 +178,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           // eslint-disable-next-line max-len
           `${valispaceDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
         );
+      } else if (projectType?.value && applicationType?.type === 'valispace') {
+        setValispaceDialog(true);
       } else if (jiraApp) {
         const project_id = projectType?.service_provider_id;
         setProjectFrameSrc(
@@ -600,6 +604,14 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                   appData={projectType}
                   defaultProject={projectType}
                   cancelLinkHandler={cancelLinkHandler}
+                ></GlideSelector>
+              )}
+              {linkType && valispaceDialog && (
+                <GlideSelector
+                  handleSaveLink={handleSaveLink}
+                  appData={projectType}
+                  cancelLinkHandler={cancelLinkHandler}
+                  workspace={true}
                 ></GlideSelector>
               )}
             </div>
