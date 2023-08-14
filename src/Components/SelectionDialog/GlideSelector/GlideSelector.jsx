@@ -18,6 +18,7 @@ import {
 } from '@tanstack/react-table';
 import { columnDefWithCheckBox as glideColumns } from './Columns';
 import { columnDefWithCheckBox as jiraColumns } from './JiraColumns';
+import { columnDefWithCheckBox as valispaceColumns } from './ValispaceColumns';
 import {
   Button,
   ButtonToolbar,
@@ -49,6 +50,7 @@ const GlideSelector = ({
   const [projectId, setProjectId] = useState(
     defaultProject?.id ? defaultProject?.id : '',
   );
+  const [projectName, setProjectName] = useState('');
   const [resourceTypeId, setResourceTypeId] = useState('');
   const [currPage, setCurrPage] = useState(1);
   const [limit, setLimit] = React.useState(50);
@@ -91,6 +93,7 @@ const GlideSelector = ({
 
   const handleProjectChange = (selectedItem) => {
     setProjectId(selectedItem?.id);
+    setProjectName(selectedItem?.name);
     setResourceTypes([]);
     setResourceTypeId('');
   };
@@ -334,6 +337,8 @@ const GlideSelector = ({
   const finalColumnDef = React.useMemo(() => {
     if (appData?.application_type === 'jira') {
       return jiraColumns;
+    } else if (appData?.application_type === 'valispace') {
+      return valispaceColumns;
     } else {
       return glideColumns;
     }
@@ -361,7 +366,14 @@ const GlideSelector = ({
     let selectd = tableInstance.getSelectedRowModel().flatRows.map((el) => el.original);
     let items = selectd
       .map((row) => {
-        return JSON.stringify(row);
+        let newRow = row;
+        if (!newRow?.provider_name) {
+          newRow = { ...newRow, provider_name: projectName };
+        }
+        if (!newRow?.label) {
+          newRow = { ...newRow, label: newRow?.label };
+        }
+        return JSON.stringify(newRow);
       })
       .filter((item) => item !== null);
     let response = `[${items.join(',')}]`;
