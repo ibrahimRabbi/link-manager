@@ -102,15 +102,18 @@ const GlideSelector = ({
   };
 
   const getProjectUrl = () => {
-    let url = nativeAppUrl;
-    if (workspace) {
-      url += `${appData?.application?.type || appData?.application_type}/containers/${
-        appData?.workspace_id
-      }`;
-    } else {
-      url += `${appData?.application?.type || appData?.application_type}/containers`;
+    let url = '';
+    if (appData) {
+      url = nativeAppUrl;
+      if (workspace) {
+        url += `${appData?.application?.type || appData?.application_type}/containers/${
+          appData?.workspace_id
+        }`;
+      } else {
+        url += `${appData?.application?.type || appData?.application_type}/containers`;
+      }
+      url = getQueryArgs(url);
     }
-    url = getQueryArgs(url);
     return url;
   };
 
@@ -121,18 +124,20 @@ const GlideSelector = ({
   };
 
   const getResourceListUrl = () => {
-    let url = nativeAppUrl;
-    if (workspace) {
-      url += `${
-        appData?.application?.type || appData?.application_type
-      }/container/${projectId}/${resourceTypeId}`;
-    } else {
-      url += `${appData?.application?.type || appData?.application_type}/container/${
-        appData?.application_type !== 'glideyoke' ? appData?.id : 'tenant'
-      }/${resourceTypeId}`;
+    let url = '';
+    if (appData) {
+      url = nativeAppUrl;
+      if (workspace) {
+        url += `${
+          appData?.application?.type || appData?.application_type
+        }/container/${projectId}/${resourceTypeId}`;
+      } else {
+        url += `${appData?.application?.type || appData?.application_type}/container/${
+          appData?.application_type !== 'glideyoke' ? appData?.id : 'tenant'
+        }/${resourceTypeId}`;
+      }
+      url = getQueryArgs(url);
     }
-
-    url = getQueryArgs(url);
     return url;
   };
 
@@ -152,51 +157,54 @@ const GlideSelector = ({
     setProjects([]);
     setLoading(true);
     setTableData([]);
-    fetch(getProjectUrl(), {
-      headers: {
-        Authorization: `Bearer ${authCtx.token}`,
-      },
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          return response.json();
-        } else {
-          if (response.status === 400) {
-            setAuthenticatedThirdApp(true);
-            return response.json().then((data) => {
-              showNotification('error', data?.message?.message);
-              return { items: [] };
-            });
-          } else if (response.status === 401) {
-            setAuthenticatedThirdApp(true);
-            return response.json().then((data) => {
-              showNotification('error', data?.message);
-              return { items: [] };
-            });
-          } else if (response.status === 403) {
-            if (authCtx.token) {
-              showNotification('error', 'You do not have permission to access');
-            } else {
-              setAuthenticatedThirdApp(true);
-              return { items: [] };
-            }
-          } else {
-            return response.json().then((data) => {
-              showNotification('error', data.message);
-            });
-          }
-        }
+    const url = getProjectUrl();
+    if (url) {
+      fetch(getProjectUrl(), {
+        headers: {
+          Authorization: `Bearer ${authCtx.token}`,
+        },
       })
-      .then((data) => {
-        if (data?.total_items === 0) {
-          setLoading(false);
-          setPExist(true);
-        } else {
-          setLoading(false);
-          setPExist(false);
-          setProjects(data?.items ? data?.items : []);
-        }
-      });
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            if (response.status === 400) {
+              setAuthenticatedThirdApp(true);
+              return response.json().then((data) => {
+                showNotification('error', data?.message?.message);
+                return { items: [] };
+              });
+            } else if (response.status === 401) {
+              setAuthenticatedThirdApp(true);
+              return response.json().then((data) => {
+                showNotification('error', data?.message);
+                return { items: [] };
+              });
+            } else if (response.status === 403) {
+              if (authCtx.token) {
+                showNotification('error', 'You do not have permission to access');
+              } else {
+                setAuthenticatedThirdApp(true);
+                return { items: [] };
+              }
+            } else {
+              return response.json().then((data) => {
+                showNotification('error', data.message);
+              });
+            }
+          }
+        })
+        .then((data) => {
+          if (data?.total_items === 0) {
+            setLoading(false);
+            setPExist(true);
+          } else {
+            setLoading(false);
+            setPExist(false);
+            setProjects(data?.items ? data?.items : []);
+          }
+        });
+    }
   }, [authCtx, authenticatedThirdApp, appData]);
 
   useEffect(() => {
@@ -228,46 +236,49 @@ const GlideSelector = ({
     if (filterIn === '') {
       if (projectId && resourceTypeId && currPage && limit) {
         setTableLoading(true);
-        fetch(getResourceListUrl(), {
-          headers: {
-            Authorization: `Bearer ${authCtx.token}`,
-          },
-        })
-          .then((response) => {
-            if (response.status === 200) {
-              return response.json();
-            } else {
-              if (response.status === 400) {
-                setAuthenticatedThirdApp(true);
-                return response.json().then((data) => {
-                  showNotification('error', data?.message?.message);
-                  return { items: [] };
-                });
-              } else if (response.status === 401) {
-                setAuthenticatedThirdApp(true);
-                return response.json().then((data) => {
-                  showNotification('error', data?.message);
-                  return { items: [] };
-                });
-              } else if (response.status === 403) {
-                if (authCtx.token) {
-                  showNotification('error', 'You do not have permission to access');
-                } else {
-                  setAuthenticatedThirdApp(true);
-                  return { items: [] };
-                }
-              } else {
-                return response.json().then((data) => {
-                  showNotification('error', data.message);
-                });
-              }
-            }
+        const url = getResourceListUrl();
+        if (url) {
+          fetch(url, {
+            headers: {
+              Authorization: `Bearer ${authCtx.token}`,
+            },
           })
-          .then((data) => {
-            setTableLoading(false);
-            setTableShow(true);
-            setTableData(data);
-          });
+            .then((response) => {
+              if (response.status === 200) {
+                return response.json();
+              } else {
+                if (response.status === 400) {
+                  setAuthenticatedThirdApp(true);
+                  return response.json().then((data) => {
+                    showNotification('error', data?.message?.message);
+                    return { items: [] };
+                  });
+                } else if (response.status === 401) {
+                  setAuthenticatedThirdApp(true);
+                  return response.json().then((data) => {
+                    showNotification('error', data?.message);
+                    return { items: [] };
+                  });
+                } else if (response.status === 403) {
+                  if (authCtx.token) {
+                    showNotification('error', 'You do not have permission to access');
+                  } else {
+                    setAuthenticatedThirdApp(true);
+                    return { items: [] };
+                  }
+                } else {
+                  return response.json().then((data) => {
+                    showNotification('error', data.message);
+                  });
+                }
+              }
+            })
+            .then((data) => {
+              setTableLoading(false);
+              setTableShow(true);
+              setTableData(data);
+            });
+        }
       } else {
         setTableData([]);
       }
