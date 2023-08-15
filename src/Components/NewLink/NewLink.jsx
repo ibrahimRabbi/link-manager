@@ -479,158 +479,147 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   return (
     <>
       <SourceSection />
+      <div className={newLinkMainContainer}>
+        {/* --- Link types --- */}
+        <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
+          <FlexboxGrid.Item colspan={3}>
+            <h3>Link: </h3>
+          </FlexboxGrid.Item>
 
-      <div className="mainContainer">
-        <div className="container">
-          <div className={newLinkMainContainer}>
-            {/* --- Link types --- */}
-            <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
+          <FlexboxGrid.Item colspan={21}>
+            <CustomReactSelect
+              name="link_type"
+              placeholder="Choose Link Type"
+              apiURL={sourceDataList?.sourceType ? `${apiURL}/link-type` : ''}
+              // after configure the source_type endpoints we need to uncomment line
+              // apiQueryParams={`source_resource=${sourceDataList?.sourceType}`}
+              onChange={handleLinkTypeChange}
+              isLinkCreation={true}
+              value={linkType?.label}
+            />
+          </FlexboxGrid.Item>
+        </FlexboxGrid>
+
+        {/* --- Application and project types --- */}
+        {linkType && (
+          <>
+            <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
               <FlexboxGrid.Item colspan={3}>
-                <h3>Link: </h3>
+                <h3>Target: </h3>
               </FlexboxGrid.Item>
 
               <FlexboxGrid.Item colspan={21}>
-                <CustomReactSelect
-                  name="link_type"
-                  placeholder="Choose Link Type"
-                  apiURL={sourceDataList?.sourceType ? `${apiURL}/link-type` : ''}
-                  // after configure the source_type endpoints we need to uncomment line
-                  // apiQueryParams={`source_resource=${sourceDataList?.sourceType}`}
-                  onChange={handleLinkTypeChange}
-                  isLinkCreation={true}
-                  value={linkType?.label}
-                />
+                <FlexboxGrid justify="start">
+                  {/* --- Application dropdown ---   */}
+                  <FlexboxGrid.Item as={Col} colspan={11} style={{ paddingLeft: '0' }}>
+                    <CustomReactSelect
+                      name="application_type"
+                      placeholder="Choose Application"
+                      apiURL={sourceDataList?.sourceType ? `${apiURL}/application` : ''}
+                      onChange={handleApplicationChange}
+                      isLinkCreation={true}
+                      value={applicationType?.label}
+                      isUpdateState={linkType}
+                      selectedLinkType={linkType}
+                      isApplication={true}
+                      removeApplication={sourceDataList?.appName}
+                    />
+                  </FlexboxGrid.Item>
+
+                  {/* --- Project dropdown ---   */}
+                  {applicationType?.name && externalProjectUrl && (
+                    <FlexboxGrid.Item
+                      as={Col}
+                      colspan={11}
+                      style={{ paddingRight: '0', marginLeft: 'auto' }}
+                    >
+                      <CustomReactSelect
+                        name="target_project_type"
+                        placeholder="Choose Project"
+                        apiURL={externalProjectUrl}
+                        apiQueryParams={
+                          // eslint-disable-next-line max-len
+                          applicationType?.id
+                            ? `application_id=${applicationType?.id}`
+                            : ''
+                        }
+                        onChange={handleTargetProject}
+                        isLinkCreation={true}
+                        isUpdateState={applicationType?.label}
+                        isValispace={applicationType?.label === 'Valispace'}
+                        value={projectType?.label}
+                        disabled={externalProjectDisabled}
+                        restartRequest={restartExternalRequest}
+                        getErrorStatus={getFailedExternalAuthentication}
+                      />
+                    </FlexboxGrid.Item>
+                  )}
+                </FlexboxGrid>
               </FlexboxGrid.Item>
             </FlexboxGrid>
+          </>
+        )}
 
-            {/* --- Application and project types --- */}
-            {linkType && (
-              <>
-                <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-                  <FlexboxGrid.Item colspan={3}>
-                    <h3>Target: </h3>
-                  </FlexboxGrid.Item>
+        {linkCreateLoading && <UseLoader />}
+        {/* --- Target Selection dialog ---  */}
 
-                  <FlexboxGrid.Item colspan={21}>
-                    <FlexboxGrid justify="start">
-                      {/* --- Application dropdown ---   */}
-                      <FlexboxGrid.Item
-                        as={Col}
-                        colspan={11}
-                        style={{ paddingLeft: '0' }}
-                      >
-                        <CustomReactSelect
-                          name="application_type"
-                          placeholder="Choose Application"
-                          apiURL={
-                            sourceDataList?.sourceType ? `${apiURL}/application` : ''
-                          }
-                          onChange={handleApplicationChange}
-                          isLinkCreation={true}
-                          value={applicationType?.label}
-                          isUpdateState={linkType}
-                          selectedLinkType={linkType}
-                          isApplication={true}
-                          removeApplication={sourceDataList?.appName}
-                        />
-                      </FlexboxGrid.Item>
-
-                      {/* --- Project dropdown ---   */}
-                      {applicationType?.name && externalProjectUrl && (
-                        <FlexboxGrid.Item
-                          as={Col}
-                          colspan={11}
-                          style={{ paddingRight: '0', marginLeft: 'auto' }}
-                        >
-                          <CustomReactSelect
-                            name="target_project_type"
-                            placeholder="Choose Project"
-                            apiURL={externalProjectUrl}
-                            apiQueryParams={
-                              // eslint-disable-next-line max-len
-                              applicationType?.id
-                                ? `application_id=${applicationType?.id}`
-                                : ''
-                            }
-                            onChange={handleTargetProject}
-                            isLinkCreation={true}
-                            isUpdateState={applicationType?.label}
-                            isValispace={applicationType?.label === 'Valispace'}
-                            value={projectType?.label}
-                            disabled={externalProjectDisabled}
-                            restartRequest={restartExternalRequest}
-                            getErrorStatus={getFailedExternalAuthentication}
-                          />
-                        </FlexboxGrid.Item>
-                      )}
-                    </FlexboxGrid>
-                  </FlexboxGrid.Item>
-                </FlexboxGrid>
-              </>
+        {(withConfigAware || withoutConfigAware) && (
+          <div className={targetContainer}>
+            {linkType && projectType && projectFrameSrc && (
+              <iframe className={targetIframe} src={projectFrameSrc} />
             )}
-
-            {linkCreateLoading && <UseLoader />}
-            {/* --- Target Selection dialog ---  */}
-
-            {(withConfigAware || withoutConfigAware) && (
-              <div className={targetContainer}>
-                {linkType && projectType && projectFrameSrc && (
-                  <iframe className={targetIframe} src={projectFrameSrc} />
-                )}
-              </div>
-            )}
-
-            <div>
-              {authenticatedThirdApp && (
-                <ExternalAppModal
-                  showInNewLink={true}
-                  formValue={applicationType}
-                  isOauth2={OAUTH2_APPLICATION_TYPES?.includes(applicationType?.type)}
-                  isBasic={(
-                    BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
-                  ).includes(applicationType?.type)}
-                  onDataStatus={getExtLoginData}
-                  integrated={false}
-                />
-              )}
-              {linkType && gitlabDialog && (
-                <GitlabSelector
-                  appData={projectType}
-                  handleSaveLink={handleSaveLink}
-                  cancelLinkHandler={cancelLinkHandler}
-                ></GitlabSelector>
-              )}
-              {linkType && globalDialog && (
-                <GlobalSelector
-                  handleSaveLink={handleSaveLink}
-                  appData={projectType}
-                  defaultProject={appWithWorkspace ? '' : projectType}
-                  cancelLinkHandler={cancelLinkHandler}
-                  workspace={appWithWorkspace}
-                />
-              )}
-            </div>
           </div>
+        )}
 
-          {/* Target Cancel button  */}
-          {!projectType?.id && (
-            <div className={targetBtnContainer}>
-              <Button
-                appearance="ghost"
-                size="md"
-                onClick={() => {
-                  dispatch(handleCancelLink());
-                  isWbe ? navigate('/wbe') : navigate('/');
-                }}
-              >
-                Cancel
-              </Button>
-              <Button appearance="primary" size="md" disabled={true}>
-                OK
-              </Button>
-            </div>
+        <>
+          {authenticatedThirdApp && (
+            <ExternalAppModal
+              showInNewLink={true}
+              formValue={applicationType}
+              isOauth2={OAUTH2_APPLICATION_TYPES?.includes(applicationType?.type)}
+              isBasic={(
+                BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
+              ).includes(applicationType?.type)}
+              onDataStatus={getExtLoginData}
+              integrated={false}
+            />
           )}
-        </div>
+          {linkType && gitlabDialog && (
+            <GitlabSelector
+              appData={projectType}
+              handleSaveLink={handleSaveLink}
+              cancelLinkHandler={cancelLinkHandler}
+            ></GitlabSelector>
+          )}
+          {linkType && globalDialog && (
+            <GlobalSelector
+              handleSaveLink={handleSaveLink}
+              appData={projectType}
+              defaultProject={appWithWorkspace ? '' : projectType}
+              cancelLinkHandler={cancelLinkHandler}
+              workspace={appWithWorkspace}
+            />
+          )}
+        </>
+
+        {/* Target Cancel button  */}
+        {!projectType?.id && (
+          <div className={targetBtnContainer}>
+            <Button
+              appearance="ghost"
+              size="md"
+              onClick={() => {
+                dispatch(handleCancelLink());
+                isWbe ? navigate('/wbe') : navigate('/');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button appearance="primary" size="md" disabled={true}>
+              OK
+            </Button>
+          </div>
+        )}
       </div>
     </>
   );

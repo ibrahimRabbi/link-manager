@@ -166,12 +166,6 @@
   width: 30%;
 }
 
-.buttonDiv {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 5px;
-}
-
 .error {
   text-align: center;
   font-size: 20px;
@@ -199,6 +193,17 @@
 .styled_table tbody tr {
   border-bottom: 1px solid #dddddd;
 }
-.mainContainer {
-  min-height: 100vh;
+
+.targetBtnContainer {
+  bottom: 25px;
+  right: 20px;
+  position: absolute;
+
+  button {
+    border-radius: 5px;
+  }
+
+  button:last-child {
+    padding: 10px 15px;
+  }
 }

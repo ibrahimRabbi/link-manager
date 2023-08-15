@@ -31,6 +31,7 @@ import {
 import { useSelector } from 'react-redux';
 import Filter from './FilterFunction';
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
+import { isEqual } from 'rsuite/cjs/utils/dateUtils.js';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 const nativeAppUrl = `${lmApiUrl}/third_party/`;
@@ -57,13 +58,13 @@ const GlobalSelector = ({
   const [page, setPage] = React.useState(1);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnFilters, setColumnFilters] = React.useState([]);
+  const [previousColumnFilters, setPreviousColumnFilters] = React.useState([]);
   const [resourceLoading, setResourceLoading] = useState(false);
   const [filterLoad, setFilterLoad] = useState(false);
   const [filterIn, setFilterIn] = useState('');
 
   const authCtx = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
-  const [tableLoading, setTableLoading] = useState(false);
   const [tableshow, setTableShow] = useState(false);
   const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
@@ -238,6 +239,7 @@ const GlobalSelector = ({
         }
       });
       setColumnFilters([]);
+      setPreviousColumnFilters([]);
       setFilterIn('');
     }
   }, [authCtx, projectId]);
@@ -245,11 +247,9 @@ const GlobalSelector = ({
   useEffect(() => {
     if (filterIn === '') {
       if (projectId && resourceTypeId && currPage && limit) {
-        setTableLoading(true);
         const url = getResourceListUrl();
         if (url) {
           executeRequestQuery(url).then((data) => {
-            setTableLoading(false);
             setTableShow(true);
             setTableData(data);
           });
@@ -262,72 +262,25 @@ const GlobalSelector = ({
   }, [projectId, resourceTypeId, authCtx, currPage, limit, filterIn]);
 
   useEffect(() => {
-    if (columnFilters.length > 0 && tableshow) {
+    if (
+      columnFilters.length > 0 &&
+      tableshow &&
+      !isEqual(columnFilters, previousColumnFilters)
+    ) {
       const url = getResourceListUrl(columnFilters);
       if (url) {
         executeRequestQuery(url).then((data) => {
           if (data.items.length > 0) {
             setFilterLoad(false);
             setTableData(data);
-            // setColumnFilters([]);
           } else {
             setFilterLoad(false);
             setFilterIn('');
           }
+          setPreviousColumnFilters(columnFilters);
         });
       }
     }
-
-    // if (columnFilters[0]?.id && columnFilters[0]?.value) {
-    //   setFilterLoad(true);
-    //   let url = getResourceListUrl();
-    //   url += `&${columnFilters[0]?.id.toLowerCase()}=${columnFilters[0]?.value}`;
-    //   fetch(url, {
-    //     headers: {
-    //       Authorization: `Bearer ${authCtx.token}`,
-    //     },
-    //   })
-    //     .then((response) => {
-    //       if (response.status === 200) {
-    //         return response.json();
-    //       } else {
-    //         if (response.status === 400) {
-    //           setAuthenticatedThirdApp(true);
-    //           return response.json().then((data) => {
-    //             showNotification('error', data?.message?.message);
-    //             return { items: [] };
-    //           });
-    //         } else if (response.status === 401) {
-    //           setAuthenticatedThirdApp(true);
-    //           return response.json().then((data) => {
-    //             showNotification('error', data?.message);
-    //             return { items: [] };
-    //           });
-    //         } else if (response.status === 403) {
-    //           if (authCtx.token) {
-    //             showNotification('error', 'You do not have permission to access');
-    //           } else {
-    //             setAuthenticatedThirdApp(true);
-    //             return { items: [] };
-    //           }
-    //         } else {
-    //           return response.json().then((data) => {
-    //             showNotification('error', data.message);
-    //           });
-    //         }
-    //       }
-    //     })
-    //     .then((data) => {
-    //       if (data.items.length > 0) {
-    //         setFilterLoad(false);
-    //         setTableData(data);
-    //         setColumnFilters([]);
-    //       } else {
-    //         setFilterLoad(false);
-    //         setFilterIn('');
-    //       }
-    //     });
-    // }
   }, [columnFilters]);
 
   useEffect(() => {
@@ -411,7 +364,7 @@ const GlobalSelector = ({
           integrated={false}
         />
       ) : (
-        <div className={style.mainContainer}>
+        <div>
           {!defaultProject && (
             <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
               <FlexboxGrid.Item colspan={3}>
@@ -449,11 +402,7 @@ const GlobalSelector = ({
           {filterLoad && (
             <Loader backdrop center size="md" vertical style={{ zIndex: '10' }} />
           )}
-          {tableLoading ? (
-            <div style={{ marginTop: '50px' }}>
-              <UseLoader />
-            </div>
-          ) : tableData?.items?.length < 1 ? (
+          {tableData?.items?.length < 1 ? (
             <h3 style={{ textAlign: 'center', marginTop: '50px', color: '#1675e0' }}>
               Selected resource type has no data.
             </h3>
@@ -464,7 +413,7 @@ const GlobalSelector = ({
                   marginTop: '20px',
                   padding: '0',
                   overflowY: 'auto',
-                  height: '70vh',
+                  height: '55vh',
                 }}
               >
                 <table className={`${style.styled_table}`}>
@@ -553,7 +502,7 @@ const GlobalSelector = ({
         </div>
       )}
       {!loading && (
-        <div className={style.buttonDiv}>
+        <div className={style.targetBtnContainer}>
           <ButtonToolbar>
             <Button appearance="ghost" onClick={handleCancel}>
               Cancel

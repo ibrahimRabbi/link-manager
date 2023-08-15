@@ -1,8 +1,9 @@
 .newLinkMainContainer {
-  height: 82vh;
+  height: 85vh;
   overflow-y: auto;
   padding-right: 2px;
-  // border: 0.5px solid rgb(227, 227, 227);
+  padding: 0 20px;
+  //border: 0.5px solid rgb(227, 227, 227);
 }
 
 .linkTypeContainer {
@@ -58,6 +59,9 @@
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
+  position: absolute;
+  bottom: 25px;
+  right: 20px;
 
   button {
     border-radius: 5px;

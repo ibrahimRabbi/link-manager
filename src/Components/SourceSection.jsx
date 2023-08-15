@@ -29,7 +29,7 @@ const SourceSection = () => {
   return (
     <div className="mainContainer">
       <FlexboxGrid align="middle">
-        <FlexboxGrid.Item colspan={3} style={{ padding: '0' }}>
+        <FlexboxGrid.Item colspan={3} style={{ padding: '0 20px' }}>
           <h3>Source: </h3>
         </FlexboxGrid.Item>
 
