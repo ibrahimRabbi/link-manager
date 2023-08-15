@@ -123,9 +123,9 @@ const GlobalSelector = ({
     }/resource_types`;
   };
 
-  const getResourceListUrl = () => {
+  const getResourceListUrl = (filters = null) => {
     let url = '';
-    if (appData) {
+    if (appData && projectId && resourceTypeId) {
       url = nativeAppUrl;
       if (workspace) {
         url += `${
@@ -137,8 +137,60 @@ const GlobalSelector = ({
         }/${resourceTypeId}`;
       }
       url = getQueryArgs(url);
+      if (filters) {
+        url += getFilterQuery(filters);
+      }
     }
     return url;
+  };
+
+  const getFilterQuery = (columnFilters) => {
+    let queryPath = '';
+    for (let i = 0; i < columnFilters.length; i++) {
+      if (columnFilters[i].value) {
+        queryPath += `&${columnFilters[i].id.toLowerCase()}=${columnFilters[i].value}`;
+      }
+    }
+    return queryPath;
+  };
+
+  const executeRequestQuery = (url) => {
+    return fetch(url, {
+      headers: {
+        Authorization: `Bearer ${authCtx.token}`,
+      },
+    }).then((response) => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        switch (response.status) {
+          case 400:
+            setAuthenticatedThirdApp(true);
+            return response.json().then((data) => {
+              showNotification('error', data?.message?.message);
+              return { items: [] };
+            });
+          case 401:
+            setAuthenticatedThirdApp(true);
+            return response.json().then((data) => {
+              showNotification('error', data?.message);
+              return { items: [] };
+            });
+          case 403:
+            if (authCtx.token) {
+              showNotification('error', 'You do not have permission to access');
+            } else {
+              setAuthenticatedThirdApp(true);
+              return { items: [] };
+            }
+            break;
+          default:
+            return response.json().then((data) => {
+              showNotification('error', data?.message);
+            });
+        }
+      }
+    });
   };
 
   const getQueryArgs = (url) => {
@@ -158,52 +210,17 @@ const GlobalSelector = ({
     setLoading(true);
     setTableData([]);
     const url = getProjectUrl();
-    if (url) {
-      fetch(getProjectUrl(), {
-        headers: {
-          Authorization: `Bearer ${authCtx.token}`,
-        },
-      })
-        .then((response) => {
-          if (response.status === 200) {
-            return response.json();
-          } else {
-            if (response.status === 400) {
-              setAuthenticatedThirdApp(true);
-              return response.json().then((data) => {
-                showNotification('error', data?.message?.message);
-                return { items: [] };
-              });
-            } else if (response.status === 401) {
-              setAuthenticatedThirdApp(true);
-              return response.json().then((data) => {
-                showNotification('error', data?.message);
-                return { items: [] };
-              });
-            } else if (response.status === 403) {
-              if (authCtx.token) {
-                showNotification('error', 'You do not have permission to access');
-              } else {
-                setAuthenticatedThirdApp(true);
-                return { items: [] };
-              }
-            } else {
-              return response.json().then((data) => {
-                showNotification('error', data.message);
-              });
-            }
-          }
-        })
-        .then((data) => {
-          if (data?.total_items === 0) {
-            setLoading(false);
-            setPExist(true);
-          } else {
-            setLoading(false);
-            setPExist(false);
-            setProjects(data?.items ? data?.items : []);
-          }
-        });
+    if (url !== '') {
+      executeRequestQuery(url).then((data) => {
+        if (data?.total_items === 0) {
+          setLoading(false);
+          setPExist(true);
+        } else {
+          setLoading(false);
+          setPExist(false);
+          setProjects(data?.items ? data?.items : []);
+        }
+      });
     }
   }, [authCtx, authenticatedThirdApp, appData]);
 
@@ -211,24 +228,17 @@ const GlobalSelector = ({
     if (projectId) {
       setResourceLoading(true);
       setTableData([]);
-      fetch(getResourceTypeUrl())
-        .then((response) => {
-          if (response.status === 200) {
-            return response.json();
-          } else {
-            return response.json().then((data) => {
-              showNotification('error', data.message);
-            });
-          }
-        })
-        .then((data) => {
-          if (data?.length > 0) {
-            setResourceLoading(false);
-            setResourceTypes(data);
-          } else {
-            setLoading(false);
-          }
-        });
+      const url = getResourceTypeUrl();
+      executeRequestQuery(url).then((data) => {
+        if (data?.length > 0) {
+          setResourceLoading(false);
+          setResourceTypes(data);
+        } else {
+          setLoading(false);
+        }
+      });
+      setColumnFilters([]);
+      setFilterIn('');
     }
   }, [authCtx, projectId]);
 
@@ -238,46 +248,11 @@ const GlobalSelector = ({
         setTableLoading(true);
         const url = getResourceListUrl();
         if (url) {
-          fetch(url, {
-            headers: {
-              Authorization: `Bearer ${authCtx.token}`,
-            },
-          })
-            .then((response) => {
-              if (response.status === 200) {
-                return response.json();
-              } else {
-                if (response.status === 400) {
-                  setAuthenticatedThirdApp(true);
-                  return response.json().then((data) => {
-                    showNotification('error', data?.message?.message);
-                    return { items: [] };
-                  });
-                } else if (response.status === 401) {
-                  setAuthenticatedThirdApp(true);
-                  return response.json().then((data) => {
-                    showNotification('error', data?.message);
-                    return { items: [] };
-                  });
-                } else if (response.status === 403) {
-                  if (authCtx.token) {
-                    showNotification('error', 'You do not have permission to access');
-                  } else {
-                    setAuthenticatedThirdApp(true);
-                    return { items: [] };
-                  }
-                } else {
-                  return response.json().then((data) => {
-                    showNotification('error', data.message);
-                  });
-                }
-              }
-            })
-            .then((data) => {
-              setTableLoading(false);
-              setTableShow(true);
-              setTableData(data);
-            });
+          executeRequestQuery(url).then((data) => {
+            setTableLoading(false);
+            setTableShow(true);
+            setTableData(data);
+          });
         }
       } else {
         setTableData([]);
@@ -285,58 +260,75 @@ const GlobalSelector = ({
     }
     // }
   }, [projectId, resourceTypeId, authCtx, currPage, limit, filterIn]);
+
   useEffect(() => {
-    if (columnFilters[0]?.id && columnFilters[0]?.value) {
-      setFilterLoad(true);
-      let url = getResourceListUrl();
-      url += `&${columnFilters[0]?.id.toLowerCase()}=${columnFilters[0]?.value}`;
-      fetch(url, {
-        headers: {
-          Authorization: `Bearer ${authCtx.token}`,
-        },
-      })
-        .then((response) => {
-          if (response.status === 200) {
-            return response.json();
-          } else {
-            if (response.status === 400) {
-              setAuthenticatedThirdApp(true);
-              return response.json().then((data) => {
-                showNotification('error', data?.message?.message);
-                return { items: [] };
-              });
-            } else if (response.status === 401) {
-              setAuthenticatedThirdApp(true);
-              return response.json().then((data) => {
-                showNotification('error', data?.message);
-                return { items: [] };
-              });
-            } else if (response.status === 403) {
-              if (authCtx.token) {
-                showNotification('error', 'You do not have permission to access');
-              } else {
-                setAuthenticatedThirdApp(true);
-                return { items: [] };
-              }
-            } else {
-              return response.json().then((data) => {
-                showNotification('error', data.message);
-              });
-            }
-          }
-        })
-        .then((data) => {
+    if (columnFilters.length > 0 && tableshow) {
+      const url = getResourceListUrl(columnFilters);
+      if (url) {
+        executeRequestQuery(url).then((data) => {
           if (data.items.length > 0) {
             setFilterLoad(false);
             setTableData(data);
-            setColumnFilters([]);
+            // setColumnFilters([]);
           } else {
             setFilterLoad(false);
             setFilterIn('');
           }
         });
+      }
     }
-  }, [columnFilters[0]]);
+
+    // if (columnFilters[0]?.id && columnFilters[0]?.value) {
+    //   setFilterLoad(true);
+    //   let url = getResourceListUrl();
+    //   url += `&${columnFilters[0]?.id.toLowerCase()}=${columnFilters[0]?.value}`;
+    //   fetch(url, {
+    //     headers: {
+    //       Authorization: `Bearer ${authCtx.token}`,
+    //     },
+    //   })
+    //     .then((response) => {
+    //       if (response.status === 200) {
+    //         return response.json();
+    //       } else {
+    //         if (response.status === 400) {
+    //           setAuthenticatedThirdApp(true);
+    //           return response.json().then((data) => {
+    //             showNotification('error', data?.message?.message);
+    //             return { items: [] };
+    //           });
+    //         } else if (response.status === 401) {
+    //           setAuthenticatedThirdApp(true);
+    //           return response.json().then((data) => {
+    //             showNotification('error', data?.message);
+    //             return { items: [] };
+    //           });
+    //         } else if (response.status === 403) {
+    //           if (authCtx.token) {
+    //             showNotification('error', 'You do not have permission to access');
+    //           } else {
+    //             setAuthenticatedThirdApp(true);
+    //             return { items: [] };
+    //           }
+    //         } else {
+    //           return response.json().then((data) => {
+    //             showNotification('error', data.message);
+    //           });
+    //         }
+    //       }
+    //     })
+    //     .then((data) => {
+    //       if (data.items.length > 0) {
+    //         setFilterLoad(false);
+    //         setTableData(data);
+    //         setColumnFilters([]);
+    //       } else {
+    //         setFilterLoad(false);
+    //         setFilterIn('');
+    //       }
+    //     });
+    // }
+  }, [columnFilters]);
 
   useEffect(() => {
     if (resourceTypes.length === 1) {
@@ -361,14 +353,17 @@ const GlobalSelector = ({
     getFilteredRowModel: getFilteredRowModel(),
     state: {
       rowSelection: rowSelection,
+      columnFilters: columnFilters,
     },
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
     enableRowSelection: true,
   });
+
   useEffect(() => {
     setCurrPage(page);
   }, [page]);
+
   const handleChangeLimit = (dataKey) => {
     setCurrPage(1);
     setLimit(dataKey);
