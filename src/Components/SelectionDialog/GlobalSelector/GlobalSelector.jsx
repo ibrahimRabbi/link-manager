@@ -195,7 +195,7 @@ const GlobalSelector = ({
   };
 
   const getQueryArgs = (url) => {
-    url += `?page=1&per_page=${limit}&application_id=${appData?.application_id}`;
+    url += `?page=${page}&per_page=${limit}&application_id=${appData?.application_id}`;
     return url;
   };
 
@@ -408,22 +408,22 @@ const GlobalSelector = ({
             </h3>
           ) : tableshow && projectId && resourceTypeId && finalData?.length > 0 ? (
             <div>
-              <div
-                style={{
-                  marginTop: '20px',
-                  padding: '0',
-                  overflowY: 'auto',
-                  height: '55vh',
-                }}
-              >
+              <div className={style.tableContainer}>
                 <table className={`${style.styled_table}`}>
-                  <thead style={{ borderBottom: '0.5px solid rgb(238, 238, 238)' }}>
+                  <thead style={{}}>
                     {tableInstance.getHeaderGroups().map((headerEl) => {
                       return (
                         <tr key={headerEl.id} style={{ fontSize: '20px' }}>
                           {headerEl.headers.map((columnEl) => {
                             return (
-                              <th key={columnEl.id}>
+                              <th
+                                key={columnEl.id}
+                                style={
+                                  columnEl.column.id.includes('select')
+                                    ? { width: '5%' }
+                                    : null
+                                }
+                              >
                                 {columnEl.isPlaceholder
                                   ? null
                                   : flexRender(
@@ -461,7 +461,11 @@ const GlobalSelector = ({
                             return (
                               <td
                                 key={cellEl.id}
-                                style={{ width: '50px', fontSize: '17px' }}
+                                style={
+                                  cellEl.column.id.includes('select')
+                                    ? { width: '5px' }
+                                    : { width: '30px', fontSize: '17px' }
+                                }
                               >
                                 {flexRender(
                                   cellEl.column.columnDef.cell,
