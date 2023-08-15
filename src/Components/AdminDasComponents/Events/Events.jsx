@@ -36,10 +36,6 @@ const headerData = [
     key: 'name',
   },
   {
-    header: 'Trigger Endpoint',
-    key: 'trigger_endpoint',
-  },
-  {
     header: 'Description',
     key: 'description',
   },
@@ -48,8 +44,12 @@ const headerData = [
     key: 'application_name',
   },
   {
-    header: 'Integration',
-    key: 'service_provider_id',
+    header: 'Project',
+    key: 'project_name',
+  },
+  {
+    header: 'Trigger Endpoint',
+    key: 'trigger_endpoint',
   },
 ];
 
@@ -161,10 +161,8 @@ const Events = () => {
     {
       onSuccess(allEvents) {
         for (let i = 0; i < allEvents.items.length; i++) {
-          allEvents.items[i]['application_name'] =
-            allEvents.items[i].associations.application.name;
-          allEvents.items[i]['service_provider_id'] =
-            allEvents.items[i].associations.service_provider_id;
+          allEvents.items[i]['application_name'] = allEvents.items[i].application[0].name;
+          allEvents.items[i]['project_name'] = allEvents.items[i].project[0].name;
         }
       },
     },
@@ -201,7 +199,7 @@ const Events = () => {
       name: data?.name,
       description: data?.description,
       application_id: data?.application_id,
-      association_id: data?.association_id,
+      project_id: data?.project_id,
     });
     dispatch(handleIsAddNewModal(true));
   };
@@ -256,14 +254,14 @@ const Events = () => {
               </FlexboxGrid.Item>
               <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
                 <SelectField
-                  name="association_id"
-                  label="Integration"
-                  customLabelKey="service_provider_id"
-                  placeholder="Select Integration"
+                  name="project_id"
+                  label="Project"
+                  // customLabelKey="service_provider_id"
+                  placeholder="Select Project"
                   accepter={CustomReactSelect}
-                  apiURL={`${lmApiUrl}/association`}
-                  error={formError.association_id}
-                  reqText="Integration Id is required"
+                  apiURL={`${lmApiUrl}/project`}
+                  error={formError.project_id}
+                  reqText="Projec Id is required"
                 />
               </FlexboxGrid.Item>
               <FlexboxGrid.Item colspan={24} style={{ marginBottom: '10px' }}>
