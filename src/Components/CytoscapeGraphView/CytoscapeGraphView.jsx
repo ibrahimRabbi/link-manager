@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice.jsx';
 import { graphLayout, graphStyle } from './CytoscapeGraphConfig.jsx';
 import UseLoader from '../Shared/UseLoader.jsx';
-import { nodeColorStyles } from './NodeStyles.jsx';
+import { nodeColorStyles, nodeImageStyle } from './NodeStyles.jsx';
 // eslint-disable-next-line max-len
 import { showOslcData } from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreviewConfig.jsx';
 
@@ -34,6 +34,7 @@ const CytoscapeGraphView = () => {
   const containerRef = useRef(null);
   const graphContainerRef = useRef(null);
   const cyRef = useRef(null);
+  const useNodeColors = false;
 
   const showNotification = (type, message) => {
     if (type && message) {
@@ -127,15 +128,32 @@ const CytoscapeGraphView = () => {
 
   // Set a node color and shape based on resource type
   const checkNodeStyle = (value) => {
-    if (value) {
-      const resourceType = value?.split('#')[1];
-      for (const key in nodeColorStyles) {
-        if (key === resourceType) {
-          return nodeColorStyles[key];
+    if (useNodeColors) {
+      if (value) {
+        const resourceType = value?.split('#')[1];
+        for (const key in nodeColorStyles) {
+          if (key === resourceType) {
+            return nodeColorStyles[key];
+          }
         }
       }
+      return nodeColorStyles['default'];
     }
-    return nodeColorStyles['default'];
+    return {};
+  };
+
+  const checkNodeImage = (value) => {
+    if (!useNodeColors) {
+      if (value) {
+        for (const key in nodeImageStyle) {
+          if (key === value) {
+            return nodeImageStyle[key];
+          }
+        }
+      }
+      return nodeImageStyle['default'];
+    }
+    return {};
   };
 
   useEffect(() => {
@@ -148,7 +166,10 @@ const CytoscapeGraphView = () => {
             id: item.id.toString(),
             label: item.label,
             classes: 'bottom-center',
-            nodeData: item?.properties,
+            nodeData: {
+              ...item?.properties,
+              ...checkNodeImage(item?.properties?.api),
+            },
           },
           style: nodeStyle ? nodeStyle : {},
         };
@@ -216,6 +237,7 @@ const CytoscapeGraphView = () => {
             nodeData: {
               ...item?.properties,
               childData: sourceDataList?.uri === item?.properties?.id,
+              ...checkNodeImage(item?.properties?.api),
             },
           },
           style: nodeStyle ? nodeStyle : {},
