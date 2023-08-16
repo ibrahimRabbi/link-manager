@@ -21,6 +21,7 @@ import AlertModal from '../AlertModal';
 
 const iconStyle = {
   marginLeft: '-38px',
+  marginRight: '17px',
 };
 
 const baseOptions = [
