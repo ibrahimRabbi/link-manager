@@ -407,10 +407,10 @@ const GlobalSelector = ({
               Selected resource type has no data.
             </h3>
           ) : tableshow && projectId && resourceTypeId && finalData?.length > 0 ? (
-            <div>
+            <div className={style.mainTableContainer}>
               <div className={style.tableContainer}>
-                <table className={`${style.styled_table}`}>
-                  <thead style={{}}>
+                <table className={style.styled_table}>
+                  <thead>
                     {tableInstance.getHeaderGroups().map((headerEl) => {
                       return (
                         <tr key={headerEl.id} style={{ fontSize: '20px' }}>
