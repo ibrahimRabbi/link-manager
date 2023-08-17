@@ -117,7 +117,9 @@ const CytoscapeGraphView = () => {
       select: function (ele) {
         const selectedNode = findSelectedNode(ele.id());
         if (selectedNode) {
-          const url = selectedNode[0]?.data?.nodeData.id;
+          const url = selectedNode[0]?.data?.nodeData?.web_url
+            ? selectedNode[0]?.data?.nodeData?.web_url
+            : selectedNode[0]?.data?.nodeData?.id;
           if (url) {
             window.open(url, '_blank');
           }
