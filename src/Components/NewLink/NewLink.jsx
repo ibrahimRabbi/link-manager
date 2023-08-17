@@ -146,7 +146,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         if (isOslc) {
           setProjectFrameSrc(
             // eslint-disable-next-line max-len
-            `${gitlabDialogOslcURL}/oslc/provider/selector?provider_id=${project_id}#oslc-core-postMessage-1.0`,
+            `${gitlabDialogOslcURL}/oslc/provider/selector?provider_id=${
+              project_id ? project_id : projectType?.id
+            }#oslc-core-postMessage-1.0`,
           );
         } else if (gitlabApp) {
           setGitlabDialog(true);
@@ -155,7 +157,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         } else if (jiraApp) {
           setProjectFrameSrc(
             // eslint-disable-next-line max-len
-            `${jiraDialogURL}/oslc/provider/selector?provider_id=${project_id}#oslc-core-postMessage-1.0`,
+            `${jiraDialogURL}/oslc/provider/selector?provider_id=${
+              project_id ? project_id : projectType?.id
+            }#oslc-core-postMessage-1.0`,
           );
         } else if (valispaceApp) {
           setProjectFrameSrc(
@@ -165,7 +169,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         } else if (codebeamerApp) {
           setProjectFrameSrc(
             // eslint-disable-next-line max-len
-            `${codebeamerDialogURL}/oslc/provider/selector?provider_id=${project_id}#oslc-core-postMessage-1.0`,
+            `${codebeamerDialogURL}/oslc/provider/selector?provider_id=${
+              project_id ? project_id : projectType?.id
+            }#oslc-core-postMessage-1.0`,
           );
         }
       } else if (projectType?.value && applicationType.type === 'gitlab') {
@@ -207,6 +213,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             results?.forEach((v, i) => {
               const koatl_path = results[i]['koatl:apiPath'];
               const koatl_uri = results[i]['koatl:apiUrl'];
+              const oslcApplication = results[i]['oslc:api'];
               const branch_name = results[i]['oslc:branchName'];
               const target_provider = results[i]['oslc:api'];
               const content = results[i]['oslc:content'];
@@ -221,6 +228,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               targetArray.push({
                 koatl_uri,
                 koatl_path,
+                oslcApplication,
                 branch_name,
                 target_provider,
                 provider_id,
@@ -382,6 +390,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         showNotification('info', 'Sorry, Source data not found !!!');
       }
     } else if (!res && targetDataArr?.length) {
+      console.log('targetDataArr', targetDataArr);
       const targetsData = targetDataArr?.map((data) => {
         const id = data?.selected_lines
           ? data.koatl_uri + '#' + data?.selected_lines
@@ -390,6 +399,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         return {
           koatl_uri: platform_uri,
           koatl_path: data.koatl_path ? data.koatl_path : '',
+          api: data.oslcApplication ? data.oslcApplication : '',
           content_lines: data.content_lines ? data.content_lines : '',
           selected_lines: data.selected_lines ? data.selected_lines : '',
           branch_name: data.branch_name ? data.branch_name : '',
@@ -474,6 +484,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     case 'glideyoke':
       setExternalProjectUrl(`${thirdApiURL}/glideyoke/containers`);
       break;
+    case 'codebeamer':
+      setExternalProjectUrl(`${thirdApiURL}/codebeamer/containers`);
+      break;
     }
   }, [applicationType]);
   return (
@@ -547,6 +560,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                         isLinkCreation={true}
                         isUpdateState={applicationType?.label}
                         isValispace={applicationType?.label === 'Valispace'}
+                        isCodebeamer={applicationType?.type === 'codebeamer'}
                         value={projectType?.label}
                         disabled={externalProjectDisabled}
                         restartRequest={restartExternalRequest}

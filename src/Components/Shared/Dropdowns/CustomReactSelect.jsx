@@ -27,6 +27,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
     isApplication,
     selectedLinkType,
     isValispace,
+    isCodebeamer,
     isIntegration,
     isEventAssociation,
     isUpdateState,
@@ -95,7 +96,12 @@ const CustomReactSelect = forwardRef((props, ref) => {
             id: 50010,
             type: 'valispace',
           };
-          return [...response.items, valispaceApp];
+          const codeBeamerApp = {
+            name: 'Codebeamer integration',
+            id: 2,
+            type: 'codebeamer',
+          };
+          return [...response.items, valispaceApp, codeBeamerApp];
         }
         return response.items;
       }
@@ -131,6 +137,10 @@ const CustomReactSelect = forwardRef((props, ref) => {
             // domains for the filter application when creating links
             const gitlabDomain = ['http://open-services.net/ns/scm#'];
             const valispaceDomain = ['http://open-services.net/ns/rm#'];
+            const codeBeamerDomain = [
+              'http://open-services.net/ns/rm#',
+              'http://open-services.net/ns/qm#',
+            ];
             const jiraDomain = [
               'http://open-services.net/ns/cm#',
               'http://open-services.net/ns/rm#',
@@ -143,6 +153,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
             const urlType = item?.type;
 
             if (urlType?.includes(gitlabDomain[0])) apps['gitlab'] = 'gitlab';
+            if (urlType?.includes(codeBeamerDomain[0])) apps['codebeamer'] = 'codebeamer';
+            if (urlType?.includes(codeBeamerDomain[1])) apps['codebeamer'] = 'codebeamer';
             if (urlType?.includes(valispaceDomain[0])) apps['valispace'] = 'valispace';
             if (urlType?.includes(jiraDomain[0])) apps['jira'] = 'jira';
             if (urlType?.includes(jiraDomain[1])) apps['jira'] = 'jira';
@@ -155,7 +167,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
                 app.type === apps.gitlab ||
                 app.type === apps.glideYoke ||
                 app.type === apps.jira ||
-                app.type === apps.valispace
+                app.type === apps.valispace ||
+                app.type === apps.codebeamer
               ) {
                 const existingObject = accumulator.find(
                   (obj) => obj.id === app.id && obj.name === app.name,
@@ -220,6 +233,19 @@ const CustomReactSelect = forwardRef((props, ref) => {
           name: 'Valispace ST-100 (VALISPACE)',
           id: 1000010,
           application: { type: 'valispace' },
+        },
+      ];
+      dropdownJsonData = hardCodeProject?.map((item) => ({
+        ...item,
+        label: item?.name || item?.label,
+        value: item?.id,
+      }));
+    } else if (isCodebeamer) {
+      const hardCodeProject = [
+        {
+          name: 'Drone project (CODEBEAMER)',
+          id: 2,
+          application: { type: 'codebeamer' },
         },
       ];
       dropdownJsonData = hardCodeProject?.map((item) => ({
