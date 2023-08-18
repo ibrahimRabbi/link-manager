@@ -30,7 +30,6 @@ import {
 // eslint-disable-next-line max-len
 import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
 import GlobalSelector from '../SelectionDialog/GlobalSelector/GlobalSelector';
-// import application from "../AdminDasComponents/Application/Application.jsx";
 
 const { newLinkMainContainer, targetContainer, targetIframe, targetBtnContainer } =
   styles;

@@ -711,9 +711,17 @@ const Associations = () => {
                       </FlexboxGrid.Item>
                     )}
                     {oslcMissingConsumerToken && appData?.type === 'oslc' && (
-                      <p style={{ fontSize: '17px', marginTop: '5px' }}>
+                      <p
+                        style={{
+                          fontSize: '17px',
+                          marginTop: '5px',
+                        }}
+                      >
                         <RemindOutlineIcon
-                          style={{ marginRight: '5px', color: 'orange' }}
+                          style={{
+                            marginRight: '5px',
+                            color: 'orange',
+                          }}
                           onClick={openLoginModal}
                         />
                         <span
@@ -730,9 +738,17 @@ const Associations = () => {
                       </p>
                     )}
                     {!authorizedThirdParty && (
-                      <p style={{ fontSize: '17px', marginTop: '5px' }}>
+                      <p
+                        style={{
+                          fontSize: '17px',
+                          marginTop: '5px',
+                        }}
+                      >
                         <RemindOutlineIcon
-                          style={{ marginRight: '5px', color: 'orange' }}
+                          style={{
+                            marginRight: '5px',
+                            color: 'orange',
+                          }}
                           onClick={openLoginModal}
                         />
                         <span
