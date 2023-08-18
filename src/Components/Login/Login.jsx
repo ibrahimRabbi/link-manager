@@ -103,7 +103,7 @@ const Login = () => {
 
       if (isMounted.current) {
         if ('access_token' in data) {
-          authCtx.login(data.access_token, data.expires_in);
+          authCtx.login(data.access_token, data.expires_in, data?.user_id);
           // Manage redirect
           if (location.state) navigate(location.state.from.pathname);
           else {
@@ -122,7 +122,10 @@ const Login = () => {
                 {errorMessage}
               </Message>
             );
-            toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
+            toaster.push(message, {
+              placement: 'bottomCenter',
+              duration: 5000,
+            });
           }
         }
       }

@@ -5,7 +5,13 @@ import getAPI, { deleteAPI, saveResource } from '../apiRequests/API';
 export const fetchCreateLink = createAsyncThunk(
   'links/fetchCreateLink',
   async ({ url, token, bodyData, message, showNotification }) => {
-    const response = saveResource({ url, token, bodyData, message, showNotification });
+    const response = saveResource({
+      url,
+      token,
+      bodyData,
+      message,
+      showNotification,
+    });
     return response;
   },
 );

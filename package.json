@@ -29,6 +29,7 @@
     "cytoscape": "^3.25.0",
     "cytoscape-cxtmenu": "^3.5.0",
     "highlight.js": "^11.8.0",
+    "jwt-decode": "^3.1.2",
     "process": "^0.11.10",
     "react": "^18.2.0",
     "react-cytoscapejs": "^2.0.0",

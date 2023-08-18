@@ -642,7 +642,10 @@ const Application = () => {
 
                   <FlexboxGrid.Item
                     colspan={24}
-                    style={{ marginBottom: '25px', marginTop: '30px' }}
+                    style={{
+                      marginBottom: '25px',
+                      marginTop: '30px',
+                    }}
                   >
                     <TextField
                       name="description"

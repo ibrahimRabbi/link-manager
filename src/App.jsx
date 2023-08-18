@@ -38,6 +38,7 @@ import GitlabSelector from './Components/SelectionDialog/GitlabSelector/GitlabSe
 // eslint-disable-next-line max-len
 import Oauth2Callback from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2Callback.jsx';
 import CytoscapeGraphView from './Components/CytoscapeGraphView/CytoscapeGraphView.jsx';
+import UserProfile from './Components/Login/UserProfile';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -70,7 +71,9 @@ function App() {
     <CustomProvider theme={isDark}>
       <div
         className="App"
-        style={{ backgroundColor: isDark === 'dark' ? darkBgColor : lightBgColor }}
+        style={{
+          backgroundColor: isDark === 'dark' ? darkBgColor : lightBgColor,
+        }}
       >
         <Routes>
           <Route path="/oauth2/callback" element={<Oauth2Callback />} />
@@ -107,6 +110,7 @@ function App() {
             <Route path="/graph-view" element={<CytoscapeGraphView />} />
             <Route path="/pipeline" element={<Pipeline />} />
             <Route path="/extension" element={<WebBrowserExtension />} />
+            <Route path="/profile" element={<UserProfile />} />
             <Route path="/" element={<LinkManager />} />
           </Route>
 

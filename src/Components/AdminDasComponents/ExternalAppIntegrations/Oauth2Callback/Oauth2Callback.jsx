@@ -98,11 +98,19 @@ const Oauth2Callback = () => {
             <Panel style={{ textAlign: 'center' }}>
               {notificationType === 'error' ? (
                 <CloseOutlineIcon
-                  style={{ width: '100px', height: '100px', color: 'red' }}
+                  style={{
+                    width: '100px',
+                    height: '100px',
+                    color: 'red',
+                  }}
                 />
               ) : (
                 <CheckOutlineIcon
-                  style={{ width: '100px', height: '100px', color: 'green' }}
+                  style={{
+                    width: '100px',
+                    height: '100px',
+                    color: 'green',
+                  }}
                 />
               )}
             </Panel>

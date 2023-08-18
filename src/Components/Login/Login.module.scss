@@ -26,9 +26,6 @@
   border-radius: 5px;
 }
 
-.formContainer label {
-}
-
 .title {
   text-align: center;
 }
@@ -45,4 +42,67 @@
 
 .errText {
   margin-bottom: 20px;
+}
+
+// User profile page styles
+.profileMainContainer {
+  margin-top: 50px;
+  display: grid;
+  grid-template-columns: 35% 64%;
+  gap: 10px;
+
+  .leftContainer {
+    padding: 10px;
+    box-shadow: 0px 0px 3px rgb(220, 220, 220);
+
+    .imageContainer {
+      margin: 0 auto 20px;
+      text-align: center;
+
+      img {
+        width: 40%;
+        border-radius: 10px;
+        margin-bottom: 10px;
+      }
+    }
+
+    .infoStyle {
+      span {
+        font-weight: bold;
+      }
+    }
+  }
+
+  .rightContainer {
+    box-shadow: 0px 0px 3px rgb(220, 220, 220);
+    padding: 10px;
+
+    .navBarStyle {
+      margin-bottom: 30px;
+    }
+
+    .saveButton {
+      display: block;
+      margin-left: auto;
+      padding: 8px 20px;
+    }
+  }
+}
+
+// responsive profile page
+@media only screen and (max-width: 600px) {
+  .profileMainContainer {
+    margin-top: 50px;
+    display: grid;
+    grid-template-columns: 100%;
+    gap: 10px;
+
+    .leftContainer {
+      margin-bottom: 20px;
+    }
+
+    .rightContainer {
+      margin-bottom: 20px;
+    }
+  }
 }

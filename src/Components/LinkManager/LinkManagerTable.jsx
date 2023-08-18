@@ -297,7 +297,9 @@ const LinkManagerTable = ({ props }) => {
                   <th
                     key={header.id}
                     colSpan={header.colSpan}
-                    style={{ width: status ? '120px' : action ? '120px' : '' }}
+                    style={{
+                      width: status ? '120px' : action ? '120px' : '',
+                    }}
                   >
                     {header.isPlaceholder ? null : (
                       <div>
@@ -335,7 +337,9 @@ const LinkManagerTable = ({ props }) => {
                 return (
                   <td
                     key={cell.id}
-                    style={{ width: status ? '120px' : action ? '120px' : '' }}
+                    style={{
+                      width: status ? '120px' : action ? '120px' : '',
+                    }}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
