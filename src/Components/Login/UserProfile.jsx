@@ -103,7 +103,7 @@ const UserProfile = () => {
         urlPath: `user/${authCtx?.user_id}`,
         token: authCtx.token,
         method: 'PUT',
-        body: userFormValue,
+        body: { ...userFormValue, enabled: true },
         showNotification: showNotification,
       }),
     {
