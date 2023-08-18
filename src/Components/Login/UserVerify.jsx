@@ -3,7 +3,7 @@ import { Form, Button, FlexboxGrid, Panel, Col, Schema, Loader } from 'rsuite';
 import PasswordField from '../AdminDasComponents/PasswordField';
 
 import styles from './Login.module.scss';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 const { main, title, titleSpan } = styles;
 
 const { StringType } = Schema.Types;
@@ -33,6 +33,7 @@ const UserVerify = () => {
   const [loading, setLoading] = useState(false);
   const [formError, setFormError] = useState({});
   const [formValue, setFormValue] = useState({ password: '', password_confirm: '' });
+  const navigate = useNavigate();
   const passRef = useRef();
   const [searchParams] = useSearchParams();
 
@@ -48,15 +49,20 @@ const UserVerify = () => {
     // setProgCount(0);
     setLoading(true);
     // eslint-disable-next-line max-len
-    const postURl = `${lmApiUrl}/user/set_password?email=${email}&verification_token=${verification_token}`;
+    const postURl = `${lmApiUrl}/user/set_password?verification_token=${verification_token}&email=${email}`;
     await fetch(postURl, {
       method: 'POST',
       headers: {
+        accept: 'application/json',
         'Content-type': 'application/json',
       },
       body: JSON.stringify(formValue),
     })
-      .then((res) => console.log(res))
+      .then((res) => {
+        if (res.ok) {
+          navigate('/login');
+        }
+      })
       .catch((error) => console.log(error))
       .finally(() => setLoading(false));
   };

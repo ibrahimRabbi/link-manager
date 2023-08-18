@@ -109,29 +109,34 @@
   padding: 0;
 }
 
-.userContainer {
+.popoverContainer {
+  width: 350px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  padding: 0 15px;
+  flex-direction: column;
+  padding: 0 !important;
+  border-radius: 8px !important;
+  box-sizing: border-box !important;
+}
 
-  span {
-    border-radius: 50%;
-    width: 35px;
-    height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+.userContainer {
+  display: grid;
+  grid-template-columns: 12% 75%;
+  margin-bottom: 30px;
+  gap: 10px;
+  padding: 10px;
 }
 
 .popButton {
-  display: flex;
-  width: 100%;
-  justify-content: flex-start;
-  gap: 20px;
-  margin-bottom: 2px;
+  display: flex !important;
+  width: 100% !important;
+  justify-content: flex-start !important;
+  gap: 15px !important;
+  padding: 15px !important;
+  border-radius: 0 !important;
+}
+
+.popButton:last-child {
+  border-radius: 0 0 8px 8px !important;
 }
 
 .popoverContent {
@@ -150,7 +155,6 @@
       padding: 0 15px;
 
       span {
-        // background-color: colors.$gray-70;
         border-radius: 50%;
         width: 35px;
         height: 35px;
@@ -164,9 +168,6 @@
       font-weight: 500;
       padding: 2px 15px;
       cursor: pointer;
-    }
-
-    p:hover {
     }
   }
 
@@ -196,9 +197,6 @@
       padding: 2px 15px;
       cursor: pointer;
     }
-
-    p:hover {
-    }
   }
 
   button {
@@ -209,9 +207,6 @@
 #sidebar {
   width: 200px;
   margin-top: 7px;
-
-  hr {
-  }
 }
 
 .searchContainer {
@@ -226,7 +221,4 @@
 
 .darkModeStyle {
   margin-bottom: 20px;
-}
-
-.linkFileContainer > h5 {
 }

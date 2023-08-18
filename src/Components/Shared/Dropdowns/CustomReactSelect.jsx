@@ -133,7 +133,12 @@ const CustomReactSelect = forwardRef((props, ref) => {
         // filter application by domain
         applicationsForLinks = selectedLinkType?.target_resource?.reduce(
           (accumulator, item) => {
-            const apps = { gitlab: '', glideYoke: '', jira: '', valispace: '' };
+            const apps = {
+              gitlab: '',
+              glideYoke: '',
+              jira: '',
+              valispace: '',
+            };
             // domains for the filter application when creating links
             const gitlabDomain = ['http://open-services.net/ns/scm#'];
             const valispaceDomain = ['http://open-services.net/ns/rm#'];

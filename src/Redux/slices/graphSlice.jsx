@@ -21,7 +21,11 @@ export const fetchGraphData = createAsyncThunk(
           }
         } else {
           return res.json().then((data) => {
-            console.log({ title: data.status, text: data.message, icon: 'error' });
+            console.log({
+              title: data.status,
+              text: data.message,
+              icon: 'error',
+            });
             return null;
           });
         }

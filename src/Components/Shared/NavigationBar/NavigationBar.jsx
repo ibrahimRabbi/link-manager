@@ -3,13 +3,22 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { handleIsDarkMode, handleIsProfileOpen } from '../../../Redux/slices/navSlice';
 import AuthContext from '../../../Store/Auth-Context.jsx';
-
 import koneksysLogo from './koneksys_logo.png';
 import styles from './NavigationBar.module.scss';
-import { Button, Message, Nav, Navbar, Popover, Whisper, useToaster } from 'rsuite';
+import {
+  Avatar,
+  Button,
+  Message,
+  Nav,
+  Navbar,
+  Popover,
+  Whisper,
+  useToaster,
+} from 'rsuite';
 import { BiUserCircle, BiLogOut } from 'react-icons/bi';
+import jwt_decode from 'jwt-decode';
 
-const { userContainer, content, popButton } = styles;
+const { popoverContainer, userContainer, popButton } = styles;
 
 import { ImBrightnessContrast } from 'react-icons/im';
 import { darkColor, lightBgColor } from '../../../App';
@@ -22,6 +31,7 @@ const NavigationBar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const toaster = useToaster();
+  const userInfo = jwt_decode(authCtx?.token);
 
   const handleLogout = () => {
     dispatch(handleIsProfileOpen(!isProfileOpen));
@@ -42,41 +52,53 @@ const NavigationBar = () => {
   const darkModeText =
     isDark === 'dark' ? 'Light Mode' : isDark === 'light' ? 'Dark Mode' : 'Dark Mode';
 
+  const handlePopoverBtnClick = (item) => {
+    if (item?.label === 'Profile') {
+      navigate('/profile');
+    } else if (item?.label === darkModeText) {
+      dispatch(handleIsDarkMode());
+    } else if (item?.label === 'Logout') {
+      handleLogout();
+    }
+  };
+
+  const popItems = [
+    {
+      label: 'Profile',
+      icon: <BiUserCircle size={18} style={{ marginRight: '-1px' }} />,
+    },
+    { label: darkModeText, icon: <ImBrightnessContrast size={17} /> },
+    { label: 'Logout', icon: <BiLogOut size={17} /> },
+  ];
+
   // popover control
   const speaker = (
     <Popover
-      title=""
-      style={{ padding: '0', display: 'flex', flexDirection: 'column', gap: '2px' }}
-    >
-      <div className={content}>
+      className={popoverContainer}
+      title={
         <div className={userContainer}>
-          <h5>User Name</h5>
-          <span>
-            <BiUserCircle size={25} />
-          </span>
+          <Avatar size="md" circle src={'./default_avatar.jpg'} alt="User" />
+          <div>
+            <h6>{userInfo?.name ? userInfo?.name : 'First Name Last Name'}</h6>
+            <p>{userInfo?.email ? userInfo?.email : 'Email'}</p>
+          </div>
         </div>
-      </div>
-
-      <Button
-        style={{ display: 'flex', width: '100%', justifyContent: 'start', gap: '20px' }}
-        onClick={() => dispatch(handleIsDarkMode())}
-        size="md"
-        appearance="default"
-      >
-        <ImBrightnessContrast />
-        <p>{darkModeText}</p>
-      </Button>
-
-      <Button
-        className={popButton}
-        style={{ display: 'flex', width: '100%', gap: '20px', justifyContent: 'start' }}
-        onClick={handleLogout}
-        size="md"
-        appearance="default"
-      >
-        <BiLogOut />
-        <p>Logout</p>
-      </Button>
+      }
+    >
+      {popItems.map((item, index) => {
+        return (
+          <Button
+            key={index}
+            className={popButton}
+            onClick={() => handlePopoverBtnClick(item)}
+            size="md"
+            appearance="default"
+          >
+            {item?.icon}
+            <p>{item?.label}</p>
+          </Button>
+        );
+      })}
     </Popover>
   );
 
@@ -97,7 +119,12 @@ const NavigationBar = () => {
         />
         <Navbar.Brand
           onClick={() => navigate('/')}
-          style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px',
+            cursor: 'pointer',
+          }}
         >
           <img height={30} src={koneksysLogo} alt="Logo" />
           <h3>TraceLynx</h3>

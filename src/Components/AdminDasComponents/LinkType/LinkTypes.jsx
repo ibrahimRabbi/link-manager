@@ -601,7 +601,12 @@ const LinkTypes = () => {
                         <React.Fragment key={`linkResourceType-${index}`}>
                           {item?.value.length > 0 && (
                             <>
-                              <h6 style={{ marginBottom: '10px' }} key={index}>
+                              <h6
+                                style={{
+                                  marginBottom: '10px',
+                                }}
+                                key={index}
+                              >
                                 {item.label}:
                               </h6>
                               <Stack
