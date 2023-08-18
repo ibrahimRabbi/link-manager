@@ -9,11 +9,16 @@ export const graphStyle = [
   {
     selector: 'node',
     style: {
-      'background-color': '#666',
       label: 'data(label)',
       width: 55,
       height: 55,
       'text-valign': 'bottom',
+      'background-color': '#fff',
+      'background-image': 'data(nodeData.image)',
+      'border-color': '#2c4dc0',
+      'border-width': 3,
+      'border-opacity': 0.5,
+      'background-size': 'contain',
     },
   },
   {

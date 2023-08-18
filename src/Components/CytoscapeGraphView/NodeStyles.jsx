@@ -36,3 +36,21 @@ export const nodeColorStyles = {
     shape: 'ellipse',
   },
 };
+
+export const nodeImageStyle = {
+  gitlab: {
+    image: '/node_icons/gitlab_logo.jpg',
+  },
+  valispace: {
+    image: '/node_icons/valispace_logo.jpg',
+  },
+  jira: {
+    image: '/node_icons/jira_logo.jpg',
+  },
+  glideyoke: {
+    image: '/node_icons/glide_logo.jpg',
+  },
+  default: {
+    image: '/node_icons/default_logo.jpg',
+  },
+};

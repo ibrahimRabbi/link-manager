@@ -58,6 +58,9 @@ const ExternalPreview = (props) => {
   case 'glide':
     iconUrl = '/glide_logo.png';
     break;
+  case 'codebeamer':
+    iconUrl = '/codebeamer_logo.png';
+    break;
   default:
     iconUrl = '/default_preview_logo.svg';
     break;
