@@ -256,7 +256,6 @@ const Events = () => {
                 <SelectField
                   name="project_id"
                   label="Project"
-                  // customLabelKey="service_provider_id"
                   placeholder="Select Project"
                   accepter={CustomReactSelect}
                   apiURL={`${lmApiUrl}/project`}
