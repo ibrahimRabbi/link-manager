@@ -71,7 +71,9 @@ function App() {
     <CustomProvider theme={isDark}>
       <div
         className="App"
-        style={{ backgroundColor: isDark === 'dark' ? darkBgColor : lightBgColor }}
+        style={{
+          backgroundColor: isDark === 'dark' ? darkBgColor : lightBgColor,
+        }}
       >
         <Routes>
           <Route path="/oauth2/callback" element={<Oauth2Callback />} />

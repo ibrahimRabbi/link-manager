@@ -105,7 +105,11 @@ const SideNavBar = () => {
           <Nav pullRight>
             <Nav.Item
               onClick={() => dispatch(handleIsSidebarOpen(!isSidebarOpen))}
-              style={{ width: '100%', paddingLeft: '17px', borderRadius: '0' }}
+              style={{
+                width: '100%',
+                paddingLeft: '17px',
+                borderRadius: '0',
+              }}
             >
               <h3>{isSidebarOpen ? <CloseIcon /> : <MenuIcon />}</h3>
             </Nav.Item>

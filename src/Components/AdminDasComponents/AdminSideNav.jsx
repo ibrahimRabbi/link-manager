@@ -129,7 +129,11 @@ const AdminSideNav = () => {
           <Nav pullRight>
             <Nav.Item
               onClick={() => dispatch(handleIsAdminSidebarOpen(!isAdminSidebarOpen))}
-              style={{ width: '100%', paddingLeft: '17px', borderRadius: '0' }}
+              style={{
+                width: '100%',
+                paddingLeft: '17px',
+                borderRadius: '0',
+              }}
             >
               <h3>{isAdminSidebarOpen ? <CloseIcon /> : <MenuIcon />}</h3>
             </Nav.Item>

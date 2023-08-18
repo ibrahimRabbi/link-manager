@@ -30,7 +30,6 @@ import {
 // eslint-disable-next-line max-len
 import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
 import GlobalSelector from '../SelectionDialog/GlobalSelector/GlobalSelector';
-// import application from "../AdminDasComponents/Application/Application.jsx";
 
 const { newLinkMainContainer, targetContainer, targetIframe, targetBtnContainer } =
   styles;
@@ -535,7 +534,10 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                         <FlexboxGrid.Item
                           as={Col}
                           colspan={11}
-                          style={{ paddingRight: '0', marginLeft: 'auto' }}
+                          style={{
+                            paddingRight: '0',
+                            marginLeft: 'auto',
+                          }}
                         >
                           <CustomReactSelect
                             name="target_project_type"

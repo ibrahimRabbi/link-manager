@@ -234,7 +234,9 @@ const LinkManager = () => {
                       {searchValue?.search_term && (
                         <IconButton
                           onClick={() => {
-                            setSearchValue({ search_term: '' });
+                            setSearchValue({
+                              search_term: '',
+                            });
                             setIsLinkSearching((prevValue) => !prevValue);
                           }}
                           icon={<CloseIcon />}
@@ -264,7 +266,13 @@ const LinkManager = () => {
                 </FlexboxGrid.Item>
 
                 <FlexboxGrid.Item>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '20px',
+                    }}
+                  >
                     <Button
                       color="blue"
                       appearance="primary"

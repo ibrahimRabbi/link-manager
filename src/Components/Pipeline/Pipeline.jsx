@@ -135,7 +135,10 @@ const Pipeline = () => {
                           if (rowData.status === 'Success') {
                             return (
                               <span
-                                style={{ cursor: 'pointer', fontSize: '19px' }}
+                                style={{
+                                  cursor: 'pointer',
+                                  fontSize: '19px',
+                                }}
                                 onClick={() => {
                                   setOpenWithHeader(true);
                                   setPipelineOutput(rowData.output);
@@ -147,7 +150,10 @@ const Pipeline = () => {
                           } else {
                             return (
                               <span
-                                style={{ cursor: 'pointer', fontSize: '19px' }}
+                                style={{
+                                  cursor: 'pointer',
+                                  fontSize: '19px',
+                                }}
                                 onClick={() => {
                                   setOpenWithHeader(true);
                                   setPipelineOutput(rowData.output);
@@ -172,7 +178,13 @@ const Pipeline = () => {
               <Drawer open={openWithHeader} onClose={() => setOpenWithHeader(false)}>
                 <Drawer.Header>
                   <Drawer.Title>
-                    <p style={{ marginTop: '5px', fontSize: '19px', fontWeight: 'bold' }}>
+                    <p
+                      style={{
+                        marginTop: '5px',
+                        fontSize: '19px',
+                        fontWeight: 'bold',
+                      }}
+                    >
                       Output
                     </p>
                   </Drawer.Title>

@@ -15,9 +15,12 @@ import {
   toaster,
 } from 'rsuite';
 import TextField from '../AdminDasComponents/TextField';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import AuthContext from '../../Store/Auth-Context';
 import fetchAPIRequest from '../../apiRequests/apiRequest';
+import UseLoader from '../Shared/UseLoader';
+import PasswordField from '../AdminDasComponents/PasswordField';
+import jwt_decode from 'jwt-decode';
 
 const {
   profileMainContainer,
@@ -33,23 +36,51 @@ const {
 
 /** Model Schema */
 const { StringType } = Schema.Types;
+const passwordRule = (value) => {
+  return value.length >= 5;
+};
+const confirmRule = (value, data) => {
+  if (value !== data.new_password) return false;
+  return true;
+};
+const ruleMessage = 'Password should include at least 5 characters';
+const requiredMessage = 'This field is required';
+const confirmMessage = 'The two passwords do not match';
+const userModel = Schema.Model({
+  first_name: StringType().isRequired(requiredMessage),
+  last_name: StringType().isRequired(requiredMessage),
+  username: StringType().isRequired(requiredMessage),
+  email: StringType().isRequired(requiredMessage),
+});
+const passwordModel = Schema.Model({
+  new_password: StringType()
+    .addRule(passwordRule, ruleMessage)
+    .isRequired(requiredMessage),
+  confirm_password: StringType()
+    .addRule(confirmRule, confirmMessage)
+    .isRequired(requiredMessage),
+});
 
 const UserProfile = () => {
   const [formError, setFormError] = useState({});
+  const [passwordError, setPasswordError] = useState({});
   const [navKey, setNavKey] = useState('user');
-  const [formValue, setFormValue] = useState({
-    first_name: 'Mario',
-    last_name: 'Jim\u00e9nez',
-    user_name: 'mario',
-    email: 'isccarrasco@icloud.com',
-    current_pass: '',
-    new_pass: '',
-    confirm_pass: '',
-  });
   const dispatch = useDispatch();
   const profileRef = useRef();
+  const passwordRef = useRef();
   const authCtx = useContext(AuthContext);
-  const loggedInUserId = 1;
+  const userInfo = jwt_decode(authCtx?.token);
+  const [userFormValue, setUserFormValue] = useState({
+    first_name: userInfo?.given_name ? userInfo?.given_name : '',
+    last_name: userInfo?.family_name ? userInfo?.family_name : '',
+    username: userInfo?.preferred_username ? userInfo?.preferred_username : '',
+    email: userInfo?.email ? userInfo?.email : '',
+  });
+  const [passwordValue, setPasswordValue] = useState({
+    new_password: '',
+    confirm_password: '',
+  });
+
   useEffect(() => {
     dispatch(handleCurrPageTitle('Profile'));
   }, []);
@@ -65,98 +96,95 @@ const UserProfile = () => {
     }
   };
 
-  // get data using react-query
-  const { data: currentUser } = useQuery(['user'], () =>
-    fetchAPIRequest({
-      urlPath: `user/${loggedInUserId}`,
-      token: authCtx.token,
-      method: 'GET',
-      showNotification: showNotification,
-    }),
+  // update user info using react query
+  const { isLoading: updateUserLoading, mutate: updateUserMutate } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: `user/${authCtx?.user_id}`,
+        token: authCtx.token,
+        method: 'PUT',
+        body: userFormValue,
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (value) => {
+        showNotification(value?.status, value?.message);
+      },
+    },
   );
 
-  console.log(currentUser);
-  // form validation schema modal
-  const model = Schema.Model({
-    first_name:
-      navKey === 'user'
-        ? StringType().isRequired('This field is required')
-        : StringType(),
-    last_name:
-      navKey === 'user'
-        ? StringType().isRequired('This field is required')
-        : StringType(),
-    user_name:
-      navKey === 'user'
-        ? StringType().isRequired('This field is required')
-        : StringType(),
-    email:
-      navKey === 'user'
-        ? StringType().isRequired('This field is required')
-        : StringType(),
-    current_pass:
-      navKey === 'password'
-        ? StringType().isRequired('This field is required')
-        : StringType(),
-    new_pass:
-      navKey === 'password'
-        ? StringType().isRequired('This field is required')
-        : StringType(),
-    confirm_pass:
-      navKey === 'password'
-        ? StringType().isRequired('This field is required')
-        : StringType(),
-  });
+  const passwordData = {
+    new_password: passwordValue.new_password,
+    confirm_password: passwordValue.confirm_password,
+  };
+  // update password using react query
+  const { isLoading: updatePasswordLoading, mutate: updatePasswordMutate } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: `user/password/${authCtx?.user_id}`,
+        token: authCtx.token,
+        method: 'PUT',
+        body: passwordData,
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (value) => {
+        showNotification(value?.status, value?.message);
+      },
+    },
+  );
 
   // handle same user info or password
   const handleUpdateProfile = () => {
-    if (!profileRef.current.check()) {
-      console.log(formError);
-      return;
-    } else if (navKey === 'user') {
-      const userData = {
-        first_name: formValue.first_name,
-        last_name: formValue.last_name,
-        user_name: formValue.user_name,
-        email: formValue.email,
-      };
-      console.log(userData);
+    if (navKey === 'user') {
+      if (!profileRef.current.check()) {
+        console.log(formError);
+        return;
+      }
+      updateUserMutate();
+      console.log(userFormValue);
     } else if (navKey === 'password') {
-      const passwordData = {
-        current_pass: formValue.current_pass,
-        new_pass: formValue.new_pass,
-        confirm_pass: formValue.confirm_pass,
-      };
+      if (!passwordRef.current.check()) {
+        console.log(passwordError);
+        return;
+      }
+      updatePasswordMutate();
       console.log(passwordData);
     }
   };
 
   return (
     <div className="mainContainer">
+      {(updateUserLoading || updatePasswordLoading) && <UseLoader />}
+
       <div className={`container ${profileMainContainer}`}>
         {/* --- Left Section ---  */}
         <div className={leftContainer}>
           <div className={imageContainer}>
             <img src="./default_avatar.jpg" alt="avatar" />
-            <h5>Mario Jiménez</h5>
+            <h5>{userInfo?.name ? userInfo?.name : 'First Name Last Name'}</h5>
             <Tag color={'orange'}>
-              <p>Admin</p>
+              <p>User Role</p>
             </Tag>
           </div>
 
           <h4>Details</h4>
           <Divider style={{ marginTop: '0' }} />
           <p className={infoStyle}>
-            <span>First Name: </span>Mario
+            <span>First Name: </span>
+            {userInfo?.given_name}
           </p>
           <p className={infoStyle}>
-            <span>Last Name: </span>Jiménez
+            <span>Last Name: </span>
+            {userInfo?.family_name}
           </p>
           <p className={infoStyle}>
-            <span>Username: </span>mario
+            <span>Username: </span>
+            {userInfo?.preferred_username}
           </p>
           <p className={infoStyle}>
-            <span>Email: </span>isccarrasco@icloud.com
+            <span>Email: </span>
+            {userInfo?.email}
           </p>
           <p className={infoStyle}>
             <span>Status: </span>active
@@ -167,22 +195,23 @@ const UserProfile = () => {
         <div className={rightContainer}>
           <Nav appearance="subtle" onSelect={(e) => setNavKey(e)} className={navBarStyle}>
             <Nav.Item active={navKey === 'user'} eventKey="user">
-              <h5>Update User</h5>
+              <h5>Update user info</h5>
             </Nav.Item>
             <Nav.Item active={navKey === 'password'} eventKey="password">
-              <h5>Update Password</h5>
+              <h5>Change password</h5>
             </Nav.Item>
           </Nav>
 
-          <Form
-            fluid
-            ref={profileRef}
-            onChange={setFormValue}
-            onCheck={setFormError}
-            formValue={formValue}
-            model={model}
-          >
-            {navKey === 'user' && (
+          {/* --- User form --- */}
+          {navKey === 'user' && (
+            <Form
+              fluid
+              ref={profileRef}
+              onChange={setUserFormValue}
+              onCheck={setFormError}
+              formValue={userFormValue}
+              model={userModel}
+            >
               <FlexboxGrid justify="space-between">
                 <FlexboxGrid.Item colspan={11} style={{ marginBottom: '30px' }}>
                   <TextField
@@ -201,50 +230,67 @@ const UserProfile = () => {
                 </FlexboxGrid.Item>
 
                 <FlexboxGrid.Item colspan={24} style={{ marginBottom: '30px' }}>
-                  <TextField name="user_name" label="Username" />
+                  <TextField name="username" label="Username" />
                 </FlexboxGrid.Item>
 
                 <FlexboxGrid.Item colspan={24} style={{ marginBottom: '30px' }}>
-                  <TextField name="email" label="Email" />
+                  <TextField name="email" label="Email" type="email" />
                 </FlexboxGrid.Item>
               </FlexboxGrid>
-            )}
-            {navKey === 'password' && (
+
+              <Button
+                className={saveButton}
+                appearance="primary"
+                color="blue"
+                type="submit"
+                onClick={handleUpdateProfile}
+              >
+                Save
+              </Button>
+            </Form>
+          )}
+
+          {/* --- Password form --- */}
+          {navKey === 'password' && (
+            <Form
+              fluid
+              ref={passwordRef}
+              onChange={setPasswordValue}
+              onCheck={setPasswordError}
+              formValue={passwordValue}
+              model={passwordModel}
+            >
               <FlexboxGrid justify="space-between">
-                <FlexboxGrid.Item colspan={24} style={{ marginBottom: '30px' }}>
-                  <TextField
-                    name="current_pass"
-                    label="Current Password"
-                    reqText="Current password is required"
-                  />
-                </FlexboxGrid.Item>
                 <FlexboxGrid.Item colspan={11} style={{ marginBottom: '30px' }}>
-                  <TextField
-                    name="new_pass"
+                  <PasswordField
+                    name="new_password"
                     label="New Password"
+                    type="password"
                     reqText="New password is required"
                   />
                 </FlexboxGrid.Item>
 
                 <FlexboxGrid.Item colspan={11} style={{ marginBottom: '30px' }}>
-                  <TextField
-                    name="confirm_pass"
+                  <PasswordField
+                    name="confirm_password"
                     label="Confirm Password"
+                    type="password"
                     reqText="Confirm password is required"
                   />
                 </FlexboxGrid.Item>
               </FlexboxGrid>
-            )}
 
-            <Button
-              className={saveButton}
-              appearance="primary"
-              color="blue"
-              onClick={handleUpdateProfile}
-            >
-              Save
-            </Button>
-          </Form>
+              <Button
+                className={saveButton}
+                appearance="primary"
+                color="blue"
+                type="submit"
+                onClick={handleUpdateProfile}
+              >
+                Save
+              </Button>
+            </Form>
+          )}
         </div>
       </div>
     </div>

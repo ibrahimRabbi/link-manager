@@ -422,7 +422,13 @@ const GlobalSelector = ({
               <UseLoader />
             </div>
           ) : tableData?.items?.length < 1 ? (
-            <h3 style={{ textAlign: 'center', marginTop: '50px', color: '#1675e0' }}>
+            <h3
+              style={{
+                textAlign: 'center',
+                marginTop: '50px',
+                color: '#1675e0',
+              }}
+            >
               Selected resource type has no data.
             </h3>
           ) : tableshow && projectId && resourceTypeId && finalData?.length > 0 ? (
@@ -436,7 +442,11 @@ const GlobalSelector = ({
                 }}
               >
                 <table className={`${style.styled_table}`}>
-                  <thead style={{ borderBottom: '0.5px solid rgb(238, 238, 238)' }}>
+                  <thead
+                    style={{
+                      borderBottom: '0.5px solid rgb(238, 238, 238)',
+                    }}
+                  >
                     {tableInstance.getHeaderGroups().map((headerEl) => {
                       return (
                         <tr key={headerEl.id} style={{ fontSize: '20px' }}>
@@ -480,7 +490,10 @@ const GlobalSelector = ({
                             return (
                               <td
                                 key={cellEl.id}
-                                style={{ width: '50px', fontSize: '17px' }}
+                                style={{
+                                  width: '50px',
+                                  fontSize: '17px',
+                                }}
                               >
                                 {flexRender(
                                   cellEl.column.columnDef.cell,

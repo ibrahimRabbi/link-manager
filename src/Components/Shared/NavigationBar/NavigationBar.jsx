@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { handleIsDarkMode, handleIsProfileOpen } from '../../../Redux/slices/navSlice';
 import AuthContext from '../../../Store/Auth-Context.jsx';
-
 import koneksysLogo from './koneksys_logo.png';
 import styles from './NavigationBar.module.scss';
 import {
@@ -17,6 +16,7 @@ import {
   useToaster,
 } from 'rsuite';
 import { BiUserCircle, BiLogOut } from 'react-icons/bi';
+import jwt_decode from 'jwt-decode';
 
 const { popoverContainer, userContainer, popButton } = styles;
 
@@ -31,6 +31,7 @@ const NavigationBar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const toaster = useToaster();
+  const userInfo = jwt_decode(authCtx?.token);
 
   const handleLogout = () => {
     dispatch(handleIsProfileOpen(!isProfileOpen));
@@ -78,8 +79,8 @@ const NavigationBar = () => {
         <div className={userContainer}>
           <Avatar size="md" circle src={'./default_avatar.jpg'} alt="User" />
           <div>
-            <h6>Mario Jiménez</h6>
-            <p>isccarrasco@icloud.com</p>
+            <h6>{userInfo?.name ? userInfo?.name : 'First Name Last Name'}</h6>
+            <p>{userInfo?.email ? userInfo?.email : 'Email'}</p>
           </div>
         </div>
       }
@@ -118,7 +119,12 @@ const NavigationBar = () => {
         />
         <Navbar.Brand
           onClick={() => navigate('/')}
-          style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px',
+            cursor: 'pointer',
+          }}
         >
           <img height={30} src={koneksysLogo} alt="Logo" />
           <h3>TraceLynx</h3>
