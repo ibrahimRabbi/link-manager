@@ -91,17 +91,12 @@ const CustomReactSelect = forwardRef((props, ref) => {
       setCheckPagination(response);
       if (response?.items) {
         if (isApplication) {
-          const valispaceApp = {
-            name: 'Valispace',
-            id: 50010,
-            type: 'valispace',
-          };
           const codeBeamerApp = {
             name: 'Codebeamer integration',
             id: 2,
             type: 'codebeamer',
           };
-          return [...response.items, valispaceApp, codeBeamerApp];
+          return [...response.items, codeBeamerApp];
         }
         return response.items;
       }
@@ -230,19 +225,6 @@ const CustomReactSelect = forwardRef((props, ref) => {
       dropdownJsonData = option?.map((item) => ({
         ...item,
         label: item?.service_provider_id,
-        value: item?.id,
-      }));
-    } else if (isValispace) {
-      const hardCodeProject = [
-        {
-          name: 'Valispace ST-100 (VALISPACE)',
-          id: 1000010,
-          application: { type: 'valispace' },
-        },
-      ];
-      dropdownJsonData = hardCodeProject?.map((item) => ({
-        ...item,
-        label: item?.name || item?.label,
         value: item?.id,
       }));
     } else if (isCodebeamer) {
