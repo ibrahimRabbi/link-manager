@@ -185,6 +185,13 @@ const CustomReactSelect = forwardRef((props, ref) => {
       }
 
       if (removeApplication) {
+        if (removeApplication === 'glide') {
+          applicationsForLinks = applicationsForLinks.filter((item) => {
+            if (item?.type !== 'glideyoke') {
+              return item;
+            }
+          });
+        }
         applicationsForLinks = applicationsForLinks.filter((item) => {
           if (item?.type !== removeApplication) {
             return item;
