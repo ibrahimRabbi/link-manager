@@ -1,7 +1,11 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { fetchLinksData, handleIsWbe } from '../../Redux/slices/linksSlice';
+import {
+  fetchLinksData,
+  handleIsWbe,
+  exportLinksToExcel,
+} from '../../Redux/slices/linksSlice';
 import {
   Button,
   FlexboxGrid,
@@ -19,6 +23,7 @@ import AuthContext from '../../Store/Auth-Context.jsx';
 import styles from './LinkManager.module.scss';
 import SourceSection from '../SourceSection';
 import { HiRefresh } from 'react-icons/hi';
+import { FaRegFileExcel } from 'react-icons/fa';
 import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
 import { darkBgColor, lightBgColor } from '../../App';
@@ -168,6 +173,20 @@ const LinkManager = () => {
     }
   };
 
+  const exportToExcel = () => {
+    console.log(sourceDataList);
+    if (sourceFileURL) {
+      const exportUrl = `${apiURL}/link/export?source_id=${sourceFileURL}`;
+      const filename = sourceDataList['titleLabel'].replace(' ', '_');
+      exportLinksToExcel({
+        url: exportUrl,
+        token: authCtx.token,
+        showNotification: showNotification,
+        filename: filename,
+      });
+    }
+  };
+
   const tableProps = {
     data: linksData?.items?.length ? linksData?.items : [],
     handleChangeLimit,
@@ -283,7 +302,13 @@ const LinkManager = () => {
                     >
                       Create Link
                     </Button>
-
+                    <Button
+                      appearance="default"
+                      onClick={() => exportToExcel()}
+                      color="blue"
+                    >
+                      <FaRegFileExcel title="Export To Excel" size={25} />
+                    </Button>
                     <Button
                       appearance="default"
                       onClick={() => dispatch(handleRefreshData(!refreshData))}

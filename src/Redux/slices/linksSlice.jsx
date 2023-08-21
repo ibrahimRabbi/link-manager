@@ -34,6 +34,37 @@ export const fetchDeleteLink = createAsyncThunk(
   },
 );
 
+// Export outgoing links to excel
+
+export async function exportLinksToExcel({ url, token, showNotification, filename }) {
+  await fetch(url, {
+    method: 'GET',
+    responseType: 'arraybuffer',
+    headers: {
+      'Content-type': 'application/json',
+      authorization: 'Bearer ' + token,
+    },
+  })
+    .then((response) => {
+      if (response.status != 200) {
+        return response.json().then((data) => {
+          showNotification('error', data.message);
+        });
+      }
+      return response.blob();
+    })
+    .then((blob) => URL.createObjectURL(blob))
+    .then((href) => {
+      const a = document.createElement('a');
+      document.body.appendChild(a);
+      a.style = 'display: none';
+      a.href = href;
+      a.download = filename + '.xls';
+      a.click();
+      showNotification('success', 'Links data exported');
+    });
+}
+
 let gcmAware = JSON.parse(import.meta.env.VITE_CONFIGURATION_AWARE);
 
 const initialState = {

@@ -39,18 +39,21 @@ export const nodeColorStyles = {
 
 export const nodeImageStyle = {
   gitlab: {
-    image: '/node_icons/gitlab_logo.jpg',
+    image: '/node_icons/gitlab_logo.png',
   },
   valispace: {
-    image: '/node_icons/valispace_logo.jpg',
+    image: '/node_icons/valispace_logo.png',
   },
   jira: {
-    image: '/node_icons/jira_logo.jpg',
+    image: '/node_icons/jira_logo.png',
   },
   glideyoke: {
-    image: '/node_icons/glide_logo.jpg',
+    image: '/node_icons/glide_logo.png',
+  },
+  codebeamer: {
+    image: '/node_icons/codebeamer_logo.png',
   },
   default: {
-    image: '/node_icons/default_logo.jpg',
+    image: '/node_icons/default_logo.png',
   },
 };
