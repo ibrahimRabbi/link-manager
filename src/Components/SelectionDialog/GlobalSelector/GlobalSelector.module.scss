@@ -187,7 +187,7 @@
   position: relative;
 }
 .styled_table thead {
-  borderbottom: '0.5px solid rgb(238, 238, 238)';
+  border-bottom: '0.5px solid rgb(238, 238, 238)';
 }
 .styled_table thead tr {
   text-align: center;
@@ -234,4 +234,13 @@ input[type='checkbox'] {
   position: absolute;
   padding-right: 20px;
   z-index: 0;
+}
+.emptyTableContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40vh;
+  font-weight: bold;
+  font-size: 20px;
+  border-top: 0;
 }

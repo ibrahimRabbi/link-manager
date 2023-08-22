@@ -479,6 +479,9 @@ const GlobalSelector = ({
                     })}
                   </tbody>
                 </table>
+                {!tableInstance.getRowModel().rows[0] && (
+                  <p className={style.emptyTableContent}>There is no resource found</p>
+                )}
               </div>
               <div style={{ padding: 20 }}>
                 <Pagination
