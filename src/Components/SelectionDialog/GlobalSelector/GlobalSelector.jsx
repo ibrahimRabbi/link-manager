@@ -91,7 +91,6 @@ const GlobalSelector = ({
   };
   const handleResourceTypeChange = (selectedItem) => {
     setResourceTypeId(selectedItem?.name);
-    setTableData([]);
   };
 
   const getProjectUrl = () => {
@@ -333,7 +332,13 @@ const GlobalSelector = ({
     cancelLinkHandler();
   };
   return (
-    <div>
+    <div
+      className={
+        tableshow && projectId && resourceTypeId && finalData?.length > 0
+          ? style.mainContainerTwo
+          : style.mainContainerOne
+      }
+    >
       {loading ? (
         <div style={{ marginTop: '50px' }}>
           <UseLoader />
@@ -496,13 +501,7 @@ const GlobalSelector = ({
         </div>
       )}
       {!loading && (
-        <div
-          className={
-            tableshow && projectId && resourceTypeId && finalData?.length > 0
-              ? style.targetBtnContainerTable
-              : style.targetBtnContainerOne
-          }
-        >
+        <div className={style.targetBtnContainer}>
           <ButtonToolbar>
             <Button appearance="ghost" onClick={handleCancel}>
               Cancel
@@ -511,7 +510,6 @@ const GlobalSelector = ({
               appearance="primary"
               size="md"
               disabled={Object.keys(rowSelection).length > 0 ? false : true}
-              style={{ width: '65px' }}
               onClick={handleSelect}
             >
               OK

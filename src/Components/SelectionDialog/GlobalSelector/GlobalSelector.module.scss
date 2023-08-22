@@ -179,7 +179,6 @@
   border-spacing: 0;
   position: relative;
 }
-
 .styled_table thead tr {
   text-align: center;
   background: #dddddd;
@@ -203,33 +202,9 @@
   overflow: auto;
 }
 
-.targetBtnContainerOne {
-  margin-top: 10px;
-  padding-right: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
+.targetBtnContainer {
   position: absolute;
-  bottom: 25px;
-  right: 20px;
-
-  button {
-    border-radius: 5px;
-  }
-
-  button:last-child {
-    padding: 10px 15px;
-  }
-}
-.targetBtnContainerTable {
-  margin-top: 10px;
-  padding-right: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  bottom: 25px;
+  bottom: 0px;
   right: 20px;
 
   button {
@@ -246,6 +221,7 @@ input[type='checkbox'] {
 }
 
 .mainTableContainer {
+  position: absolute;
   z-index: 0;
 }
 .emptyTableContent {
@@ -256,4 +232,11 @@ input[type='checkbox'] {
   font-weight: bold;
   font-size: 20px;
   border-top: 0;
+}
+.mainContainerOne {
+  min-height: 85vh;
+}
+.mainContainerTwo {
+  position: relative;
+  min-height: 97vh;
 }
