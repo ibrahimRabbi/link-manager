@@ -353,7 +353,7 @@ const GlobalSelector = ({
           integrated={false}
         />
       ) : (
-        <div className={style.mainHeight}>
+        <div>
           {!defaultProject && (
             <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
               <FlexboxGrid.Item colspan={3}>
