@@ -17,13 +17,6 @@
 .dropdownStyle {
   min-width: 150px;
 }
-
-.tableContainer {
-  position: relative;
-  border-radius: 5px;
-  height: 56vh;
-}
-
 .onlyTableContainer {
   border: 0.5px solid rgb(238, 238, 238);
   height: 70vh;
@@ -186,9 +179,7 @@
   border-spacing: 0;
   position: relative;
 }
-.styled_table thead {
-  border-bottom: '0.5px solid rgb(238, 238, 238)';
-}
+
 .styled_table thead tr {
   text-align: center;
   background: #dddddd;
@@ -212,10 +203,34 @@
   overflow: auto;
 }
 
-.targetBtnContainer {
+.targetBtnContainerOne {
+  margin-top: 10px;
+  padding-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  position: absolute;
   bottom: 25px;
   right: 20px;
-  position: absolute;
+
+  button {
+    border-radius: 5px;
+  }
+
+  button:last-child {
+    padding: 10px 15px;
+  }
+}
+.targetBtnContainerTable {
+  margin-top: 10px;
+  padding-right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  bottom: 25px;
+  right: 20px;
 
   button {
     border-radius: 5px;
@@ -231,8 +246,6 @@ input[type='checkbox'] {
 }
 
 .mainTableContainer {
-  position: absolute;
-  padding-right: 20px;
   z-index: 0;
 }
 .emptyTableContent {

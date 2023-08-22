@@ -19,15 +19,7 @@ import {
 import { columnDefWithCheckBox as glideColumns } from './GlideColumns';
 import { columnDefWithCheckBox as jiraColumns } from './JiraColumns';
 import { columnDefWithCheckBox as valispaceColumns } from './ValispaceColumns.jsx';
-import {
-  Button,
-  ButtonToolbar,
-  FlexboxGrid,
-  Loader,
-  Message,
-  Pagination,
-  toaster,
-} from 'rsuite';
+import { Button, ButtonToolbar, FlexboxGrid, Message, Pagination, toaster } from 'rsuite';
 import { useSelector } from 'react-redux';
 import Filter from './FilterFunction';
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
@@ -60,7 +52,6 @@ const GlobalSelector = ({
   const [columnFilters, setColumnFilters] = React.useState([]);
   const [previousColumnFilters, setPreviousColumnFilters] = React.useState([]);
   const [resourceLoading, setResourceLoading] = useState(false);
-  const [filterLoad, setFilterLoad] = useState(false);
   const [filterIn, setFilterIn] = useState('');
 
   const authCtx = useContext(AuthContext);
@@ -271,10 +262,8 @@ const GlobalSelector = ({
       if (url) {
         executeRequestQuery(url).then((data) => {
           if (data.items.length > 0) {
-            setFilterLoad(false);
             setTableData(data);
           } else {
-            setFilterLoad(false);
             setFilterIn('');
           }
           setPreviousColumnFilters(columnFilters);
@@ -364,7 +353,7 @@ const GlobalSelector = ({
           integrated={false}
         />
       ) : (
-        <div>
+        <div className={style.mainHeight}>
           {!defaultProject && (
             <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
               <FlexboxGrid.Item colspan={3}>
@@ -398,9 +387,6 @@ const GlobalSelector = ({
                 />
               </FlexboxGrid.Item>
             </FlexboxGrid>
-          )}
-          {filterLoad && (
-            <Loader backdrop center size="md" vertical style={{ zIndex: '10' }} />
           )}
           {tableData?.items?.length < 1 ? (
             <h3 style={{ textAlign: 'center', marginTop: '50px', color: '#1675e0' }}>
@@ -509,7 +495,11 @@ const GlobalSelector = ({
         </div>
       )}
       {!loading && (
-        <div className={style.targetBtnContainer}>
+        <div
+          className={
+            !tableshow ? style.targetBtnContainerOne : style.targetBtnContainerTable
+          }
+        >
           <ButtonToolbar>
             <Button appearance="ghost" onClick={handleCancel}>
               Cancel
