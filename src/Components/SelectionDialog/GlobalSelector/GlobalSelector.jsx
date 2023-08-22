@@ -91,6 +91,7 @@ const GlobalSelector = ({
   };
   const handleResourceTypeChange = (selectedItem) => {
     setResourceTypeId(selectedItem?.name);
+    setTableData([]);
   };
 
   const getProjectUrl = () => {
@@ -497,7 +498,9 @@ const GlobalSelector = ({
       {!loading && (
         <div
           className={
-            !tableshow ? style.targetBtnContainerOne : style.targetBtnContainerTable
+            tableshow && projectId && resourceTypeId && finalData?.length > 0
+              ? style.targetBtnContainerTable
+              : style.targetBtnContainerOne
           }
         >
           <ButtonToolbar>
