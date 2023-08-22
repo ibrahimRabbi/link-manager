@@ -501,7 +501,13 @@ const GlobalSelector = ({
         </div>
       )}
       {!loading && (
-        <div className={style.targetBtnContainer}>
+        <div
+          className={
+            tableshow && projectId && resourceTypeId && finalData?.length > 0
+              ? style.targetBtnContainerTwo
+              : style.targetBtnContainerOne
+          }
+        >
           <ButtonToolbar>
             <Button appearance="ghost" onClick={handleCancel}>
               Cancel

@@ -202,10 +202,23 @@
   overflow: auto;
 }
 
-.targetBtnContainer {
+.targetBtnContainerOne {
   position: absolute;
   bottom: 0px;
   right: 20px;
+
+  button {
+    border-radius: 5px;
+  }
+
+  button:last-child {
+    padding: 10px 15px;
+  }
+}
+.targetBtnContainerTwo {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
 
   button {
     border-radius: 5px;
