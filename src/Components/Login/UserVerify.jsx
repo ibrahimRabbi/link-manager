@@ -46,14 +46,12 @@ const UserVerify = () => {
       console.error('Form Error', formError);
       return;
     }
-    // setProgCount(0);
     setLoading(true);
     // eslint-disable-next-line max-len
     const postURl = `${lmApiUrl}/user/set_password?verification_token=${verification_token}&email=${email}`;
     await fetch(postURl, {
       method: 'POST',
       headers: {
-        accept: 'application/json',
         'Content-type': 'application/json',
       },
       body: JSON.stringify(formValue),

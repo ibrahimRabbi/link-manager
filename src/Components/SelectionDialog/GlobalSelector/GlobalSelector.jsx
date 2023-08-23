@@ -19,15 +19,7 @@ import {
 import { columnDefWithCheckBox as glideColumns } from './GlideColumns';
 import { columnDefWithCheckBox as jiraColumns } from './JiraColumns';
 import { columnDefWithCheckBox as valispaceColumns } from './ValispaceColumns.jsx';
-import {
-  Button,
-  ButtonToolbar,
-  FlexboxGrid,
-  Loader,
-  Message,
-  Pagination,
-  toaster,
-} from 'rsuite';
+import { Button, ButtonToolbar, FlexboxGrid, Message, Pagination, toaster } from 'rsuite';
 import { useSelector } from 'react-redux';
 import Filter from './FilterFunction';
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
@@ -60,7 +52,6 @@ const GlobalSelector = ({
   const [columnFilters, setColumnFilters] = React.useState([]);
   const [previousColumnFilters, setPreviousColumnFilters] = React.useState([]);
   const [resourceLoading, setResourceLoading] = useState(false);
-  const [filterLoad, setFilterLoad] = useState(false);
   const [filterIn, setFilterIn] = useState('');
 
   const authCtx = useContext(AuthContext);
@@ -271,10 +262,8 @@ const GlobalSelector = ({
       if (url) {
         executeRequestQuery(url).then((data) => {
           if (data.items.length > 0) {
-            setFilterLoad(false);
             setTableData(data);
           } else {
-            setFilterLoad(false);
             setFilterIn('');
           }
           setPreviousColumnFilters(columnFilters);
@@ -343,7 +332,13 @@ const GlobalSelector = ({
     cancelLinkHandler();
   };
   return (
-    <div>
+    <div
+      className={
+        tableshow && projectId && resourceTypeId && finalData?.length > 0
+          ? style.mainContainerTwo
+          : style.mainContainerOne
+      }
+    >
       {loading ? (
         <div style={{ marginTop: '50px' }}>
           <UseLoader />
@@ -398,9 +393,6 @@ const GlobalSelector = ({
                 />
               </FlexboxGrid.Item>
             </FlexboxGrid>
-          )}
-          {filterLoad && (
-            <Loader backdrop center size="md" vertical style={{ zIndex: '10' }} />
           )}
           {tableData?.items?.length < 1 ? (
             <h3 style={{ textAlign: 'center', marginTop: '50px', color: '#1675e0' }}>
@@ -479,6 +471,9 @@ const GlobalSelector = ({
                     })}
                   </tbody>
                 </table>
+                {!tableInstance.getRowModel().rows[0] && (
+                  <p className={style.emptyTableContent}>There is no resource found</p>
+                )}
               </div>
               <div style={{ padding: 20 }}>
                 <Pagination
@@ -506,7 +501,13 @@ const GlobalSelector = ({
         </div>
       )}
       {!loading && (
-        <div className={style.targetBtnContainer}>
+        <div
+          className={
+            tableshow && projectId && resourceTypeId && finalData?.length > 0
+              ? style.targetBtnContainerTwo
+              : style.targetBtnContainerOne
+          }
+        >
           <ButtonToolbar>
             <Button appearance="ghost" onClick={handleCancel}>
               Cancel
@@ -515,7 +516,6 @@ const GlobalSelector = ({
               appearance="primary"
               size="md"
               disabled={Object.keys(rowSelection).length > 0 ? false : true}
-              style={{ width: '65px' }}
               onClick={handleSelect}
             >
               OK
