@@ -46,7 +46,7 @@ export const lightBgColor = 'white';
 
 export const OAUTH2_APPLICATION_TYPES = ['gitlab', 'jira'];
 export const MICROSERVICES_APPLICATION_TYPES = ['glideyoke'];
-export const BASIC_AUTH_APPLICATION_TYPES = ['valispace'];
+export const BASIC_AUTH_APPLICATION_TYPES = ['valispace', 'codebeamer'];
 
 export const USER_PASSWORD_APPLICATION_TYPES =
   MICROSERVICES_APPLICATION_TYPES + BASIC_AUTH_APPLICATION_TYPES;
