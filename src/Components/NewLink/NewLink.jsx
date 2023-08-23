@@ -494,11 +494,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       <div className={newLinkMainContainer}>
         {/* --- Link types --- */}
         <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
-          <FlexboxGrid.Item colspan={3}>
+          <FlexboxGrid.Item colspan={4}>
             <h3>Link: </h3>
           </FlexboxGrid.Item>
 
-          <FlexboxGrid.Item colspan={21}>
+          <FlexboxGrid.Item colspan={20}>
             <CustomReactSelect
               name="link_type"
               placeholder="Choose Link Type"
@@ -516,11 +516,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         {linkType && (
           <>
             <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-              <FlexboxGrid.Item colspan={3}>
+              <FlexboxGrid.Item colspan={4}>
                 <h3>Target: </h3>
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={21}>
+              <FlexboxGrid.Item colspan={20}>
                 <FlexboxGrid justify="start">
                   {/* --- Application dropdown ---   */}
                   <FlexboxGrid.Item as={Col} colspan={11} style={{ paddingLeft: '0' }}>
