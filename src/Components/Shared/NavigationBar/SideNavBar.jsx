@@ -41,7 +41,7 @@ const baseOptions = [
     path: '/pipeline',
     navigateTo: '/pipeline',
     icon: <PlayOutlineIcon />,
-    content: <span>Pipeline</span>,
+    content: <span>Pipelines</span>,
   },
 
   {
