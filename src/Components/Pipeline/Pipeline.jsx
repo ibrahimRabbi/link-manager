@@ -5,13 +5,7 @@ import { fetchPipelines } from '../../Redux/slices/pipelineSlice.jsx';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import styles from '../LinkManager/LinkManager.module.scss';
 import { darkColor } from '../../App.jsx';
-import {
-  // Button,
-  Drawer,
-  Loader,
-  Message,
-  toaster,
-} from 'rsuite';
+import { Drawer, Loader, Message, toaster } from 'rsuite';
 import { Table } from 'rsuite';
 import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
@@ -76,6 +70,7 @@ const Pipeline = () => {
           pipeline.pipeline_runs.forEach((run) => {
             results.push({
               id: run.id,
+              event: event.name,
               start_time: new Date(run.start_time).toLocaleString('en-US', {
                 hour12: true,
               }),
@@ -87,41 +82,6 @@ const Pipeline = () => {
           });
         });
       });
-
-  /* eslint-disable indent */
-  // const data = !allPipelines.items
-  //   ? []
-  //   : allPipelines.items.map((item) => {
-  //       return {
-  //         id: item.id,
-  //         event: item.name,
-  //         filename: '', // item.filename,
-  //         status: '',
-  //         output: '',
-  //         children: item.pipelines
-  //           ? item.pipelines.map((item) => {
-  //               return {
-  //                 id: item.id + 1000,
-  //                 event: '',
-  //                 filename: item.filename,
-  //                 status: '',
-  //                 output: '',
-  //                 children: item.pipeline_runs
-  //                   ? item.pipeline_runs.map((item) => {
-  //                       return {
-  //                         id: item.id + 10000,
-  //                         event: '',
-  //                         filename: '',
-  //                         status: item.status ? 'Success' : 'Failed',
-  //                         output: item.output.toString(),
-  //                       };
-  //                     })
-  //                   : [],
-  //               };
-  //             })
-  //           : [],
-  //       };
-  //     });
 
   return (
     <div>
@@ -142,17 +102,15 @@ const Pipeline = () => {
               {allPipelines.items && (
                 <Table
                   virtualized
-                  // isTree
-                  // defaultExpandAllRows
                   bordered
                   cellBordered
                   data={results}
                   rowKey="id"
                   autoHeight
                 >
-                  <Column flexGrow={1}>
+                  <Column flexGrow={1} align="center">
                     <HeaderCell>
-                      <h5 className="column-center">Started</h5>
+                      <h5>Started</h5>
                     </HeaderCell>
                     <Cell style={{ fontSize: '17px' }} dataKey="start_time" />
                   </Column>
@@ -182,10 +140,6 @@ const Pipeline = () => {
                                   cursor: 'pointer',
                                   fontSize: '19px',
                                 }}
-                                // onClick={() => {
-                                //   setOpenWithHeader(true);
-                                //   setPipelineOutput(rowData.output);
-                                // }}
                               >
                                 <SuccessStatus color="#378f17" />
                               </span>
@@ -197,10 +151,6 @@ const Pipeline = () => {
                                   cursor: 'pointer',
                                   fontSize: '19px',
                                 }}
-                                // onClick={() => {
-                                //   setOpenWithHeader(true);
-                                //   setPipelineOutput(rowData.output);
-                                // }}
                               >
                                 <FailedStatus color="#de1655" />
                               </span>
@@ -244,25 +194,6 @@ const Pipeline = () => {
                       Output
                     </p>
                   </Drawer.Title>
-                  {/* <Drawer.Actions>
-                    <Button
-                      onClick={() => {
-                        setOpenWithHeader(false);
-                        setPipelineOutput('');
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setOpenWithHeader(false);
-                        setPipelineOutput('');
-                      }}
-                      appearance="primary"
-                    >
-                      Ok
-                    </Button>
-                  </Drawer.Actions> */}
                 </Drawer.Header>
                 <Drawer.Body>
                   <p
