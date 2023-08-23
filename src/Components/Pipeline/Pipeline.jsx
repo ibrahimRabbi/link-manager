@@ -4,11 +4,18 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchPipelines } from '../../Redux/slices/pipelineSlice.jsx';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import styles from '../LinkManager/LinkManager.module.scss';
-import { Button, Drawer, Loader, Message, toaster } from 'rsuite';
+import { darkColor } from '../../App.jsx';
+import {
+  // Button,
+  Drawer,
+  Loader,
+  Message,
+  toaster,
+} from 'rsuite';
 import { Table } from 'rsuite';
 import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
-
+import { PiEyeBold } from 'react-icons/pi';
 const { Column, HeaderCell, Cell } = Table;
 
 const { tableContainer } = styles;
@@ -17,6 +24,7 @@ const apiURL = `${import.meta.env.VITE_LM_REST_API_URL}/events`;
 
 const Pipeline = () => {
   const { allPipelines, isPipelineLoading } = useSelector((state) => state.pipelines);
+  const { isDark } = useSelector((state) => state.nav);
   const { sourceDataList, isWbe } = useSelector((state) => state.links);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
@@ -58,39 +66,62 @@ const Pipeline = () => {
   }, []);
 
   /* eslint-disable indent */
-  const data = !allPipelines.items
+
+  const results = [];
+
+  !allPipelines.items
     ? []
-    : allPipelines.items.map((item) => {
-        return {
-          id: item.id,
-          event: item.name,
-          filename: '', // item.filename,
-          status: '',
-          output: '',
-          children: item.pipelines
-            ? item.pipelines.map((item) => {
-                return {
-                  id: item.id + 1000,
-                  event: '',
-                  filename: item.filename,
-                  status: '',
-                  output: '',
-                  children: item.pipeline_runs
-                    ? item.pipeline_runs.map((item) => {
-                        return {
-                          id: item.id + 10000,
-                          event: '',
-                          filename: '',
-                          status: item.status ? 'Success' : 'Failed',
-                          output: item.output.toString(),
-                        };
-                      })
-                    : [],
-                };
-              })
-            : [],
-        };
+    : allPipelines.items.forEach((event) => {
+        event.pipelines.forEach((pipeline) => {
+          pipeline.pipeline_runs.forEach((run) => {
+            results.push({
+              id: run.id,
+              start_time: new Date(run.start_time).toLocaleString('en-US', {
+                hour12: true,
+              }),
+              duration: (new Date(run.end_time) - new Date(run.start_time)) / 1000,
+              filename: pipeline.filename,
+              status: run.status ? 'Success' : 'Failed',
+              output: run.output,
+            });
+          });
+        });
       });
+
+  /* eslint-disable indent */
+  // const data = !allPipelines.items
+  //   ? []
+  //   : allPipelines.items.map((item) => {
+  //       return {
+  //         id: item.id,
+  //         event: item.name,
+  //         filename: '', // item.filename,
+  //         status: '',
+  //         output: '',
+  //         children: item.pipelines
+  //           ? item.pipelines.map((item) => {
+  //               return {
+  //                 id: item.id + 1000,
+  //                 event: '',
+  //                 filename: item.filename,
+  //                 status: '',
+  //                 output: '',
+  //                 children: item.pipeline_runs
+  //                   ? item.pipeline_runs.map((item) => {
+  //                       return {
+  //                         id: item.id + 10000,
+  //                         event: '',
+  //                         filename: '',
+  //                         status: item.status ? 'Success' : 'Failed',
+  //                         output: item.output.toString(),
+  //                       };
+  //                     })
+  //                   : [],
+  //               };
+  //             })
+  //           : [],
+  //       };
+  //     });
 
   return (
     <div>
@@ -111,31 +142,31 @@ const Pipeline = () => {
               {allPipelines.items && (
                 <Table
                   virtualized
-                  isTree
-                  defaultExpandAllRows
+                  // isTree
+                  // defaultExpandAllRows
                   bordered
                   cellBordered
-                  data={data}
+                  data={results}
                   rowKey="id"
                   autoHeight
                 >
                   <Column flexGrow={1}>
                     <HeaderCell>
-                      <h5 className="column-center">Id</h5>
+                      <h5 className="column-center">Started</h5>
                     </HeaderCell>
-                    <Cell style={{ fontSize: '17px' }} dataKey="id" />
+                    <Cell style={{ fontSize: '17px' }} dataKey="start_time" />
+                  </Column>
+                  <Column flexGrow={1} align="center" fixed>
+                    <HeaderCell>
+                      <h5>Duration (s) </h5>
+                    </HeaderCell>
+                    <Cell style={{ fontSize: '17px' }} dataKey="duration" />
                   </Column>
                   <Column flexGrow={1} align="center" fixed>
                     <HeaderCell>
                       <h5>Event</h5>
                     </HeaderCell>
                     <Cell style={{ fontSize: '17px' }} dataKey="event" />
-                  </Column>
-                  <Column flexGrow={1} align="center" fixed>
-                    <HeaderCell>
-                      <h5>Script</h5>
-                    </HeaderCell>
-                    <Cell style={{ fontSize: '17px' }} dataKey="filename" />
                   </Column>
                   <Column flexGrow={1} width={180} align="center" fixed>
                     <HeaderCell>
@@ -151,10 +182,10 @@ const Pipeline = () => {
                                   cursor: 'pointer',
                                   fontSize: '19px',
                                 }}
-                                onClick={() => {
-                                  setOpenWithHeader(true);
-                                  setPipelineOutput(rowData.output);
-                                }}
+                                // onClick={() => {
+                                //   setOpenWithHeader(true);
+                                //   setPipelineOutput(rowData.output);
+                                // }}
                               >
                                 <SuccessStatus color="#378f17" />
                               </span>
@@ -166,10 +197,10 @@ const Pipeline = () => {
                                   cursor: 'pointer',
                                   fontSize: '19px',
                                 }}
-                                onClick={() => {
-                                  setOpenWithHeader(true);
-                                  setPipelineOutput(rowData.output);
-                                }}
+                                // onClick={() => {
+                                //   setOpenWithHeader(true);
+                                //   setPipelineOutput(rowData.output);
+                                // }}
                               >
                                 <FailedStatus color="#de1655" />
                               </span>
@@ -181,9 +212,22 @@ const Pipeline = () => {
                   </Column>
                   <Column flexGrow={1} align="center" fixed>
                     <HeaderCell>
-                      <h5>Output</h5>
+                      <h5>View Output</h5>
                     </HeaderCell>
-                    <Cell style={{ fontSize: '17px' }} dataKey="output" />
+                    <Cell>
+                      {(rowData) => {
+                        if (rowData.output) {
+                          return (
+                            <PiEyeBold
+                              onClick={() => {
+                                setOpenWithHeader(true);
+                                setPipelineOutput(rowData.output);
+                              }}
+                            />
+                          );
+                        }
+                      }}
+                    </Cell>
                   </Column>
                 </Table>
               )}
@@ -200,7 +244,7 @@ const Pipeline = () => {
                       Output
                     </p>
                   </Drawer.Title>
-                  <Drawer.Actions>
+                  {/* <Drawer.Actions>
                     <Button
                       onClick={() => {
                         setOpenWithHeader(false);
@@ -218,14 +262,14 @@ const Pipeline = () => {
                     >
                       Ok
                     </Button>
-                  </Drawer.Actions>
+                  </Drawer.Actions> */}
                 </Drawer.Header>
                 <Drawer.Body>
-                  <pre
+                  <p
                     style={{
                       fontWeight: '700',
                       fontFamily: 'monospace',
-                      backgroundColor: '#f6f8fa',
+                      backgroundColor: isDark === 'dark' ? darkColor : '#f6f8fa',
                       padding: '4px 6px',
                       borderRadius: '4px',
                       position: 'relative',
