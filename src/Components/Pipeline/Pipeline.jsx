@@ -19,7 +19,6 @@ const apiURL = `${import.meta.env.VITE_LM_REST_API_URL}/events`;
 const Pipeline = () => {
   const { allPipelines, isPipelineLoading } = useSelector((state) => state.pipelines);
   const { isDark } = useSelector((state) => state.nav);
-  const { sourceDataList, isWbe } = useSelector((state) => state.links);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
   const wbePath = location.pathname?.includes('wbe');
@@ -39,20 +38,9 @@ const Pipeline = () => {
 
   useEffect(() => {
     dispatch(handleCurrPageTitle('Pipelines Results'));
-    let getUrl = `${apiURL}`;
-    if (isWbe) {
-      if (sourceDataList?.appName) {
-        getUrl = `${getUrl}?application_type=${sourceDataList?.appName}`;
-      }
-
-      if (sourceDataList?.AppName) {
-        getUrl = `${getUrl}?application_type=${sourceDataList?.AppName}`;
-      }
-    }
-
     dispatch(
       fetchPipelines({
-        url: getUrl,
+        url: apiURL,
         token: authCtx.token,
         showNotification: showNotification,
       }),
