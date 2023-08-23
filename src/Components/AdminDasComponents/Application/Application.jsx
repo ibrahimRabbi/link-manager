@@ -467,6 +467,13 @@ const Application = () => {
                   status: currentValue?.oauth2_application[0]?.token_status?.status,
                 });
               }
+              if (currentValue?.type === 'codebeamer') {
+                accumulator.push({
+                  ...currentValue,
+                  iconUrl: '/codebeamer_logo.png',
+                  status: currentValue?.oauth2_application[0]?.token_status?.status,
+                });
+              }
             } else {
               accumulator.push({
                 ...currentValue,
