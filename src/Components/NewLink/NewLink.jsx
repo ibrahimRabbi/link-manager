@@ -39,7 +39,7 @@ const thirdApiURL = `${apiURL}/third_party`;
 const gitlabDialogOslcURL = import.meta.env.VITE_GITLAB_DIALOG_URL;
 const jiraDialogURL = import.meta.env.VITE_JIRA_DIALOG_URL;
 const valispaceDialogURL = import.meta.env.VITE_VALISPACE_DIALOG_URL;
-const codebeamerDialogURL = import.meta.env.VITE_CODEBEAMER_DIALOG_URL;
+// const codebeamerDialogURL = import.meta.env.VITE_CODEBEAMER_DIALOG_URL;
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // links states
@@ -166,14 +166,16 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             `${valispaceDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
           );
         } else if (codebeamerApp) {
-          setProjectFrameSrc(
-            // eslint-disable-next-line max-len
-            `${codebeamerDialogURL}/oslc/provider/selector?provider_id=${
-              project_id ? project_id : projectType?.id
-            }#oslc-core-postMessage-1.0`,
-          );
+          setGlobalDialog(true);
+          // setProjectFrameSrc(
+          //   // eslint-disable-next-line max-len
+          //   `${codebeamerDialogURL}/oslc/provider/selector?provider_id=${
+          //     project_id ? project_id : projectType?.id
+          //   }#oslc-core-postMessage-1.0`,
+          // );
         }
       } else if (projectType?.value && applicationType.type === 'gitlab') {
+        console.log(projectType);
         setGitlabDialog(true);
       } else if (projectType?.value && applicationType?.type === 'glideyoke') {
         setGlobalDialog(true);

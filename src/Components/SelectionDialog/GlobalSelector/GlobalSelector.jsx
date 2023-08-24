@@ -19,6 +19,7 @@ import {
 import { columnDefWithCheckBox as glideColumns } from './GlideColumns';
 import { columnDefWithCheckBox as jiraColumns } from './JiraColumns';
 import { columnDefWithCheckBox as valispaceColumns } from './ValispaceColumns.jsx';
+import { columnDefWithCheckBox as codebeamerColumns } from './CodebeamerColumns';
 import { Button, ButtonToolbar, FlexboxGrid, Message, Pagination, toaster } from 'rsuite';
 import { useSelector } from 'react-redux';
 import Filter from './FilterFunction';
@@ -90,7 +91,11 @@ const GlobalSelector = ({
     setResourceTypeId('');
   };
   const handleResourceTypeChange = (selectedItem) => {
-    setResourceTypeId(selectedItem?.name);
+    if (appData.application_type === 'codebeamer') {
+      setResourceTypeId(selectedItem?.id);
+    } else {
+      setResourceTypeId(selectedItem?.name);
+    }
   };
 
   const getProjectUrl = () => {
@@ -110,9 +115,17 @@ const GlobalSelector = ({
   };
 
   const getResourceTypeUrl = () => {
-    return `${nativeAppUrl}${
-      appData?.application?.type || appData?.application_type
-    }/resource_types`;
+    let url;
+    if (appData?.application_type === 'codebeamer') {
+      url = `${nativeAppUrl}${
+        appData?.application?.type || appData?.application_type
+      }/resource_types/${projectId}?application_id=${appData?.application_id}`;
+    } else {
+      url = `${nativeAppUrl}${
+        appData?.application?.type || appData?.application_type
+      }/resource_types`;
+    }
+    return url;
   };
 
   const getResourceListUrl = (filters = null) => {
@@ -125,7 +138,11 @@ const GlobalSelector = ({
         }/container/${projectId}/${resourceTypeId}`;
       } else {
         url += `${appData?.application?.type || appData?.application_type}/container/${
-          appData?.application_type !== 'glideyoke' ? appData?.id : 'tenant'
+          appData?.application_type === 'glideyoke'
+            ? 'tenant'
+            : appData?.application_type === 'codebeamer'
+            ? 'tracker'
+            : appData?.id
         }/${resourceTypeId}`;
       }
       url = getQueryArgs(url);
@@ -195,8 +212,10 @@ const GlobalSelector = ({
     setResourceTypeId('');
     if (defaultProject) {
       setProjectId(defaultProject?.id);
+      setProjectName(defaultProject?.name);
     } else {
-      setProjectId(''); // Clear the project selection
+      setProjectId('');
+      setProjectName('');
     }
     setProjects([]);
     setLoading(true);
@@ -225,6 +244,13 @@ const GlobalSelector = ({
         if (data?.length > 0) {
           setResourceLoading(false);
           setResourceTypes(data);
+        } else if (appData.application_type === 'codebeamer') {
+          if (data?.items.length > 0) {
+            setResourceLoading(false);
+            setResourceTypes(data?.items);
+          } else {
+            setLoading(false);
+          }
         } else {
           setLoading(false);
         }
@@ -274,7 +300,11 @@ const GlobalSelector = ({
 
   useEffect(() => {
     if (resourceTypes.length === 1) {
-      setResourceTypeId(resourceTypes[0]?.name);
+      if (appData.application_type === 'codebeamer') {
+        setResourceTypeId(resourceTypes[0]?.id);
+      } else {
+        setResourceTypeId(resourceTypes[0]?.name);
+      }
     }
   }, [resourceTypes]);
 
@@ -284,6 +314,8 @@ const GlobalSelector = ({
       return jiraColumns;
     } else if (appData?.application_type === 'valispace') {
       return valispaceColumns;
+    } else if (appData?.application_type === 'codebeamer') {
+      return codebeamerColumns;
     } else {
       return glideColumns;
     }
