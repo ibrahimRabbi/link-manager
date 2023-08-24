@@ -315,11 +315,11 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
         <div>
           {/* --- Projects ---  */}
           <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
-            <FlexboxGrid.Item colspan={3}>
+            <FlexboxGrid.Item colspan={4}>
               <h3>Projects: </h3>
             </FlexboxGrid.Item>
 
-            <FlexboxGrid.Item colspan={21}>
+            <FlexboxGrid.Item colspan={20}>
               <UseReactSelect
                 name="gitlab_native_projects"
                 placeholder="Choose Project"
@@ -333,11 +333,11 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
           {/* --- Branches ---  */}
           {(projectId || defaultBranch) && (
             <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
-              <FlexboxGrid.Item colspan={3}>
+              <FlexboxGrid.Item colspan={4}>
                 <h3>Branches: </h3>
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={21}>
+              <FlexboxGrid.Item colspan={20}>
                 <UseDefaultSelect
                   name="gitlab_native_branches"
                   placeholder="Choose Branch"
@@ -354,11 +354,11 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
           {/* --- Commits ---  */}
           {(projectId && branchId) || defaultCommit || defaultBranch ? (
             <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
-              <FlexboxGrid.Item colspan={3}>
+              <FlexboxGrid.Item colspan={4}>
                 <h3>Commits: </h3>
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={21}>
+              <FlexboxGrid.Item colspan={20}>
                 <UseDefaultSelect
                   name="gitlab_native_commits"
                   placeholder="Choose Commit"
@@ -421,21 +421,29 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
                     </div>
                   </div>
                 </div>
-                <div className={style.buttonDiv}>
-                  <ButtonGroup
-                    handleSaveLink={handleSaveLink}
-                    selectedCodes={selectedCodes}
-                    multipleSelected={multipleSelected}
-                    singleSelected={singleSelected}
-                    branchName={branchId ? branchId : defaultBranch}
-                    cancelLinkHandler={cancelLinkHandler}
-                    checkedValues={checkedValues}
-                  ></ButtonGroup>
-                </div>
               </div>
             )}
         </div>
       )}
+      <div
+        className={
+          treeData.length > 0 &&
+          projectId &&
+          ((branchId && commitId) || defaultCommitId || defaultBranch)
+            ? style.buttonDivOne
+            : style.buttonDivTwo
+        }
+      >
+        <ButtonGroup
+          handleSaveLink={handleSaveLink}
+          selectedCodes={selectedCodes}
+          multipleSelected={multipleSelected}
+          singleSelected={singleSelected}
+          branchName={branchId ? branchId : defaultBranch}
+          cancelLinkHandler={cancelLinkHandler}
+          checkedValues={checkedValues}
+        ></ButtonGroup>
+      </div>
     </div>
   );
 };
