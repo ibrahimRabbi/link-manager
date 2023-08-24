@@ -64,7 +64,7 @@ const PipelineRun = () => {
   };
 
   useEffect(() => {
-    dispatch(handleCurrPageTitle('Pipeline Results'));
+    dispatch(handleCurrPageTitle('Pipeline Runs'));
 
     const getUrl = `${lmApiUrl}/pipeline_run?page=${currPage}&per_page=${pageSize}`;
     dispatch(
@@ -101,7 +101,6 @@ const PipelineRun = () => {
   };
 
   const tableProps = {
-    title: 'Pipeline Results',
     rowData: allPipelineRun?.items?.length ? allPipelineRun?.items : [],
     headerData,
     handleDelete,

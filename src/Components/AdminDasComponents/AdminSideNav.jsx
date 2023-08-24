@@ -98,7 +98,7 @@ const options = [
     path: ['/admin/pipelinerun'],
     navigateTo: '/admin/pipelinerun',
     icon: <PlayOutlineIcon size={15} style={{ ...iconStyle, marginLeft: '0' }} />,
-    content: <span>Pipeline Results</span>,
+    content: <span>Pipeline Runs</span>,
   },
   {
     path: ['/'],
