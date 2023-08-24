@@ -37,7 +37,7 @@ const Pipeline = () => {
   };
 
   useEffect(() => {
-    dispatch(handleCurrPageTitle('Pipelines Results'));
+    dispatch(handleCurrPageTitle('Pipelines Runs'));
     dispatch(
       fetchPipelines({
         url: apiURL,
