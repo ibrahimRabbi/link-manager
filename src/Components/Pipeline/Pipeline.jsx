@@ -42,7 +42,6 @@ const Pipeline = () => {
   const dispatch = useDispatch();
   const wbePath = location.pathname?.includes('wbe');
   const [pageSize, setPageSize] = useState(5);
-  const [page, setPage] = useState(1);
   const [currPage, setCurrPage] = useState(1);
   const [openWithHeader, setOpenWithHeader] = useState(false);
   const [pipelineOutput, setPipelineOutput] = useState('');
@@ -58,7 +57,12 @@ const Pipeline = () => {
   };
 
   const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
     setPageSize(dataKey);
+  };
+
+  const handlePagination = (value) => {
+    setCurrPage(value);
   };
 
   useEffect(() => {
@@ -73,7 +77,7 @@ const Pipeline = () => {
         showNotification: showNotification,
       }),
     );
-  }, [pageSize, page, currPage, refreshData]);
+  }, [pageSize, currPage, refreshData]);
 
   /* eslint-disable indent */
 
@@ -91,10 +95,6 @@ const Pipeline = () => {
           output: run.output,
         };
       });
-
-  useEffect(() => {
-    setCurrPage(page);
-  }, [page]);
 
   useEffect(() => {
     if (tableFilterValue) {
@@ -254,7 +254,7 @@ const Pipeline = () => {
                     limitOptions={[5, 10, 25, 50, 100]}
                     limit={pageSize}
                     activePage={allPipelineRun?.page}
-                    onChangePage={setPage}
+                    onChangePage={(v) => handlePagination(v)}
                     onChangeLimit={(v) => handleChangeLimit(v)}
                   />
                 </div>
