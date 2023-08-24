@@ -394,11 +394,11 @@ const GlobalSelector = ({
         <div>
           {!defaultProject && (
             <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
-              <FlexboxGrid.Item colspan={3}>
+              <FlexboxGrid.Item colspan={4}>
                 <h3>Projects: </h3>
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={21}>
+              <FlexboxGrid.Item colspan={20}>
                 <UseReactSelect
                   name="glide_native_projects"
                   placeholder="Choose Project"
@@ -411,10 +411,10 @@ const GlobalSelector = ({
           )}
           {projectId && resourceTypes.length > 1 && (
             <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
-              <FlexboxGrid.Item colspan={3}>
+              <FlexboxGrid.Item colspan={4}>
                 <h3>Resource: </h3>
               </FlexboxGrid.Item>
-              <FlexboxGrid.Item colspan={21}>
+              <FlexboxGrid.Item colspan={20}>
                 <UseReactSelect
                   name="glide_native_resource_type"
                   placeholder="Choose resource type"
