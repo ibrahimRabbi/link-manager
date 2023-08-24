@@ -27,7 +27,6 @@ const CustomReactSelect = forwardRef((props, ref) => {
     isApplication,
     selectedLinkType,
     isValispace,
-    isCodebeamer,
     isIntegration,
     isEventAssociation,
     isUpdateState,
@@ -232,19 +231,6 @@ const CustomReactSelect = forwardRef((props, ref) => {
       dropdownJsonData = option?.map((item) => ({
         ...item,
         label: item?.service_provider_id,
-        value: item?.id,
-      }));
-    } else if (isCodebeamer) {
-      const hardCodeProject = [
-        {
-          name: 'Drone project (CODEBEAMER)',
-          id: 2,
-          application: { type: 'codebeamer' },
-        },
-      ];
-      dropdownJsonData = hardCodeProject?.map((item) => ({
-        ...item,
-        label: item?.name || item?.label,
         value: item?.id,
       }));
     } else {

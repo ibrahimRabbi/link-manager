@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -36,10 +37,6 @@ const { newLinkMainContainer, targetContainer, targetIframe, targetBtnContainer 
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
-const gitlabDialogOslcURL = import.meta.env.VITE_GITLAB_DIALOG_URL;
-const jiraDialogURL = import.meta.env.VITE_JIRA_DIALOG_URL;
-const valispaceDialogURL = import.meta.env.VITE_VALISPACE_DIALOG_URL;
-// const codebeamerDialogURL = import.meta.env.VITE_CODEBEAMER_DIALOG_URL;
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // links states
@@ -60,7 +57,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const [gitlabDialog, setGitlabDialog] = useState(false);
   const [globalDialog, setGlobalDialog] = useState(false);
   const [appWithWorkspace, setAppWithWorkspace] = useState(false);
-  const [projectFrameSrc, setProjectFrameSrc] = useState('');
   const [externalProjectUrl, setExternalProjectUrl] = useState('');
   const [externalProjectDisabled, setExternalProjectDisabled] = useState(false);
   const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
@@ -127,74 +123,25 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     setGitlabDialog(false);
     setGlobalDialog(false);
     setAppWithWorkspace(false);
-    setProjectFrameSrc('');
-    if (projectType) {
-      const valispaceApp = projectType?.application?.type?.includes('valispace');
-      const jiraApp = projectType?.application?.type?.includes('jira');
-      if (projectType?.application?.type) {
-        const jiraApp = projectType?.application?.type?.includes('jira');
-        const gitlabApp = projectType?.application?.type?.includes('gitlab');
-        const glideApp = projectType?.application?.type?.includes('glide');
-        const valispaceApp = projectType?.application?.type?.includes('valispace');
-        const codebeamerApp = projectType?.application?.type?.includes('codebeamer');
-        const isOslc = projectType?.application?.type?.includes('oslc');
 
-        // get service provider id
-        const project_id = projectType?.service_provider_id;
-
-        if (isOslc) {
-          setProjectFrameSrc(
-            // eslint-disable-next-line max-len
-            `${gitlabDialogOslcURL}/oslc/provider/selector?provider_id=${
-              project_id ? project_id : projectType?.id
-            }#oslc-core-postMessage-1.0`,
-          );
-        } else if (gitlabApp) {
+    if (projectType?.value) {
+      switch (applicationType?.type) {
+        case 'gitlab':
           setGitlabDialog(true);
-        } else if (glideApp) {
+          break;
+        case 'glideyoke':
           setGlobalDialog(true);
-        } else if (jiraApp) {
-          setProjectFrameSrc(
-            // eslint-disable-next-line max-len
-            `${jiraDialogURL}/oslc/provider/selector?provider_id=${
-              project_id ? project_id : projectType?.id
-            }#oslc-core-postMessage-1.0`,
-          );
-        } else if (valispaceApp) {
-          setProjectFrameSrc(
-            // eslint-disable-next-line max-len
-            `${valispaceDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
-          );
-        } else if (codebeamerApp) {
+          break;
+        case 'jira':
           setGlobalDialog(true);
-          // setProjectFrameSrc(
-          //   // eslint-disable-next-line max-len
-          //   `${codebeamerDialogURL}/oslc/provider/selector?provider_id=${
-          //     project_id ? project_id : projectType?.id
-          //   }#oslc-core-postMessage-1.0`,
-          // );
-        }
-      } else if (projectType?.value && applicationType.type === 'gitlab') {
-        console.log(projectType);
-        setGitlabDialog(true);
-      } else if (projectType?.value && applicationType?.type === 'glideyoke') {
-        setGlobalDialog(true);
-      } else if (projectType?.value && applicationType?.type === 'jira') {
-        setGlobalDialog(true);
-      } else if (valispaceApp) {
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `${valispaceDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
-        );
-      } else if (projectType?.value && applicationType?.type === 'valispace') {
-        setAppWithWorkspace(true);
-        setGlobalDialog(true);
-      } else if (jiraApp) {
-        const project_id = projectType?.service_provider_id;
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `${jiraDialogURL}/oslc/provider/selector?provider_id=${project_id}#oslc-core-postMessage-1.0`,
-        );
+          break;
+        case 'valispace':
+          setAppWithWorkspace(true);
+          setGlobalDialog(true);
+          break;
+        case 'codebeamer':
+          setGlobalDialog(true);
+          break;
       }
     }
   }, [projectType]);
@@ -561,7 +508,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                         isLinkCreation={true}
                         isUpdateState={applicationType?.label}
                         isValispace={applicationType?.label === 'Valispace'}
-                        isCodebeamer={applicationType?.type === 'codebeamer'}
                         value={projectType?.label}
                         disabled={externalProjectDisabled}
                         restartRequest={restartExternalRequest}
@@ -580,9 +526,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
         {(withConfigAware || withoutConfigAware) && (
           <div className={targetContainer}>
-            {linkType && projectType && projectFrameSrc && (
-              <iframe className={targetIframe} src={projectFrameSrc} />
-            )}
+            {linkType && projectType && <iframe className={targetIframe} />}
           </div>
         )}
 
