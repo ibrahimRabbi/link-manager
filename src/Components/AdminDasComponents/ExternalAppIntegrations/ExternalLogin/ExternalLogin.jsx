@@ -85,6 +85,11 @@ const ExternalLogin = (props) => {
           'X-Auth-Valispace': 'Basic ' + authData,
         };
         break;
+      case 'codebeamer':
+        headers = {
+          'X-Auth-Codebeamer': 'Basic ' + authData,
+        };
+        break;
       }
 
       const response = await fetch(loginUrl, {
@@ -134,6 +139,26 @@ const ExternalLogin = (props) => {
                     src={'/glide_logo.png'}
                     alt="Application logo"
                     className={appImage}
+                    width={150}
+                    height={150}
+                  />
+                )}
+                {appData?.type === 'codebeamer' && (
+                  <img
+                    src={'/codebeamer_logo.png'}
+                    alt="Application logo"
+                    className={appImage}
+                    width={150}
+                    height={150}
+                  />
+                )}
+                {appData?.type === 'valispace' && (
+                  <img
+                    src={'/valispace_logo.png'}
+                    alt="Application logo"
+                    className={appImage}
+                    width={150}
+                    height={150}
                   />
                 )}
                 <br />
