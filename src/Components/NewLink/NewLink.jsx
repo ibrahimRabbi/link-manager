@@ -57,6 +57,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const [gitlabDialog, setGitlabDialog] = useState(false);
   const [globalDialog, setGlobalDialog] = useState(false);
   const [appWithWorkspace, setAppWithWorkspace] = useState(false);
+  const [projectFrameSrc, setProjectFrameSrc] = useState('');
   const [externalProjectUrl, setExternalProjectUrl] = useState('');
   const [externalProjectDisabled, setExternalProjectDisabled] = useState(false);
   const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
@@ -123,6 +124,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     setGitlabDialog(false);
     setGlobalDialog(false);
     setAppWithWorkspace(false);
+    setProjectFrameSrc('');
 
     if (projectType?.value) {
       switch (applicationType?.type) {
@@ -526,7 +528,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
         {(withConfigAware || withoutConfigAware) && (
           <div className={targetContainer}>
-            {linkType && projectType && <iframe className={targetIframe} />}
+            {linkType && projectType && projectFrameSrc && (
+              <iframe className={targetIframe} src={projectFrameSrc} />
+            )}
           </div>
         )}
 
