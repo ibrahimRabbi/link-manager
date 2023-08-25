@@ -10,8 +10,13 @@
 .tree {
   width: 30%;
 }
+.buttonDivTwo {
+  position: absolute;
+  bottom: 0px;
+  right: 10px;
+}
 
-.buttonDiv {
+.buttonDivOne {
   display: flex;
   justify-content: flex-end;
   margin-top: 5px;

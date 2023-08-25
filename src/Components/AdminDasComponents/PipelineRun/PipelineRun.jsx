@@ -101,7 +101,6 @@ const PipelineRun = () => {
   };
 
   const tableProps = {
-    title: 'Pipeline Results',
     rowData: allPipelineRun?.items?.length ? allPipelineRun?.items : [],
     headerData,
     handleDelete,
