@@ -1,19 +1,15 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
-
 import { Sidebar, Sidenav, Nav, Divider } from 'rsuite';
-import MenuIcon from '@rsuite/icons/Menu';
-import CloseIcon from '@rsuite/icons/Close';
 import { handleIsAdminSidebarOpen } from '../../Redux/slices/navSlice';
 import { FaUsers, FaLink } from 'react-icons/fa';
-import { TiArrowBackOutline } from 'react-icons/ti';
 import { SlOrganization } from 'react-icons/sl';
-import { SiAzurepipelines, SiWebcomponentsdotorg } from 'react-icons/si';
-import { TbApps } from 'react-icons/tb';
+import { SiAzurepipelines } from 'react-icons/si';
+import { PiPlugsDuotone } from 'react-icons/pi';
 import { VscProject } from 'react-icons/vsc';
 import { CgLink } from 'react-icons/cg';
-import { MdEvent, MdOutlineIntegrationInstructions } from 'react-icons/md';
+import { MdEvent, MdArrowForwardIos } from 'react-icons/md';
 import { darkColor, lightBgColor } from '../../App';
 import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
 
@@ -25,32 +21,21 @@ const iconStyle = {
 
 const options = [
   {
-    path: ['/admin', '/admin/users'],
-    navigateTo: '/admin/users',
-    icon: <FaUsers style={iconStyle} />,
-    content: <span>Users</span>,
-  },
-  {
-    path: ['/admin/organizations'],
+    path: ['/admin', '/admin/organizations'],
     navigateTo: '/admin/organizations',
     icon: <SlOrganization size={17} style={iconStyle} />,
     content: <span>Organizations</span>,
   },
   {
-    path: ['/admin/applications'],
-    navigateTo: '/admin/applications',
-    icon: <TbApps size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />,
-    content: <span>Applications</span>,
+    path: ['/admin/users'],
+    navigateTo: '/admin/users',
+    icon: <FaUsers style={iconStyle} />,
+    content: <span>Users</span>,
   },
   {
     path: ['/admin/integrations'],
     navigateTo: '/admin/integrations',
-    icon: (
-      <MdOutlineIntegrationInstructions
-        size={20}
-        style={{ ...iconStyle, marginLeft: '-37px' }}
-      />
-    ),
+    icon: <PiPlugsDuotone size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />,
     content: <span>Integrations</span>,
   },
   {
@@ -77,12 +62,6 @@ const options = [
     content: <span>Link Constraint</span>,
   },
   {
-    path: ['/admin/components'],
-    navigateTo: '/admin/components',
-    icon: <SiWebcomponentsdotorg size={18} style={{ ...iconStyle, marginLeft: '-36' }} />,
-    content: <span>Components</span>,
-  },
-  {
     path: ['/admin/events'],
     navigateTo: '/admin/events',
     icon: <MdEvent size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />,
@@ -99,12 +78,6 @@ const options = [
     navigateTo: '/admin/pipelinerun',
     icon: <PlayOutlineIcon size={15} style={{ ...iconStyle, marginLeft: '0' }} />,
     content: <span>Pipeline Runs</span>,
-  },
-  {
-    path: ['/'],
-    navigateTo: '/',
-    icon: <TiArrowBackOutline size={22} style={{ ...iconStyle, marginLeft: '-36px' }} />,
-    content: <span>Home</span>,
   },
 ];
 
@@ -125,21 +98,17 @@ const AdminSideNav = () => {
         width={isAdminSidebarOpen ? 210 : 60}
         collapsible
       >
-        <Sidenav.Header>
-          <Nav pullRight>
-            <Nav.Item
-              onClick={() => dispatch(handleIsAdminSidebarOpen(!isAdminSidebarOpen))}
-              style={{
-                width: '100%',
-                paddingLeft: '17px',
-                borderRadius: '0',
-              }}
-            >
-              <h3>{isAdminSidebarOpen ? <CloseIcon /> : <MenuIcon />}</h3>
-            </Nav.Item>
-          </Nav>
+        <Sidenav.Header className="dashboard_sidebar_header">
+          <h3
+            style={{ transform: isAdminSidebarOpen ? 'rotate(180deg)' : '' }}
+            onClick={() => dispatch(handleIsAdminSidebarOpen(!isAdminSidebarOpen))}
+          >
+            <MdArrowForwardIos />
+          </h3>
         </Sidenav.Header>
+
         <Divider style={{ margin: '0' }} />
+
         <Sidenav
           expanded={isAdminSidebarOpen}
           defaultOpenKeys={['12']}

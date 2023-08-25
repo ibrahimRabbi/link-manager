@@ -243,6 +243,20 @@ const Application = () => {
     },
   );
 
+  // Get applications data and keep it updated
+  useEffect(() => {
+    dispatch(handleCurrPageTitle('Integrations'));
+    refetchApplications();
+  }, [
+    createSuccess,
+    updateSuccess,
+    deleteSuccess,
+    pageSize,
+    currentPage,
+    refreshData,
+    isAppAuthorize,
+  ]);
+
   // Check for changes to the iframe URL when it is loaded
   const handleLoad = () => {
     const currentUrl = iframeRef.current.contentWindow.location.href;
@@ -385,20 +399,6 @@ const Application = () => {
   };
 
   /** Effect declarations */
-
-  // Get applications data and keep it updated
-  useEffect(() => {
-    dispatch(handleCurrPageTitle('Applications'));
-    refetchApplications();
-  }, [
-    createSuccess,
-    updateSuccess,
-    deleteSuccess,
-    pageSize,
-    currentPage,
-    refreshData,
-    isAppAuthorize,
-  ]);
 
   // Get icons for the applications
   useEffect(() => {

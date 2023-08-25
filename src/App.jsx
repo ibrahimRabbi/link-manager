@@ -3,7 +3,6 @@ import { Route, Routes } from 'react-router-dom';
 import Application from './Components/AdminDasComponents/Application/Application';
 // eslint-disable-next-line max-len
 import LinkConstraint from './Components/AdminDasComponents/LinkConstraint/LinkConstraint';
-import Components from './Components/AdminDasComponents/Components/Components';
 import LinkTypes from './Components/AdminDasComponents/LinkType/LinkTypes';
 import Organization from './Components/AdminDasComponents/Organization/Organization';
 import Projects from './Components/AdminDasComponents/Projects/Projects';
@@ -29,12 +28,10 @@ import UserVerify from './Components/Login/UserVerify';
 import Oauth2Success from './Components/Oauth2/oauth2Success.jsx';
 import Events from './Components/AdminDasComponents/Events/Events.jsx';
 import Pipelines from './Components/AdminDasComponents/Pipelines/Pipelines.jsx';
-import Associations from './Components/AdminDasComponents/Associations/Associations';
 import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun.jsx';
 import Pipeline from './Components/Pipeline/Pipeline.jsx';
 import WebBrowserExtension from './Components/WebBrowserExtension/WebBrowserExtension';
 import GitlabSelector from './Components/SelectionDialog/GitlabSelector/GitlabSelector';
-// import Graph from './Components/GraphView/Graph.jsx';
 // eslint-disable-next-line max-len
 import Oauth2Callback from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2Callback.jsx';
 import CytoscapeGraphView from './Components/CytoscapeGraphView/CytoscapeGraphView.jsx';
@@ -123,18 +120,16 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route path="/admin/users" element={<Users />} />
             <Route path="/admin/organizations" element={<Organization />} />
-            <Route path="/admin/applications" element={<Application />} />
-            <Route path="/admin/integrations" element={<Associations />} />
+            <Route path="/admin/users" element={<Users />} />
+            <Route path="/admin/integrations" element={<Application />} />
             <Route path="/admin/projects" element={<Projects />} />
             <Route path="/admin/link-types" element={<LinkTypes />} />
             <Route path="/admin/link-constraint" element={<LinkConstraint />} />
-            <Route path="/admin/components" element={<Components />} />
             <Route path="/admin/events" element={<Events />} />
             <Route path="/admin/pipelines" element={<Pipelines />} />
             <Route path="/admin/pipelinerun" element={<PipelineRun />} />
-            <Route path="/admin" element={<Users />} />
+            <Route path="/admin" element={<Organization />} />
           </Route>
           <Route path="/gitlabselection/:id" element={<GitlabSelector />}></Route>
           <Route path="/oauth2-status" element={<Oauth2Success />} />

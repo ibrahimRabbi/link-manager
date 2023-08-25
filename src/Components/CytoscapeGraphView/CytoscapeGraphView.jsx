@@ -18,7 +18,7 @@ import { nodeColorStyles, nodeImageStyle } from './NodeStyles.jsx';
 // eslint-disable-next-line max-len
 import { showOslcData } from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreviewConfig.jsx';
 
-const { nodeInfoContainer, noDataTitle } = styles;
+const { nodeInfoContainer } = styles;
 const CytoscapeGraphView = () => {
   const { sourceDataList, isWbe } = useSelector((state) => state.links);
   const authCtx = useContext(AuthContext);
@@ -52,7 +52,7 @@ const CytoscapeGraphView = () => {
     queryFn: () =>
       fetchAPIRequest({
         urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
-          sourceDataList?.uri,
+          sourceDataList?.uri ? sourceDataList?.uri : '',
         )}&direction=outgoing&max_depth_outgoing=1`,
         token: authCtx.token,
         showNotification: showNotification,
@@ -259,41 +259,43 @@ const CytoscapeGraphView = () => {
       setEdgeData(edges ? edges : []);
     }
   }, [data]);
-
   return (
     <>
       <div ref={graphContainerRef}>
         {isWbe && isLoading && <UseLoader />}
 
+        {(!isWbe || (isWbe && !nodeData?.length)) && (
+          <h2 className="cy_graph_empty_title">
+            {isWbe
+              ? 'No content available for this source'
+              : 'No links created until now.'}
+          </h2>
+        )}
+
         {isWbe && data && (
           <>
-            {nodeData || edgeData ? (
-              <>
-                <Cytoscape
-                  containerID="cy"
-                  elements={nodeData?.concat(edgeData)}
-                  layout={graphLayout}
-                  stylesheet={graphStyle}
-                  // userZoomingEnabled={false}
-                  style={{ width: '99%', height: '99vh' }}
-                  cy={(cy) => {
-                    cyRef.current = cy;
-                    cy.cxtmenu({
-                      selector: 'node',
-                      commands: contextMenuCommands,
-                    });
-                    cy.layout(graphLayout).run();
-                    cy.fit(10); // Adjust the padding as needed
-                  }}
-                />
-              </>
-            ) : (
-              <h5 className={noDataTitle}>
-                {isWbe
-                  ? 'No content available for this source'
-                  : 'No source found to display the graph'}
-              </h5>
-            )}
+            {nodeData ||
+              (edgeData && (
+                <>
+                  <Cytoscape
+                    containerID="cy"
+                    elements={nodeData?.concat(edgeData)}
+                    layout={graphLayout}
+                    stylesheet={graphStyle}
+                    // userZoomingEnabled={false}
+                    style={{ width: '99%', height: '99vh' }}
+                    cy={(cy) => {
+                      cyRef.current = cy;
+                      cy.cxtmenu({
+                        selector: 'node',
+                        commands: contextMenuCommands,
+                      });
+                      cy.layout(graphLayout).run();
+                      cy.fit(10); // Adjust the padding as needed
+                    }}
+                  />
+                </>
+              ))}
           </>
         )}
 
