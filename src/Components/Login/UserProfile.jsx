@@ -1,7 +1,7 @@
 import React, { useContext, useRef, useState } from 'react';
 import styles from './Login.module.scss';
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import {
   Button,
@@ -56,12 +56,13 @@ const passwordModel = Schema.Model({
   new_password: StringType()
     .addRule(passwordRule, ruleMessage)
     .isRequired(requiredMessage),
-  confirm_password: StringType()
+  new_password_confirm: StringType()
     .addRule(confirmRule, confirmMessage)
     .isRequired(requiredMessage),
 });
 
 const UserProfile = () => {
+  const { isDark } = useSelector((state) => state.nav);
   const [formError, setFormError] = useState({});
   const [passwordError, setPasswordError] = useState({});
   const [navKey, setNavKey] = useState('user');
@@ -76,9 +77,9 @@ const UserProfile = () => {
     username: userInfo?.preferred_username ? userInfo?.preferred_username : '',
     email: userInfo?.email ? userInfo?.email : '',
   });
-  const [passwordValue, setPasswordValue] = useState({
+  const [passwordFormValue, setPasswordFormValue] = useState({
     new_password: '',
-    confirm_password: '',
+    new_password_confirm: '',
   });
 
   useEffect(() => {
@@ -113,18 +114,14 @@ const UserProfile = () => {
     },
   );
 
-  const passwordData = {
-    new_password: passwordValue.new_password,
-    confirm_password: passwordValue.confirm_password,
-  };
   // update password using react query
   const { isLoading: updatePasswordLoading, mutate: updatePasswordMutate } = useMutation(
     () =>
       fetchAPIRequest({
-        urlPath: `user/password/${authCtx?.user_id}`,
+        urlPath: `user/update_password?user_id=${authCtx?.user_id}`,
         token: authCtx.token,
-        method: 'PUT',
-        body: passwordData,
+        method: 'POST',
+        body: passwordFormValue,
         showNotification: showNotification,
       }),
     {
@@ -136,23 +133,24 @@ const UserProfile = () => {
 
   // handle same user info or password
   const handleUpdateProfile = () => {
+    // submit user info
     if (navKey === 'user') {
       if (!profileRef.current.check()) {
         console.log(formError);
         return;
       }
       updateUserMutate();
-      console.log(userFormValue);
+      // submit update password
     } else if (navKey === 'password') {
       if (!passwordRef.current.check()) {
         console.log(passwordError);
         return;
       }
       updatePasswordMutate();
-      console.log(passwordData);
     }
   };
 
+  const activeColor = isDark === 'dark' ? '#34c3ff' : '#2196f3';
   return (
     <div className="mainContainer">
       {(updateUserLoading || updatePasswordLoading) && <UseLoader />}
@@ -194,10 +192,20 @@ const UserProfile = () => {
         {/* --- Right Section ---  */}
         <div className={rightContainer}>
           <Nav appearance="subtle" onSelect={(e) => setNavKey(e)} className={navBarStyle}>
-            <Nav.Item active={navKey === 'user'} eventKey="user">
+            <Nav.Item
+              eventKey="user"
+              active={navKey === 'user'}
+              style={{
+                color: navKey === 'user' ? activeColor : '',
+              }}
+            >
               <h5>Update user info</h5>
             </Nav.Item>
-            <Nav.Item active={navKey === 'password'} eventKey="password">
+            <Nav.Item
+              active={navKey === 'password'}
+              eventKey="password"
+              style={{ color: navKey === 'password' ? activeColor : '' }}
+            >
               <h5>Change password</h5>
             </Nav.Item>
           </Nav>
@@ -255,9 +263,9 @@ const UserProfile = () => {
             <Form
               fluid
               ref={passwordRef}
-              onChange={setPasswordValue}
+              onChange={setPasswordFormValue}
               onCheck={setPasswordError}
-              formValue={passwordValue}
+              formValue={passwordFormValue}
               model={passwordModel}
             >
               <FlexboxGrid justify="space-between">
@@ -272,7 +280,7 @@ const UserProfile = () => {
 
                 <FlexboxGrid.Item colspan={11} style={{ marginBottom: '30px' }}>
                   <PasswordField
-                    name="confirm_password"
+                    name="new_password_confirm"
                     label="Confirm Password"
                     type="password"
                     reqText="Confirm password is required"

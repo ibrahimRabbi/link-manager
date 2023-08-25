@@ -53,9 +53,9 @@ const Pipeline = () => {
 
   !allPipelines.items
     ? []
-    : allPipelines.items.forEach((event) => {
-        event.pipelines.forEach((pipeline) => {
-          pipeline.pipeline_runs.forEach((run) => {
+    : allPipelines.items?.forEach((event) => {
+        event.pipelines?.forEach((pipeline) => {
+          pipeline.pipeline_runs?.forEach((run) => {
             results.push({
               id: run.id,
               event: event.name,

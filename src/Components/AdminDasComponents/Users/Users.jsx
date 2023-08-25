@@ -16,23 +16,19 @@ import AlertModal from '../../Shared/AlertModal';
 // demo data
 const headerData = [
   {
-    header: 'ID',
-    key: 'id',
-  },
-  {
-    header: 'Users Name',
+    header: 'User Names',
     key: 'username',
   },
   {
-    header: 'First Name',
+    header: 'First Names',
     key: 'first_name',
   },
   {
-    header: 'Last Name',
+    header: 'Last Names',
     key: 'last_name',
   },
   {
-    header: 'Email',
+    header: 'Emails',
     key: 'email',
   },
 ];

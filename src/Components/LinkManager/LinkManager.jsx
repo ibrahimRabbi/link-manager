@@ -106,7 +106,7 @@ const LinkManager = () => {
   // get all links
   useEffect(() => {
     (async () => {
-      dispatch(handleCurrPageTitle('Links'));
+      dispatch(handleCurrPageTitle('Link Editor'));
 
       let streamRes = [];
       if (configuration_aware && !linksStream.key) {

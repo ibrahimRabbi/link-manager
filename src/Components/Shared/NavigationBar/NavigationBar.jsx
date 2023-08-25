@@ -1,10 +1,11 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { handleIsDarkMode, handleIsProfileOpen } from '../../../Redux/slices/navSlice';
 import AuthContext from '../../../Store/Auth-Context.jsx';
 import koneksysLogo from './koneksys_logo.png';
-import styles from './NavigationBar.module.scss';
+import DashboardIcon from '@rsuite/icons/Dashboard';
+// import {MdOutlineDashboardCustomize} from 'react-icons/md';
 import {
   Avatar,
   Button,
@@ -17,13 +18,13 @@ import {
 } from 'rsuite';
 import { BiUserCircle, BiLogOut } from 'react-icons/bi';
 import jwt_decode from 'jwt-decode';
-
-const { popoverContainer, userContainer, popButton } = styles;
-
 import { ImBrightnessContrast } from 'react-icons/im';
 import { darkColor, lightBgColor } from '../../../App';
 import AlertModal from '../AlertModal';
-import { useState } from 'react';
+import styles from './NavigationBar.module.scss';
+
+const { popoverContainer, userContainer, popButton } = styles;
+
 const NavigationBar = () => {
   const authCtx = useContext(AuthContext);
   const { currPageTitle, isDark, isProfileOpen } = useSelector((state) => state.nav);
@@ -52,12 +53,12 @@ const NavigationBar = () => {
   const darkModeText =
     isDark === 'dark' ? 'Light Mode' : isDark === 'light' ? 'Dark Mode' : 'Dark Mode';
 
+  // popover items click handler
   const handlePopoverBtnClick = (item) => {
-    if (item?.label === 'Profile') {
-      navigate('/profile');
-    } else if (item?.label === darkModeText) {
+    if (item.path) navigate(item.path);
+    else if (item.label === darkModeText) {
       dispatch(handleIsDarkMode());
-    } else if (item?.label === 'Logout') {
+    } else if (item.label === 'Logout') {
       handleLogout();
     }
   };
@@ -65,10 +66,12 @@ const NavigationBar = () => {
   const popItems = [
     {
       label: 'Profile',
+      path: '/profile',
       icon: <BiUserCircle size={18} style={{ marginRight: '-1px' }} />,
     },
-    { label: darkModeText, icon: <ImBrightnessContrast size={17} /> },
-    { label: 'Logout', icon: <BiLogOut size={17} /> },
+    { label: 'Dashboard', path: '/admin', icon: <DashboardIcon size={17} /> },
+    { label: darkModeText, path: '', icon: <ImBrightnessContrast size={17} /> },
+    { label: 'Logout', path: '', icon: <BiLogOut size={17} /> },
   ];
 
   // popover control
