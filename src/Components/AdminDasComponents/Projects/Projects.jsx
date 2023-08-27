@@ -14,7 +14,7 @@ import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
 import SelectField from '../SelectField.jsx';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import fetchAPIRequest from '../../../apiRequests/apiRequest';
+import fetchAPIRequest from '../../../apiRequests/apiRequest.js';
 import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 import AlertModal from '../../Shared/AlertModal';
 
@@ -27,16 +27,12 @@ const headerData = [
     key: 'id',
   },
   {
-    header: 'Project',
+    header: 'Projects',
     key: 'name',
   },
   {
-    header: 'Description',
+    header: 'Descriptions',
     key: 'description',
-  },
-  {
-    header: 'Organization',
-    key: 'organization_name',
   },
 ];
 
@@ -146,20 +142,13 @@ const Projects = () => {
     isLoading: deleteLoading,
     isSuccess: deleteSuccess,
     mutate: deleteMutate,
-  } = useMutation(
-    () =>
-      fetchAPIRequest({
-        urlPath: `project/${deleteData?.id}`,
-        token: authCtx.token,
-        method: 'DELETE',
-        showNotification: showNotification,
-      }),
-    {
-      onSuccess: (value) => {
-        console.log(value);
-        setDeleteData({});
-      },
-    },
+  } = useMutation(() =>
+    fetchAPIRequest({
+      urlPath: `project/${deleteData?.id}`,
+      token: authCtx.token,
+      method: 'DELETE',
+      showNotification: showNotification,
+    }),
   );
 
   // Pagination

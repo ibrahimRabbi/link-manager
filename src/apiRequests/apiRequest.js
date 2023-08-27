@@ -1,4 +1,3 @@
-// const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 export default function fetchAPIRequest({
@@ -9,6 +8,7 @@ export default function fetchAPIRequest({
   showNotification,
 }) {
   const apiURL = `${lmApiUrl}/${urlPath}`;
+
   return fetch(apiURL, {
     method: method,
     headers: {
@@ -18,33 +18,35 @@ export default function fetchAPIRequest({
     body: JSON.stringify(body),
   })
     .then((response) => {
-      if (method === 'GET' && response.status === 204) {
-        return showNotification('success', 'No content available');
-      } else if (method === 'DELETE' && response.status === 204) {
-        return showNotification('success', 'The content was successfully deleted');
-      } else if (response.ok) {
+      if (response.ok) {
+        if (method === 'GET' && response.status === 204) {
+          showNotification('success', 'No content available');
+          return '';
+        } else if (method === 'DELETE' && response.status === 204) {
+          showNotification('success', 'The content was successfully deleted');
+          return '';
+        }
         return response.json();
       } else {
-        if (response.status === 400) {
-          return response.json().then((data) => {
-            showNotification('error', data.message);
-          });
-        } else if (response.status === 401) {
-          return response.json().then((data) => {
+        if (response.status === 401) {
+          response.json().then((data) => {
             showNotification('error', data.message);
             window.location.replace('/login');
           });
+          return '';
         } else if (response.status === 403) {
           if (token) {
             showNotification('error', 'You do not have permission to access');
           } else {
             window.location.replace('/login');
           }
-        } else {
-          return response.json().then((data) => {
-            showNotification('error', data.message);
-          });
+          return '';
         }
+
+        return response.json().then((data) => {
+          showNotification('error', data?.message);
+          return '';
+        });
       }
     })
     .catch((error) => showNotification('error', error?.message));

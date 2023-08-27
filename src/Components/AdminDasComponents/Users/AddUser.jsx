@@ -55,7 +55,7 @@ const AddUser = ({
         urlPath: 'user',
         token: authCtx?.token,
         method: 'POST',
-        body: { ...formValue, enabled: true },
+        body: { ...formValue, enabled: 'true' },
         showNotification: showNotification,
       }),
     {
