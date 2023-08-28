@@ -33,6 +33,10 @@ const headerData = [
     header: 'Script',
     key: 'filename',
   },
+  {
+    header: 'Event',
+    key: 'event_name',
+  },
 ];
 
 const { ObjectType, StringType, NumberType } = Schema.Types;
@@ -157,6 +161,18 @@ const Pipelines = () => {
     refreshData,
   ]);
 
+  /* eslint-disable indent */
+
+  const data = !allPipelines.items
+    ? []
+    : allPipelines.items.map((pipeline) => {
+        return {
+          id: pipeline.id,
+          event_name: pipeline.event.name,
+          filename: pipeline.filename,
+        };
+      });
+
   // handle delete pipeline
   const handleDelete = (data) => {
     setDeleteData(data);
@@ -190,7 +206,7 @@ const Pipelines = () => {
   // send props in the batch action table
   const tableProps = {
     title: 'Pipelines',
-    rowData: allPipelines?.items?.length ? allPipelines?.items : [],
+    rowData: data?.length ? data : [],
     headerData,
     handleEdit,
     handleDelete,
