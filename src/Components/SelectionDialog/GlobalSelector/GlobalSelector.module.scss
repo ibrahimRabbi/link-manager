@@ -181,7 +181,7 @@
 }
 .styled_table thead tr {
   text-align: center;
-  background: #dddddd;
+  background: white;
   margin: 0;
   position: sticky;
   top: 0;
@@ -227,10 +227,6 @@
   button:last-child {
     padding: 10px 15px;
   }
-}
-
-input[type='checkbox'] {
-  z-index: -1; /* Ensure the checkbox is below the headers */
 }
 
 .mainTableContainer {
