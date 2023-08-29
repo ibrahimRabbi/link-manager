@@ -26,7 +26,6 @@ import {
   Drawer,
 } from 'rsuite';
 import { CopyBlock, atomOneDark, atomOneLight } from 'react-code-blocks';
-// import { darkColor } from '../../../App';
 import TextField from '../TextField';
 import { useRef } from 'react';
 import SelectField from '../SelectField.jsx';
