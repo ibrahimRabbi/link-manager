@@ -25,7 +25,8 @@ import {
   toaster,
   Drawer,
 } from 'rsuite';
-import { darkColor } from '../../../App';
+import { CopyBlock, atomOneDark, atomOneLight } from 'react-code-blocks';
+// import { darkColor } from '../../../App';
 import TextField from '../TextField';
 import { useRef } from 'react';
 import SelectField from '../SelectField.jsx';
@@ -331,18 +332,13 @@ const Pipelines = () => {
           </Drawer.Title>
         </Drawer.Header>
         <Drawer.Body>
-          <p
-            style={{
-              fontWeight: '700',
-              fontFamily: 'monospace',
-              backgroundColor: isDark === 'dark' ? darkColor : '#f6f8fa',
-              padding: '4px 6px',
-              borderRadius: '4px',
-              position: 'relative',
-            }}
-            dangerouslySetInnerHTML={{
-              __html: pipelineScript.replace(/\n/g, '<br>'),
-            }}
+          <CopyBlock
+            language="python"
+            text={pipelineScript}
+            showLineNumbers={true}
+            theme={isDark === 'dark' ? atomOneDark : atomOneLight}
+            wrapLines={true}
+            codeBlock
           />
         </Drawer.Body>
       </Drawer>
