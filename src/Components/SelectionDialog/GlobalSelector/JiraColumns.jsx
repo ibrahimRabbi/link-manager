@@ -47,7 +47,7 @@ export const columnDefWithCheckBox = [
     header: 'Name',
   },
   {
-    accessorFn: (row) => `${row?.description.slice(0, 150)}`,
+    accessorFn: (row) => `${row?.description?.slice(0, 150)}`,
     header: 'Description',
   },
 ];
