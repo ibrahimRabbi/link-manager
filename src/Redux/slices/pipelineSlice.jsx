@@ -34,13 +34,23 @@ export const fetchDeletePipeline = createAsyncThunk(
   },
 );
 
+// Get Single Pipeline Script
+export const fetchPipelineScript = createAsyncThunk(
+  'pipelines/fetchPipelineScript',
+  async ({ url, token, showNotification }) => {
+    return getAPI({ url, token, showNotification });
+  },
+);
+
 /// All Pipelines states
 const initialState = {
   allPipelines: {},
+  pipelineScript: '',
   isPipelineCreated: false,
   isPipelineUpdated: false,
   isPipelineDeleted: false,
   isPipelineLoading: false,
+  isPipelineScriptLoading: false,
 };
 
 export const PipelineSlice = createSlice({
@@ -114,6 +124,22 @@ export const PipelineSlice = createSlice({
 
     builder.addCase(fetchDeletePipeline.rejected, (state) => {
       state.isPipelineLoading = false;
+    });
+
+    // Get Single Pipeline Script
+    builder.addCase(fetchPipelineScript.pending, (state) => {
+      state.isPipelineScriptLoading = true;
+    });
+
+    builder.addCase(fetchPipelineScript.fulfilled, (state, { payload }) => {
+      state.isPipelineScriptLoading = false;
+      if (payload) {
+        state.pipelineScript = payload;
+      }
+    });
+
+    builder.addCase(fetchPipelineScript.rejected, (state) => {
+      state.isPipelineScriptLoading = false;
     });
   },
 });
