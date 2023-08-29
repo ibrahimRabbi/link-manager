@@ -13,6 +13,7 @@ import CloseIcon from '@rsuite/icons/Close';
 import { handleRefreshData } from '../../Redux/slices/navSlice';
 import { darkBgColor, lightBgColor } from '../../App';
 import { MdDelete, MdEdit, MdLock } from 'react-icons/md';
+import { PiEyeBold } from 'react-icons/pi';
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -25,6 +26,7 @@ const AdminDataTable = ({ props }) => {
     handleAddNew,
     handleEdit,
     handleDelete,
+    handleScriptView,
     authorizeModal,
     totalItems,
     pageSize,
@@ -67,8 +69,21 @@ const AdminDataTable = ({ props }) => {
       authorizeModal(rowData);
     };
 
+    const viewScript = () => {
+      handleScriptView(rowData);
+    };
+
     return (
       <ButtonToolbar>
+        {handleScriptView && (
+          <IconButton
+            size="sm"
+            title="View Script"
+            icon={<PiEyeBold />}
+            onClick={viewScript}
+          />
+        )}
+
         {handleEdit && (
           <IconButton size="sm" title="Edit" icon={<MdEdit />} onClick={editSelected} />
         )}
