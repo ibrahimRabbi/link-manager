@@ -16,6 +16,19 @@ const Oauth2Waiting = (props) => {
   let iconUrl = '';
   const [url, setUrl] = useState('');
   let defaultAppType = false;
+  const requestDataBroadcastChannel = new BroadcastChannel('request-oauth2-app');
+  const applicationChannel = new BroadcastChannel('application-data');
+
+  requestDataBroadcastChannel.onmessage = (event) => {
+    if (event.data?.status) {
+      applicationData();
+    }
+  };
+  const applicationData = () => {
+    applicationChannel.postMessage({
+      application: oauth2Data?.items[0]?.id,
+    });
+  };
 
   const showNotification = (type, message) => {
     if (type && message) {
