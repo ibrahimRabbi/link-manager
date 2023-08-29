@@ -5,6 +5,7 @@ import {
   fetchCreatePipeline,
   fetchUpdatePipeline,
   fetchDeletePipeline,
+  fetchPipelineScript,
 } from '../../../Redux/slices/pipelineSlice';
 import AuthContext from '../../../Store/Auth-Context';
 import {
@@ -14,7 +15,17 @@ import {
 } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import AdminDataTable from '../AdminDataTable';
-import { FlexboxGrid, Form, Uploader, Loader, Schema, Message, toaster } from 'rsuite';
+import {
+  FlexboxGrid,
+  Form,
+  Uploader,
+  Loader,
+  Schema,
+  Message,
+  toaster,
+  Drawer,
+} from 'rsuite';
+import { CopyBlock, atomOneDark, atomOneLight } from 'react-code-blocks';
 import TextField from '../TextField';
 import { useRef } from 'react';
 import SelectField from '../SelectField.jsx';
@@ -44,11 +55,13 @@ const { ObjectType, StringType, NumberType } = Schema.Types;
 const Pipelines = () => {
   const {
     allPipelines,
+    pipelineScript,
     isPipelineLoading,
     isPipelineCreated,
     isPipelineUpdated,
     isPipelineDeleted,
   } = useSelector((state) => state.pipelines);
+
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
 
   const model = Schema.Model({
@@ -70,6 +83,9 @@ const Pipelines = () => {
   });
   const [open, setOpen] = useState(false);
   const [deleteData, setDeleteData] = useState({});
+  const { isDark } = useSelector((state) => state.nav);
+  const [openWithHeader, setOpenWithHeader] = useState(false);
+  const [scriptTitle, setscriptTitle] = useState('');
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -203,6 +219,19 @@ const Pipelines = () => {
     dispatch(handleIsAddNewModal(true));
   };
 
+  const handleScriptView = (data) => {
+    const getScriptUrl = `${lmApiUrl}/pipelines/${data?.id}/script`;
+    dispatch(
+      fetchPipelineScript({
+        url: getScriptUrl,
+        token: authCtx.token,
+        showNotification: showNotification,
+      }),
+      setscriptTitle(data.filename),
+      setOpenWithHeader(true),
+    );
+  };
+
   // send props in the batch action table
   const tableProps = {
     title: 'Pipelines',
@@ -213,6 +242,7 @@ const Pipelines = () => {
     handleAddNew,
     handlePagination,
     handleChangeLimit,
+    handleScriptView,
     totalItems: allPipelines?.total_items,
     totalPages: allPipelines?.total_pages,
     pageSize,
@@ -286,6 +316,31 @@ const Pipelines = () => {
         content={'Do you want to delete the pipeline?'}
         handleConfirmed={handleConfirmed}
       />
+      <Drawer open={openWithHeader} onClose={() => setOpenWithHeader(false)}>
+        <Drawer.Header>
+          <Drawer.Title>
+            <p
+              style={{
+                marginTop: '5px',
+                fontSize: '19px',
+                fontWeight: 'bold',
+              }}
+            >
+              {scriptTitle}
+            </p>
+          </Drawer.Title>
+        </Drawer.Header>
+        <Drawer.Body>
+          <CopyBlock
+            language="python"
+            text={pipelineScript}
+            showLineNumbers={true}
+            theme={isDark === 'dark' ? atomOneDark : atomOneLight}
+            wrapLines={true}
+            codeBlock
+          />
+        </Drawer.Body>
+      </Drawer>
       <AdminDataTable props={tableProps} />
     </div>
   );

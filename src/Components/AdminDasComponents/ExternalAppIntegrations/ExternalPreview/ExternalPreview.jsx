@@ -186,7 +186,11 @@ const ExternalPreview = (props) => {
           >
             <Button appearance="subtle" onClick={sendToWebApplication}>
               <h4 className={buttonTitle}>
-                {nodeData?.name ? nodeData.name : 'External link overview'}
+                {nodeData?.name
+                  ? nodeData.name.length > 45
+                    ? `${nodeData.name.slice(0, 45)}...`
+                    : nodeData.name
+                  : 'External link overview'}
               </h4>
             </Button>
           </Whisper>
@@ -197,8 +201,12 @@ const ExternalPreview = (props) => {
           <Divider style={{ marginTop: '-2px' }}>
             <h5>Overview</h5>
           </Divider>
-          {nodeData?.description && (
-            <PreviewRow name="Description" value={nodeData?.description} />
+          {nodeData?.api === 'codebeamer' ? (
+            <PreviewRow name="Description" nodeData={nodeData} />
+          ) : (
+            nodeData?.description && (
+              <PreviewRow name="Description" value={nodeData?.description} />
+            )
           )}
           {nodeData?.status && (
             <PreviewRow
