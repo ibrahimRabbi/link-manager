@@ -25,7 +25,7 @@ import {
   toaster,
   Drawer,
 } from 'rsuite';
-import { CopyBlock, atomOneDark, atomOneLight } from 'react-code-blocks';
+import Editor from '@monaco-editor/react';
 import TextField from '../TextField';
 import { useRef } from 'react';
 import SelectField from '../SelectField.jsx';
@@ -331,13 +331,11 @@ const Pipelines = () => {
           </Drawer.Title>
         </Drawer.Header>
         <Drawer.Body>
-          <CopyBlock
-            language="python"
-            text={pipelineScript}
-            showLineNumbers={true}
-            theme={isDark === 'dark' ? atomOneDark : atomOneLight}
-            wrapLines={true}
-            codeBlock
+          <Editor
+            height="80vh"
+            defaultLanguage="python"
+            defaultValue={pipelineScript}
+            theme={isDark === 'dark' ? 'vs-dark' : 'light'}
           />
         </Drawer.Body>
       </Drawer>
