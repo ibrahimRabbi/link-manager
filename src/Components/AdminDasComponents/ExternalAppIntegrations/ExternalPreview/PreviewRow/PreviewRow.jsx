@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Col, FlexboxGrid } from 'rsuite';
 import styles from '../ExternalPreview.module.scss';
+import ArowBackIcon from '@rsuite/icons/ArowBack';
 
 const { title, description } = styles;
 
@@ -63,9 +64,17 @@ const PreviewRow = (props) => {
             href={nodeData?.web_url}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ fontSize: '15px', cursor: 'pointer' }}
+            style={{ fontSize: '15px', cursor: 'pointer', textDecoration: 'none' }}
           >
-            Show more
+            See more
+            <ArowBackIcon
+              style={{
+                transform: 'rotate(180deg)',
+                fontSize: '1.5em',
+                marginLeft: '5px',
+                marginBottom: '2px',
+              }}
+            />
           </a>
         )}
       </FlexboxGrid.Item>

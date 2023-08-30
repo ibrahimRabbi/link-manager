@@ -444,16 +444,18 @@ const GlobalSelector = ({
                                 key={columnEl.id}
                                 style={
                                   columnEl.column.id.includes('select')
-                                    ? { width: '5%' }
+                                    ? { width: '7%' }
                                     : null
                                 }
                               >
-                                {columnEl.isPlaceholder
-                                  ? null
-                                  : flexRender(
-                                      columnEl.column.columnDef.header,
-                                      columnEl.getContext(),
-                                    )}
+                                <h6>
+                                  {columnEl.isPlaceholder
+                                    ? null
+                                    : flexRender(
+                                        columnEl.column.columnDef.header,
+                                        columnEl.getContext(),
+                                      )}
+                                </h6>
                                 {columnEl.column.getCanFilter() ? (
                                   <div>
                                     <Filter
@@ -481,10 +483,11 @@ const GlobalSelector = ({
                               : style.table_row_light
                           }
                         >
-                          {rowEl.getVisibleCells().map((cellEl) => {
+                          {rowEl.getVisibleCells().map((cellEl, cellIndex) => {
                             return (
                               <td
                                 key={cellEl.id}
+                                className={cellIndex === 0 ? style.first_column : ''}
                                 style={
                                   cellEl.column.id.includes('select')
                                     ? { width: '5px' }
