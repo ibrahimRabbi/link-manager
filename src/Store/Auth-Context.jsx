@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 let logoutTimer;
+import jwtDecode from 'jwt-decode';
 
 const AuthContext = React.createContext({
   token: '',
@@ -90,9 +91,12 @@ export const AuthContextProvider = (props) => {
     }
   }, [token, logoutHandler]);
 
+  const user = token ? jwtDecode(token) : {};
+  const role = user.email === 'isccarrasco@icloud.com' ? 'super_admin' : 'admin';
   const contextValue = {
     token: token,
     user_id: userId,
+    user: { ...user, role },
     isLoggedIn: userIsLoggedIn,
     login: loginHandler,
     logout: logoutHandler,
