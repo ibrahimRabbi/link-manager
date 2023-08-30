@@ -5,7 +5,6 @@ import { handleIsDarkMode, handleIsProfileOpen } from '../../../Redux/slices/nav
 import AuthContext from '../../../Store/Auth-Context.jsx';
 import koneksysLogo from './koneksys_logo.png';
 import DashboardIcon from '@rsuite/icons/Dashboard';
-// import {MdOutlineDashboardCustomize} from 'react-icons/md';
 import {
   Avatar,
   Button,

@@ -260,53 +260,46 @@ const CytoscapeGraphView = () => {
     }
   }, [data]);
   return (
-    <>
-      <div ref={graphContainerRef}>
-        {isWbe && isLoading && <UseLoader />}
+    <div ref={graphContainerRef}>
+      {isWbe && isLoading && <UseLoader />}
 
-        {(!isWbe || (isWbe && !nodeData?.length)) && (
-          <h2 className="cy_graph_empty_title">
-            {isWbe
-              ? 'No content available for this source'
-              : 'No links created until now.'}
-          </h2>
-        )}
+      {(!isWbe || (isWbe && !nodeData?.length)) && (
+        <h2 className="cy_graph_empty_title">
+          {isWbe ? 'No content available for this source' : 'No links created until now.'}
+        </h2>
+      )}
 
-        {isWbe && data && (
-          <>
-            {nodeData ||
-              (edgeData && (
-                <>
-                  <Cytoscape
-                    containerID="cy"
-                    elements={nodeData?.concat(edgeData)}
-                    layout={graphLayout}
-                    stylesheet={graphStyle}
-                    // userZoomingEnabled={false}
-                    style={{ width: '99%', height: '99vh' }}
-                    cy={(cy) => {
-                      cyRef.current = cy;
-                      cy.cxtmenu({
-                        selector: 'node',
-                        commands: contextMenuCommands,
-                      });
-                      cy.layout(graphLayout).run();
-                      cy.fit(10); // Adjust the padding as needed
-                    }}
-                  />
-                </>
-              ))}
-          </>
-        )}
+      {isWbe && data && (
+        <>
+          {(nodeData || edgeData) && (
+            <Cytoscape
+              containerID="cy"
+              elements={nodeData?.concat(edgeData)}
+              layout={graphLayout}
+              stylesheet={graphStyle}
+              // userZoomingEnabled={false}
+              style={{ width: '99%', height: '99vh' }}
+              cy={(cy) => {
+                cyRef.current = cy;
+                cy.cxtmenu({
+                  selector: 'node',
+                  commands: contextMenuCommands,
+                });
+                cy.layout(graphLayout).run();
+                cy.fit(10); // Adjust the padding as needed
+              }}
+            />
+          )}
+        </>
+      )}
 
-        {/* node details section  */}
-        {selectedNode && openedExternalPreview && (
-          <div ref={containerRef} className={nodeInfoContainer}>
-            <ExternalPreview nodeData={selectedNode} fromGraphView={true} />
-          </div>
-        )}
-      </div>
-    </>
+      {/* node details section  */}
+      {selectedNode && openedExternalPreview && (
+        <div ref={containerRef} className={nodeInfoContainer}>
+          <ExternalPreview nodeData={selectedNode} fromGraphView={true} />
+        </div>
+      )}
+    </div>
   );
 };
 
