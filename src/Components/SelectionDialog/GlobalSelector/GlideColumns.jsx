@@ -12,7 +12,7 @@ function IndeterminateCheckbox({ indeterminate, ...rest }) {
   return (
     <input
       type="checkbox"
-      style={{ transform: 'scale(1.4)', cursor: 'pointer' }}
+      style={{ transform: 'scale(1.4)', cursor: 'pointer', textAlign: 'center' }}
       ref={ref}
       {...rest}
     />

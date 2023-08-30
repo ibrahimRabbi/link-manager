@@ -181,7 +181,7 @@
 }
 .styled_table thead tr {
   text-align: center;
-  background: #dddddd;
+  background: white;
   margin: 0;
   position: sticky;
   top: 0;
@@ -229,10 +229,6 @@
   }
 }
 
-input[type='checkbox'] {
-  z-index: -1; /* Ensure the checkbox is below the headers */
-}
-
 .mainTableContainer {
   position: absolute;
   z-index: 0;
@@ -252,4 +248,7 @@ input[type='checkbox'] {
 .mainContainerTwo {
   position: relative;
   min-height: 97vh;
+}
+.first_column {
+  text-align: center;
 }
