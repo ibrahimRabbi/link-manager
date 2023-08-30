@@ -29,6 +29,7 @@ import styles from './Application.module.scss';
 import {
   MICROSERVICES_APPLICATION_TYPES,
   OAUTH2_APPLICATION_TYPES,
+  OIDC_APPLICATION_TYPES,
   THIRD_PARTY_INTEGRATIONS,
   USER_PASSWORD_APPLICATION_TYPES,
 } from '../../../App.jsx';
@@ -113,6 +114,7 @@ const Application = () => {
     server_url_auth: '',
     server_url_ui: '',
     tenant_id: '',
+    oidc_url: '',
   });
 
   /** Application variables */
@@ -305,6 +307,7 @@ const Application = () => {
       server_url_auth: '',
       server_url_ui: '',
       tenant_id: '',
+      oidc_url: '',
     });
     setAuthorizedAppConsumption(false);
     setIsAppAuthorize(false);
@@ -391,7 +394,7 @@ const Application = () => {
       description: data?.description,
       client_id: data?.client_id,
       client_secret: data?.client_secret,
-      server_url_auth: data?.server_url_auth,
+      server_url_auth: data?.server_url_auth ? data?.server_url_auth : data?.oidc_url,
       server_url_ui: data?.server_url_ui,
       tenant_id: data?.tenant_id,
     });
@@ -661,7 +664,7 @@ const Application = () => {
                       rows={3}
                     />
                   </FlexboxGrid.Item>
-                  {(formValue?.type === 'gitlab' || formValue?.type === 'jira') && (
+                  {OAUTH2_APPLICATION_TYPES.includes(formValue?.type) && (
                     <React.Fragment>
                       <FlexboxGrid.Item colspan={11}>
                         <TextField
@@ -682,7 +685,7 @@ const Application = () => {
                       </FlexboxGrid.Item>
                     </React.Fragment>
                   )}
-                  {formValue?.type === 'glideyoke' && (
+                  {MICROSERVICES_APPLICATION_TYPES.includes(formValue?.type) && (
                     <React.Fragment>
                       <FlexboxGrid.Item colspan={11}>
                         <TextField
@@ -705,6 +708,17 @@ const Application = () => {
                           name="tenant_id"
                           label="Tenant ID"
                           reqText="Tenant ID is required"
+                        />
+                      </FlexboxGrid.Item>
+                    </React.Fragment>
+                  )}
+                  {OIDC_APPLICATION_TYPES.includes(formValue?.type) && (
+                    <React.Fragment>
+                      <FlexboxGrid.Item colspan={11}>
+                        <TextField
+                          name="oidc_url"
+                          label="OIDC issuer"
+                          reqText="OIDC issuer is required"
                         />
                       </FlexboxGrid.Item>
                     </React.Fragment>
@@ -747,7 +761,7 @@ const Application = () => {
                   src={authorizeFrameSrc}
                 />
               )}
-              {(formValue?.type === 'gitlab' || formValue?.type === 'jira') &&
+              {OAUTH2_APPLICATION_TYPES.includes(formValue?.type) &&
                 steps === 1 &&
                 createSuccess && <Oauth2Waiting data={formValue} />}
 
