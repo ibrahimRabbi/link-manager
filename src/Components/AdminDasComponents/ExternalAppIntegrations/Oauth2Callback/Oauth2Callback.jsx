@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../../apiRequests/apiRequest.js';
 
 import AuthContext from '../../../../Store/Auth-Context';
@@ -17,15 +17,30 @@ const Oauth2Callback = () => {
 
   const requestSentRef = useRef(false);
 
-  const { data: accessToken } = useQuery(['oauth2AccessToken'], () =>
-    fetchAPIRequest({
-      urlPath: `external-integrations/oauth2/token?code=${code}&state=${state}`,
-      token: authCtx.token,
-      method: 'GET',
-      showNotification: (status, message) => {
-        redirectUrl(status, message);
+  const { mutate: getTokenStatus } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: 'external-integrations/oauth2/token',
+        token: authCtx.token,
+        method: 'POST',
+        body: {
+          code: code,
+          state: state,
+        },
+        showNotification: (status, message) => {
+          redirectUrl(status, message);
+        },
+      }),
+    {
+      onSuccess: (value) => {
+        console.log(value);
+        redirectUrl(value?.status, value?.message);
       },
-    }),
+      onError: (value) => {
+        console.log(value);
+        ~redirectUrl(value?.status, value?.message);
+      },
+    },
   );
 
   const redirectUrl = (tokenStatus, code) => {
@@ -34,11 +49,11 @@ const Oauth2Callback = () => {
   };
 
   useEffect(() => {
-    if (!requestSentRef.current && authCtx.token && accessToken) {
-      redirectUrl(accessToken?.status, accessToken?.message);
+    if (!requestSentRef.current && authCtx.token) {
+      getTokenStatus();
       requestSentRef.current = true;
     }
-  }, [accessToken]);
+  }, [getTokenStatus]);
 
   return (
     <>
