@@ -12,6 +12,8 @@ import { CgLink } from 'react-icons/cg';
 import { MdEvent, MdArrowForwardIos } from 'react-icons/md';
 import { darkColor, lightBgColor } from '../../App';
 import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
+import { useContext } from 'react';
+import AuthContext from '../../Store/Auth-Context';
 
 const iconStyle = {
   marginLeft: '-35px',
@@ -21,16 +23,16 @@ const iconStyle = {
 
 const options = [
   {
-    path: ['/admin', '/admin/organizations'],
-    navigateTo: '/admin/organizations',
-    icon: <SlOrganization size={17} style={iconStyle} />,
-    content: <span>Organizations</span>,
-  },
-  {
-    path: ['/admin/users'],
+    path: ['admin', '/admin/users'],
     navigateTo: '/admin/users',
     icon: <FaUsers style={iconStyle} />,
     content: <span>Users</span>,
+  },
+  {
+    path: ['/admin/organizations'],
+    navigateTo: '/admin/organizations',
+    icon: <SlOrganization size={17} style={iconStyle} />,
+    content: <span>Organizations</span>,
   },
   {
     path: ['/admin/integrations'],
@@ -86,6 +88,8 @@ const AdminSideNav = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { pathname } = useLocation();
+  const authCtx = useContext(AuthContext);
+  const isSuperAdmin = authCtx?.user?.role === 'super_admin' ? true : false;
 
   return (
     <>
@@ -117,17 +121,22 @@ const AdminSideNav = () => {
         >
           <Sidenav.Body>
             <Nav>
-              {options.map((option, index) => (
-                <Nav.Item
-                  key={index}
-                  eventKey={`${index}`}
-                  active={option.path.includes(pathname)}
-                  onClick={() => navigate(option.navigateTo)}
-                  icon={option.icon}
-                >
-                  {option.content}
-                </Nav.Item>
-              ))}
+              {options.map((option, index) => {
+                if (option.navigateTo === '/admin/organizations' && !isSuperAdmin) {
+                  return null;
+                }
+                return (
+                  <Nav.Item
+                    key={index}
+                    eventKey={`${index}`}
+                    active={option.path.includes(pathname)}
+                    onClick={() => navigate(option.navigateTo)}
+                    icon={option.icon}
+                  >
+                    {option.content}
+                  </Nav.Item>
+                );
+              })}
             </Nav>
           </Sidenav.Body>
         </Sidenav>
