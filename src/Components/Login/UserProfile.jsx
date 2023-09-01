@@ -162,7 +162,7 @@ const UserProfile = () => {
             <img src="./default_avatar.jpg" alt="avatar" />
             <h5>{userInfo?.name ? userInfo?.name : 'First Name Last Name'}</h5>
             <Tag color={'orange'}>
-              <p>User Role</p>
+              <p>{authCtx?.user ? authCtx?.user?.role : 'User role'}</p>
             </Tag>
           </div>
 

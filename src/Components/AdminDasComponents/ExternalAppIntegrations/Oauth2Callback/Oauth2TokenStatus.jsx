@@ -1,0 +1,73 @@
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+
+import { FlexboxGrid, Panel } from 'rsuite';
+
+import CloseOutlineIcon from '@rsuite/icons/CloseOutline';
+import CheckOutlineIcon from '@rsuite/icons/CheckOutline';
+
+const Oauth2TokenStatus = () => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const broadcastChannel = new BroadcastChannel('oauth2-app-status');
+
+  const status = queryParams.get('status');
+  const message = queryParams.get('message');
+
+  const sendSuccessMessage = () => {
+    broadcastChannel.postMessage({
+      status: 'success',
+    });
+  };
+
+  useEffect(() => {
+    if (status === 'success') {
+      sendSuccessMessage();
+    }
+  }, [status]);
+
+  return (
+    <>
+      <FlexboxGrid style={{ marginTop: '50px' }} justify="center">
+        {status && message && (
+          <FlexboxGrid.Item colspan={16} style={{ padding: '0' }}>
+            <Panel style={{ textAlign: 'center' }}>
+              {status === 'error' ? (
+                <CloseOutlineIcon
+                  style={{
+                    width: '100px',
+                    height: '100px',
+                    color: 'red',
+                  }}
+                />
+              ) : (
+                <CheckOutlineIcon
+                  style={{
+                    width: '100px',
+                    height: '100px',
+                    color: 'green',
+                  }}
+                />
+              )}
+            </Panel>
+            {/* prettier-ignore */}
+            <h2 style={{ textAlign: 'center', marginTop: '2%' }}>
+              {status === 'success'
+                ? 'You have successfully connected'
+                : 'Something went wrong'}
+            </h2>
+            <div style={{ textAlign: 'center' }}>
+              <h5 style={{ textAlign: 'center', marginTop: '2%' }}>
+                {status === 'success'
+                  ? 'Close this window and go back to the main webpage'
+                  : message}
+              </h5>
+            </div>
+          </FlexboxGrid.Item>
+        )}
+      </FlexboxGrid>
+    </>
+  );
+};
+
+export default Oauth2TokenStatus;

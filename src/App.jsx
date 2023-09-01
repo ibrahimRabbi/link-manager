@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Application from './Components/AdminDasComponents/Application/Application';
 // eslint-disable-next-line max-len
@@ -36,14 +36,18 @@ import GitlabSelector from './Components/SelectionDialog/GitlabSelector/GitlabSe
 import Oauth2Callback from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2Callback.jsx';
 import CytoscapeGraphView from './Components/CytoscapeGraphView/CytoscapeGraphView.jsx';
 import UserProfile from './Components/Login/UserProfile';
+// eslint-disable-next-line max-len
+import Oauth2TokenStatus from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2TokenStatus.jsx';
+import AuthContext from './Store/Auth-Context';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
 export const lightBgColor = 'white';
 
-export const OAUTH2_APPLICATION_TYPES = ['gitlab', 'jira'];
+export const OAUTH2_APPLICATION_TYPES = ['gitlab', 'jira', 'codebeamer'];
+export const OIDC_APPLICATION_TYPES = ['codebeamer'];
 export const MICROSERVICES_APPLICATION_TYPES = ['glideyoke'];
-export const BASIC_AUTH_APPLICATION_TYPES = ['valispace', 'codebeamer'];
+export const BASIC_AUTH_APPLICATION_TYPES = ['valispace'];
 
 export const USER_PASSWORD_APPLICATION_TYPES =
   MICROSERVICES_APPLICATION_TYPES + BASIC_AUTH_APPLICATION_TYPES;
@@ -58,6 +62,8 @@ export const THIRD_PARTY_INTEGRATIONS =
 function App() {
   const { isDark } = useSelector((state) => state.nav);
   const dispatch = useDispatch();
+  const authCtx = useContext(AuthContext);
+  const isSuperAdmin = authCtx?.user?.role === 'super_admin' ? true : false;
 
   useEffect(() => {
     const isDark = localStorage.getItem('isDarkMode');
@@ -74,6 +80,8 @@ function App() {
       >
         <Routes>
           <Route path="/oauth2/callback" element={<Oauth2Callback />} />
+          <Route path="/oauth2/status" element={<Oauth2TokenStatus />} />
+
           <Route path="/graph-cytoscape" element={<CytoscapeGraphView />} />
           {/* This is WBE dashboard */}
           <Route
@@ -120,7 +128,9 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route path="/admin/organizations" element={<Organization />} />
+            {isSuperAdmin && (
+              <Route path="/admin/organizations" element={<Organization />} />
+            )}
             <Route path="/admin/users" element={<Users />} />
             <Route path="/admin/integrations" element={<Application />} />
             <Route path="/admin/projects" element={<Projects />} />
@@ -129,7 +139,7 @@ function App() {
             <Route path="/admin/events" element={<Events />} />
             <Route path="/admin/pipelines" element={<Pipelines />} />
             <Route path="/admin/pipelinerun" element={<PipelineRun />} />
-            <Route path="/admin" element={<Organization />} />
+            <Route path="/admin" element={<Users />} />
           </Route>
           <Route path="/gitlabselection/:id" element={<GitlabSelector />}></Route>
           <Route path="/oauth2-status" element={<Oauth2Success />} />

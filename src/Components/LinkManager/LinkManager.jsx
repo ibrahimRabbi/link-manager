@@ -177,7 +177,7 @@ const LinkManager = () => {
     console.log(sourceDataList);
     if (sourceFileURL) {
       const exportUrl = `${apiURL}/link/export?source_id=${sourceFileURL}`;
-      const filename = sourceDataList['titleLabel'].replace(' ', '_');
+      const filename = sourceDataList['titleLabel']?.replace(' ', '_');
       exportLinksToExcel({
         url: exportUrl,
         token: authCtx.token,
