@@ -257,7 +257,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Create new link
   const handleSaveLink = (res) => {
-    const { projectName, sourceType, title, uri, appName, branch, commit } =
+    const { projectName, sourceType, title, uri, appName, branch, commit, searchString } =
       sourceDataList;
     const selectedLines = title?.split('#');
 
@@ -307,6 +307,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           extra_properties: {
             branch_name: branch ? branch : '',
             commit_id: commit ? commit : '',
+            search_params: searchString ? searchString : '',
             selected_lines: selectedLines
               ? selectedLines[1]
                 ? selectedLines[1]
@@ -323,8 +324,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         },
         target_data: mappedTargetData,
       };
-
-      // console.log('New Response: ', linkBodyData);
 
       if (sourceDataList?.uri) {
         dispatch(
