@@ -7,6 +7,7 @@ import fetchAPIRequest from '../../apiRequests/apiRequest';
 import { useQuery } from '@tanstack/react-query';
 import RecentProjects from './RecentProjects';
 import UseLoader from '../Shared/UseLoader';
+import RecentPipeline from './RecentPipeline';
 
 const Home = () => {
   const [currPage] = useState(1);
@@ -55,18 +56,34 @@ const Home = () => {
         <UseLoader />
       ) : (
         <div>
-          <h3>Recent Projects</h3>
-          {recentProject?.items?.length < 1 ? (
-            <div>
-              <h3 style={{ textAlign: 'center', marginTop: '10px', color: 'blue' }}>
-                There is no recent projects
-              </h3>
-            </div>
-          ) : (
-            <div>
-              <RecentProjects recentProject={recentProject} />
-            </div>
-          )}
+          <div>
+            <h3>Recent Projects</h3>
+            {recentProject?.items?.length < 1 ? (
+              <div>
+                <h3 style={{ textAlign: 'center', marginTop: '10px', color: 'blue' }}>
+                  There is no recent projects
+                </h3>
+              </div>
+            ) : (
+              <div>
+                <RecentProjects recentProject={recentProject} />
+              </div>
+            )}
+          </div>
+          <div style={{ marginTop: '30px' }}>
+            <h3>Pipeline Executed</h3>
+            {recentPipeline?.items?.length < 1 ? (
+              <div>
+                <h3 style={{ textAlign: 'center', marginTop: '10px', color: 'blue' }}>
+                  There is no pipeline executed
+                </h3>
+              </div>
+            ) : (
+              <div>
+                <RecentPipeline recentPipeline={recentPipeline} />
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

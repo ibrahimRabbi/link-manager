@@ -2,7 +2,6 @@ import React from 'react';
 import { Panel } from 'rsuite';
 
 const RecentProjects = ({ recentProject }) => {
-  console.log(recentProject);
   const Card = (props) => (
     <Panel {...props} bordered shaded>
       <div style={{ margin: '10px 0 10px 0' }}>
