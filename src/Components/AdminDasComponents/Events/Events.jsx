@@ -40,12 +40,12 @@ const headerData = [
     key: 'description',
   },
   {
-    header: 'Application',
-    key: 'application_name',
+    header: 'Organization',
+    key: 'organization_name',
   },
   {
-    header: 'Project',
-    key: 'project_name',
+    header: 'Application',
+    key: 'application_name',
   },
   {
     header: 'Trigger Endpoint',
@@ -161,8 +161,8 @@ const Events = () => {
     {
       onSuccess(allEvents) {
         for (let i = 0; i < allEvents.items.length; i++) {
-          allEvents.items[i]['application_name'] = allEvents.items[i].application[0].name;
-          allEvents.items[i]['project_name'] = allEvents.items[i].project[0].name;
+          allEvents.items[i]['application_name'] = allEvents.items[i].application.name;
+          allEvents.items[i]['organization_name'] = allEvents.items[i].organization.name;
         }
       },
     },
@@ -199,7 +199,7 @@ const Events = () => {
       name: data?.name,
       description: data?.description,
       application_id: data?.application_id,
-      project_id: data?.project_id,
+      organization_id: data?.organization_id,
     });
     dispatch(handleIsAddNewModal(true));
   };
@@ -254,13 +254,13 @@ const Events = () => {
               </FlexboxGrid.Item>
               <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
                 <SelectField
-                  name="project_id"
-                  label="Project"
-                  placeholder="Select Project"
+                  name="organization_id"
+                  label="Organization"
+                  placeholder="Select Organization"
                   accepter={CustomReactSelect}
-                  apiURL={`${lmApiUrl}/project`}
-                  error={formError.project_id}
-                  reqText="Projec Id is required"
+                  apiURL={`${lmApiUrl}/organization`}
+                  error={formError.organization_id}
+                  reqText="Organization id is required"
                 />
               </FlexboxGrid.Item>
               <FlexboxGrid.Item colspan={24} style={{ marginBottom: '10px' }}>
