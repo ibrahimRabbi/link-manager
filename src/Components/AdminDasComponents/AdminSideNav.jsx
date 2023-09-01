@@ -27,30 +27,35 @@ const options = [
     navigateTo: '/admin/users',
     icon: <FaUsers style={iconStyle} />,
     content: <span>Users</span>,
+    hidden: false,
   },
   {
     path: ['/admin/organizations'],
     navigateTo: '/admin/organizations',
     icon: <SlOrganization size={17} style={iconStyle} />,
     content: <span>Organizations</span>,
+    hidden: false,
   },
   {
     path: ['/admin/integrations'],
     navigateTo: '/admin/integrations',
     icon: <PiPlugsDuotone size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />,
     content: <span>Integrations</span>,
+    hidden: false,
   },
   {
     path: ['/admin/projects'],
     navigateTo: '/admin/projects',
     icon: <VscProject size={18} style={{ ...iconStyle }} />,
     content: <span>Projects</span>,
+    hidden: false,
   },
   {
     path: ['/admin/link-types'],
     navigateTo: '/admin/link-types',
     icon: <FaLink size={16.5} style={{ ...iconStyle }} />,
     content: <span>Link Types</span>,
+    hidden: false,
   },
   {
     path: ['/admin/link-constraint'],
@@ -62,24 +67,28 @@ const options = [
       />
     ),
     content: <span>Link Constraint</span>,
+    hidden: false,
   },
   {
     path: ['/admin/events'],
     navigateTo: '/admin/events',
     icon: <MdEvent size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />,
     content: <span>Events</span>,
+    hidden: false,
   },
   {
     path: ['/admin/pipelines'],
     navigateTo: '/admin/pipelines',
     icon: <SiAzurepipelines size={16} style={{ ...iconStyle }} />,
     content: <span>Pipelines</span>,
+    hidden: false,
   },
   {
     path: ['/admin/pipelinerun'],
     navigateTo: '/admin/pipelinerun',
     icon: <PlayOutlineIcon size={15} style={{ ...iconStyle, marginLeft: '0' }} />,
     content: <span>Pipeline Runs</span>,
+    hidden: true,
   },
 ];
 
@@ -121,22 +130,24 @@ const AdminSideNav = () => {
         >
           <Sidenav.Body>
             <Nav>
-              {options.map((option, index) => {
-                if (option.navigateTo === '/admin/organizations' && !isSuperAdmin) {
-                  return null;
-                }
-                return (
-                  <Nav.Item
-                    key={index}
-                    eventKey={`${index}`}
-                    active={option.path.includes(pathname)}
-                    onClick={() => navigate(option.navigateTo)}
-                    icon={option.icon}
-                  >
-                    {option.content}
-                  </Nav.Item>
-                );
-              })}
+              {options
+                .filter((options) => !options.hidden)
+                .map((option, index) => {
+                  if (option.navigateTo === '/admin/organizations' && !isSuperAdmin) {
+                    return null;
+                  }
+                  return (
+                    <Nav.Item
+                      key={index}
+                      eventKey={`${index}`}
+                      active={option.path.includes(pathname)}
+                      onClick={() => navigate(option.navigateTo)}
+                      icon={option.icon}
+                    >
+                      {option.content}
+                    </Nav.Item>
+                  );
+                })}
             </Nav>
           </Sidenav.Body>
         </Sidenav>
