@@ -37,7 +37,7 @@ const Home = () => {
     }),
   );
   const {
-    data: recentPipeline,
+    data: recentPipelines,
     isLoading: pipelineLoading,
     // refetch: refetchPipeline,
   } = useQuery(['recentPipeline'], () =>
@@ -48,8 +48,6 @@ const Home = () => {
       showNotification: showNotification,
     }),
   );
-
-  console.log(recentPipeline);
   return (
     <div style={{ padding: '20px 20px 0 30px' }}>
       {projectLoading || pipelineLoading ? (
@@ -72,7 +70,7 @@ const Home = () => {
           </div>
           <div style={{ marginTop: '30px' }}>
             <h3>Pipeline Executed</h3>
-            {recentPipeline?.items?.length < 1 ? (
+            {recentPipelines?.items?.length < 1 ? (
               <div>
                 <h3 style={{ textAlign: 'center', marginTop: '10px', color: 'blue' }}>
                   There is no pipeline executed
@@ -80,7 +78,7 @@ const Home = () => {
               </div>
             ) : (
               <div>
-                <RecentPipeline recentPipeline={recentPipeline} />
+                <RecentPipeline recentPipelines={recentPipelines} />
               </div>
             )}
           </div>
