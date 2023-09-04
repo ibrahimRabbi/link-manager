@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import RecentProjects from './RecentProjects';
 import UseLoader from '../Shared/UseLoader';
 import RecentPipeline from './RecentPipeline';
+import RecentLink from './RecentLink';
 
 const Home = () => {
   const [currPage] = useState(1);
@@ -48,9 +49,22 @@ const Home = () => {
       showNotification: showNotification,
     }),
   );
+  const {
+    data: recentCreatedLinks,
+    isLoading: linkLoading,
+    // refetch: refetchPipeline,
+  } = useQuery(['recentLink'], () =>
+    fetchAPIRequest({
+      urlPath: `link/recent?page=${currPage}&per_page=${pageSize}`,
+      token: authCtx.token,
+      method: 'GET',
+      showNotification: showNotification,
+    }),
+  );
+  console.log(recentCreatedLinks);
   return (
     <div style={{ padding: '20px 20px 0 30px' }}>
-      {projectLoading || pipelineLoading ? (
+      {projectLoading || pipelineLoading || linkLoading ? (
         <UseLoader />
       ) : (
         <div>
@@ -65,6 +79,20 @@ const Home = () => {
             ) : (
               <div>
                 <RecentProjects recentProject={recentProject} />
+              </div>
+            )}
+          </div>
+          <div style={{ marginTop: '30px' }}>
+            <h3>Recent Link Created</h3>
+            {recentCreatedLinks?.items?.length < 1 ? (
+              <div>
+                <h3 style={{ textAlign: 'center', marginTop: '10px', color: 'blue' }}>
+                  There is no link created
+                </h3>
+              </div>
+            ) : (
+              <div>
+                <RecentLink recentCreatedLinks={recentCreatedLinks} />
               </div>
             )}
           </div>

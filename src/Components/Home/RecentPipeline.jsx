@@ -100,8 +100,7 @@ const RecentPipeline = ({ recentPipelines }) => {
               if (rowData.output) {
                 return (
                   <PiEyeBold
-                    size="lg"
-                    style={{ cursor: 'pointer' }}
+                    style={{ cursor: 'pointer', fontSize: '19px' }}
                     onClick={() => {
                       setOpenWithHeader(true);
                       setPipelineOutput(rowData.output);
