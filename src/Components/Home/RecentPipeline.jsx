@@ -47,6 +47,12 @@ const RecentPipeline = ({ recentPipelines }) => {
         </Column>
         <Column flexGrow={1} align="center" fixed>
           <HeaderCell>
+            <h5>Script</h5>
+          </HeaderCell>
+          <Cell style={{ fontSize: '17px' }} dataKey="script" />
+        </Column>
+        <Column flexGrow={1} align="center" fixed>
+          <HeaderCell>
             <h5>Event</h5>
           </HeaderCell>
           <Cell style={{ fontSize: '17px' }} dataKey="event" />
