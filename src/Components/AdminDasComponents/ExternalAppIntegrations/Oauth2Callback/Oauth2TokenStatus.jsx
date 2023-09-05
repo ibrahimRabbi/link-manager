@@ -27,25 +27,25 @@ const Oauth2TokenStatus = () => {
   }, [status]);
 
   return (
-    <>
+    <div>
       <FlexboxGrid style={{ marginTop: '50px' }} justify="center">
         {status && message && (
           <FlexboxGrid.Item colspan={16} style={{ padding: '0' }}>
             <Panel style={{ textAlign: 'center' }}>
-              {status === 'error' ? (
-                <CloseOutlineIcon
-                  style={{
-                    width: '100px',
-                    height: '100px',
-                    color: 'red',
-                  }}
-                />
-              ) : (
+              {status === 'success' ? (
                 <CheckOutlineIcon
                   style={{
                     width: '100px',
                     height: '100px',
                     color: 'green',
+                  }}
+                />
+              ) : (
+                <CloseOutlineIcon
+                  style={{
+                    width: '100px',
+                    height: '100px',
+                    color: 'red',
                   }}
                 />
               )}
@@ -66,7 +66,7 @@ const Oauth2TokenStatus = () => {
           </FlexboxGrid.Item>
         )}
       </FlexboxGrid>
-    </>
+    </div>
   );
 };
 
