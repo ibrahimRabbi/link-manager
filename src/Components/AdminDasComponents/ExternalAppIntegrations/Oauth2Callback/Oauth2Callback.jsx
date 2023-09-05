@@ -49,7 +49,7 @@ const Oauth2Callback = () => {
   };
 
   useEffect(() => {
-    if (!requestSentRef.current && authCtx.token) {
+    if (!requestSentRef.current) {
       getTokenStatus();
       requestSentRef.current = true;
     }
