@@ -1,13 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { FlexboxGrid, Panel } from 'rsuite';
 
 import CloseOutlineIcon from '@rsuite/icons/CloseOutline';
 import CheckOutlineIcon from '@rsuite/icons/CheckOutline';
+import AuthContext from '../../../../Store/Auth-Context.jsx';
 
 const Oauth2TokenStatus = () => {
   const location = useLocation();
+  const authCtx = useContext(AuthContext);
+
   const queryParams = new URLSearchParams(location.search);
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
 
@@ -29,7 +32,7 @@ const Oauth2TokenStatus = () => {
   return (
     <div>
       <FlexboxGrid style={{ marginTop: '50px' }} justify="center">
-        {status && message && (
+        {status && message && authCtx && (
           <FlexboxGrid.Item colspan={16} style={{ padding: '0' }}>
             <Panel style={{ textAlign: 'center' }}>
               {status === 'success' ? (
