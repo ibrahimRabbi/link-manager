@@ -65,7 +65,7 @@ const Home = () => {
     data: recentCreatedLinks?.data?.length ? recentCreatedLinks?.data : [],
   };
   return (
-    <div style={{ padding: '20px 20px 0 30px' }}>
+    <div style={{ padding: '20px 20px 0 30px', marginBottom: '30px' }}>
       {projectLoading || pipelineLoading || linkLoading ? (
         <UseLoader />
       ) : (

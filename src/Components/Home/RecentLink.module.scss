@@ -172,6 +172,7 @@
 
 .headerCell {
   margin: 10px;
+  color: #8e8e93;
 
   h6 {
     text-align: start;
@@ -238,9 +239,6 @@
   text-align: center;
   background: white;
   margin: 0;
-  position: sticky;
-  top: 0;
-  z-index: 1;
 }
 .styled_table th,
 .styled_table td {
