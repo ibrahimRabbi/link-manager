@@ -39,6 +39,7 @@ import UserProfile from './Components/Login/UserProfile';
 // eslint-disable-next-line max-len
 import Oauth2TokenStatus from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2TokenStatus.jsx';
 import AuthContext from './Store/Auth-Context';
+import Home from './Components/Home/Home';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -116,7 +117,7 @@ function App() {
             <Route path="/pipeline" element={<Pipeline />} />
             <Route path="/extension" element={<WebBrowserExtension />} />
             <Route path="/profile" element={<UserProfile />} />
-            <Route path="/" element={<LinkManager />} />
+            <Route path="/" element={<Home />} />
           </Route>
 
           {/* This is admin dashboard  */}
