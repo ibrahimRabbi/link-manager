@@ -5,6 +5,9 @@ import { fetchPipelineRun } from '../../Redux/slices/pipelineRunSlice.jsx';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import styles from '../LinkManager/LinkManager.module.scss';
 import { darkColor, lightBgColor, darkBgColor } from '../../App.jsx';
+import AlertModal from '../Shared/AlertModal.jsx';
+import { fetchDeleteData } from '../../Redux/slices/useCRUDSlice.jsx';
+
 import {
   Drawer,
   Loader,
@@ -16,12 +19,13 @@ import {
   InputGroup,
   Input,
 } from 'rsuite';
-import { Table } from 'rsuite';
+import { Table, IconButton, ButtonToolbar } from 'rsuite';
 import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
 import { PiEyeBold } from 'react-icons/pi';
 import SearchIcon from '@rsuite/icons/Search';
 import { HiRefresh } from 'react-icons/hi';
+import { MdDelete } from 'react-icons/md';
 import CloseIcon from '@rsuite/icons/Close';
 import FlexboxGridItem from 'rsuite/esm/FlexboxGrid/FlexboxGridItem.js';
 const { Column, HeaderCell, Cell } = Table;
@@ -43,6 +47,8 @@ const Pipeline = () => {
   const wbePath = location.pathname?.includes('wbe');
   const [pageSize, setPageSize] = useState(5);
   const [currPage, setCurrPage] = useState(1);
+  const [open, setOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState('');
   const [openWithHeader, setOpenWithHeader] = useState(false);
   const [pipelineOutput, setPipelineOutput] = useState('');
   const showNotification = (type, message) => {
@@ -63,6 +69,24 @@ const Pipeline = () => {
 
   const handlePagination = (value) => {
     setCurrPage(value);
+  };
+
+  const handleDelete = (id) => {
+    setDeleteId(id);
+    setOpen(true);
+  };
+
+  const handleConfirmed = (value) => {
+    if (value) {
+      const deleteUrl = `${apiURL}/pipeline_run/${deleteId}`;
+      dispatch(
+        fetchDeleteData({
+          url: deleteUrl,
+          token: authCtx.token,
+          showNotification: showNotification,
+        }),
+      );
+    }
   };
 
   useEffect(() => {
@@ -165,25 +189,25 @@ const Pipeline = () => {
                     rowKey="id"
                     autoHeight
                   >
-                    <Column flexGrow={1} align="center">
+                    <Column flexGrow={1} align="left">
                       <HeaderCell>
                         <h5>Started</h5>
                       </HeaderCell>
                       <Cell style={{ fontSize: '17px' }} dataKey="start_time" />
                     </Column>
-                    <Column flexGrow={1} align="center" fixed>
+                    <Column flexGrow={1} align="left" fixed>
                       <HeaderCell>
                         <h5>Duration (s) </h5>
                       </HeaderCell>
                       <Cell style={{ fontSize: '17px' }} dataKey="duration" />
                     </Column>
-                    <Column flexGrow={1} align="center" fixed>
+                    <Column flexGrow={1} align="left" fixed>
                       <HeaderCell>
                         <h5>Event</h5>
                       </HeaderCell>
                       <Cell style={{ fontSize: '17px' }} dataKey="event" />
                     </Column>
-                    <Column flexGrow={1} width={180} align="center" fixed>
+                    <Column flexGrow={1} width={180} align="left" fixed>
                       <HeaderCell>
                         <h5>Status</h5>
                       </HeaderCell>
@@ -217,22 +241,31 @@ const Pipeline = () => {
                         }}
                       </Cell>
                     </Column>
-                    <Column flexGrow={1} align="center" fixed>
+                    <Column flexGrow={1} align="left" fixed>
                       <HeaderCell>
-                        <h5>View Output</h5>
+                        <h5>Action</h5>
                       </HeaderCell>
                       <Cell>
                         {(rowData) => {
-                          if (rowData.output) {
-                            return (
-                              <PiEyeBold
+                          return (
+                            <ButtonToolbar>
+                              <IconButton
+                                size="sm"
+                                title="View Output"
+                                icon={<PiEyeBold />}
                                 onClick={() => {
                                   setOpenWithHeader(true);
                                   setPipelineOutput(rowData.output);
                                 }}
                               />
-                            );
-                          }
+                              <IconButton
+                                size="sm"
+                                title="Delete"
+                                icon={<MdDelete />}
+                                onClick={() => handleDelete(rowData.id)}
+                              />
+                            </ButtonToolbar>
+                          );
                         }}
                       </Cell>
                     </Column>
@@ -259,6 +292,12 @@ const Pipeline = () => {
                   />
                 </div>
               )}
+              <AlertModal
+                open={open}
+                setOpen={setOpen}
+                content={'Do you want to delete the pipeline?'}
+                handleConfirmed={handleConfirmed}
+              />
               <Drawer open={openWithHeader} onClose={() => setOpenWithHeader(false)}>
                 <Drawer.Header>
                   <Drawer.Title>
