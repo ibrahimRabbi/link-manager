@@ -61,7 +61,9 @@ const Home = () => {
       showNotification: showNotification,
     }),
   );
-  console.log(recentCreatedLinks);
+  const tableProps = {
+    data: recentCreatedLinks?.data?.length ? recentCreatedLinks?.data : [],
+  };
   return (
     <div style={{ padding: '20px 20px 0 30px' }}>
       {projectLoading || pipelineLoading || linkLoading ? (
@@ -92,7 +94,7 @@ const Home = () => {
               </div>
             ) : (
               <div>
-                <RecentLink recentCreatedLinks={recentCreatedLinks} />
+                <RecentLink recentCreatedLinks={tableProps} />
               </div>
             )}
           </div>

@@ -1,0 +1,253 @@
+.resourceDdContainer {
+  padding: 10px 1vw;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  width: 45%;
+}
+
+.fileName {
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+.fileDropdown {
+  width: 100%;
+}
+
+.dropdownStyle {
+  min-width: 150px;
+}
+
+.tableContainer {
+  position: relative;
+  padding: 10px 0 0;
+  border-radius: 5px;
+}
+
+.onlyTableContainer {
+  border: 0.5px solid rgb(238, 238, 238);
+  height: 70vh;
+  overflow-y: auto;
+}
+
+.onlyTableContainerDark {
+  border: 0.5px solid #3c3f43;
+  height: 70vh;
+  overflow-y: auto;
+}
+
+.paginationStyle {
+  border: 0.5px solid rgb(239, 238, 238);
+  border-top: 0;
+  padding: 3px 0;
+}
+
+.paginationStyleDark {
+  border: 0.5px solid #3c3f43;
+  border-top: 0;
+  padding: 3px 0;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+}
+
+.inputContainer {
+  border-radius: 5px 0 0 5px;
+  min-width: 20vw;
+}
+
+.searchInput {
+  border: none;
+  min-width: 200px;
+  font-size: 15px;
+  padding-left: 5px;
+}
+
+.searchInput:focus {
+  outline: none;
+}
+
+.searchIcon {
+  margin-bottom: -5px;
+  font-size: 20px;
+}
+
+// link manager table style
+.table_row_light {
+  height: 40px;
+  border-bottom: 0.5px solid rgba(246, 241, 241, 0.81);
+}
+
+.table_row_dark {
+  height: 40px;
+  border-bottom: 0.5px solid rgb(42, 41, 41);
+}
+
+.table_row_light:last-child {
+  height: 40px;
+  border-bottom: 0;
+}
+
+.table_row_dark:last-child {
+  height: 40px;
+  border-bottom: 0;
+}
+
+.table_row_light:hover {
+  background-color: #f2faff;
+}
+
+.table_row_dark:hover {
+  background-color: #323232;
+}
+
+.statusCellStyle {
+  display: flex;
+  align-items: center;
+
+  .checkBox {
+    height: 15px;
+    width: 15px;
+    cursor: pointer;
+    margin-right: 2px;
+    margin-bottom: 0px;
+  }
+
+  .toggleExpand {
+    cursor: pointer;
+    margin: 0 2px;
+    transition: 0.1s;
+    margin-bottom: -4px;
+  }
+
+  .iconRotate {
+    transform: rotate(90deg);
+  }
+
+  .emptyExpand {
+    margin: 0 2px;
+  }
+
+  .statusIcon {
+    margin-left: 50px;
+  }
+}
+
+.uiPreviewStyle {
+  margin-left: 10px;
+}
+
+.statusHeader {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin: 10px;
+
+  .headerCheckBox {
+    height: 16px;
+    width: 16px;
+    cursor: pointer;
+    margin-bottom: -2px;
+  }
+}
+
+.headerExpand {
+  cursor: pointer;
+  transition: 0.1s;
+  margin-bottom: -5px;
+}
+
+.allIconRotate {
+  transform: rotate(90deg);
+}
+
+.headerCell {
+  margin: 10px;
+
+  h6 {
+    text-align: start;
+  }
+}
+
+.dataCell {
+  text-align: center;
+}
+
+.actionDataCell {
+  margin-left: 5px;
+}
+
+.statusCellWidth {
+  width: 100px;
+}
+
+.tableStyle {
+  padding: 20px;
+  width: 100%;
+}
+
+.emptyTableContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  border-top: 0;
+}
+
+.filterContainer {
+  display: flex;
+  flex-direction: column;
+  margin: 0 10px;
+}
+
+.statusFilterClass {
+  width: 100px;
+}
+
+.filterInput {
+  border: 1px solid lightgray;
+  border-radius: 3px;
+}
+
+// dropdown style
+.dropdownContent {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+}
+.styled_table {
+  border-collapse: collapse;
+  font-size: 0.9em;
+  width: 100%;
+  border: 0.5px solid #f2f2f5;
+  table-layout: fixed;
+  border-spacing: 0;
+  position: relative;
+}
+.styled_table thead tr {
+  text-align: center;
+  background: white;
+  margin: 0;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.styled_table th,
+.styled_table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #f2f2f5;
+  border-right: 1px solid #f2f2f5;
+}
+.styled_table tbody tr {
+  border-bottom: 1px solid #f2f2f5;
+}

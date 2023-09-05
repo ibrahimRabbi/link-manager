@@ -37,8 +37,9 @@ const {
 } = styles;
 
 const ExternalPreview = (props) => {
+  console.log(props);
   const authCtx = useContext(AuthContext);
-  let { nodeData, fromGraphView } = props;
+  let { nodeData, fromGraphView, status } = props;
   let iconUrl = '';
 
   // prettier-ignore
@@ -208,10 +209,17 @@ const ExternalPreview = (props) => {
               <PreviewRow name="Description" value={nodeData?.description} />
             )
           )}
-          {nodeData?.status && (
+          {nodeData?.status ? (
             <PreviewRow
               name="Status"
               value={nodeData?.status}
+              functionForIcon={getIconStatus}
+              firstLetter={true}
+            />
+          ) : (
+            <PreviewRow
+              name="Status"
+              value={status}
               functionForIcon={getIconStatus}
               firstLetter={true}
             />
