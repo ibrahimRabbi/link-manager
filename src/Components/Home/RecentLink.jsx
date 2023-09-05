@@ -15,7 +15,6 @@ const {
   table_row_light,
   uiPreviewStyle,
   statusIcon,
-  statusHeader,
   headerCell,
   dataCell,
   emptyTableContent,
@@ -123,12 +122,23 @@ const RecentLink = ({ recentCreatedLinks }) => {
   const columns = useMemo(
     () => [
       {
+        accessorKey: 'Source',
+        header: () => (
+          <div className={headerCell}>
+            <h5>Source</h5>
+          </div>
+        ),
+        cell: ({ row }) => (
+          <p style={{ fontSize: '20px' }}>{row?.original?.source?.name}</p>
+        ),
+        footer: (props) => props.column.id,
+      },
+      {
         accessorKey: 'link_type',
         header: () => {
           return (
-            <div className={statusHeader}>
-              {' '}
-              <h6>Link Type</h6>
+            <div className={headerCell}>
+              <h5>Link Type</h5>
             </div>
           );
         },
@@ -137,24 +147,12 @@ const RecentLink = ({ recentCreatedLinks }) => {
         },
         footer: (props) => props.column.id,
       },
-      {
-        accessorKey: 'Source',
-        header: () => (
-          <div className={headerCell}>
-            <h6>Source</h6>
-          </div>
-        ),
-        cell: ({ row }) => (
-          <p style={{ fontSize: '20px' }}>{row?.original?.source?.name}</p>
-        ),
-        footer: (props) => props.column.id,
-      },
       // Link type cell
       {
         accessorKey: 'name',
         header: () => (
           <div className={headerCell}>
-            <h6>Target</h6>
+            <h5>Target</h5>
           </div>
         ),
         cell: ({ row }) => targetCell(row),
@@ -165,7 +163,7 @@ const RecentLink = ({ recentCreatedLinks }) => {
         accessorKey: 'status',
         header: () => (
           <div className={headerCell}>
-            <h6>Status</h6>
+            <h5>Status</h5>
           </div>
         ),
         cell: (info) => statusCell(info),
@@ -229,6 +227,7 @@ const RecentLink = ({ recentCreatedLinks }) => {
                     key={cell.id}
                     style={{
                       width: status ? '120px' : '',
+                      textAlign: 'center',
                     }}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
