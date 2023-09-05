@@ -89,14 +89,6 @@ const CustomReactSelect = forwardRef((props, ref) => {
       setIsLoading(false);
       setCheckPagination(response);
       if (response?.items) {
-        if (isApplication) {
-          const codeBeamerApp = {
-            name: 'Codebeamer integration',
-            id: 2,
-            type: 'codebeamer',
-          };
-          return [...response.items, codeBeamerApp];
-        }
         return response.items;
       }
     }
