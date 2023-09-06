@@ -37,7 +37,6 @@ const {
 } = styles;
 
 const ExternalPreview = (props) => {
-  console.log(props);
   const authCtx = useContext(AuthContext);
   let { nodeData, fromGraphView, status } = props;
   let iconUrl = '';
