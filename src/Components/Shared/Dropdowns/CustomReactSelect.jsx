@@ -26,7 +26,6 @@ const CustomReactSelect = forwardRef((props, ref) => {
     isLinkCreation,
     isApplication,
     selectedLinkType,
-    isValispace,
     isIntegration,
     isEventAssociation,
     isUpdateState,
@@ -62,7 +61,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
     let url = `${apiURL}?page=${pageNumber}&per_page=${itemsPerPage}`;
     if (queryPath) url = `${url}&${queryPath}`;
 
-    if (apiURL && !isValispace) {
+    if (apiURL) {
       setIsLoading(true);
       const response = await fetch(url, {
         method: 'GET',
@@ -89,14 +88,6 @@ const CustomReactSelect = forwardRef((props, ref) => {
       setIsLoading(false);
       setCheckPagination(response);
       if (response?.items) {
-        if (isApplication) {
-          const codeBeamerApp = {
-            name: 'Codebeamer integration',
-            id: 2,
-            type: 'codebeamer',
-          };
-          return [...response.items, codeBeamerApp];
-        }
         return response.items;
       }
     }

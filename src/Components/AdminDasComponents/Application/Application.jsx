@@ -79,12 +79,7 @@ const Application = () => {
   const model = Schema.Model({
     type: StringType().isRequired('This field is required'),
     organization_id: NumberType().isRequired('This field is required.'),
-    name: StringType()
-      .addRule((value) => {
-        const regex = /^[a-zA-Z0-9_-]+$/;
-        return regex.test(value);
-      }, 'Type only alphanumeric characters, underscores, and dashes')
-      .isRequired('This field is required'),
+    name: StringType().isRequired('This field is required'),
     server_url: StringType().isRequired('This field is required'),
     description: StringType(),
     client_id: StringType(),
