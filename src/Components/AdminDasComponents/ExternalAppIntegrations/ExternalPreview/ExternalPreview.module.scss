@@ -34,6 +34,8 @@
 
 .tablePreviewContainer {
   width: 550px;
+  max-height: 50vh;
+  overflow-y: auto;
 }
 
 .graphPreviewContainer {

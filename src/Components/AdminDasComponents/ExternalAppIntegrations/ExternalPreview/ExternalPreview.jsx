@@ -38,7 +38,7 @@ const {
 
 const ExternalPreview = (props) => {
   const authCtx = useContext(AuthContext);
-  let { nodeData, fromGraphView } = props;
+  let { nodeData, fromGraphView, status } = props;
   let iconUrl = '';
 
   // prettier-ignore
@@ -57,6 +57,9 @@ const ExternalPreview = (props) => {
     break;
   case 'glide':
     iconUrl = '/glide_logo.png';
+    break;
+  case 'codebeamer':
+    iconUrl = '/codebeamer_logo.png';
     break;
   default:
     iconUrl = '/default_preview_logo.svg';
@@ -183,7 +186,11 @@ const ExternalPreview = (props) => {
           >
             <Button appearance="subtle" onClick={sendToWebApplication}>
               <h4 className={buttonTitle}>
-                {nodeData?.name ? nodeData.name : 'External link overview'}
+                {nodeData?.name
+                  ? nodeData.name.length > 45
+                    ? `${nodeData.name.slice(0, 45)}...`
+                    : nodeData.name
+                  : 'External link overview'}
               </h4>
             </Button>
           </Whisper>
@@ -194,13 +201,24 @@ const ExternalPreview = (props) => {
           <Divider style={{ marginTop: '-2px' }}>
             <h5>Overview</h5>
           </Divider>
-          {nodeData?.description && (
-            <PreviewRow name="Description" value={nodeData?.description} />
+          {nodeData?.api === 'codebeamer' ? (
+            <PreviewRow name="Description" nodeData={nodeData} />
+          ) : (
+            nodeData?.description && (
+              <PreviewRow name="Description" value={nodeData?.description} />
+            )
           )}
-          {nodeData?.status && (
+          {nodeData?.status ? (
             <PreviewRow
               name="Status"
               value={nodeData?.status}
+              functionForIcon={getIconStatus}
+              firstLetter={true}
+            />
+          ) : (
+            <PreviewRow
+              name="Status"
+              value={status}
               functionForIcon={getIconStatus}
               firstLetter={true}
             />

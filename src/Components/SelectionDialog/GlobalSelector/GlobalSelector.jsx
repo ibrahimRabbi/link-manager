@@ -1,7 +1,7 @@
 /* eslint-disable indent */
 /* eslint-disable max-len */
 import React, { useContext, useEffect, useState } from 'react';
-import style from './GlideSelector.module.scss';
+import style from './GlobalSelector.module.scss';
 import AuthContext from '../../../Store/Auth-Context';
 import UseLoader from '../../Shared/UseLoader';
 import ExternalAppModal from '../../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
@@ -16,28 +16,24 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
 } from '@tanstack/react-table';
-import { columnDefWithCheckBox as glideColumns } from './Columns';
+import { columnDefWithCheckBox as glideColumns } from './GlideColumns';
 import { columnDefWithCheckBox as jiraColumns } from './JiraColumns';
-import {
-  Button,
-  ButtonToolbar,
-  FlexboxGrid,
-  Loader,
-  Message,
-  Pagination,
-  toaster,
-} from 'rsuite';
+import { columnDefWithCheckBox as valispaceColumns } from './ValispaceColumns.jsx';
+import { columnDefWithCheckBox as codebeamerColumns } from './CodebeamerColumns';
+import { Button, ButtonToolbar, FlexboxGrid, Message, Pagination, toaster } from 'rsuite';
 import { useSelector } from 'react-redux';
 import Filter from './FilterFunction';
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
+import { isEqual } from 'rsuite/cjs/utils/dateUtils.js';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
-
-const GlideSelector = ({
+const nativeAppUrl = `${lmApiUrl}/third_party/`;
+const GlobalSelector = ({
   appData,
   defaultProject,
   cancelLinkHandler,
   handleSaveLink,
+  workspace,
 }) => {
   const { isDark } = useSelector((state) => state.nav);
   const [pExist, setPExist] = useState(false);
@@ -48,19 +44,19 @@ const GlideSelector = ({
   const [projectId, setProjectId] = useState(
     defaultProject?.id ? defaultProject?.id : '',
   );
+  const [projectName, setProjectName] = useState('');
   const [resourceTypeId, setResourceTypeId] = useState('');
   const [currPage, setCurrPage] = useState(1);
-  const [limit, setLimit] = React.useState(10);
+  const [limit, setLimit] = React.useState(50);
   const [page, setPage] = React.useState(1);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnFilters, setColumnFilters] = React.useState([]);
+  const [previousColumnFilters, setPreviousColumnFilters] = React.useState([]);
   const [resourceLoading, setResourceLoading] = useState(false);
-  const [filterLoad, setFilterLoad] = useState(false);
   const [filterIn, setFilterIn] = useState('');
 
   const authCtx = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
-  const [tableLoading, setTableLoading] = useState(false);
   const [tableshow, setTableShow] = useState(false);
   const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
@@ -90,11 +86,125 @@ const GlideSelector = ({
 
   const handleProjectChange = (selectedItem) => {
     setProjectId(selectedItem?.id);
+    setProjectName(selectedItem?.name);
     setResourceTypes([]);
     setResourceTypeId('');
   };
   const handleResourceTypeChange = (selectedItem) => {
-    setResourceTypeId(selectedItem?.name);
+    if (appData.application_type === 'codebeamer') {
+      setResourceTypeId(selectedItem?.id);
+    } else {
+      setResourceTypeId(selectedItem?.name);
+    }
+  };
+
+  const getProjectUrl = () => {
+    let url = '';
+    if (appData) {
+      url = nativeAppUrl;
+      if (workspace) {
+        url += `${appData?.application?.type || appData?.application_type}/containers/${
+          appData?.workspace_id
+        }`;
+      } else {
+        url += `${appData?.application?.type || appData?.application_type}/containers`;
+      }
+      url = getQueryArgs(url);
+    }
+    return url;
+  };
+
+  const getResourceTypeUrl = () => {
+    let url;
+    if (appData?.application_type === 'codebeamer') {
+      url = `${nativeAppUrl}${
+        appData?.application?.type || appData?.application_type
+      }/resource_types/${projectId}?application_id=${appData?.application_id}`;
+    } else {
+      url = `${nativeAppUrl}${
+        appData?.application?.type || appData?.application_type
+      }/resource_types`;
+    }
+    return url;
+  };
+
+  const getResourceListUrl = (filters = null) => {
+    let url = '';
+    if (appData && projectId && resourceTypeId) {
+      url = nativeAppUrl;
+      if (workspace) {
+        url += `${
+          appData?.application?.type || appData?.application_type
+        }/container/${projectId}/${resourceTypeId}`;
+      } else {
+        url += `${appData?.application?.type || appData?.application_type}/container/${
+          appData?.application_type === 'glideyoke'
+            ? 'tenant'
+            : appData?.application_type === 'codebeamer'
+            ? 'tracker'
+            : appData?.id
+        }/${resourceTypeId}`;
+      }
+      url = getQueryArgs(url);
+      if (filters) {
+        url += getFilterQuery(filters);
+      }
+    }
+    return url;
+  };
+
+  const getFilterQuery = (columnFilters) => {
+    let queryPath = '';
+    for (let i = 0; i < columnFilters.length; i++) {
+      if (columnFilters[i].value) {
+        queryPath += `&${columnFilters[i].id.toLowerCase()}=${columnFilters[i].value}`;
+      }
+    }
+    return queryPath;
+  };
+
+  const executeRequestQuery = (url) => {
+    return fetch(url, {
+      headers: {
+        Authorization: `Bearer ${authCtx.token}`,
+      },
+    }).then((response) => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        switch (response.status) {
+          case 400:
+            setAuthenticatedThirdApp(true);
+            return response.json().then((data) => {
+              showNotification('error', data?.message?.message);
+              return { items: [] };
+            });
+          case 401:
+            setAuthenticatedThirdApp(true);
+            return response.json().then((data) => {
+              showNotification('error', data?.message);
+              return { items: [] };
+            });
+          case 403:
+            if (authCtx.token) {
+              showNotification('error', 'You do not have permission to access');
+            } else {
+              setAuthenticatedThirdApp(true);
+              return { items: [] };
+            }
+            break;
+          default:
+            return response.json().then((data) => {
+              showNotification('error', data?.message);
+            });
+        }
+      }
+    });
+  };
+
+  const getQueryArgs = (url) => {
+    url += `?page=${page}&per_page=${limit}&application_id=${appData?.application_id}`;
+    return url;
   };
 
   useEffect(() => {
@@ -102,53 +212,17 @@ const GlideSelector = ({
     setResourceTypeId('');
     if (defaultProject) {
       setProjectId(defaultProject?.id);
+      setProjectName(defaultProject?.name);
     } else {
-      setProjectId(''); // Clear the project selection
+      setProjectId('');
+      setProjectName('');
     }
     setProjects([]);
     setLoading(true);
     setTableData([]);
-    fetch(
-      `${lmApiUrl}/third_party/${
-        appData?.application?.type || appData?.application_type
-      }/containers?page=1&per_page=10&application_id=${appData?.application_id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${authCtx.token}`,
-        },
-      },
-    )
-      .then((response) => {
-        if (response.status === 200) {
-          return response.json();
-        } else {
-          if (response.status === 400) {
-            setAuthenticatedThirdApp(true);
-            return response.json().then((data) => {
-              showNotification('error', data?.message?.message);
-              return { items: [] };
-            });
-          } else if (response.status === 401) {
-            setAuthenticatedThirdApp(true);
-            return response.json().then((data) => {
-              showNotification('error', data?.message);
-              return { items: [] };
-            });
-          } else if (response.status === 403) {
-            if (authCtx.token) {
-              showNotification('error', 'You do not have permission to access');
-            } else {
-              setAuthenticatedThirdApp(true);
-              return { items: [] };
-            }
-          } else {
-            return response.json().then((data) => {
-              showNotification('error', data.message);
-            });
-          }
-        }
-      })
-      .then((data) => {
+    const url = getProjectUrl();
+    if (url !== '') {
+      executeRequestQuery(url).then((data) => {
         if (data?.total_items === 0) {
           setLoading(false);
           setPExist(true);
@@ -158,159 +232,90 @@ const GlideSelector = ({
           setProjects(data?.items ? data?.items : []);
         }
       });
-  }, [authCtx, authenticatedThirdApp]);
+    }
+  }, [authCtx, authenticatedThirdApp, appData]);
 
   useEffect(() => {
     if (projectId) {
       setResourceLoading(true);
       setTableData([]);
-      fetch(
-        `${lmApiUrl}/third_party/${
-          appData?.application?.type || appData?.application_type
-        }/resource_types`,
-      )
-        .then((response) => {
-          if (response.status === 200) {
-            return response.json();
-          } else {
-            return response.json().then((data) => {
-              showNotification('error', data.message);
-            });
-          }
-        })
-        .then((data) => {
-          if (data?.length > 0) {
+      const url = getResourceTypeUrl();
+      executeRequestQuery(url).then((data) => {
+        if (data?.length > 0) {
+          setResourceLoading(false);
+          setResourceTypes(data);
+        } else if (appData.application_type === 'codebeamer') {
+          if (data?.items.length > 0) {
             setResourceLoading(false);
-            setResourceTypes(data);
+            setResourceTypes(data?.items);
           } else {
             setLoading(false);
           }
-        });
+        } else {
+          setLoading(false);
+        }
+      });
+      setColumnFilters([]);
+      setPreviousColumnFilters([]);
+      setFilterIn('');
     }
   }, [authCtx, projectId]);
 
   useEffect(() => {
     if (filterIn === '') {
       if (projectId && resourceTypeId && currPage && limit) {
-        setTableLoading(true);
-        fetch(
-          `${lmApiUrl}/third_party/${
-            appData?.application?.type || appData?.application_type
-          }/container/${
-            appData?.application_type !== 'glideyoke' ? appData?.id : 'tenant'
-          }/${resourceTypeId}?page=${currPage}&per_page=${limit}&application_id=${
-            appData?.application_id
-          }`,
-          {
-            headers: {
-              Authorization: `Bearer ${authCtx.token}`,
-            },
-          },
-        )
-          .then((response) => {
-            if (response.status === 200) {
-              return response.json();
-            } else {
-              if (response.status === 400) {
-                setAuthenticatedThirdApp(true);
-                return response.json().then((data) => {
-                  showNotification('error', data?.message?.message);
-                  return { items: [] };
-                });
-              } else if (response.status === 401) {
-                setAuthenticatedThirdApp(true);
-                return response.json().then((data) => {
-                  showNotification('error', data?.message);
-                  return { items: [] };
-                });
-              } else if (response.status === 403) {
-                if (authCtx.token) {
-                  showNotification('error', 'You do not have permission to access');
-                } else {
-                  setAuthenticatedThirdApp(true);
-                  return { items: [] };
-                }
-              } else {
-                return response.json().then((data) => {
-                  showNotification('error', data.message);
-                });
-              }
-            }
-          })
-          .then((data) => {
-            setTableLoading(false);
+        const url = getResourceListUrl();
+        if (url) {
+          executeRequestQuery(url).then((data) => {
             setTableShow(true);
             setTableData(data);
           });
+        }
       } else {
         setTableData([]);
       }
     }
     // }
   }, [projectId, resourceTypeId, authCtx, currPage, limit, filterIn]);
+
   useEffect(() => {
-    if (columnFilters[0]?.id && columnFilters[0]?.value) {
-      setFilterLoad(true);
-      fetch(
-        `${lmApiUrl}/third_party/${
-          appData?.application?.type || appData?.application_type
-        }/container/${
-          appData?.application_type !== 'glideyoke' ? appData?.id : 'tenant'
-        }/${resourceTypeId}?page=1&per_page=10&application_id=${
-          appData?.application_id
-        }&${columnFilters[0]?.id.toLowerCase()}=${columnFilters[0]?.value}`,
-        {
-          headers: {
-            Authorization: `Bearer ${authCtx.token}`,
-          },
-        },
-      )
-        .then((response) => {
-          if (response.status === 200) {
-            return response.json();
-          } else {
-            if (response.status === 400) {
-              setAuthenticatedThirdApp(true);
-              return response.json().then((data) => {
-                showNotification('error', data?.message?.message);
-                return { items: [] };
-              });
-            } else if (response.status === 401) {
-              setAuthenticatedThirdApp(true);
-              return response.json().then((data) => {
-                showNotification('error', data?.message);
-                return { items: [] };
-              });
-            } else if (response.status === 403) {
-              if (authCtx.token) {
-                showNotification('error', 'You do not have permission to access');
-              } else {
-                setAuthenticatedThirdApp(true);
-                return { items: [] };
-              }
-            } else {
-              return response.json().then((data) => {
-                showNotification('error', data.message);
-              });
-            }
-          }
-        })
-        .then((data) => {
+    if (
+      columnFilters.length > 0 &&
+      tableshow &&
+      !isEqual(columnFilters, previousColumnFilters)
+    ) {
+      const url = getResourceListUrl(columnFilters);
+      if (url) {
+        executeRequestQuery(url).then((data) => {
           if (data.items.length > 0) {
-            setFilterLoad(false);
             setTableData(data);
-            setColumnFilters([]);
           } else {
-            setFilterLoad(false);
             setFilterIn('');
           }
+          setPreviousColumnFilters(columnFilters);
         });
+      }
     }
-  }, [columnFilters[0]]);
+  }, [columnFilters]);
+
+  useEffect(() => {
+    if (resourceTypes.length === 1) {
+      if (appData.application_type === 'codebeamer') {
+        setResourceTypeId(resourceTypes[0]?.id);
+      } else {
+        setResourceTypeId(resourceTypes[0]?.name);
+      }
+    }
+  }, [resourceTypes]);
+
   const finalData = React.useMemo(() => tableData?.items);
   const finalColumnDef = React.useMemo(() => {
     if (appData?.application_type === 'jira') {
       return jiraColumns;
+    } else if (appData?.application_type === 'valispace') {
+      return valispaceColumns;
+    } else if (appData?.application_type === 'codebeamer') {
+      return codebeamerColumns;
     } else {
       return glideColumns;
     }
@@ -322,14 +327,17 @@ const GlideSelector = ({
     getFilteredRowModel: getFilteredRowModel(),
     state: {
       rowSelection: rowSelection,
+      columnFilters: columnFilters,
     },
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange: setColumnFilters,
     enableRowSelection: true,
   });
+
   useEffect(() => {
     setCurrPage(page);
   }, [page]);
+
   const handleChangeLimit = (dataKey) => {
     setCurrPage(1);
     setLimit(dataKey);
@@ -338,7 +346,14 @@ const GlideSelector = ({
     let selectd = tableInstance.getSelectedRowModel().flatRows.map((el) => el.original);
     let items = selectd
       .map((row) => {
-        return JSON.stringify(row);
+        let newRow = row;
+        if (!newRow?.provider_name) {
+          newRow = { ...newRow, provider_name: projectName };
+        }
+        if (!newRow?.label) {
+          newRow = { ...newRow, label: newRow?.label };
+        }
+        return JSON.stringify(newRow);
       })
       .filter((item) => item !== null);
     let response = `[${items.join(',')}]`;
@@ -349,7 +364,13 @@ const GlideSelector = ({
     cancelLinkHandler();
   };
   return (
-    <div>
+    <div
+      className={
+        tableshow && projectId && resourceTypeId && finalData?.length > 0
+          ? style.mainContainerTwo
+          : style.mainContainerOne
+      }
+    >
       {loading ? (
         <div style={{ marginTop: '50px' }}>
           <UseLoader />
@@ -370,14 +391,14 @@ const GlideSelector = ({
           integrated={false}
         />
       ) : (
-        <div className={style.mainContainer}>
+        <div>
           {!defaultProject && (
             <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
-              <FlexboxGrid.Item colspan={3}>
+              <FlexboxGrid.Item colspan={4}>
                 <h3>Projects: </h3>
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={21}>
+              <FlexboxGrid.Item colspan={20}>
                 <UseReactSelect
                   name="glide_native_projects"
                   placeholder="Choose Project"
@@ -388,13 +409,12 @@ const GlideSelector = ({
               </FlexboxGrid.Item>
             </FlexboxGrid>
           )}
-          {projectId && (
+          {projectId && resourceTypes.length > 1 && (
             <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
-              <FlexboxGrid.Item colspan={3}>
+              <FlexboxGrid.Item colspan={4}>
                 <h3>Resource: </h3>
               </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item colspan={21}>
+              <FlexboxGrid.Item colspan={20}>
                 <UseReactSelect
                   name="glide_native_resource_type"
                   placeholder="Choose resource type"
@@ -406,41 +426,36 @@ const GlideSelector = ({
               </FlexboxGrid.Item>
             </FlexboxGrid>
           )}
-          {filterLoad && (
-            <Loader backdrop center size="md" vertical style={{ zIndex: '10' }} />
-          )}
-          {tableLoading ? (
-            <div style={{ marginTop: '50px' }}>
-              <UseLoader />
-            </div>
-          ) : tableData?.items?.length < 1 ? (
+          {tableData?.items?.length < 1 ? (
             <h3 style={{ textAlign: 'center', marginTop: '50px', color: '#1675e0' }}>
               Selected resource type has no data.
             </h3>
           ) : tableshow && projectId && resourceTypeId && finalData?.length > 0 ? (
-            <div>
-              <div
-                style={{
-                  marginTop: '20px',
-                  padding: '0',
-                  overflowY: 'auto',
-                  height: '70vh',
-                }}
-              >
-                <table className={`${style.styled_table}`}>
-                  <thead style={{ borderBottom: '0.5px solid rgb(238, 238, 238)' }}>
+            <div className={style.mainTableContainer}>
+              <div className={style.tableContainer}>
+                <table className={style.styled_table}>
+                  <thead>
                     {tableInstance.getHeaderGroups().map((headerEl) => {
                       return (
                         <tr key={headerEl.id} style={{ fontSize: '20px' }}>
                           {headerEl.headers.map((columnEl) => {
                             return (
-                              <th key={columnEl.id}>
-                                {columnEl.isPlaceholder
-                                  ? null
-                                  : flexRender(
-                                      columnEl.column.columnDef.header,
-                                      columnEl.getContext(),
-                                    )}
+                              <th
+                                key={columnEl.id}
+                                style={
+                                  columnEl.column.id.includes('select')
+                                    ? { width: '7%' }
+                                    : null
+                                }
+                              >
+                                <h6>
+                                  {columnEl.isPlaceholder
+                                    ? null
+                                    : flexRender(
+                                        columnEl.column.columnDef.header,
+                                        columnEl.getContext(),
+                                      )}
+                                </h6>
                                 {columnEl.column.getCanFilter() ? (
                                   <div>
                                     <Filter
@@ -468,11 +483,16 @@ const GlideSelector = ({
                               : style.table_row_light
                           }
                         >
-                          {rowEl.getVisibleCells().map((cellEl) => {
+                          {rowEl.getVisibleCells().map((cellEl, cellIndex) => {
                             return (
                               <td
                                 key={cellEl.id}
-                                style={{ width: '50px', fontSize: '17px' }}
+                                className={cellIndex === 0 ? style.first_column : ''}
+                                style={
+                                  cellEl.column.id.includes('select')
+                                    ? { width: '5px' }
+                                    : { width: '30px', fontSize: '17px' }
+                                }
                               >
                                 {flexRender(
                                   cellEl.column.columnDef.cell,
@@ -486,6 +506,9 @@ const GlideSelector = ({
                     })}
                   </tbody>
                 </table>
+                {!tableInstance.getRowModel().rows[0] && (
+                  <p className={style.emptyTableContent}>There is no resource found</p>
+                )}
               </div>
               <div style={{ padding: 20 }}>
                 <Pagination
@@ -513,7 +536,13 @@ const GlideSelector = ({
         </div>
       )}
       {!loading && (
-        <div className={style.buttonDiv}>
+        <div
+          className={
+            tableshow && projectId && resourceTypeId && finalData?.length > 0
+              ? style.targetBtnContainerTwo
+              : style.targetBtnContainerOne
+          }
+        >
           <ButtonToolbar>
             <Button appearance="ghost" onClick={handleCancel}>
               Cancel
@@ -522,7 +551,6 @@ const GlideSelector = ({
               appearance="primary"
               size="md"
               disabled={Object.keys(rowSelection).length > 0 ? false : true}
-              style={{ width: '65px' }}
               onClick={handleSelect}
             >
               OK
@@ -534,4 +562,4 @@ const GlideSelector = ({
   );
 };
 
-export default GlideSelector;
+export default GlobalSelector;

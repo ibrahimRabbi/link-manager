@@ -172,6 +172,7 @@
 
 .headerCell {
   margin: 10px;
+  color: #8e8e93;
 
   h6 {
     text-align: start;
@@ -179,7 +180,7 @@
 }
 
 .dataCell {
-  margin-left: 20px;
+  text-align: center;
 }
 
 .actionDataCell {
@@ -224,4 +225,27 @@
   align-items: center;
   gap: 10px;
   font-size: 20px;
+}
+.styled_table {
+  border-collapse: collapse;
+  font-size: 0.9em;
+  width: 100%;
+  border: 0.5px solid #f2f2f5;
+  table-layout: fixed;
+  border-spacing: 0;
+  position: relative;
+}
+.styled_table thead tr {
+  text-align: center;
+  background: white;
+  margin: 0;
+}
+.styled_table th,
+.styled_table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #f2f2f5;
+  border-right: 1px solid #f2f2f5;
+}
+.styled_table tbody tr {
+  border-bottom: 1px solid #f2f2f5;
 }

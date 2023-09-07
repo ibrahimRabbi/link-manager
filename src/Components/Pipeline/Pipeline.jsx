@@ -1,26 +1,54 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { handleCurrPageTitle } from '../../Redux/slices/navSlice.jsx';
+import { handleCurrPageTitle, handleRefreshData } from '../../Redux/slices/navSlice.jsx';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPipelines } from '../../Redux/slices/pipelineSlice.jsx';
+import { fetchPipelineRun } from '../../Redux/slices/pipelineRunSlice.jsx';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import styles from '../LinkManager/LinkManager.module.scss';
-import { Button, Drawer, Loader, Message, toaster } from 'rsuite';
-import { Table } from 'rsuite';
+import { darkColor, lightBgColor, darkBgColor } from '../../App.jsx';
+import AlertModal from '../Shared/AlertModal.jsx';
+import { fetchDeleteData } from '../../Redux/slices/useCRUDSlice.jsx';
+
+import {
+  Drawer,
+  Loader,
+  Message,
+  toaster,
+  Pagination,
+  FlexboxGrid,
+  Button,
+  InputGroup,
+  Input,
+} from 'rsuite';
+import { Table, IconButton, ButtonToolbar } from 'rsuite';
 import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
-
+import { PiEyeBold } from 'react-icons/pi';
+import SearchIcon from '@rsuite/icons/Search';
+import { HiRefresh } from 'react-icons/hi';
+import { MdDelete } from 'react-icons/md';
+import CloseIcon from '@rsuite/icons/Close';
+import FlexboxGridItem from 'rsuite/esm/FlexboxGrid/FlexboxGridItem.js';
 const { Column, HeaderCell, Cell } = Table;
 
 const { tableContainer } = styles;
 
-const apiURL = `${import.meta.env.VITE_LM_REST_API_URL}/events`;
+const apiURL = `${import.meta.env.VITE_LM_REST_API_URL}`;
 
 const Pipeline = () => {
-  const { allPipelines, isPipelineLoading } = useSelector((state) => state.pipelines);
+  const { allPipelineRun, isPipelineRunLoading } = useSelector(
+    (state) => state.pipelinerun,
+  );
+  const { isDark } = useSelector((state) => state.nav);
+  const { refreshData } = useSelector((state) => state.nav);
+  const [tableFilterValue, setTableFilterValue] = useState('');
+  const [displayTableData, setDisplayTableData] = useState([]);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
   const wbePath = location.pathname?.includes('wbe');
-
+  const [pageSize, setPageSize] = useState(5);
+  const [currPage, setCurrPage] = useState(1);
+  const [open, setOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState('');
   const [openWithHeader, setOpenWithHeader] = useState(false);
   const [pipelineOutput, setPipelineOutput] = useState('');
   const showNotification = (type, message) => {
@@ -34,51 +62,75 @@ const Pipeline = () => {
     }
   };
 
+  const handleChangeLimit = (dataKey) => {
+    setCurrPage(1);
+    setPageSize(dataKey);
+  };
+
+  const handlePagination = (value) => {
+    setCurrPage(value);
+  };
+
+  const handleDelete = (id) => {
+    setDeleteId(id);
+    setOpen(true);
+  };
+
+  const handleConfirmed = (value) => {
+    if (value) {
+      const deleteUrl = `${apiURL}/pipeline_run/${deleteId}`;
+      dispatch(
+        fetchDeleteData({
+          url: deleteUrl,
+          token: authCtx.token,
+          showNotification: showNotification,
+        }),
+      );
+    }
+  };
+
   useEffect(() => {
-    dispatch(handleCurrPageTitle('Pipelines Results'));
+    dispatch(handleCurrPageTitle('Pipeline Runs'));
+
+    const getUrl = `${apiURL}/pipeline_run?page=${currPage}&per_page=${pageSize}`;
     dispatch(
-      fetchPipelines({
-        url: `${apiURL}?type=Pipeline`,
+      fetchPipelineRun({
+        url: getUrl,
         token: authCtx.token,
+        authCtx: authCtx,
         showNotification: showNotification,
       }),
     );
-  }, []);
+  }, [pageSize, currPage, refreshData]);
 
   /* eslint-disable indent */
-  const data = !allPipelines.items
+
+  const data = !allPipelineRun.items
     ? []
-    : allPipelines.items.map((item) => {
+    : allPipelineRun.items.map((run) => {
         return {
-          id: item.id,
-          event: item.name,
-          filename: '', // item.filename,
-          status: '',
-          output: '',
-          children: item.pipelines
-            ? item.pipelines.map((item) => {
-                return {
-                  id: item.id + 1000,
-                  event: '',
-                  filename: item.filename,
-                  status: '',
-                  output: '',
-                  children: item.pipeline_runs
-                    ? item.pipeline_runs.map((item) => {
-                        return {
-                          id: item.id + 10000,
-                          event: '',
-                          filename: '',
-                          status: item.status ? 'Success' : 'Failed',
-                          output: item.output.toString(),
-                        };
-                      })
-                    : [],
-                };
-              })
-            : [],
+          id: run.id,
+          event: run.pipeline.event.name,
+          start_time: new Date(run.start_time).toLocaleString('en-US', {
+            hour12: true,
+          }),
+          duration: (new Date(run.end_time) - new Date(run.start_time)) / 1000,
+          status: run.status ? 'Success' : 'Failed',
+          output: run.output,
         };
       });
+
+  useEffect(() => {
+    if (tableFilterValue) {
+      const filteredData = data?.filter((row) => {
+        return Object.values(row)
+          ?.toString()
+          ?.toLowerCase()
+          .includes(tableFilterValue?.toLowerCase());
+      });
+      setDisplayTableData(filteredData);
+    }
+  }, [tableFilterValue]);
 
   return (
     <div>
@@ -86,7 +138,7 @@ const Pipeline = () => {
         <div className="mainContainer">
           <div className="container">
             <div className={tableContainer}>
-              {isPipelineLoading && (
+              {isPipelineRunLoading && (
                 <Loader
                   backdrop
                   center
@@ -96,112 +148,176 @@ const Pipeline = () => {
                 />
               )}
 
-              {allPipelines.items && (
-                <Table
-                  virtualized
-                  isTree
-                  defaultExpandAllRows
-                  bordered
-                  cellBordered
-                  data={data}
-                  rowKey="id"
-                  autoHeight
-                >
-                  <Column flexGrow={1}>
-                    <HeaderCell>
-                      <h5 className="column-center">Id</h5>
-                    </HeaderCell>
-                    <Cell style={{ fontSize: '17px' }} dataKey="id" />
-                  </Column>
-                  <Column flexGrow={1} align="center" fixed>
-                    <HeaderCell>
-                      <h5>Event</h5>
-                    </HeaderCell>
-                    <Cell style={{ fontSize: '17px' }} dataKey="event" />
-                  </Column>
-                  <Column flexGrow={1} align="center" fixed>
-                    <HeaderCell>
-                      <h5>Script</h5>
-                    </HeaderCell>
-                    <Cell style={{ fontSize: '17px' }} dataKey="filename" />
-                  </Column>
-                  <Column flexGrow={1} width={180} align="center" fixed>
-                    <HeaderCell>
-                      <h5>Status</h5>
-                    </HeaderCell>
-                    <Cell style={{ fontSize: '17px' }}>
-                      {(rowData) => {
-                        if (rowData.status) {
-                          if (rowData.status === 'Success') {
-                            return (
-                              <span
-                                style={{ cursor: 'pointer', fontSize: '19px' }}
-                                onClick={() => {
-                                  setOpenWithHeader(true);
-                                  setPipelineOutput(rowData.output);
-                                }}
-                              >
-                                <SuccessStatus color="#378f17" />
-                              </span>
-                            );
-                          } else {
-                            return (
-                              <span
-                                style={{ cursor: 'pointer', fontSize: '19px' }}
-                                onClick={() => {
-                                  setOpenWithHeader(true);
-                                  setPipelineOutput(rowData.output);
-                                }}
-                              >
-                                <FailedStatus color="#de1655" />
-                              </span>
-                            );
+              {allPipelineRun?.items && (
+                <div>
+                  <FlexboxGrid justify="end">
+                    <FlexboxGridItem>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                        <InputGroup size="lg" inside style={{ width: '400px' }}>
+                          <Input
+                            placeholder={'Search...'}
+                            value={tableFilterValue}
+                            onChange={(v) => setTableFilterValue(v)}
+                          />
+                          {tableFilterValue ? (
+                            <InputGroup.Button onClick={() => setTableFilterValue('')}>
+                              <CloseIcon />
+                            </InputGroup.Button>
+                          ) : (
+                            <InputGroup.Button>
+                              <SearchIcon />
+                            </InputGroup.Button>
+                          )}
+                        </InputGroup>
+
+                        <Button
+                          appearance="default"
+                          onClick={() => dispatch(handleRefreshData(!refreshData))}
+                          color="blue"
+                        >
+                          <HiRefresh size={25} />
+                        </Button>
+                      </div>
+                    </FlexboxGridItem>
+                  </FlexboxGrid>
+                  <br />
+                  <Table
+                    virtualized
+                    bordered
+                    cellBordered
+                    data={tableFilterValue === '' ? data : displayTableData}
+                    rowKey="id"
+                    autoHeight
+                  >
+                    <Column flexGrow={1} align="left">
+                      <HeaderCell>
+                        <h5>Started</h5>
+                      </HeaderCell>
+                      <Cell style={{ fontSize: '17px' }} dataKey="start_time" />
+                    </Column>
+                    <Column flexGrow={1} align="left" fixed>
+                      <HeaderCell>
+                        <h5>Duration (s) </h5>
+                      </HeaderCell>
+                      <Cell style={{ fontSize: '17px' }} dataKey="duration" />
+                    </Column>
+                    <Column flexGrow={1} align="left" fixed>
+                      <HeaderCell>
+                        <h5>Event</h5>
+                      </HeaderCell>
+                      <Cell style={{ fontSize: '17px' }} dataKey="event" />
+                    </Column>
+                    <Column flexGrow={1} width={180} align="left" fixed>
+                      <HeaderCell>
+                        <h5>Status</h5>
+                      </HeaderCell>
+                      <Cell style={{ fontSize: '17px' }}>
+                        {(rowData) => {
+                          if (rowData.status) {
+                            if (rowData.status === 'Success') {
+                              return (
+                                <span
+                                  style={{
+                                    cursor: 'pointer',
+                                    fontSize: '19px',
+                                  }}
+                                >
+                                  <SuccessStatus color="#378f17" />
+                                </span>
+                              );
+                            } else {
+                              return (
+                                <span
+                                  style={{
+                                    cursor: 'pointer',
+                                    fontSize: '19px',
+                                  }}
+                                >
+                                  <FailedStatus color="#de1655" />
+                                </span>
+                              );
+                            }
                           }
-                        }
-                      }}
-                    </Cell>
-                  </Column>
-                  <Column flexGrow={1} align="center" fixed>
-                    <HeaderCell>
-                      <h5>Output</h5>
-                    </HeaderCell>
-                    <Cell style={{ fontSize: '17px' }} dataKey="output" />
-                  </Column>
-                </Table>
+                        }}
+                      </Cell>
+                    </Column>
+                    <Column flexGrow={1} align="left" fixed>
+                      <HeaderCell>
+                        <h5>Action</h5>
+                      </HeaderCell>
+                      <Cell>
+                        {(rowData) => {
+                          return (
+                            <ButtonToolbar>
+                              <IconButton
+                                size="sm"
+                                title="View Output"
+                                icon={<PiEyeBold />}
+                                onClick={() => {
+                                  setOpenWithHeader(true);
+                                  setPipelineOutput(rowData.output);
+                                }}
+                              />
+                              <IconButton
+                                size="sm"
+                                title="Delete"
+                                icon={<MdDelete />}
+                                onClick={() => handleDelete(rowData.id)}
+                              />
+                            </ButtonToolbar>
+                          );
+                        }}
+                      </Cell>
+                    </Column>
+                  </Table>
+                  <Pagination
+                    style={{
+                      backgroundColor: isDark == 'dark' ? darkBgColor : lightBgColor,
+                    }}
+                    prev
+                    next
+                    first
+                    last
+                    ellipsis
+                    boundaryLinks
+                    maxButtons={2}
+                    size="lg"
+                    layout={['-', 'total', '|', 'limit', 'pager']}
+                    total={allPipelineRun?.total_items ? allPipelineRun?.total_items : 0}
+                    limitOptions={[5, 10, 25, 50, 100]}
+                    limit={pageSize}
+                    activePage={allPipelineRun?.page}
+                    onChangePage={(v) => handlePagination(v)}
+                    onChangeLimit={(v) => handleChangeLimit(v)}
+                  />
+                </div>
               )}
+              <AlertModal
+                open={open}
+                setOpen={setOpen}
+                content={'Do you want to delete the pipeline?'}
+                handleConfirmed={handleConfirmed}
+              />
               <Drawer open={openWithHeader} onClose={() => setOpenWithHeader(false)}>
                 <Drawer.Header>
                   <Drawer.Title>
-                    <p style={{ marginTop: '5px', fontSize: '19px', fontWeight: 'bold' }}>
+                    <p
+                      style={{
+                        marginTop: '5px',
+                        fontSize: '19px',
+                        fontWeight: 'bold',
+                      }}
+                    >
                       Output
                     </p>
                   </Drawer.Title>
-                  <Drawer.Actions>
-                    <Button
-                      onClick={() => {
-                        setOpenWithHeader(false);
-                        setPipelineOutput('');
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        setOpenWithHeader(false);
-                        setPipelineOutput('');
-                      }}
-                      appearance="primary"
-                    >
-                      Ok
-                    </Button>
-                  </Drawer.Actions>
                 </Drawer.Header>
                 <Drawer.Body>
-                  <pre
+                  <p
                     style={{
                       fontWeight: '700',
                       fontFamily: 'monospace',
-                      backgroundColor: '#f6f8fa',
+                      backgroundColor: isDark === 'dark' ? darkColor : '#f6f8fa',
                       padding: '4px 6px',
                       borderRadius: '4px',
                       position: 'relative',

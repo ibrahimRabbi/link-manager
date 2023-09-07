@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Application from './Components/AdminDasComponents/Application/Application';
 // eslint-disable-next-line max-len
 import LinkConstraint from './Components/AdminDasComponents/LinkConstraint/LinkConstraint';
-import Components from './Components/AdminDasComponents/Components/Components';
 import LinkTypes from './Components/AdminDasComponents/LinkType/LinkTypes';
 import Organization from './Components/AdminDasComponents/Organization/Organization';
 import Projects from './Components/AdminDasComponents/Projects/Projects';
@@ -29,23 +28,30 @@ import UserVerify from './Components/Login/UserVerify';
 import Oauth2Success from './Components/Oauth2/oauth2Success.jsx';
 import Events from './Components/AdminDasComponents/Events/Events.jsx';
 import Pipelines from './Components/AdminDasComponents/Pipelines/Pipelines.jsx';
-import Associations from './Components/AdminDasComponents/Associations/Associations';
 import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun.jsx';
 import Pipeline from './Components/Pipeline/Pipeline.jsx';
 import WebBrowserExtension from './Components/WebBrowserExtension/WebBrowserExtension';
 import GitlabSelector from './Components/SelectionDialog/GitlabSelector/GitlabSelector';
-// import Graph from './Components/GraphView/Graph.jsx';
 // eslint-disable-next-line max-len
 import Oauth2Callback from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2Callback.jsx';
 import CytoscapeGraphView from './Components/CytoscapeGraphView/CytoscapeGraphView.jsx';
+import UserProfile from './Components/Login/UserProfile';
+// eslint-disable-next-line max-len
+import Oauth2TokenStatus from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2TokenStatus.jsx';
+import AuthContext from './Store/Auth-Context';
+import Home from './Components/Home/Home';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
 export const lightBgColor = 'white';
 
-export const OAUTH2_APPLICATION_TYPES = ['gitlab', 'jira'];
+export const OAUTH2_APPLICATION_TYPES = ['gitlab', 'jira', 'codebeamer'];
+export const OIDC_APPLICATION_TYPES = ['codebeamer'];
 export const MICROSERVICES_APPLICATION_TYPES = ['glideyoke'];
 export const BASIC_AUTH_APPLICATION_TYPES = ['valispace'];
+
+export const USER_PASSWORD_APPLICATION_TYPES =
+  MICROSERVICES_APPLICATION_TYPES + BASIC_AUTH_APPLICATION_TYPES;
 export const WORKSPACE_APPLICATION_TYPES = ['gitlab', 'valispace'];
 export const PROJECT_APPLICATION_TYPES = ['jira', 'glideyoke'];
 
@@ -57,6 +63,8 @@ export const THIRD_PARTY_INTEGRATIONS =
 function App() {
   const { isDark } = useSelector((state) => state.nav);
   const dispatch = useDispatch();
+  const authCtx = useContext(AuthContext);
+  const isSuperAdmin = authCtx?.user?.role === 'super_admin' ? true : false;
 
   useEffect(() => {
     const isDark = localStorage.getItem('isDarkMode');
@@ -67,10 +75,14 @@ function App() {
     <CustomProvider theme={isDark}>
       <div
         className="App"
-        style={{ backgroundColor: isDark === 'dark' ? darkBgColor : lightBgColor }}
+        style={{
+          backgroundColor: isDark === 'dark' ? darkBgColor : lightBgColor,
+        }}
       >
         <Routes>
           <Route path="/oauth2/callback" element={<Oauth2Callback />} />
+          <Route path="/oauth2/status" element={<Oauth2TokenStatus />} />
+
           <Route path="/graph-cytoscape" element={<CytoscapeGraphView />} />
           {/* This is WBE dashboard */}
           <Route
@@ -104,7 +116,8 @@ function App() {
             <Route path="/graph-view" element={<CytoscapeGraphView />} />
             <Route path="/pipeline" element={<Pipeline />} />
             <Route path="/extension" element={<WebBrowserExtension />} />
-            <Route path="/" element={<LinkManager />} />
+            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/" element={<Home />} />
           </Route>
 
           {/* This is admin dashboard  */}
@@ -116,14 +129,14 @@ function App() {
               </ProtectedRoute>
             }
           >
+            {isSuperAdmin && (
+              <Route path="/admin/organizations" element={<Organization />} />
+            )}
             <Route path="/admin/users" element={<Users />} />
-            <Route path="/admin/organizations" element={<Organization />} />
-            <Route path="/admin/applications" element={<Application />} />
-            <Route path="/admin/integrations" element={<Associations />} />
+            <Route path="/admin/integrations" element={<Application />} />
             <Route path="/admin/projects" element={<Projects />} />
             <Route path="/admin/link-types" element={<LinkTypes />} />
             <Route path="/admin/link-constraint" element={<LinkConstraint />} />
-            <Route path="/admin/components" element={<Components />} />
             <Route path="/admin/events" element={<Events />} />
             <Route path="/admin/pipelines" element={<Pipelines />} />
             <Route path="/admin/pipelinerun" element={<PipelineRun />} />

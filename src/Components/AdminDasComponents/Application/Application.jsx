@@ -29,7 +29,9 @@ import styles from './Application.module.scss';
 import {
   MICROSERVICES_APPLICATION_TYPES,
   OAUTH2_APPLICATION_TYPES,
+  OIDC_APPLICATION_TYPES,
   THIRD_PARTY_INTEGRATIONS,
+  USER_PASSWORD_APPLICATION_TYPES,
 } from '../../../App.jsx';
 import Oauth2Waiting from '../ExternalAppIntegrations/Oauth2Waiting/Oauth2Waiting.jsx';
 import ExternalLogin from '../ExternalAppIntegrations/ExternalLogin/ExternalLogin.jsx';
@@ -77,12 +79,7 @@ const Application = () => {
   const model = Schema.Model({
     type: StringType().isRequired('This field is required'),
     organization_id: NumberType().isRequired('This field is required.'),
-    name: StringType()
-      .addRule((value) => {
-        const regex = /^[a-zA-Z0-9_-]+$/;
-        return regex.test(value);
-      }, 'Type only alphanumeric characters, underscores, and dashes')
-      .isRequired('This field is required'),
+    name: StringType().isRequired('This field is required'),
     server_url: StringType().isRequired('This field is required'),
     description: StringType(),
     client_id: StringType(),
@@ -112,6 +109,7 @@ const Application = () => {
     server_url_auth: '',
     server_url_ui: '',
     tenant_id: '',
+    oidc_url: '',
   });
 
   /** Application variables */
@@ -242,6 +240,20 @@ const Application = () => {
     },
   );
 
+  // Get applications data and keep it updated
+  useEffect(() => {
+    dispatch(handleCurrPageTitle('Integrations'));
+    refetchApplications();
+  }, [
+    createSuccess,
+    updateSuccess,
+    deleteSuccess,
+    pageSize,
+    currentPage,
+    refreshData,
+    isAppAuthorize,
+  ]);
+
   // Check for changes to the iframe URL when it is loaded
   const handleLoad = () => {
     const currentUrl = iframeRef.current.contentWindow.location.href;
@@ -290,6 +302,7 @@ const Application = () => {
       server_url_auth: '',
       server_url_ui: '',
       tenant_id: '',
+      oidc_url: '',
     });
     setAuthorizedAppConsumption(false);
     setIsAppAuthorize(false);
@@ -376,7 +389,7 @@ const Application = () => {
       description: data?.description,
       client_id: data?.client_id,
       client_secret: data?.client_secret,
-      server_url_auth: data?.server_url_auth,
+      server_url_auth: data?.server_url_auth ? data?.server_url_auth : data?.oidc_url,
       server_url_ui: data?.server_url_ui,
       tenant_id: data?.tenant_id,
     });
@@ -384,20 +397,6 @@ const Application = () => {
   };
 
   /** Effect declarations */
-
-  // Get applications data and keep it updated
-  useEffect(() => {
-    dispatch(handleCurrPageTitle('Applications'));
-    refetchApplications();
-  }, [
-    createSuccess,
-    updateSuccess,
-    deleteSuccess,
-    pageSize,
-    currentPage,
-    refreshData,
-    isAppAuthorize,
-  ]);
 
   // Get icons for the applications
   useEffect(() => {
@@ -463,6 +462,13 @@ const Application = () => {
                 accumulator.push({
                   ...currentValue,
                   iconUrl: '/valispace_logo.png',
+                  status: currentValue?.oauth2_application[0]?.token_status?.status,
+                });
+              }
+              if (currentValue?.type === 'codebeamer') {
+                accumulator.push({
+                  ...currentValue,
+                  iconUrl: '/codebeamer_logo.png',
                   status: currentValue?.oauth2_application[0]?.token_status?.status,
                 });
               }
@@ -641,7 +647,10 @@ const Application = () => {
 
                   <FlexboxGrid.Item
                     colspan={24}
-                    style={{ marginBottom: '25px', marginTop: '30px' }}
+                    style={{
+                      marginBottom: '25px',
+                      marginTop: '30px',
+                    }}
                   >
                     <TextField
                       name="description"
@@ -650,7 +659,7 @@ const Application = () => {
                       rows={3}
                     />
                   </FlexboxGrid.Item>
-                  {(formValue?.type === 'gitlab' || formValue?.type === 'jira') && (
+                  {OAUTH2_APPLICATION_TYPES.includes(formValue?.type) && (
                     <React.Fragment>
                       <FlexboxGrid.Item colspan={11}>
                         <TextField
@@ -671,7 +680,7 @@ const Application = () => {
                       </FlexboxGrid.Item>
                     </React.Fragment>
                   )}
-                  {formValue?.type === 'glideyoke' && (
+                  {MICROSERVICES_APPLICATION_TYPES.includes(formValue?.type) && (
                     <React.Fragment>
                       <FlexboxGrid.Item colspan={11}>
                         <TextField
@@ -694,6 +703,17 @@ const Application = () => {
                           name="tenant_id"
                           label="Tenant ID"
                           reqText="Tenant ID is required"
+                        />
+                      </FlexboxGrid.Item>
+                    </React.Fragment>
+                  )}
+                  {OIDC_APPLICATION_TYPES.includes(formValue?.type) && (
+                    <React.Fragment>
+                      <FlexboxGrid.Item colspan={11}>
+                        <TextField
+                          name="oidc_url"
+                          label="OIDC issuer"
+                          reqText="OIDC issuer is required"
                         />
                       </FlexboxGrid.Item>
                     </React.Fragment>
@@ -736,12 +756,18 @@ const Application = () => {
                   src={authorizeFrameSrc}
                 />
               )}
-              {(formValue?.type === 'gitlab' || formValue?.type === 'jira') &&
+              {OAUTH2_APPLICATION_TYPES.includes(formValue?.type) &&
                 steps === 1 &&
                 createSuccess && <Oauth2Waiting data={formValue} />}
-              {formValue?.type === 'glideyoke' && steps === 1 && createSuccess && (
-                <ExternalLogin appData={formValue} onDataStatus={getExtLoginData} />
-              )}
+
+              {
+                // prettier-ignore
+                USER_PASSWORD_APPLICATION_TYPES.includes(formValue?.type) &&
+                steps === 1 &&
+                createSuccess && (
+                  <ExternalLogin appData={formValue} onDataStatus={getExtLoginData} />
+                )
+              }
               <FlexboxGrid justify="end" className={skipBtn}>
                 <Button
                   appearance="ghost"

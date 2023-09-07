@@ -1,6 +1,7 @@
 import React from 'react';
+import { Input } from 'rsuite';
 
-function DebouncedInput({ value: initialValue, onChange, debounce = 500, ...props }) {
+function DebouncedInput({ value: initialValue, onChange, debounce = 1000, ...props }) {
   const [value, setValue] = React.useState(initialValue);
 
   React.useEffect(() => {
@@ -16,11 +17,13 @@ function DebouncedInput({ value: initialValue, onChange, debounce = 500, ...prop
   }, [value]);
 
   return (
-    <input
-      className="rs-input"
+    <Input
+      type="text"
+      className="filterStyle"
       {...props}
       value={value}
-      onChange={(e) => setValue(e.target.value)}
+      size="sm"
+      onChange={(value) => setValue(value)}
     />
   );
 }

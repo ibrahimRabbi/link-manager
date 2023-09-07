@@ -287,7 +287,7 @@ const LinkManagerTable = ({ props }) => {
   return (
     <div>
       <table className={tableStyle}>
-        <thead>
+        <thead style={{ position: 'sticky', zIndex: '1', top: '0', background: 'white' }}>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
@@ -297,7 +297,9 @@ const LinkManagerTable = ({ props }) => {
                   <th
                     key={header.id}
                     colSpan={header.colSpan}
-                    style={{ width: status ? '120px' : action ? '120px' : '' }}
+                    style={{
+                      width: status ? '120px' : action ? '120px' : '',
+                    }}
                   >
                     {header.isPlaceholder ? null : (
                       <div>
@@ -335,7 +337,9 @@ const LinkManagerTable = ({ props }) => {
                 return (
                   <td
                     key={cell.id}
-                    style={{ width: status ? '120px' : action ? '120px' : '' }}
+                    style={{
+                      width: status ? '120px' : action ? '120px' : '',
+                    }}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>

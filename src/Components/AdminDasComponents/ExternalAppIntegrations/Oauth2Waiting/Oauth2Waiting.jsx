@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Message, Panel, toaster } from 'rsuite';
 import ViewsAuthorizeIcon from '@rsuite/icons/ViewsAuthorize';
 import styles from './Oauth2Waiting.scss?inline';
@@ -7,7 +7,6 @@ import fetchAPIRequest from '../../../../apiRequests/apiRequest.js';
 import AuthContext from '../../../../Store/Auth-Context.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
-// eslint-disable-next-line max-len
 const defaultMessage =
   'Once you have authenticated you will be redirected to the next step';
 
@@ -15,8 +14,22 @@ const { appImage } = styles;
 const Oauth2Waiting = (props) => {
   const authCtx = useContext(AuthContext);
   let iconUrl = '';
-  let url = '';
+  const [url, setUrl] = useState('');
   let defaultAppType = false;
+  const requestDataBroadcastChannel = new BroadcastChannel('request-oauth2-app');
+  const applicationChannel = new BroadcastChannel('application-data');
+
+  requestDataBroadcastChannel.onmessage = (event) => {
+    if (event.data?.status) {
+      applicationData();
+    }
+  };
+  const applicationData = () => {
+    applicationChannel.postMessage({
+      application: oauth2Data?.items[0]?.id,
+    });
+  };
+
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -29,25 +42,39 @@ const Oauth2Waiting = (props) => {
   };
   const { data, message } = props;
 
-  const { data: oauth2Data } = useQuery(['oauth2DataApp'], () =>
-    fetchAPIRequest({
-      // eslint-disable-next-line max-len
-      urlPath: `application?name=${data?.name}&organization_id=${data?.organization_id}`,
-      token: authCtx.token,
-      method: 'GET',
-      showNotification: showNotification,
-    }),
+  const { data: oauth2Data, refetch: refetchOauth2Data } = useQuery(
+    ['oauth2DataApp'],
+    () =>
+      fetchAPIRequest({
+        // eslint-disable-next-line max-len
+        urlPath: `application?name=${data?.name}&organization_id=${data?.organization_id}`,
+        token: authCtx.token,
+        method: 'GET',
+        showNotification: showNotification,
+      }),
   );
-
-  const openOauth2Login = (url) => {
+  const openOauth2Login = () => {
     window.open(url, '_blank');
   };
 
-  if (oauth2Data) {
-    // eslint-disable-next-line max-len
-    url = `${lmApiUrl}/third_party/${data?.type}/oauth2/login?application_id=${oauth2Data?.items[0]?.id}`;
-    openOauth2Login(url);
-  }
+  useEffect(() => {
+    if (oauth2Data) {
+      // eslint-disable-next-line max-len
+      const openUrl = `${lmApiUrl}/third_party/${data?.type}/oauth2/login?application_id=${oauth2Data?.items[0]?.id}`;
+      setUrl(openUrl);
+    }
+  }, [oauth2Data]);
+
+  useEffect(() => {
+    if (url) {
+      openOauth2Login();
+    }
+  }, [url]);
+
+  useEffect(() => {
+    refetchOauth2Data({ data: null });
+    setUrl('');
+  }, [data]);
 
   // prettier-ignore
   switch (data?.type) {

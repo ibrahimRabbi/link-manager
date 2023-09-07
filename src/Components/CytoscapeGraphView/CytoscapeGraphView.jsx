@@ -14,11 +14,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice.jsx';
 import { graphLayout, graphStyle } from './CytoscapeGraphConfig.jsx';
 import UseLoader from '../Shared/UseLoader.jsx';
-import { nodeColorStyles } from './NodeStyles.jsx';
+import { nodeColorStyles, nodeImageStyle } from './NodeStyles.jsx';
 // eslint-disable-next-line max-len
 import { showOslcData } from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreviewConfig.jsx';
 
-const { nodeInfoContainer, noDataTitle } = styles;
+const { nodeInfoContainer } = styles;
 const CytoscapeGraphView = () => {
   const { sourceDataList, isWbe } = useSelector((state) => state.links);
   const authCtx = useContext(AuthContext);
@@ -34,6 +34,7 @@ const CytoscapeGraphView = () => {
   const containerRef = useRef(null);
   const graphContainerRef = useRef(null);
   const cyRef = useRef(null);
+  const useNodeColors = false;
 
   const showNotification = (type, message) => {
     if (type && message) {
@@ -51,7 +52,7 @@ const CytoscapeGraphView = () => {
     queryFn: () =>
       fetchAPIRequest({
         urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
-          sourceDataList?.uri,
+          sourceDataList?.uri ? sourceDataList?.uri : '',
         )}&direction=outgoing&max_depth_outgoing=1`,
         token: authCtx.token,
         showNotification: showNotification,
@@ -116,7 +117,9 @@ const CytoscapeGraphView = () => {
       select: function (ele) {
         const selectedNode = findSelectedNode(ele.id());
         if (selectedNode) {
-          const url = selectedNode[0]?.data?.nodeData.id;
+          const url = selectedNode[0]?.data?.nodeData?.web_url
+            ? selectedNode[0]?.data?.nodeData?.web_url
+            : selectedNode[0]?.data?.nodeData?.id;
           if (url) {
             window.open(url, '_blank');
           }
@@ -127,15 +130,32 @@ const CytoscapeGraphView = () => {
 
   // Set a node color and shape based on resource type
   const checkNodeStyle = (value) => {
-    if (value) {
-      const resourceType = value?.split('#')[1];
-      for (const key in nodeColorStyles) {
-        if (key === resourceType) {
-          return nodeColorStyles[key];
+    if (useNodeColors) {
+      if (value) {
+        const resourceType = value?.split('#')[1];
+        for (const key in nodeColorStyles) {
+          if (key === resourceType) {
+            return nodeColorStyles[key];
+          }
         }
       }
+      return nodeColorStyles['default'];
     }
-    return nodeColorStyles['default'];
+    return {};
+  };
+
+  const checkNodeImage = (value) => {
+    if (!useNodeColors) {
+      if (value) {
+        for (const key in nodeImageStyle) {
+          if (key === value) {
+            return nodeImageStyle[key];
+          }
+        }
+      }
+      return nodeImageStyle['default'];
+    }
+    return {};
   };
 
   useEffect(() => {
@@ -148,7 +168,10 @@ const CytoscapeGraphView = () => {
             id: item.id.toString(),
             label: item.label,
             classes: 'bottom-center',
-            nodeData: item?.properties,
+            nodeData: {
+              ...item?.properties,
+              ...checkNodeImage(item?.properties?.api),
+            },
           },
           style: nodeStyle ? nodeStyle : {},
         };
@@ -216,6 +239,7 @@ const CytoscapeGraphView = () => {
             nodeData: {
               ...item?.properties,
               childData: sourceDataList?.uri === item?.properties?.id,
+              ...checkNodeImage(item?.properties?.api),
             },
           },
           style: nodeStyle ? nodeStyle : {},
@@ -235,52 +259,47 @@ const CytoscapeGraphView = () => {
       setEdgeData(edges ? edges : []);
     }
   }, [data]);
-
   return (
-    <>
-      <div ref={graphContainerRef}>
-        {isWbe && isLoading && <UseLoader />}
+    <div ref={graphContainerRef}>
+      {isWbe && isLoading && <UseLoader />}
 
-        {isWbe && data && (
-          <>
-            {nodeData || edgeData ? (
-              <>
-                <Cytoscape
-                  containerID="cy"
-                  elements={nodeData?.concat(edgeData)}
-                  layout={graphLayout}
-                  stylesheet={graphStyle}
-                  // userZoomingEnabled={false}
-                  style={{ width: '99%', height: '99vh' }}
-                  cy={(cy) => {
-                    cyRef.current = cy;
-                    cy.cxtmenu({
-                      selector: 'node',
-                      commands: contextMenuCommands,
-                    });
-                    cy.layout(graphLayout).run();
-                    cy.fit(10); // Adjust the padding as needed
-                  }}
-                />
-              </>
-            ) : (
-              <h5 className={noDataTitle}>
-                {isWbe
-                  ? 'No content available for this source'
-                  : 'No source found to display the graph'}
-              </h5>
-            )}
-          </>
-        )}
+      {(!isWbe || (isWbe && !nodeData?.length)) && (
+        <h2 className="cy_graph_empty_title">
+          {isWbe ? 'No content available for this source' : 'No links created until now.'}
+        </h2>
+      )}
 
-        {/* node details section  */}
-        {selectedNode && openedExternalPreview && (
-          <div ref={containerRef} className={nodeInfoContainer}>
-            <ExternalPreview nodeData={selectedNode} fromGraphView={true} />
-          </div>
-        )}
-      </div>
-    </>
+      {isWbe && data && (
+        <>
+          {(nodeData || edgeData) && (
+            <Cytoscape
+              containerID="cy"
+              elements={nodeData?.concat(edgeData)}
+              layout={graphLayout}
+              stylesheet={graphStyle}
+              // userZoomingEnabled={false}
+              style={{ width: '99%', height: '99vh' }}
+              cy={(cy) => {
+                cyRef.current = cy;
+                cy.cxtmenu({
+                  selector: 'node',
+                  commands: contextMenuCommands,
+                });
+                cy.layout(graphLayout).run();
+                cy.fit(10); // Adjust the padding as needed
+              }}
+            />
+          )}
+        </>
+      )}
+
+      {/* node details section  */}
+      {selectedNode && openedExternalPreview && (
+        <div ref={containerRef} className={nodeInfoContainer}>
+          <ExternalPreview nodeData={selectedNode} fromGraphView={true} />
+        </div>
+      )}
+    </div>
   );
 };
 

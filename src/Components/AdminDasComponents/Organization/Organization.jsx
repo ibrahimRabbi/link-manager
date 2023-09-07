@@ -28,10 +28,6 @@ const headerData = [
     key: 'name',
   },
   {
-    header: 'URL',
-    key: 'url',
-  },
-  {
     header: 'Description',
     key: 'description',
   },
@@ -41,8 +37,7 @@ const { StringType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
-  url: StringType().isRequired('This field is required.'),
-  description: StringType().isRequired('This field is required.'),
+  description: StringType(),
 });
 
 const Organization = () => {
@@ -54,7 +49,6 @@ const Organization = () => {
   const [deleteData, setDeleteData] = useState({});
   const [formValue, setFormValue] = useState({
     name: '',
-    url: '',
     description: '',
   });
   const [open, setOpen] = useState(false);
@@ -185,7 +179,6 @@ const Organization = () => {
     setEditData({});
     setFormValue({
       name: '',
-      url: '',
       description: '',
     });
   };
@@ -223,7 +216,6 @@ const Organization = () => {
     dispatch(handleIsAdminEditing(true));
     setFormValue({
       name: data?.name,
-      url: data?.url,
       description: data?.description,
     });
     dispatch(handleIsAddNewModal(true));
@@ -267,9 +259,6 @@ const Organization = () => {
                 <TextField name="name" label="Name" reqText="Name is Required" />
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={11}>
-                <TextField name="url" label="URL" reqText="URL is Required" />
-              </FlexboxGrid.Item>
               <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0 10px' }}>
                 <TextField
                   name="description"

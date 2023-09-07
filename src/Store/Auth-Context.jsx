@@ -1,16 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
 let logoutTimer;
+import jwtDecode from 'jwt-decode';
 
 const AuthContext = React.createContext({
   token: '',
   isLoggedIn: false,
   // eslint-disable-next-line no-unused-vars
-  login: (token, expiresIn) => {},
+  login: (token, expiresIn, user_id) => {},
   logout: () => {},
 });
 
 const retrieveStoredToken = () => {
   const storedToken = localStorage.getItem('token');
+  const storedUserId = localStorage.getItem('user_id');
   const storedExpirationTime = localStorage.getItem('expirationTime');
 
   if (!storedToken || !storedExpirationTime) {
@@ -20,12 +22,14 @@ const retrieveStoredToken = () => {
   const expirationTime = parseInt(storedExpirationTime);
   if (expirationTime <= Date.now() / 1000) {
     localStorage.removeItem('token');
+    localStorage.removeItem('user_id');
     localStorage.removeItem('expirationTime');
     return null;
   }
 
   return {
     token: storedToken,
+    user_id: storedUserId,
     expirationTime: expirationTime,
   };
 };
@@ -33,17 +37,21 @@ const retrieveStoredToken = () => {
 export const AuthContextProvider = (props) => {
   const tokenData = retrieveStoredToken();
   let initialToken;
+  let initialUserId;
   if (tokenData) {
     initialToken = tokenData.token;
+    initialUserId = tokenData.user_id;
   }
 
   const [token, setToken] = useState(initialToken);
+  const [userId, setUserId] = useState(initialUserId);
 
   var userIsLoggedIn = !!token;
 
   const logoutHandler = useCallback(() => {
     setToken(null);
     localStorage.removeItem('token');
+    localStorage.removeItem('user_id');
     localStorage.removeItem('expirationTime');
     userIsLoggedIn = false;
     if (logoutTimer) {
@@ -51,11 +59,13 @@ export const AuthContextProvider = (props) => {
     }
   }, []);
 
-  const loginHandler = (token, expiresIn) => {
+  const loginHandler = (token, expiresIn, user_id) => {
     const expirationTime = Math.floor(Date.now() / 1000) + expiresIn;
 
     setToken(token);
+    setUserId(user_id);
     localStorage.setItem('token', token);
+    localStorage.setItem('user_id', user_id);
     localStorage.setItem('expirationTime', expirationTime);
   };
 
@@ -81,8 +91,12 @@ export const AuthContextProvider = (props) => {
     }
   }, [token, logoutHandler]);
 
+  const user = token ? jwtDecode(token) : {};
+  const role = user.email === 'isccarrasco@icloud.com' ? 'super_admin' : 'admin';
   const contextValue = {
     token: token,
+    user_id: userId,
+    user: { ...user, role },
     isLoggedIn: userIsLoggedIn,
     login: loginHandler,
     logout: logoutHandler,

@@ -1,6 +1,5 @@
-import React, { useContext, useRef, forwardRef } from 'react';
+import React, { useContext, useRef, forwardRef, useEffect } from 'react';
 import { useState } from 'react';
-import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Select, { components } from 'react-select';
 import AuthContext from '../../../Store/Auth-Context';
@@ -27,7 +26,6 @@ const CustomReactSelect = forwardRef((props, ref) => {
     isLinkCreation,
     isApplication,
     selectedLinkType,
-    isValispace,
     isIntegration,
     isEventAssociation,
     isUpdateState,
@@ -63,7 +61,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
     let url = `${apiURL}?page=${pageNumber}&per_page=${itemsPerPage}`;
     if (queryPath) url = `${url}&${queryPath}`;
 
-    if (apiURL && !isValispace) {
+    if (apiURL) {
       setIsLoading(true);
       const response = await fetch(url, {
         method: 'GET',
@@ -90,14 +88,6 @@ const CustomReactSelect = forwardRef((props, ref) => {
       setIsLoading(false);
       setCheckPagination(response);
       if (response?.items) {
-        if (isApplication) {
-          const valispaceApp = {
-            name: 'Valispace',
-            id: 50010,
-            type: 'valispace',
-          };
-          return [...response.items, valispaceApp];
-        }
         return response.items;
       }
     }
@@ -128,10 +118,19 @@ const CustomReactSelect = forwardRef((props, ref) => {
         // filter application by domain
         applicationsForLinks = selectedLinkType?.target_resource?.reduce(
           (accumulator, item) => {
-            const apps = { gitlab: '', glideYoke: '', jira: '', valispace: '' };
+            const apps = {
+              gitlab: '',
+              glideYoke: '',
+              jira: '',
+              valispace: '',
+            };
             // domains for the filter application when creating links
             const gitlabDomain = ['http://open-services.net/ns/scm#'];
             const valispaceDomain = ['http://open-services.net/ns/rm#'];
+            const codeBeamerDomain = [
+              'http://open-services.net/ns/rm#',
+              'http://open-services.net/ns/qm#',
+            ];
             const jiraDomain = [
               'http://open-services.net/ns/cm#',
               'http://open-services.net/ns/rm#',
@@ -144,6 +143,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
             const urlType = item?.type;
 
             if (urlType?.includes(gitlabDomain[0])) apps['gitlab'] = 'gitlab';
+            if (urlType?.includes(codeBeamerDomain[0])) apps['codebeamer'] = 'codebeamer';
+            if (urlType?.includes(codeBeamerDomain[1])) apps['codebeamer'] = 'codebeamer';
             if (urlType?.includes(valispaceDomain[0])) apps['valispace'] = 'valispace';
             if (urlType?.includes(jiraDomain[0])) apps['jira'] = 'jira';
             if (urlType?.includes(jiraDomain[1])) apps['jira'] = 'jira';
@@ -156,7 +157,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
                 app.type === apps.gitlab ||
                 app.type === apps.glideYoke ||
                 app.type === apps.jira ||
-                app.type === apps.valispace
+                app.type === apps.valispace ||
+                app.type === apps.codebeamer
               ) {
                 const existingObject = accumulator.find(
                   (obj) => obj.id === app.id && obj.name === app.name,
@@ -171,6 +173,22 @@ const CustomReactSelect = forwardRef((props, ref) => {
           [],
         );
       }
+
+      if (removeApplication) {
+        if (removeApplication === 'glide') {
+          applicationsForLinks = applicationsForLinks.filter((item) => {
+            if (item?.type !== 'glideyoke') {
+              return item;
+            }
+          });
+        }
+        applicationsForLinks = applicationsForLinks.filter((item) => {
+          if (item?.type !== removeApplication) {
+            return item;
+          }
+        });
+      }
+
       const mapData = isLinkCreation ? applicationsForLinks : option;
       const newApps = mapData?.map((item) => {
         let appIcon = '';
@@ -206,33 +224,12 @@ const CustomReactSelect = forwardRef((props, ref) => {
         label: item?.service_provider_id,
         value: item?.id,
       }));
-    } else if (isValispace) {
-      const hardCodeProject = [
-        {
-          name: 'Valispace ST-100 (VALISPACE)',
-          id: 1000010,
-          application: { type: 'valispace' },
-        },
-      ];
-      dropdownJsonData = hardCodeProject?.map((item) => ({
-        ...item,
-        label: item?.name || item?.label,
-        value: item?.id,
-      }));
     } else {
       dropdownJsonData = option?.map((item) => ({
         ...item,
         label: isIntegration ? item?.project?.name : item?.name || item?.label,
         value: item?.id,
       }));
-    }
-    if (removeApplication) {
-      const newDropdownJsonData = dropdownJsonData.filter((item) => {
-        if (item?.type !== removeApplication) {
-          return item;
-        }
-      });
-      dropdownJsonData = newDropdownJsonData;
     }
 
     setDropdownData(dropdownJsonData);
@@ -303,7 +300,6 @@ const CustomReactSelect = forwardRef((props, ref) => {
       </div>
     );
   };
-
   return (
     <Select
       value={value ? dropdownData?.find((v) => v?.value === value) : null}

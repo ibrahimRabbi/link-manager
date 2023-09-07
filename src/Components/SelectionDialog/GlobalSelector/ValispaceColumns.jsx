@@ -18,7 +18,6 @@ function IndeterminateCheckbox({ indeterminate, ...rest }) {
     />
   );
 }
-
 export const columnDefWithCheckBox = [
   {
     id: 'select',
@@ -43,11 +42,15 @@ export const columnDefWithCheckBox = [
     ),
   },
   {
+    accessorFn: (row) => `${row?.key}`,
+    header: 'Key',
+  },
+  {
     accessorFn: (row) => `${row?.name}`,
     header: 'Name',
   },
   {
-    accessorFn: (row) => `${row?.description.slice(0, 150)}`,
+    accessorFn: (row) => `${row?.description?.slice(0, 120)}`,
     header: 'Description',
   },
 ];

@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -21,7 +22,6 @@ import SourceSection from '../SourceSection';
 import UseLoader from '../Shared/UseLoader';
 import GitlabSelector from '../SelectionDialog/GitlabSelector/GitlabSelector';
 import styles from './NewLink.module.scss';
-import GlideSelector from '../SelectionDialog/GlideSelector/GlideSelector';
 import CustomReactSelect from '../Shared/Dropdowns/CustomReactSelect';
 import {
   BASIC_AUTH_APPLICATION_TYPES,
@@ -30,16 +30,13 @@ import {
 } from '../../App.jsx';
 // eslint-disable-next-line max-len
 import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
+import GlobalSelector from '../SelectionDialog/GlobalSelector/GlobalSelector';
 
 const { newLinkMainContainer, targetContainer, targetIframe, targetBtnContainer } =
   styles;
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
-const gitlabDialogOslcURL = import.meta.env.VITE_GITLAB_DIALOG_URL;
-const jiraDialogURL = import.meta.env.VITE_JIRA_DIALOG_URL;
-const valispaceDialogURL = import.meta.env.VITE_VALISPACE_DIALOG_URL;
-const codebeamerDialogURL = import.meta.env.VITE_CODEBEAMER_DIALOG_URL;
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // links states
@@ -58,7 +55,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     oslcCancelResponse,
   } = useSelector((state) => state.links);
   const [gitlabDialog, setGitlabDialog] = useState(false);
-  const [glideDialog, setGlideDialog] = useState(false);
+  const [globalDialog, setGlobalDialog] = useState(false);
+  const [appWithWorkspace, setAppWithWorkspace] = useState(false);
   const [projectFrameSrc, setProjectFrameSrc] = useState('');
   const [externalProjectUrl, setExternalProjectUrl] = useState('');
   const [externalProjectDisabled, setExternalProjectDisabled] = useState(false);
@@ -124,64 +122,28 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // set iframe SRC conditionally
   useEffect(() => {
     setGitlabDialog(false);
-    setGlideDialog(false);
+    setGlobalDialog(false);
+    setAppWithWorkspace(false);
     setProjectFrameSrc('');
-    if (projectType) {
-      const valispaceApp = projectType?.application?.type?.includes('valispace');
-      const jiraApp = projectType?.application?.type?.includes('jira');
-      if (projectType?.application?.type) {
-        const jiraApp = projectType?.application?.type?.includes('jira');
-        const gitlabApp = projectType?.application?.type?.includes('gitlab');
-        const glideApp = projectType?.application?.type?.includes('glide');
-        const valispaceApp = projectType?.application?.type?.includes('valispace');
-        const codebeamerApp = projectType?.application?.type?.includes('codebeamer');
-        const isOslc = projectType?.application?.type?.includes('oslc');
 
-        // get service provider id
-        const project_id = projectType?.service_provider_id;
-
-        if (isOslc) {
-          setProjectFrameSrc(
-            // eslint-disable-next-line max-len
-            `${gitlabDialogOslcURL}/oslc/provider/selector?provider_id=${project_id}#oslc-core-postMessage-1.0`,
-          );
-        } else if (gitlabApp) {
+    if (projectType?.value) {
+      switch (applicationType?.type) {
+        case 'gitlab':
           setGitlabDialog(true);
-        } else if (glideApp) {
-          setGlideDialog(true);
-        } else if (jiraApp) {
-          setProjectFrameSrc(
-            // eslint-disable-next-line max-len
-            `${jiraDialogURL}/oslc/provider/selector?provider_id=${project_id}#oslc-core-postMessage-1.0`,
-          );
-        } else if (valispaceApp) {
-          setProjectFrameSrc(
-            // eslint-disable-next-line max-len
-            `${valispaceDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
-          );
-        } else if (codebeamerApp) {
-          setProjectFrameSrc(
-            // eslint-disable-next-line max-len
-            `${codebeamerDialogURL}/oslc/provider/selector?provider_id=${project_id}#oslc-core-postMessage-1.0`,
-          );
-        }
-      } else if (projectType?.value && applicationType.type === 'gitlab') {
-        setGitlabDialog(true);
-      } else if (projectType?.value && applicationType?.type === 'glideyoke') {
-        setGlideDialog(true);
-      } else if (projectType?.value && applicationType?.type === 'jira') {
-        setGlideDialog(true);
-      } else if (valispaceApp) {
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `${valispaceDialogURL}/oslc/provider/selector-project?gc_context=${streamType}`,
-        );
-      } else if (jiraApp) {
-        const project_id = projectType?.service_provider_id;
-        setProjectFrameSrc(
-          // eslint-disable-next-line max-len
-          `${jiraDialogURL}/oslc/provider/selector?provider_id=${project_id}#oslc-core-postMessage-1.0`,
-        );
+          break;
+        case 'glideyoke':
+          setGlobalDialog(true);
+          break;
+        case 'jira':
+          setGlobalDialog(true);
+          break;
+        case 'valispace':
+          setAppWithWorkspace(true);
+          setGlobalDialog(true);
+          break;
+        case 'codebeamer':
+          setGlobalDialog(true);
+          break;
       }
     }
   }, [projectType]);
@@ -201,6 +163,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             results?.forEach((v, i) => {
               const koatl_path = results[i]['koatl:apiPath'];
               const koatl_uri = results[i]['koatl:apiUrl'];
+              const oslcApplication = results[i]['oslc:api'];
               const branch_name = results[i]['oslc:branchName'];
               const target_provider = results[i]['oslc:api'];
               const content = results[i]['oslc:content'];
@@ -215,6 +178,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               targetArray.push({
                 koatl_uri,
                 koatl_path,
+                oslcApplication,
                 branch_name,
                 target_provider,
                 provider_id,
@@ -270,6 +234,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // Link type dropdown
   const handleApplicationChange = (selectedItem) => {
     setExternalProjectUrl('');
+    closeExternalAppResetRequest();
     dispatch(handleApplicationType(selectedItem));
   };
 
@@ -292,7 +257,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Create new link
   const handleSaveLink = (res) => {
-    const { projectName, sourceType, title, uri, appName, branch, commit } =
+    const { projectName, sourceType, title, uri, appName, branch, commit, searchString } =
       sourceDataList;
     const selectedLines = title?.split('#');
 
@@ -309,12 +274,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           target_properties: {
             type: item?.type || item?.resource_type,
             uri: targetUri || item?.link,
-            title: item?.label || item?.name,
+            title: item?.name || item?.label,
             provider_id: item?.provider_id || item?.id,
             provider_name: item?.provider_name ? item?.provider_name : '',
             api: item?.api ? item?.api : '',
             description: item?.description ? item?.description : '',
             extra_properties: {
+              application_id: applicationType?.id,
               parent_properties: item?.parent_properties ? item?.parent_properties : '',
               branch_name: properties?.branch_name ? properties?.branch_name : '',
               commit_id: properties?.commit_id ? properties?.commit_id : '',
@@ -341,6 +307,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           extra_properties: {
             branch_name: branch ? branch : '',
             commit_id: commit ? commit : '',
+            search_params: searchString ? searchString : '',
             selected_lines: selectedLines
               ? selectedLines[1]
                 ? selectedLines[1]
@@ -358,8 +325,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         target_data: mappedTargetData,
       };
 
-      // console.log('New Response: ', linkBodyData);
-
       if (sourceDataList?.uri) {
         dispatch(
           fetchCreateLink({
@@ -374,6 +339,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         showNotification('info', 'Sorry, Source data not found !!!');
       }
     } else if (!res && targetDataArr?.length) {
+      console.log('targetDataArr', targetDataArr);
       const targetsData = targetDataArr?.map((data) => {
         const id = data?.selected_lines
           ? data.koatl_uri + '#' + data?.selected_lines
@@ -382,6 +348,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         return {
           koatl_uri: platform_uri,
           koatl_path: data.koatl_path ? data.koatl_path : '',
+          api: data.oslcApplication ? data.oslcApplication : '',
           content_lines: data.content_lines ? data.content_lines : '',
           selected_lines: data.selected_lines ? data.selected_lines : '',
           branch_name: data.branch_name ? data.branch_name : '',
@@ -466,163 +433,155 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     case 'glideyoke':
       setExternalProjectUrl(`${thirdApiURL}/glideyoke/containers`);
       break;
+    case 'codebeamer':
+      setExternalProjectUrl(`${thirdApiURL}/codebeamer/containers`);
+      break;
     }
   }, [applicationType]);
-
   return (
     <>
       <SourceSection />
+      <div className={newLinkMainContainer}>
+        {/* --- Link types --- */}
+        <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
+          <FlexboxGrid.Item colspan={4}>
+            <h3>Link: </h3>
+          </FlexboxGrid.Item>
 
-      <div className="mainContainer">
-        <div className="container">
-          <div className={newLinkMainContainer}>
-            {/* --- Link types --- */}
-            <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
-              <FlexboxGrid.Item colspan={3}>
-                <h3>Link: </h3>
+          <FlexboxGrid.Item colspan={20}>
+            <CustomReactSelect
+              name="link_type"
+              placeholder="Choose Link Type"
+              apiURL={sourceDataList?.sourceType ? `${apiURL}/link-type` : ''}
+              // after configure the source_type endpoints we need to uncomment line
+              // apiQueryParams={`source_resource=${sourceDataList?.sourceType}`}
+              onChange={handleLinkTypeChange}
+              isLinkCreation={true}
+              value={linkType?.label}
+            />
+          </FlexboxGrid.Item>
+        </FlexboxGrid>
+
+        {/* --- Application and project types --- */}
+        {linkType && (
+          <>
+            <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+              <FlexboxGrid.Item colspan={4}>
+                <h3>Target: </h3>
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={21}>
-                <CustomReactSelect
-                  name="link_type"
-                  placeholder="Choose Link Type"
-                  apiURL={sourceDataList?.sourceType ? `${apiURL}/link-type` : ''}
-                  // after configure the source_type endpoints we need to uncomment line
-                  // apiQueryParams={`source_resource=${sourceDataList?.sourceType}`}
-                  onChange={handleLinkTypeChange}
-                  isLinkCreation={true}
-                  value={linkType?.label}
-                />
+              <FlexboxGrid.Item colspan={20}>
+                <FlexboxGrid justify="start">
+                  {/* --- Application dropdown ---   */}
+                  <FlexboxGrid.Item as={Col} colspan={11} style={{ paddingLeft: '0' }}>
+                    <CustomReactSelect
+                      name="application_type"
+                      placeholder="Choose Application"
+                      apiURL={sourceDataList?.sourceType ? `${apiURL}/application` : ''}
+                      onChange={handleApplicationChange}
+                      isLinkCreation={true}
+                      value={applicationType?.label}
+                      isUpdateState={linkType}
+                      selectedLinkType={linkType}
+                      isApplication={true}
+                      removeApplication={sourceDataList?.appName}
+                    />
+                  </FlexboxGrid.Item>
+
+                  {/* --- Project dropdown ---   */}
+                  {applicationType?.name && externalProjectUrl && (
+                    <FlexboxGrid.Item
+                      as={Col}
+                      colspan={11}
+                      style={{ paddingRight: '0', marginLeft: 'auto' }}
+                    >
+                      <CustomReactSelect
+                        name="target_project_type"
+                        placeholder="Choose Project"
+                        apiURL={externalProjectUrl}
+                        apiQueryParams={
+                          // eslint-disable-next-line max-len
+                          applicationType?.id
+                            ? `application_id=${applicationType?.id}`
+                            : ''
+                        }
+                        onChange={handleTargetProject}
+                        isLinkCreation={true}
+                        isUpdateState={applicationType?.label}
+                        isValispace={applicationType?.label === 'Valispace'}
+                        value={projectType?.label}
+                        disabled={externalProjectDisabled}
+                        restartRequest={restartExternalRequest}
+                        getErrorStatus={getFailedExternalAuthentication}
+                      />
+                    </FlexboxGrid.Item>
+                  )}
+                </FlexboxGrid>
               </FlexboxGrid.Item>
             </FlexboxGrid>
+          </>
+        )}
 
-            {/* --- Application and project types --- */}
-            {linkType && (
-              <>
-                <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-                  <FlexboxGrid.Item colspan={3}>
-                    <h3>Target: </h3>
-                  </FlexboxGrid.Item>
+        {linkCreateLoading && <UseLoader />}
+        {/* --- Target Selection dialog ---  */}
 
-                  <FlexboxGrid.Item colspan={21}>
-                    <FlexboxGrid justify="start">
-                      {/* --- Application dropdown ---   */}
-                      <FlexboxGrid.Item
-                        as={Col}
-                        colspan={11}
-                        style={{ paddingLeft: '0' }}
-                      >
-                        <CustomReactSelect
-                          name="application_type"
-                          placeholder="Choose Application"
-                          apiURL={
-                            sourceDataList?.sourceType ? `${apiURL}/application` : ''
-                          }
-                          onChange={handleApplicationChange}
-                          isLinkCreation={true}
-                          value={applicationType?.label}
-                          isUpdateState={linkType}
-                          selectedLinkType={linkType}
-                          isApplication={true}
-                          removeApplication={sourceDataList?.appName}
-                        />
-                      </FlexboxGrid.Item>
-
-                      {/* --- Project dropdown ---   */}
-                      {applicationType?.name && externalProjectUrl && (
-                        <FlexboxGrid.Item
-                          as={Col}
-                          colspan={11}
-                          style={{ paddingRight: '0', marginLeft: 'auto' }}
-                        >
-                          <CustomReactSelect
-                            name="target_project_type"
-                            placeholder="Choose Project"
-                            apiURL={externalProjectUrl}
-                            apiQueryParams={
-                              // eslint-disable-next-line max-len
-                              applicationType?.id
-                                ? `application_id=${applicationType?.id}`
-                                : ''
-                            }
-                            onChange={handleTargetProject}
-                            isLinkCreation={true}
-                            isUpdateState={applicationType?.label}
-                            isValispace={applicationType?.label === 'Valispace'}
-                            value={projectType?.label}
-                            disabled={externalProjectDisabled}
-                            restartRequest={restartExternalRequest}
-                            getErrorStatus={getFailedExternalAuthentication}
-                          />
-                        </FlexboxGrid.Item>
-                      )}
-                    </FlexboxGrid>
-                  </FlexboxGrid.Item>
-                </FlexboxGrid>
-              </>
+        {(withConfigAware || withoutConfigAware) && (
+          <div className={targetContainer}>
+            {linkType && projectType && projectFrameSrc && (
+              <iframe className={targetIframe} src={projectFrameSrc} />
             )}
-
-            {linkCreateLoading && <UseLoader />}
-            {/* --- Target Selection dialog ---  */}
-
-            {(withConfigAware || withoutConfigAware) && (
-              <div className={targetContainer}>
-                {linkType && projectType && projectFrameSrc && (
-                  <iframe className={targetIframe} src={projectFrameSrc} />
-                )}
-              </div>
-            )}
-
-            <div>
-              {authenticatedThirdApp && (
-                <ExternalAppModal
-                  showInNewLink={true}
-                  formValue={applicationType}
-                  isOauth2={OAUTH2_APPLICATION_TYPES?.includes(applicationType?.type)}
-                  isBasic={(
-                    BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
-                  ).includes(applicationType?.type)}
-                  onDataStatus={getExtLoginData}
-                  integrated={false}
-                />
-              )}
-              {linkType && gitlabDialog && (
-                <GitlabSelector
-                  appData={projectType}
-                  handleSaveLink={handleSaveLink}
-                  cancelLinkHandler={cancelLinkHandler}
-                ></GitlabSelector>
-              )}
-              {linkType && glideDialog && (
-                <GlideSelector
-                  handleSaveLink={handleSaveLink}
-                  appData={projectType}
-                  defaultProject={projectType}
-                  cancelLinkHandler={cancelLinkHandler}
-                ></GlideSelector>
-              )}
-            </div>
           </div>
+        )}
 
-          {/* Target Cancel button  */}
-          {!projectType?.id && (
-            <div className={targetBtnContainer}>
-              <Button
-                appearance="ghost"
-                size="md"
-                onClick={() => {
-                  dispatch(handleCancelLink());
-                  isWbe ? navigate('/wbe') : navigate('/');
-                }}
-              >
-                Cancel
-              </Button>
-              <Button appearance="primary" size="md" disabled={true}>
-                OK
-              </Button>
-            </div>
+        <>
+          {authenticatedThirdApp && (
+            <ExternalAppModal
+              showInNewLink={true}
+              formValue={applicationType}
+              isOauth2={OAUTH2_APPLICATION_TYPES?.includes(applicationType?.type)}
+              isBasic={(
+                BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
+              ).includes(applicationType?.type)}
+              onDataStatus={getExtLoginData}
+              integrated={false}
+            />
           )}
-        </div>
+          {linkType && gitlabDialog && (
+            <GitlabSelector
+              appData={projectType}
+              handleSaveLink={handleSaveLink}
+              cancelLinkHandler={cancelLinkHandler}
+            ></GitlabSelector>
+          )}
+          {linkType && globalDialog && (
+            <GlobalSelector
+              handleSaveLink={handleSaveLink}
+              appData={projectType}
+              defaultProject={appWithWorkspace ? '' : projectType}
+              cancelLinkHandler={cancelLinkHandler}
+              workspace={appWithWorkspace}
+            />
+          )}
+        </>
+
+        {/* Target Cancel button  */}
+        {!projectType?.id && (
+          <div className={targetBtnContainer}>
+            <Button
+              appearance="ghost"
+              size="md"
+              onClick={() => {
+                dispatch(handleCancelLink());
+                isWbe ? navigate('/wbe') : navigate('/');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button appearance="primary" size="md" disabled={true}>
+              OK
+            </Button>
+          </div>
+        )}
       </div>
     </>
   );

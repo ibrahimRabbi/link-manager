@@ -9,18 +9,17 @@ import CogIcon from '@rsuite/icons/legacy/Cog';
 import TableColumnIcon from '@rsuite/icons/TableColumn';
 import AuthContext from '../../../Store/Auth-Context';
 import { handleIsDarkMode, handleIsSidebarOpen } from '../../../Redux/slices/navSlice';
-import MenuIcon from '@rsuite/icons/Menu';
-import CloseIcon from '@rsuite/icons/Close';
-import DashboardIcon from '@rsuite/icons/Dashboard';
 import AttachmentIcon from '@rsuite/icons/Attachment';
 import { darkColor, lightBgColor } from '../../../App';
 import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
 import { PiGraphFill } from 'react-icons/pi';
+import { MdArrowForwardIos } from 'react-icons/md';
 import { useState } from 'react';
 import AlertModal from '../AlertModal';
 
 const iconStyle = {
   marginLeft: '-38px',
+  marginRight: '17px',
 };
 
 const baseOptions = [
@@ -28,7 +27,7 @@ const baseOptions = [
     path: '/',
     navigateTo: '/',
     icon: <TableColumnIcon />,
-    content: <span>Links</span>,
+    content: <span>Link Editor</span>,
   },
   {
     path: '/graph-view',
@@ -40,14 +39,7 @@ const baseOptions = [
     path: '/pipeline',
     navigateTo: '/pipeline',
     icon: <PlayOutlineIcon />,
-    content: <span>Pipeline</span>,
-  },
-
-  {
-    path: '/admin',
-    navigateTo: '/admin',
-    icon: <DashboardIcon />,
-    content: <span>Dashboard</span>,
+    content: <span>Pipelines</span>,
   },
   {
     path: '/extension',
@@ -92,7 +84,6 @@ const SideNavBar = () => {
       />
       <Sidebar
         style={{
-          // minHeight: isWbe ? '100vh' : '94vh',
           boxShadow: `2px 2px 5px ${isDark === 'light' ? 'lightgray' : '#292D33'}`,
           backgroundColor: isDark === 'dark' ? darkColor : lightBgColor,
         }}
@@ -100,16 +91,15 @@ const SideNavBar = () => {
         width={isSidebarOpen ? 210 : 60}
         collapsible
       >
-        <Sidenav.Header>
-          <Nav pullRight>
-            <Nav.Item
-              onClick={() => dispatch(handleIsSidebarOpen(!isSidebarOpen))}
-              style={{ width: '100%', paddingLeft: '17px', borderRadius: '0' }}
-            >
-              <h3>{isSidebarOpen ? <CloseIcon /> : <MenuIcon />}</h3>
-            </Nav.Item>
-          </Nav>
+        <Sidenav.Header className="dashboard_sidebar_header">
+          <h3
+            style={{ transform: isSidebarOpen ? 'rotate(180deg)' : '' }}
+            onClick={() => dispatch(handleIsSidebarOpen(!isSidebarOpen))}
+          >
+            <MdArrowForwardIos />
+          </h3>
         </Sidenav.Header>
+
         <Divider style={{ margin: '0' }} />
         <Sidenav
           className="links-side-nav-body"
@@ -120,8 +110,6 @@ const SideNavBar = () => {
           <Sidenav.Body className="link-nav-container">
             <Nav>
               {baseOptions?.map((option, index) => {
-                // hide admin dashboard from the WBE
-                if (isWbe && option.path === '/admin') return null;
                 if (isWbe && option.path === '/extension') return null;
                 return (
                   <Nav.Item
@@ -134,7 +122,6 @@ const SideNavBar = () => {
                     }
                     icon={option.icon}
                     onClick={() => {
-                      // eslint-disable-next-line max-len
                       isWbe
                         ? navigate(`/wbe${option.navigateTo}`)
                         : navigate(option.navigateTo);
@@ -168,8 +155,7 @@ const SideNavBar = () => {
 
                 <Nav.Item onClick={() => handleLogout()}>
                   <h5>
-                    {' '}
-                    <BiLogOut />{' '}
+                    <BiLogOut />
                   </h5>
                 </Nav.Item>
               </Nav.Menu>
