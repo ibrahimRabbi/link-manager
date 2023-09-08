@@ -18,11 +18,12 @@ function DebouncedInput({ value: initialValue, onChange, debounce = 1000, ...pro
 
   return (
     <Input
+      type="text"
       className="filterStyle"
       {...props}
       value={value}
       size="sm"
-      onChange={(e) => setValue(e.target.value)}
+      onChange={(value) => setValue(value)}
     />
   );
 }

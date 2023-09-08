@@ -122,10 +122,10 @@ const RecentLink = ({ recentCreatedLinks }) => {
   const columns = useMemo(
     () => [
       {
-        accessorKey: 'Source',
+        accessorKey: 'source',
         header: () => (
           <div className={headerCell}>
-            <h5>Source</h5>
+            <h6>Source</h6>
           </div>
         ),
         cell: ({ row }) => (
@@ -134,36 +134,32 @@ const RecentLink = ({ recentCreatedLinks }) => {
         footer: (props) => props.column.id,
       },
       {
+        accessorFn: (row) => `${row?.link?.link_type}`,
         accessorKey: 'link_type',
         header: () => {
           return (
             <div className={headerCell}>
-              <h5>Link Type</h5>
+              <h6>Link Type</h6>
             </div>
           );
         },
-        cell: ({ row }) => {
-          <p>{row}</p>;
-        },
         footer: (props) => props.column.id,
       },
-      // Link type cell
       {
         accessorKey: 'name',
         header: () => (
           <div className={headerCell}>
-            <h5>Target</h5>
+            <h6>Target</h6>
           </div>
         ),
         cell: ({ row }) => targetCell(row),
         footer: (props) => props.column.id,
       },
-      // status cell
       {
         accessorKey: 'status',
         header: () => (
           <div className={headerCell}>
-            <h5>Status</h5>
+            <h6>Status</h6>
           </div>
         ),
         cell: (info) => statusCell(info),
@@ -227,7 +223,8 @@ const RecentLink = ({ recentCreatedLinks }) => {
                     key={cell.id}
                     style={{
                       width: status ? '120px' : '',
-                      textAlign: 'center',
+                      textAlign: 'left',
+                      fontSize: '17px',
                     }}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
