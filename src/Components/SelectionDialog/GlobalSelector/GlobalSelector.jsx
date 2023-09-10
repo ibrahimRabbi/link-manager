@@ -18,6 +18,7 @@ import {
 } from '@tanstack/react-table';
 import { columnDefWithCheckBox as glideColumns } from './GlideColumns';
 import { columnDefWithCheckBox as jiraColumns } from './JiraColumns';
+import { columnDefWithCheckBox as dngColumns } from './DngColumns';
 import { columnDefWithCheckBox as valispaceColumns } from './ValispaceColumns.jsx';
 import { columnDefWithCheckBox as codebeamerColumns } from './CodebeamerColumns';
 import { Button, ButtonToolbar, FlexboxGrid, Message, Pagination, toaster } from 'rsuite';
@@ -91,7 +92,7 @@ const GlobalSelector = ({
     setResourceTypeId('');
   };
   const handleResourceTypeChange = (selectedItem) => {
-    if (appData.application_type === 'codebeamer') {
+    if (('codebeamer', 'dng').includes(appData.application_type)) {
       setResourceTypeId(selectedItem?.id);
     } else {
       setResourceTypeId(selectedItem?.name);
@@ -300,7 +301,7 @@ const GlobalSelector = ({
 
   useEffect(() => {
     if (resourceTypes.length === 1) {
-      if (appData.application_type === 'codebeamer') {
+      if (('codebeamer', 'dng').includes(appData.application_type)) {
         setResourceTypeId(resourceTypes[0]?.id);
       } else {
         setResourceTypeId(resourceTypes[0]?.name);
@@ -316,6 +317,8 @@ const GlobalSelector = ({
       return valispaceColumns;
     } else if (appData?.application_type === 'codebeamer') {
       return codebeamerColumns;
+    } else if (appData?.application_type === 'dng') {
+      return dngColumns;
     } else {
       return glideColumns;
     }
