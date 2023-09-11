@@ -144,9 +144,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         case 'codebeamer':
           setGlobalDialog(true);
           break;
-      case 'dng':
-        setGlobalDialog(true);
-        break;
+        case 'dng':
+          setGlobalDialog(true);
+          break;
       }
     }
   }, [projectType]);
@@ -440,7 +440,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       setExternalProjectUrl(`${thirdApiURL}/codebeamer/containers`);
       break;
     case 'dng':
-      setExternalProjectUrl(`${thirdApiURL}/doors/containers`);
+      setExternalProjectUrl(`${thirdApiURL}/dng/containers`);
       break;
     }
   }, [applicationType]);
