@@ -26,7 +26,10 @@ export default function fetchAPIRequest({
           showNotification('success', 'The content was successfully deleted');
           return '';
         }
-        return response.json();
+        return response.json().then((data) => {
+          showNotification('success', data?.message);
+          return data;
+        });
       } else {
         if (response.status === 401) {
           response.json().then((data) => {

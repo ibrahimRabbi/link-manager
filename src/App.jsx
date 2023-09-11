@@ -65,6 +65,7 @@ function App() {
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
   const isSuperAdmin = authCtx?.user?.role === 'super_admin' ? true : false;
+  const isAdmin = authCtx?.user?.role === 'admin' ? true : false;
 
   useEffect(() => {
     const isDark = localStorage.getItem('isDarkMode');
@@ -121,27 +122,30 @@ function App() {
           </Route>
 
           {/* This is admin dashboard  */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          >
-            {isSuperAdmin && (
-              <Route path="/admin/organizations" element={<Organization />} />
-            )}
-            <Route path="/admin/users" element={<Users />} />
-            <Route path="/admin/integrations" element={<Application />} />
-            <Route path="/admin/projects" element={<Projects />} />
-            <Route path="/admin/link-types" element={<LinkTypes />} />
-            <Route path="/admin/link-constraint" element={<LinkConstraint />} />
-            <Route path="/admin/events" element={<Events />} />
-            <Route path="/admin/pipelines" element={<Pipelines />} />
-            <Route path="/admin/pipelinerun" element={<PipelineRun />} />
-            <Route path="/admin" element={<Users />} />
-          </Route>
+          {(isSuperAdmin || isAdmin) && (
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            >
+              {isSuperAdmin && (
+                <Route path="/admin/organizations" element={<Organization />} />
+              )}
+              <Route path="/admin/users" element={<Users />} />
+              <Route path="/admin/integrations" element={<Application />} />
+              <Route path="/admin/projects" element={<Projects />} />
+              <Route path="/admin/link-types" element={<LinkTypes />} />
+              <Route path="/admin/link-constraint" element={<LinkConstraint />} />
+              <Route path="/admin/events" element={<Events />} />
+              <Route path="/admin/pipelines" element={<Pipelines />} />
+              <Route path="/admin/pipelinerun" element={<PipelineRun />} />
+              <Route path="/admin" element={<Users />} />
+            </Route>
+          )}
+
           <Route path="/gitlabselection/:id" element={<GitlabSelector />}></Route>
           <Route path="/oauth2-status" element={<Oauth2Success />} />
           <Route path="/set-password" element={<UserVerify />} />

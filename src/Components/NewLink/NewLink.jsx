@@ -282,6 +282,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             provider_name: item?.provider_name ? item?.provider_name : '',
             api: item?.api ? item?.api : '',
             description: item?.description ? item?.description : '',
+            resource_type: item?.resourceTypes ? item?.resourceTypes : '',
             extra_properties: {
               application_id: applicationType?.id,
               parent_properties: item?.parent_properties ? item?.parent_properties : '',
@@ -304,7 +305,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           uri: uri,
           title: title ? title : '',
           provider_id: '',
-          provider_name: projectName,
+          provider_name: appName,
           api: appName,
           description: '',
           extra_properties: {
@@ -316,6 +317,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                 ? selectedLines[1]
                 : ''
               : '',
+            project_name: projectName ? projectName : '',
             content_hash: '',
             path: '',
             web_url: '',
