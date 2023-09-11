@@ -279,6 +279,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             provider_name: item?.provider_name ? item?.provider_name : '',
             api: item?.api ? item?.api : '',
             description: item?.description ? item?.description : '',
+            resource_type: item?.resourceTypes ? item?.resourceTypes : '',
             extra_properties: {
               application_id: applicationType?.id,
               parent_properties: item?.parent_properties ? item?.parent_properties : '',
