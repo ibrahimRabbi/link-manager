@@ -24,6 +24,7 @@ const retrieveStoredToken = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user_id');
     localStorage.removeItem('expirationTime');
+    localStorage.removeItem('wbe');
     return null;
   }
 
@@ -53,6 +54,7 @@ export const AuthContextProvider = (props) => {
     localStorage.removeItem('token');
     localStorage.removeItem('user_id');
     localStorage.removeItem('expirationTime');
+    localStorage.removeItem('wbe');
     userIsLoggedIn = false;
     if (logoutTimer) {
       clearTimeout(logoutTimer);

@@ -73,6 +73,9 @@ const LinkManager = () => {
 
   useEffect(() => {
     dispatch(handleIsWbe(isWbe));
+    if (isWbe) {
+      localStorage.setItem('wbe', 'wbe');
+    }
   }, [location]);
 
   // delete link using react-query
