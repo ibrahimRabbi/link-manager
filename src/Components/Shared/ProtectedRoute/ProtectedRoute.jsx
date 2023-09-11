@@ -27,6 +27,9 @@ const ProtectedRoute = ({ children }) => {
 
   useEffect(() => {
     dispatch(handleIsWbe(wbePath));
+    if (wbePath) {
+      localStorage.setItem('wbe', 'wbe');
+    }
   }, [location]);
 
   useEffect(() => {

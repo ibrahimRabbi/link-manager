@@ -73,6 +73,9 @@ const LinkManager = () => {
 
   useEffect(() => {
     dispatch(handleIsWbe(isWbe));
+    if (isWbe) {
+      localStorage.setItem('wbe', 'wbe');
+    }
   }, [location]);
 
   // delete link using react-query
@@ -184,7 +187,6 @@ const LinkManager = () => {
       });
     }
   };
-
   const tableProps = {
     data: linksData?.items?.length ? linksData?.items : [],
     handleChangeLimit,
