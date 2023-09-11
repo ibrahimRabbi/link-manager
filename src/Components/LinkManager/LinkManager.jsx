@@ -18,7 +18,7 @@ import {
   Stack,
   toaster,
 } from 'rsuite';
-import { handleCurrPageTitle, handleRefreshData } from '../../Redux/slices/navSlice';
+import { handleRefreshData } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import styles from './LinkManager.module.scss';
 import SourceSection from '../SourceSection';
@@ -106,8 +106,6 @@ const LinkManager = () => {
   // get all links
   useEffect(() => {
     (async () => {
-      dispatch(handleCurrPageTitle('Link Editor'));
-
       let streamRes = [];
       if (configuration_aware && !linksStream.key) {
         streamRes = await fetch('.././gcm_context.json')

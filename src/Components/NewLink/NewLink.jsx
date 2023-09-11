@@ -301,7 +301,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           uri: uri,
           title: title ? title : '',
           provider_id: '',
-          provider_name: projectName,
+          provider_name: appName,
           api: appName,
           description: '',
           extra_properties: {
@@ -313,6 +313,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                 ? selectedLines[1]
                 : ''
               : '',
+            project_name: projectName ? projectName : '',
             content_hash: '',
             path: '',
             web_url: '',

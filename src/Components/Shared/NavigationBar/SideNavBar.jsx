@@ -86,6 +86,8 @@ const SideNavBar = () => {
         style={{
           boxShadow: `2px 2px 5px ${isDark === 'light' ? 'lightgray' : '#292D33'}`,
           backgroundColor: isDark === 'dark' ? darkColor : lightBgColor,
+          height: isWbe ? '100vh' : '94vh',
+          marginTop: isWbe ? '0' : '56px',
         }}
         className="links-components-sidebar"
         width={isSidebarOpen ? 210 : 60}

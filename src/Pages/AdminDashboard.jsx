@@ -7,6 +7,8 @@ import NavigationBar from '../Components/Shared/NavigationBar/NavigationBar';
 
 const AdminDashboard = () => {
   const { isAdminSidebarOpen } = useSelector((state) => state.nav);
+  const { isWbe } = useSelector((state) => state.links);
+
   return (
     <>
       <div className="show-fake-browser sidebar-page">
@@ -19,6 +21,7 @@ const AdminDashboard = () => {
             className={
               isAdminSidebarOpen ? 'show_nav adminContainer' : 'hide_nav adminContainer'
             }
+            style={{ marginTop: isWbe ? '' : '50px' }}
           >
             <Outlet />
           </div>

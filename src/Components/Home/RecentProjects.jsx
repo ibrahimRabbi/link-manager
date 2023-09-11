@@ -7,7 +7,7 @@ const RecentProjects = ({ recentProject }) => {
     <Panel {...props} bordered shaded style={{ cursor: 'pointer' }}>
       <div style={{ margin: '10px 0 10px 0' }}>
         <h3>
-          <ProjectIcon fill="#06196a" style={{ fontSize: '40px', marginBottom: '5px' }} />
+          <ProjectIcon style={{ fontSize: '40px', marginBottom: '5px' }} />
         </h3>
         <h6>{props?.project?.name}</h6>
         <p style={{ marginTop: '2px' }}>{props?.project?.organization?.name}</p>

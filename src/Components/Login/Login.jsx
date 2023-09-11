@@ -103,7 +103,12 @@ const Login = () => {
 
       if (isMounted.current) {
         if ('access_token' in data) {
-          authCtx.login(data.access_token, data.expires_in, data?.user_id);
+          authCtx.login(
+            data.access_token,
+            data.expires_in,
+            data?.user_id,
+            data?.user_role,
+          );
           // Manage redirect
           if (location.state) navigate(location.state.from.pathname);
           else {

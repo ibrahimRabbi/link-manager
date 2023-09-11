@@ -287,7 +287,7 @@ const LinkManagerTable = ({ props }) => {
   return (
     <div>
       <table className={tableStyle}>
-        <thead style={{ position: 'sticky', zIndex: '1', top: '0', background: 'white' }}>
+        <thead style={{ position: 'sticky', zIndex: '1', top: '0' }}>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
@@ -363,8 +363,8 @@ function Filter({ column, table, isAction, isStatusFilter }) {
   const statusFilterItems = [
     {
       icon: <SuccessStatus color="#378f17" />,
-      label: 'Active',
-      value: 'active',
+      label: 'Valid',
+      value: 'valid',
     },
     {
       icon: <FailedStatus color="#de1655" />,
@@ -372,7 +372,7 @@ function Filter({ column, table, isAction, isStatusFilter }) {
       value: 'invalid',
     },
     {
-      icon: <InfoStatus color="#25b3f5" />,
+      icon: <InfoStatus color="#ffcc00" />,
       label: 'Suspect',
       value: 'suspect',
     },

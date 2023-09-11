@@ -185,7 +185,7 @@ const RecentLink = ({ recentCreatedLinks }) => {
   return (
     <div>
       <table className={styled_table}>
-        <thead style={{ background: 'white' }}>
+        <thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
