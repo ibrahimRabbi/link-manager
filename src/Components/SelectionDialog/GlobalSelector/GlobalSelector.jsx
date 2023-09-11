@@ -53,6 +53,7 @@ const GlobalSelector = ({
   const [columnFilters, setColumnFilters] = React.useState([]);
   const [previousColumnFilters, setPreviousColumnFilters] = React.useState([]);
   const [resourceLoading, setResourceLoading] = useState(false);
+  const [resourceTypesName, setResourceTypesName] = useState('');
   const [filterIn, setFilterIn] = useState('');
 
   const authCtx = useContext(AuthContext);
@@ -91,6 +92,7 @@ const GlobalSelector = ({
     setResourceTypeId('');
   };
   const handleResourceTypeChange = (selectedItem) => {
+    setResourceTypesName(selectedItem?.name);
     if (appData.application_type === 'codebeamer') {
       setResourceTypeId(selectedItem?.id);
     } else {
@@ -352,6 +354,9 @@ const GlobalSelector = ({
         }
         if (!newRow?.label) {
           newRow = { ...newRow, label: newRow?.label };
+        }
+        if (!newRow.resourceTypes) {
+          newRow = { ...newRow, resourceTypes: resourceTypesName };
         }
         return JSON.stringify(newRow);
       })

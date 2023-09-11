@@ -189,7 +189,6 @@ const LinkManager = () => {
       });
     }
   };
-
   const tableProps = {
     data: linksData?.items?.length ? linksData?.items : [],
     handleChangeLimit,
