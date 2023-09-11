@@ -10,11 +10,11 @@ export const fetchStreamItems = createAsyncThunk(
     return response;
   },
 );
-const isWbe = localStorage.getItem('wbe');
+
 const initialState = {
   isAdminEditing: false,
   isProfileOpen: false,
-  isSidebarOpen: isWbe ? false : true,
+  isSidebarOpen: false,
   refreshData: false,
   isAdminSidebarOpen: true,
   isAddNewModalOpen: false,
