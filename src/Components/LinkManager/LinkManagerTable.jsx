@@ -181,9 +181,9 @@ const LinkManagerTable = ({ props }) => {
           ) : status?.toLowerCase() === 'invalid' ? (
             <FailedStatus color="#de1655" />
           ) : status?.toLowerCase() === 'suspect' ? (
-            <InfoStatus color="#25b3f5" />
+            <InfoStatus color="#ffcc00" />
           ) : (
-            <InfoStatus color="#25b3f5" />
+            <InfoStatus color="#ffcc00" />
           )}
         </h5>
       </div>
@@ -302,7 +302,7 @@ const LinkManagerTable = ({ props }) => {
                     }}
                   >
                     {header.isPlaceholder ? null : (
-                      <div>
+                      <div style={{ fontWeight: 'normal' }}>
                         {flexRender(header.column.columnDef.header, header.getContext())}
 
                         {header.column.getCanFilter() ? (
