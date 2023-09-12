@@ -442,7 +442,13 @@ const GlobalSelector = ({
                   <thead>
                     {tableInstance.getHeaderGroups().map((headerEl) => {
                       return (
-                        <tr key={headerEl.id} style={{ fontSize: '20px' }}>
+                        <tr
+                          key={headerEl.id}
+                          style={{
+                            fontSize: '20px',
+                            backgroundColor: isDark === 'dark' && '#0f131a',
+                          }}
+                        >
                           {headerEl.headers.map((columnEl) => {
                             return (
                               <th
