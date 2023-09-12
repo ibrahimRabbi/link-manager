@@ -33,7 +33,7 @@ const retrieveStoredToken = () => {
   return {
     token: storedToken,
     user_id: storedUserId,
-    user_role: storedUserRole ? JSON.parse(storedUserRole) : [],
+    user_role: storedUserRole,
     expirationTime: expirationTime,
   };
 };
@@ -76,7 +76,7 @@ export const AuthContextProvider = (props) => {
     setUserRole(user_role);
     localStorage.setItem('token', token);
     localStorage.setItem('user_id', user_id);
-    localStorage.setItem('user_role', JSON.stringify(user_role));
+    localStorage.setItem('user_role', user_role);
     localStorage.setItem('expirationTime', expirationTime);
   };
 
@@ -104,22 +104,10 @@ export const AuthContextProvider = (props) => {
 
   const user = token ? jwtDecode(token) : {};
 
-  const [role, setRole] = useState('');
-
-  useEffect(() => {
-    if (userRole?.includes('super_admin')) {
-      setRole('super_admin');
-    } else if (userRole?.includes('admin')) {
-      setRole('admin');
-    } else if (userRole?.includes('user')) {
-      setRole('user');
-    }
-  }, [userRole]);
-
   const contextValue = {
     token: token,
     user_id: userId,
-    user: { ...user, role },
+    user: { ...user, role: userRole },
     isLoggedIn: userIsLoggedIn,
     login: loginHandler,
     logout: logoutHandler,

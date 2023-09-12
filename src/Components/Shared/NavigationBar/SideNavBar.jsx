@@ -156,7 +156,7 @@ const SideNavBar = () => {
           </Navbar>
         )}
 
-        <Navbar style={{ margin: '0 0 10px 0' }}>
+        <Navbar style={{ marginTop: isWbe ? '0' : 'auto', marginBottom: '10px' }}>
           <Nav pullRight>
             <Nav.Item
               onClick={() => dispatch(handleIsSidebarOpen(!isSidebarOpen))}

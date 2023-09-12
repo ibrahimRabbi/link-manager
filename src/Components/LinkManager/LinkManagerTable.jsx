@@ -287,7 +287,14 @@ const LinkManagerTable = ({ props }) => {
   return (
     <div>
       <table className={tableStyle}>
-        <thead style={{ position: 'sticky', zIndex: '1', top: '0' }}>
+        <thead
+          style={{
+            position: 'sticky',
+            zIndex: '10',
+            top: '0',
+            background: isDark === 'dark' ? '#0f131a' : 'white',
+          }}
+        >
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
