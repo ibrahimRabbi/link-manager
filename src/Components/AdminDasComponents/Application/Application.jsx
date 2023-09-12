@@ -472,6 +472,13 @@ const Application = () => {
                   status: currentValue?.oauth2_application[0]?.token_status?.status,
                 });
               }
+              if (currentValue?.type === 'dng') {
+                accumulator.push({
+                  ...currentValue,
+                  iconUrl: '/dng_logo.png',
+                  status: currentValue?.oauth2_application[0]?.token_status?.status,
+                });
+              }
             } else {
               accumulator.push({
                 ...currentValue,

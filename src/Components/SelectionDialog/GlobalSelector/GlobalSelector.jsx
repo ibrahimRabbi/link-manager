@@ -18,6 +18,7 @@ import {
 } from '@tanstack/react-table';
 import { columnDefWithCheckBox as glideColumns } from './GlideColumns';
 import { columnDefWithCheckBox as jiraColumns } from './JiraColumns';
+import { columnDefWithCheckBox as dngColumns } from './DngColumns';
 import { columnDefWithCheckBox as valispaceColumns } from './ValispaceColumns.jsx';
 import { columnDefWithCheckBox as codebeamerColumns } from './CodebeamerColumns';
 import { Button, ButtonToolbar, FlexboxGrid, Message, Pagination, toaster } from 'rsuite';
@@ -26,6 +27,7 @@ import Filter from './FilterFunction';
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
 import { isEqual } from 'rsuite/cjs/utils/dateUtils.js';
 
+const NEW_RESOURCE_TYPES = ['codebeamer', 'dng', 'jira', 'glideyoke', 'valispace'];
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 const nativeAppUrl = `${lmApiUrl}/third_party/`;
 const GlobalSelector = ({
@@ -93,7 +95,7 @@ const GlobalSelector = ({
   };
   const handleResourceTypeChange = (selectedItem) => {
     setResourceTypesName(selectedItem?.name);
-    if (appData.application_type === 'codebeamer') {
+    if (NEW_RESOURCE_TYPES.includes(appData.application_type)) {
       setResourceTypeId(selectedItem?.id);
     } else {
       setResourceTypeId(selectedItem?.name);
@@ -246,7 +248,7 @@ const GlobalSelector = ({
         if (data?.length > 0) {
           setResourceLoading(false);
           setResourceTypes(data);
-        } else if (appData.application_type === 'codebeamer') {
+        } else if (NEW_RESOURCE_TYPES.includes(appData.application_type)) {
           if (data?.items.length > 0) {
             setResourceLoading(false);
             setResourceTypes(data?.items);
@@ -302,7 +304,7 @@ const GlobalSelector = ({
 
   useEffect(() => {
     if (resourceTypes.length === 1) {
-      if (appData.application_type === 'codebeamer') {
+      if (NEW_RESOURCE_TYPES.includes(appData.application_type)) {
         setResourceTypeId(resourceTypes[0]?.id);
       } else {
         setResourceTypeId(resourceTypes[0]?.name);
@@ -318,6 +320,8 @@ const GlobalSelector = ({
       return valispaceColumns;
     } else if (appData?.application_type === 'codebeamer') {
       return codebeamerColumns;
+    } else if (appData?.application_type === 'dng') {
+      return dngColumns;
     } else {
       return glideColumns;
     }

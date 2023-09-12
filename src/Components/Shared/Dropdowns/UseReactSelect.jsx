@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import Select, { components } from 'react-select';
 
 const UseReactSelect = (props) => {
-  const { name, items, onChange, placeholder, isLoading, disabled } = props;
+  const { name, items, onChange, placeholder, isLoading, disabled, isMulti } = props;
 
   const [selectOptions, setSelectOptions] = useState([]);
   const { isDark } = useSelector((state) => state.nav);
@@ -63,7 +63,7 @@ const UseReactSelect = (props) => {
       }}
       isDisabled={disabled}
       isLoading={isLoading}
-      isMulti={false}
+      isMulti={isMulti}
       isClearable={true}
       isSearchable={true}
       menuPlacement="auto"

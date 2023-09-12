@@ -90,6 +90,11 @@ const ExternalLogin = (props) => {
           'X-Auth-Codebeamer': 'Basic ' + authData,
         };
         break;
+      case 'dng':
+        headers = {
+          'X-Auth-DNG': 'Basic ' + authData,
+        };
+        break;
       }
 
       const response = await fetch(loginUrl, {
@@ -155,6 +160,15 @@ const ExternalLogin = (props) => {
                 {appData?.type === 'valispace' && (
                   <img
                     src={'/valispace_logo.png'}
+                    alt="Application logo"
+                    className={appImage}
+                    width={150}
+                    height={150}
+                  />
+                )}
+                {appData?.type === 'dng' && (
+                  <img
+                    src={'/dng_logo.png'}
                     alt="Application logo"
                     className={appImage}
                     width={150}

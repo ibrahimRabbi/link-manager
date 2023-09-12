@@ -9,11 +9,15 @@ import RecentProjects from './RecentProjects';
 import UseLoader from '../Shared/UseLoader';
 import RecentPipeline from './RecentPipeline';
 import RecentLink from './RecentLink';
+import { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 
 const Home = () => {
   const [currPage] = useState(1);
   const [pageSize] = useState(5);
   const authCtx = useContext(AuthContext);
+  const dispatch = useDispatch();
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -24,42 +28,41 @@ const Home = () => {
       toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
     }
   };
+
+  useEffect(() => {
+    dispatch(handleCurrPageTitle('Link Editor'));
+  }, []);
+
   // get data using react-query
-  const {
-    data: recentProject,
-    isLoading: projectLoading,
-    // refetch: refetchProjects,
-  } = useQuery(['recentProject'], () =>
-    fetchAPIRequest({
-      urlPath: `project/recent?page=${currPage}&per_page=${pageSize}`,
-      token: authCtx.token,
-      method: 'GET',
-      showNotification: showNotification,
-    }),
+  const { data: recentProject, isLoading: projectLoading } = useQuery(
+    ['recentProject'],
+    () =>
+      fetchAPIRequest({
+        urlPath: `project/recent?page=${currPage}&per_page=${pageSize}`,
+        token: authCtx.token,
+        method: 'GET',
+        showNotification: showNotification,
+      }),
   );
-  const {
-    data: recentPipelines,
-    isLoading: pipelineLoading,
-    // refetch: refetchPipeline,
-  } = useQuery(['recentPipeline'], () =>
-    fetchAPIRequest({
-      urlPath: `pipeline_run/recent?page=${currPage}&per_page=${pageSize}`,
-      token: authCtx.token,
-      method: 'GET',
-      showNotification: showNotification,
-    }),
+  const { data: recentPipelines, isLoading: pipelineLoading } = useQuery(
+    ['recentPipeline'],
+    () =>
+      fetchAPIRequest({
+        urlPath: `pipeline_run/recent?page=${currPage}&per_page=${pageSize}`,
+        token: authCtx.token,
+        method: 'GET',
+        showNotification: showNotification,
+      }),
   );
-  const {
-    data: recentCreatedLinks,
-    isLoading: linkLoading,
-    // refetch: refetchPipeline,
-  } = useQuery(['recentLink'], () =>
-    fetchAPIRequest({
-      urlPath: `link/recent?page=${currPage}&per_page=${pageSize}`,
-      token: authCtx.token,
-      method: 'GET',
-      showNotification: showNotification,
-    }),
+  const { data: recentCreatedLinks, isLoading: linkLoading } = useQuery(
+    ['recentLink'],
+    () =>
+      fetchAPIRequest({
+        urlPath: `link/recent?page=${currPage}&per_page=${pageSize}`,
+        token: authCtx.token,
+        method: 'GET',
+        showNotification: showNotification,
+      }),
   );
   const tableProps = {
     data: recentCreatedLinks?.data?.length ? recentCreatedLinks?.data : [],

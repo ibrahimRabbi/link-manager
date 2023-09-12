@@ -144,6 +144,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         case 'codebeamer':
           setGlobalDialog(true);
           break;
+        case 'dng':
+          setGlobalDialog(true);
+          break;
       }
     }
   }, [projectType]);
@@ -302,7 +305,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           uri: uri,
           title: title ? title : '',
           provider_id: '',
-          provider_name: projectName,
+          provider_name: appName,
           api: appName,
           description: '',
           extra_properties: {
@@ -314,6 +317,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                 ? selectedLines[1]
                 : ''
               : '',
+            project_name: projectName ? projectName : '',
             content_hash: '',
             path: '',
             web_url: '',
@@ -437,6 +441,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     case 'codebeamer':
       setExternalProjectUrl(`${thirdApiURL}/codebeamer/containers`);
       break;
+    case 'dng':
+      setExternalProjectUrl(`${thirdApiURL}/dng/containers`);
+      break;
     }
   }, [applicationType]);
   return (
@@ -509,7 +516,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                         onChange={handleTargetProject}
                         isLinkCreation={true}
                         isUpdateState={applicationType?.label}
-                        isValispace={applicationType?.label === 'Valispace'}
                         value={projectType?.label}
                         disabled={externalProjectDisabled}
                         restartRequest={restartExternalRequest}

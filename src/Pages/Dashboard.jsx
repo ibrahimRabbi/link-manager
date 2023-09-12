@@ -1,12 +1,20 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Outlet } from 'react-router-dom';
 import { Container } from 'rsuite';
 import SideNavBar from '../Components/Shared/NavigationBar/SideNavBar';
 import NavigationBar from '../Components/Shared/NavigationBar/NavigationBar';
+import { useEffect } from 'react';
+import { handleIsSidebarOpen } from '../Redux/slices/navSlice';
 
 const Dashboard = () => {
   const { isSidebarOpen } = useSelector((state) => state.nav);
+  const { isWbe } = useSelector((state) => state.links);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!isWbe) dispatch(handleIsSidebarOpen(true));
+  }, []);
 
   return (
     <div className="show-fake-browser sidebar-page">
@@ -15,7 +23,10 @@ const Dashboard = () => {
         <div style={{ position: 'fixed' }}>
           <SideNavBar isWbe={false} />
         </div>
-        <div className={isSidebarOpen ? 'show_nav' : 'hide_nav'}>
+        <div
+          className={isSidebarOpen ? 'show_nav' : 'hide_nav'}
+          style={{ marginTop: isWbe ? '' : '50px' }}
+        >
           <Outlet />
         </div>
       </Container>
