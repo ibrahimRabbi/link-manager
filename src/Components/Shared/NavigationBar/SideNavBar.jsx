@@ -90,18 +90,9 @@ const SideNavBar = () => {
           marginTop: isWbe ? '0' : '56px',
         }}
         className="links-components-sidebar"
-        width={isSidebarOpen ? 210 : 60}
+        width={isSidebarOpen ? 200 : 56}
         collapsible
       >
-        <Sidenav.Header className="dashboard_sidebar_header">
-          <h3
-            style={{ transform: isSidebarOpen ? 'rotate(180deg)' : '' }}
-            onClick={() => dispatch(handleIsSidebarOpen(!isSidebarOpen))}
-          >
-            <MdArrowForwardIos />
-          </h3>
-        </Sidenav.Header>
-
         <Divider style={{ margin: '0' }} />
         <Sidenav
           className="links-side-nav-body"
@@ -138,13 +129,13 @@ const SideNavBar = () => {
         </Sidenav>
 
         {isWbe && (
-          <Navbar appearance="subtle" className="nav-toggle wbe-nav-setting">
+          <Navbar className="wbe-nav-setting">
             <Nav>
               <Nav.Menu
                 noCaret
                 placement="topStart"
                 trigger="click"
-                title={<CogIcon style={{ width: 20, height: 20 }} size="lg" />}
+                title={<CogIcon style={{ width: 25, height: 20 }} size="lg" />}
               >
                 <Nav.Item
                   style={{ width: '45px' }}
@@ -164,6 +155,21 @@ const SideNavBar = () => {
             </Nav>
           </Navbar>
         )}
+
+        <Navbar style={{ marginTop: isWbe ? '0' : 'auto', marginBottom: '10px' }}>
+          <Nav pullRight>
+            <Nav.Item
+              onClick={() => dispatch(handleIsSidebarOpen(!isSidebarOpen))}
+              style={{
+                textAlign: 'center',
+                transition: '0.2s',
+                transform: isSidebarOpen ? 'rotate(180deg)' : '',
+              }}
+            >
+              <MdArrowForwardIos size={25} />
+            </Nav.Item>
+          </Nav>
+        </Navbar>
       </Sidebar>
     </>
   );

@@ -295,7 +295,6 @@ const LinkManager = () => {
                     <Button
                       color="blue"
                       appearance="primary"
-                      active
                       onClick={() =>
                         isWbe ? navigate('/wbe/new-link') : navigate('/new-link')
                       }
