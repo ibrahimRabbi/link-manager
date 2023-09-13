@@ -56,6 +56,9 @@ export const nodeImageStyle = {
   codebeamer: {
     image: '/node_icons/codebeamer_logo.png',
   },
+  dng: {
+    image: '/node_icons/dng_logo.png',
+  },
   default: {
     image: '/node_icons/default_logo.png',
   },
