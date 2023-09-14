@@ -61,6 +61,9 @@ const ExternalPreview = (props) => {
   case 'codebeamer':
     iconUrl = '/codebeamer_logo.png';
     break;
+  case 'dng':
+    iconUrl = '/dng_logo.png';
+    break;
   default:
     iconUrl = '/default_preview_logo.svg';
     break;

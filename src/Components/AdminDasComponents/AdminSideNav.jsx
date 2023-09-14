@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Sidebar, Sidenav, Nav, Divider } from 'rsuite';
+import { Sidebar, Sidenav, Nav, Divider, Navbar } from 'rsuite';
 import { handleIsAdminSidebarOpen } from '../../Redux/slices/navSlice';
 import { FaUsers, FaLink } from 'react-icons/fa';
 import { SlOrganization } from 'react-icons/sl';
@@ -108,18 +108,9 @@ const AdminSideNav = () => {
           backgroundColor: isDark === 'dark' ? darkColor : lightBgColor,
         }}
         className="admin-components-sidebar"
-        width={isAdminSidebarOpen ? 210 : 60}
+        width={isAdminSidebarOpen ? 200 : 56}
         collapsible
       >
-        <Sidenav.Header className="dashboard_sidebar_header">
-          <h3
-            style={{ transform: isAdminSidebarOpen ? 'rotate(180deg)' : '' }}
-            onClick={() => dispatch(handleIsAdminSidebarOpen(!isAdminSidebarOpen))}
-          >
-            <MdArrowForwardIos />
-          </h3>
-        </Sidenav.Header>
-
         <Divider style={{ margin: '0' }} />
 
         <Sidenav
@@ -151,6 +142,21 @@ const AdminSideNav = () => {
             </Nav>
           </Sidenav.Body>
         </Sidenav>
+
+        <Navbar style={{ margin: 'auto 0 10px 0' }}>
+          <Nav pullRight>
+            <Nav.Item
+              onClick={() => dispatch(handleIsAdminSidebarOpen(!isAdminSidebarOpen))}
+              style={{
+                textAlign: 'center',
+                transition: '0.2s',
+                transform: isAdminSidebarOpen ? 'rotate(180deg)' : '',
+              }}
+            >
+              <MdArrowForwardIos size={25} />
+            </Nav.Item>
+          </Nav>
+        </Navbar>
       </Sidebar>
     </>
   );

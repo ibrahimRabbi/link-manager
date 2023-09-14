@@ -61,7 +61,9 @@ const CytoscapeGraphView = () => {
       }),
   });
 
+  const [node_id, setNodeId] = useState('');
   const fetchNodeData = async (nodeId) => {
+    setNodeId(nodeId);
     try {
       if (nodeId) {
         // Make an API request to get the data for the node
@@ -80,7 +82,6 @@ const CytoscapeGraphView = () => {
       return null;
     }
   };
-
   const findSelectedNode = (nodeId) => {
     return nodeData?.find((item) => item?.data?.id === nodeId);
   };
@@ -170,7 +171,6 @@ const CytoscapeGraphView = () => {
             classes: 'bottom-center',
             nodeData: {
               ...item?.properties,
-              // eslint-disable-next-line max-len
               ...checkNodeImage(
                 item?.properties?.api
                   ? item?.properties?.api
@@ -192,8 +192,17 @@ const CytoscapeGraphView = () => {
           },
         };
       });
+      updatedNodes?.reduce((accumulator, item) => {
+        if (node_id === item?.data?.nodeData?.id) {
+          console.log('Latest node:', item);
+          console.log('selected node: ', expandNode);
+        }
+        return accumulator;
+      }, []);
+
       setExpandNode(null);
       setExpandedNodeData(null);
+
       setNodeData([...nodeData, ...updatedNodes]);
       setEdgeData([...edgeData, ...updatedEdges]);
     }
@@ -209,7 +218,7 @@ const CytoscapeGraphView = () => {
         return item;
       });
       setNodeData(updatedGraphData);
-      if (!expandNode?.data?.nodeData?.id.includes('lm-api-dev')) {
+      if (!expandNode?.data?.nodeData?.id?.includes('lm-api-dev')) {
         fetchNodeData(expandNode?.data?.nodeData?.id);
       } else {
         fetchNodeData(expandNode?.data?.nodeData?.web_url);
@@ -246,7 +255,6 @@ const CytoscapeGraphView = () => {
             nodeData: {
               ...item?.properties,
               childData: sourceDataList?.uri === item?.properties?.id,
-              // eslint-disable-next-line max-len
               ...checkNodeImage(
                 item?.properties?.api
                   ? item?.properties?.api
