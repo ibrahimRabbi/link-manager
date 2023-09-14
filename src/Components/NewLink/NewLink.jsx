@@ -257,19 +257,20 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     dispatch(handleCancelLink());
     isWbe ? navigate('/wbe') : navigate('/');
   };
-
+  console.log(sourceDataList);
   // Create new link
   const handleSaveLink = (res) => {
     const { projectName, sourceType, title, uri, appName, branch, commit, searchString } =
       sourceDataList;
     const selectedLines = title?.split('#');
+    const splitUri = uri?.split('#');
 
     // create link with new response formate with new endpoint
     if (res) {
       const targetRes = JSON.parse(res);
       const mappedTargetData = targetRes?.map((item) => {
         const properties = item?.extended_properties;
-        // eslint-disable-next-line max-len
+
         const targetUri = properties?.selected_lines
           ? item?.uri + '#' + properties?.selected_lines
           : item?.uri;
@@ -299,6 +300,23 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         };
       });
 
+      // parents properties for the source
+      const source_parent_properties = {
+        api: appName,
+        description: '',
+        label: selectedLines ? selectedLines[0] : '',
+        type: sourceType,
+        provider_id: '',
+        provider_name: appName,
+        uri: splitUri[0],
+        web_url: splitUri[0],
+        extended_properties: {
+          branch_name: branch ? branch : '',
+          commit_id: commit ? commit : '',
+          path: selectedLines ? selectedLines[0] : '',
+        },
+      };
+
       const linkBodyData = {
         source_properties: {
           type: sourceType,
@@ -311,6 +329,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           extra_properties: {
             branch_name: branch ? branch : '',
             commit_id: commit ? commit : '',
+            parent_properties: selectedLines
+              ? selectedLines[1]
+                ? source_parent_properties
+                : ''
+              : '',
             search_params: searchString ? searchString : '',
             selected_lines: selectedLines
               ? selectedLines[1]

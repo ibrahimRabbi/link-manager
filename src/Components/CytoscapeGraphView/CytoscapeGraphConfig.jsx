@@ -22,6 +22,15 @@ export const graphStyle = [
     },
   },
   {
+    selector: 'node[label]',
+    style: {
+      label: 'data(label)',
+      'text-background-color': '#ffffff',
+      'text-background-opacity': 0.8,
+      'text-background-padding': '5px',
+    },
+  },
+  {
     selector: 'edge',
     style: {
       width: 3,
@@ -36,8 +45,8 @@ export const graphStyle = [
       label: 'data(label)',
       width: 4,
       'text-background-color': '#ffffff', // Set the background color
-      'text-background-opacity': 1, // Make the background opaque
-      'text-background-padding': '10px',
+      'text-background-opacity': 0.8, // Make the background opaque
+      'text-background-padding': '5px',
     },
   },
   {

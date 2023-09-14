@@ -24,7 +24,7 @@ import { handleIsDarkMode } from './Redux/slices/navSlice';
 import { CustomProvider } from 'rsuite';
 import 'rsuite/dist/rsuite.min.css';
 import 'rsuite/styles/index.less';
-import UserVerify from './Components/Login/UserVerify';
+import SetPassword from './Components/Login/SetPassword';
 import Oauth2Success from './Components/Oauth2/oauth2Success.jsx';
 import Events from './Components/AdminDasComponents/Events/Events.jsx';
 import Pipelines from './Components/AdminDasComponents/Pipelines/Pipelines.jsx';
@@ -148,7 +148,7 @@ function App() {
 
           <Route path="/gitlabselection/:id" element={<GitlabSelector />}></Route>
           <Route path="/oauth2-status" element={<Oauth2Success />} />
-          <Route path="/set-password" element={<UserVerify />} />
+          <Route path="/set-password" element={<SetPassword />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
