@@ -78,7 +78,7 @@ const Home = () => {
             {recentProject?.items?.length < 1 ? (
               <div>
                 <h3 style={{ textAlign: 'center', marginTop: '10px', color: 'blue' }}>
-                  There is no recent projects
+                  There is no recent project
                 </h3>
               </div>
             ) : (
@@ -88,11 +88,11 @@ const Home = () => {
             )}
           </div>
           <div style={{ marginTop: '30px' }}>
-            <h3>Recent Link Created</h3>
+            <h3>Recently Created Links</h3>
             {recentCreatedLinks?.items?.length < 1 ? (
               <div>
                 <h3 style={{ textAlign: 'center', marginTop: '10px', color: 'blue' }}>
-                  There is no link created
+                  There is no created link
                 </h3>
               </div>
             ) : (
