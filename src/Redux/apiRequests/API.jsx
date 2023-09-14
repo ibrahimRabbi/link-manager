@@ -88,7 +88,7 @@ export async function saveResource({ url, token, bodyData, showNotification }) {
     } else {
       if (res.status === 400) {
         return res.json().then((data) => {
-          showNotification('error', data?.message?.message);
+          showNotification('error', data?.message);
         });
       } else if (res.status === 401) {
         return res.json().then((data) => {
