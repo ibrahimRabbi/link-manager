@@ -111,6 +111,7 @@ const Pipeline = () => {
         return {
           id: run.id,
           event: run.pipeline.event.name,
+          organization: run.pipeline.event.application.organization.name,
           start_time: new Date(run.start_time).toLocaleString('en-US', {
             hour12: true,
           }),
@@ -206,6 +207,12 @@ const Pipeline = () => {
                         <h5>Event</h5>
                       </HeaderCell>
                       <Cell style={{ fontSize: '17px' }} dataKey="event" />
+                    </Column>
+                    <Column flexGrow={1} align="left" fixed>
+                      <HeaderCell>
+                        <h5>Organization</h5>
+                      </HeaderCell>
+                      <Cell style={{ fontSize: '17px' }} dataKey="organization" />
                     </Column>
                     <Column flexGrow={1} width={180} align="left" fixed>
                       <HeaderCell>
