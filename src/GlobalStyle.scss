@@ -114,7 +114,6 @@
 .links-components-sidebar {
   display: flex !important;
   flex-direction: column !important;
-  height: 100vh;
 
   .links-side-nav-body {
     overflow-y: auto;
@@ -123,7 +122,7 @@
   }
 
   .wbe-nav-setting {
-    margin: auto 0 20px;
+    margin: auto 0 0;
   }
 }
 
@@ -131,7 +130,8 @@
 .admin-components-sidebar {
   display: flex !important;
   flex-direction: column !important;
-  height: 93vh;
+  height: 94vh;
+  margin-top: 56px;
 
   .admin-side-nav-body {
     overflow-y: auto;
@@ -305,6 +305,7 @@
     box-shadow: 0px 0px 5px gray;
   }
 }
+
 .globalStyle {
   border: 1px solid lightgray;
   border-radius: 3px;

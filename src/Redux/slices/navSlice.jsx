@@ -14,7 +14,7 @@ export const fetchStreamItems = createAsyncThunk(
 const initialState = {
   isAdminEditing: false,
   isProfileOpen: false,
-  isSidebarOpen: true,
+  isSidebarOpen: false,
   refreshData: false,
   isAdminSidebarOpen: true,
   isAddNewModalOpen: false,

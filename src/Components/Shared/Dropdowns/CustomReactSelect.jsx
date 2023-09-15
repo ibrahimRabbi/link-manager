@@ -11,6 +11,7 @@ const icons = {
   glide: '/glide_logo.png',
   valispace: '/valispace_logo.png',
   codebeamer: '/codebeamer_logo.png',
+  dng: '/dng_logo.png',
   default: '/default_logo.png',
 };
 
@@ -123,10 +124,12 @@ const CustomReactSelect = forwardRef((props, ref) => {
               glideYoke: '',
               jira: '',
               valispace: '',
+              dng: '',
             };
             // domains for the filter application when creating links
             const gitlabDomain = ['http://open-services.net/ns/scm#'];
             const valispaceDomain = ['http://open-services.net/ns/rm#'];
+            const dngDomain = ['http://open-services.net/ns/rm#'];
             const codeBeamerDomain = [
               'http://open-services.net/ns/rm#',
               'http://open-services.net/ns/qm#',
@@ -146,6 +149,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
             if (urlType?.includes(codeBeamerDomain[0])) apps['codebeamer'] = 'codebeamer';
             if (urlType?.includes(codeBeamerDomain[1])) apps['codebeamer'] = 'codebeamer';
             if (urlType?.includes(valispaceDomain[0])) apps['valispace'] = 'valispace';
+            if (urlType?.includes(dngDomain[0])) apps['dng'] = 'dng';
             if (urlType?.includes(jiraDomain[0])) apps['jira'] = 'jira';
             if (urlType?.includes(jiraDomain[1])) apps['jira'] = 'jira';
             if (urlType?.includes(glideYokeDomain[0])) apps['glideYoke'] = 'glideyoke';
@@ -158,7 +162,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
                 app.type === apps.glideYoke ||
                 app.type === apps.jira ||
                 app.type === apps.valispace ||
-                app.type === apps.codebeamer
+                app.type === apps.codebeamer ||
+                app.type === apps.dng
               ) {
                 const existingObject = accumulator.find(
                   (obj) => obj.id === app.id && obj.name === app.name,
@@ -197,6 +202,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
         else if (item?.type === 'jira') appIcon = icons.jira;
         else if (item?.type === 'valispace') appIcon = icons.valispace;
         else if (item?.type === 'codebeamer') appIcon = icons.codebeamer;
+        else if (item?.type === 'dng') appIcon = icons.dng;
         else {
           appIcon = icons.default;
         }

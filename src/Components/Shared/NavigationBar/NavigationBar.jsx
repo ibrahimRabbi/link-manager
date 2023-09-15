@@ -32,6 +32,8 @@ const NavigationBar = () => {
   const dispatch = useDispatch();
   const toaster = useToaster();
   const userInfo = jwt_decode(authCtx?.token);
+  const isSuperAdmin = authCtx?.user?.role === 'super_admin' ? true : false;
+  const isAdmin = authCtx?.user?.role === 'admin' ? true : false;
 
   const handleLogout = () => {
     dispatch(handleIsProfileOpen(!isProfileOpen));
@@ -68,7 +70,7 @@ const NavigationBar = () => {
       path: '/profile',
       icon: <BiUserCircle size={18} style={{ marginRight: '-1px' }} />,
     },
-    { label: 'Dashboard', path: '/admin', icon: <DashboardIcon size={17} /> },
+    { label: 'Admin Dashboard', path: '/admin', icon: <DashboardIcon size={17} /> },
     { label: darkModeText, path: '', icon: <ImBrightnessContrast size={17} /> },
     { label: 'Logout', path: '', icon: <BiLogOut size={17} /> },
   ];
@@ -88,6 +90,13 @@ const NavigationBar = () => {
       }
     >
       {popItems.map((item, index) => {
+        if (item?.path === '/admin') {
+          if (isAdmin || isSuperAdmin) {
+            // display dashboard option
+          } else {
+            return null;
+          }
+        }
         return (
           <Button
             key={index}
@@ -106,10 +115,13 @@ const NavigationBar = () => {
 
   return (
     <>
-      <Navbar
+      <div
         style={{
           backgroundColor: isDark === 'dark' ? darkColor : lightBgColor,
-          boxShadow: `2px 2px 5px ${isDark === 'light' ? 'lightgray' : '#292D33'}`,
+          boxShadow: `0px 0px 5px ${isDark === 'light' ? 'lightgray' : '#292D33'}`,
+          position: 'fixed',
+          zIndex: '100',
+          width: '100%',
         }}
       >
         {/* confirmation modal  */}
@@ -119,36 +131,59 @@ const NavigationBar = () => {
           content={'You want to logout!'}
           handleConfirmed={handleConfirmed}
         />
-        <Navbar.Brand
-          onClick={() => navigate('/')}
+        <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '5px',
-            cursor: 'pointer',
+            justifyContent: 'space-between',
           }}
         >
-          <img height={30} src={koneksysLogo} alt="Logo" />
-          <h3>TraceLynx</h3>
-        </Navbar.Brand>
-        <Nav style={{ textAlign: 'center', marginLeft: '35%' }}>
-          <h3 style={{ textAlign: 'center' }}>{currPageTitle}</h3>
-        </Nav>
-
-        <Nav pullRight style={{ padding: '5px 20px 0 0' }}>
-          <Whisper
-            placement="bottomEnd"
-            trigger="click"
-            controlId="control-id-hover-enterable"
-            speaker={speaker}
-            enterable
+          <Navbar.Brand
+            onClick={() => navigate('/')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+              cursor: 'pointer',
+            }}
           >
-            <Button>
-              <BiUserCircle size={30} />
-            </Button>
-          </Whisper>
-        </Nav>
-      </Navbar>
+            <img height={30} src={koneksysLogo} alt="Logo" />
+            <h3>
+              <span
+                style={{
+                  color: isDark === 'dark' ? '#44a5fa' : '#2c74b3',
+                }}
+              >
+                Trace
+              </span>
+              <span
+                style={{
+                  color: isDark === 'dark' ? '#217ada' : '  #144272',
+                }}
+              >
+                Lynx
+              </span>
+            </h3>
+          </Navbar.Brand>
+          <Nav>
+            <h3 style={{ textAlign: 'center' }}>{currPageTitle}</h3>
+          </Nav>
+
+          <Nav style={{ padding: '5px 20px 0 0' }}>
+            <Whisper
+              placement="bottomEnd"
+              trigger="click"
+              controlId="control-id-hover-enterable"
+              speaker={speaker}
+              enterable
+            >
+              <Button>
+                <BiUserCircle size={30} />
+              </Button>
+            </Whisper>
+          </Nav>
+        </div>
+      </div>
     </>
   );
 };

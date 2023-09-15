@@ -50,8 +50,14 @@ export const nodeImageStyle = {
   glideyoke: {
     image: '/node_icons/glide_logo.png',
   },
+  glide: {
+    image: '/node_icons/glide_logo.png',
+  },
   codebeamer: {
     image: '/node_icons/codebeamer_logo.png',
+  },
+  dng: {
+    image: '/node_icons/dng_logo.png',
   },
   default: {
     image: '/node_icons/default_logo.png',

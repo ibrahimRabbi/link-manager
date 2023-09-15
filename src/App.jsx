@@ -24,7 +24,7 @@ import { handleIsDarkMode } from './Redux/slices/navSlice';
 import { CustomProvider } from 'rsuite';
 import 'rsuite/dist/rsuite.min.css';
 import 'rsuite/styles/index.less';
-import UserVerify from './Components/Login/UserVerify';
+import SetPassword from './Components/Login/SetPassword';
 import Oauth2Success from './Components/Oauth2/oauth2Success.jsx';
 import Events from './Components/AdminDasComponents/Events/Events.jsx';
 import Pipelines from './Components/AdminDasComponents/Pipelines/Pipelines.jsx';
@@ -48,7 +48,7 @@ export const lightBgColor = 'white';
 export const OAUTH2_APPLICATION_TYPES = ['gitlab', 'jira', 'codebeamer'];
 export const OIDC_APPLICATION_TYPES = ['codebeamer'];
 export const MICROSERVICES_APPLICATION_TYPES = ['glideyoke'];
-export const BASIC_AUTH_APPLICATION_TYPES = ['valispace'];
+export const BASIC_AUTH_APPLICATION_TYPES = ['valispace', 'dng'];
 
 export const USER_PASSWORD_APPLICATION_TYPES =
   MICROSERVICES_APPLICATION_TYPES + BASIC_AUTH_APPLICATION_TYPES;
@@ -65,6 +65,7 @@ function App() {
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
   const isSuperAdmin = authCtx?.user?.role === 'super_admin' ? true : false;
+  const isAdmin = authCtx?.user?.role === 'admin' ? true : false;
 
   useEffect(() => {
     const isDark = localStorage.getItem('isDarkMode');
@@ -121,30 +122,33 @@ function App() {
           </Route>
 
           {/* This is admin dashboard  */}
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          >
-            {isSuperAdmin && (
-              <Route path="/admin/organizations" element={<Organization />} />
-            )}
-            <Route path="/admin/users" element={<Users />} />
-            <Route path="/admin/integrations" element={<Application />} />
-            <Route path="/admin/projects" element={<Projects />} />
-            <Route path="/admin/link-types" element={<LinkTypes />} />
-            <Route path="/admin/link-constraint" element={<LinkConstraint />} />
-            <Route path="/admin/events" element={<Events />} />
-            <Route path="/admin/pipelines" element={<Pipelines />} />
-            <Route path="/admin/pipelinerun" element={<PipelineRun />} />
-            <Route path="/admin" element={<Users />} />
-          </Route>
+          {(isSuperAdmin || isAdmin) && (
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            >
+              {isSuperAdmin && (
+                <Route path="/admin/organizations" element={<Organization />} />
+              )}
+              <Route path="/admin/users" element={<Users />} />
+              <Route path="/admin/integrations" element={<Application />} />
+              <Route path="/admin/projects" element={<Projects />} />
+              <Route path="/admin/link-types" element={<LinkTypes />} />
+              <Route path="/admin/link-constraint" element={<LinkConstraint />} />
+              <Route path="/admin/events" element={<Events />} />
+              <Route path="/admin/pipelines" element={<Pipelines />} />
+              <Route path="/admin/pipelinerun" element={<PipelineRun />} />
+              <Route path="/admin" element={<Users />} />
+            </Route>
+          )}
+
           <Route path="/gitlabselection/:id" element={<GitlabSelector />}></Route>
           <Route path="/oauth2-status" element={<Oauth2Success />} />
-          <Route path="/set-password" element={<UserVerify />} />
+          <Route path="/set-password" element={<SetPassword />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

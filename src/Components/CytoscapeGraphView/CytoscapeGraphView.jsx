@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import Cytoscape from 'react-cytoscapejs';
 import cytoscape from 'cytoscape';
 import cxtmenu from 'cytoscape-cxtmenu';
 import { useQuery } from '@tanstack/react-query';
@@ -17,18 +16,20 @@ import UseLoader from '../Shared/UseLoader.jsx';
 import { nodeColorStyles, nodeImageStyle } from './NodeStyles.jsx';
 // eslint-disable-next-line max-len
 import { showOslcData } from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreviewConfig.jsx';
-
+import UseReactSelect from '../Shared/Dropdowns/UseReactSelect.jsx';
+import Graph from './Graph.jsx';
 const { nodeInfoContainer } = styles;
+
 const CytoscapeGraphView = () => {
   const { sourceDataList, isWbe } = useSelector((state) => state.links);
   const authCtx = useContext(AuthContext);
-  const [selectedNode, setSelectedNode] = React.useState(null);
-  const [nodeData, setNodeData] = React.useState(null);
-  const [edgeData, setEdgeData] = React.useState(null);
-
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [nodeData, setNodeData] = useState(null);
+  const [edgeData, setEdgeData] = useState([]);
   const [openedExternalPreview, setOpenedExternalPreview] = useState(false);
   const [expandedNodeData, setExpandedNodeData] = useState(null);
   const [expandNode, setExpandNode] = useState(false);
+  const [filteredElements, setFilteredElements] = useState([]);
 
   const dispatch = useDispatch();
   const containerRef = useRef(null);
@@ -48,7 +49,7 @@ const CytoscapeGraphView = () => {
   };
 
   const { data, isLoading } = useQuery({
-    queryKey: ['vis-graph'],
+    queryKey: ['cytoscape-graph'],
     queryFn: () =>
       fetchAPIRequest({
         urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
@@ -60,14 +61,16 @@ const CytoscapeGraphView = () => {
       }),
   });
 
+  const [node_id, setNodeId] = useState('');
   const fetchNodeData = async (nodeId) => {
+    setNodeId(nodeId);
     try {
       if (nodeId) {
         // Make an API request to get the data for the node
         const response = await fetchAPIRequest({
           urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
             nodeId,
-          )}&direction=outgoing&max_depth_outgoing=1`,
+          )}&direction=outgoing&max_depth_outgoing=2`,
           token: authCtx.token,
           showNotification: showNotification,
           method: 'GET',
@@ -79,9 +82,8 @@ const CytoscapeGraphView = () => {
       return null;
     }
   };
-
   const findSelectedNode = (nodeId) => {
-    return nodeData?.filter((item) => item?.data?.id === nodeId);
+    return nodeData?.find((item) => item?.data?.id === nodeId);
   };
 
   const handleClickOutside = (event) => {
@@ -91,14 +93,13 @@ const CytoscapeGraphView = () => {
     }
   };
 
-  // Define the commands for the cytoscape context menu
   const contextMenuCommands = [
     {
       content: 'Show data',
       select: function (ele) {
         const foundGraph = findSelectedNode(ele.id());
-        let nodeData = foundGraph[0]?.data?.nodeData;
-        if (foundGraph[0]?.data?.nodeData?.koatl_uri) {
+        let nodeData = foundGraph?.data?.nodeData;
+        if (foundGraph?.data?.nodeData?.koatl_uri) {
           nodeData = showOslcData(nodeData);
         }
         setSelectedNode(nodeData);
@@ -109,7 +110,7 @@ const CytoscapeGraphView = () => {
       content: 'Expand',
       select: function (ele) {
         const foundNode = findSelectedNode(ele.id());
-        setExpandNode(foundNode[0]);
+        setExpandNode(foundNode);
       },
     },
     {
@@ -117,9 +118,9 @@ const CytoscapeGraphView = () => {
       select: function (ele) {
         const selectedNode = findSelectedNode(ele.id());
         if (selectedNode) {
-          const url = selectedNode[0]?.data?.nodeData?.web_url
-            ? selectedNode[0]?.data?.nodeData?.web_url
-            : selectedNode[0]?.data?.nodeData?.id;
+          const url = selectedNode?.data?.nodeData?.web_url
+            ? selectedNode?.data?.nodeData?.web_url
+            : selectedNode?.data?.nodeData?.id;
           if (url) {
             window.open(url, '_blank');
           }
@@ -170,7 +171,11 @@ const CytoscapeGraphView = () => {
             classes: 'bottom-center',
             nodeData: {
               ...item?.properties,
-              ...checkNodeImage(item?.properties?.api),
+              ...checkNodeImage(
+                item?.properties?.api
+                  ? item?.properties?.api
+                  : item?.properties?.provider,
+              ),
             },
           },
           style: nodeStyle ? nodeStyle : {},
@@ -187,8 +192,17 @@ const CytoscapeGraphView = () => {
           },
         };
       });
+      updatedNodes?.reduce((accumulator, item) => {
+        if (node_id === item?.data?.nodeData?.id) {
+          console.log('Latest node:', item);
+          console.log('selected node: ', expandNode);
+        }
+        return accumulator;
+      }, []);
+
       setExpandNode(null);
       setExpandedNodeData(null);
+
       setNodeData([...nodeData, ...updatedNodes]);
       setEdgeData([...edgeData, ...updatedEdges]);
     }
@@ -204,7 +218,7 @@ const CytoscapeGraphView = () => {
         return item;
       });
       setNodeData(updatedGraphData);
-      if (!expandNode?.data?.nodeData?.id.includes('lm-api-dev')) {
+      if (!expandNode?.data?.nodeData?.id?.includes('lm-api-dev')) {
         fetchNodeData(expandNode?.data?.nodeData?.id);
       } else {
         fetchNodeData(expandNode?.data?.nodeData?.web_url);
@@ -225,12 +239,14 @@ const CytoscapeGraphView = () => {
 
   useEffect(() => {
     if (data) {
-      let nodeData = data?.data?.nodes?.map((item) => {
+      // map nodes
+      let nodes = data?.data?.nodes?.map((item) => {
         let nodeStyle = checkNodeStyle(item?.properties?.resource_type);
         if (sourceDataList?.uri === item?.properties?.id) {
           nodeStyle = null;
           item.expanded = true;
         }
+
         return {
           data: {
             id: item.id.toString(),
@@ -239,12 +255,18 @@ const CytoscapeGraphView = () => {
             nodeData: {
               ...item?.properties,
               childData: sourceDataList?.uri === item?.properties?.id,
-              ...checkNodeImage(item?.properties?.api),
+              ...checkNodeImage(
+                item?.properties?.api
+                  ? item?.properties?.api
+                  : item?.properties?.provider,
+              ),
             },
           },
           style: nodeStyle ? nodeStyle : {},
         };
       });
+
+      // map edges
       let edges = data?.data?.edges?.map((item) => {
         return {
           data: {
@@ -255,10 +277,69 @@ const CytoscapeGraphView = () => {
           classes: 'unbundled-bezier',
         };
       });
-      setNodeData(nodeData ? nodeData : []);
+
+      setNodeData(nodes ? nodes : []);
       setEdgeData(edges ? edges : []);
     }
   }, [data]);
+
+  // handle select onChange
+  const filterByApp = (selectedItems) => {
+    const sourceData = {};
+
+    const filters = nodeData?.reduce((accumulator, item) => {
+      // get source node
+      if (item?.data?.nodeData?.provider) {
+        sourceData['sourceNode'] = item;
+      }
+
+      selectedItems?.forEach((value) => {
+        // filter nodes and edges
+        if (value?.name === item?.data?.nodeData?.api) {
+          accumulator.push(item);
+
+          // filter edges
+          edgeData?.forEach((edge) => {
+            if (item?.data?.id === edge?.data?.target) {
+              accumulator.push(edge);
+            }
+          });
+        }
+      });
+      return accumulator;
+    }, []);
+
+    if (filters.length) setFilteredElements([sourceData?.sourceNode, ...filters]);
+    else {
+      setFilteredElements([]);
+    }
+  };
+
+  // filter target application dropdown item dynamically
+  const targetDropdownItem = nodeData?.reduce((accumulator, item) => {
+    const isObjectInArray = accumulator.some((value) => {
+      return item?.data?.nodeData?.api === value?.name;
+    });
+
+    if (!isObjectInArray) {
+      if (item?.data?.nodeData?.api) {
+        accumulator.push({
+          name: item?.data?.nodeData?.api,
+          icon: checkNodeImage(item?.data?.nodeData?.api)?.image,
+        });
+      }
+    }
+    return accumulator;
+  }, []);
+
+  // graph props
+  const graphProps = {
+    data: filteredElements.length ? filteredElements : nodeData?.concat(edgeData),
+    graphLayout,
+    graphStyle,
+    cyRef,
+    contextMenuCommands,
+  };
   return (
     <div ref={graphContainerRef}>
       {isWbe && isLoading && <UseLoader />}
@@ -271,24 +352,20 @@ const CytoscapeGraphView = () => {
 
       {isWbe && data && (
         <>
-          {(nodeData || edgeData) && (
-            <Cytoscape
-              containerID="cy"
-              elements={nodeData?.concat(edgeData)}
-              layout={graphLayout}
-              stylesheet={graphStyle}
-              // userZoomingEnabled={false}
-              style={{ width: '99%', height: '99vh' }}
-              cy={(cy) => {
-                cyRef.current = cy;
-                cy.cxtmenu({
-                  selector: 'node',
-                  commands: contextMenuCommands,
-                });
-                cy.layout(graphLayout).run();
-                cy.fit(10); // Adjust the padding as needed
-              }}
-            />
+          {nodeData && (
+            <>
+              <div style={{ width: '90%', margin: '10px auto' }}>
+                <UseReactSelect
+                  name="node_filter"
+                  items={targetDropdownItem}
+                  onChange={filterByApp}
+                  placeholder="Filter data by target applications..."
+                  isMulti={true}
+                />
+              </div>
+
+              <Graph props={graphProps} />
+            </>
           )}
         </>
       )}

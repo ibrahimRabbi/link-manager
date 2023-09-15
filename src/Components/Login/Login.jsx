@@ -103,10 +103,28 @@ const Login = () => {
 
       if (isMounted.current) {
         if ('access_token' in data) {
-          authCtx.login(data.access_token, data.expires_in, data?.user_id);
+          // set user role
+          let role = '';
+          if (data?.user_role?.includes('super_admin')) {
+            role = 'super_admin';
+          } else if (data?.user_role?.includes('admin')) {
+            role = 'admin';
+          } else if (data?.user_role?.includes('user')) {
+            role = 'user';
+          }
+
+          authCtx.login(data.access_token, data.expires_in, data?.user_id, role);
           // Manage redirect
-          if (location.state) navigate(location.state.from.pathname);
-          else {
+          if (location.state) {
+            const redirectPath = location.state.from.pathname;
+            const isAdminDashboard = redirectPath?.includes('/admin');
+
+            // if redirect path is admin dashboard & user is not a admin.
+            if (isAdminDashboard && role === 'user') navigate('/');
+            else {
+              navigate(redirectPath);
+            }
+          } else {
             if (isSource) navigate('/wbe');
             else if (isWbe) navigate('/wbe');
             else {

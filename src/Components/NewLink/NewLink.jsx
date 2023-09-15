@@ -144,6 +144,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         case 'codebeamer':
           setGlobalDialog(true);
           break;
+        case 'dng':
+          setGlobalDialog(true);
+          break;
       }
     }
   }, [projectType]);
@@ -254,19 +257,20 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     dispatch(handleCancelLink());
     isWbe ? navigate('/wbe') : navigate('/');
   };
-
+  console.log(sourceDataList);
   // Create new link
   const handleSaveLink = (res) => {
     const { projectName, sourceType, title, uri, appName, branch, commit, searchString } =
       sourceDataList;
     const selectedLines = title?.split('#');
+    const splitUri = uri?.split('#');
 
     // create link with new response formate with new endpoint
     if (res) {
       const targetRes = JSON.parse(res);
       const mappedTargetData = targetRes?.map((item) => {
         const properties = item?.extended_properties;
-        // eslint-disable-next-line max-len
+
         const targetUri = properties?.selected_lines
           ? item?.uri + '#' + properties?.selected_lines
           : item?.uri;
@@ -279,6 +283,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             provider_name: item?.provider_name ? item?.provider_name : '',
             api: item?.api ? item?.api : '',
             description: item?.description ? item?.description : '',
+            resource_type: item?.resourceTypes ? item?.resourceTypes : '',
             extra_properties: {
               application_id: applicationType?.id,
               parent_properties: item?.parent_properties ? item?.parent_properties : '',
@@ -295,24 +300,47 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         };
       });
 
+      // parents properties for the source
+      const source_parent_properties = {
+        api: appName,
+        description: '',
+        label: selectedLines ? selectedLines[0] : '',
+        type: sourceType,
+        provider_id: '',
+        provider_name: appName,
+        uri: splitUri[0],
+        web_url: splitUri[0],
+        extended_properties: {
+          branch_name: branch ? branch : '',
+          commit_id: commit ? commit : '',
+          path: selectedLines ? selectedLines[0] : '',
+        },
+      };
+
       const linkBodyData = {
         source_properties: {
           type: sourceType,
           uri: uri,
           title: title ? title : '',
           provider_id: '',
-          provider_name: projectName,
+          provider_name: appName,
           api: appName,
           description: '',
           extra_properties: {
             branch_name: branch ? branch : '',
             commit_id: commit ? commit : '',
+            parent_properties: selectedLines
+              ? selectedLines[1]
+                ? source_parent_properties
+                : ''
+              : '',
             search_params: searchString ? searchString : '',
             selected_lines: selectedLines
               ? selectedLines[1]
                 ? selectedLines[1]
                 : ''
               : '',
+            project_name: projectName ? projectName : '',
             content_hash: '',
             path: '',
             web_url: '',
@@ -436,6 +464,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     case 'codebeamer':
       setExternalProjectUrl(`${thirdApiURL}/codebeamer/containers`);
       break;
+    case 'dng':
+      setExternalProjectUrl(`${thirdApiURL}/dng/containers`);
+      break;
     }
   }, [applicationType]);
   return (
@@ -508,7 +539,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                         onChange={handleTargetProject}
                         isLinkCreation={true}
                         isUpdateState={applicationType?.label}
-                        isValispace={applicationType?.label === 'Valispace'}
                         value={projectType?.label}
                         disabled={externalProjectDisabled}
                         restartRequest={restartExternalRequest}

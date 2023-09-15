@@ -181,9 +181,9 @@ const LinkManagerTable = ({ props }) => {
           ) : status?.toLowerCase() === 'invalid' ? (
             <FailedStatus color="#de1655" />
           ) : status?.toLowerCase() === 'suspect' ? (
-            <InfoStatus color="#25b3f5" />
+            <InfoStatus color="#ffcc00" />
           ) : (
-            <InfoStatus color="#25b3f5" />
+            <InfoStatus color="#ffcc00" />
           )}
         </h5>
       </div>
@@ -287,7 +287,14 @@ const LinkManagerTable = ({ props }) => {
   return (
     <div>
       <table className={tableStyle}>
-        <thead style={{ position: 'sticky', zIndex: '1', top: '0', background: 'white' }}>
+        <thead
+          style={{
+            position: 'sticky',
+            zIndex: '10',
+            top: '0',
+            background: isDark === 'dark' ? '#0f131a' : 'white',
+          }}
+        >
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
@@ -302,7 +309,7 @@ const LinkManagerTable = ({ props }) => {
                     }}
                   >
                     {header.isPlaceholder ? null : (
-                      <div>
+                      <div style={{ fontWeight: 'normal' }}>
                         {flexRender(header.column.columnDef.header, header.getContext())}
 
                         {header.column.getCanFilter() ? (
@@ -363,8 +370,8 @@ function Filter({ column, table, isAction, isStatusFilter }) {
   const statusFilterItems = [
     {
       icon: <SuccessStatus color="#378f17" />,
-      label: 'Active',
-      value: 'active',
+      label: 'Valid',
+      value: 'valid',
     },
     {
       icon: <FailedStatus color="#de1655" />,
@@ -372,7 +379,7 @@ function Filter({ column, table, isAction, isStatusFilter }) {
       value: 'invalid',
     },
     {
-      icon: <InfoStatus color="#25b3f5" />,
+      icon: <InfoStatus color="#ffcc00" />,
       label: 'Suspect',
       value: 'suspect',
     },

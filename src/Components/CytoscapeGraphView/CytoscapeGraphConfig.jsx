@@ -10,15 +10,24 @@ export const graphStyle = [
     selector: 'node',
     style: {
       label: 'data(label)',
-      width: 55,
-      height: 55,
+      width: 50,
+      height: 50,
       'text-valign': 'bottom',
       'background-color': '#fff',
       'background-image': 'data(nodeData.image)',
       'border-color': '#2c4dc0',
-      'border-width': 3,
+      'border-width': 0,
       'border-opacity': 0.5,
       'background-size': 'contain',
+    },
+  },
+  {
+    selector: 'node[label]',
+    style: {
+      label: 'data(label)',
+      'text-background-color': '#ffffff',
+      'text-background-opacity': 0.8,
+      'text-background-padding': '5px',
     },
   },
   {
@@ -36,8 +45,8 @@ export const graphStyle = [
       label: 'data(label)',
       width: 4,
       'text-background-color': '#ffffff', // Set the background color
-      'text-background-opacity': 1, // Make the background opaque
-      'text-background-padding': '10px',
+      'text-background-opacity': 0.8, // Make the background opaque
+      'text-background-padding': '5px',
     },
   },
   {

@@ -25,6 +25,7 @@ import TaskIcon from '@rsuite/icons/Task';
 
 import styles from './ExternalPreview.module.scss';
 import PreviewRow from './PreviewRow/PreviewRow.jsx';
+import { useSelector } from 'react-redux';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 const {
@@ -37,6 +38,7 @@ const {
 } = styles;
 
 const ExternalPreview = (props) => {
+  const { isDark } = useSelector((state) => state.nav);
   const authCtx = useContext(AuthContext);
   let { nodeData, fromGraphView, status } = props;
   let iconUrl = '';
@@ -60,6 +62,9 @@ const ExternalPreview = (props) => {
     break;
   case 'codebeamer':
     iconUrl = '/codebeamer_logo.png';
+    break;
+  case 'dng':
+    iconUrl = '/dng_logo.png';
     break;
   default:
     iconUrl = '/default_preview_logo.svg';
@@ -185,7 +190,10 @@ const ExternalPreview = (props) => {
             speaker={webAppTooltip}
           >
             <Button appearance="subtle" onClick={sendToWebApplication}>
-              <h4 className={buttonTitle}>
+              <h4
+                className={buttonTitle}
+                style={{ color: isDark === 'dark' ? 'white' : '#323232' }}
+              >
                 {nodeData?.name
                   ? nodeData.name.length > 45
                     ? `${nodeData.name.slice(0, 45)}...`

@@ -9,11 +9,16 @@ import RecentProjects from './RecentProjects';
 import UseLoader from '../Shared/UseLoader';
 import RecentPipeline from './RecentPipeline';
 import RecentLink from './RecentLink';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 
 const Home = () => {
+  const { isDark } = useSelector((state) => state.nav);
   const [currPage] = useState(1);
   const [pageSize] = useState(5);
   const authCtx = useContext(AuthContext);
+  const dispatch = useDispatch();
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -21,45 +26,44 @@ const Home = () => {
           {message}
         </Message>
       );
-      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+      toaster.push(messages, { placement: 'bottomCenter', duration: 1000 });
     }
   };
+
+  useEffect(() => {
+    dispatch(handleCurrPageTitle('Dashboard'));
+  }, []);
+
   // get data using react-query
-  const {
-    data: recentProject,
-    isLoading: projectLoading,
-    // refetch: refetchProjects,
-  } = useQuery(['recentProject'], () =>
-    fetchAPIRequest({
-      urlPath: `project/recent?page=${currPage}&per_page=${pageSize}`,
-      token: authCtx.token,
-      method: 'GET',
-      showNotification: showNotification,
-    }),
+  const { data: recentProject, isLoading: projectLoading } = useQuery(
+    ['recentProject'],
+    () =>
+      fetchAPIRequest({
+        urlPath: `project/recent?page=${currPage}&per_page=${pageSize}`,
+        token: authCtx.token,
+        method: 'GET',
+        showNotification: showNotification,
+      }),
   );
-  const {
-    data: recentPipelines,
-    isLoading: pipelineLoading,
-    // refetch: refetchPipeline,
-  } = useQuery(['recentPipeline'], () =>
-    fetchAPIRequest({
-      urlPath: `pipeline_run/recent?page=${currPage}&per_page=${pageSize}`,
-      token: authCtx.token,
-      method: 'GET',
-      showNotification: showNotification,
-    }),
+  const { data: recentPipelines, isLoading: pipelineLoading } = useQuery(
+    ['recentPipeline'],
+    () =>
+      fetchAPIRequest({
+        urlPath: `pipeline_run/recent?page=${currPage}&per_page=${pageSize}`,
+        token: authCtx.token,
+        method: 'GET',
+        showNotification: showNotification,
+      }),
   );
-  const {
-    data: recentCreatedLinks,
-    isLoading: linkLoading,
-    // refetch: refetchPipeline,
-  } = useQuery(['recentLink'], () =>
-    fetchAPIRequest({
-      urlPath: `link/recent?page=${currPage}&per_page=${pageSize}`,
-      token: authCtx.token,
-      method: 'GET',
-      showNotification: showNotification,
-    }),
+  const { data: recentCreatedLinks, isLoading: linkLoading } = useQuery(
+    ['recentLink'],
+    () =>
+      fetchAPIRequest({
+        urlPath: `link/recent?page=${currPage}&per_page=${pageSize}`,
+        token: authCtx.token,
+        method: 'GET',
+        showNotification: showNotification,
+      }),
   );
   const tableProps = {
     data: recentCreatedLinks?.data?.length ? recentCreatedLinks?.data : [],
@@ -74,8 +78,14 @@ const Home = () => {
             <h3>Recent Projects</h3>
             {recentProject?.items?.length < 1 ? (
               <div>
-                <h3 style={{ textAlign: 'center', marginTop: '10px', color: 'blue' }}>
-                  There is no recent projects
+                <h3
+                  style={{
+                    textAlign: 'center',
+                    marginTop: '10px',
+                    color: isDark === 'dark' ? 'white' : '#1675e0',
+                  }}
+                >
+                  There is no recent project
                 </h3>
               </div>
             ) : (
@@ -85,11 +95,17 @@ const Home = () => {
             )}
           </div>
           <div style={{ marginTop: '30px' }}>
-            <h3>Recent Link Created</h3>
+            <h3>Recently Created Links</h3>
             {recentCreatedLinks?.items?.length < 1 ? (
               <div>
-                <h3 style={{ textAlign: 'center', marginTop: '10px', color: 'blue' }}>
-                  There is no link created
+                <h3
+                  style={{
+                    textAlign: 'center',
+                    marginTop: '10px',
+                    color: isDark === 'dark' ? 'white' : '#1675e0',
+                  }}
+                >
+                  There is no created link
                 </h3>
               </div>
             ) : (
@@ -102,7 +118,13 @@ const Home = () => {
             <h3>Pipeline Executed</h3>
             {recentPipelines?.items?.length < 1 ? (
               <div>
-                <h3 style={{ textAlign: 'center', marginTop: '10px', color: 'blue' }}>
+                <h3
+                  style={{
+                    textAlign: 'center',
+                    marginTop: '10px',
+                    color: isDark === 'dark' ? 'white' : '#1675e0',
+                  }}
+                >
                   There is no pipeline executed
                 </h3>
               </div>
