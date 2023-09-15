@@ -10,10 +10,11 @@ import UseLoader from '../Shared/UseLoader';
 import RecentPipeline from './RecentPipeline';
 import RecentLink from './RecentLink';
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 
 const Home = () => {
+  const { isDark } = useSelector((state) => state.nav);
   const [currPage] = useState(1);
   const [pageSize] = useState(5);
   const authCtx = useContext(AuthContext);
@@ -25,12 +26,12 @@ const Home = () => {
           {message}
         </Message>
       );
-      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+      toaster.push(messages, { placement: 'bottomCenter', duration: 1000 });
     }
   };
 
   useEffect(() => {
-    dispatch(handleCurrPageTitle('Link Editor'));
+    dispatch(handleCurrPageTitle('Dashboard'));
   }, []);
 
   // get data using react-query
@@ -77,8 +78,14 @@ const Home = () => {
             <h3>Recent Projects</h3>
             {recentProject?.items?.length < 1 ? (
               <div>
-                <h3 style={{ textAlign: 'center', marginTop: '10px', color: 'blue' }}>
-                  There is no recent projects
+                <h3
+                  style={{
+                    textAlign: 'center',
+                    marginTop: '10px',
+                    color: isDark === 'dark' ? 'white' : '#1675e0',
+                  }}
+                >
+                  There is no recent project
                 </h3>
               </div>
             ) : (
@@ -88,11 +95,17 @@ const Home = () => {
             )}
           </div>
           <div style={{ marginTop: '30px' }}>
-            <h3>Recent Link Created</h3>
+            <h3>Recently Created Links</h3>
             {recentCreatedLinks?.items?.length < 1 ? (
               <div>
-                <h3 style={{ textAlign: 'center', marginTop: '10px', color: 'blue' }}>
-                  There is no link created
+                <h3
+                  style={{
+                    textAlign: 'center',
+                    marginTop: '10px',
+                    color: isDark === 'dark' ? 'white' : '#1675e0',
+                  }}
+                >
+                  There is no created link
                 </h3>
               </div>
             ) : (
@@ -105,7 +118,13 @@ const Home = () => {
             <h3>Pipeline Executed</h3>
             {recentPipelines?.items?.length < 1 ? (
               <div>
-                <h3 style={{ textAlign: 'center', marginTop: '10px', color: 'blue' }}>
+                <h3
+                  style={{
+                    textAlign: 'center',
+                    marginTop: '10px',
+                    color: isDark === 'dark' ? 'white' : '#1675e0',
+                  }}
+                >
                   There is no pipeline executed
                 </h3>
               </div>

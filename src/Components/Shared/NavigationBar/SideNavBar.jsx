@@ -27,7 +27,7 @@ const baseOptions = [
     path: '/',
     navigateTo: '/',
     icon: <TableColumnIcon />,
-    content: <span>Link Editor</span>,
+    content: <span>Dashboard</span>,
   },
   {
     path: '/graph-view',

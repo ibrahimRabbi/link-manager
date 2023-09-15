@@ -33,7 +33,7 @@ export default function fetchAPIRequest({
       } else {
         if (response.status === 401) {
           response.json().then((data) => {
-            showNotification('error', data.message);
+            showNotification('error', data?.message);
             window.location.replace('/login');
           });
           return '';
