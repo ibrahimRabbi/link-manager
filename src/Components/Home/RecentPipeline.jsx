@@ -19,6 +19,7 @@ const RecentPipeline = ({ recentPipelines }) => {
         return {
           id: recentPipeline?.id,
           event: recentPipeline?.pipeline?.event?.name,
+          organization: recentPipeline?.pipeline?.event?.application?.organization?.name,
           start_time: new Date(recentPipeline?.start_time).toLocaleString('en-US', {
             hour12: true,
           }),
@@ -56,6 +57,12 @@ const RecentPipeline = ({ recentPipelines }) => {
             <h5>Event</h5>
           </HeaderCell>
           <Cell style={{ fontSize: '17px' }} dataKey="event" />
+        </Column>
+        <Column flexGrow={1} align="center" fixed>
+          <HeaderCell>
+            <h5>Organization</h5>
+          </HeaderCell>
+          <Cell style={{ fontSize: '17px' }} dataKey="organization" />
         </Column>
         <Column flexGrow={1} width={180} align="center" fixed>
           <HeaderCell>
