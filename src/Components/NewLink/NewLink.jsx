@@ -260,10 +260,20 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   console.log(sourceDataList);
   // Create new link
   const handleSaveLink = (res) => {
-    const { projectName, sourceType, title, uri, appName, branch, commit, searchString } =
-      sourceDataList;
+    const {
+      projectName,
+      sourceType,
+      title,
+      uri,
+      appName,
+      branch,
+      commit,
+      searchString,
+      parentSourceType,
+      parentFileUri,
+      projectId,
+    } = sourceDataList;
     const selectedLines = title?.split('#');
-    const splitUri = uri?.split('#');
 
     // create link with new response formate with new endpoint
     if (res) {
@@ -305,35 +315,39 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         api: appName,
         description: '',
         label: selectedLines ? selectedLines[0] : '',
-        type: sourceType,
-        provider_id: '',
+        type: parentSourceType ? parentSourceType + '#RepositoryFile' : '',
+        provider_id: projectId ? projectId : '',
         provider_name: appName,
-        uri: splitUri[0],
-        web_url: splitUri[0],
+        uri: parentFileUri ? parentFileUri : '',
+        web_url: parentFileUri ? parentFileUri : '',
         extended_properties: {
-          branch_name: branch ? branch : '',
-          commit_id: commit ? commit : '',
+          branch_name: branch ? btoa(branch) : '',
+          commit_id: commit ? btoa(commit) : '',
           path: selectedLines ? selectedLines[0] : '',
         },
       };
 
+      // check is the sourceType is gitlab file
+      const gitlabType =
+        appName === 'gitlab'
+          ? parentFileUri
+            ? sourceType
+            : sourceType + '#RepositoryFile'
+          : sourceType;
+
       const linkBodyData = {
         source_properties: {
-          type: sourceType,
+          type: gitlabType,
           uri: uri,
           title: title ? title : '',
-          provider_id: '',
+          provider_id: projectId ? projectId : '',
           provider_name: appName,
           api: appName,
           description: '',
           extra_properties: {
             branch_name: branch ? branch : '',
             commit_id: commit ? commit : '',
-            parent_properties: selectedLines
-              ? selectedLines[1]
-                ? source_parent_properties
-                : ''
-              : '',
+            parent_properties: parentFileUri ? source_parent_properties : '',
             search_params: searchString ? searchString : '',
             selected_lines: selectedLines
               ? selectedLines[1]
@@ -531,7 +545,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                         placeholder="Choose Project"
                         apiURL={externalProjectUrl}
                         apiQueryParams={
-                          // eslint-disable-next-line max-len
                           applicationType?.id
                             ? `application_id=${applicationType?.id}`
                             : ''
