@@ -24,6 +24,9 @@ const ProtectedRoute = ({ children }) => {
   const commit = searchParams.get('commit');
   const logoUrl = searchParams.get('logoUrl');
   const searchString = searchParams.get('searchParams');
+  const projectId = searchParams.get('projectId');
+  const parentSourceType = searchParams.get('parentSourceType');
+  const parentFileUri = searchParams.get('parentFileUri');
 
   useEffect(() => {
     dispatch(handleIsWbe(wbePath));
@@ -33,22 +36,28 @@ const ProtectedRoute = ({ children }) => {
   }, [location]);
 
   useEffect(() => {
-    if (uri) {
+    if (uri || commit) {
       const sources = {
-        projectName,
-        title,
-        titleLabel,
-        uri,
-        branch,
-        commit,
-        origin,
-        sourceType,
+        uri: uri ? uri : '',
+        projectName: projectName ? projectName : '',
+        title: title ? title : '',
+        titleLabel: titleLabel ? titleLabel : '',
+        branch: branch ? branch : '',
+        commit: commit ? commit : '',
+        origin: origin ? origin : '',
+        sourceType: sourceType ? sourceType : '',
+        parentSourceType: parentSourceType ? parentSourceType : '',
+        parentFileUri: parentFileUri ? parentFileUri : '',
+        projectId: projectId ? projectId : '',
+        logoUrl: logoUrl ? logoUrl : '',
+        searchString: searchString ? searchString : '',
         appName,
-        logoUrl,
-        searchString,
       };
+
       dispatch(handleGetSources(sources));
       sessionStorage.setItem('sourceData', JSON.stringify(sources));
+    } else {
+      sessionStorage.removeItem('sourceData');
     }
   }, [uri, title, projectName]);
 
