@@ -38,6 +38,12 @@ const WebBrowserExtension = () => {
       filename: 'valispace-wbe.zip',
       link: '/wbe/valispace-wbe.zip',
     },
+    {
+      id: 5,
+      extension: 'DNG',
+      filename: 'dng-wbe.zip',
+      link: '/wbe/dng-wbe.zip',
+    },
   ];
 
   const handleDownload = (rowData) => {
@@ -82,7 +88,7 @@ const WebBrowserExtension = () => {
               <span
                 className="download-link"
                 style={{
-                  fontSize: '17px',
+                  fontSize: '22px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
