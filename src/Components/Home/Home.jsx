@@ -69,8 +69,6 @@ const Home = () => {
     data: recentCreatedLinks?.data?.length ? recentCreatedLinks?.data : [],
   };
 
-  console.log(tableProps.data.length);
-
   return (
     <div style={{ padding: '20px 20px 0 30px', marginBottom: '30px' }}>
       {projectLoading || pipelineLoading || linkLoading ? (
