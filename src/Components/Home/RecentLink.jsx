@@ -129,7 +129,11 @@ const RecentLink = ({ recentCreatedLinks }) => {
           </div>
         ),
         cell: ({ row }) => (
-          <p style={{ fontSize: '20px' }}>{row?.original?.source?.name}</p>
+          <p style={{ fontSize: '20px' }}>
+            {row?.original?.source?.name.length > 100
+              ? `${row?.original?.source?.name.slice(0, 100)}...`
+              : row?.original?.source?.name}
+          </p>
         ),
         footer: (props) => props.column.id,
       },
