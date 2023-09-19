@@ -133,7 +133,7 @@ const ExternalPreview = (props) => {
   };
 
   const sendToWebApplication = () => {
-    window.open(nodeData?.web_url, '_blank');
+    window.open(nodeData?.web_url ? nodeData?.web_url : nodeData?.id, '_blank');
   };
 
   const decodeContent = (nodeData) => {
