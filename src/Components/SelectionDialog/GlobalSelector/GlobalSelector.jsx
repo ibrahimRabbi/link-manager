@@ -307,6 +307,7 @@ const GlobalSelector = ({
     if (resourceTypes.length === 1) {
       if (NEW_RESOURCE_TYPES.includes(appData.application_type)) {
         setResourceTypeId(resourceTypes[0]?.id);
+        setResourceTypesName(resourceTypes[0]?.name);
       } else {
         setResourceTypeId(resourceTypes[0]?.name);
       }
