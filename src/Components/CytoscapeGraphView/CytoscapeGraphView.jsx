@@ -288,6 +288,7 @@ const CytoscapeGraphView = () => {
     const sourceData = {};
 
     const filters = nodeData?.reduce((accumulator, item) => {
+      console.log(item);
       // get source node
       if (item?.data?.nodeData?.provider) {
         sourceData['sourceNode'] = item;
@@ -297,7 +298,6 @@ const CytoscapeGraphView = () => {
         // filter nodes and edges
         if (value?.name === item?.data?.nodeData?.api) {
           accumulator.push(item);
-
           // filter edges
           edgeData?.forEach((edge) => {
             if (item?.data?.id === edge?.data?.target) {
@@ -354,12 +354,27 @@ const CytoscapeGraphView = () => {
         <>
           {nodeData && (
             <>
-              <div style={{ width: '90%', margin: '10px auto' }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '50% 50%',
+                  gap: '10px',
+                  width: '95%',
+                  margin: '10px auto',
+                }}
+              >
                 <UseReactSelect
-                  name="node_filter"
+                  name="node_filter-application"
                   items={targetDropdownItem}
                   onChange={filterByApp}
                   placeholder="Filter data by target applications..."
+                  isMulti={true}
+                />
+                <UseReactSelect
+                  name="node_filter-resource-type"
+                  items={[]}
+                  onChange={filterByApp}
+                  placeholder="Filter data by resource type..."
                   isMulti={true}
                 />
               </div>

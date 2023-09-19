@@ -38,20 +38,21 @@ const ProtectedRoute = ({ children }) => {
   useEffect(() => {
     if (uri || commit) {
       const sources = {
-        uri: uri ? uri : '',
+        uri: uri ? atob(uri) : '',
+        sourceType: sourceType ? atob(sourceType) : '',
         projectName: projectName ? projectName : '',
-        title: title ? title : '',
-        titleLabel: titleLabel ? titleLabel : '',
         branch: branch ? branch : '',
         commit: commit ? commit : '',
+        title: title ? title : '',
+        titleLabel: titleLabel ? titleLabel : '',
         origin: origin ? origin : '',
-        sourceType: sourceType ? sourceType : '',
-        parentSourceType: parentSourceType ? parentSourceType : '',
-        parentFileUri: parentFileUri ? parentFileUri : '',
         projectId: projectId ? projectId : '',
         logoUrl: logoUrl ? logoUrl : '',
         searchString: searchString ? searchString : '',
         appName,
+        // for the block of code
+        parentSourceType: parentSourceType ? parentSourceType : '',
+        parentFileUri: parentFileUri ? parentFileUri : '',
       };
 
       dispatch(handleGetSources(sources));

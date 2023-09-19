@@ -68,8 +68,11 @@ const Login = () => {
   mixpanel.init(mixPanelId);
 
   const onSubmit = async () => {
-    setIsLoading(true);
+    if (!loginFormRef.current.check()) {
+      return;
+    }
 
+    setIsLoading(true);
     // Track who tried to login
     mixpanel.track('Trying to login.', {
       username: formValue.userName,
