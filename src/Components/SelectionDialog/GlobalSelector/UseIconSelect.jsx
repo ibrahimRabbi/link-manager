@@ -9,6 +9,13 @@ import {
   faBug,
   faArrowUp,
   faPlus,
+  faRocket,
+  faFileLines,
+  faCodeCompare,
+  faVials,
+  faFlask,
+  faVialVirus,
+  faVialCircleCheck,
 } from '@fortawesome/free-solid-svg-icons';
 
 const jiraIcon = {
@@ -41,6 +48,55 @@ const jiraIcon = {
     <FontAwesomeIcon icon={faPlus} style={{ color: '#2185ff', fontSize: '20px' }} />
   ),
 };
+const codebeamerIcon = {
+  Releases: (
+    <FontAwesomeIcon icon={faRocket} style={{ color: '#20a99d', fontSize: '20px' }} />
+  ),
+  Documents: (
+    <FontAwesomeIcon icon={faFileLines} style={{ color: '#20a99c', fontSize: '20px' }} />
+  ),
+  requirement_specification: (
+    <FontAwesomeIcon
+      icon={faFileCircleCheck}
+      style={{ color: '#20a99c', fontSize: '20px' }}
+    />
+  ),
+  Hardware_tasks: (
+    <FontAwesomeIcon
+      icon={faSquareCheck}
+      style={{ color: '#20a99d', fontSize: '20px' }}
+    />
+  ),
+  Software_tasks: (
+    <FontAwesomeIcon
+      icon={faSquareCheck}
+      style={{ color: '#20a99d', fontSize: '20px' }}
+    />
+  ),
+  Change_requests: (
+    <FontAwesomeIcon
+      icon={faCodeCompare}
+      style={{ color: '#20a99d', fontSize: '20px' }}
+    />
+  ),
+  Risks: <FontAwesomeIcon icon={faBug} style={{ color: '#e5493a', fontSize: '20px' }} />,
+  Test_cases: (
+    <FontAwesomeIcon icon={faVials} style={{ color: '#20a99e', fontSize: '20px' }} />
+  ),
+  Test_sets: (
+    <FontAwesomeIcon icon={faFlask} style={{ color: '#20a99d', fontSize: '20px' }} />
+  ),
+  Test_configuration: (
+    <FontAwesomeIcon icon={faVialVirus} style={{ color: '#20a99d', fontSize: '20px' }} />
+  ),
+  Test_run: (
+    <FontAwesomeIcon
+      icon={faVialCircleCheck}
+      style={{ color: '#20a99d', fontSize: '20px' }}
+    />
+  ),
+  Bugs: <FontAwesomeIcon icon={faBug} style={{ color: '#e5493a', fontSize: '20px' }} />,
+};
 
 const UseIconSelect = (props) => {
   const { name, items, appData, onChange, placeholder, isLoading, disabled, isMulti } =
@@ -61,6 +117,21 @@ const UseIconSelect = (props) => {
         else if (item?.name === 'Improvements') appIcon = jiraIcon.Improvement;
         else if (item?.name === 'New Features') appIcon = jiraIcon.New_feature;
         else appIcon = jiraIcon.subT;
+      } else if (appData?.application_type === 'codebeamer') {
+        if (item?.name === 'Releases') appIcon = codebeamerIcon.Releases;
+        else if (item?.name === 'Documents') appIcon = codebeamerIcon.Documents;
+        else if (item?.name === 'Change Requests')
+          appIcon = codebeamerIcon.Change_requests;
+        else if (item?.name === 'Hardware Tasks') appIcon = codebeamerIcon.Hardware_tasks;
+        else if (item?.name === 'Software Tasks') appIcon = codebeamerIcon.Software_tasks;
+        else if (item?.name === 'Risk') appIcon = codebeamerIcon.Risks;
+        else if (item?.name === 'Test Cases') appIcon = codebeamerIcon.Test_cases;
+        else if (item?.name === 'Test Sets') appIcon = codebeamerIcon.Test_sets;
+        else if (item?.name === 'Test Configuration')
+          appIcon = codebeamerIcon.Test_configuration;
+        else if (item?.name === 'Test Runs') appIcon = codebeamerIcon.Test_run;
+        else if (item?.name === 'Bugs') appIcon = codebeamerIcon.Bugs;
+        else appIcon = codebeamerIcon.requirement_specification;
       }
       return {
         ...item,
