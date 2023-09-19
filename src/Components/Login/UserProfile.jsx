@@ -219,6 +219,7 @@ const UserProfile = () => {
               onCheck={setFormError}
               formValue={userFormValue}
               model={userModel}
+              data-cy="profile-form"
             >
               <FlexboxGrid justify="space-between">
                 <FlexboxGrid.Item colspan={11} style={{ marginBottom: '30px' }}>
@@ -251,6 +252,7 @@ const UserProfile = () => {
                 appearance="primary"
                 color="blue"
                 type="submit"
+                data-cy="profile-save"
                 onClick={handleUpdateProfile}
               >
                 Save
