@@ -16,6 +16,7 @@ import {
   faFlask,
   faVialVirus,
   faVialCircleCheck,
+  faCube,
 } from '@fortawesome/free-solid-svg-icons';
 
 const jiraIcon = {
@@ -97,7 +98,40 @@ const codebeamerIcon = {
   ),
   Bugs: <FontAwesomeIcon icon={faBug} style={{ color: '#e5493a', fontSize: '20px' }} />,
 };
-
+const glideYokeIcon = {
+  Physical_parts: (
+    <FontAwesomeIcon icon={faCube} style={{ color: '#8b8d92', fontSize: '20px' }} />
+  ),
+  Issues: <FontAwesomeIcon icon={faBug} style={{ color: '#e5493a', fontSize: '20px' }} />,
+  Document: (
+    <FontAwesomeIcon icon={faFileLines} style={{ color: '#8b8d92', fontSize: '20px' }} />
+  ),
+  Change_requests: (
+    <FontAwesomeIcon
+      icon={faCodeCompare}
+      style={{ color: '#8b8d92', fontSize: '20px' }}
+    />
+  ),
+};
+const dngIcon = {
+  Requirement: (
+    <FontAwesomeIcon
+      icon={faFileCircleCheck}
+      style={{ color: '#367aa0', fontSize: '20px' }}
+    />
+  ),
+  Requirement_collection: (
+    <FontAwesomeIcon icon={faListCheck} style={{ color: '#367ba1', fontSize: '20px' }} />
+  ),
+};
+const valispaceIcon = {
+  Requirement: (
+    <FontAwesomeIcon
+      icon={faFileCircleCheck}
+      style={{ color: '#f1b96d', fontSize: '20px' }}
+    />
+  ),
+};
 const UseIconSelect = (props) => {
   const { name, items, appData, onChange, placeholder, isLoading, disabled, isMulti } =
     props;
@@ -132,6 +166,17 @@ const UseIconSelect = (props) => {
         else if (item?.name === 'Test Runs') appIcon = codebeamerIcon.Test_run;
         else if (item?.name === 'Bugs') appIcon = codebeamerIcon.Bugs;
         else appIcon = codebeamerIcon.requirement_specification;
+      } else if (appData?.application_type === 'dng') {
+        if (item?.name === 'Requirements') appIcon = dngIcon.Requirement;
+        else appIcon = dngIcon.Requirement_collection;
+      } else if (appData?.application_type === 'valispace') {
+        appIcon = valispaceIcon.Requirement;
+      } else {
+        if (item?.name === 'Documents') appIcon = glideYokeIcon.Document;
+        else if (item?.name === 'Physical Parts') appIcon = glideYokeIcon.Physical_parts;
+        else if (item?.name === 'Change Requests')
+          appIcon = glideYokeIcon.Change_requests;
+        else appIcon = glideYokeIcon.Issues;
       }
       return {
         ...item,
