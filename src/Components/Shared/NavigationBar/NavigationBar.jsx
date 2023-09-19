@@ -103,6 +103,7 @@ const NavigationBar = () => {
             className={popButton}
             onClick={() => handlePopoverBtnClick(item)}
             size="md"
+            data-cy="profile-btns"
             appearance="default"
           >
             {item?.icon}
@@ -177,7 +178,7 @@ const NavigationBar = () => {
               speaker={speaker}
               enterable
             >
-              <Button>
+              <Button data-cy="profile-options-btn">
                 <BiUserCircle size={30} />
               </Button>
             </Whisper>
