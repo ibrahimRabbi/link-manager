@@ -26,6 +26,7 @@ import { useSelector } from 'react-redux';
 import Filter from './FilterFunction';
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
 import { isEqual } from 'rsuite/cjs/utils/dateUtils.js';
+import UseIconSelect from './UseIconSelect';
 
 const NEW_RESOURCE_TYPES = ['codebeamer', 'dng', 'jira', 'glideyoke', 'valispace'];
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
@@ -306,6 +307,7 @@ const GlobalSelector = ({
     if (resourceTypes.length === 1) {
       if (NEW_RESOURCE_TYPES.includes(appData.application_type)) {
         setResourceTypeId(resourceTypes[0]?.id);
+        setResourceTypesName(resourceTypes[0]?.name);
       } else {
         setResourceTypeId(resourceTypes[0]?.name);
       }
@@ -424,12 +426,13 @@ const GlobalSelector = ({
                 <h3>Resource: </h3>
               </FlexboxGrid.Item>
               <FlexboxGrid.Item colspan={20}>
-                <UseReactSelect
+                <UseIconSelect
                   name="glide_native_resource_type"
                   placeholder="Choose resource type"
                   onChange={handleResourceTypeChange}
                   disabled={authenticatedThirdApp}
                   isLoading={resourceLoading}
+                  appData={appData}
                   items={resourceTypes?.length ? resourceTypes : []}
                 />
               </FlexboxGrid.Item>
