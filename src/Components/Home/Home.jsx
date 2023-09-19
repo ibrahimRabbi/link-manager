@@ -68,6 +68,7 @@ const Home = () => {
   const tableProps = {
     data: recentCreatedLinks?.data?.length ? recentCreatedLinks?.data : [],
   };
+
   return (
     <div style={{ padding: '20px 20px 0 30px', marginBottom: '30px' }}>
       {projectLoading || pipelineLoading || linkLoading ? (
@@ -85,7 +86,7 @@ const Home = () => {
                     color: isDark === 'dark' ? 'white' : '#1675e0',
                   }}
                 >
-                  There is no recent project
+                  No recent projects
                 </h3>
               </div>
             ) : (
@@ -96,7 +97,7 @@ const Home = () => {
           </div>
           <div style={{ marginTop: '30px' }}>
             <h3>Recently Created Links</h3>
-            {recentCreatedLinks?.items?.length < 1 ? (
+            {tableProps?.data?.length < 1 ? (
               <div>
                 <h3
                   style={{
@@ -105,7 +106,7 @@ const Home = () => {
                     color: isDark === 'dark' ? 'white' : '#1675e0',
                   }}
                 >
-                  There is no created link
+                  No links created
                 </h3>
               </div>
             ) : (
@@ -115,7 +116,7 @@ const Home = () => {
             )}
           </div>
           <div style={{ marginTop: '30px' }}>
-            <h3>Pipeline Executed</h3>
+            <h3>Recent Pipeline Runs</h3>
             {recentPipelines?.items?.length < 1 ? (
               <div>
                 <h3
@@ -125,7 +126,7 @@ const Home = () => {
                     color: isDark === 'dark' ? 'white' : '#1675e0',
                   }}
                 >
-                  There is no pipeline executed
+                  No pipelines executed
                 </h3>
               </div>
             ) : (
