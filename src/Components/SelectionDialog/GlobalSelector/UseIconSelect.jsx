@@ -53,13 +53,13 @@ const UseIconSelect = (props) => {
   useEffect(() => {
     const newItems = items?.map((item) => {
       let appIcon = '';
-      if (appData.application_type === 'jira') {
-        if (item.name === 'Tasks') appIcon = jiraIcon.Task;
-        else if (item.name === 'Epics') appIcon = jiraIcon.Epic;
-        else if (item.name === 'User Stories') appIcon = jiraIcon.UserStory;
-        else if (item.name === 'Bugs') appIcon = jiraIcon.Issues;
-        else if (item.name === 'Improvements') appIcon = jiraIcon.Improvement;
-        else if (item.name === 'New Features') appIcon = jiraIcon.New_feature;
+      if (appData?.application_type === 'jira') {
+        if (item?.name === 'Tasks') appIcon = jiraIcon.Task;
+        else if (item?.name === 'Epics') appIcon = jiraIcon.Epic;
+        else if (item?.name === 'User Stories') appIcon = jiraIcon.UserStory;
+        else if (item?.name === 'Bugs') appIcon = jiraIcon.Issues;
+        else if (item?.name === 'Improvements') appIcon = jiraIcon.Improvement;
+        else if (item?.name === 'New Features') appIcon = jiraIcon.New_feature;
         else appIcon = jiraIcon.subT;
       }
       return {
