@@ -490,7 +490,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               placeholder="Choose Link Type"
               apiURL={sourceDataList?.sourceType ? `${apiURL}/link-type` : ''}
               // after configure the source_type endpoints we need to uncomment line
-              // apiQueryParams={`source_resource=${sourceDataList?.sourceType}`}
+              apiQueryParams={`source_resource=${sourceDataList?.sourceType}`}
               isLinkType={true}
               onChange={handleLinkTypeChange}
               isLinkCreation={true}
