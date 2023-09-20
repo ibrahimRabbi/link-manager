@@ -282,8 +282,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         const properties = item?.extended_properties;
 
         const targetUri = properties?.selected_lines
-          ? item?.uri + '#' + properties?.selected_lines
-          : item?.uri;
+          ? item?.web_url + '#' + properties?.selected_lines
+          : item?.web_url;
         return {
           target_properties: {
             type: item?.type || item?.resource_type,
