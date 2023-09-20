@@ -257,7 +257,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     dispatch(handleCancelLink());
     isWbe ? navigate('/wbe') : navigate('/');
   };
-  console.log(sourceDataList);
+
   // Create new link
   const handleSaveLink = (res) => {
     const {
@@ -310,34 +310,26 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         };
       });
 
-      // parents properties for the source
+      // parents properties for the source if source is gitlab
       const source_parent_properties = {
         api: appName,
         description: '',
         label: selectedLines ? selectedLines[0] : '',
-        type: parentSourceType ? parentSourceType + '#RepositoryFile' : '',
+        type: parentSourceType ? decodeURIComponent(parentSourceType) : '',
         provider_id: projectId ? projectId : '',
         provider_name: appName,
-        uri: parentFileUri ? parentFileUri : '',
-        web_url: parentFileUri ? parentFileUri : '',
+        uri: parentFileUri ? decodeURIComponent(parentFileUri) : '',
+        web_url: parentFileUri ? decodeURIComponent(parentFileUri) : '',
         extended_properties: {
-          branch_name: branch ? btoa(branch) : '',
-          commit_id: commit ? btoa(commit) : '',
+          branch_name: branch ? branch : '',
+          commit_id: commit ? commit : '',
           path: selectedLines ? selectedLines[0] : '',
         },
       };
 
-      // check is the sourceType is gitlab file
-      const gitlabType =
-        appName === 'gitlab'
-          ? parentFileUri
-            ? sourceType
-            : sourceType + '#RepositoryFile'
-          : sourceType;
-
       const linkBodyData = {
         source_properties: {
-          type: gitlabType,
+          type: sourceType,
           uri: uri,
           title: title ? title : '',
           provider_id: projectId ? projectId : '',
@@ -357,7 +349,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             project_name: projectName ? projectName : '',
             content_hash: '',
             path: '',
-            web_url: '',
+            web_url: uri,
           },
         },
         link_properties: {
@@ -381,7 +373,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         showNotification('info', 'Sorry, Source data not found !!!');
       }
     } else if (!res && targetDataArr?.length) {
-      console.log('targetDataArr', targetDataArr);
       const targetsData = targetDataArr?.map((data) => {
         const id = data?.selected_lines
           ? data.koatl_uri + '#' + data?.selected_lines
@@ -423,7 +414,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         status: 'valid',
         target_data: targetsData,
       };
-      // console.log('Link Obj: ', linkObj);
+
       if (sourceDataList?.uri) {
         dispatch(
           fetchCreateLink({

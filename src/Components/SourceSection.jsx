@@ -4,6 +4,17 @@ import { Divider, FlexboxGrid } from 'rsuite';
 import styles from './Shared/NavigationBar/NavigationBar.module.scss';
 import { MdExpandLess, MdExpandMore } from 'react-icons/md';
 
+const sourceAppLogos = {
+  gitlab: '/node_icons/gitlab_logo.png',
+  valispace: '/node_icons/valispace_logo.png',
+  jira: '/node_icons/jira_logo.png',
+  glideyoke: '/node_icons/glide_logo.png',
+  glide: '/node_icons/glide_logo.png',
+  codebeamer: '/node_icons/codebeamer_logo.png',
+  dng: '/node_icons/dng_logo.png',
+  default: '/node_icons/default_logo.png',
+};
+
 const { seeMLBtn, arIcon } = styles;
 const dividerStyle = {
   fontSize: '25px',
@@ -13,6 +24,7 @@ const SourceSection = () => {
   const { sourceDataList } = useSelector((state) => state.links);
   const [showMore, setShowMore] = useState(false);
   const [title, setTitle] = useState('');
+  const [sourceLogo, setSourceLogo] = useState('');
 
   // handle see more and see less control
   useEffect(() => {
@@ -21,6 +33,15 @@ const SourceSection = () => {
       setTitle('');
     }
   }, [showMore]);
+
+  useEffect(() => {
+    // display logo for the source application
+    for (let logo in sourceAppLogos) {
+      if (logo.includes(sourceDataList?.appName)) {
+        setSourceLogo(sourceAppLogos[logo]);
+      }
+    }
+  }, [sourceDataList]);
 
   const toggleTitle = () => {
     setShowMore(!showMore);
@@ -44,18 +65,18 @@ const SourceSection = () => {
                 flexWrap: 'wrap',
               }}
             >
-              {sourceDataList?.logoUrl && (
+              {sourceDataList?.appName && (
                 <img
-                  src={sourceDataList?.logoUrl}
+                  src={sourceLogo || sourceAppLogos?.default}
                   height={25}
-                  alt=""
-                  style={{ marginRight: '10px' }}
+                  alt="Source"
+                  style={{ margin: '0 10px 0 0' }}
                 />
               )}
               <span>{sourceDataList?.projectName}</span>
               {sourceDataList?.sourceType && <Divider style={dividerStyle}>|</Divider>}
 
-              <span>{sourceDataList?.sourceType}</span>
+              <span>{sourceDataList?.sourceTypeText}</span>
               {sourceDataList?.titleLabel && <Divider style={dividerStyle}>|</Divider>}
 
               <span>{sourceDataList?.titleLabel}</span>

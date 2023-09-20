@@ -16,6 +16,7 @@ const ProtectedRoute = ({ children }) => {
   const origin = searchParams.get('origin');
   const appName = searchParams.get('appName');
   const sourceType = searchParams.get('sourceType');
+  const sourceTypeText = searchParams.get('sourceTypeText');
   const uri = searchParams.get('uri');
   const title = searchParams.get('title');
   const titleLabel = searchParams.get('titleLabel');
@@ -38,20 +39,22 @@ const ProtectedRoute = ({ children }) => {
   useEffect(() => {
     if (uri || commit) {
       const sources = {
-        uri: uri ? uri : '',
+        uri: uri ? decodeURIComponent(uri) : '',
+        sourceType: sourceType ? decodeURIComponent(sourceType) : '',
+        sourceTypeText: sourceTypeText ? sourceTypeText : '',
         projectName: projectName ? projectName : '',
-        title: title ? title : '',
-        titleLabel: titleLabel ? titleLabel : '',
         branch: branch ? branch : '',
         commit: commit ? commit : '',
+        title: title ? title : '',
+        titleLabel: titleLabel ? titleLabel : '',
         origin: origin ? origin : '',
-        sourceType: sourceType ? sourceType : '',
-        parentSourceType: parentSourceType ? parentSourceType : '',
-        parentFileUri: parentFileUri ? parentFileUri : '',
         projectId: projectId ? projectId : '',
         logoUrl: logoUrl ? logoUrl : '',
         searchString: searchString ? searchString : '',
         appName,
+        // for the block of code
+        parentSourceType: parentSourceType ? parentSourceType : '',
+        parentFileUri: parentFileUri ? parentFileUri : '',
       };
 
       dispatch(handleGetSources(sources));

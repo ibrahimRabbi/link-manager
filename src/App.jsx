@@ -68,8 +68,8 @@ function App() {
   const isAdmin = authCtx?.user?.role === 'admin' ? true : false;
 
   useEffect(() => {
-    const isDark = localStorage.getItem('isDarkMode');
-    dispatch(handleIsDarkMode(isDark));
+    const theme = localStorage.getItem('isDarkMode');
+    dispatch(handleIsDarkMode(theme));
   }, []);
 
   return (
@@ -78,6 +78,7 @@ function App() {
         className="App"
         style={{
           backgroundColor: isDark === 'dark' ? darkBgColor : lightBgColor,
+          color: isDark === 'dark' && '#a4a9b3',
         }}
       >
         <Routes>
