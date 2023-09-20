@@ -55,7 +55,7 @@ const SourceSection = () => {
               <span>{sourceDataList?.projectName}</span>
               {sourceDataList?.sourceType && <Divider style={dividerStyle}>|</Divider>}
 
-              <span>{sourceDataList?.sourceType}</span>
+              <span>{sourceDataList?.sourceTypeText}</span>
               {sourceDataList?.titleLabel && <Divider style={dividerStyle}>|</Divider>}
 
               <span>{sourceDataList?.titleLabel}</span>

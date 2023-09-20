@@ -16,6 +16,7 @@ const ProtectedRoute = ({ children }) => {
   const origin = searchParams.get('origin');
   const appName = searchParams.get('appName');
   const sourceType = searchParams.get('sourceType');
+  const sourceTypeText = searchParams.get('sourceTypeText');
   const uri = searchParams.get('uri');
   const title = searchParams.get('title');
   const titleLabel = searchParams.get('titleLabel');
@@ -38,8 +39,9 @@ const ProtectedRoute = ({ children }) => {
   useEffect(() => {
     if (uri || commit) {
       const sources = {
-        uri: uri ? atob(uri) : '',
-        sourceType: sourceType ? atob(sourceType) : '',
+        uri: uri ? decodeURIComponent(uri) : '',
+        sourceType: sourceType ? decodeURIComponent(sourceType) : '',
+        sourceTypeText: sourceTypeText ? sourceTypeText : '',
         projectName: projectName ? projectName : '',
         branch: branch ? branch : '',
         commit: commit ? commit : '',

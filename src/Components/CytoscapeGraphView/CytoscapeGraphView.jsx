@@ -288,7 +288,6 @@ const CytoscapeGraphView = () => {
     const sourceData = {};
 
     const filters = nodeData?.reduce((accumulator, item) => {
-      console.log(item);
       // get source node
       if (item?.data?.nodeData?.provider) {
         sourceData['sourceNode'] = item;
