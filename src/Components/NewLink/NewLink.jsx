@@ -287,13 +287,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         return {
           target_properties: {
             type: item?.type || item?.resource_type,
-            uri: targetUri || item?.link,
+            uri: targetUri || item?.web_url,
             title: item?.name || item?.label,
             provider_id: item?.provider_id || item?.id,
             provider_name: item?.provider_name ? item?.provider_name : '',
             api: item?.api ? item?.api : '',
             description: item?.description ? item?.description : '',
-            resource_type: item?.resourceTypes ? item?.resourceTypes : '',
             extra_properties: {
               application_id: applicationType?.id,
               parent_properties: item?.parent_properties ? item?.parent_properties : '',
@@ -304,7 +303,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                 ? properties?.selected_lines
                 : '',
               path: properties?.path ? properties?.path : '',
-              web_url: item?.web_url ? item?.web_url : '',
+              api_url: item?.link ? item?.link : '',
+              resource_type: item?.resourceTypes ? item?.resourceTypes : '',
             },
           },
         };
@@ -491,6 +491,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               apiURL={sourceDataList?.sourceType ? `${apiURL}/link-type` : ''}
               // after configure the source_type endpoints we need to uncomment line
               // apiQueryParams={`source_resource=${sourceDataList?.sourceType}`}
+              isLinkType={true}
               onChange={handleLinkTypeChange}
               isLinkCreation={true}
               value={linkType?.label}

@@ -33,6 +33,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
     restartRequest,
     removeApplication,
     getErrorStatus,
+    isLinkType,
     ...rest
   } = props;
 
@@ -143,7 +144,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
               'http://open-services.net/ns/cm#',
             ];
 
-            const urlType = item?.type;
+            const urlType = item?.type.split('#')[0] + '#';
 
             if (urlType?.includes(gitlabDomain[0])) apps['gitlab'] = 'gitlab';
             if (urlType?.includes(codeBeamerDomain[0])) apps['codebeamer'] = 'codebeamer';
@@ -228,6 +229,14 @@ const CustomReactSelect = forwardRef((props, ref) => {
       dropdownJsonData = option?.map((item) => ({
         ...item,
         label: item?.service_provider_id,
+        value: item?.id,
+      }));
+    } else if (isLinkType) {
+      dropdownJsonData = option?.map((item) => ({
+        ...item,
+        // eslint-disable-next-line max-len
+        target_resource: item?.target_link?.constraints?.map((constraint) => constraint),
+        label: item?.source_link?.name,
         value: item?.id,
       }));
     } else {

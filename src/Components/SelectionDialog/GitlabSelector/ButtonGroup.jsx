@@ -63,6 +63,7 @@ const ButtonGroup = ({
       resultsPart.extended_properties.selected_lines = `${selectedCodes.startLineNumber}-${selectedCodes.endLineNumber}`;
       resultsPart.type = 'RepositoryFileBlockOfCodeSelection';
       resultsPart.parent_properties = parent;
+      resultsPart.resourceTypes = 'Block of code';
       resultsPart = JSON.stringify(resultsPart);
       Response += `${resultsPart}`;
 
@@ -83,6 +84,7 @@ const ButtonGroup = ({
         }
         resultsPart.extended_properties.content_hash = null;
         resultsPart.extended_properties.selected_lines = null;
+        resultsPart.resourceTypes = 'Source Code File';
         resultsPart = JSON.stringify(resultsPart);
         Response += `${resultsPart}`;
 
@@ -107,6 +109,7 @@ const ButtonGroup = ({
       resultsPart.description = '';
       resultsPart.extended_properties.content_hash = null;
       resultsPart.extended_properties.selected_lines = null;
+      resultsPart.resourceTypes = 'Source Code File';
       resultsPart = JSON.stringify(resultsPart);
       Response += `${resultsPart}`;
 

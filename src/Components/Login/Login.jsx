@@ -215,6 +215,7 @@ const Login = () => {
 
               <Button
                 color="blue"
+                data-cy="login-submit"
                 block
                 type="submit"
                 appearance="primary"
