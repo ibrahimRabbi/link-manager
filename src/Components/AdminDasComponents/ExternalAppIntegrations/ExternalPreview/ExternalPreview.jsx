@@ -195,8 +195,8 @@ const ExternalPreview = (props) => {
                 style={{ color: isDark === 'dark' ? 'white' : '#323232' }}
               >
                 {nodeData?.name
-                  ? nodeData.name.length > 45
-                    ? `${nodeData.name.slice(0, 45)}...`
+                  ? nodeData.name.length > 42
+                    ? `${nodeData.name.slice(0, 42)}...`
                     : nodeData.name
                   : 'External link overview'}
               </h4>
