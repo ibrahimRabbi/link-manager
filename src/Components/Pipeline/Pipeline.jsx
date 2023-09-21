@@ -43,6 +43,8 @@ const Pipeline = () => {
   const [tableFilterValue, setTableFilterValue] = useState('');
   const [displayTableData, setDisplayTableData] = useState([]);
   const authCtx = useContext(AuthContext);
+  const isSuperAdmin = authCtx?.user?.role === 'super_admin' ? true : false;
+  const isAdmin = authCtx?.user?.role === 'admin' ? true : false;
   const dispatch = useDispatch();
   const wbePath = location.pathname?.includes('wbe');
   const [pageSize, setPageSize] = useState(5);
@@ -265,12 +267,14 @@ const Pipeline = () => {
                                   setPipelineOutput(rowData.output);
                                 }}
                               />
-                              <IconButton
-                                size="sm"
-                                title="Delete"
-                                icon={<MdDelete />}
-                                onClick={() => handleDelete(rowData.id)}
-                              />
+                              {(isSuperAdmin || isAdmin) && (
+                                <IconButton
+                                  size="sm"
+                                  title="Delete"
+                                  icon={<MdDelete />}
+                                  onClick={() => handleDelete(rowData.id)}
+                                />
+                              )}
                             </ButtonToolbar>
                           );
                         }}
