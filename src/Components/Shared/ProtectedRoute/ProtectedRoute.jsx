@@ -16,7 +16,7 @@ const ProtectedRoute = ({ children }) => {
   const origin = searchParams.get('origin');
   const appName = searchParams.get('appName');
   const sourceType = searchParams.get('sourceType');
-  const sourceTypeText = searchParams.get('sourceTypeText');
+  const resourceTypeLabel = searchParams.get('resourceTypeLabel');
   const uri = searchParams.get('uri');
   const title = searchParams.get('title');
   const titleLabel = searchParams.get('titleLabel');
@@ -41,7 +41,7 @@ const ProtectedRoute = ({ children }) => {
       const sources = {
         uri: uri ? decodeURIComponent(uri) : '',
         sourceType: sourceType ? decodeURIComponent(sourceType) : '',
-        sourceTypeText: sourceTypeText ? sourceTypeText : '',
+        resourceTypeLabel: resourceTypeLabel ? resourceTypeLabel : '',
         projectName: projectName ? projectName : '',
         branch: branch ? branch : '',
         commit: commit ? commit : '',

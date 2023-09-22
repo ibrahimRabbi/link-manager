@@ -263,7 +263,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     const {
       projectName,
       sourceType,
-      sourceTypeText,
+      resourceTypeLabel,
       title,
       uri,
       appName,
@@ -349,7 +349,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               : '',
             project_name: projectName ? projectName : '',
             content_hash: '',
-            web_application_type: sourceTypeText ? sourceTypeText : '',
+            web_application_resource_type: resourceTypeLabel ? resourceTypeLabel : '',
             path: '',
             web_url: uri,
           },
