@@ -263,6 +263,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     const {
       projectName,
       sourceType,
+      sourceTypeText,
       title,
       uri,
       appName,
@@ -348,6 +349,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               : '',
             project_name: projectName ? projectName : '',
             content_hash: '',
+            web_application_type: sourceTypeText ? sourceTypeText : '',
             path: '',
             web_url: uri,
           },
@@ -398,7 +400,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       });
       let appNameTwo = '';
       if (appName === null) {
-        appNameTwo = 'JIRA';
+        appNameTwo = 'jira';
       } else {
         appNameTwo = appName;
       }
@@ -489,7 +491,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               name="link_type"
               placeholder="Choose Link Type"
               apiURL={sourceDataList?.sourceType ? `${apiURL}/link-type` : ''}
-              // after configure the source_type endpoints we need to uncomment line
               apiQueryParams={`source_resource=${
                 sourceDataList?.sourceType ? encodeURI(sourceDataList?.sourceType) : ''
               }`}
