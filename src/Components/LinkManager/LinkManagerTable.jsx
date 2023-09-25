@@ -375,7 +375,7 @@ const LinkManagerTable = ({ props }) => {
       }
     }
     return (
-      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center', marginLeft: '10px' }}>
         <p style={{ marginRight: '5px' }}>{appIcon}</p>
         <div style={{ fontSize: '17px' }}>{rowData?.resource_type}</div>
       </div>
