@@ -90,13 +90,31 @@ const codebeamerIcon = {
   Test_configuration: (
     <FontAwesomeIcon icon={faVialVirus} style={{ color: '#20a99d', fontSize: '20px' }} />
   ),
-  Test_run: (
+  Bugs: <FontAwesomeIcon icon={faBug} style={{ color: '#e5493a', fontSize: '20px' }} />,
+  Epics: (
+    <FontAwesomeIcon icon={faListCheck} style={{ color: '#20a99c', fontSize: '20px' }} />
+  ),
+  Test_Configurations: (
+    <FontAwesomeIcon icon={faVialVirus} style={{ color: '#20a99d', fontSize: '20px' }} />
+  ),
+  Timekeeping: (
+    <FontAwesomeIcon
+      icon={faSquareCheck}
+      style={{ color: '#20a99c', fontSize: '20px' }}
+    />
+  ),
+  User_Stories: (
+    <FontAwesomeIcon
+      icon={faFileCircleCheck}
+      style={{ color: '#20a99c', fontSize: '20px' }}
+    />
+  ),
+  Test_Runs: (
     <FontAwesomeIcon
       icon={faVialCircleCheck}
       style={{ color: '#20a99d', fontSize: '20px' }}
     />
   ),
-  Bugs: <FontAwesomeIcon icon={faBug} style={{ color: '#e5493a', fontSize: '20px' }} />,
 };
 const glideYokeIcon = {
   Physical_parts: (
@@ -163,8 +181,21 @@ const UseIconSelect = (props) => {
         else if (item?.name === 'Test Sets') appIcon = codebeamerIcon.Test_sets;
         else if (item?.name === 'Test Configuration')
           appIcon = codebeamerIcon.Test_configuration;
-        else if (item?.name === 'Test Runs') appIcon = codebeamerIcon.Test_run;
+        else if (item?.name === 'Test Runs') appIcon = codebeamerIcon.Test_Runs;
         else if (item?.name === 'Bugs') appIcon = codebeamerIcon.Bugs;
+        else if (item.name === 'Public DOcuments') appIcon = codebeamerIcon.Documents;
+        else if (item.name === 'Accounts') appIcon = codebeamerIcon.Documents;
+        else if (item.name === 'Opportunities') appIcon = codebeamerIcon.Documents;
+        else if (item.name === 'Prospects') appIcon = codebeamerIcon.Documents;
+        else if (item.name === 'Leads') appIcon = codebeamerIcon.Documents;
+        else if (item.name === 'Activities') appIcon = codebeamerIcon.Documents;
+        else if (item.name === 'Epics') appIcon = codebeamerIcon.Epics;
+        else if (item.name === 'Test Configurations')
+          appIcon = codebeamerIcon.Test_Configurations;
+        else if (item.name === 'Backlog Items') appIcon = codebeamerIcon.Timekeeping;
+        else if (item.name === 'Timekeeping') appIcon = codebeamerIcon.Timekeeping;
+        else if (item.name === 'Tasks') appIcon = codebeamerIcon.Timekeeping;
+        else if (item.name === 'User Stories') appIcon = codebeamerIcon.User_Stories;
         else appIcon = codebeamerIcon.requirement_specification;
       } else if (appData?.application_type === 'dng') {
         if (item?.name === 'Requirements') appIcon = dngIcon.Requirement;
