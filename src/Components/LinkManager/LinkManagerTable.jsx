@@ -11,6 +11,24 @@ import {
   getExpandedRowModel,
   flexRender,
 } from '@tanstack/react-table';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faSquareCheck,
+  faListCheck,
+  faFileCircleCheck,
+  faBug,
+  faArrowUp,
+  faPlus,
+  faRocket,
+  faFileLines,
+  faCodeCompare,
+  faVials,
+  faFlask,
+  faVialVirus,
+  faVialCircleCheck,
+  faCube,
+  faCode,
+} from '@fortawesome/free-solid-svg-icons';
 import { Dropdown, IconButton, Input, Popover, Whisper } from 'rsuite';
 import cssStyles from './LinkManager.module.scss';
 import { useSelector } from 'react-redux';
@@ -42,6 +60,146 @@ const {
   allIconRotate,
   statusFilterClass,
 } = cssStyles;
+
+const gitlabIcon = {
+  Source_code: (
+    <FontAwesomeIcon icon={faFileLines} style={{ color: '#fc722e', fontSize: '20px' }} />
+  ),
+  Block_code: (
+    <FontAwesomeIcon icon={faCode} style={{ color: '#fc7238', fontSize: '20px' }} />
+  ),
+};
+const jiraIcon = {
+  Task: (
+    <FontAwesomeIcon
+      icon={faSquareCheck}
+      style={{ color: '#2185ff', fontSize: '20px' }}
+    />
+  ),
+  subT: (
+    <FontAwesomeIcon
+      icon={faSquareCheck}
+      style={{ color: '#2185ff', fontSize: '20px' }}
+    />
+  ),
+  Epic: (
+    <FontAwesomeIcon icon={faListCheck} style={{ color: '#2185ff', fontSize: '20px' }} />
+  ),
+  UserStory: (
+    <FontAwesomeIcon
+      icon={faFileCircleCheck}
+      style={{ color: '#2185ff', fontSize: '20px' }}
+    />
+  ),
+  Issues: <FontAwesomeIcon icon={faBug} style={{ color: '#e5493a', fontSize: '20px' }} />,
+  Improvement: (
+    <FontAwesomeIcon icon={faArrowUp} style={{ color: '#2185ff', fontSize: '20px' }} />
+  ),
+  New_feature: (
+    <FontAwesomeIcon icon={faPlus} style={{ color: '#2185ff', fontSize: '20px' }} />
+  ),
+};
+const codebeamerIcon = {
+  Releases: (
+    <FontAwesomeIcon icon={faRocket} style={{ color: '#20a99d', fontSize: '20px' }} />
+  ),
+  Documents: (
+    <FontAwesomeIcon icon={faFileLines} style={{ color: '#20a99c', fontSize: '20px' }} />
+  ),
+  requirement_specification: (
+    <FontAwesomeIcon
+      icon={faFileCircleCheck}
+      style={{ color: '#20a99c', fontSize: '20px' }}
+    />
+  ),
+  Hardware_tasks: (
+    <FontAwesomeIcon
+      icon={faSquareCheck}
+      style={{ color: '#20a99d', fontSize: '20px' }}
+    />
+  ),
+  Software_tasks: (
+    <FontAwesomeIcon
+      icon={faSquareCheck}
+      style={{ color: '#20a99d', fontSize: '20px' }}
+    />
+  ),
+  Change_requests: (
+    <FontAwesomeIcon
+      icon={faCodeCompare}
+      style={{ color: '#20a99d', fontSize: '20px' }}
+    />
+  ),
+  Risks: <FontAwesomeIcon icon={faBug} style={{ color: '#e5493a', fontSize: '20px' }} />,
+  Test_cases: (
+    <FontAwesomeIcon icon={faVials} style={{ color: '#20a99e', fontSize: '20px' }} />
+  ),
+  Test_sets: (
+    <FontAwesomeIcon icon={faFlask} style={{ color: '#20a99d', fontSize: '20px' }} />
+  ),
+  Test_configuration: (
+    <FontAwesomeIcon icon={faVialVirus} style={{ color: '#20a99d', fontSize: '20px' }} />
+  ),
+  Bugs: <FontAwesomeIcon icon={faBug} style={{ color: '#e5493a', fontSize: '20px' }} />,
+  Epics: (
+    <FontAwesomeIcon icon={faListCheck} style={{ color: '#20a99c', fontSize: '20px' }} />
+  ),
+  Test_Configurations: (
+    <FontAwesomeIcon icon={faVialVirus} style={{ color: '#20a99d', fontSize: '20px' }} />
+  ),
+  Timekeeping: (
+    <FontAwesomeIcon
+      icon={faSquareCheck}
+      style={{ color: '#20a99c', fontSize: '20px' }}
+    />
+  ),
+  User_Stories: (
+    <FontAwesomeIcon
+      icon={faFileCircleCheck}
+      style={{ color: '#20a99c', fontSize: '20px' }}
+    />
+  ),
+  Test_Runs: (
+    <FontAwesomeIcon
+      icon={faVialCircleCheck}
+      style={{ color: '#20a99d', fontSize: '20px' }}
+    />
+  ),
+};
+const glideYokeIcon = {
+  Physical_parts: (
+    <FontAwesomeIcon icon={faCube} style={{ color: '#8b8d92', fontSize: '20px' }} />
+  ),
+  Issues: <FontAwesomeIcon icon={faBug} style={{ color: '#e5493a', fontSize: '20px' }} />,
+  Document: (
+    <FontAwesomeIcon icon={faFileLines} style={{ color: '#8b8d92', fontSize: '20px' }} />
+  ),
+  Change_requests: (
+    <FontAwesomeIcon
+      icon={faCodeCompare}
+      style={{ color: '#8b8d92', fontSize: '20px' }}
+    />
+  ),
+};
+const dngIcon = {
+  Requirement: (
+    <FontAwesomeIcon
+      icon={faFileCircleCheck}
+      style={{ color: '#367aa0', fontSize: '20px' }}
+    />
+  ),
+  Requirement_collection: (
+    <FontAwesomeIcon icon={faListCheck} style={{ color: '#367ba1', fontSize: '20px' }} />
+  ),
+};
+const valispaceIcon = {
+  Requirement: (
+    <FontAwesomeIcon
+      icon={faFileCircleCheck}
+      style={{ color: '#f1b96d', fontSize: '20px' }}
+    />
+  ),
+};
 
 // OSLC API URLs
 const jiraURL = `${import.meta.env.VITE_JIRA_DIALOG_URL}`;
@@ -132,9 +290,94 @@ const LinkManagerTable = ({ props }) => {
                   rowData?.selected_lines +
                   ']'
                 : rowData?.name + ' [' + rowData?.selected_lines + ']'
-              : rowData?.name}
+              : rowData?.name?.slice(0, 30) + '....'}
           </a>
         </Whisper>
+      </div>
+    );
+  };
+  const resource = (row) => {
+    const rowData = row?.original;
+
+    let appIcon = '';
+    if (rowData?.resource_type) {
+      if (rowData?.api === 'gitlab') {
+        if (rowData?.resource_type === 'Source Code File')
+          appIcon = gitlabIcon.Source_code;
+        else if (rowData?.resource_type === 'Block of code')
+          appIcon = gitlabIcon.Block_code;
+      } else if (rowData?.api === 'jira') {
+        if (rowData?.resource_type === 'Tasks') appIcon = jiraIcon.Task;
+        else if (rowData?.resource_type === 'Epics') appIcon = jiraIcon.Epic;
+        else if (rowData?.resource_type === 'User Stories') appIcon = jiraIcon.UserStory;
+        else if (rowData?.resource_type === 'Bugs') appIcon = jiraIcon.Issues;
+        else if (rowData?.resource_type === 'Improvements')
+          appIcon = jiraIcon.Improvement;
+        else if (rowData?.resource_type === 'New Features')
+          appIcon = jiraIcon.New_feature;
+        else appIcon = jiraIcon.subT;
+      } else if (rowData?.api === 'codebeamer') {
+        if (rowData?.resource_type === 'Releases') appIcon = codebeamerIcon.Releases;
+        else if (rowData?.resource_type === 'Documents')
+          appIcon = codebeamerIcon.Documents;
+        else if (rowData?.resource_type === 'Change Requests')
+          appIcon = codebeamerIcon.Change_requests;
+        else if (rowData?.resource_type === 'Hardware Tasks')
+          appIcon = codebeamerIcon.Hardware_tasks;
+        else if (rowData?.resource_type === 'Software Tasks')
+          appIcon = codebeamerIcon.Software_tasks;
+        else if (rowData?.resource_type === 'Risk') appIcon = codebeamerIcon.Risks;
+        else if (rowData?.resource_type === 'Test Cases')
+          appIcon = codebeamerIcon.Test_cases;
+        else if (rowData?.resource_type === 'Test Sets')
+          appIcon = codebeamerIcon.Test_sets;
+        else if (rowData?.resource_type === 'Test Configuration')
+          appIcon = codebeamerIcon.Test_configuration;
+        else if (rowData?.resource_type === 'Test Runs')
+          appIcon = codebeamerIcon.Test_Runs;
+        else if (rowData?.resource_type === 'Bugs') appIcon = codebeamerIcon.Bugs;
+        else if (rowData?.resource_type === 'Public DOcuments')
+          appIcon = codebeamerIcon.Documents;
+        else if (rowData?.resource_type === 'Accounts')
+          appIcon = codebeamerIcon.Documents;
+        else if (rowData?.resource_type === 'Opportunities')
+          appIcon = codebeamerIcon.Documents;
+        else if (rowData?.resource_type === 'Prospects')
+          appIcon = codebeamerIcon.Documents;
+        else if (rowData?.resource_type === 'Leads') appIcon = codebeamerIcon.Documents;
+        else if (rowData?.resource_type === 'Activities')
+          appIcon = codebeamerIcon.Documents;
+        else if (rowData?.resource_type === 'Epics') appIcon = codebeamerIcon.Epics;
+        else if (rowData?.resource_type === 'Test Configurations')
+          appIcon = codebeamerIcon.Test_Configurations;
+        else if (rowData?.resource_type === 'Backlog Items')
+          appIcon = codebeamerIcon.Timekeeping;
+        else if (rowData?.resource_type === 'Timekeeping')
+          appIcon = codebeamerIcon.Timekeeping;
+        else if (rowData?.resource_type === 'Tasks') appIcon = codebeamerIcon.Timekeeping;
+        else if (rowData?.resource_type === 'User Stories')
+          appIcon = codebeamerIcon.User_Stories;
+        else appIcon = codebeamerIcon.requirement_specification;
+      } else if (rowData?.api === 'dng') {
+        if (rowData?.resource_type === 'Requirements') appIcon = dngIcon.Requirement;
+        else appIcon = dngIcon.Requirement_collection;
+      } else if (rowData?.api === 'valispace') {
+        appIcon = valispaceIcon.Requirement;
+      } else {
+        if (rowData?.api === 'glideyoke') {
+          if (rowData?.resource_type === 'Documents') appIcon = glideYokeIcon.Document;
+          else if (rowData?.resource_type === 'Physical Parts')
+            appIcon = glideYokeIcon.Physical_parts;
+          else if (rowData?.resource_type === 'Change Requests')
+            appIcon = glideYokeIcon.Change_requests;
+          else appIcon = glideYokeIcon.Issues;
+        }
+      }
+    }
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', marginLeft: '10px' }}>
+        <p style={{ marginRight: '5px' }}>{appIcon}</p>
+        <div style={{ fontSize: '17px' }}>{rowData?.resource_type}</div>
       </div>
     );
   };
@@ -217,6 +460,16 @@ const LinkManagerTable = ({ props }) => {
           );
         },
         cell: ({ row, getValue }) => expandCell(row, getValue),
+        footer: (props) => props.column.id,
+      },
+      {
+        accessorKey: 'resource_type',
+        header: () => (
+          <div className={headerCell}>
+            <h6>Resource Type</h6>
+          </div>
+        ),
+        cell: ({ row }) => resource(row),
         footer: (props) => props.column.id,
       },
       // Link type cell
@@ -305,7 +558,7 @@ const LinkManagerTable = ({ props }) => {
                     key={header.id}
                     colSpan={header.colSpan}
                     style={{
-                      width: status ? '120px' : action ? '120px' : '',
+                      width: status ? '100px' : action ? '100px' : '',
                     }}
                   >
                     {header.isPlaceholder ? null : (
@@ -318,8 +571,8 @@ const LinkManagerTable = ({ props }) => {
                               <Filter
                                 column={header.column}
                                 table={table}
-                                isAction={header.index === 3 ? true : false}
-                                isStatusFilter={header.index === 2 ? true : false}
+                                isAction={header.index === 4 ? true : false}
+                                isStatusFilter={header.index === 3 ? true : false}
                               />
                             )}
                           </div>
@@ -345,7 +598,7 @@ const LinkManagerTable = ({ props }) => {
                   <td
                     key={cell.id}
                     style={{
-                      width: status ? '120px' : action ? '120px' : '',
+                      width: status ? '100px' : action ? '100px' : '',
                     }}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
