@@ -8,11 +8,7 @@ import {
   handleCancelLink,
   handleIsTargetModalOpen,
   handleLinkType,
-  handleOslcResponse,
   handleProjectType,
-  handleTargetDataArr,
-  handleOslcCancelResponse,
-  resetOslcCancelResponse,
 } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
@@ -32,8 +28,7 @@ import {
 import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
 import GlobalSelector from '../SelectionDialog/GlobalSelector/GlobalSelector';
 
-const { newLinkMainContainer, targetContainer, targetIframe, targetBtnContainer } =
-  styles;
+const { newLinkMainContainer, targetBtnContainer } = styles;
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
@@ -41,23 +36,17 @@ const thirdApiURL = `${apiURL}/third_party`;
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // links states
   const {
-    configuration_aware,
     isWbe,
-    oslcResponse,
     sourceDataList,
     linkType,
     applicationType,
-    streamType,
     projectType,
-    targetDataArr,
     createLinkRes,
     linkCreateLoading,
-    oslcCancelResponse,
   } = useSelector((state) => state.links);
   const [gitlabDialog, setGitlabDialog] = useState(false);
   const [globalDialog, setGlobalDialog] = useState(false);
   const [appWithWorkspace, setAppWithWorkspace] = useState(false);
-  const [projectFrameSrc, setProjectFrameSrc] = useState('');
   const [externalProjectUrl, setExternalProjectUrl] = useState('');
   const [externalProjectDisabled, setExternalProjectDisabled] = useState(false);
   const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
@@ -106,7 +95,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   };
 
   useEffect(() => {
-    dispatch(handleCurrPageTitle(isEditLinkPage ? isEditLinkPage : 'New Link'));
+    dispatch(handleCurrPageTitle('New Link'));
   }, []);
 
   useEffect(() => {
@@ -124,7 +113,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     setGitlabDialog(false);
     setGlobalDialog(false);
     setAppWithWorkspace(false);
-    setProjectFrameSrc('');
 
     if (projectType?.value) {
       switch (applicationType?.type) {
@@ -150,78 +138,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       }
     }
   }, [projectType]);
-
-  //// Get Selection dialog response data
-  window.addEventListener(
-    'message',
-    function (event) {
-      let message = event.data;
-      if (!message.source && !oslcResponse) {
-        if (message.toString()?.startsWith('oslc-response')) {
-          const response = JSON.parse(message?.substr('oslc-response:'?.length));
-          const results = response['oslc:results'];
-          const isCancelled = response['oslc:cancel'];
-          const targetArray = [];
-          if (results?.length > 0) {
-            results?.forEach((v, i) => {
-              const koatl_path = results[i]['koatl:apiPath'];
-              const koatl_uri = results[i]['koatl:apiUrl'];
-              const oslcApplication = results[i]['oslc:api'];
-              const branch_name = results[i]['oslc:branchName'];
-              const target_provider = results[i]['oslc:api'];
-              const content = results[i]['oslc:content'];
-              const content_lines = results[i]['oslc:contentLine'];
-              const provider_id = results[i]['oslc:providerId'];
-              const resource_id = results[i]['oslc:resourceId'];
-              const resource_type = results[i]['oslc:resourceType'];
-              const selected_lines = results[i]['oslc:selectedLines'];
-              const label = results[i]['oslc:label'];
-              const uri = results[i]['rdf:resource'];
-              const type = results[i]['rdf:type'];
-              targetArray.push({
-                koatl_uri,
-                koatl_path,
-                oslcApplication,
-                branch_name,
-                target_provider,
-                provider_id,
-                resource_id,
-                resource_type,
-                content_lines,
-                selected_lines,
-                uri,
-                label,
-                type,
-                content,
-              });
-            });
-            dispatch(handleOslcResponse(true));
-            dispatch(handleTargetDataArr([...targetArray]));
-          } else if (isCancelled) {
-            dispatch(handleOslcCancelResponse());
-          }
-        }
-      }
-    },
-    false,
-  );
-
-  useEffect(() => {
-    if (oslcCancelResponse) {
-      dispatch(resetOslcCancelResponse());
-      dispatch(handleApplicationType(null));
-      setTimeout(() => {
-        dispatch(handleApplicationType(applicationType));
-      }, 50);
-    }
-  }, [oslcCancelResponse]);
-
-  // Call create link function
-  useEffect(() => {
-    if (projectType && oslcResponse && targetDataArr.length) {
-      handleSaveLink();
-    }
-  }, [oslcResponse, targetDataArr]);
 
   useEffect(() => {
     if (createLinkRes) {
@@ -374,78 +290,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       } else {
         showNotification('info', 'Sorry, Source data not found !!!');
       }
-    } else if (!res && targetDataArr?.length) {
-      const targetsData = targetDataArr?.map((data) => {
-        const id = data?.selected_lines
-          ? data.koatl_uri + '#' + data?.selected_lines
-          : data.koatl_uri;
-        const platform_uri = data?.uri;
-        return {
-          koatl_uri: platform_uri,
-          koatl_path: data.koatl_path ? data.koatl_path : '',
-          api: data.oslcApplication ? data.oslcApplication : '',
-          content_lines: data.content_lines ? data.content_lines : '',
-          selected_lines: data.selected_lines ? data.selected_lines : '',
-          branch_name: data.branch_name ? data.branch_name : '',
-          provider_id: data.provider_id ? data.provider_id : '',
-          resource_id: data.resource_id ? data.resource_id : '',
-          resource_type: data.type ? data.type : '',
-          content: data.content ? data.content : '',
-          target_type: data.resource_type ? data.resource_type : '',
-          target_title: data.label ? data.label : '',
-          target_id: id,
-          target_project: projectType?.label ? projectType?.label : '',
-          target_provider: data.target_provider ? data?.target_provider : '',
-        };
-      });
-      let appNameTwo = '';
-      if (appName === null) {
-        appNameTwo = 'jira';
-      } else {
-        appNameTwo = appName;
-      }
-
-      const linkObj = {
-        stream: streamType ? streamType : '',
-        source_type: sourceType ? sourceType : '',
-        source_title: title ? title : '',
-        source_project: projectName,
-        source_provider: appNameTwo,
-        source_id: uri,
-        relation: linkType?.label,
-        status: 'valid',
-        target_data: targetsData,
-      };
-
-      if (sourceDataList?.uri) {
-        dispatch(
-          fetchCreateLink({
-            url: `${apiURL}/link`,
-            token: authCtx.token,
-            bodyData: linkObj,
-            message: 'link',
-            showNotification: showNotification,
-          }),
-        );
-        setExternalProjectUrl('');
-      } else {
-        showNotification('info', 'Sorry, Source data not found found !!!');
-      }
     }
   };
-
-  // eslint-disable-next-line max-len
-  // GCM Config_Aware This value manages the GCM context dropdown and conditional rendering.
-  const [withConfigAware, setWith] = useState(false);
-  const [withoutConfigAware, setWithout] = useState(false);
-
-  useEffect(() => {
-    if (configuration_aware) {
-      if (streamType && linkType && projectType) setWith(true);
-    } else {
-      if (linkType && projectType) setWithout(true);
-    }
-  }, [configuration_aware, linkType, projectType, streamType]);
 
   useEffect(() => {
     if (linkType && projectType) {
@@ -476,6 +322,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       break;
     }
   }, [applicationType]);
+
   return (
     <>
       <SourceSection />
@@ -561,16 +408,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         )}
 
         {linkCreateLoading && <UseLoader />}
+
         {/* --- Target Selection dialog ---  */}
-
-        {(withConfigAware || withoutConfigAware) && (
-          <div className={targetContainer}>
-            {linkType && projectType && projectFrameSrc && (
-              <iframe className={targetIframe} src={projectFrameSrc} />
-            )}
-          </div>
-        )}
-
         <>
           {authenticatedThirdApp && (
             <ExternalAppModal
