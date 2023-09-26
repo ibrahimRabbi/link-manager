@@ -7,8 +7,6 @@ import LinkTypes from './Components/AdminDasComponents/LinkType/LinkTypes';
 import Organization from './Components/AdminDasComponents/Organization/Organization';
 import Projects from './Components/AdminDasComponents/Projects/Projects';
 import Users from './Components/AdminDasComponents/Users/Users';
-import EditLink from './Components/EditLink/EditLink';
-import LinkDetails from './Components/LinkDetails/LinkDetails';
 import LinkManager from './Components/LinkManager/LinkManager';
 import NewLink from './Components/NewLink/NewLink';
 import ProtectedRoute from './Components/Shared/ProtectedRoute/ProtectedRoute';
@@ -96,8 +94,6 @@ function App() {
             }
           >
             <Route path="/wbe/new-link" element={<NewLink />} />
-            <Route path="/wbe/edit-link/:id" element={<EditLink />} />
-            <Route path="/wbe/details/:id" element={<LinkDetails />} />
             <Route path="/wbe/graph-view" element={<CytoscapeGraphView />} />
             <Route path="/wbe/pipeline" element={<Pipeline />} />
             <Route path="/wbe" element={<LinkManager />} />
@@ -113,8 +109,6 @@ function App() {
             }
           >
             <Route path="/new-link" element={<NewLink />} />
-            <Route path="/edit-link/:id" element={<EditLink />} />
-            <Route path="/details/:id" element={<LinkDetails />} />
             <Route path="/graph-view" element={<CytoscapeGraphView />} />
             <Route path="/pipeline" element={<Pipeline />} />
             <Route path="/extension" element={<WebBrowserExtension />} />

@@ -49,9 +49,7 @@ const model = Schema.Model({
 });
 
 const LinkManager = () => {
-  const { sourceDataList, linksData, isLoading, configuration_aware } = useSelector(
-    (state) => state.links,
-  );
+  const { sourceDataList, linksData, isLoading } = useSelector((state) => state.links);
 
   const { linksStream, refreshData, isDark } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
@@ -108,32 +106,19 @@ const LinkManager = () => {
 
   // get all links
   useEffect(() => {
-    (async () => {
-      let streamRes = [];
-      if (configuration_aware && !linksStream.key) {
-        streamRes = await fetch('.././gcm_context.json')
-          .then((res) => res.json())
-          .catch((err) => console.log(err));
-      }
+    if (sourceFileURL) {
+      const getLinkUrl = `${apiURL}/link/resource?resource_id=${encodeURIComponent(
+        sourceFileURL,
+      )}&page=${currPage}&per_page=${pageSize}&search_term=${searchValue.search_term}`;
 
-      let stream = linksStream.key ? linksStream.key : streamRes[0]?.key;
-
-      // Get all links
-      if (sourceFileURL) {
-        // eslint-disable-next-line max-len
-        const getLinkUrl = `${apiURL}/link/resource?stream=${stream}&resource_id=${encodeURIComponent(
-          sourceFileURL,
-        )}&page=${currPage}&per_page=${pageSize}&search_term=${searchValue.search_term}`;
-
-        dispatch(
-          fetchLinksData({
-            url: getLinkUrl,
-            token: authCtx.token,
-            showNotification: showNotification,
-          }),
-        );
-      }
-    })();
+      dispatch(
+        fetchLinksData({
+          url: getLinkUrl,
+          token: authCtx.token,
+          showNotification: showNotification,
+        }),
+      );
+    }
   }, [linksStream, pageSize, currPage, deleteSuccess, isLinkSearching, refreshData]);
 
   const showNotification = (type, message) => {
@@ -175,7 +160,6 @@ const LinkManager = () => {
   };
 
   const exportToExcel = () => {
-    console.log(sourceDataList);
     if (sourceFileURL) {
       const exportUrl = `${apiURL}/link/export?source_id=${sourceFileURL}`;
       const filename = sourceDataList['titleLabel']?.replace(' ', '_');
