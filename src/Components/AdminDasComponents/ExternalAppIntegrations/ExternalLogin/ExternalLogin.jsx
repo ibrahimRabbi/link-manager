@@ -30,7 +30,9 @@ const ExternalLogin = (props) => {
   const authCtx = useContext(AuthContext);
 
   const { titleSpan, main, title, appImage } = style;
-  const { appData, onDataStatus } = props;
+  const { appData, onDataStatus, preview } = props;
+
+  const imageSize = preview ? 150 : 75;
 
   const [isLoading, setIsLoading] = useState(false);
   const [setFormError] = useState({});
@@ -55,7 +57,11 @@ const ExternalLogin = (props) => {
         showNotification: showNotification,
       }),
   );
-  if (selectedExtLoginApplication) {
+  if(appData?.application_id){
+    loginUrl = `${lmApiUrl}/third_party/${appData?.type}/auth/login?application_id=${
+      appData?.application_id
+    }`;
+  } else if (selectedExtLoginApplication) {
     const foundAppId = selectedExtLoginApplication?.items[0]?.id;
     // eslint-disable-next-line max-len
     loginUrl = `${lmApiUrl}/third_party/${appData?.type}/auth/login?application_id=${
@@ -144,8 +150,8 @@ const ExternalLogin = (props) => {
                     src={'/glide_logo.png'}
                     alt="Application logo"
                     className={appImage}
-                    width={150}
-                    height={150}
+                    width={imageSize}
+                    height={imageSize}
                   />
                 )}
                 {appData?.type === 'codebeamer' && (
@@ -153,8 +159,8 @@ const ExternalLogin = (props) => {
                     src={'/codebeamer_logo.png'}
                     alt="Application logo"
                     className={appImage}
-                    width={150}
-                    height={150}
+                    width={imageSize}
+                    height={imageSize}
                   />
                 )}
                 {appData?.type === 'valispace' && (
@@ -162,8 +168,8 @@ const ExternalLogin = (props) => {
                     src={'/valispace_logo.png'}
                     alt="Application logo"
                     className={appImage}
-                    width={150}
-                    height={150}
+                    width={imageSize}
+                    height={imageSize}
                   />
                 )}
                 {appData?.type === 'dng' && (
@@ -171,8 +177,8 @@ const ExternalLogin = (props) => {
                     src={'/dng_logo.png'}
                     alt="Application logo"
                     className={appImage}
-                    width={150}
-                    height={150}
+                    width={imageSize}
+                    height={imageSize}
                   />
                 )}
                 <br />
