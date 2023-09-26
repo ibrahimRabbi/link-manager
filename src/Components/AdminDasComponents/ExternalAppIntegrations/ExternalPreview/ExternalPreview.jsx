@@ -6,7 +6,6 @@ import hljs from 'highlight.js';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCodeCommit, faFileCode } from '@fortawesome/free-solid-svg-icons';
-import GlobalIcon from '@rsuite/icons/Global';
 import CheckRoundIcon from '@rsuite/icons/CheckRound';
 import RemindFillIcon from '@rsuite/icons/RemindFill';
 import WarningRoundIcon from '@rsuite/icons/WarningRound';
@@ -16,22 +15,18 @@ import BranchIcon from '@rsuite/icons/Branch';
 
 //files in Gitlab
 import CodeIcon from '@rsuite/icons/Code';
-//Documents in Glideyoke
-import IdInfoIcon from '@rsuite/icons/IdInfo';
-// Change requests
-import ChangeListIcon from '@rsuite/icons/ChangeList';
-// JIRA tasks
-import TaskIcon from '@rsuite/icons/Task';
 
 import styles from './ExternalPreview.module.scss';
 import PreviewRow from './PreviewRow/PreviewRow.jsx';
 import { useSelector } from 'react-redux';
 // eslint-disable-next-line max-len
 import {
-  BASIC_AUTH_APPLICATION_TYPES, MICROSERVICES_APPLICATION_TYPES,
+  BASIC_AUTH_APPLICATION_TYPES,
+  MICROSERVICES_APPLICATION_TYPES,
   OAUTH2_APPLICATION_TYPES,
 } from '../../../../App.jsx';
 import ExternalAppModal from '../ExternalAppModal/ExternalAppModal.jsx';
+import { getIcon } from '../../../LinkManager/ResourceTypeIcon.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 const {
@@ -48,7 +43,6 @@ const ExternalPreview = (props) => {
   const authCtx = useContext(AuthContext);
   let { nodeData, fromGraphView, status } = props;
   let iconUrl = '';
-  console.log('nodeData', nodeData);
   // prettier-ignore
   switch (nodeData?.api) {
   case 'gitlab':
@@ -80,13 +74,12 @@ const ExternalPreview = (props) => {
   const [extension, setExtension] = useState('');
   const [decodedCodeLines, setDecodedCodeLines] = useState('');
   const [unauthorizedData, setUnauthorizedData] = useState(false);
-
+  const [externalAppData, setExternalAppData] = useState({});
   const webAppTooltip = <Tooltip>Click to open link in web application.</Tooltip>;
-
 
   const getExtLoginData = (data) => {
     if (data?.status) {
-      console.log('request data again');
+      getExternalResourceData(nodeData);
     }
   };
 
@@ -110,48 +103,12 @@ const ExternalPreview = (props) => {
     }
   };
 
-  const validateLinkType = (linkType, linkList) => {
-    return linkList.some((substring) => linkType.includes(substring));
-  };
-
-  const getResourceType = (resourceType) => {
-    let resource = resourceType.toLowerCase().split('#');
-    resource = resource[resource.length - 1];
-    return resource;
-  };
-
-  const getIconResourceType = (resourceType) => {
-    const resource = getResourceType(resourceType);
-    const files = ['file', 'ofcode', 'folder'];
-    const documents = ['document'];
-    const changeRequests = ['changerequest'];
-    const tasks = ['task'];
-
-    const isFile = validateLinkType(resource, files);
-    if (isFile) {
-      return <CodeIcon className={iconStatus} style={{ color: 'blue' }} />;
-    }
-    const isDocument = validateLinkType(resource, documents);
-    if (isDocument) {
-      return <IdInfoIcon className={iconStatus} style={{ color: 'blue' }} />;
-    }
-    const isChangeRequest = validateLinkType(resource, changeRequests);
-    if (isChangeRequest) {
-      return <ChangeListIcon className={iconStatus} style={{ color: 'blue' }} />;
-    }
-    const isTask = validateLinkType(resource, tasks);
-    if (isTask) {
-      return <TaskIcon className={iconStatus} style={{ color: 'blue' }} />;
-    }
-    return <GlobalIcon className={iconStatus} style={{ color: 'blue' }} />;
-  };
-
   const sendToWebApplication = () => {
     window.open(nodeData?.web_url ? nodeData?.web_url : nodeData?.id, '_blank');
   };
 
   const getExternalResourceData = (nodeData) => {
-    if(nodeData?.api_url && nodeData?.application_id){
+    if (nodeData?.api_url && nodeData?.application_id) {
       fetch(`${nodeData.api_url}?application_id=${nodeData.application_id}`, {
         headers: {
           'Content-type': 'application/json',
@@ -163,19 +120,18 @@ const ExternalPreview = (props) => {
           if (response.status === 200) {
             return response.json();
           } else {
-            console.log('Error fetching external resource data');
             setUnauthorizedData(true);
           }
           return null;
         })
         .then((data) => {
           if (data) {
-            console.log(data);
+            setExternalAppData(data);
           }
         });
     }
   };
-  
+
   const decodeContent = (nodeData) => {
     if (nodeData?.content_hash) {
       fetch(`${lmApiUrl}/third_party/${nodeData.api}/decode_selected_content`, {
@@ -211,11 +167,41 @@ const ExternalPreview = (props) => {
     }
   };
 
+  const snakeCaseToWords = (snakeCase) => {
+    const words = snakeCase.split('_');
+    // eslint-disable-next-line max-len
+    const regularWords = words
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+    return regularWords;
+  };
+
   useEffect(() => {
     getLanguageExtension(nodeData);
     decodeContent(nodeData);
     getExternalResourceData(nodeData);
   }, [nodeData]);
+
+  const addComponents = () => {
+    const extendedProps = externalAppData?.extended_properties;
+    if (extendedProps) {
+      const extendedPropsKeys = Object.keys(extendedProps);
+      if (extendedPropsKeys.length > 0) {
+        // eslint-disable-next-line max-len
+        const thirdAppExtraProps = Object.keys(externalAppData?.extended_properties).map(
+          (key) => (
+            <div key={key}>
+              <PreviewRow
+                name={snakeCaseToWords(key)}
+                value={externalAppData?.extended_properties[key]}
+              />
+            </div>
+          ),
+        );
+        return thirdAppExtraProps;
+      }
+    }
+  };
 
   return (
     <div className={fromGraphView ? graphPreviewContainer : tablePreviewContainer}>
@@ -288,11 +274,9 @@ const ExternalPreview = (props) => {
           {nodeData?.resource_type && (
             <PreviewRow
               name="Type"
-              functionForIcon={getIconResourceType}
+              icon={getIcon(nodeData?.api, nodeData?.resource_type)}
               firstLetter={true}
-              value={nodeData?.resource_type? 
-                nodeData?.resource_type : 
-                getResourceType(nodeData?.type)}
+              value={nodeData?.resource_type}
             />
           )}
 
@@ -330,11 +314,12 @@ const ExternalPreview = (props) => {
               titleIcon={<BranchIcon className={iconStatus} />}
             />
           )}
+          {addComponents()}
           {nodeData?.selected_lines && (
             <PreviewRow
               name="Selected code lines"
               value={nodeData?.selected_lines}
-              urlDescription={nodeData?.web_url}
+              urlDescription={nodeData?.id}
               titleIcon={<CodeIcon className={iconStatus} />}
             />
           )}
@@ -343,7 +328,7 @@ const ExternalPreview = (props) => {
               <FlexboxGrid.Item as={Col} colspan={24}>
                 <p className={title} style={{ marginBottom: '10px' }}>
                   <FontAwesomeIcon icon={faFileCode} className={iconStatus} />
-                    Selected code
+                  Selected code
                 </p>
               </FlexboxGrid.Item>
               <FlexboxGrid.Item as={Col} colspan={24}>
@@ -360,9 +345,7 @@ const ExternalPreview = (props) => {
             </FlexboxGrid>
           )}
         </>
-        
       )}
-      
     </div>
   );
 };

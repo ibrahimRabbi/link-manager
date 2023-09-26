@@ -62,11 +62,9 @@ const Oauth2Waiting = (props) => {
   useEffect(() => {
     if (applicationId) {
       // eslint-disable-next-line max-len
-      console.log('using applicationId instead of the other application');
       const openUrl = `${lmApiUrl}/third_party/${data?.type}/oauth2/login?application_id=${applicationId}`;
       setUrl(openUrl);
-    }
-    else if (oauth2Data) {
+    } else if (oauth2Data) {
       // eslint-disable-next-line max-len
       const openUrl = `${lmApiUrl}/third_party/${data?.type}/oauth2/login?application_id=${oauth2Data?.items[0]?.id}`;
       setUrl(openUrl);
@@ -86,7 +84,6 @@ const Oauth2Waiting = (props) => {
 
   useEffect(() => {
     if (data?.application_id && !applicationId) {
-      console.log('storing application id', data?.application_id);
       setApplicationId(data.application_id);
     }
   }, []);
@@ -111,13 +108,13 @@ const Oauth2Waiting = (props) => {
       <Panel>
         {defaultAppType ? (
           <ViewsAuthorizeIcon style={{ width: '100px', height: '100px' }} />
-        ) : ( preview ? (
-          <img 
-            src={iconUrl} 
-            alt="Application logo" 
-            className={appImage} 
-            width={75} 
-            height={75} 
+        ) : preview ? (
+          <img
+            src={iconUrl}
+            alt="Application logo"
+            className={appImage}
+            width={75}
+            height={75}
           />
         ) : (
           <img
@@ -127,7 +124,7 @@ const Oauth2Waiting = (props) => {
             width={150}
             height={150}
           />
-        ))}
+        )}
       </Panel>
       <h3>Waiting for user verification</h3>
       {/* eslint-disable-next-line max-len */}
