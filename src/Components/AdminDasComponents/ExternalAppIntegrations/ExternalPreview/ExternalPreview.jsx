@@ -26,6 +26,12 @@ import TaskIcon from '@rsuite/icons/Task';
 import styles from './ExternalPreview.module.scss';
 import PreviewRow from './PreviewRow/PreviewRow.jsx';
 import { useSelector } from 'react-redux';
+// eslint-disable-next-line max-len
+import {
+  BASIC_AUTH_APPLICATION_TYPES, MICROSERVICES_APPLICATION_TYPES,
+  OAUTH2_APPLICATION_TYPES,
+} from '../../../../App.jsx';
+import ExternalAppModal from '../ExternalAppModal/ExternalAppModal.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 const {
@@ -42,7 +48,7 @@ const ExternalPreview = (props) => {
   const authCtx = useContext(AuthContext);
   let { nodeData, fromGraphView, status } = props;
   let iconUrl = '';
-
+  console.log('nodeData', nodeData);
   // prettier-ignore
   switch (nodeData?.api) {
   case 'gitlab':
@@ -73,8 +79,16 @@ const ExternalPreview = (props) => {
 
   const [extension, setExtension] = useState('');
   const [decodedCodeLines, setDecodedCodeLines] = useState('');
+  const [unauthorizedData, setUnauthorizedData] = useState(false);
 
   const webAppTooltip = <Tooltip>Click to open link in web application.</Tooltip>;
+
+
+  const getExtLoginData = (data) => {
+    if (data?.status) {
+      console.log('request data again');
+    }
+  };
 
   const getLanguageFromExtension = (extension) => {
     // Remove the leading dot if present
@@ -136,6 +150,32 @@ const ExternalPreview = (props) => {
     window.open(nodeData?.web_url ? nodeData?.web_url : nodeData?.id, '_blank');
   };
 
+  const getExternalResourceData = (nodeData) => {
+    if(nodeData?.api_url && nodeData?.application_id){
+      fetch(`${nodeData.api_url}?application_id=${nodeData.application_id}`, {
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: `Bearer ${authCtx.token}`,
+        },
+        method: 'GET',
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            console.log('Error fetching external resource data');
+            setUnauthorizedData(true);
+          }
+          return null;
+        })
+        .then((data) => {
+          if (data) {
+            console.log(data);
+          }
+        });
+    }
+  };
+  
   const decodeContent = (nodeData) => {
     if (nodeData?.content_hash) {
       fetch(`${lmApiUrl}/third_party/${nodeData.api}/decode_selected_content`, {
@@ -174,6 +214,7 @@ const ExternalPreview = (props) => {
   useEffect(() => {
     getLanguageExtension(nodeData);
     decodeContent(nodeData);
+    getExternalResourceData(nodeData);
   }, [nodeData]);
 
   return (
@@ -204,17 +245,30 @@ const ExternalPreview = (props) => {
           </Whisper>
         </FlexboxGrid.Item>
       </FlexboxGrid>
+
+      {unauthorizedData && (
+        <ExternalAppModal
+          formValue={{
+            ...nodeData,
+            type: nodeData?.api,
+            rdf_type: nodeData?.type,
+          }}
+          isOauth2={OAUTH2_APPLICATION_TYPES?.includes(nodeData?.api)}
+          isBasic={(
+            BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
+          ).includes(nodeData?.api)}
+          onDataStatus={getExtLoginData}
+          integrated={false}
+        />
+      )}
+
       {!fromGraphView && (
         <>
           <Divider style={{ marginTop: '-2px' }}>
             <h5>Overview</h5>
           </Divider>
-          {nodeData?.api === 'codebeamer' ? (
-            <PreviewRow name="Description" nodeData={nodeData} />
-          ) : (
-            nodeData?.description && (
-              <PreviewRow name="Description" value={nodeData?.description} />
-            )
+          {nodeData?.description && (
+            <PreviewRow name="Description" value={nodeData?.description} />
           )}
           {nodeData?.status ? (
             <PreviewRow
@@ -231,82 +285,84 @@ const ExternalPreview = (props) => {
               firstLetter={true}
             />
           )}
-          {nodeData?.project_id && (
-            <PreviewRow name="Project" value={nodeData?.project?.name} />
-          )}
           {nodeData?.resource_type && (
             <PreviewRow
               name="Type"
               functionForIcon={getIconResourceType}
               firstLetter={true}
-              value={getResourceType(nodeData?.resource_type)}
+              value={nodeData?.resource_type? 
+                nodeData?.resource_type : 
+                getResourceType(nodeData?.type)}
             />
           )}
-        </>
-      )}
-      <Divider style={{ marginTop: '18px' }}>
-        <h5>Details</h5>
-      </Divider>
-      {nodeData?.description && fromGraphView && (
-        <PreviewRow name="Description" value={nodeData?.description} />
-      )}
-      {nodeData?.api === 'gitlab' ? (
-        <PreviewRow
-          name="Repository"
-          value={nodeData?.provider_name}
-          titleIcon={<SingleSourceIcon className={iconStatus} />}
-        />
-      ) : (
-        <PreviewRow
-          name="Project"
-          value={nodeData?.provider_name}
-          titleIcon={<SingleSourceIcon className={iconStatus} />}
-        />
-      )}
 
-      {nodeData?.commit_id && (
-        <PreviewRow
-          name="Commit ID"
-          value={nodeData?.commit_id}
-          titleIcon={<FontAwesomeIcon icon={faCodeCommit} className={iconStatus} />}
-        />
-      )}
-      {nodeData?.branch_name && (
-        <PreviewRow
-          name="Branch"
-          value={nodeData?.branch_name}
-          titleIcon={<BranchIcon className={iconStatus} />}
-        />
-      )}
-      {nodeData?.selected_lines && (
-        <PreviewRow
-          name="Selected code lines"
-          value={nodeData?.selected_lines}
-          urlDescription={nodeData?.web_url}
-          titleIcon={<CodeIcon className={iconStatus} />}
-        />
-      )}
-      {decodedCodeLines && (
-        <FlexboxGrid justify="space-around">
-          <FlexboxGrid.Item as={Col} colspan={24}>
-            <p className={title} style={{ marginBottom: '10px' }}>
-              <FontAwesomeIcon icon={faFileCode} className={iconStatus} />
-              Selected code
-            </p>
-          </FlexboxGrid.Item>
-          <FlexboxGrid.Item as={Col} colspan={24}>
-            <Editor
-              height="200px"
-              theme="light"
-              language={extension}
-              value={decodedCodeLines}
-              options={{
-                readOnly: true,
-              }}
+          <Divider style={{ marginTop: '18px' }}>
+            <h5>Details</h5>
+          </Divider>
+          {nodeData?.description && fromGraphView && (
+            <PreviewRow name="Description" value={nodeData?.description} />
+          )}
+          {nodeData?.api === 'gitlab' ? (
+            <PreviewRow
+              name="Repository"
+              value={nodeData?.provider_name}
+              titleIcon={<SingleSourceIcon className={iconStatus} />}
             />
-          </FlexboxGrid.Item>
-        </FlexboxGrid>
+          ) : (
+            <PreviewRow
+              name="Project"
+              value={nodeData?.provider_name}
+              titleIcon={<SingleSourceIcon className={iconStatus} />}
+            />
+          )}
+
+          {nodeData?.commit_id && (
+            <PreviewRow
+              name="Commit ID"
+              value={nodeData?.commit_id}
+              titleIcon={<FontAwesomeIcon icon={faCodeCommit} className={iconStatus} />}
+            />
+          )}
+          {nodeData?.branch_name && (
+            <PreviewRow
+              name="Branch"
+              value={nodeData?.branch_name}
+              titleIcon={<BranchIcon className={iconStatus} />}
+            />
+          )}
+          {nodeData?.selected_lines && (
+            <PreviewRow
+              name="Selected code lines"
+              value={nodeData?.selected_lines}
+              urlDescription={nodeData?.web_url}
+              titleIcon={<CodeIcon className={iconStatus} />}
+            />
+          )}
+          {decodedCodeLines && (
+            <FlexboxGrid justify="space-around">
+              <FlexboxGrid.Item as={Col} colspan={24}>
+                <p className={title} style={{ marginBottom: '10px' }}>
+                  <FontAwesomeIcon icon={faFileCode} className={iconStatus} />
+                    Selected code
+                </p>
+              </FlexboxGrid.Item>
+              <FlexboxGrid.Item as={Col} colspan={24}>
+                <Editor
+                  height="200px"
+                  theme="light"
+                  language={extension}
+                  value={decodedCodeLines}
+                  options={{
+                    readOnly: true,
+                  }}
+                />
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          )}
+        </>
+        
       )}
+      
     </div>
   );
 };
