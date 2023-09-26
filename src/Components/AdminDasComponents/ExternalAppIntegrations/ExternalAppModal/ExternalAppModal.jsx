@@ -43,9 +43,9 @@ const ExternalAppModal = (props) => {
                   />
                 )}
                 {isBasic && (
-                  <ExternalLogin 
-                    appData={formValue} 
-                    onDataStatus={onDataStatus} 
+                  <ExternalLogin
+                    appData={formValue}
+                    onDataStatus={onDataStatus}
                     preview={preview}
                   />
                 )}

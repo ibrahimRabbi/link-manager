@@ -57,10 +57,9 @@ const ExternalLogin = (props) => {
         showNotification: showNotification,
       }),
   );
-  if(appData?.application_id){
-    loginUrl = `${lmApiUrl}/third_party/${appData?.type}/auth/login?application_id=${
-      appData?.application_id
-    }`;
+  if (appData?.application_id) {
+    // eslint-disable-next-line max-len
+    loginUrl = `${lmApiUrl}/third_party/${appData?.type}/auth/login?application_id=${appData?.application_id}`;
   } else if (selectedExtLoginApplication) {
     const foundAppId = selectedExtLoginApplication?.items[0]?.id;
     // eslint-disable-next-line max-len
