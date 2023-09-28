@@ -38,6 +38,8 @@ import UserProfile from './Components/Login/UserProfile';
 import Oauth2TokenStatus from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2TokenStatus.jsx';
 import AuthContext from './Store/Auth-Context';
 import Home from './Components/Home/Home';
+// eslint-disable-next-line max-len
+import SyncronizationConfig from './Components/AdminDasComponents/SyncronizationConfig/SyncronizationConfig';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -137,6 +139,7 @@ function App() {
               <Route path="/admin/events" element={<Events />} />
               <Route path="/admin/pipelines" element={<Pipelines />} />
               <Route path="/admin/pipelinerun" element={<PipelineRun />} />
+              <Route path="/admin/syncronization" element={<SyncronizationConfig />} />
               <Route path="/admin" element={<Users />} />
             </Route>
           )}

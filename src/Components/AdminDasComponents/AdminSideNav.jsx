@@ -90,6 +90,13 @@ const options = [
     content: <span>Pipeline Runs</span>,
     hidden: true,
   },
+  {
+    path: ['/admin/syncronization'],
+    navigateTo: '/admin/syncronization',
+    icon: <PlayOutlineIcon size={15} style={{ ...iconStyle, marginLeft: '0' }} />,
+    content: <span>Syncronization</span>,
+    hidden: false,
+  },
 ];
 
 const AdminSideNav = () => {
