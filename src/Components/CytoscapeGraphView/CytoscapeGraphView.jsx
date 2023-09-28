@@ -31,6 +31,9 @@ const CytoscapeGraphView = () => {
   const [expandNode, setExpandNode] = useState(false);
   const [filteredElements, setFilteredElements] = useState([]);
 
+  const [selectedResourceType, setSelectedResourceType] = useState([]);
+  const [selectedApplications, setSelectedApplications] = useState([]);
+
   const dispatch = useDispatch();
   const containerRef = useRef(null);
   const graphContainerRef = useRef(null);
@@ -279,23 +282,42 @@ const CytoscapeGraphView = () => {
   }, [data]);
 
   // handle select onChange
-  const filterByApp = (selectedItems) => {
+  const performFiltering = () => {
     const sourceData = {};
-
-    let filteredNodes = nodeData?.reduce((accumulator, item) => {
+    let filteredNodes = [];
+    filteredNodes = nodeData?.reduce((accumulator, item) => {
       // get source node
       if (item?.data?.nodeData?.id === sourceDataList?.uri) {
         sourceData['sourceNode'] = item;
       }
-
-      selectedItems?.forEach((value) => {
-        // filter nodes and edges
-        if (value?.name === item?.data?.nodeData?.api) {
-          accumulator.push(item);
-        }
-      });
       return accumulator;
     }, []);
+
+    if (selectedApplications?.length > 0) {
+      filteredNodes = nodeData?.reduce((accumulator, item) => {
+        selectedApplications?.forEach((value) => {
+          // filter nodes and edges
+          if (value?.name === item?.data?.nodeData?.api) {
+            accumulator.push(item);
+          }
+        });
+        return accumulator;
+      }, []);
+    } else {
+      filteredNodes = nodeData;
+    }
+
+    if (selectedResourceType?.length > 0) {
+      filteredNodes = filteredNodes?.reduce((accumulator, item) => {
+        selectedResourceType?.forEach((value) => {
+          if (value?.name === item?.data?.nodeData?.resource_type) {
+            accumulator.push(item);
+          }
+        });
+        return accumulator;
+      }, []);
+    }
+
     filteredNodes = [sourceData?.sourceNode, ...filteredNodes];
 
     const filteredNodeIds = filteredNodes?.map((item) => item?.data?.id);
@@ -311,7 +333,10 @@ const CytoscapeGraphView = () => {
       return accumulator;
     }, []);
     // eslint-disable-next-line max-len
-    if (filteredNodes.length && selectedItems.length > 0)
+    if (
+      filteredNodes.length &&
+      (selectedApplications?.length > 0 || selectedResourceType?.length > 0)
+    )
       setFilteredElements([...filteredNodes, ...filteredEdges]);
     else {
       setFilteredElements([]);
@@ -334,6 +359,39 @@ const CytoscapeGraphView = () => {
     }
     return accumulator;
   }, []);
+
+  //filter resource type dropdown item dynamically
+  const resourceTypeDropdownItem = nodeData?.reduce((accumulator, item) => {
+    const isObjectInArray = accumulator.some((value) => {
+      return item?.data?.nodeData?.resource_type === value?.name;
+    });
+
+    if (!isObjectInArray) {
+      if (item?.data?.nodeData?.resource_type) {
+        accumulator.push({
+          name: item?.data?.nodeData?.resource_type,
+          // eslint-disable-next-line max-len
+          // icon: getIcon(item?.data?.nodeData?.api, item?.data?.nodeData?.resource_type),
+        });
+      }
+    }
+    return accumulator;
+  }, []);
+
+  const filterByApp = (selectedItems) => {
+    setSelectedApplications(selectedItems);
+  };
+
+  const filterByResourceType = (selectedItems) => {
+    setSelectedResourceType(selectedItems);
+  };
+
+  useEffect(() => {
+    if (selectedApplications?.length || selectedResourceType?.length) performFiltering();
+    else {
+      setFilteredElements([]);
+    }
+  }, [selectedApplications, selectedResourceType]);
 
   // graph props
   const graphProps = {
@@ -375,8 +433,8 @@ const CytoscapeGraphView = () => {
                 />
                 <UseReactSelect
                   name="node_filter-resource-type"
-                  items={[]}
-                  onChange={filterByApp}
+                  items={resourceTypeDropdownItem}
+                  onChange={filterByResourceType}
                   placeholder="Filter data by resource type..."
                   isMulti={true}
                 />
