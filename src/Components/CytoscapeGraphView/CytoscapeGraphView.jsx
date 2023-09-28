@@ -282,9 +282,9 @@ const CytoscapeGraphView = () => {
   const filterByApp = (selectedItems) => {
     const sourceData = {};
 
-    const filters = nodeData?.reduce((accumulator, item) => {
+    let filteredNodes = nodeData?.reduce((accumulator, item) => {
       // get source node
-      if (item?.data?.nodeData?.provider) {
+      if (item?.data?.nodeData?.id === sourceDataList?.uri) {
         sourceData['sourceNode'] = item;
       }
 
@@ -292,18 +292,27 @@ const CytoscapeGraphView = () => {
         // filter nodes and edges
         if (value?.name === item?.data?.nodeData?.api) {
           accumulator.push(item);
-          // filter edges
-          edgeData?.forEach((edge) => {
-            if (item?.data?.id === edge?.data?.target) {
-              accumulator.push(edge);
-            }
-          });
         }
       });
       return accumulator;
     }, []);
+    filteredNodes = [sourceData?.sourceNode, ...filteredNodes];
 
-    if (filters.length) setFilteredElements([sourceData?.sourceNode, ...filters]);
+    const filteredNodeIds = filteredNodes?.map((item) => item?.data?.id);
+
+    const filteredEdges = edgeData?.reduce((accumulator, item) => {
+      // eslint-disable-next-line max-len
+      if (
+        filteredNodeIds.includes(item?.data?.source) &&
+        filteredNodeIds.includes(item?.data?.target)
+      ) {
+        accumulator.push(item);
+      }
+      return accumulator;
+    }, []);
+    // eslint-disable-next-line max-len
+    if (filteredNodes.length && selectedItems.length > 0)
+      setFilteredElements([...filteredNodes, ...filteredEdges]);
     else {
       setFilteredElements([]);
     }
