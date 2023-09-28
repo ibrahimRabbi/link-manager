@@ -188,8 +188,8 @@ const CytoscapeGraphView = () => {
             source: item.from.toString(),
             target: item.to.toString(),
             label: item.label,
-            classes: 'autorotate',
           },
+          classes: 'unbundled-bezier',
         };
       });
       updatedNodes?.reduce((accumulator, item) => {
@@ -202,7 +202,6 @@ const CytoscapeGraphView = () => {
 
       setExpandNode(null);
       setExpandedNodeData(null);
-
       setNodeData([...nodeData, ...updatedNodes]);
       setEdgeData([...edgeData, ...updatedEdges]);
     }
@@ -218,11 +217,7 @@ const CytoscapeGraphView = () => {
         return item;
       });
       setNodeData(updatedGraphData);
-      if (!expandNode?.data?.nodeData?.id?.includes('lm-api-dev')) {
-        fetchNodeData(expandNode?.data?.nodeData?.id);
-      } else {
-        fetchNodeData(expandNode?.data?.nodeData?.web_url);
-      }
+      fetchNodeData(expandNode?.data?.nodeData?.id);
     }
   }, [expandNode]);
 
