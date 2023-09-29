@@ -98,13 +98,14 @@ const ExternalPreview = (props) => {
   };
 
   const getExternalResourceData = (nodeData) => {
+    const requestMethod = nodeData?.api !== 'gitlab' ? 'GET' : 'POST';
     if (nodeData?.api_url && nodeData?.application_id) {
       fetch(`${nodeData.api_url}?application_id=${nodeData.application_id}`, {
         headers: {
           'Content-type': 'application/json',
           Authorization: `Bearer ${authCtx.token}`,
         },
-        method: 'GET',
+        method: requestMethod,
       })
         .then((response) => {
           if (response.status === 200) {
@@ -236,14 +237,15 @@ const ExternalPreview = (props) => {
           {nodeData?.description && (
             <PreviewRow name="Description" value={nodeData?.description} />
           )}
-          {nodeData?.status ? (
+          {nodeData?.status && (
             <PreviewRow
               name="Status"
               value={nodeData?.status}
               functionForIcon={getIconStatus}
               firstLetter={true}
             />
-          ) : (
+          )}
+          {status && (
             <PreviewRow
               name="Status"
               value={status}

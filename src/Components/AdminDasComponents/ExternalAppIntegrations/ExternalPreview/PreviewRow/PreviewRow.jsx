@@ -18,7 +18,6 @@ const PreviewRow = (props) => {
   } = props;
 
   const [normalText, setNormalText] = useState('');
-
   function convertToPlain(rtf) {
     if (!rtf) {
       return ''; // Return an empty string if rtf is falsy

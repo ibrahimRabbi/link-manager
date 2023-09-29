@@ -18,6 +18,14 @@ import { nodeColorStyles, nodeImageStyle } from './NodeStyles.jsx';
 import { showOslcData } from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreviewConfig.jsx';
 import UseReactSelect from '../Shared/Dropdowns/UseReactSelect.jsx';
 import Graph from './Graph.jsx';
+// eslint-disable-next-line max-len
+import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
+// eslint-disable-next-line max-len
+import {
+  BASIC_AUTH_APPLICATION_TYPES,
+  MICROSERVICES_APPLICATION_TYPES,
+  OAUTH2_APPLICATION_TYPES,
+} from '../../App.jsx';
 const { nodeInfoContainer } = styles;
 
 const CytoscapeGraphView = () => {
@@ -30,6 +38,8 @@ const CytoscapeGraphView = () => {
   const [expandedNodeData, setExpandedNodeData] = useState(null);
   const [expandNode, setExpandNode] = useState(false);
   const [filteredElements, setFilteredElements] = useState([]);
+  const [showExternalAuthWindow, setShowExternalAuthWindow] = useState(false);
+  const [externalAuthData, setExternalAuthData] = useState({});
 
   const [selectedResourceType, setSelectedResourceType] = useState([]);
   const [selectedApplications, setSelectedApplications] = useState([]);
@@ -49,6 +59,14 @@ const CytoscapeGraphView = () => {
       );
       toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
     }
+  };
+
+  const getExtLoginData = (data) => {
+    console.log('External Login Data: ', data);
+  };
+
+  const closeExternalAuthWindow = () => {
+    setShowExternalAuthWindow(false);
   };
 
   const { data, isLoading } = useQuery({
@@ -449,8 +467,29 @@ const CytoscapeGraphView = () => {
       {/* node details section  */}
       {selectedNode && openedExternalPreview && (
         <div ref={containerRef} className={nodeInfoContainer}>
-          <ExternalPreview nodeData={selectedNode} fromGraphView={true} />
+          <ExternalPreview
+            nodeData={selectedNode}
+            showExternalAuth={setShowExternalAuthWindow}
+            externalLoginAuthData={setExternalAuthData}
+          />
         </div>
+      )}
+      {showExternalAuthWindow && (
+        <ExternalAppModal
+          formValue={{
+            ...externalAuthData,
+            type: externalAuthData?.api,
+            rdf_type: externalAuthData?.type,
+          }}
+          isOauth2={OAUTH2_APPLICATION_TYPES?.includes(externalAuthData?.api)}
+          isBasic={(
+            BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
+          ).includes(externalAuthData?.api)}
+          onDataStatus={getExtLoginData}
+          integrated={true}
+          openedModal={showExternalAuthWindow}
+          closeModal={closeExternalAuthWindow}
+        />
       )}
     </div>
   );
