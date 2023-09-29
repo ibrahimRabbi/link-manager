@@ -339,7 +339,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               placeholder="Choose Link Type"
               apiURL={sourceDataList?.sourceType ? `${apiURL}/link-type` : ''}
               apiQueryParams={`source_resource=${
-                sourceDataList?.sourceType ? encodeURI(sourceDataList?.sourceType) : ''
+                sourceDataList?.sourceType
+                  ? encodeURIComponent(sourceDataList?.sourceType)
+                  : ''
               }`}
               isLinkType={true}
               onChange={handleLinkTypeChange}
