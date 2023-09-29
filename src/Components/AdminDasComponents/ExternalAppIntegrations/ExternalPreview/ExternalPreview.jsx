@@ -19,13 +19,7 @@ import CodeIcon from '@rsuite/icons/Code';
 import styles from './ExternalPreview.module.scss';
 import PreviewRow from './PreviewRow/PreviewRow.jsx';
 import { useSelector } from 'react-redux';
-// eslint-disable-next-line max-len
-import {
-  BASIC_AUTH_APPLICATION_TYPES,
-  MICROSERVICES_APPLICATION_TYPES,
-  OAUTH2_APPLICATION_TYPES,
-} from '../../../../App.jsx';
-import ExternalAppModal from '../ExternalAppModal/ExternalAppModal.jsx';
+
 import { getIcon } from '../../../LinkManager/ResourceTypeIcon.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
@@ -41,7 +35,8 @@ const {
 const ExternalPreview = (props) => {
   const { isDark } = useSelector((state) => state.nav);
   const authCtx = useContext(AuthContext);
-  let { nodeData, fromGraphView, status } = props;
+  let { nodeData, fromGraphView, status, showExternalAuth, externalLoginAuthData } =
+    props;
   let iconUrl = '';
   // prettier-ignore
   switch (nodeData?.api) {
@@ -73,15 +68,10 @@ const ExternalPreview = (props) => {
 
   const [extension, setExtension] = useState('');
   const [decodedCodeLines, setDecodedCodeLines] = useState('');
-  const [unauthorizedData, setUnauthorizedData] = useState(false);
   const [externalAppData, setExternalAppData] = useState({});
+  const [badExternalUrl, setBadExternalUrl] = useState(false);
+  const [useExternalLogin, setUseExternalLogin] = useState(false);
   const webAppTooltip = <Tooltip>Click to open link in web application.</Tooltip>;
-
-  const getExtLoginData = (data) => {
-    if (data?.status) {
-      getExternalResourceData(nodeData);
-    }
-  };
 
   const getLanguageFromExtension = (extension) => {
     // Remove the leading dot if present
@@ -119,8 +109,10 @@ const ExternalPreview = (props) => {
         .then((response) => {
           if (response.status === 200) {
             return response.json();
+          } else if (response.status === 401) {
+            setUseExternalLogin(true);
           } else {
-            setUnauthorizedData(true);
+            setBadExternalUrl(true);
           }
           return null;
         })
@@ -130,6 +122,11 @@ const ExternalPreview = (props) => {
           }
         });
     }
+  };
+
+  const showExternalLoginDialog = () => {
+    showExternalAuth(true);
+    externalLoginAuthData(nodeData);
   };
 
   const decodeContent = (nodeData) => {
@@ -231,23 +228,6 @@ const ExternalPreview = (props) => {
           </Whisper>
         </FlexboxGrid.Item>
       </FlexboxGrid>
-
-      {unauthorizedData && (
-        <ExternalAppModal
-          formValue={{
-            ...nodeData,
-            type: nodeData?.api,
-            rdf_type: nodeData?.type,
-          }}
-          isOauth2={OAUTH2_APPLICATION_TYPES?.includes(nodeData?.api)}
-          isBasic={(
-            BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
-          ).includes(nodeData?.api)}
-          onDataStatus={getExtLoginData}
-          integrated={false}
-        />
-      )}
-
       {!fromGraphView && (
         <>
           <Divider style={{ marginTop: '-2px' }}>
@@ -345,6 +325,16 @@ const ExternalPreview = (props) => {
             </FlexboxGrid>
           )}
         </>
+      )}
+      {useExternalLogin && (
+        <a style={{ color: '#323fad' }} onClick={showExternalLoginDialog}>
+          Login with the external application to see more details.
+        </a>
+      )}
+      {badExternalUrl && (
+        <a style={{ color: '#ad5932' }}>
+          The external application URL is not valid. Please contact your administrator.
+        </a>
       )}
     </div>
   );

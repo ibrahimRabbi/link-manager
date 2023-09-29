@@ -21,6 +21,14 @@ import ExternalPreview from '../AdminDasComponents/ExternalAppIntegrations/Exter
 // eslint-disable-next-line max-len
 import { showOslcData } from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreviewConfig.jsx';
 import { getIcon } from './ResourceTypeIcon.jsx';
+// eslint-disable-next-line max-len
+import {
+  BASIC_AUTH_APPLICATION_TYPES,
+  MICROSERVICES_APPLICATION_TYPES,
+  OAUTH2_APPLICATION_TYPES,
+} from '../../App.jsx';
+// eslint-disable-next-line max-len
+import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
 const {
   table_row_dark,
   table_row_light,
@@ -55,6 +63,9 @@ const codebeamerURL = `${import.meta.env.VITE_CODEBEAMER_DIALOG_URL}`;
 const LinkManagerTable = ({ props }) => {
   const { data, handleDeleteLink, setSelectedRowData } = props;
   const { isDark } = useSelector((state) => state.nav);
+  const [showExternalAuthWindow, setShowExternalAuthWindow] = useState(false);
+  const [externalAuthData, setExternalAuthData] = useState({});
+
   // Action table cell control
   const renderMenu = ({ onClose, left, top, className }, ref) => {
     const handleSelect = (key) => {
@@ -73,6 +84,14 @@ const LinkManagerTable = ({ props }) => {
         </Dropdown.Menu>
       </Popover>
     );
+  };
+
+  const getExtLoginData = (data) => {
+    console.log('External Login Data: ', data);
+  };
+
+  const closeExternalAuthWindow = () => {
+    setShowExternalAuthWindow(false);
   };
 
   // target cell
@@ -98,15 +117,23 @@ const LinkManagerTable = ({ props }) => {
     const speaker = (rowData, native = false) => {
       if (rowData && native) {
         return (
-          <Popover>
-            <ExternalPreview nodeData={rowData} />
+          <Popover close={12}>
+            <ExternalPreview
+              nodeData={rowData}
+              showExternalAuth={setShowExternalAuthWindow}
+              externalLoginAuthData={setExternalAuthData}
+            />
           </Popover>
         );
       } else {
         const updatedRowData = showOslcData(rowData);
         return (
           <Popover>
-            <ExternalPreview nodeData={updatedRowData} />
+            <ExternalPreview
+              nodeData={updatedRowData}
+              externalAuth={setShowExternalAuthWindow}
+              authData={setExternalAuthData}
+            />
           </Popover>
         );
       }
@@ -385,6 +412,23 @@ const LinkManagerTable = ({ props }) => {
       <div />
 
       {!table.getRowModel().rows[0] && <p className={emptyTableContent}>No Data Found</p>}
+      {showExternalAuthWindow && (
+        <ExternalAppModal
+          formValue={{
+            ...externalAuthData,
+            type: externalAuthData?.api,
+            rdf_type: externalAuthData?.type,
+          }}
+          isOauth2={OAUTH2_APPLICATION_TYPES?.includes(externalAuthData?.api)}
+          isBasic={(
+            BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
+          ).includes(externalAuthData?.api)}
+          onDataStatus={getExtLoginData}
+          integrated={true}
+          openedModal={showExternalAuthWindow}
+          closeModal={closeExternalAuthWindow}
+        />
+      )}
     </div>
   );
 };

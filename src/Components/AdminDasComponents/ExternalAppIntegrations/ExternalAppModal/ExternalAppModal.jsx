@@ -10,9 +10,9 @@ const ExternalAppModal = (props) => {
     isOauth2,
     isBasic,
     onDataStatus,
-    showInNewLink = false,
-    integrated = true,
-    preview = false,
+    showInNewLink,
+    integrated,
+    preview,
   } = props;
 
   return (
