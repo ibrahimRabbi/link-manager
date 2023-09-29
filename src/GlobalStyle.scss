@@ -85,7 +85,7 @@
   }
 }
 
-.linkFileContainer > h5 {
+.linkFileContainer>h5 {
   span {
     margin-left: 10px;
     margin-bottom: -10px;
@@ -233,6 +233,7 @@
 
 // react select styles for dark theme --- start
 .reactSelectContainer {
+
   // react select value container style
   .reactSelect__control {
     background-color: #1a1d24;
@@ -255,6 +256,7 @@
   .reactSelect__menu {
     background-color: #292d33;
     margin-top: 5px;
+    z-index: 10;
 
     .reactSelect__menu-list {
       .reactSelect__option {
@@ -271,6 +273,13 @@
     }
   }
 }
+
+// react select styles for light theme 
+.css-1nmdiq5-menu {
+  z-index: 10 !important;
+}
+
+
 
 .react-select-display-icon-container {
   display: flex;

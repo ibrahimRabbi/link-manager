@@ -65,6 +65,7 @@ const headerData = [
 ];
 
 const { StringType, NumberType } = Schema.Types;
+const requiredLabel = 'This field is required';
 
 const Application = () => {
   const appFormRef = useRef();
@@ -74,20 +75,6 @@ const Application = () => {
   const dispatch = useDispatch();
   const toaster = useToaster();
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
-
-  /** Model Schema */
-  const model = Schema.Model({
-    type: StringType().isRequired('This field is required'),
-    organization_id: NumberType().isRequired('This field is required.'),
-    name: StringType().isRequired('This field is required'),
-    server_url: StringType().isRequired('This field is required'),
-    description: StringType(),
-    client_id: StringType(),
-    client_secret: StringType(),
-    server_url_auth: StringType(),
-    server_url_ui: StringType(),
-    tenant_id: StringType(),
-  });
 
   /** Const variables */
   const [formError, setFormError] = useState({});
@@ -120,6 +107,37 @@ const Application = () => {
   const [authorizedAppConsumption, setAuthorizedAppConsumption] = useState(false);
   const [isAppAuthorize, setIsAppAuthorize] = useState(false);
   const [open, setOpen] = useState(false);
+
+  // match application type to display input fields conditionally
+  // and keep input fields required conditionally
+  const isOauth2AppTypes = OAUTH2_APPLICATION_TYPES.includes(formValue?.type);
+  const isMicroServiceAppTypes = MICROSERVICES_APPLICATION_TYPES.includes(
+    formValue?.type,
+  );
+  const isOidcAppTypes = OIDC_APPLICATION_TYPES.includes(formValue?.type);
+
+  /** Model Schema */
+  const model = Schema.Model({
+    type: StringType().isRequired(requiredLabel),
+    organization_id: NumberType().isRequired(requiredLabel),
+    name: StringType().isRequired(requiredLabel),
+    server_url: StringType().isRequired(requiredLabel),
+    description: StringType(),
+    client_id: isOauth2AppTypes ? StringType().isRequired(requiredLabel) : StringType(),
+    client_secret: isOauth2AppTypes
+      ? StringType().isRequired(requiredLabel)
+      : StringType(),
+    server_url_auth: isMicroServiceAppTypes
+      ? StringType().isRequired(requiredLabel)
+      : StringType(),
+    server_url_ui: isMicroServiceAppTypes
+      ? StringType().isRequired(requiredLabel)
+      : StringType(),
+    tenant_id: isMicroServiceAppTypes
+      ? StringType().isRequired(requiredLabel)
+      : StringType(),
+    oidc_url: isOidcAppTypes ? StringType().isRequired(requiredLabel) : StringType(),
+  });
 
   // required data for create the application using OSLC APIs
   const redirect_uris = [
@@ -159,6 +177,26 @@ const Application = () => {
     }),
   );
 
+  // handle step manager for add application and edit application
+  const handleStepManger = (res) => {
+    setAppCreateSuccess(true);
+    setSteps(1);
+    let query = `client_id=${res?.client_id}`;
+    query += `&scope=${scopes}`;
+
+    response_types?.forEach((response_type) => {
+      if (response_types?.indexOf(response_type) === 0) {
+        query += `&response_type=${response_type}`;
+      } else {
+        query += ` ${response_type}`;
+      }
+    }, query);
+
+    query += `&redirect_uri=${redirect_uris[0]}`;
+    let authorizeUri = res?.oauth_client_authorize_uri + '?' + query;
+    setAuthorizeFrameSrc(authorizeUri);
+  };
+
   // POST: Create data using react query
   const {
     isLoading: createLoading,
@@ -175,25 +213,10 @@ const Application = () => {
       }),
     {
       onSuccess: (res) => {
+        console.log('Create: ', res);
         if (res) {
           if (res?.status) {
-            setAppCreateSuccess(true);
-            setSteps(1);
-
-            let query = `client_id=${res?.client_id}`;
-            query += `&scope=${scopes}`;
-
-            response_types?.forEach((response_type) => {
-              if (response_types?.indexOf(response_type) === 0) {
-                query += `&response_type=${response_type}`;
-              } else {
-                query += ` ${response_type}`;
-              }
-            }, query);
-
-            query += `&redirect_uri=${redirect_uris[0]}`;
-            let authorizeUri = res?.oauth_client_authorize_uri + '?' + query;
-            setAuthorizeFrameSrc(authorizeUri);
+            handleStepManger(res);
           }
         }
       },
@@ -212,11 +235,18 @@ const Application = () => {
         urlPath: `application/${editData?.id}`,
         token: authCtx.token,
         method: 'PUT',
-        body: formValue,
+        body: { ...formValue, ...payload },
         showNotification: showNotification,
       }),
     {
-      onSuccess: () => {},
+      onSuccess: (res) => {
+        console.log('Update: ', res);
+        if (res) {
+          if (res?.status) {
+            handleStepManger(res);
+          }
+        }
+      },
     },
   );
 
@@ -279,7 +309,6 @@ const Application = () => {
     } else if (isAdminEditing) {
       // edit application
       updateMutate();
-      setOpenModal(false);
     } else {
       // create application
       createMutate();
@@ -381,22 +410,45 @@ const Application = () => {
     setSteps(0);
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
+
+    // get data from authentication server array.
+    const serverData = {};
+    data?.authentication_server?.forEach((item) => {
+      if (data?.type === 'codebeamer') {
+        const isOidc = item?.type?.toLowerCase()?.includes('oidc');
+        if (isOidc) serverData['oidc_url'] = item?.type;
+        else {
+          serverData['server_url'] = item?.type;
+        }
+      } else if (data?.type === 'glideyoke') {
+        if (item?.type?.toLowerCase()?.includes('rest')) {
+          serverData['server_url'] = item?.type;
+        } else if (item?.type?.toLowerCase()?.includes('auth')) {
+          serverData['url_auth'] = item?.type;
+        } else {
+          serverData['url_ui'] = item?.type;
+        }
+      } else {
+        serverData['server_url'] = item.type;
+      }
+    });
+
+    const oauth2 = data?.oauth2_application;
     setFormValue({
       type: data?.type,
       organization_id: data?.organization_id,
       name: data?.name,
-      server_url: data?.server_url,
+      server_url: serverData?.server_url,
       description: data?.description,
-      client_id: data?.client_id,
-      client_secret: data?.client_secret,
-      server_url_auth: data?.server_url_auth ? data?.server_url_auth : data?.oidc_url,
-      server_url_ui: data?.server_url_ui,
-      tenant_id: data?.tenant_id,
+      client_id: oauth2?.client_id ? oauth2?.client_id : '',
+      client_secret: oauth2?.client_secret ? oauth2?.client_secret : '',
+      server_url_auth: serverData?.url_auth ? serverData?.url_auth : '',
+      server_url_ui: serverData?.url_ui ? serverData?.url_ui : '',
+      tenant_id: oauth2?.client_id ? oauth2?.client_id : '',
+      oidc_url: serverData?.oidc_url ? serverData?.oidc_url : '',
     });
     setOpenModal(true);
   };
-
-  /** Effect declarations */
 
   // Get icons for the applications
   useEffect(() => {
@@ -427,7 +479,6 @@ const Application = () => {
                       const withIcon = {
                         ...currentValue,
                         iconUrl: icon.iconUrl,
-                        // eslint-disable-next-line max-len
                         status: currentValue?.oauth2_application
                           ? currentValue?.oauth2_application[0]?.token_status?.status
                           : '',
@@ -583,16 +634,16 @@ const Application = () => {
       >
         <Modal.Header>
           <Modal.Title className="adminModalTitle">
-            {isAdminEditing ? 'Edit Application' : 'Add New Application'}
+            {isAdminEditing ? 'Edit external integration' : 'Add external integration'}
           </Modal.Title>
 
-          {!isAdminEditing && (
-            <Steps current={steps} style={{ marginTop: '5px' }}>
-              <Steps.Item />
-              <Steps.Item status={manageStep2} />
-              <Steps.Item />
-            </Steps>
-          )}
+          {/* {!isAdminEditing && ( */}
+          <Steps current={steps} style={{ marginTop: '5px' }}>
+            <Steps.Item />
+            <Steps.Item status={manageStep2} />
+            <Steps.Item />
+          </Steps>
+          {/* )} */}
         </Modal.Header>
 
         <Modal.Body className={modalBodyStyle}>
@@ -648,7 +699,6 @@ const Application = () => {
                         formValue?.type === 'oslc' ? 'Rootservices URL' : 'Server URL'
                       }
                       reqText="Server URL is required"
-                      disabled={isAdminEditing}
                     />
                   </FlexboxGrid.Item>
 
@@ -666,14 +716,14 @@ const Application = () => {
                       rows={3}
                     />
                   </FlexboxGrid.Item>
-                  {OAUTH2_APPLICATION_TYPES.includes(formValue?.type) && (
+
+                  {isOauth2AppTypes && (
                     <React.Fragment>
                       <FlexboxGrid.Item colspan={11}>
                         <TextField
                           name="client_id"
                           label="Client ID"
                           reqText="OAuth2 client ID of app is required"
-                          disabled={isAdminEditing}
                         />
                       </FlexboxGrid.Item>
 
@@ -682,14 +732,14 @@ const Application = () => {
                           name="client_secret"
                           label="Client secret"
                           reqText="OAuth2 client secret of app is required"
-                          disabled={isAdminEditing}
                         />
                       </FlexboxGrid.Item>
                     </React.Fragment>
                   )}
-                  {MICROSERVICES_APPLICATION_TYPES.includes(formValue?.type) && (
+
+                  {isMicroServiceAppTypes && (
                     <React.Fragment>
-                      <FlexboxGrid.Item colspan={11}>
+                      <FlexboxGrid.Item colspan={11} style={{ marginBottom: '3%' }}>
                         <TextField
                           name="server_url_auth"
                           label="Authentication server"
@@ -697,7 +747,7 @@ const Application = () => {
                         />
                       </FlexboxGrid.Item>
 
-                      <FlexboxGrid.Item colspan={11}>
+                      <FlexboxGrid.Item colspan={11} style={{ marginBottom: '3%' }}>
                         <TextField
                           name="server_url_ui"
                           label="UI server"
@@ -714,7 +764,8 @@ const Application = () => {
                       </FlexboxGrid.Item>
                     </React.Fragment>
                   )}
-                  {OIDC_APPLICATION_TYPES.includes(formValue?.type) && (
+
+                  {isOidcAppTypes && (
                     <React.Fragment>
                       <FlexboxGrid.Item colspan={11}>
                         <TextField
