@@ -199,7 +199,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         const properties = item?.extended_properties;
 
         const targetUri = properties?.selected_lines
-          ? item?.web_url + '#' + properties?.selected_lines
+          ? item?.web_url.replace(properties.commit_id, properties.branch_name) +
+            '#' +
+            properties?.selected_lines
           : item?.web_url;
         return {
           target_properties: {
@@ -212,7 +214,16 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
             description: item?.description ? item?.description : '',
             extra_properties: {
               application_id: applicationType?.id,
-              parent_properties: item?.parent_properties ? item?.parent_properties : '',
+              parent_properties: item?.parent_properties
+                ? {
+                    ...item?.parent_properties,
+                    // eslint-disable-next-line max-len
+                    web_url: item?.web_url.replace(
+                      properties.commit_id,
+                      properties.branch_name,
+                    ),
+                  }
+                : '',
               branch_name: properties?.branch_name ? properties?.branch_name : '',
               commit_id: properties?.commit_id ? properties?.commit_id : '',
               content_hash: properties?.content_hash ? properties?.content_hash : '',
@@ -222,6 +233,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               path: properties?.path ? properties?.path : '',
               api_url: item?.link ? item?.link : '',
               resource_type: item?.resourceTypes ? item?.resourceTypes : '',
+              web_url_with_commit: item?.parent_properties?.extended_properties
+                ?.web_url_with_commit
+                ? item?.parent_properties?.extended_properties?.web_url_with_commit +
+                  '#' +
+                  properties?.selected_lines
+                : '',
             },
           },
         };
