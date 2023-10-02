@@ -91,10 +91,10 @@ const options = [
     hidden: true,
   },
   {
-    path: ['/admin/syncronization'],
-    navigateTo: '/admin/syncronization',
+    path: ['/admin/migration'],
+    navigateTo: '/admin/migration',
     icon: <PlayOutlineIcon size={15} style={{ ...iconStyle, marginLeft: '0' }} />,
-    content: <span>Syncronization</span>,
+    content: <span>Migration</span>,
     hidden: false,
   },
 ];
