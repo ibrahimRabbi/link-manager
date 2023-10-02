@@ -222,6 +222,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                       properties.commit_id,
                       properties.branch_name,
                     ),
+                    branch_name: properties?.branch_name,
                   }
                 : '',
               branch_name: properties?.branch_name ? properties?.branch_name : '',
