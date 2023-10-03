@@ -217,12 +217,14 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               parent_properties: item?.parent_properties
                 ? {
                     ...item?.parent_properties,
-                    // eslint-disable-next-line max-len
                     web_url: item?.web_url.replace(
                       properties.commit_id,
                       properties.branch_name,
                     ),
-                    branch_name: properties?.branch_name,
+                    extended_properties: {
+                      ...item?.parent_properties?.extended_properties,
+                      branch_name: properties?.branch_name,
+                    },
                   }
                 : '',
               branch_name: properties?.branch_name ? properties?.branch_name : '',
@@ -233,7 +235,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                 : '',
               path: properties?.path ? properties?.path : '',
               api_url: item?.link ? item?.link : '',
-              resource_type: item?.resourceTypes ? item?.resourceTypes : '',
+              web_application_resource_type: item?.resourceTypes
+                ? item?.resourceTypes
+                : item?.web_application_resource_type
+                ? item?.web_application_resource_type
+                : '',
               web_url_with_commit: item?.parent_properties?.extended_properties
                 ?.web_url_with_commit
                 ? item?.parent_properties?.extended_properties?.web_url_with_commit +
