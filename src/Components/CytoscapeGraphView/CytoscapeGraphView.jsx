@@ -73,7 +73,7 @@ const CytoscapeGraphView = () => {
         const response = await fetchAPIRequest({
           urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
             nodeId,
-          )}&direction=outgoing&max_depth_outgoing=2`,
+          )}&direction=outgoing&max_depth_outgoing=1`,
           token: authCtx.token,
           showNotification: showNotification,
           method: 'GET',
@@ -114,6 +114,37 @@ const CytoscapeGraphView = () => {
       select: function (ele) {
         const foundNode = findSelectedNode(ele.id());
         setExpandNode(foundNode);
+
+        // get child edges for selected node
+        const childEdges = edgeData?.reduce((accumulator, item) => {
+          if (foundNode?.data?.id === item?.data?.source) {
+            accumulator.push(item);
+          }
+          return accumulator;
+        }, []);
+
+        if (childEdges?.length) {
+          console.log(childEdges);
+
+          childEdges?.forEach((item) => {
+            console.log(item);
+
+            if (filteredElements.length) {
+              // eslint-disable-next-line max-len
+              const filteredData = filteredElements?.filter(
+                (value) => value?.data?.source !== item?.data?.source,
+              );
+              setFilteredElements(filteredData);
+            } else {
+              // eslint-disable-next-line max-len
+              const filteredEdge = edgeData?.filter(
+                (value) => value?.data?.source !== item?.data?.source,
+              );
+              setNodeData(nodeData);
+              setEdgeData(filteredEdge);
+            }
+          });
+        }
       },
     },
     {
@@ -197,8 +228,7 @@ const CytoscapeGraphView = () => {
       });
       updatedNodes?.reduce((accumulator, item) => {
         if (node_id === item?.data?.nodeData?.id) {
-          console.log('Latest node:', item);
-          console.log('selected node: ', expandNode);
+          //
         }
         return accumulator;
       }, []);
@@ -323,7 +353,6 @@ const CytoscapeGraphView = () => {
     const filteredNodeIds = filteredNodes?.map((item) => item?.data?.id);
 
     const filteredEdges = edgeData?.reduce((accumulator, item) => {
-      // eslint-disable-next-line max-len
       if (
         filteredNodeIds.includes(item?.data?.source) &&
         filteredNodeIds.includes(item?.data?.target)
@@ -332,7 +361,6 @@ const CytoscapeGraphView = () => {
       }
       return accumulator;
     }, []);
-    // eslint-disable-next-line max-len
     if (
       filteredNodes.length &&
       (selectedApplications?.length > 0 || selectedResourceType?.length > 0)
@@ -401,6 +429,7 @@ const CytoscapeGraphView = () => {
     cyRef,
     contextMenuCommands,
   };
+
   return (
     <div ref={graphContainerRef}>
       {isWbe && isLoading && <UseLoader />}
