@@ -53,11 +53,11 @@ const headerData = [
   },
   {
     header: 'Link Type',
-    key: 'label',
+    key: 'link_type',
   },
   {
-    header: 'Domain',
-    key: 'oslc_domain',
+    header: 'Backward Link Type',
+    key: 'backward_link_type',
   },
   {
     header: 'Updated',
@@ -67,7 +67,7 @@ const headerData = [
 
 const { StringType } = Schema.Types;
 
-const LinkTypes = () => {
+const LinkRoles = () => {
   const { crudData, isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
     (state) => state.crud,
   );
@@ -126,6 +126,21 @@ const LinkTypes = () => {
   const linkTypeFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
+
+  // get all link types
+  useEffect(() => {
+    dispatch(handleCurrPageTitle('Link Roles'));
+
+    const getUrl = `${lmApiUrl}/link-type?page=${currPage}&per_page=${pageSize}`;
+    dispatch(
+      fetchGetData({
+        url: getUrl,
+        token: authCtx.token,
+        stateName: 'allLinkTypes',
+        showNotification: showNotification,
+      }),
+    );
+  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
 
   // Pagination
   const handlePagination = (value) => {
@@ -420,21 +435,6 @@ const LinkTypes = () => {
     dispatch(oslcActions.resetOslcResourceShape());
   };
 
-  // get all link types
-  useEffect(() => {
-    dispatch(handleCurrPageTitle('Link Types'));
-
-    const getUrl = `${lmApiUrl}/link-type?page=${currPage}&per_page=${pageSize}`;
-    dispatch(
-      fetchGetData({
-        url: getUrl,
-        token: authCtx.token,
-        stateName: 'allLinkTypes',
-        showNotification: showNotification,
-      }),
-    );
-  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
-
   // handle delete link type
   const handleDelete = (data) => {
     setDeleteData(data);
@@ -467,10 +467,27 @@ const LinkTypes = () => {
     dispatch(handleIsAddNewModal(true));
   };
 
+  const [mappedLinkTypes, setMappedLinkTypes] = useState([]);
+  useEffect(() => {
+    if (crudData?.allLinkTypes) {
+      const mappedData = crudData?.allLinkTypes?.items?.reduce((accumulator, item) => {
+        if (item?.id) {
+          const newItem = {
+            ...item,
+            link_type: item?.source_link?.name,
+            backward_link_type: item?.target_link?.name,
+          };
+          accumulator?.push(newItem);
+        }
+        return accumulator;
+      }, []);
+      setMappedLinkTypes(mappedData);
+    }
+  }, [crudData?.allLinkTypes]);
+
   // send props in the batch action table
   const tableProps = {
-    title: 'Link Types',
-    rowData: crudData?.allLinkTypes?.items?.length ? crudData?.allLinkTypes?.items : [],
+    rowData: crudData?.allLinkTypes?.items?.length ? mappedLinkTypes : [],
     headerData,
     handleEdit,
     handleDelete,
@@ -481,13 +498,12 @@ const LinkTypes = () => {
     totalPages: crudData?.allLinkTypes?.total_pages,
     pageSize,
     page: crudData?.allLinkTypes?.page,
-    inpPlaceholder: 'Search Link Type',
   };
 
   return (
     <div>
       <AddNewModal
-        title={selectedLinkTypeCreationMethod ? 'Add link types' : 'Choose an option'}
+        title={selectedLinkTypeCreationMethod ? 'Add link roles' : 'Choose an option'}
         handleSubmit={handleAddLinkType}
         handleReset={handleResetForm}
       >
@@ -657,4 +673,4 @@ const LinkTypes = () => {
   );
 };
 
-export default LinkTypes;
+export default LinkRoles;

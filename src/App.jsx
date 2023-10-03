@@ -1,9 +1,7 @@
 import React, { useContext } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Application from './Components/AdminDasComponents/Application/Application';
-// eslint-disable-next-line max-len
-import LinkConstraint from './Components/AdminDasComponents/LinkConstraint/LinkConstraint';
-import LinkTypes from './Components/AdminDasComponents/LinkType/LinkTypes';
+import LinkRoles from './Components/AdminDasComponents/LinkType/LinkRoles';
 import Organization from './Components/AdminDasComponents/Organization/Organization';
 import Projects from './Components/AdminDasComponents/Projects/Projects';
 import Users from './Components/AdminDasComponents/Users/Users';
@@ -132,8 +130,7 @@ function App() {
               <Route path="/admin/users" element={<Users />} />
               <Route path="/admin/integrations" element={<Application />} />
               <Route path="/admin/projects" element={<Projects />} />
-              <Route path="/admin/link-types" element={<LinkTypes />} />
-              <Route path="/admin/link-constraint" element={<LinkConstraint />} />
+              <Route path="/admin/link-roles" element={<LinkRoles />} />
               <Route path="/admin/events" element={<Events />} />
               <Route path="/admin/pipelines" element={<Pipelines />} />
               <Route path="/admin/pipelinerun" element={<PipelineRun />} />

@@ -8,7 +8,6 @@ import { SlOrganization } from 'react-icons/sl';
 import { SiAzurepipelines } from 'react-icons/si';
 import { PiPlugsDuotone } from 'react-icons/pi';
 import { VscProject } from 'react-icons/vsc';
-import { CgLink } from 'react-icons/cg';
 import { MdEvent, MdArrowForwardIos } from 'react-icons/md';
 import { darkColor, lightBgColor } from '../../App';
 import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
@@ -51,22 +50,10 @@ const options = [
     hidden: false,
   },
   {
-    path: ['/admin/link-types'],
-    navigateTo: '/admin/link-types',
+    path: ['/admin/link-roles'],
+    navigateTo: '/admin/link-roles',
     icon: <FaLink size={16.5} style={{ ...iconStyle }} />,
-    content: <span>Link Types</span>,
-    hidden: false,
-  },
-  {
-    path: ['/admin/link-constraint'],
-    navigateTo: '/admin/link-constraint',
-    icon: (
-      <CgLink
-        size={24}
-        style={{ ...iconStyle, marginLeft: '-40px', marginRight: '17px' }}
-      />
-    ),
-    content: <span>Link Constraint</span>,
+    content: <span>Link Roles</span>,
     hidden: false,
   },
   {
