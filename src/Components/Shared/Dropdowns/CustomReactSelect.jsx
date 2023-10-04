@@ -26,6 +26,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
     value,
     isLinkCreation,
     isApplication,
+    isResourceType,
     selectedLinkType,
     isIntegration,
     isEventAssociation,
@@ -34,6 +35,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
     removeApplication,
     getErrorStatus,
     isLinkType,
+    isMulti,
     ...rest
   } = props;
 
@@ -125,6 +127,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
               glideYoke: '',
               jira: '',
               valispace: '',
+              codebeamer: '',
               dng: '',
             };
             // domains for the filter application when creating links
@@ -239,6 +242,25 @@ const CustomReactSelect = forwardRef((props, ref) => {
         label: item?.source_link?.name,
         value: item?.id,
       }));
+    } else if (isResourceType) {
+      dropdownJsonData = option?.map((item) => {
+        let appIcon = '';
+        if (item?.api === 'gitlab') appIcon = icons.gitlab;
+        else if (item?.api === 'glideyoke') appIcon = icons.glide;
+        else if (item?.api === 'jira') appIcon = icons.jira;
+        else if (item?.api === 'valispace') appIcon = icons.valispace;
+        else if (item?.api === 'codebeamer') appIcon = icons.codebeamer;
+        else if (item?.api === 'dng') appIcon = icons.dng;
+        else {
+          appIcon = icons.default;
+        }
+        return {
+          ...item,
+          label: item?.name,
+          value: item?.id,
+          icon: appIcon,
+        };
+      });
     } else {
       dropdownJsonData = option?.map((item) => ({
         ...item,
@@ -315,9 +337,12 @@ const CustomReactSelect = forwardRef((props, ref) => {
       </div>
     );
   };
+
   return (
     <Select
-      value={value ? dropdownData?.find((v) => v?.value === value) : null}
+      value={
+        value ? (isMulti ? value : dropdownData?.find((v) => v?.value === value)) : null
+      }
       ref={ref}
       {...rest}
       className={isDark === 'dark' ? 'reactSelectContainer' : ''}
@@ -325,12 +350,13 @@ const CustomReactSelect = forwardRef((props, ref) => {
       options={dropdownData}
       placeholder={<p style={{ fontSize: '17px' }}>{placeholder}</p>}
       onChange={(v) => {
-        if (isLinkCreation) onChange(v || null);
+        if (isLinkCreation || isMulti) onChange(v || null);
         else {
           onChange(v?.value || null);
         }
       }}
       isClearable
+      isMulti={isMulti}
       isDisabled={disabled}
       isLoading={isLoading}
       isSearchable={true}

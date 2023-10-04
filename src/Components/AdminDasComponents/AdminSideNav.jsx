@@ -50,10 +50,10 @@ const options = [
     hidden: false,
   },
   {
-    path: ['/admin/link-roles'],
-    navigateTo: '/admin/link-roles',
+    path: ['/admin/link-rules'],
+    navigateTo: '/admin/link-rules',
     icon: <FaLink size={16.5} style={{ ...iconStyle }} />,
-    content: <span>Link Roles</span>,
+    content: <span>Link Rules</span>,
     hidden: false,
   },
   {

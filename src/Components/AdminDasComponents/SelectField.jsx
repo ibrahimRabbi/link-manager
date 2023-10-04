@@ -6,9 +6,7 @@ const SelectField = React.forwardRef((props, ref) => {
   return (
     <Form.Group ref={ref} className={error ? 'has-error' : ''}>
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        <Form.ControlLabel style={{ fontSize: '17px', marginBottom: '-5px' }}>
-          {label}
-        </Form.ControlLabel>
+        <Form.ControlLabel style={{ fontSize: '17px' }}>{label}</Form.ControlLabel>
         {reqText && <Form.HelpText tooltip>{reqText}</Form.HelpText>}
       </div>
 
