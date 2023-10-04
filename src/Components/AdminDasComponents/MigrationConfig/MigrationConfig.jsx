@@ -2,9 +2,9 @@
 /* eslint-disable max-len */
 import React from 'react';
 import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { handleCurrPageTitle } from '../../../Redux/slices/navSlice';
-import { Col, FlexboxGrid } from 'rsuite';
+import { Button, ButtonToolbar, Checkbox, Col, FlexboxGrid } from 'rsuite';
 import { useState } from 'react';
 import ExternalAppModal from '../ExternalAppIntegrations/ExternalAppModal/ExternalAppModal';
 import {
@@ -12,29 +12,21 @@ import {
   MICROSERVICES_APPLICATION_TYPES,
   OAUTH2_APPLICATION_TYPES,
 } from '../../../App';
-import { handleApplicationType, handleLinkType } from '../../../Redux/slices/linksSlice';
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
 import { useContext } from 'react';
 import AuthContext from '../../../Store/Auth-Context';
-import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
+// import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 import UseIconSelect from '../../SelectionDialog/GlobalSelector/UseIconSelect';
+import AppIconSelect from './AppIconSelect';
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
-
+const direction = [{ name: '---->' }, { name: '<---->' }];
 const MigrationConfig = () => {
-  const {
-    // isWbe,
-    applicationType,
-    linkType,
-    // createLinkRes,
-    // linkCreateLoading,
-  } = useSelector((state) => state.links);
   const authCtx = useContext(AuthContext);
   const [externalProjectUrl, setExternalProjectUrl] = useState('');
   const [restartExternalRequest, setRestartExternalRequest] = useState(false);
   const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
-  const [sourceApplicationList, setSourceApplicationList] = useState([]);
   const [sourceApplication, setSourceApplication] = useState('');
   const [targetApplication, setTargetApplication] = useState('');
   const [sourceProjectList, setSourceProjectList] = useState([]);
@@ -53,8 +45,13 @@ const MigrationConfig = () => {
   const [targetApiCall, setTargetApiCall] = useState(false);
   const [sourceLoading, setSourceLoading] = useState(false);
   const [targetLoading, setTargetLoading] = useState(false);
+  const [sourceResourceTypeLoading, setSourceResourceTypeLoading] = useState(false);
+  const [targetResourceTypeLoading, setTargetResourceTypeLoading] = useState(false);
   const [targetProjectLoading, setTargetProjectLoading] = useState(false);
   const [sourceProjectLoading, setSourceProjectLoading] = useState(false);
+  const [sourceResourceType, setSourceResourceType] = useState('');
+  const [targetResourceType, setTargetResourceType] = useState('');
+  const [disbaledDropdown, setDisableDropdown] = useState(false);
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const dispatch = useDispatch();
   const closeExternalAppResetRequest = () => {
@@ -89,13 +86,11 @@ const MigrationConfig = () => {
     setSourceProjectList([]);
     setTargetApplication('');
     setSourceWorkspaceList([]);
-    dispatch(handleLinkType(''));
     setTargetApiCall(false);
     setApiCall(true);
     setExternalProjectUrl('');
     closeExternalAppResetRequest();
     setSourceApplication(selectedItem);
-    console.log(targetProject, sourceProject);
   };
   const handleTargetApplicationChange = (selectedItem) => {
     setTargetProjectID('');
@@ -109,55 +104,62 @@ const MigrationConfig = () => {
     setTargetProjectList([]);
     setExternalProjectUrl('');
     closeExternalAppResetRequest();
-    dispatch(handleApplicationType(selectedItem));
     setTargetApplication(selectedItem);
   };
   const handleTargetProject = (selectedItem) => {
+    setTargetProject('');
     setTargetProjectID('');
     setTargetResourceList([]);
     const newSelectedItem = {
       ...selectedItem,
-      application_id: applicationType?.id,
+      application_id: targetApplication?.id,
       workspace_id: selectedItem?.id,
-      application_type: applicationType?.type,
+      application_type: targetApplication?.type,
     };
     setTargetProjectID(selectedItem?.id);
-    console.log(newSelectedItem);
     setTargetProject(newSelectedItem);
   };
   const handleSourceWorkspace = (selectedItem) => {
-    console.log(selectedItem);
+    setSourceResourceList([]);
     setSourceProject('');
     setSourceProjectList([]);
     setSourceWorkspace(selectedItem);
   };
   const handleSourceProject = (selectedItem) => {
+    setSourceProjectID('');
+    setSourceProject('');
     setSourceResourceList([]);
     const newSelectedItem = {
       ...selectedItem,
-      application_id: applicationType?.id,
+      application_id: targetApplication?.id,
       workspace_id: selectedItem?.id,
-      application_type: applicationType?.type,
+      application_type: targetApplication?.type,
     };
-    console.log(newSelectedItem);
     setSourceProjectID(selectedItem?.id);
     setSourceProject(newSelectedItem);
   };
   const handleTargetWorkspace = (selectedItem) => {
     setTargetWorkspace(selectedItem);
   };
-  const handleLinkTypeChange = (selectedItem) => {
-    dispatch(handleLinkType(selectedItem));
-  };
-  const handleResourceTypeChange = (selectedItem) => {
-    console.log(selectedItem);
+  // const handleLinkTypeChange = (selectedItem) => {
+  //   dispatch(handleLinkType(selectedItem));
+  // };
+  const handleTargetResourceTypeChange = (selectedItem) => {
+    setTargetResourceType(selectedItem);
   };
   const handleSourceResourceTypeChange = (selectedItem) => {
+    setSourceResourceType(selectedItem);
+  };
+  const handleDirectChange = (selectedItem) => {
     console.log(selectedItem);
+  };
+  const handleCreateProject = () => {
+    setDisableDropdown(!disbaledDropdown);
+    setTargetProjectID('');
   };
   useEffect(() => {
     // prettier-ignore
-    switch (applicationType?.type) {
+    switch (targetApplication?.type) {
     case 'gitlab':
       setExternalProjectUrl(`${thirdApiURL}/gitlab/workspace`);
       break;
@@ -177,7 +179,7 @@ const MigrationConfig = () => {
       setExternalProjectUrl(`${thirdApiURL}/dng/containers`);
       break;
     }
-  }, [applicationType]);
+  }, [targetApplication]);
   useEffect(() => {
     // prettier-ignorec
     switch (sourceApplication?.type) {
@@ -229,26 +231,6 @@ const MigrationConfig = () => {
         });
     }
   };
-  // for getting application
-  useEffect(() => {
-    setSourceLoading(true);
-    fetch(`${apiURL}/application?page=1&per_page=10`, {
-      headers: {
-        Authorization: `Bearer ${authCtx.token}`,
-      },
-    })
-      .then((response) => {
-        if (response.status === 200) {
-          return response.json();
-        } else {
-          handleResponse(response);
-        }
-      })
-      .then((data) => {
-        setSourceApplicationList(data?.items);
-        setSourceLoading(false);
-      });
-  }, []);
   // for getting workspace
   useEffect(() => {
     if (
@@ -260,7 +242,7 @@ const MigrationConfig = () => {
       setTargetLoading(true);
       fetch(
         `${externalProjectUrl}?page=1&per_page=10&application_id=${
-          applicationType?.id || sourceApplication?.id
+          targetApplication?.id || sourceApplication?.id
         }`,
         {
           headers: {
@@ -297,7 +279,13 @@ const MigrationConfig = () => {
           console.log(error);
         });
     }
-  }, [externalProjectUrl, apiCall, sourceApplication, targetApplication]);
+  }, [
+    externalProjectUrl,
+    apiCall,
+    sourceApplication,
+    targetApplication,
+    restartExternalRequest,
+  ]);
   // for getting projects
   useEffect(() => {
     if (
@@ -337,7 +325,7 @@ const MigrationConfig = () => {
           }
         });
     }
-  }, [sourceApplication, sourceWorkspace]);
+  }, [sourceApplication, sourceWorkspace, restartExternalRequest]);
   // for getting projects
   useEffect(() => {
     if (
@@ -381,10 +369,10 @@ const MigrationConfig = () => {
 
   useEffect(() => {
     if (sourceProjectID && sourceApplication?.type !== 'gitlab') {
-      setTargetProjectLoading(true);
+      setSourceResourceTypeLoading(true);
       let url;
       if (sourceApplication?.type === 'codebeamer') {
-        url = `${thirdApiURL}/${sourceApplication?.type}}/resource_types/${sourceProjectID}?application_id=${sourceApplication?.id}`;
+        url = `${thirdApiURL}/${sourceApplication?.type}/resource_types/${sourceProjectID}?application_id=${sourceApplication?.id}`;
       } else if (sourceProjectID) {
         url = `${thirdApiURL}/${sourceApplication?.type}/resource_types`;
       }
@@ -402,16 +390,15 @@ const MigrationConfig = () => {
         })
         .then((data) => {
           if (sourceProjectID) {
-            console.log(data);
             setSourceResourceList(data?.items);
-            setTargetProjectLoading(false);
+            setSourceResourceTypeLoading(false);
           }
         });
     }
   }, [sourceProjectID]);
   useEffect(() => {
     if (targetProjectID && targetApplication?.type !== 'gitlab') {
-      setTargetProjectLoading(true);
+      setTargetResourceTypeLoading(true);
       let url;
       if (targetApplication?.type === 'codebeamer') {
         url = `${thirdApiURL}/${targetApplication?.type}}/resource_types/${targetProjectID}?application_id=${targetApplication?.id}`;
@@ -433,7 +420,7 @@ const MigrationConfig = () => {
         .then((data) => {
           console.log(data);
           setTargetResourceList(data?.items);
-          setTargetProjectLoading(false);
+          setTargetResourceTypeLoading(false);
         });
     }
   }, [targetProjectID]);
@@ -477,12 +464,17 @@ const MigrationConfig = () => {
               <FlexboxGrid justify="start">
                 {/* --- Application dropdown ---   */}
                 <FlexboxGrid.Item as={Col} colspan={24} style={{ paddingLeft: '0' }}>
-                  <UseReactSelect
+                  <AppIconSelect
                     name="application_type"
                     placeholder="Choose Application"
+                    apiURL={`${apiURL}/application`}
                     onChange={handleSourceApplicationChange}
-                    isLoading={sourceLoading}
-                    items={sourceApplicationList.length ? sourceApplicationList : []}
+                    isLinkCreation={false}
+                    value={sourceApplication?.label}
+                    isUpdateState={sourceApplication}
+                    restartRequest={restartExternalRequest}
+                    isApplication={true}
+                    removeApplication={''}
                   />
                 </FlexboxGrid.Item>
               </FlexboxGrid>
@@ -543,8 +535,8 @@ const MigrationConfig = () => {
                           placeholder="Choose resource type"
                           onChange={handleSourceResourceTypeChange}
                           disabled={authenticatedThirdApp}
-                          isLoading={sourceProjectLoading}
-                          // value={sourceResourceList}
+                          isLoading={sourceResourceTypeLoading}
+                          value={sourceResourceType?.name}
                           appData={sourceApplication}
                           items={sourceResourceList?.length ? sourceResourceList : []}
                         />
@@ -569,7 +561,7 @@ const MigrationConfig = () => {
           }}
         >
           <div>
-            <h3
+            {/* <h3
               style={{
                 position: 'absolute',
                 top: '-22px',
@@ -589,10 +581,9 @@ const MigrationConfig = () => {
               >
                 Link Type
               </span>
-            </h3>
-            <FlexboxGrid.Item colspan={24}>
+            </h3> */}
+            {/* <FlexboxGrid.Item colspan={24}>
               <FlexboxGrid justify="start">
-                {/* --- Application dropdown ---   */}
                 <FlexboxGrid.Item as={Col} colspan={24} style={{ paddingLeft: '0' }}>
                   <CustomReactSelect
                     name="link_type"
@@ -604,6 +595,41 @@ const MigrationConfig = () => {
                     onChange={handleLinkTypeChange}
                     isLinkCreation={true}
                     value={linkType?.label}
+                  />
+                </FlexboxGrid.Item>
+              </FlexboxGrid>
+            </FlexboxGrid.Item> */}
+            <h3
+              style={{
+                position: 'absolute',
+                top: '-22px',
+                bottom: '0',
+                right: '0',
+                left: '0',
+              }}
+            >
+              <span
+                style={{
+                  backgroundColor: '#2196f3',
+                  color: 'white',
+                  padding: '5px',
+                  borderRadius: '10px',
+                  marginLeft: '10px',
+                }}
+              >
+                Direction
+              </span>
+            </h3>
+            <FlexboxGrid.Item colspan={24}>
+              <FlexboxGrid justify="start">
+                <FlexboxGrid.Item as={Col} colspan={24} style={{ paddingLeft: '0' }}>
+                  <UseReactSelect
+                    name="link_type"
+                    placeholder="Choose direction"
+                    items={direction}
+                    disabled={authenticatedThirdApp || sourceApplication ? false : true}
+                    onChange={handleDirectChange}
+                    isLinkCreation={true}
                   />
                 </FlexboxGrid.Item>
               </FlexboxGrid>
@@ -646,16 +672,15 @@ const MigrationConfig = () => {
               <FlexboxGrid justify="start">
                 {/* --- Application dropdown ---   */}
                 <FlexboxGrid.Item as={Col} colspan={24} style={{ paddingLeft: '0' }}>
-                  <CustomReactSelect
+                  <AppIconSelect
                     name="application_type"
                     placeholder="Choose Application"
                     apiURL={`${apiURL}/application`}
                     onChange={handleTargetApplicationChange}
                     isLinkCreation={true}
-                    value={applicationType?.label}
-                    isUpdateState={linkType}
-                    selectedLinkType={linkType}
-                    disabled={sourceApplication && linkType ? false : true}
+                    value={targetApplication?.label}
+                    isUpdateState={sourceApplication}
+                    disabled={authenticatedThirdApp || sourceApplication ? false : true}
                     isApplication={true}
                     removeApplication={sourceApplication?.type}
                   />
@@ -675,6 +700,7 @@ const MigrationConfig = () => {
                       placeholder="Choose Workspace"
                       onChange={handleTargetWorkspace}
                       isLoading={targetLoading}
+                      disabled={authenticatedThirdApp}
                       items={targetWorkspaceList?.length ? targetWorkspaceList : []}
                     />
                   </FlexboxGrid.Item>
@@ -700,13 +726,24 @@ const MigrationConfig = () => {
                           placeholder="Choose Project"
                           onChange={handleTargetProject}
                           isLoading={targetProjectLoading}
-                          disabled={targetWorkspace || targetApplication ? false : true}
+                          disabled={
+                            disbaledDropdown ||
+                            authenticatedThirdApp ||
+                            !targetApplication
+                          }
                           items={targetProjectList?.length ? targetProjectList : []}
                         />
                       </FlexboxGrid.Item>
                     </FlexboxGrid>
                   </FlexboxGrid.Item>
                 </FlexboxGrid>
+                {targetApplication?.type === 'jira' && (
+                  <div style={{ marginBottom: '15px' }}>
+                    <Checkbox value="Create New Project" onChange={handleCreateProject}>
+                      Create New Project
+                    </Checkbox>
+                  </div>
+                )}
                 {targetProjectID && targetApplication?.type !== 'gitlab' && (
                   <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
                     <FlexboxGrid.Item colspan={24}>
@@ -720,10 +757,11 @@ const MigrationConfig = () => {
                           <UseIconSelect
                             name="glide_native_resource_type"
                             placeholder="Choose resource type"
-                            onChange={handleResourceTypeChange}
-                            disabled={authenticatedThirdApp}
-                            isLoading={targetProjectLoading}
-                            appData={targetProject}
+                            onChange={handleTargetResourceTypeChange}
+                            disabled={authenticatedThirdApp || disbaledDropdown}
+                            isLoading={targetResourceTypeLoading}
+                            value={targetResourceType?.name}
+                            appData={targetApplication}
                             items={targetResourceList?.length ? targetResourceList : []}
                           />
                         </FlexboxGrid.Item>
@@ -739,17 +777,28 @@ const MigrationConfig = () => {
         {authenticatedThirdApp && (
           <ExternalAppModal
             showInNewLink={true}
-            formValue={applicationType || sourceApplication}
+            formValue={targetApplication || sourceApplication}
             isOauth2={OAUTH2_APPLICATION_TYPES?.includes(
-              applicationType?.type || sourceApplication?.type,
+              targetApplication?.type || sourceApplication?.type,
             )}
             isBasic={(
               BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
-            ).includes(applicationType?.type || sourceApplication?.type)}
+            ).includes(targetApplication?.type || sourceApplication?.type)}
             onDataStatus={getExtLoginData}
             integrated={false}
           />
         )}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'end', marginTop: '20px' }}>
+        <ButtonToolbar>
+          <Button appearance="ghost">Cancel</Button>
+          <Button
+            appearance="primary"
+            disabled={!sourceProject || !sourceResourceType || !targetProject}
+          >
+            Submit
+          </Button>
+        </ButtonToolbar>
       </div>
     </div>
   );

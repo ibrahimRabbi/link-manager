@@ -153,7 +153,6 @@ const valispaceIcon = {
 const UseIconSelect = (props) => {
   const { name, items, appData, onChange, placeholder, isLoading, disabled, isMulti } =
     props;
-  console.log(appData);
   const [selectOptions, setSelectOptions] = useState([]);
   const { isDark } = useSelector((state) => state.nav);
 
