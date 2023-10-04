@@ -7,7 +7,6 @@ import organizationsReducer from './slices/organizationSlice';
 import applicationsReducer from './slices/applicationSlice';
 import associationsReducer from './slices/associationSlice';
 import projectsReducer from './slices/projectSlice';
-import linkConsReducer from './slices/linkConstraintSlice';
 import componentsReducer from './slices/componentSlice';
 import eventReducer from './slices/eventSlice';
 import pipelineReducer from './slices/pipelineSlice';
@@ -50,7 +49,6 @@ const store = configureStore({
     oslcResources: oslcResourceReducer,
     projects: projectsReducer,
     linkTypes: linkTypesReducer,
-    linkConstraints: linkConsReducer,
     components: componentsReducer,
     events: eventReducer,
     pipelines: pipelineReducer,
