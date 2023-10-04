@@ -79,9 +79,10 @@ const MigrationConfig = () => {
     }
   }, [restartExternalRequest]);
   useEffect(() => {
-    dispatch(handleCurrPageTitle('Syncronization Configuration'));
+    dispatch(handleCurrPageTitle('Migration Configuration'));
   }, []);
   const handleSourceApplicationChange = (selectedItem) => {
+    setSourceResourceList([]);
     setTargetProjectID('');
     setSourceWorkspace('');
     setSourceProject('');
@@ -124,18 +125,23 @@ const MigrationConfig = () => {
     console.log(newSelectedItem);
     setTargetProject(newSelectedItem);
   };
+  const handleSourceWorkspace = (selectedItem) => {
+    console.log(selectedItem);
+    setSourceProject('');
+    setSourceProjectList([]);
+    setSourceWorkspace(selectedItem);
+  };
   const handleSourceProject = (selectedItem) => {
+    setSourceResourceList([]);
     const newSelectedItem = {
       ...selectedItem,
       application_id: applicationType?.id,
       workspace_id: selectedItem?.id,
       application_type: applicationType?.type,
     };
+    console.log(newSelectedItem);
     setSourceProjectID(selectedItem?.id);
     setSourceProject(newSelectedItem);
-  };
-  const handleSourceWorkspace = (selectedItem) => {
-    setSourceWorkspace(selectedItem);
   };
   const handleTargetWorkspace = (selectedItem) => {
     setTargetWorkspace(selectedItem);
@@ -195,6 +201,34 @@ const MigrationConfig = () => {
         break;
     }
   }, [sourceApplication]);
+  const handleResponse = (response) => {
+    switch (response.status) {
+      case 400:
+        setAuthenticatedThirdApp(true);
+        return response.json().then((data) => {
+          console.log('error', data?.message?.message);
+          return { items: [] };
+        });
+      case 401:
+        setAuthenticatedThirdApp(true);
+        return response.json().then((data) => {
+          console.log('error', data?.message);
+          return { items: [] };
+        });
+      case 403:
+        if (authCtx.token) {
+          console.log('error', 'You do not have permission to access');
+        } else {
+          setAuthenticatedThirdApp(true);
+          return { items: [] };
+        }
+        break;
+      default:
+        return response.json().then((data) => {
+          console.log('error', data?.message);
+        });
+    }
+  };
   // for getting application
   useEffect(() => {
     setSourceLoading(true);
@@ -207,32 +241,7 @@ const MigrationConfig = () => {
         if (response.status === 200) {
           return response.json();
         } else {
-          switch (response.status) {
-            case 400:
-              setAuthenticatedThirdApp(true);
-              return response.json().then((data) => {
-                console.log('error', data?.message?.message);
-                return { items: [] };
-              });
-            case 401:
-              setAuthenticatedThirdApp(true);
-              return response.json().then((data) => {
-                console.log('error', data?.message);
-                return { items: [] };
-              });
-            case 403:
-              if (authCtx.token) {
-                console.log('error', 'You do not have permission to access');
-              } else {
-                setAuthenticatedThirdApp(true);
-                return { items: [] };
-              }
-              break;
-            default:
-              return response.json().then((data) => {
-                console.log('error', data?.message);
-              });
-          }
+          handleResponse(response);
         }
       })
       .then((data) => {
@@ -263,32 +272,7 @@ const MigrationConfig = () => {
           if (response.status === 200) {
             return response.json();
           } else {
-            switch (response.status) {
-              case 400:
-                setAuthenticatedThirdApp(true);
-                return response.json().then((data) => {
-                  console.log('error', data?.message?.message);
-                  return { items: [] };
-                });
-              case 401:
-                setAuthenticatedThirdApp(true);
-                return response.json().then((data) => {
-                  console.log('error', data?.message);
-                  return { items: [] };
-                });
-              case 403:
-                if (authCtx.token) {
-                  console.log('error', 'You do not have permission to access');
-                } else {
-                  setAuthenticatedThirdApp(true);
-                  return { items: [] };
-                }
-                break;
-              default:
-                return response.json().then((data) => {
-                  console.log('error', data?.message);
-                });
-            }
+            handleResponse(response);
           }
         })
         .then((data) => {
@@ -340,32 +324,7 @@ const MigrationConfig = () => {
           if (response.status === 200) {
             return response.json();
           } else {
-            switch (response.status) {
-              case 400:
-                setAuthenticatedThirdApp(true);
-                return response.json().then((data) => {
-                  console.log('error', data?.message?.message);
-                  return { items: [] };
-                });
-              case 401:
-                setAuthenticatedThirdApp(true);
-                return response.json().then((data) => {
-                  console.log('error', data?.message);
-                  return { items: [] };
-                });
-              case 403:
-                if (authCtx.token) {
-                  console.log('error', 'You do not have permission to access');
-                } else {
-                  setAuthenticatedThirdApp(true);
-                  return { items: [] };
-                }
-                break;
-              default:
-                return response.json().then((data) => {
-                  console.log('error', data?.message);
-                });
-            }
+            handleResponse(response);
           }
         })
         .then((data) => {
@@ -405,32 +364,7 @@ const MigrationConfig = () => {
           if (response.status === 200) {
             return response.json();
           } else {
-            switch (response.status) {
-              case 400:
-                setAuthenticatedThirdApp(true);
-                return response.json().then((data) => {
-                  console.log('error', data?.message?.message);
-                  return { items: [] };
-                });
-              case 401:
-                setAuthenticatedThirdApp(true);
-                return response.json().then((data) => {
-                  console.log('error', data?.message);
-                  return { items: [] };
-                });
-              case 403:
-                if (authCtx.token) {
-                  console.log('error', 'You do not have permission to access');
-                } else {
-                  setAuthenticatedThirdApp(true);
-                  return { items: [] };
-                }
-                break;
-              default:
-                return response.json().then((data) => {
-                  console.log('error', data?.message);
-                });
-            }
+            handleResponse(response);
           }
         })
         .then((data) => {
@@ -446,15 +380,41 @@ const MigrationConfig = () => {
   }, [targetApplication, targetWorkspace]);
 
   useEffect(() => {
-    if (targetProjectID || sourceProjectID) {
+    if (sourceProjectID && sourceApplication?.type !== 'gitlab') {
       setTargetProjectLoading(true);
       let url;
       if (sourceApplication?.type === 'codebeamer') {
         url = `${thirdApiURL}/${sourceApplication?.type}}/resource_types/${sourceProjectID}?application_id=${sourceApplication?.id}`;
-      } else if (targetApplication?.type === 'codebeamer') {
-        url = `${thirdApiURL}/${targetApplication?.type}}/resource_types/${targetProjectID}?application_id=${targetApplication?.id}`;
       } else if (sourceProjectID) {
         url = `${thirdApiURL}/${sourceApplication?.type}/resource_types`;
+      }
+      fetch(url, {
+        headers: {
+          Authorization: `Bearer ${authCtx.token}`,
+        },
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            handleResponse(response);
+          }
+        })
+        .then((data) => {
+          if (sourceProjectID) {
+            console.log(data);
+            setSourceResourceList(data?.items);
+            setTargetProjectLoading(false);
+          }
+        });
+    }
+  }, [sourceProjectID]);
+  useEffect(() => {
+    if (targetProjectID && targetApplication?.type !== 'gitlab') {
+      setTargetProjectLoading(true);
+      let url;
+      if (targetApplication?.type === 'codebeamer') {
+        url = `${thirdApiURL}/${targetApplication?.type}}/resource_types/${targetProjectID}?application_id=${targetApplication?.id}`;
       } else {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_types`;
       }
@@ -467,46 +427,16 @@ const MigrationConfig = () => {
           if (response.status === 200) {
             return response.json();
           } else {
-            switch (response.status) {
-              case 400:
-                setAuthenticatedThirdApp(true);
-                return response.json().then((data) => {
-                  console.log('error', data?.message?.message);
-                  return { items: [] };
-                });
-              case 401:
-                setAuthenticatedThirdApp(true);
-                return response.json().then((data) => {
-                  console.log('error', data?.message);
-                  return { items: [] };
-                });
-              case 403:
-                if (authCtx.token) {
-                  console.log('error', 'You do not have permission to access');
-                } else {
-                  setAuthenticatedThirdApp(true);
-                  return { items: [] };
-                }
-                break;
-              default:
-                return response.json().then((data) => {
-                  console.log('error', data?.message);
-                });
-            }
+            handleResponse(response);
           }
         })
         .then((data) => {
-          if (sourceProjectID) {
-            setSourceResourceList(data?.items);
-            setTargetProjectLoading(false);
-          } else {
-            console.log(data);
-            setTargetResourceList(data?.items);
-            setTargetProjectLoading(false);
-          }
+          console.log(data);
+          setTargetResourceList(data?.items);
+          setTargetProjectLoading(false);
         });
     }
-  }, [targetProjectID, sourceProjectID]);
+  }, [targetProjectID]);
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -569,6 +499,7 @@ const MigrationConfig = () => {
                       name="application_type"
                       placeholder="Choose Workspace"
                       onChange={handleSourceWorkspace}
+                      disabled={authenticatedThirdApp}
                       isLoading={sourceLoading}
                       items={sourceWorkspaceList?.length ? sourceWorkspaceList : []}
                     />
@@ -577,10 +508,27 @@ const MigrationConfig = () => {
               </FlexboxGrid.Item>
             </FlexboxGrid>
           )}
-          {sourceWorkspace?.type === 'gitlab' ||
-            sourceWorkspace?.type === 'valispace' ||
-            (sourceApplication && (
-              <div>
+          {sourceApplication && (
+            <div>
+              <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+                <FlexboxGrid.Item colspan={24}>
+                  <FlexboxGrid justify="start">
+                    {/* --- Application dropdown ---   */}
+                    <FlexboxGrid.Item as={Col} colspan={24} style={{ paddingLeft: '0' }}>
+                      <UseReactSelect
+                        name="application_type"
+                        placeholder="Choose Project"
+                        onChange={handleSourceProject}
+                        isLoading={sourceProjectLoading}
+                        value={sourceProject?.label}
+                        disabled={authenticatedThirdApp}
+                        items={sourceProjectList?.length ? sourceProjectList : []}
+                      />
+                    </FlexboxGrid.Item>
+                  </FlexboxGrid>
+                </FlexboxGrid.Item>
+              </FlexboxGrid>
+              {sourceProjectID && sourceApplication?.type !== 'gitlab' && (
                 <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
                   <FlexboxGrid.Item colspan={24}>
                     <FlexboxGrid justify="start">
@@ -590,44 +538,23 @@ const MigrationConfig = () => {
                         colspan={24}
                         style={{ paddingLeft: '0' }}
                       >
-                        <UseReactSelect
-                          name="application_type"
-                          placeholder="Choose Project"
-                          onChange={handleSourceProject}
+                        <UseIconSelect
+                          name="glide_native_resource_type"
+                          placeholder="Choose resource type"
+                          onChange={handleSourceResourceTypeChange}
+                          disabled={authenticatedThirdApp}
                           isLoading={sourceProjectLoading}
-                          disabled={sourceWorkspace || sourceApplication ? false : true}
-                          items={sourceProjectList?.length ? sourceProjectList : []}
+                          // value={sourceResourceList}
+                          appData={sourceApplication}
+                          items={sourceResourceList?.length ? sourceResourceList : []}
                         />
                       </FlexboxGrid.Item>
                     </FlexboxGrid>
                   </FlexboxGrid.Item>
                 </FlexboxGrid>
-                {sourceProjectID && sourceApplication?.type !== 'gitlab' && (
-                  <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-                    <FlexboxGrid.Item colspan={24}>
-                      <FlexboxGrid justify="start">
-                        {/* --- Application dropdown ---   */}
-                        <FlexboxGrid.Item
-                          as={Col}
-                          colspan={24}
-                          style={{ paddingLeft: '0' }}
-                        >
-                          <UseIconSelect
-                            name="glide_native_resource_type"
-                            placeholder="Choose resource type"
-                            onChange={handleSourceResourceTypeChange}
-                            disabled={authenticatedThirdApp}
-                            isLoading={sourceProjectLoading}
-                            appData={sourceResourceList}
-                            items={targetResourceList?.length ? targetResourceList : []}
-                          />
-                        </FlexboxGrid.Item>
-                      </FlexboxGrid>
-                    </FlexboxGrid.Item>
-                  </FlexboxGrid>
-                )}
-              </div>
-            ))}
+              )}
+            </div>
+          )}
         </div>
         <div
           style={{
@@ -813,7 +740,9 @@ const MigrationConfig = () => {
           <ExternalAppModal
             showInNewLink={true}
             formValue={applicationType || sourceApplication}
-            isOauth2={OAUTH2_APPLICATION_TYPES?.includes(applicationType?.type)}
+            isOauth2={OAUTH2_APPLICATION_TYPES?.includes(
+              applicationType?.type || sourceApplication?.type,
+            )}
             isBasic={(
               BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
             ).includes(applicationType?.type || sourceApplication?.type)}
