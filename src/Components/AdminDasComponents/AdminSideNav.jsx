@@ -83,7 +83,7 @@ const options = [
     navigateTo: '/admin/migration',
     icon: (
       <span>
-        <BiTransferAlt style={{ ...iconStyle, marginLeft: '0', fontSize: '19px' }} />
+        <BiTransferAlt style={{ ...iconStyle, marginLeft: '-38px', fontSize: '20px' }} />
       </span>
     ),
     content: <span>Migration</span>,
