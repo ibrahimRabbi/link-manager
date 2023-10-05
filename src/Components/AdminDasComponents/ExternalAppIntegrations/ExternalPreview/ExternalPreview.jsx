@@ -129,7 +129,6 @@ const ExternalPreview = (props) => {
     showExternalAuth(true);
     externalLoginAuthData(nodeData);
   };
-
   const decodeContent = (nodeData) => {
     if (nodeData?.content_hash) {
       fetch(`${lmApiUrl}/third_party/${nodeData.api}/decode_selected_content`, {
@@ -186,16 +185,21 @@ const ExternalPreview = (props) => {
       const extendedPropsKeys = Object.keys(extendedProps);
       if (extendedPropsKeys.length > 0) {
         // eslint-disable-next-line max-len
-        const thirdAppExtraProps = Object.keys(externalAppData?.extended_properties).map(
-          (key) => (
-            <div key={key}>
-              <PreviewRow
-                name={snakeCaseToWords(key)}
-                value={externalAppData?.extended_properties[key]}
-              />
-            </div>
-          ),
-        );
+        const extPropsWithString = Object.keys(
+          externalAppData?.extended_properties,
+        ).filter((key) => {
+          if (typeof externalAppData?.extended_properties[key] === 'string') {
+            return key;
+          }
+        });
+        const thirdAppExtraProps = extPropsWithString.map((key) => (
+          <div key={key}>
+            <PreviewRow
+              name={snakeCaseToWords(key)}
+              value={externalAppData?.extended_properties[key]}
+            />
+          </div>
+        ));
         return thirdAppExtraProps;
       }
     }
