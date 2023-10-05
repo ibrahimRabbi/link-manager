@@ -19,6 +19,8 @@ const Oauth2Waiting = (props) => {
   const requestDataBroadcastChannel = new BroadcastChannel('request-oauth2-app');
   const applicationChannel = new BroadcastChannel('application-data');
 
+  const [applicationId, setApplicationId] = useState(null);
+
   requestDataBroadcastChannel.onmessage = (event) => {
     if (event.data?.status) {
       applicationData();
@@ -40,7 +42,7 @@ const Oauth2Waiting = (props) => {
       toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
     }
   };
-  const { data, message } = props;
+  const { data, message, preview } = props;
 
   const { data: oauth2Data, refetch: refetchOauth2Data } = useQuery(
     ['oauth2DataApp'],
@@ -58,12 +60,16 @@ const Oauth2Waiting = (props) => {
   };
 
   useEffect(() => {
-    if (oauth2Data) {
+    if (applicationId) {
+      // eslint-disable-next-line max-len
+      const openUrl = `${lmApiUrl}/third_party/${data?.type}/oauth2/login?application_id=${applicationId}`;
+      setUrl(openUrl);
+    } else if (oauth2Data) {
       // eslint-disable-next-line max-len
       const openUrl = `${lmApiUrl}/third_party/${data?.type}/oauth2/login?application_id=${oauth2Data?.items[0]?.id}`;
       setUrl(openUrl);
     }
-  }, [oauth2Data]);
+  }, [oauth2Data, applicationId]);
 
   useEffect(() => {
     if (url) {
@@ -76,6 +82,12 @@ const Oauth2Waiting = (props) => {
     setUrl('');
   }, [data]);
 
+  useEffect(() => {
+    if (data?.application_id && !applicationId) {
+      setApplicationId(data.application_id);
+    }
+  }, []);
+
   // prettier-ignore
   switch (data?.type) {
   case 'gitlab':
@@ -83,6 +95,9 @@ const Oauth2Waiting = (props) => {
     break;
   case 'jira':
     iconUrl = '/jira_logo.png';
+    break;
+  case 'codebeamer':
+    iconUrl = '/codebeamer_logo.png';
     break;
   default:
     defaultAppType = true;
@@ -93,8 +108,22 @@ const Oauth2Waiting = (props) => {
       <Panel>
         {defaultAppType ? (
           <ViewsAuthorizeIcon style={{ width: '100px', height: '100px' }} />
+        ) : preview ? (
+          <img
+            src={iconUrl}
+            alt="Application logo"
+            className={appImage}
+            width={75}
+            height={75}
+          />
         ) : (
-          <img src={iconUrl} alt="Application logo" className={appImage} />
+          <img
+            src={iconUrl}
+            alt="Application logo"
+            className={appImage}
+            width={150}
+            height={150}
+          />
         )}
       </Panel>
       <h3>Waiting for user verification</h3>

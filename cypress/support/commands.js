@@ -24,7 +24,16 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 Cypress.Commands.add('login', (username, password) => {
-        cy.visit('/login')
-        cy.get('input[name=userName]').type(username)
-        cy.get('input[name=password]').type(`${password}{enter}`, { log: false });
+      const log = Cypress.log({
+            displayName: 'AUTH LOGIN',
+            message: [`🔐 Authenticating | ${username}`],
+            // @ts-ignore
+            autoEnd: false,
+          })
+      log.snapshot('before login')
+      cy.visit('/login')
+      cy.get('input[name=userName]').type(username)
+      cy.get('input[name=password]').type(`${password}{enter}`, { log: false });
+      log.snapshot('after login')
+      log.end();
   })
