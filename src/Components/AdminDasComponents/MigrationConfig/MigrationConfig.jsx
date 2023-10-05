@@ -745,7 +745,7 @@ const MigrationConfig = () => {
                     isLinkCreation={true}
                     value={targetApplication?.label}
                     isUpdateState={sourceApplication}
-                    disabled={authenticatedThirdApp || sourceApplication ? false : true}
+                    disabled={authenticatedThirdApp || sourceResourceType ? false : true}
                     isApplication={true}
                     removeApplication={sourceApplication?.type}
                   />
