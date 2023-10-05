@@ -4,7 +4,15 @@ import React from 'react';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { handleCurrPageTitle } from '../../../Redux/slices/navSlice';
-import { Button, ButtonToolbar, Checkbox, Col, FlexboxGrid } from 'rsuite';
+import {
+  Button,
+  ButtonToolbar,
+  Checkbox,
+  Col,
+  FlexboxGrid,
+  Message,
+  toaster,
+} from 'rsuite';
 import { useState } from 'react';
 import ExternalAppModal from '../ExternalAppIntegrations/ExternalAppModal/ExternalAppModal';
 import {
@@ -18,6 +26,7 @@ import AuthContext from '../../../Store/Auth-Context';
 // import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 import UseIconSelect from '../../SelectionDialog/GlobalSelector/UseIconSelect';
 import AppIconSelect from './AppIconSelect';
+import UseLoader from '../../Shared/UseLoader';
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
@@ -49,11 +58,24 @@ const MigrationConfig = () => {
   const [targetResourceTypeLoading, setTargetResourceTypeLoading] = useState(false);
   const [targetProjectLoading, setTargetProjectLoading] = useState(false);
   const [sourceProjectLoading, setSourceProjectLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [sourceResourceType, setSourceResourceType] = useState('');
   const [targetResourceType, setTargetResourceType] = useState('');
   const [disbaledDropdown, setDisableDropdown] = useState(false);
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const dispatch = useDispatch();
+
+  const showNotification = (type, message) => {
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
+  };
+
   const closeExternalAppResetRequest = () => {
     setAuthenticatedThirdApp(false);
     setRestartExternalRequest(true);
@@ -79,6 +101,7 @@ const MigrationConfig = () => {
     dispatch(handleCurrPageTitle('Migration Configuration'));
   }, []);
   const handleSourceApplicationChange = (selectedItem) => {
+    setSourceProjectID('');
     setSourceResourceList([]);
     setTargetProjectID('');
     setSourceWorkspace('');
@@ -93,6 +116,7 @@ const MigrationConfig = () => {
     setSourceApplication(selectedItem);
   };
   const handleTargetApplicationChange = (selectedItem) => {
+    setDisableDropdown(false);
     setTargetProjectID('');
     setTargetProject('');
     setTargetProjectList([]);
@@ -120,6 +144,7 @@ const MigrationConfig = () => {
     setTargetProject(newSelectedItem);
   };
   const handleSourceWorkspace = (selectedItem) => {
+    setSourceWorkspace('');
     setSourceResourceList([]);
     setSourceProject('');
     setSourceProjectList([]);
@@ -131,9 +156,9 @@ const MigrationConfig = () => {
     setSourceResourceList([]);
     const newSelectedItem = {
       ...selectedItem,
-      application_id: targetApplication?.id,
+      application_id: sourceApplication?.id,
       workspace_id: selectedItem?.id,
-      application_type: targetApplication?.type,
+      application_type: sourceApplication?.type,
     };
     setSourceProjectID(selectedItem?.id);
     setSourceProject(newSelectedItem);
@@ -156,6 +181,8 @@ const MigrationConfig = () => {
   const handleCreateProject = () => {
     setDisableDropdown(!disbaledDropdown);
     setTargetProjectID('');
+    setTargetProject('');
+    setTargetResourceType('');
   };
   useEffect(() => {
     // prettier-ignore
@@ -204,22 +231,28 @@ const MigrationConfig = () => {
     }
   }, [sourceApplication]);
   const handleResponse = (response) => {
+    if (response.ok) {
+      return response.json().then((data) => {
+        showNotification('success', data.message);
+        return data;
+      });
+    }
     switch (response.status) {
       case 400:
         setAuthenticatedThirdApp(true);
         return response.json().then((data) => {
-          console.log('error', data?.message?.message);
+          showNotification('error', data?.message?.message);
           return { items: [] };
         });
       case 401:
         setAuthenticatedThirdApp(true);
         return response.json().then((data) => {
-          console.log('error', data?.message);
+          showNotification('error', data?.message);
           return { items: [] };
         });
       case 403:
         if (authCtx.token) {
-          console.log('error', 'You do not have permission to access');
+          showNotification('error', 'You do not have permission to access');
         } else {
           setAuthenticatedThirdApp(true);
           return { items: [] };
@@ -227,7 +260,7 @@ const MigrationConfig = () => {
         break;
       default:
         return response.json().then((data) => {
-          console.log('error', data?.message);
+          showNotification('error', data?.message);
         });
     }
   };
@@ -262,8 +295,7 @@ const MigrationConfig = () => {
             data &&
             apiCall &&
             (sourceApplication?.type === 'gitlab' ||
-              sourceApplication?.type === 'valispace') &&
-            sourceApplication
+              sourceApplication?.type === 'valispace')
           ) {
             setSourceWorkspaceList(data?.items);
             setSourceLoading(false);
@@ -397,7 +429,7 @@ const MigrationConfig = () => {
     }
   }, [sourceProjectID]);
   useEffect(() => {
-    if (targetProjectID && targetApplication?.type !== 'gitlab') {
+    if ((targetProjectID && targetApplication?.type !== 'gitlab') || disbaledDropdown) {
       setTargetResourceTypeLoading(true);
       let url;
       if (targetApplication?.type === 'codebeamer') {
@@ -418,14 +450,45 @@ const MigrationConfig = () => {
           }
         })
         .then((data) => {
-          console.log(data);
           setTargetResourceList(data?.items);
           setTargetResourceTypeLoading(false);
         });
     }
-  }, [targetProjectID]);
+  }, [targetProjectID, disbaledDropdown]);
+  const handleMakeMigration = async () => {
+    setSubmitLoading(true);
+    const body = {
+      source_application_id: sourceApplication ? sourceApplication?.id : null,
+      source_workspace: sourceWorkspace ? sourceWorkspace?.name : null,
+      source_project: sourceProject ? sourceProject?.name : null,
+      source_resource: sourceResourceType ? sourceResourceType?.id : null,
+      target_application_id: targetApplication ? targetApplication?.id : null,
+      target_workspace: targetWorkspace ? targetWorkspace?.name : null,
+      target_project: targetProject ? targetProject?.name : null,
+      target_resource: targetResourceType ? targetResourceType?.id : 'tasks',
+      link_type: 'solves',
+    };
+    await fetch(`${apiURL}/migrations`, {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+        authorization: 'Bearer ' + authCtx.token,
+      },
+      body: JSON.stringify(body),
+    }).then((res) => {
+      setSubmitLoading(false);
+      handleResponse(res);
+    });
+  };
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      {submitLoading && (
+        <div
+          style={{ position: 'absolute', top: '100', left: '0', right: '0', bottom: '0' }}
+        >
+          <UseLoader />
+        </div>
+      )}
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <div
           style={{
@@ -449,8 +512,9 @@ const MigrationConfig = () => {
           >
             <span
               style={{
-                backgroundColor: '#2196f3',
-                color: 'white',
+                backgroundColor: 'white',
+                color: 'black',
+                fontWeight: 'bolder',
                 padding: '5px',
                 borderRadius: '10px',
                 marginLeft: '10px',
@@ -512,7 +576,6 @@ const MigrationConfig = () => {
                         placeholder="Choose Project"
                         onChange={handleSourceProject}
                         isLoading={sourceProjectLoading}
-                        value={sourceProject?.label}
                         disabled={authenticatedThirdApp}
                         items={sourceProjectList?.length ? sourceProjectList : []}
                       />
@@ -531,7 +594,7 @@ const MigrationConfig = () => {
                         style={{ paddingLeft: '0' }}
                       >
                         <UseIconSelect
-                          name="glide_native_resource_type"
+                          name="resource_type"
                           placeholder="Choose resource type"
                           onChange={handleSourceResourceTypeChange}
                           disabled={authenticatedThirdApp}
@@ -610,8 +673,9 @@ const MigrationConfig = () => {
             >
               <span
                 style={{
-                  backgroundColor: '#2196f3',
-                  color: 'white',
+                  backgroundColor: 'white',
+                  color: 'black',
+                  fontWeight: 'bolder',
                   padding: '5px',
                   borderRadius: '10px',
                   marginLeft: '10px',
@@ -657,8 +721,9 @@ const MigrationConfig = () => {
           >
             <span
               style={{
-                backgroundColor: '#2196f3',
-                color: 'white',
+                backgroundColor: 'white',
+                color: 'black',
+                fontWeight: 'bolder',
                 padding: '5px',
                 borderRadius: '10px',
                 marginLeft: '10px',
@@ -726,11 +791,7 @@ const MigrationConfig = () => {
                           placeholder="Choose Project"
                           onChange={handleTargetProject}
                           isLoading={targetProjectLoading}
-                          disabled={
-                            disbaledDropdown ||
-                            authenticatedThirdApp ||
-                            !targetApplication
-                          }
+                          disabled={authenticatedThirdApp || !targetApplication}
                           items={targetProjectList?.length ? targetProjectList : []}
                         />
                       </FlexboxGrid.Item>
@@ -758,7 +819,32 @@ const MigrationConfig = () => {
                             name="glide_native_resource_type"
                             placeholder="Choose resource type"
                             onChange={handleTargetResourceTypeChange}
-                            disabled={authenticatedThirdApp || disbaledDropdown}
+                            disabled={authenticatedThirdApp}
+                            isLoading={targetResourceTypeLoading}
+                            value={targetResourceType?.name}
+                            appData={targetApplication}
+                            items={targetResourceList?.length ? targetResourceList : []}
+                          />
+                        </FlexboxGrid.Item>
+                      </FlexboxGrid>
+                    </FlexboxGrid.Item>
+                  </FlexboxGrid>
+                )}
+                {disbaledDropdown && (
+                  <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+                    <FlexboxGrid.Item colspan={24}>
+                      <FlexboxGrid justify="start">
+                        {/* --- Application dropdown ---   */}
+                        <FlexboxGrid.Item
+                          as={Col}
+                          colspan={24}
+                          style={{ paddingLeft: '0' }}
+                        >
+                          <UseIconSelect
+                            name="glide_native_resource_type"
+                            placeholder="Choose resource type"
+                            onChange={handleTargetResourceTypeChange}
+                            disabled={authenticatedThirdApp}
                             isLoading={targetResourceTypeLoading}
                             value={targetResourceType?.name}
                             appData={targetApplication}
@@ -794,7 +880,8 @@ const MigrationConfig = () => {
           <Button appearance="ghost">Cancel</Button>
           <Button
             appearance="primary"
-            disabled={!sourceProject || !sourceResourceType || !targetProject}
+            disabled={!sourceProject || !sourceResourceType || !targetApplication}
+            onClick={handleMakeMigration}
           >
             Submit
           </Button>
@@ -803,5 +890,4 @@ const MigrationConfig = () => {
     </div>
   );
 };
-
 export default MigrationConfig;
