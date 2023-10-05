@@ -468,17 +468,25 @@ const MigrationConfig = () => {
       target_resource: targetResourceType ? targetResourceType?.id : 'tasks',
       link_type: 'solves',
     };
-    await fetch(`${apiURL}/migrations`, {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-        authorization: 'Bearer ' + authCtx.token,
-      },
-      body: JSON.stringify(body),
-    }).then((res) => {
+    try {
+      const response = await fetch(`${apiURL}/migrations`, {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: 'Bearer ' + authCtx.token, // Make sure 'Authorization' is capitalized correctly
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        console.log(`HTTP error! Status: ${response.status}`);
+      }
       setSubmitLoading(false);
-      handleResponse(res);
-    });
+      handleResponse(response);
+    } catch (error) {
+      setSubmitLoading(false);
+      console.log('error', error);
+    }
   };
   return (
     <div style={{ position: 'relative' }}>
@@ -791,7 +799,11 @@ const MigrationConfig = () => {
                           placeholder="Choose Project"
                           onChange={handleTargetProject}
                           isLoading={targetProjectLoading}
-                          disabled={authenticatedThirdApp || !targetApplication}
+                          disabled={
+                            authenticatedThirdApp ||
+                            !targetApplication ||
+                            disbaledDropdown
+                          }
                           items={targetProjectList?.length ? targetProjectList : []}
                         />
                       </FlexboxGrid.Item>
