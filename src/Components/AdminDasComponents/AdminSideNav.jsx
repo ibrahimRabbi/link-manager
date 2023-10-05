@@ -13,6 +13,7 @@ import { darkColor, lightBgColor } from '../../App';
 import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
 import { useContext } from 'react';
 import AuthContext from '../../Store/Auth-Context';
+import { BiTransferAlt } from 'react-icons/bi';
 
 const iconStyle = {
   marginLeft: '-35px',
@@ -80,7 +81,11 @@ const options = [
   {
     path: ['/admin/migration'],
     navigateTo: '/admin/migration',
-    icon: <PlayOutlineIcon size={15} style={{ ...iconStyle, marginLeft: '0' }} />,
+    icon: (
+      <span>
+        <BiTransferAlt style={{ ...iconStyle, marginLeft: '0', fontSize: '19px' }} />
+      </span>
+    ),
     content: <span>Migration</span>,
     hidden: false,
   },

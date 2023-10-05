@@ -27,14 +27,14 @@ import AuthContext from '../../../Store/Auth-Context';
 import UseIconSelect from '../../SelectionDialog/GlobalSelector/UseIconSelect';
 import AppIconSelect from './AppIconSelect';
 import UseLoader from '../../Shared/UseLoader';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLeftRight, faRightLong } from '@fortawesome/free-solid-svg-icons';
+import { TbArrowsHorizontal } from 'react-icons/tb';
+import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
 const direction = [
-  { name: <FontAwesomeIcon icon={faRightLong} style={{ fontSize: '30px' }} /> },
-  { name: <FontAwesomeIcon icon={faLeftRight} style={{ fontSize: '30px' }} /> },
+  { name: <TbArrowsHorizontal style={{ fontSize: '35px' }} /> },
+  { name: <HiOutlineArrowNarrowRight style={{ fontSize: '35px' }} /> },
 ];
 const MigrationConfig = () => {
   const authCtx = useContext(AuthContext);
