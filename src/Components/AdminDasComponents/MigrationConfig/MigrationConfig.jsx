@@ -488,6 +488,16 @@ const MigrationConfig = () => {
       }
       setSubmitLoading(false);
       handleResponse(response);
+      setSourceApplication('');
+      setSourceWorkspace('');
+      setSourceProject('');
+      setSourceProjectID('');
+      setSourceResourceType('');
+      setTargetApplication('');
+      setTargetWorkspace('');
+      setTargetProject('');
+      setTargetProjectID('');
+      setTargetResourceType('');
     } catch (error) {
       setSubmitLoading(false);
       console.log('error', error);
