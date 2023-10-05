@@ -513,7 +513,7 @@ const MigrationConfig = () => {
             <span
               style={{
                 backgroundColor: 'white',
-                color: 'black',
+                color: '#575757',
                 fontWeight: 'bolder',
                 padding: '5px',
                 borderRadius: '10px',
@@ -674,7 +674,7 @@ const MigrationConfig = () => {
               <span
                 style={{
                   backgroundColor: 'white',
-                  color: 'black',
+                  color: '#575757',
                   fontWeight: 'bolder',
                   padding: '5px',
                   borderRadius: '10px',
@@ -722,7 +722,7 @@ const MigrationConfig = () => {
             <span
               style={{
                 backgroundColor: 'white',
-                color: 'black',
+                color: '#575757',
                 fontWeight: 'bolder',
                 padding: '5px',
                 borderRadius: '10px',
