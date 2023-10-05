@@ -255,6 +255,7 @@
   .reactSelect__menu {
     background-color: #292d33;
     margin-top: 5px;
+    z-index: 10;
 
     .reactSelect__menu-list {
       .reactSelect__option {
@@ -270,6 +271,11 @@
       }
     }
   }
+}
+
+// react select styles for light theme
+.css-1nmdiq5-menu {
+  z-index: 10 !important;
 }
 
 .react-select-display-icon-container {

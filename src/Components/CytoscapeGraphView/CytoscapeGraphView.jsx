@@ -18,6 +18,14 @@ import { nodeColorStyles, nodeImageStyle } from './NodeStyles.jsx';
 import { showOslcData } from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreviewConfig.jsx';
 import UseReactSelect from '../Shared/Dropdowns/UseReactSelect.jsx';
 import Graph from './Graph.jsx';
+// eslint-disable-next-line max-len
+import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
+// eslint-disable-next-line max-len
+import {
+  BASIC_AUTH_APPLICATION_TYPES,
+  MICROSERVICES_APPLICATION_TYPES,
+  OAUTH2_APPLICATION_TYPES,
+} from '../../App.jsx';
 const { nodeInfoContainer } = styles;
 
 const CytoscapeGraphView = () => {
@@ -30,6 +38,11 @@ const CytoscapeGraphView = () => {
   const [expandedNodeData, setExpandedNodeData] = useState(null);
   const [expandNode, setExpandNode] = useState(false);
   const [filteredElements, setFilteredElements] = useState([]);
+  const [showExternalAuthWindow, setShowExternalAuthWindow] = useState(false);
+  const [externalAuthData, setExternalAuthData] = useState({});
+
+  const [selectedResourceType, setSelectedResourceType] = useState([]);
+  const [selectedApplications, setSelectedApplications] = useState([]);
 
   const dispatch = useDispatch();
   const containerRef = useRef(null);
@@ -46,6 +59,14 @@ const CytoscapeGraphView = () => {
       );
       toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
     }
+  };
+
+  const getExtLoginData = (data) => {
+    console.log('External Login Data: ', data);
+  };
+
+  const closeExternalAuthWindow = () => {
+    setShowExternalAuthWindow(false);
   };
 
   const { data, isLoading } = useQuery({
@@ -188,8 +209,8 @@ const CytoscapeGraphView = () => {
             source: item.from.toString(),
             target: item.to.toString(),
             label: item.label,
-            classes: 'autorotate',
           },
+          classes: 'unbundled-bezier',
         };
       });
       updatedNodes?.reduce((accumulator, item) => {
@@ -202,7 +223,6 @@ const CytoscapeGraphView = () => {
 
       setExpandNode(null);
       setExpandedNodeData(null);
-
       setNodeData([...nodeData, ...updatedNodes]);
       setEdgeData([...edgeData, ...updatedEdges]);
     }
@@ -218,11 +238,7 @@ const CytoscapeGraphView = () => {
         return item;
       });
       setNodeData(updatedGraphData);
-      if (!expandNode?.data?.nodeData?.id?.includes('lm-api-dev')) {
-        fetchNodeData(expandNode?.data?.nodeData?.id);
-      } else {
-        fetchNodeData(expandNode?.data?.nodeData?.web_url);
-      }
+      fetchNodeData(expandNode?.data?.nodeData?.id);
     }
   }, [expandNode]);
 
@@ -284,31 +300,62 @@ const CytoscapeGraphView = () => {
   }, [data]);
 
   // handle select onChange
-  const filterByApp = (selectedItems) => {
+  const performFiltering = () => {
     const sourceData = {};
-
-    const filters = nodeData?.reduce((accumulator, item) => {
+    let filteredNodes = [];
+    filteredNodes = nodeData?.reduce((accumulator, item) => {
       // get source node
-      if (item?.data?.nodeData?.provider) {
+      if (item?.data?.nodeData?.id === sourceDataList?.uri) {
         sourceData['sourceNode'] = item;
       }
-
-      selectedItems?.forEach((value) => {
-        // filter nodes and edges
-        if (value?.name === item?.data?.nodeData?.api) {
-          accumulator.push(item);
-          // filter edges
-          edgeData?.forEach((edge) => {
-            if (item?.data?.id === edge?.data?.target) {
-              accumulator.push(edge);
-            }
-          });
-        }
-      });
       return accumulator;
     }, []);
 
-    if (filters.length) setFilteredElements([sourceData?.sourceNode, ...filters]);
+    if (selectedApplications?.length > 0) {
+      filteredNodes = nodeData?.reduce((accumulator, item) => {
+        selectedApplications?.forEach((value) => {
+          // filter nodes and edges
+          if (value?.name === item?.data?.nodeData?.api) {
+            accumulator.push(item);
+          }
+        });
+        return accumulator;
+      }, []);
+    } else {
+      filteredNodes = nodeData;
+    }
+
+    if (selectedResourceType?.length > 0) {
+      filteredNodes = filteredNodes?.reduce((accumulator, item) => {
+        selectedResourceType?.forEach((value) => {
+          if (value?.name === item?.data?.nodeData?.resource_type) {
+            accumulator.push(item);
+          }
+        });
+        return accumulator;
+      }, []);
+    }
+
+    filteredNodes = [sourceData?.sourceNode, ...filteredNodes];
+
+    const filteredNodeIds = filteredNodes?.map((item) => item?.data?.id);
+
+    const filteredEdges = edgeData?.reduce((accumulator, item) => {
+      // eslint-disable-next-line max-len
+      if (
+        filteredNodeIds.includes(item?.data?.source) &&
+        filteredNodeIds.includes(item?.data?.target)
+      ) {
+        accumulator.push(item);
+      }
+      return accumulator;
+    }, []);
+    // eslint-disable-next-line max-len
+    if (
+      filteredNodes.length &&
+      (selectedApplications?.length > 0 || selectedResourceType?.length > 0)
+    )
+      setFilteredElements([...filteredNodes, ...filteredEdges]);
     else {
       setFilteredElements([]);
     }
@@ -330,6 +377,39 @@ const CytoscapeGraphView = () => {
     }
     return accumulator;
   }, []);
+
+  //filter resource type dropdown item dynamically
+  const resourceTypeDropdownItem = nodeData?.reduce((accumulator, item) => {
+    const isObjectInArray = accumulator.some((value) => {
+      return item?.data?.nodeData?.resource_type === value?.name;
+    });
+
+    if (!isObjectInArray) {
+      if (item?.data?.nodeData?.resource_type) {
+        accumulator.push({
+          name: item?.data?.nodeData?.resource_type,
+          // eslint-disable-next-line max-len
+          // icon: getIcon(item?.data?.nodeData?.api, item?.data?.nodeData?.resource_type),
+        });
+      }
+    }
+    return accumulator;
+  }, []);
+
+  const filterByApp = (selectedItems) => {
+    setSelectedApplications(selectedItems);
+  };
+
+  const filterByResourceType = (selectedItems) => {
+    setSelectedResourceType(selectedItems);
+  };
+
+  useEffect(() => {
+    if (selectedApplications?.length || selectedResourceType?.length) performFiltering();
+    else {
+      setFilteredElements([]);
+    }
+  }, [selectedApplications, selectedResourceType]);
 
   // graph props
   const graphProps = {
@@ -371,8 +451,8 @@ const CytoscapeGraphView = () => {
                 />
                 <UseReactSelect
                   name="node_filter-resource-type"
-                  items={[]}
-                  onChange={filterByApp}
+                  items={resourceTypeDropdownItem}
+                  onChange={filterByResourceType}
                   placeholder="Filter data by resource type..."
                   isMulti={true}
                 />
@@ -387,8 +467,29 @@ const CytoscapeGraphView = () => {
       {/* node details section  */}
       {selectedNode && openedExternalPreview && (
         <div ref={containerRef} className={nodeInfoContainer}>
-          <ExternalPreview nodeData={selectedNode} fromGraphView={true} />
+          <ExternalPreview
+            nodeData={selectedNode}
+            showExternalAuth={setShowExternalAuthWindow}
+            externalLoginAuthData={setExternalAuthData}
+          />
         </div>
+      )}
+      {showExternalAuthWindow && (
+        <ExternalAppModal
+          formValue={{
+            ...externalAuthData,
+            type: externalAuthData?.api,
+            rdf_type: externalAuthData?.type,
+          }}
+          isOauth2={OAUTH2_APPLICATION_TYPES?.includes(externalAuthData?.api)}
+          isBasic={(
+            BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
+          ).includes(externalAuthData?.api)}
+          onDataStatus={getExtLoginData}
+          integrated={true}
+          openedModal={showExternalAuthWindow}
+          closeModal={closeExternalAuthWindow}
+        />
       )}
     </div>
   );

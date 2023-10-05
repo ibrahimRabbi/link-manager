@@ -12,13 +12,12 @@ const PreviewRow = (props) => {
     value,
     nodeData,
     firstLetter = false,
-    functionForIcon = null,
+    icon = null,
     urlDescription = null,
     titleIcon = null,
   } = props;
 
   const [normalText, setNormalText] = useState('');
-
   function convertToPlain(rtf) {
     if (!rtf) {
       return ''; // Return an empty string if rtf is falsy
@@ -48,7 +47,7 @@ const PreviewRow = (props) => {
           style={{ fontSize: '17px' }}
           onClick={() => urlDescription && window.open(urlDescription, '_blank')}
         >
-          {functionForIcon && functionForIcon(value)}
+          {icon}
           {firstLetter
             ? value.charAt(0).toUpperCase() + value.slice(1)
             : value === 'Repositoryfileblockofcodeselection'
