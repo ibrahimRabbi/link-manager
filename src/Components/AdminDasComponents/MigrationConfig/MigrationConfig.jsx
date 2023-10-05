@@ -32,10 +32,10 @@ import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
-const direction = [
-  { name: <TbArrowsHorizontal style={{ fontSize: '35px' }} /> },
-  { name: <HiOutlineArrowNarrowRight style={{ fontSize: '35px' }} /> },
-];
+// const direction = [
+//   { name: <TbArrowsHorizontal style={{ fontSize: '35px' }} /> },
+//   { name: <HiOutlineArrowNarrowRight style={{ fontSize: '35px' }} /> },
+// ];
 const MigrationConfig = () => {
   const authCtx = useContext(AuthContext);
   const [externalProjectUrl, setExternalProjectUrl] = useState('');
@@ -707,20 +707,40 @@ const MigrationConfig = () => {
                 Direction
               </span>
             </h3>
-            <FlexboxGrid.Item colspan={24}>
+            <div>
+              <div>
+                <Checkbox
+                  value="right"
+                  onChange={handleDirectChange}
+                  style={{ marginTop: '-10px' }}
+                >
+                  <TbArrowsHorizontal style={{ fontSize: '35px', marginTop: '-8px' }} />
+                </Checkbox>
+              </div>
+              <Checkbox
+                value="bidirectional"
+                onChange={handleDirectChange}
+                style={{ marginTop: '-10px' }}
+              >
+                <HiOutlineArrowNarrowRight
+                  style={{ fontSize: '35px', marginTop: '-8px' }}
+                />
+              </Checkbox>
+            </div>
+            {/* <FlexboxGrid.Item colspan={24}>
               <FlexboxGrid justify="start">
                 <FlexboxGrid.Item as={Col} colspan={24} style={{ paddingLeft: '0' }}>
                   <UseReactSelect
                     name="link_type"
                     placeholder="Choose direction"
                     items={direction}
-                    disabled={authenticatedThirdApp || sourceApplication ? false : true}
+                    disabled={authenticatedThirdApp || sourceResourceType ? false : true}
                     onChange={handleDirectChange}
                     isLinkCreation={true}
                   />
                 </FlexboxGrid.Item>
               </FlexboxGrid>
-            </FlexboxGrid.Item>
+            </FlexboxGrid.Item> */}
           </div>
         </div>
         <div
@@ -825,13 +845,15 @@ const MigrationConfig = () => {
                     </FlexboxGrid>
                   </FlexboxGrid.Item>
                 </FlexboxGrid>
-                {targetApplication?.type === 'jira' && (
-                  <div style={{ marginBottom: '15px' }}>
-                    <Checkbox value="Create New Project" onChange={handleCreateProject}>
-                      Create New Project
-                    </Checkbox>
-                  </div>
-                )}
+                {targetApplication?.type === 'jira' ||
+                  targetApplication?.type === 'codebeamer' ||
+                  (targetApplication?.type === 'valispace' && (
+                    <div style={{ marginBottom: '15px' }}>
+                      <Checkbox value="Create New Project" onChange={handleCreateProject}>
+                        Create New Project
+                      </Checkbox>
+                    </div>
+                  ))}
                 {targetProjectID && targetApplication?.type !== 'gitlab' && (
                   <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
                     <FlexboxGrid.Item colspan={24}>

@@ -34,7 +34,7 @@ const AppIconSelect = forwardRef((props, ref) => {
   const [option, setOption] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [checkPagination, setCheckPagination] = useState({});
-  const [selectedValue, setSelectedValue] = useState(null);
+  // const [/*selectedValue,*/ setSelectedValue] = useState(null);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(100);
   const [dropdownData, setDropdownData] = useState([]);
@@ -214,7 +214,7 @@ const AppIconSelect = forwardRef((props, ref) => {
   };
   return (
     <Select
-      value={value ? dropdownData?.find((v) => v?.value === value) : selectedValue}
+      value={value ? dropdownData?.find((v) => v?.value === value) : null}
       ref={ref}
       {...rest}
       className={isDark === 'dark' ? 'reactSelectContainer' : ''}
@@ -224,7 +224,7 @@ const AppIconSelect = forwardRef((props, ref) => {
       onChange={(v) => {
         if (isLinkCreation) onChange(v || null);
         else {
-          setSelectedValue(v);
+          // setSelectedValue(v);
           onChange(v || null);
         }
       }}
