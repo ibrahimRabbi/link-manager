@@ -339,7 +339,7 @@ const LinkManagerTable = ({ props }) => {
       expanded,
     },
     onExpandedChange: setExpanded,
-    getSubRows: (row) => row.children,
+    getSubRows: (row) => (row.children ? row?.children[0] : []),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),

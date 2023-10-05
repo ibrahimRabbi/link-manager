@@ -1,6 +1,6 @@
 describe('The Login Page', () => {
     beforeEach(()=>{
-        cy.login('shivam','Swayamskm11')
+        cy.login('mario','admin')
     });
     it('Login successfull',()=>{
       cy.get('h3').should('contain', 'Dashboard');
