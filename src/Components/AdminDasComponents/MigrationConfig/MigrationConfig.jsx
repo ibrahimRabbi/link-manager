@@ -710,6 +710,17 @@ const MigrationConfig = () => {
             <div>
               <div>
                 <Checkbox
+                  value="bidirectional"
+                  onChange={handleDirectChange}
+                  style={{ marginTop: '-10px' }}
+                >
+                  <HiOutlineArrowNarrowRight
+                    style={{ fontSize: '35px', marginTop: '-8px' }}
+                  />
+                </Checkbox>
+              </div>
+              <div>
+                <Checkbox
                   value="right"
                   onChange={handleDirectChange}
                   style={{ marginTop: '-10px' }}
@@ -717,15 +728,6 @@ const MigrationConfig = () => {
                   <TbArrowsHorizontal style={{ fontSize: '35px', marginTop: '-8px' }} />
                 </Checkbox>
               </div>
-              <Checkbox
-                value="bidirectional"
-                onChange={handleDirectChange}
-                style={{ marginTop: '-10px' }}
-              >
-                <HiOutlineArrowNarrowRight
-                  style={{ fontSize: '35px', marginTop: '-8px' }}
-                />
-              </Checkbox>
             </div>
             {/* <FlexboxGrid.Item colspan={24}>
               <FlexboxGrid justify="start">
@@ -846,14 +848,16 @@ const MigrationConfig = () => {
                   </FlexboxGrid.Item>
                 </FlexboxGrid>
                 {targetApplication?.type === 'jira' ||
-                  targetApplication?.type === 'codebeamer' ||
-                  (targetApplication?.type === 'valispace' && (
-                    <div style={{ marginBottom: '15px' }}>
-                      <Checkbox value="Create New Project" onChange={handleCreateProject}>
-                        Create New Project
-                      </Checkbox>
-                    </div>
-                  ))}
+                targetApplication?.type === 'codebeamer' ||
+                targetApplication?.type === 'valispace' ? (
+                  <div style={{ marginBottom: '15px' }}>
+                    <Checkbox value="Create New Project" onChange={handleCreateProject}>
+                      Create New Project
+                    </Checkbox>
+                  </div>
+                ) : (
+                  ' '
+                )}
                 {targetProjectID && targetApplication?.type !== 'gitlab' && (
                   <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
                     <FlexboxGrid.Item colspan={24}>
@@ -909,7 +913,7 @@ const MigrationConfig = () => {
         </div>
       </div>
       <div>
-        {authenticatedThirdApp && (
+        {authenticatedThirdApp ? (
           <ExternalAppModal
             showInNewLink={true}
             formValue={targetApplication || sourceApplication}
@@ -922,19 +926,20 @@ const MigrationConfig = () => {
             onDataStatus={getExtLoginData}
             integrated={false}
           />
+        ) : (
+          <div style={{ display: 'flex', justifyContent: 'end', marginTop: '20px' }}>
+            <ButtonToolbar>
+              <Button appearance="ghost">Cancel</Button>
+              <Button
+                appearance="primary"
+                disabled={!sourceProject || !sourceResourceType || !targetApplication}
+                onClick={handleMakeMigration}
+              >
+                Submit
+              </Button>
+            </ButtonToolbar>
+          </div>
         )}
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'end', marginTop: '20px' }}>
-        <ButtonToolbar>
-          <Button appearance="ghost">Cancel</Button>
-          <Button
-            appearance="primary"
-            disabled={!sourceProject || !sourceResourceType || !targetApplication}
-            onClick={handleMakeMigration}
-          >
-            Submit
-          </Button>
-        </ButtonToolbar>
       </div>
     </div>
   );
