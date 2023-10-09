@@ -67,6 +67,8 @@ const MigrationConfig = () => {
   const [sourceResourceType, setSourceResourceType] = useState('');
   const [targetResourceType, setTargetResourceType] = useState('');
   const [disbaledDropdown, setDisableDropdown] = useState(false);
+  const [rightDirection, setRightDirection] = useState(false);
+  const [biDirection, setBiDirection] = useState(false);
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const dispatch = useDispatch();
 
@@ -181,7 +183,13 @@ const MigrationConfig = () => {
     setSourceResourceType(selectedItem);
   };
   const handleDirectChange = (selectedItem) => {
-    console.log(selectedItem);
+    if (selectedItem === 'rightdirection') {
+      setBiDirection(false);
+      setRightDirection(true);
+    } else {
+      setRightDirection(false);
+      setBiDirection(true);
+    }
   };
   const handleCreateProject = () => {
     setDisableDropdown(!disbaledDropdown);
@@ -438,7 +446,7 @@ const MigrationConfig = () => {
       setTargetResourceTypeLoading(true);
       let url;
       if (targetApplication?.type === 'codebeamer') {
-        url = `${thirdApiURL}/${targetApplication?.type}}/resource_types/${targetProjectID}?application_id=${targetApplication?.id}`;
+        url = `${thirdApiURL}/${targetApplication?.type}/resource_types/${targetProjectID}?application_id=${targetApplication?.id}`;
       } else {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_types`;
       }
@@ -710,7 +718,8 @@ const MigrationConfig = () => {
             <div>
               <div>
                 <Checkbox
-                  value="bidirectional"
+                  value="rightdirection"
+                  checked={rightDirection}
                   onChange={handleDirectChange}
                   style={{ marginTop: '-10px' }}
                 >
@@ -721,7 +730,8 @@ const MigrationConfig = () => {
               </div>
               <div>
                 <Checkbox
-                  value="right"
+                  value="bidirection"
+                  checked={biDirection}
                   onChange={handleDirectChange}
                   style={{ marginTop: '-10px' }}
                 >
@@ -851,7 +861,11 @@ const MigrationConfig = () => {
                 targetApplication?.type === 'codebeamer' ||
                 targetApplication?.type === 'valispace' ? (
                   <div style={{ marginBottom: '15px' }}>
-                    <Checkbox value="Create New Project" onChange={handleCreateProject}>
+                    <Checkbox
+                      value="Create New Project"
+                      checked={disbaledDropdown}
+                      onChange={handleCreateProject}
+                    >
                       Create New Project
                     </Checkbox>
                   </div>
