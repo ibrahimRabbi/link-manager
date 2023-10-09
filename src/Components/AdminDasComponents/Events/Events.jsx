@@ -170,7 +170,7 @@ const Events = () => {
 
   // get all events
   useEffect(() => {
-    dispatch(handleCurrPageTitle('Events'));
+    dispatch(handleCurrPageTitle('Event Configuration'));
     refetchEvents();
   }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
 

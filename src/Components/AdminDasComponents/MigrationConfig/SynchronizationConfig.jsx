@@ -36,7 +36,7 @@ const thirdApiURL = `${apiURL}/third_party`;
 //   { name: <TbArrowsHorizontal style={{ fontSize: '35px' }} /> },
 //   { name: <HiOutlineArrowNarrowRight style={{ fontSize: '35px' }} /> },
 // ];
-const MigrationConfig = () => {
+const SynchronizationConfig = () => {
   const authCtx = useContext(AuthContext);
   const [externalProjectUrl, setExternalProjectUrl] = useState('');
   const [restartExternalRequest, setRestartExternalRequest] = useState(false);
@@ -105,7 +105,7 @@ const MigrationConfig = () => {
     }
   }, [restartExternalRequest]);
   useEffect(() => {
-    dispatch(handleCurrPageTitle('Migration Configuration'));
+    dispatch(handleCurrPageTitle('Synchronization Configuration'));
   }, []);
   const handleSourceApplicationChange = (selectedItem) => {
     setSourceProjectID('');
@@ -958,4 +958,4 @@ const MigrationConfig = () => {
     </div>
   );
 };
-export default MigrationConfig;
+export default SynchronizationConfig;
