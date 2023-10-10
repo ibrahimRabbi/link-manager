@@ -193,6 +193,7 @@ const SynchronizationConfig = () => {
   };
   const handleCreateProject = () => {
     setDisableDropdown(!disbaledDropdown);
+    setTargetProjectList([]);
     setTargetProjectID('');
     setTargetProject('');
     setTargetResourceType('');
@@ -520,7 +521,7 @@ const SynchronizationConfig = () => {
           <UseLoader />
         </div>
       )}
-      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div style={{ display: 'flex' }}>
         <div
           style={{
             width: '100%',
@@ -555,10 +556,13 @@ const SynchronizationConfig = () => {
             </span>
           </h3>
           <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-            <FlexboxGrid.Item colspan={24}>
-              <FlexboxGrid justify="start">
+            <FlexboxGrid.Item colspan={4}>
+              <h5>Application: </h5>
+            </FlexboxGrid.Item>
+            <FlexboxGrid.Item colspan={20}>
+              <FlexboxGrid justify="end">
                 {/* --- Application dropdown ---   */}
-                <FlexboxGrid.Item as={Col} colspan={24} style={{ paddingLeft: '0' }}>
+                <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
                   <AppIconSelect
                     name="application_type"
                     placeholder="Choose Application"
@@ -578,10 +582,13 @@ const SynchronizationConfig = () => {
           {(sourceApplication?.type === 'gitlab' ||
             sourceApplication?.type === 'valispace') && (
             <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-              <FlexboxGrid.Item colspan={24}>
-                <FlexboxGrid justify="start">
+              <FlexboxGrid.Item colspan={4}>
+                <h5>Workspace: </h5>
+              </FlexboxGrid.Item>
+              <FlexboxGrid.Item colspan={20}>
+                <FlexboxGrid justify="end">
                   {/* --- Application dropdown ---   */}
-                  <FlexboxGrid.Item as={Col} colspan={24} style={{ paddingLeft: '0' }}>
+                  <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
                     <UseReactSelect
                       name="application_type"
                       placeholder="Choose Workspace"
@@ -598,10 +605,13 @@ const SynchronizationConfig = () => {
           {sourceApplication && (
             <div>
               <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-                <FlexboxGrid.Item colspan={24}>
-                  <FlexboxGrid justify="start">
+                <FlexboxGrid.Item colspan={4}>
+                  <h5>Project: </h5>
+                </FlexboxGrid.Item>
+                <FlexboxGrid.Item colspan={20}>
+                  <FlexboxGrid justify="end">
                     {/* --- Application dropdown ---   */}
-                    <FlexboxGrid.Item as={Col} colspan={24} style={{ paddingLeft: '0' }}>
+                    <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
                       <UseReactSelect
                         name="application_type"
                         placeholder="Choose Project"
@@ -615,13 +625,16 @@ const SynchronizationConfig = () => {
                 </FlexboxGrid.Item>
               </FlexboxGrid>
               {sourceProjectID && sourceApplication?.type !== 'gitlab' && (
-                <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-                  <FlexboxGrid.Item colspan={24}>
-                    <FlexboxGrid justify="start">
+                <FlexboxGrid style={{ marginBottom: '0px' }} align="middle">
+                  <FlexboxGrid.Item colspan={4}>
+                    <h5>Resource: </h5>
+                  </FlexboxGrid.Item>
+                  <FlexboxGrid.Item colspan={20}>
+                    <FlexboxGrid justify="end">
                       {/* --- Application dropdown ---   */}
                       <FlexboxGrid.Item
                         as={Col}
-                        colspan={24}
+                        colspan={20}
                         style={{ paddingLeft: '0' }}
                       >
                         <UseIconSelect
@@ -644,115 +657,71 @@ const SynchronizationConfig = () => {
         </div>
         <div
           style={{
-            width: '60%',
-            border: '0.5px solid gray',
-            borderRadius: '10px',
-            padding: '25px 20px',
-            marginTop: '50px',
-            position: 'relative',
-            height: '100px',
-            marginRight: '20px',
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'center',
           }}
         >
-          <div>
-            {/* <h3
-              style={{
-                position: 'absolute',
-                top: '-22px',
-                bottom: '0',
-                right: '0',
-                left: '0',
-              }}
-            >
-              <span
-                style={{
-                  backgroundColor: '#2196f3',
-                  color: 'white',
-                  padding: '5px',
-                  borderRadius: '10px',
-                  marginLeft: '10px',
-                }}
-              >
-                Link Type
-              </span>
-            </h3> */}
-            {/* <FlexboxGrid.Item colspan={24}>
-              <FlexboxGrid justify="start">
-                <FlexboxGrid.Item as={Col} colspan={24} style={{ paddingLeft: '0' }}>
-                  <CustomReactSelect
-                    name="link_type"
-                    placeholder="Choose Link Type"
-                    apiURL={`${apiURL}/link-type`}
-                    apiQueryParams={''}
-                    isLinkType={true}
-                    disabled={sourceApplication ? false : true}
-                    onChange={handleLinkTypeChange}
-                    isLinkCreation={true}
-                    value={linkType?.label}
-                  />
-                </FlexboxGrid.Item>
-              </FlexboxGrid>
-            </FlexboxGrid.Item> */}
-            <h3
-              style={{
-                position: 'absolute',
-                top: '-22px',
-                bottom: '0',
-                right: '0',
-                left: '0',
-              }}
-            >
-              <span
-                style={{
-                  backgroundColor: 'white',
-                  color: '#575757',
-                  fontWeight: 'bolder',
-                  padding: '5px',
-                  borderRadius: '10px',
-                  marginLeft: '10px',
-                }}
-              >
-                Direction
-              </span>
-            </h3>
+          <div
+            style={{
+              width: '200px',
+              border: '0.5px solid gray',
+              borderRadius: '10px',
+              padding: '25px 20px',
+              marginTop: '50px',
+              position: 'relative',
+              height: '140px',
+              marginRight: '20px',
+            }}
+          >
             <div>
-              <div>
-                <Checkbox
-                  value="rightdirection"
-                  checked={rightDirection}
-                  onChange={handleDirectChange}
-                  style={{ marginTop: '-10px' }}
+              <h3
+                style={{
+                  position: 'absolute',
+                  top: '-22px',
+                  bottom: '0',
+                  right: '0',
+                  left: '0',
+                }}
+              >
+                <span
+                  style={{
+                    backgroundColor: 'white',
+                    color: '#575757',
+                    fontWeight: 'bolder',
+                    padding: '5px',
+                    borderRadius: '10px',
+                    marginLeft: '10px',
+                  }}
                 >
-                  <HiOutlineArrowNarrowRight
-                    style={{ fontSize: '35px', marginTop: '-8px' }}
-                  />
-                </Checkbox>
-              </div>
-              <div>
-                <Checkbox
-                  value="bidirection"
-                  checked={biDirection}
-                  onChange={handleDirectChange}
-                  style={{ marginTop: '-10px' }}
-                >
-                  <TbArrowsHorizontal style={{ fontSize: '35px', marginTop: '-8px' }} />
-                </Checkbox>
+                  Direction
+                </span>
+              </h3>
+              <div style={{ marginTop: '15px' }}>
+                <div>
+                  <Checkbox
+                    value="rightdirection"
+                    checked={rightDirection}
+                    onChange={handleDirectChange}
+                    style={{ marginTop: '-10px' }}
+                  >
+                    <HiOutlineArrowNarrowRight
+                      style={{ fontSize: '35px', marginTop: '-8px' }}
+                    />
+                  </Checkbox>
+                </div>
+                <div>
+                  <Checkbox
+                    value="bidirection"
+                    checked={biDirection}
+                    onChange={handleDirectChange}
+                    style={{ marginTop: '-10px' }}
+                  >
+                    <TbArrowsHorizontal style={{ fontSize: '35px', marginTop: '-8px' }} />
+                  </Checkbox>
+                </div>
               </div>
             </div>
-            {/* <FlexboxGrid.Item colspan={24}>
-              <FlexboxGrid justify="start">
-                <FlexboxGrid.Item as={Col} colspan={24} style={{ paddingLeft: '0' }}>
-                  <UseReactSelect
-                    name="link_type"
-                    placeholder="Choose direction"
-                    items={direction}
-                    disabled={authenticatedThirdApp || sourceResourceType ? false : true}
-                    onChange={handleDirectChange}
-                    isLinkCreation={true}
-                  />
-                </FlexboxGrid.Item>
-              </FlexboxGrid>
-            </FlexboxGrid.Item> */}
           </div>
         </div>
         <div
@@ -873,7 +842,7 @@ const SynchronizationConfig = () => {
                   ' '
                 )}
                 {targetProjectID && targetApplication?.type !== 'gitlab' && (
-                  <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+                  <FlexboxGrid style={{ marginBottom: '10px' }} align="middle">
                     <FlexboxGrid.Item colspan={24}>
                       <FlexboxGrid justify="start">
                         {/* --- Application dropdown ---   */}
@@ -898,7 +867,7 @@ const SynchronizationConfig = () => {
                   </FlexboxGrid>
                 )}
                 {disbaledDropdown && (
-                  <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+                  <FlexboxGrid style={{ marginBottom: '10px' }} align="middle">
                     <FlexboxGrid.Item colspan={24}>
                       <FlexboxGrid justify="start">
                         {/* --- Application dropdown ---   */}
