@@ -141,7 +141,8 @@ const Application = () => {
 
   // required data for create the application using OSLC APIs
   const redirect_uris = [
-    `${lmApiUrl}/application/consumer/callback?consumer=${formValue.name}`,
+    // eslint-disable-next-line max-len
+    `${lmApiUrl}/${authCtx.organization_id}/application/consumer/callback?consumer=${formValue.name}`,
   ];
   const scopes = 'rest_api_access';
   const response_types = ['code'];
@@ -170,7 +171,8 @@ const Application = () => {
     refetch: refetchApplications,
   } = useQuery(['application'], () =>
     fetchAPIRequest({
-      urlPath: `application?page=${currentPage}&per_page=${pageSize}`,
+      // eslint-disable-next-line max-len
+      urlPath: `${authCtx.organization_id}/application?page=${currentPage}&per_page=${pageSize}`,
       token: authCtx.token,
       method: 'GET',
       showNotification: showNotification,
@@ -205,7 +207,7 @@ const Application = () => {
   } = useMutation(
     () =>
       fetchAPIRequest({
-        urlPath: 'application',
+        urlPath: `${authCtx.organization_id}/application`,
         token: authCtx.token,
         method: 'POST',
         body: { ...formValue, ...payload },
@@ -232,7 +234,7 @@ const Application = () => {
   } = useMutation(
     () =>
       fetchAPIRequest({
-        urlPath: `application/${editData?.id}`,
+        urlPath: `${authCtx.organization_id}/application/${editData?.id}`,
         token: authCtx.token,
         method: 'PUT',
         body: { ...formValue, ...payload },
@@ -258,7 +260,7 @@ const Application = () => {
   } = useMutation(
     () =>
       fetchAPIRequest({
-        urlPath: `application/${deleteData?.id}`,
+        urlPath: `${authCtx.organization_id}/application/${deleteData?.id}`,
         token: authCtx.token,
         method: 'DELETE',
         showNotification: showNotification,

@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import React, { useState } from 'react';
 import { Button, ButtonToolbar, Loader } from 'rsuite';
 
@@ -12,6 +11,50 @@ const ButtonGroup = ({
   checkedValues,
 }) => {
   const [loading, setLoading] = useState(false);
+
+  const addGitlabCodeProperties = (gitlabApiData, hexString, selectedCodes, parent) => {
+    let gitlabFileData = Array.isArray(gitlabApiData) ? gitlabApiData[0] : gitlabApiData;
+    const webResourceType = hexString
+      ? 'Block of code'
+      : gitlabFileData?.web_application_resource_type;
+    const type = hexString
+      ? 'http://open-services.net/ns/scm#RepositoryFileBlockOfCodeSelection'
+      : gitlabFileData.type;
+    gitlabFileData = addUrlWithBranchName(gitlabFileData);
+    gitlabFileData = {
+      ...gitlabFileData,
+      extended_properties: {
+        ...gitlabFileData?.extended_properties,
+        content_hash: hexString ? hexString : null,
+        selected_lines: selectedCodes
+          ? `${selectedCodes.startLineNumber}-${selectedCodes.endLineNumber}`
+          : null,
+      },
+      type: type,
+      parent_properties: parent,
+      web_application_resource_type: webResourceType,
+    };
+    // Attach parent if it exists
+    if (parent) {
+      parent = addUrlWithBranchName(parent);
+      gitlabFileData = {
+        ...gitlabFileData,
+        parent_properties: parent,
+      };
+    }
+    return gitlabFileData;
+  };
+
+  const addUrlWithBranchName = (gitlabFileData) => {
+    return {
+      ...gitlabFileData,
+      web_url: gitlabFileData?.web_url?.replace(
+        gitlabFileData?.extended_properties.commit_id,
+        gitlabFileData?.extended_properties.branch_name,
+      ),
+    };
+  };
+
   const handleSelect = () => {
     setLoading(true);
     const propsToRemove = ['children', 'is_folder', 'visible', 'id', 'value', 'refKey'];
@@ -19,11 +62,19 @@ const ButtonGroup = ({
     let parent;
     if (singleSelected !== '') {
       value = JSON.parse(JSON.stringify(singleSelected));
-      parent = { ...singleSelected };
+      parent = {
+        ...singleSelected,
+        api_url: singleSelected.link,
+        extended_properties: {
+          ...singleSelected?.extended_properties,
+          branch_name: branchName,
+          content_hash: '',
+          selected_lines: null,
+        },
+      };
+
       for (const prop of propsToRemove) {
         delete parent[prop];
-        delete parent?.extended_properties?.content_hash;
-        delete parent?.extended_properties?.selected_lines;
       }
     } else {
       value = JSON.parse(JSON.stringify(multipleSelected));
@@ -52,19 +103,7 @@ const ButtonGroup = ({
       const initialResponse = '[';
       let Response = '';
       const finalresponse = ']';
-      let resultsPart = value;
-
-      // Extract the contents of the square brackets
-      if (Array.isArray(resultsPart)) {
-        resultsPart = resultsPart[0];
-      }
-      resultsPart.description = '';
-      resultsPart.extended_properties.content_hash = hexString;
-      resultsPart.extended_properties.selected_lines = `${selectedCodes?.startLineNumber}-${selectedCodes?.endLineNumber}`;
-      resultsPart.type =
-        'http://open-services.net/ns/scm#RepositoryFileBlockOfCodeSelection';
-      resultsPart.parent_properties = parent;
-      resultsPart.resourceTypes = 'Block of code';
+      let resultsPart = addGitlabCodeProperties(value, hexString, selectedCodes, parent);
       resultsPart = JSON.stringify(resultsPart);
       Response += `${resultsPart}`;
 
@@ -78,16 +117,7 @@ const ButtonGroup = ({
       const finalResponse = ']';
 
       for (let i = 0; i < value.length; i++) {
-        let resultsPart = value[i];
-        // Extract the contents of the square brackets
-        if (Array.isArray(resultsPart)) {
-          resultsPart = resultsPart[0];
-        }
-        resultsPart.extended_properties.content_hash = null;
-        resultsPart.extended_properties.selected_lines = null;
-        resultsPart.web_application_resource_type =
-          value?.extended_properties?.web_application_resource_type;
-        resultsPart.type = value?.type;
+        let resultsPart = addGitlabCodeProperties(value[i], null, null, null);
         resultsPart = JSON.stringify(resultsPart);
         Response += `${resultsPart}`;
 
@@ -103,18 +133,7 @@ const ButtonGroup = ({
       const initialResponse = '[';
       let Response = '';
       const finalresponse = ']';
-      let resultsPart = value;
-
-      // Extract the contents of the square brackets
-      if (Array.isArray(resultsPart)) {
-        resultsPart = resultsPart[0];
-      }
-      resultsPart.description = '';
-      resultsPart.extended_properties.content_hash = null;
-      resultsPart.extended_properties.selected_lines = null;
-      resultsPart.web_application_resource_type =
-        value?.extended_properties?.web_application_resource_type;
-      resultsPart.type = value?.type;
+      let resultsPart = addGitlabCodeProperties(value, null, null, null);
       resultsPart = JSON.stringify(resultsPart);
       Response += `${resultsPart}`;
 

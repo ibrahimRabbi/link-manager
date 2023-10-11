@@ -157,7 +157,7 @@ const Pipelines = () => {
   };
 
   useEffect(() => {
-    dispatch(handleCurrPageTitle('Pipelines'));
+    dispatch(handleCurrPageTitle('Pipeline Configuration'));
 
     const getUrl = `${lmApiUrl}/pipelines?page=${currPage}&per_page=${pageSize}`;
     dispatch(

@@ -1,9 +1,8 @@
 import React, { useContext, useRef, forwardRef, useEffect } from 'react';
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import Select, { components } from 'react-select';
 import AuthContext from '../../../Store/Auth-Context';
-import { handleStoreDropdownItems } from '../../../Redux/slices/associationSlice';
 import { Message, toaster } from 'rsuite';
 const icons = {
   jira: '/jira_logo.png',
@@ -15,39 +14,32 @@ const icons = {
   default: '/default_logo.png',
 };
 
-const CustomReactSelect = forwardRef((props, ref) => {
+const AppIconSelect = forwardRef((props, ref) => {
   const {
     apiURL,
     apiQueryParams,
     placeholder,
     onChange,
     disabled,
-    customLabelKey,
     value,
     isLinkCreation,
     isApplication,
-    isResourceType,
-    selectedLinkType,
-    isIntegration,
-    isEventAssociation,
     isUpdateState,
     restartRequest,
     removeApplication,
     getErrorStatus,
-    isLinkType,
-    isMulti,
     ...rest
   } = props;
 
   const [option, setOption] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [checkPagination, setCheckPagination] = useState({});
+  // const [/*selectedValue,*/ setSelectedValue] = useState(null);
   const [page, setPage] = useState(1);
   const [pageSize] = useState(100);
   const [dropdownData, setDropdownData] = useState([]);
   const { isDark } = useSelector((state) => state.nav);
   const authCtx = useContext(AuthContext);
-  const dispatch = useDispatch();
 
   const showNotification = (type, message) => {
     if (type && message) {
@@ -115,83 +107,17 @@ const CustomReactSelect = forwardRef((props, ref) => {
 
   // map dropdown items
   useEffect(() => {
-    let dropdownJsonData = [];
     if (isApplication) {
       let applicationsForLinks = [];
-      if (isLinkCreation) {
-        // filter application by domain
-        applicationsForLinks = selectedLinkType?.target_resource?.reduce(
-          (accumulator, item) => {
-            const apps = {
-              gitlab: '',
-              glideYoke: '',
-              jira: '',
-              valispace: '',
-              codebeamer: '',
-              dng: '',
-            };
-            // domains for the filter application when creating links
-            const gitlabDomain = ['http://open-services.net/ns/scm#'];
-            const valispaceDomain = ['http://open-services.net/ns/rm#'];
-            const dngDomain = ['http://open-services.net/ns/rm#'];
-            const codeBeamerDomain = [
-              'http://open-services.net/ns/rm#',
-              'http://open-services.net/ns/qm#',
-            ];
-            const jiraDomain = [
-              'http://open-services.net/ns/cm#',
-              'http://open-services.net/ns/rm#',
-            ];
-            const glideYokeDomain = [
-              'http://open-services.net/ns/plm#',
-              'http://open-services.net/ns/cm#',
-            ];
-
-            const urlType = item?.type.split('#')[0] + '#';
-
-            if (urlType?.includes(gitlabDomain[0])) apps['gitlab'] = 'gitlab';
-            if (urlType?.includes(codeBeamerDomain[0])) apps['codebeamer'] = 'codebeamer';
-            if (urlType?.includes(codeBeamerDomain[1])) apps['codebeamer'] = 'codebeamer';
-            if (urlType?.includes(valispaceDomain[0])) apps['valispace'] = 'valispace';
-            if (urlType?.includes(dngDomain[0])) apps['dng'] = 'dng';
-            if (urlType?.includes(jiraDomain[0])) apps['jira'] = 'jira';
-            if (urlType?.includes(jiraDomain[1])) apps['jira'] = 'jira';
-            if (urlType?.includes(glideYokeDomain[0])) apps['glideYoke'] = 'glideyoke';
-            if (urlType?.includes(glideYokeDomain[1])) apps['glideYoke'] = 'glideyoke';
-
-            option?.forEach((app) => {
-              // eslint-disable-next-line max-len
-              if (
-                app.type === apps.gitlab ||
-                app.type === apps.glideYoke ||
-                app.type === apps.jira ||
-                app.type === apps.valispace ||
-                app.type === apps.codebeamer ||
-                app.type === apps.dng
-              ) {
-                const existingObject = accumulator.find(
-                  (obj) => obj.id === app.id && obj.name === app.name,
-                );
-                if (!existingObject) {
-                  accumulator.push(app);
-                }
-              }
-            });
-            return accumulator;
-          },
-          [],
-        );
-      }
-
       if (removeApplication) {
         if (removeApplication === 'glide') {
-          applicationsForLinks = applicationsForLinks?.filter((item) => {
+          applicationsForLinks = option?.filter((item) => {
             if (item?.type !== 'glideyoke') {
               return item;
             }
           });
         }
-        applicationsForLinks = applicationsForLinks?.filter((item) => {
+        applicationsForLinks = option?.filter((item) => {
           if (item?.type !== removeApplication) {
             return item;
           }
@@ -218,58 +144,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
         };
       });
       return setDropdownData(newApps);
-    } else if (customLabelKey) {
-      dispatch(handleStoreDropdownItems({ label: customLabelKey, data: option }));
-
-      dropdownJsonData = option?.map((item) => {
-        return {
-          label: item[customLabelKey] ? item[customLabelKey] : item.name,
-          value: item.id,
-          item,
-        };
-      });
-    } else if (isEventAssociation) {
-      dropdownJsonData = option?.map((item) => ({
-        ...item,
-        label: item?.service_provider_id,
-        value: item?.id,
-      }));
-    } else if (isLinkType) {
-      dropdownJsonData = option?.map((item) => ({
-        ...item,
-        // eslint-disable-next-line max-len
-        target_resource: item?.target_link?.constraints?.map((constraint) => constraint),
-        label: item?.source_link?.name,
-        value: item?.id,
-      }));
-    } else if (isResourceType) {
-      dropdownJsonData = option?.map((item) => {
-        let appIcon = '';
-        if (item?.api === 'gitlab') appIcon = icons.gitlab;
-        else if (item?.api === 'glideyoke') appIcon = icons.glide;
-        else if (item?.api === 'jira') appIcon = icons.jira;
-        else if (item?.api === 'valispace') appIcon = icons.valispace;
-        else if (item?.api === 'codebeamer') appIcon = icons.codebeamer;
-        else if (item?.api === 'dng') appIcon = icons.dng;
-        else {
-          appIcon = icons.default;
-        }
-        return {
-          ...item,
-          label: item?.name,
-          value: item?.id,
-          icon: appIcon,
-        };
-      });
-    } else {
-      dropdownJsonData = option?.map((item) => ({
-        ...item,
-        label: isIntegration ? item?.project?.name : item?.name || item?.label,
-        value: item?.id,
-      }));
     }
-
-    setDropdownData(dropdownJsonData);
   }, [option]);
 
   // load dropdown item first time
@@ -337,12 +212,9 @@ const CustomReactSelect = forwardRef((props, ref) => {
       </div>
     );
   };
-
   return (
     <Select
-      value={
-        value ? (isMulti ? value : dropdownData?.find((v) => v?.value === value)) : null
-      }
+      value={value ? dropdownData?.find((v) => v?.value === value) : null}
       ref={ref}
       {...rest}
       className={isDark === 'dark' ? 'reactSelectContainer' : ''}
@@ -350,13 +222,13 @@ const CustomReactSelect = forwardRef((props, ref) => {
       options={dropdownData}
       placeholder={<p style={{ fontSize: '17px' }}>{placeholder}</p>}
       onChange={(v) => {
-        if (isLinkCreation || isMulti) onChange(v || null);
+        if (isLinkCreation) onChange(v || null);
         else {
-          onChange(v?.value || null);
+          // setSelectedValue(v);
+          onChange(v || null);
         }
       }}
       isClearable
-      isMulti={isMulti}
       isDisabled={disabled}
       isLoading={isLoading}
       isSearchable={true}
@@ -371,6 +243,6 @@ const CustomReactSelect = forwardRef((props, ref) => {
   );
 });
 
-CustomReactSelect.displayName = 'CustomReactSelect';
+AppIconSelect.displayName = 'AppIconSelect';
 
-export default CustomReactSelect;
+export default AppIconSelect;

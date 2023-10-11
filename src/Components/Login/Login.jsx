@@ -116,7 +116,15 @@ const Login = () => {
             role = 'user';
           }
 
-          authCtx.login(data.access_token, data.expires_in, data?.user_id, role);
+          console.log(data);
+
+          authCtx.login(
+            data.access_token,
+            data.expires_in,
+            data?.user_id,
+            data?.organization_id,
+            role,
+          );
           // Manage redirect
           if (location.state) {
             const redirectPath = location.state.from.pathname;

@@ -13,6 +13,7 @@ import { darkColor, lightBgColor } from '../../App';
 import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
 import { useContext } from 'react';
 import AuthContext from '../../Store/Auth-Context';
+import { BiTransferAlt } from 'react-icons/bi';
 
 const iconStyle = {
   marginLeft: '-35px',
@@ -60,14 +61,14 @@ const options = [
     path: ['/admin/events'],
     navigateTo: '/admin/events',
     icon: <MdEvent size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />,
-    content: <span>Events</span>,
+    content: <span>Event Config</span>,
     hidden: false,
   },
   {
     path: ['/admin/pipelines'],
     navigateTo: '/admin/pipelines',
     icon: <SiAzurepipelines size={16} style={{ ...iconStyle }} />,
-    content: <span>Pipelines</span>,
+    content: <span>Pipeline Config</span>,
     hidden: false,
   },
   {
@@ -76,6 +77,17 @@ const options = [
     icon: <PlayOutlineIcon size={15} style={{ ...iconStyle, marginLeft: '0' }} />,
     content: <span>Pipeline Runs</span>,
     hidden: true,
+  },
+  {
+    path: ['/admin/synchronization'],
+    navigateTo: '/admin/synchronization',
+    icon: (
+      <span>
+        <BiTransferAlt style={{ ...iconStyle, marginLeft: '-38px', fontSize: '20px' }} />
+      </span>
+    ),
+    content: <span>Synchronization</span>,
+    hidden: false,
   },
 ];
 
