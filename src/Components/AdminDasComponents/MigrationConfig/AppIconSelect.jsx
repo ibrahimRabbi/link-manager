@@ -109,22 +109,23 @@ const AppIconSelect = forwardRef((props, ref) => {
   useEffect(() => {
     if (isApplication) {
       let applicationsForLinks = [];
-      if (removeApplication) {
-        if (removeApplication === 'glide') {
-          applicationsForLinks = option?.filter((item) => {
-            if (item?.type !== 'glideyoke') {
-              return item;
-            }
-          });
-        }
+      console.log(removeApplication);
+      if (Array.isArray(removeApplication)) {
+        console.log('1');
         applicationsForLinks = option?.filter((item) => {
-          if (item?.type !== removeApplication) {
+          // Check if the item's type is not in the removeApplication array
+          return !removeApplication.includes(item?.type);
+        });
+        console.log(applicationsForLinks);
+      } else if (removeApplication === 'glide') {
+        applicationsForLinks = option?.filter((item) => {
+          if (item?.type !== 'glideyoke') {
             return item;
           }
         });
       }
 
-      const mapData = isLinkCreation ? applicationsForLinks : option;
+      const mapData = applicationsForLinks;
       const newApps = mapData?.map((item) => {
         let appIcon = '';
         if (item?.type === 'gitlab') appIcon = icons.gitlab;

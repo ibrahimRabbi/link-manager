@@ -581,7 +581,7 @@ const SynchronizationConfig = () => {
                     isUpdateState={sourceApplication}
                     restartRequest={restartExternalRequest}
                     isApplication={true}
-                    removeApplication={''}
+                    removeApplication={['gitlab', 'glideyoke', 'dng']}
                   />
                 </FlexboxGrid.Item>
               </FlexboxGrid>
@@ -782,7 +782,12 @@ const SynchronizationConfig = () => {
                     isUpdateState={sourceApplication}
                     disabled={authenticatedThirdApp || sourceResourceType ? false : true}
                     isApplication={true}
-                    removeApplication={sourceApplication?.type}
+                    removeApplication={[
+                      sourceApplication?.type,
+                      'gitlab',
+                      'glideyoke',
+                      'dng',
+                    ]}
                   />
                 </FlexboxGrid.Item>
               </FlexboxGrid>
