@@ -5,7 +5,8 @@ import { useSelector } from 'react-redux';
 import Select, { components } from 'react-select';
 
 const UseReactSelect = (props) => {
-  const { name, items, onChange, placeholder, isLoading, disabled, isMulti } = props;
+  const { name, items, value, onChange, placeholder, isLoading, disabled, isMulti } =
+    props;
 
   const [selectOptions, setSelectOptions] = useState([]);
   const { isDark } = useSelector((state) => state.nav);
@@ -57,6 +58,9 @@ const UseReactSelect = (props) => {
       className={isDark === 'dark' ? 'reactSelectContainer' : ''}
       classNamePrefix={isDark === 'dark' ? 'reactSelect' : ''}
       options={selectOptions}
+      value={
+        value ? (isMulti ? value : selectOptions?.find((v) => v?.value === value)) : null
+      }
       placeholder={<p>{placeholder}</p>}
       onChange={(v) => {
         onChange(v);

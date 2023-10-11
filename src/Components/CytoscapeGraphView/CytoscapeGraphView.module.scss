@@ -47,6 +47,19 @@
   }
 }
 
+.filterSelectContainer {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  gap: 10px;
+  width: 95%;
+  margin: 10px auto;
+
+}
+
+.resetBtn {
+  margin-left: 2.5%;
+}
+
 .visGraphContainer {
   position: relative !important;
 

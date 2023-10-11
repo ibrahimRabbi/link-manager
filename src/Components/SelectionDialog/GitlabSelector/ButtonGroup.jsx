@@ -60,7 +60,7 @@ const ButtonGroup = ({
       }
       resultsPart.description = '';
       resultsPart.extended_properties.content_hash = hexString;
-      resultsPart.extended_properties.selected_lines = `${selectedCodes.startLineNumber}-${selectedCodes.endLineNumber}`;
+      resultsPart.extended_properties.selected_lines = `${selectedCodes?.startLineNumber}-${selectedCodes?.endLineNumber}`;
       resultsPart.type =
         'http://open-services.net/ns/scm#RepositoryFileBlockOfCodeSelection';
       resultsPart.parent_properties = parent;
@@ -86,8 +86,8 @@ const ButtonGroup = ({
         resultsPart.extended_properties.content_hash = null;
         resultsPart.extended_properties.selected_lines = null;
         resultsPart.web_application_resource_type =
-          value.extended_properties.web_application_resource_type;
-        resultsPart.type = value.type;
+          value?.extended_properties?.web_application_resource_type;
+        resultsPart.type = value?.type;
         resultsPart = JSON.stringify(resultsPart);
         Response += `${resultsPart}`;
 
@@ -113,8 +113,8 @@ const ButtonGroup = ({
       resultsPart.extended_properties.content_hash = null;
       resultsPart.extended_properties.selected_lines = null;
       resultsPart.web_application_resource_type =
-        value.extended_properties.web_application_resource_type;
-      resultsPart.type = value.type;
+        value?.extended_properties?.web_application_resource_type;
+      resultsPart.type = value?.type;
       resultsPart = JSON.stringify(resultsPart);
       Response += `${resultsPart}`;
 
