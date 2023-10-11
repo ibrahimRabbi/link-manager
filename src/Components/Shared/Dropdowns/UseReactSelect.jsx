@@ -80,7 +80,14 @@ const UseReactSelect = (props) => {
         SingleValue: customSingleValue,
         Option: customOption,
       }}
-      value={value ? selectOptions.find((v) => v.label === value) : selectedValue}
+      value={
+        // eslint-disable-next-line max-len
+        value
+          ? isMulti
+            ? value
+            : selectOptions?.find((v) => v?.value === value)
+          : selectedValue
+      }
     />
   );
 };
