@@ -109,19 +109,9 @@ const AppIconSelect = forwardRef((props, ref) => {
   useEffect(() => {
     if (isApplication) {
       let applicationsForLinks = [];
-      console.log(removeApplication);
       if (Array.isArray(removeApplication)) {
-        console.log('1');
         applicationsForLinks = option?.filter((item) => {
-          // Check if the item's type is not in the removeApplication array
           return !removeApplication.includes(item?.type);
-        });
-        console.log(applicationsForLinks);
-      } else if (removeApplication === 'glide') {
-        applicationsForLinks = option?.filter((item) => {
-          if (item?.type !== 'glideyoke') {
-            return item;
-          }
         });
       }
 
