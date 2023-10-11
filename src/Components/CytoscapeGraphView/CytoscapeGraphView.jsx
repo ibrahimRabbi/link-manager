@@ -4,7 +4,7 @@ import cxtmenu from 'cytoscape-cxtmenu';
 import { useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../apiRequests/apiRequest.js';
 import AuthContext from '../../Store/Auth-Context.jsx';
-import { Message, toaster } from 'rsuite';
+import { Button, Message, toaster } from 'rsuite';
 
 // eslint-disable-next-line max-len
 import ExternalPreview from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreview.jsx';
@@ -20,13 +20,12 @@ import UseReactSelect from '../Shared/Dropdowns/UseReactSelect.jsx';
 import Graph from './Graph.jsx';
 // eslint-disable-next-line max-len
 import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
-// eslint-disable-next-line max-len
 import {
   BASIC_AUTH_APPLICATION_TYPES,
   MICROSERVICES_APPLICATION_TYPES,
   OAUTH2_APPLICATION_TYPES,
 } from '../../App.jsx';
-const { nodeInfoContainer } = styles;
+const { nodeInfoContainer, filterSelectContainer, resetBtn } = styles;
 
 const CytoscapeGraphView = () => {
   const { sourceDataList, isWbe } = useSelector((state) => state.links);
@@ -40,6 +39,8 @@ const CytoscapeGraphView = () => {
   const [filteredElements, setFilteredElements] = useState([]);
   const [showExternalAuthWindow, setShowExternalAuthWindow] = useState(false);
   const [externalAuthData, setExternalAuthData] = useState({});
+  const [isExpandedGraph, setIsExpandedGraph] = useState(false);
+  const [isResetGraph, setIsResetGraph] = useState(false);
 
   const [selectedResourceType, setSelectedResourceType] = useState([]);
   const [selectedApplications, setSelectedApplications] = useState([]);
@@ -91,7 +92,7 @@ const CytoscapeGraphView = () => {
         const response = await fetchAPIRequest({
           urlPath: `link/visualize/staged?start_node_id=${encodeURIComponent(
             nodeId,
-          )}&direction=outgoing&max_depth_outgoing=2`,
+          )}&direction=outgoing&max_depth_outgoing=1`,
           token: authCtx.token,
           showNotification: showNotification,
           method: 'GET',
@@ -182,41 +183,12 @@ const CytoscapeGraphView = () => {
 
   useEffect(() => {
     if (expandedNodeData) {
-      let updatedNodes = expandedNodeData?.nodes?.map((item) => {
-        let nodeStyle = checkNodeStyle(item?.properties?.resource_type);
+      let updatedNodes = mapNodes(expandedNodeData?.nodes);
+      let updatedEdges = mapEdges(expandedNodeData?.edges);
 
-        return {
-          data: {
-            id: item.id.toString(),
-            label: item.label,
-            classes: 'bottom-center',
-            nodeData: {
-              ...item?.properties,
-              ...checkNodeImage(
-                item?.properties?.api
-                  ? item?.properties?.api
-                  : item?.properties?.provider,
-              ),
-            },
-          },
-          style: nodeStyle ? nodeStyle : {},
-        };
-      });
-
-      let updatedEdges = expandedNodeData?.edges?.map((item) => {
-        return {
-          data: {
-            source: item.from.toString(),
-            target: item.to.toString(),
-            label: item.label,
-          },
-          classes: 'unbundled-bezier',
-        };
-      });
       updatedNodes?.reduce((accumulator, item) => {
         if (node_id === item?.data?.nodeData?.id) {
-          console.log('Latest node:', item);
-          console.log('selected node: ', expandNode);
+          //
         }
         return accumulator;
       }, []);
@@ -225,6 +197,10 @@ const CytoscapeGraphView = () => {
       setExpandedNodeData(null);
       setNodeData([...nodeData, ...updatedNodes]);
       setEdgeData([...edgeData, ...updatedEdges]);
+      if (filteredElements.length) {
+        setFilteredElements([...filteredElements, ...updatedNodes, ...updatedEdges]);
+      }
+      if (updatedNodes.length) setIsExpandedGraph(true);
     }
   }, [expandedNodeData]);
 
@@ -255,49 +231,53 @@ const CytoscapeGraphView = () => {
 
   useEffect(() => {
     if (data) {
-      // map nodes
-      let nodes = data?.data?.nodes?.map((item) => {
-        let nodeStyle = checkNodeStyle(item?.properties?.resource_type);
-        if (sourceDataList?.uri === item?.properties?.id) {
-          nodeStyle = null;
-          item.expanded = true;
-        }
-
-        return {
-          data: {
-            id: item.id.toString(),
-            label: item.label,
-            classes: 'bottom-center',
-            nodeData: {
-              ...item?.properties,
-              childData: sourceDataList?.uri === item?.properties?.id,
-              ...checkNodeImage(
-                item?.properties?.api
-                  ? item?.properties?.api
-                  : item?.properties?.provider,
-              ),
-            },
-          },
-          style: nodeStyle ? nodeStyle : {},
-        };
-      });
-
-      // map edges
-      let edges = data?.data?.edges?.map((item) => {
-        return {
-          data: {
-            source: item.from.toString(),
-            target: item.to.toString(),
-            label: item.label,
-          },
-          classes: 'unbundled-bezier',
-        };
-      });
-
+      let nodes = mapNodes(data?.data?.nodes);
+      let edges = mapEdges(data?.data?.edges);
       setNodeData(nodes ? nodes : []);
       setEdgeData(edges ? edges : []);
+      setIsExpandedGraph(false);
     }
-  }, [data]);
+  }, [data, isResetGraph]);
+
+  // map nodes
+  function mapNodes(nodes) {
+    return nodes?.map((item) => {
+      let nodeStyle = checkNodeStyle(item?.properties?.resource_type);
+      if (sourceDataList?.uri === item?.properties?.id) {
+        nodeStyle = null;
+        item.expanded = true;
+      }
+      const codeBlockLabel = item?.properties?.selected_lines;
+      return {
+        data: {
+          id: item.id.toString(),
+          label: codeBlockLabel ? item?.label + ` [${codeBlockLabel}]` : item.label,
+          classes: 'bottom-center',
+          nodeData: {
+            ...item?.properties,
+            childData: sourceDataList?.uri === item?.properties?.id,
+            ...checkNodeImage(
+              item?.properties?.api ? item?.properties?.api : item?.properties?.provider,
+            ),
+          },
+        },
+        style: nodeStyle ? nodeStyle : {},
+      };
+    });
+  }
+  // map edges
+  function mapEdges(edges) {
+    return edges?.map((item) => {
+      return {
+        data: {
+          source: item.from.toString(),
+          target: item.to.toString(),
+          label: item.label,
+        },
+        classes: 'unbundled-bezier',
+      };
+    });
+  }
 
   // handle select onChange
   const performFiltering = () => {
@@ -341,7 +321,6 @@ const CytoscapeGraphView = () => {
     const filteredNodeIds = filteredNodes?.map((item) => item?.data?.id);
 
     const filteredEdges = edgeData?.reduce((accumulator, item) => {
-      // eslint-disable-next-line max-len
       if (
         filteredNodeIds.includes(item?.data?.source) &&
         filteredNodeIds.includes(item?.data?.target)
@@ -350,7 +329,6 @@ const CytoscapeGraphView = () => {
       }
       return accumulator;
     }, []);
-    // eslint-disable-next-line max-len
     if (
       filteredNodes.length &&
       (selectedApplications?.length > 0 || selectedResourceType?.length > 0)
@@ -388,8 +366,6 @@ const CytoscapeGraphView = () => {
       if (item?.data?.nodeData?.resource_type) {
         accumulator.push({
           name: item?.data?.nodeData?.resource_type,
-          // eslint-disable-next-line max-len
-          // icon: getIcon(item?.data?.nodeData?.api, item?.data?.nodeData?.resource_type),
         });
       }
     }
@@ -419,6 +395,9 @@ const CytoscapeGraphView = () => {
     cyRef,
     contextMenuCommands,
   };
+
+  const [appFilterValue, setAppFilterValue] = useState([]);
+  const [resourceFilterValue, setResourceFilterValue] = useState([]);
   return (
     <div ref={graphContainerRef}>
       {isWbe && isLoading && <UseLoader />}
@@ -433,30 +412,45 @@ const CytoscapeGraphView = () => {
         <>
           {nodeData && (
             <>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '50% 50%',
-                  gap: '10px',
-                  width: '95%',
-                  margin: '10px auto',
-                }}
-              >
+              <div className={filterSelectContainer}>
                 <UseReactSelect
                   name="node_filter-application"
                   items={targetDropdownItem}
-                  onChange={filterByApp}
+                  onChange={(v) => {
+                    filterByApp(v);
+                    setAppFilterValue(v);
+                  }}
                   placeholder="Filter data by target applications..."
                   isMulti={true}
+                  value={appFilterValue}
                 />
                 <UseReactSelect
                   name="node_filter-resource-type"
                   items={resourceTypeDropdownItem}
-                  onChange={filterByResourceType}
+                  onChange={(v) => {
+                    filterByResourceType(v);
+                    setResourceFilterValue(v);
+                  }}
+                  value={resourceFilterValue}
                   placeholder="Filter data by resource type..."
                   isMulti={true}
                 />
               </div>
+
+              {isExpandedGraph && (
+                <Button
+                  appearance="default"
+                  className={resetBtn}
+                  onClick={() => {
+                    setIsResetGraph(!isResetGraph);
+                    setAppFilterValue([]);
+                    if (filteredElements.length) setFilteredElements([]);
+                    setResourceFilterValue([]);
+                  }}
+                >
+                  Reset Graph
+                </Button>
+              )}
 
               <Graph props={graphProps} />
             </>
