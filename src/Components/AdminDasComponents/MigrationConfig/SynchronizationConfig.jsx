@@ -935,6 +935,12 @@ const SynchronizationConfig = () => {
                 <span style={{ fontSize: '18px' }}>Automatic</span>
               </Checkbox>
             </div>
+            <div style={{ textAlign: 'center', marginTop: '15px ' }}>
+              <span style={{ fontSize: '18px', fontWeight: 'bold', marginLeft: '15px' }}>
+                Sync newly created resources
+              </span>
+              <Checkbox style={{ marginBottom: '5px' }}></Checkbox>
+            </div>
           </div>
         )}
       </div>
