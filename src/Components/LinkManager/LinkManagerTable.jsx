@@ -171,13 +171,21 @@ const LinkManagerTable = ({ props }) => {
     const rowData = row?.original;
 
     let appIcon = '';
+    let resourceType = '';
     if (rowData?.resource_type) {
       appIcon = getIcon(rowData?.api, rowData?.resource_type);
+      resourceType = rowData?.resource_type ? rowData.resource_type : '';
+    }
+    if (rowData?.web_application_resource_type) {
+      appIcon = getIcon(rowData?.api, rowData?.web_application_resource_type);
+      resourceType = rowData?.web_application_resource_type
+        ? rowData.web_application_resource_type
+        : '';
     }
     return (
       <div style={{ display: 'flex', alignItems: 'center', marginLeft: '10px' }}>
         <p style={{ marginRight: '5px' }}>{appIcon}</p>
-        <div style={{ fontSize: '17px' }}>{rowData?.resource_type}</div>
+        <div style={{ fontSize: '17px' }}>{resourceType}</div>
       </div>
     );
   };

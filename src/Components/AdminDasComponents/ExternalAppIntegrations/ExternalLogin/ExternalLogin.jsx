@@ -51,7 +51,7 @@ const ExternalLogin = (props) => {
     () =>
       fetchAPIRequest({
         // eslint-disable-next-line max-len
-        urlPath: `application?name=${appData?.name}&organization_id=${appData?.organization_id}`,
+        urlPath: `${authCtx.organization_id}/application?name=${appData?.name}&organization_id=${appData?.organization_id}`,
         token: authCtx.token,
         method: 'GET',
         showNotification: showNotification,

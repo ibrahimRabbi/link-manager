@@ -40,6 +40,7 @@ const Home = () => {
     ['recentProject'],
     () =>
       fetchAPIRequest({
+        // eslint-disable-next-line max-len
         urlPath: `${authCtx.organization_id}/project/recent?page=${currPage}&per_page=${pageSize}`,
         token: authCtx.token,
         method: 'GET',
