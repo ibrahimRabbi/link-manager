@@ -113,7 +113,7 @@ const Events = () => {
       console.error('Form Error', formError);
       return;
     } else if (isAdminEditing) {
-      const putUrl = `${lmApiUrl}/events/${editData?.id}`;
+      const putUrl = `${lmApiUrl}/${authCtx.organization_id}/events/${editData?.id}`;
       dispatch(
         fetchUpdateData({
           url: putUrl,
@@ -123,7 +123,7 @@ const Events = () => {
         }),
       );
     } else {
-      const postUrl = `${lmApiUrl}/events`;
+      const postUrl = `${lmApiUrl}/${authCtx.organization_id}/events`;
       dispatch(
         fetchCreateData({
           url: postUrl,
@@ -153,7 +153,8 @@ const Events = () => {
     ['events'],
     () =>
       fetchAPIRequest({
-        urlPath: `events?page=${currPage}&per_page=${pageSize}`,
+        // eslint-disable-next-line max-len
+        urlPath: `${authCtx.organization_id}/events?page=${currPage}&per_page=${pageSize}`,
         token: authCtx.token,
         method: 'GET',
         showNotification: showNotification,
@@ -181,7 +182,7 @@ const Events = () => {
   };
   const handleConfirmed = (value) => {
     if (value) {
-      const deleteUrl = `${lmApiUrl}/events/${deleteData?.id}`;
+      const deleteUrl = `${lmApiUrl}/${authCtx.organization_id}/events/${deleteData?.id}`;
       dispatch(
         fetchDeleteData({
           url: deleteUrl,
