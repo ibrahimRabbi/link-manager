@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import React from 'react';
 import { useState } from 'react';
 import AuthContext from '../../Store/Auth-Context';
@@ -39,7 +40,7 @@ const Home = () => {
     ['recentProject'],
     () =>
       fetchAPIRequest({
-        urlPath: `project/recent?page=${currPage}&per_page=${pageSize}`,
+        urlPath: `${authCtx.organization_id}/project/recent?page=${currPage}&per_page=${pageSize}`,
         token: authCtx.token,
         method: 'GET',
         showNotification: showNotification,

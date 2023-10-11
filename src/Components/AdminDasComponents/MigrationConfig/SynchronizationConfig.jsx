@@ -480,7 +480,6 @@ const SynchronizationConfig = () => {
       target_workspace: targetWorkspace ? targetWorkspace?.name : null,
       target_project: targetProject ? targetProject?.name : null,
       target_resource: targetResourceType ? targetResourceType?.id : 'tasks',
-      link_type: 'solves',
     };
     try {
       const response = await fetch(`${apiURL}/migrations`, {
@@ -652,25 +651,47 @@ const SynchronizationConfig = () => {
                   </FlexboxGrid.Item>
                 </FlexboxGrid>
               )}
+              <FlexboxGrid style={{ marginBottom: '10px' }} align="middle">
+                <FlexboxGrid.Item colspan={4}>
+                  <h5>Properties: </h5>
+                </FlexboxGrid.Item>
+                <FlexboxGrid.Item colspan={20}>
+                  <FlexboxGrid justify="end">
+                    {/* --- Application dropdown ---   */}
+                    <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
+                      <UseIconSelect
+                        name="glide_native_resource_type"
+                        placeholder="Choose resource type"
+                        onChange={handleTargetResourceTypeChange}
+                        disabled={authenticatedThirdApp}
+                        isLoading={targetResourceTypeLoading}
+                        value={targetResourceType?.name}
+                        appData={targetApplication}
+                        items={targetResourceList?.length ? targetResourceList : []}
+                      />
+                    </FlexboxGrid.Item>
+                  </FlexboxGrid>
+                </FlexboxGrid.Item>
+              </FlexboxGrid>
             </div>
           )}
         </div>
         <div
           style={{
-            width: '100%',
+            width: '80%',
             display: 'flex',
             justifyContent: 'center',
           }}
         >
           <div
             style={{
-              width: '200px',
+              width: '300px',
               border: '0.5px solid gray',
               borderRadius: '10px',
               padding: '25px 20px',
               marginTop: '50px',
               position: 'relative',
-              height: '140px',
+              height: '120px',
               marginRight: '20px',
             }}
           >
@@ -697,7 +718,7 @@ const SynchronizationConfig = () => {
                   Direction
                 </span>
               </h3>
-              <div style={{ marginTop: '15px' }}>
+              <div style={{ marginTop: '10px' }}>
                 <div>
                   <Checkbox
                     value="rightdirection"
@@ -757,10 +778,13 @@ const SynchronizationConfig = () => {
             </span>
           </h3>
           <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-            <FlexboxGrid.Item colspan={24}>
-              <FlexboxGrid justify="start">
+            <FlexboxGrid.Item colspan={4}>
+              <h5>Application: </h5>
+            </FlexboxGrid.Item>
+            <FlexboxGrid.Item colspan={20}>
+              <FlexboxGrid justify="end">
                 {/* --- Application dropdown ---   */}
-                <FlexboxGrid.Item as={Col} colspan={24} style={{ paddingLeft: '0' }}>
+                <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
                   <AppIconSelect
                     name="application_type"
                     placeholder="Choose Application"
@@ -780,10 +804,13 @@ const SynchronizationConfig = () => {
           {(targetApplication?.type === 'gitlab' ||
             targetApplication?.type === 'valispace') && (
             <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-              <FlexboxGrid.Item colspan={24}>
-                <FlexboxGrid justify="start">
+              <FlexboxGrid.Item colspan={4}>
+                <h5>Workspace: </h5>
+              </FlexboxGrid.Item>
+              <FlexboxGrid.Item colspan={20}>
+                <FlexboxGrid justify="end">
                   {/* --- Application dropdown ---   */}
-                  <FlexboxGrid.Item as={Col} colspan={24} style={{ paddingLeft: '0' }}>
+                  <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
                     <UseReactSelect
                       name="application_type"
                       placeholder="Choose Workspace"
@@ -802,12 +829,15 @@ const SynchronizationConfig = () => {
             (targetApplication && (
               <div>
                 <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-                  <FlexboxGrid.Item colspan={24}>
-                    <FlexboxGrid justify="start">
+                  <FlexboxGrid.Item colspan={4}>
+                    <h5>Project: </h5>
+                  </FlexboxGrid.Item>
+                  <FlexboxGrid.Item colspan={20}>
+                    <FlexboxGrid justify="end">
                       {/* --- Application dropdown ---   */}
                       <FlexboxGrid.Item
                         as={Col}
-                        colspan={24}
+                        colspan={20}
                         style={{ paddingLeft: '0' }}
                       >
                         <UseReactSelect
@@ -842,13 +872,16 @@ const SynchronizationConfig = () => {
                   ' '
                 )}
                 {targetProjectID && targetApplication?.type !== 'gitlab' && (
-                  <FlexboxGrid style={{ marginBottom: '10px' }} align="middle">
-                    <FlexboxGrid.Item colspan={24}>
-                      <FlexboxGrid justify="start">
+                  <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+                    <FlexboxGrid.Item colspan={4}>
+                      <h5>Resource: </h5>
+                    </FlexboxGrid.Item>
+                    <FlexboxGrid.Item colspan={20}>
+                      <FlexboxGrid justify="end">
                         {/* --- Application dropdown ---   */}
                         <FlexboxGrid.Item
                           as={Col}
-                          colspan={24}
+                          colspan={20}
                           style={{ paddingLeft: '0' }}
                         >
                           <UseIconSelect
@@ -867,13 +900,16 @@ const SynchronizationConfig = () => {
                   </FlexboxGrid>
                 )}
                 {disbaledDropdown && (
-                  <FlexboxGrid style={{ marginBottom: '10px' }} align="middle">
-                    <FlexboxGrid.Item colspan={24}>
-                      <FlexboxGrid justify="start">
+                  <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+                    <FlexboxGrid.Item colspan={4}>
+                      <h5>Resource: </h5>
+                    </FlexboxGrid.Item>
+                    <FlexboxGrid.Item colspan={20}>
+                      <FlexboxGrid justify="end">
                         {/* --- Application dropdown ---   */}
                         <FlexboxGrid.Item
                           as={Col}
-                          colspan={24}
+                          colspan={20}
                           style={{ paddingLeft: '0' }}
                         >
                           <UseIconSelect
@@ -891,6 +927,32 @@ const SynchronizationConfig = () => {
                     </FlexboxGrid.Item>
                   </FlexboxGrid>
                 )}
+                <FlexboxGrid style={{ marginBottom: '10px' }} align="middle">
+                  <FlexboxGrid.Item colspan={4}>
+                    <h5>Properties: </h5>
+                  </FlexboxGrid.Item>
+                  <FlexboxGrid.Item colspan={20}>
+                    <FlexboxGrid justify="end">
+                      {/* --- Application dropdown ---   */}
+                      <FlexboxGrid.Item
+                        as={Col}
+                        colspan={20}
+                        style={{ paddingLeft: '0' }}
+                      >
+                        <UseIconSelect
+                          name="glide_native_resource_type"
+                          placeholder="Choose resource type"
+                          onChange={handleTargetResourceTypeChange}
+                          disabled={authenticatedThirdApp}
+                          isLoading={targetResourceTypeLoading}
+                          value={targetResourceType?.name}
+                          appData={targetApplication}
+                          items={targetResourceList?.length ? targetResourceList : []}
+                        />
+                      </FlexboxGrid.Item>
+                    </FlexboxGrid>
+                  </FlexboxGrid.Item>
+                </FlexboxGrid>
               </div>
             ))}
         </div>
