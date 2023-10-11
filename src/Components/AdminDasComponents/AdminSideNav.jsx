@@ -14,6 +14,7 @@ import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
 import { useContext } from 'react';
 import AuthContext from '../../Store/Auth-Context';
 import { BiTransferAlt } from 'react-icons/bi';
+import { RiLockPasswordLine } from 'react-icons/ri';
 
 const iconStyle = {
   marginLeft: '-35px',
@@ -65,12 +66,20 @@ const options = [
     hidden: false,
   },
   {
+    path: ['/admin/pipelinessecrets'],
+    navigateTo: '/admin/pipelinessecrets',
+    icon: <RiLockPasswordLine size={16} style={{ ...iconStyle }} />,
+    content: <span>Pipeline Secrets</span>,
+    hidden: false,
+  },
+  {
     path: ['/admin/pipelines'],
     navigateTo: '/admin/pipelines',
     icon: <SiAzurepipelines size={16} style={{ ...iconStyle }} />,
     content: <span>Pipeline Config</span>,
     hidden: false,
   },
+
   {
     path: ['/admin/pipelinerun'],
     navigateTo: '/admin/pipelinerun',
