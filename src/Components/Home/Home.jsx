@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import React from 'react';
 import { useState } from 'react';
 import AuthContext from '../../Store/Auth-Context';

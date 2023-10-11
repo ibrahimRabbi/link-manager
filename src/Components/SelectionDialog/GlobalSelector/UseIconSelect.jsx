@@ -153,7 +153,6 @@ const valispaceIcon = {
 const UseIconSelect = (props) => {
   const { name, items, appData, onChange, placeholder, isLoading, disabled, isMulti } =
     props;
-
   const [selectOptions, setSelectOptions] = useState([]);
   const { isDark } = useSelector((state) => state.nav);
 
@@ -161,7 +160,7 @@ const UseIconSelect = (props) => {
   useEffect(() => {
     const newItems = items?.map((item) => {
       let appIcon = '';
-      if (appData?.application_type === 'jira') {
+      if (appData?.application_type === 'jira' || appData?.type === 'jira') {
         if (item?.name === 'Tasks') appIcon = jiraIcon.Task;
         else if (item?.name === 'Epics') appIcon = jiraIcon.Epic;
         else if (item?.name === 'User Stories') appIcon = jiraIcon.UserStory;
@@ -169,7 +168,10 @@ const UseIconSelect = (props) => {
         else if (item?.name === 'Improvements') appIcon = jiraIcon.Improvement;
         else if (item?.name === 'New Features') appIcon = jiraIcon.New_feature;
         else appIcon = jiraIcon.subT;
-      } else if (appData?.application_type === 'codebeamer') {
+      } else if (
+        appData?.application_type === 'codebeamer' ||
+        appData?.type === 'codebeamer'
+      ) {
         if (item?.name === 'Releases') appIcon = codebeamerIcon.Releases;
         else if (item?.name === 'Documents') appIcon = codebeamerIcon.Documents;
         else if (item?.name === 'Change Requests')
@@ -197,11 +199,17 @@ const UseIconSelect = (props) => {
         else if (item.name === 'Tasks') appIcon = codebeamerIcon.Timekeeping;
         else if (item.name === 'User Stories') appIcon = codebeamerIcon.User_Stories;
         else appIcon = codebeamerIcon.requirement_specification;
-      } else if (appData?.application_type === 'dng') {
+      } else if (appData?.application_type === 'dng' || appData?.type === 'dng') {
         if (item?.name === 'Requirements') appIcon = dngIcon.Requirement;
         else appIcon = dngIcon.Requirement_collection;
       } else if (appData?.application_type === 'valispace') {
-        appIcon = valispaceIcon.Requirement;
+        if (item?.name === 'Requirements') {
+          appIcon = valispaceIcon.Requirement;
+        }
+      } else if (appData?.type === 'valispace') {
+        if (item?.name === 'Requirements') {
+          appIcon = valispaceIcon.Requirement;
+        }
       } else {
         if (item?.name === 'Documents') appIcon = glideYokeIcon.Document;
         else if (item?.name === 'Physical Parts') appIcon = glideYokeIcon.Physical_parts;
