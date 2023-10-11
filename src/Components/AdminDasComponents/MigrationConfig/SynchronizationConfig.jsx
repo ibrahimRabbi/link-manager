@@ -633,7 +633,7 @@ const SynchronizationConfig = () => {
                 </FlexboxGrid.Item>
               </FlexboxGrid>
               {sourceProjectID && sourceApplication?.type !== 'gitlab' && (
-                <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+                <FlexboxGrid style={{ marginBottom: '0px' }} align="middle">
                   <FlexboxGrid.Item colspan={4}>
                     <h5>Resource: </h5>
                   </FlexboxGrid.Item>
@@ -654,34 +654,6 @@ const SynchronizationConfig = () => {
                           value={sourceResourceType?.name}
                           appData={sourceApplication}
                           items={sourceResourceList?.length ? sourceResourceList : []}
-                        />
-                      </FlexboxGrid.Item>
-                    </FlexboxGrid>
-                  </FlexboxGrid.Item>
-                </FlexboxGrid>
-              )}
-              {sourceResourceType && (
-                <FlexboxGrid style={{ marginBottom: '10px' }} align="middle">
-                  <FlexboxGrid.Item colspan={4}>
-                    <h5>Properties: </h5>
-                  </FlexboxGrid.Item>
-                  <FlexboxGrid.Item colspan={20}>
-                    <FlexboxGrid justify="end">
-                      {/* --- Application dropdown ---   */}
-                      <FlexboxGrid.Item
-                        as={Col}
-                        colspan={20}
-                        style={{ paddingLeft: '0' }}
-                      >
-                        <UseIconSelect
-                          name="glide_native_resource_type"
-                          placeholder="Choose resource type"
-                          onChange={handleTargetResourceTypeChange}
-                          disabled={authenticatedThirdApp}
-                          isLoading={targetResourceTypeLoading}
-                          value={targetResourceType?.name}
-                          appData={targetApplication}
-                          items={targetResourceList?.length ? targetResourceList : []}
                         />
                       </FlexboxGrid.Item>
                     </FlexboxGrid>
@@ -887,7 +859,7 @@ const SynchronizationConfig = () => {
                   ' '
                 )}
                 {targetProjectID && targetApplication?.type !== 'gitlab' && (
-                  <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+                  <FlexboxGrid style={{ marginBottom: '0px' }} align="middle">
                     <FlexboxGrid.Item colspan={4}>
                       <h5>Resource: </h5>
                     </FlexboxGrid.Item>
@@ -915,37 +887,9 @@ const SynchronizationConfig = () => {
                   </FlexboxGrid>
                 )}
                 {disbaledDropdown && (
-                  <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+                  <FlexboxGrid style={{ marginBottom: '10px' }} align="middle">
                     <FlexboxGrid.Item colspan={4}>
                       <h5>Resource: </h5>
-                    </FlexboxGrid.Item>
-                    <FlexboxGrid.Item colspan={20}>
-                      <FlexboxGrid justify="end">
-                        {/* --- Application dropdown ---   */}
-                        <FlexboxGrid.Item
-                          as={Col}
-                          colspan={20}
-                          style={{ paddingLeft: '0' }}
-                        >
-                          <UseIconSelect
-                            name="glide_native_resource_type"
-                            placeholder="Choose resource type"
-                            onChange={handleTargetResourceTypeChange}
-                            disabled={authenticatedThirdApp}
-                            isLoading={targetResourceTypeLoading}
-                            value={targetResourceType?.name}
-                            appData={targetApplication}
-                            items={targetResourceList?.length ? targetResourceList : []}
-                          />
-                        </FlexboxGrid.Item>
-                      </FlexboxGrid>
-                    </FlexboxGrid.Item>
-                  </FlexboxGrid>
-                )}
-                {targetResourceType && (
-                  <FlexboxGrid style={{ marginBottom: '0px' }} align="middle">
-                    <FlexboxGrid.Item colspan={4}>
-                      <h5>Properties: </h5>
                     </FlexboxGrid.Item>
                     <FlexboxGrid.Item colspan={20}>
                       <FlexboxGrid justify="end">
