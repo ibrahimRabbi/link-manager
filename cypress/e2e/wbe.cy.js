@@ -6,5 +6,21 @@ describe('WBE Website visit', () => {
         cy.get('input[name=password]').type(`${'admin'}{enter}`, { log: false });
         cy.get('#search_term-4').type('issue');
         cy.get('button').contains("Search").click();
+        cy.get('button').contains("Create Link").click();
+        cy.get('.css-w9q2zk-Input2').click();
+        cy.get('#react-select-3-input').clear().type("solvedBy")
+        cy.get('#react-select-3-listbox').first().click();
+        cy.wait(2000);
+        cy.get('#react-select-5-input').clear().type("Gitlab")
+        cy.get('#react-select-5-listbox').first().click();
+        cy.wait(2000);
+        cy.get('#react-select-7-input').clear().type("Cross-Domain Integration Demo")
+        cy.get('#react-select-7-listbox').first().click();
+        cy.wait(2000);
+        cy.get('#react-select-11-input').clear().type("Cross-Domain Integration Demo")
+        cy.get('#react-select-11-listbox').first().click();
+        cy.wait(2000);
+        cy.get('[aria-label="README.md"] > .rs-check-tree-node-label > .rs-check-item > .rs-checkbox-checker > label > .rs-checkbox-wrapper').click();
+        cy.get('button').contains("OK").click();
     })
   })
