@@ -49,7 +49,7 @@ const Oauth2Waiting = (props) => {
     () =>
       fetchAPIRequest({
         // eslint-disable-next-line max-len
-        urlPath: `application?name=${data?.name}&organization_id=${data?.organization_id}`,
+        urlPath: `${authCtx.organization_id}application?name=${data?.name}&organization_id=${data?.organization_id}`,
         token: authCtx.token,
         method: 'GET',
         showNotification: showNotification,

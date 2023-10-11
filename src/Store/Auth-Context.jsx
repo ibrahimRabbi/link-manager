@@ -6,13 +6,14 @@ const AuthContext = React.createContext({
   token: '',
   isLoggedIn: false,
   // eslint-disable-next-line no-unused-vars
-  login: (token, expiresIn, user_id) => {},
+  login: (token, expiresIn, user_id, organization_id, role) => {},
   logout: () => {},
 });
 
 const retrieveStoredToken = () => {
   const storedToken = localStorage.getItem('token');
   const storedUserId = localStorage.getItem('user_id');
+  const storedOrganizationId = localStorage.getItem('organization_id');
   const storedUserRole = localStorage.getItem('user_role');
   const storedExpirationTime = localStorage.getItem('expirationTime');
 
@@ -24,6 +25,7 @@ const retrieveStoredToken = () => {
   if (expirationTime <= Date.now() / 1000) {
     localStorage.removeItem('token');
     localStorage.removeItem('user_id');
+    localStorage.removeItem('organization_id');
     localStorage.removeItem('user_role');
     localStorage.removeItem('expirationTime');
     localStorage.removeItem('wbe');
@@ -33,6 +35,7 @@ const retrieveStoredToken = () => {
   return {
     token: storedToken,
     user_id: storedUserId,
+    organization_id: storedOrganizationId,
     user_role: storedUserRole,
     expirationTime: expirationTime,
   };
@@ -42,15 +45,18 @@ export const AuthContextProvider = (props) => {
   const tokenData = retrieveStoredToken();
   let initialToken;
   let initialUserId;
+  let initialOrganizationId;
   let initialUserRole;
   if (tokenData) {
     initialToken = tokenData.token;
     initialUserId = tokenData.user_id;
+    initialOrganizationId = tokenData.organization_id;
     initialUserRole = tokenData.user_role;
   }
 
   const [token, setToken] = useState(initialToken);
   const [userId, setUserId] = useState(initialUserId);
+  const [organizationId, setOrganizationId] = useState(initialOrganizationId);
   const [userRole, setUserRole] = useState(initialUserRole);
 
   var userIsLoggedIn = !!token;
@@ -59,6 +65,7 @@ export const AuthContextProvider = (props) => {
     setToken(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user_id');
+    localStorage.removeItem('organization_id');
     localStorage.removeItem('user_role');
     localStorage.removeItem('expirationTime');
     localStorage.removeItem('wbe');
@@ -68,14 +75,16 @@ export const AuthContextProvider = (props) => {
     }
   }, []);
 
-  const loginHandler = (token, expiresIn, user_id, user_role) => {
+  const loginHandler = (token, expiresIn, user_id, organization_id, user_role) => {
     const expirationTime = Math.floor(Date.now() / 1000) + expiresIn;
 
     setToken(token);
     setUserId(user_id);
+    setOrganizationId(organization_id);
     setUserRole(user_role);
     localStorage.setItem('token', token);
     localStorage.setItem('user_id', user_id);
+    localStorage.setItem('organization_id', organization_id);
     localStorage.setItem('user_role', user_role);
     localStorage.setItem('expirationTime', expirationTime);
   };
@@ -107,6 +116,7 @@ export const AuthContextProvider = (props) => {
   const contextValue = {
     token: token,
     user_id: userId,
+    organization_id: organizationId,
     user: { ...user, role: userRole },
     isLoggedIn: userIsLoggedIn,
     login: loginHandler,

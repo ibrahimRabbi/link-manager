@@ -367,7 +367,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                     <CustomReactSelect
                       name="application_type"
                       placeholder="Choose Application"
-                      apiURL={sourceDataList?.sourceType ? `${apiURL}/application` : ''}
+                      /* eslint-disable-next-line max-len */
+                      apiURL={
+                        sourceDataList?.sourceType
+                          ? `${apiURL}/${authCtx.organization_id}/application`
+                          : ''
+                      }
                       onChange={handleApplicationChange}
                       isLinkCreation={true}
                       value={applicationType?.label}
