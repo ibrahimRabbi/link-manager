@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import React, { useState } from 'react';
 import { Button, ButtonToolbar, Loader } from 'rsuite';
 
@@ -17,7 +16,7 @@ const ButtonGroup = ({
     let gitlabFileData = Array.isArray(gitlabApiData) ? gitlabApiData[0] : gitlabApiData;
     const webResourceType = hexString
       ? 'Block of code'
-      : gitlabFileData.web_application_resource_type;
+      : gitlabFileData?.web_application_resource_type;
     const type = hexString
       ? 'http://open-services.net/ns/scm#RepositoryFileBlockOfCodeSelection'
       : gitlabFileData.type;
@@ -25,7 +24,7 @@ const ButtonGroup = ({
     gitlabFileData = {
       ...gitlabFileData,
       extended_properties: {
-        ...gitlabFileData.extended_properties,
+        ...gitlabFileData?.extended_properties,
         content_hash: hexString ? hexString : null,
         selected_lines: selectedCodes
           ? `${selectedCodes.startLineNumber}-${selectedCodes.endLineNumber}`
@@ -49,9 +48,9 @@ const ButtonGroup = ({
   const addUrlWithBranchName = (gitlabFileData) => {
     return {
       ...gitlabFileData,
-      web_url: gitlabFileData.web_url.replace(
-        gitlabFileData.extended_properties.commit_id,
-        gitlabFileData.extended_properties.branch_name,
+      web_url: gitlabFileData?.web_url?.replace(
+        gitlabFileData?.extended_properties.commit_id,
+        gitlabFileData?.extended_properties.branch_name,
       ),
     };
   };
@@ -67,7 +66,7 @@ const ButtonGroup = ({
         ...singleSelected,
         api_url: singleSelected.link,
         extended_properties: {
-          ...singleSelected.extended_properties,
+          ...singleSelected?.extended_properties,
           branch_name: branchName,
           content_hash: '',
           selected_lines: null,
