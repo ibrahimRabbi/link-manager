@@ -100,6 +100,11 @@ const ExternalLogin = (props) => {
           'X-Auth-DNG': 'Basic ' + authData,
         };
         break;
+      case 'servicenow':
+        headers = {
+          'X-Auth-ServiceNow': 'Basic ' + authData,
+        };
+        break;
       }
 
       const response = await fetch(loginUrl, {
@@ -174,6 +179,15 @@ const ExternalLogin = (props) => {
                 {appData?.type === 'dng' && (
                   <img
                     src={'/dng_logo.png'}
+                    alt="Application logo"
+                    className={appImage}
+                    width={imageSize}
+                    height={imageSize}
+                  />
+                )}
+                {appData?.type === 'servicenow' && (
+                  <img
+                    src={'/servicenow_logo.png'}
                     alt="Application logo"
                     className={appImage}
                     width={imageSize}

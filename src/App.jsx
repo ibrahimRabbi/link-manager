@@ -46,6 +46,7 @@ export const darkBgColor = '#0f131a';
 export const lightBgColor = 'white';
 
 export const OAUTH2_APPLICATION_TYPES = ['gitlab', 'jira', 'codebeamer'];
+export const OAUTH2_ROPC_APPLICATION_TYPES = ['servicenow'];
 export const OIDC_APPLICATION_TYPES = ['codebeamer'];
 export const MICROSERVICES_APPLICATION_TYPES = ['glideyoke'];
 export const BASIC_AUTH_APPLICATION_TYPES = ['valispace', 'dng'];
