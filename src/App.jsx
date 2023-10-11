@@ -23,6 +23,8 @@ import 'rsuite/styles/index.less';
 import SetPassword from './Components/Login/SetPassword';
 import Oauth2Success from './Components/Oauth2/oauth2Success.jsx';
 import Events from './Components/AdminDasComponents/Events/Events.jsx';
+// eslint-disable-next-line max-len
+import PipelineSecrets from './Components/AdminDasComponents/PipelineSecrets/PipelineSecrets';
 import Pipelines from './Components/AdminDasComponents/Pipelines/Pipelines.jsx';
 import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun.jsx';
 import Pipeline from './Components/Pipeline/Pipeline.jsx';
@@ -134,6 +136,7 @@ function App() {
               <Route path="/admin/projects" element={<Projects />} />
               <Route path="/admin/link-rules" element={<LinkRules />} />
               <Route path="/admin/events" element={<Events />} />
+              <Route path="/admin/pipelinessecrets" element={<PipelineSecrets />} />
               <Route path="/admin/pipelines" element={<Pipelines />} />
               <Route path="/admin/pipelinerun" element={<PipelineRun />} />
               <Route path="/admin/synchronization" element={<SynchronizationConfig />} />

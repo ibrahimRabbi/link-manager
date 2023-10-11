@@ -14,7 +14,7 @@ import { handleRefreshData } from '../../Redux/slices/navSlice';
 import { darkBgColor, lightBgColor } from '../../App';
 import { MdDelete, MdEdit, MdLock } from 'react-icons/md';
 import { PiEyeBold } from 'react-icons/pi';
-
+import { MdOutlineContentCopy } from 'react-icons/md';
 const { Column, HeaderCell, Cell } = Table;
 
 const AdminDataTable = ({ props }) => {
@@ -24,6 +24,7 @@ const AdminDataTable = ({ props }) => {
     handlePagination,
     handleChangeLimit,
     handleAddNew,
+    handleCopy,
     handleEdit,
     handleDelete,
     handleScriptView,
@@ -73,6 +74,10 @@ const AdminDataTable = ({ props }) => {
       handleScriptView(rowData);
     };
 
+    const copySecret = () => {
+      handleCopy(rowData);
+    };
+
     return (
       <ButtonToolbar>
         {handleScriptView && (
@@ -83,7 +88,14 @@ const AdminDataTable = ({ props }) => {
             onClick={viewScript}
           />
         )}
-
+        {handleCopy && (
+          <IconButton
+            size="sm"
+            title="Copy Value"
+            icon={<MdOutlineContentCopy />}
+            onClick={copySecret}
+          />
+        )}
         {handleEdit && (
           <IconButton size="sm" title="Edit" icon={<MdEdit />} onClick={editSelected} />
         )}
