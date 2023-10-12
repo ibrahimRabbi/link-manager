@@ -32,10 +32,13 @@ import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
-// const direction = [
-//   { name: <TbArrowsHorizontal style={{ fontSize: '35px' }} /> },
-//   { name: <HiOutlineArrowNarrowRight style={{ fontSize: '35px' }} /> },
-// ];
+const direction = [
+  {
+    name: <HiOutlineArrowNarrowRight style={{ fontSize: '35px' }} />,
+    value: 'right',
+  },
+  { name: <TbArrowsHorizontal style={{ fontSize: '35px' }} />, value: 'bidirectional' },
+];
 const SynchronizationConfig = () => {
   const authCtx = useContext(AuthContext);
   const [externalProjectUrl, setExternalProjectUrl] = useState('');
@@ -67,8 +70,7 @@ const SynchronizationConfig = () => {
   const [sourceResourceType, setSourceResourceType] = useState('');
   const [targetResourceType, setTargetResourceType] = useState('');
   const [disbaledDropdown, setDisableDropdown] = useState(false);
-  const [rightDirection, setRightDirection] = useState(false);
-  const [biDirection, setBiDirection] = useState(false);
+  const [selectDirection, setSelectDirection] = useState('');
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const dispatch = useDispatch();
 
@@ -184,13 +186,7 @@ const SynchronizationConfig = () => {
     setSourceResourceType(selectedItem);
   };
   const handleDirectChange = (selectedItem) => {
-    if (selectedItem === 'rightdirection') {
-      setBiDirection(false);
-      setRightDirection(true);
-    } else {
-      setRightDirection(false);
-      setBiDirection(true);
-    }
+    setSelectDirection(selectedItem?.value);
   };
   const handleCreateProject = () => {
     setDisableDropdown(!disbaledDropdown);
@@ -254,6 +250,7 @@ const SynchronizationConfig = () => {
     }
     switch (response.status) {
       case 400:
+        setAuthenticatedThirdApp(true);
         return response.json().then((data) => {
           showNotification('error', data?.message);
           return { items: [] };
@@ -411,7 +408,7 @@ const SynchronizationConfig = () => {
           }
         });
     }
-  }, [targetApplication, targetWorkspace]);
+  }, [targetApplication, targetWorkspace, restartExternalRequest]);
 
   useEffect(() => {
     if (sourceProjectID && sourceApplication?.type !== 'gitlab') {
@@ -539,6 +536,7 @@ const SynchronizationConfig = () => {
             marginTop: '50px',
             position: 'relative',
             marginRight: '20px',
+            height: 'fit-content',
           }}
         >
           <h3
@@ -705,28 +703,27 @@ const SynchronizationConfig = () => {
                   Direction
                 </span>
               </h3>
-              <div style={{ marginTop: '10px' }}>
+              <div style={{ marginTop: '0px' }}>
                 <div>
-                  <Checkbox
-                    value="rightdirection"
-                    checked={rightDirection}
-                    onChange={handleDirectChange}
-                    style={{ marginTop: '-10px' }}
-                  >
-                    <HiOutlineArrowNarrowRight
-                      style={{ fontSize: '35px', marginTop: '-8px' }}
-                    />
-                  </Checkbox>
-                </div>
-                <div>
-                  <Checkbox
-                    value="bidirection"
-                    checked={biDirection}
-                    onChange={handleDirectChange}
-                    style={{ marginTop: '-10px' }}
-                  >
-                    <TbArrowsHorizontal style={{ fontSize: '35px', marginTop: '-8px' }} />
-                  </Checkbox>
+                  <FlexboxGrid.Item colspan={24}>
+                    <FlexboxGrid justify="end">
+                      {/* --- Application dropdown ---   */}
+                      <FlexboxGrid.Item
+                        as={Col}
+                        colspan={24}
+                        style={{ paddingLeft: '0' }}
+                      >
+                        <UseReactSelect
+                          name="application_type"
+                          placeholder="Choose Direction"
+                          onChange={handleDirectChange}
+                          disabled={authenticatedThirdApp}
+                          value={selectDirection}
+                          items={direction?.length ? direction : []}
+                        />
+                      </FlexboxGrid.Item>
+                    </FlexboxGrid>
+                  </FlexboxGrid.Item>
                 </div>
               </div>
             </div>
@@ -740,6 +737,7 @@ const SynchronizationConfig = () => {
             padding: '25px 20px',
             marginTop: '50px',
             position: 'relative',
+            height: 'fit-content',
           }}
         >
           <h3
@@ -961,7 +959,7 @@ const SynchronizationConfig = () => {
                 disabled={!sourceProject || !sourceResourceType || !targetApplication}
                 onClick={handleMakeMigration}
               >
-                Submit
+                Run Sync
               </Button>
             </ButtonToolbar>
           </div>
