@@ -69,8 +69,8 @@ const SynchronizationConfig = () => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [sourceResourceType, setSourceResourceType] = useState('');
   const [targetResourceType, setTargetResourceType] = useState('');
-  const [disbaledDropdown, setDisableDropdown] = useState(false);
-  const [selectDirection, setSelectDirection] = useState('');
+  const [disabledDropdown, setDisabledDropdown] = useState(false);
+  const [/*selectDirection,*/ setSelectDirection] = useState('');
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const dispatch = useDispatch();
 
@@ -125,7 +125,7 @@ const SynchronizationConfig = () => {
     setSourceApplication(selectedItem);
   };
   const handleTargetApplicationChange = (selectedItem) => {
-    setDisableDropdown(false);
+    setDisabledDropdown(false);
     setTargetProjectID('');
     setTargetProject('');
     setTargetProjectList([]);
@@ -189,7 +189,7 @@ const SynchronizationConfig = () => {
     setSelectDirection(selectedItem?.value);
   };
   const handleCreateProject = () => {
-    setDisableDropdown(!disbaledDropdown);
+    setDisabledDropdown(!disabledDropdown);
     setTargetProjectList([]);
     setTargetProjectID('');
     setTargetProject('');
@@ -440,12 +440,12 @@ const SynchronizationConfig = () => {
     }
   }, [sourceProjectID]);
   useEffect(() => {
-    if ((targetProjectID && targetApplication?.type !== 'gitlab') || disbaledDropdown) {
+    if ((targetProjectID && targetApplication?.type !== 'gitlab') || disabledDropdown) {
       setTargetResourceTypeLoading(true);
       let url;
-      if (targetApplication?.type === 'codebeamer' && !disbaledDropdown) {
+      if (targetApplication?.type === 'codebeamer' && !disabledDropdown) {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_types/${targetProjectID}?application_id=${targetApplication?.id}`;
-      } else if (disbaledDropdown) {
+      } else if (disabledDropdown) {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_types?application_id=${targetApplication?.id}`;
       } else {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_types`;
@@ -467,7 +467,7 @@ const SynchronizationConfig = () => {
           setTargetResourceTypeLoading(false);
         });
     }
-  }, [targetProjectID, disbaledDropdown]);
+  }, [targetProjectID, disabledDropdown]);
   const handleMakeMigration = async () => {
     setSubmitLoading(true);
     const body = {
@@ -510,7 +510,8 @@ const SynchronizationConfig = () => {
         setTargetProject('');
         setTargetProjectID('');
         setTargetResourceType('');
-        setDisableDropdown(false);
+        setDisabledDropdown(false);
+        setSelectDirection('');
       }
     } catch (error) {
       setSubmitLoading(false);
@@ -718,8 +719,7 @@ const SynchronizationConfig = () => {
                           placeholder="Choose Direction"
                           onChange={handleDirectChange}
                           disabled={authenticatedThirdApp}
-                          value={selectDirection}
-                          items={direction?.length ? direction : []}
+                          items={sourceApplication ? direction : []}
                         />
                       </FlexboxGrid.Item>
                     </FlexboxGrid>
@@ -838,7 +838,7 @@ const SynchronizationConfig = () => {
                           disabled={
                             authenticatedThirdApp ||
                             !targetApplication ||
-                            disbaledDropdown
+                            disabledDropdown
                           }
                           items={targetProjectList?.length ? targetProjectList : []}
                         />
@@ -852,7 +852,7 @@ const SynchronizationConfig = () => {
                   <div style={{ marginBottom: '15px' }}>
                     <Checkbox
                       value="Create New Project"
-                      checked={disbaledDropdown}
+                      checked={disabledDropdown}
                       onChange={handleCreateProject}
                     >
                       Create New Project
@@ -889,7 +889,7 @@ const SynchronizationConfig = () => {
                     </FlexboxGrid.Item>
                   </FlexboxGrid>
                 )}
-                {disbaledDropdown && (
+                {disabledDropdown && (
                   <FlexboxGrid style={{ marginBottom: '10px' }} align="middle">
                     <FlexboxGrid.Item colspan={4}>
                       <h5>Resource: </h5>
