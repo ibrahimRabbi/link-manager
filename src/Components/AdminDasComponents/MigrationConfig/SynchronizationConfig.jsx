@@ -676,7 +676,7 @@ const SynchronizationConfig = () => {
               padding: '25px 20px',
               marginTop: '50px',
               position: 'relative',
-              height: '120px',
+              height: '105px',
               marginRight: '20px',
             }}
           >
@@ -921,7 +921,7 @@ const SynchronizationConfig = () => {
             ))}
         </div>
       </div>
-      <div>
+      {/* <div>
         {targetResourceType && (
           <div>
             <h3 style={{ textAlign: 'center' }}>Sync Frequency</h3>
@@ -935,7 +935,7 @@ const SynchronizationConfig = () => {
             </div>
           </div>
         )}
-      </div>
+      </div> */}
       <div>
         {authenticatedThirdApp ? (
           <ExternalAppModal
