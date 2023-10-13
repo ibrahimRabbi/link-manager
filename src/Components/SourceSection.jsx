@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useSelector } from 'react-redux';
-import { Divider, FlexboxGrid } from 'rsuite';
+import { Divider, FlexboxGrid, Message, toaster, Tooltip, Whisper } from 'rsuite';
 import styles from './Shared/NavigationBar/NavigationBar.module.scss';
 import { MdExpandLess, MdExpandMore } from 'react-icons/md';
+import { useQuery } from '@tanstack/react-query';
+import fetchAPIRequest from '../apiRequests/apiRequest.js';
+import AuthContext from '../Store/Auth-Context.jsx';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 
 const sourceAppLogos = {
   gitlab: '/node_icons/gitlab_logo.png',
@@ -19,12 +24,41 @@ const { seeMLBtn, arIcon } = styles;
 const dividerStyle = {
   fontSize: '25px',
 };
-
+const NOT_FOUND_RESOURCE_TYPE =
+  'Resource type not found. ' + 'Link creation will provide default link types';
 const SourceSection = () => {
+  const authCtx = useContext(AuthContext);
   const { sourceDataList } = useSelector((state) => state.links);
   const [showMore, setShowMore] = useState(false);
   const [title, setTitle] = useState('');
   const [sourceLogo, setSourceLogo] = useState('');
+  const [foundResourceType, setFoundResourceType] = useState(true);
+
+  /** Functions */
+  const showNotification = (type, message) => {
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
+  };
+
+  const { data: allResourceTypes } = useQuery(['resourceType'], () =>
+    fetchAPIRequest({
+      // eslint-disable-next-line max-len
+      urlPath: 'resource-type?page=1&per_page=100',
+      token: authCtx.token,
+      method: 'GET',
+      showNotification: showNotification,
+    }),
+  );
+
+  const toggleTitle = () => {
+    setShowMore(!showMore);
+  };
 
   // handle see more and see less control
   useEffect(() => {
@@ -43,9 +77,18 @@ const SourceSection = () => {
     }
   }, [sourceDataList]);
 
-  const toggleTitle = () => {
-    setShowMore(!showMore);
-  };
+  useEffect(() => {
+    console.log('allResourceTypes', allResourceTypes);
+    console.log('sourceDataList', sourceDataList);
+
+    const foundType = allResourceTypes?.items?.some(
+      (resourceType) => resourceType?.type === sourceDataList?.sourceType + '_resource',
+    );
+    console.log('foundType', foundType);
+    if (!foundType) {
+      setFoundResourceType(false);
+    }
+  }, [allResourceTypes]);
 
   return (
     <div className="mainContainer">
@@ -100,6 +143,21 @@ const SourceSection = () => {
                     </span>
                   )}
                 </span>
+              )}
+              {!foundResourceType && (
+                <div style={{ right: '0', position: 'fixed', marginRight: '20px' }}>
+                  {/* eslint-disable-next-line max-len */}
+                  <Whisper
+                    followCursor
+                    placement="leftEnd"
+                    speaker={<Tooltip>{NOT_FOUND_RESOURCE_TYPE}</Tooltip>}
+                  >
+                    <FontAwesomeIcon
+                      icon={faTriangleExclamation}
+                      style={{ color: '#ffb638', fontSize: '30px' }}
+                    />
+                  </Whisper>
+                </div>
               )}
             </div>
           )}
