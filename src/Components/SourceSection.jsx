@@ -32,7 +32,7 @@ const SourceSection = () => {
   const [showMore, setShowMore] = useState(false);
   const [title, setTitle] = useState('');
   const [sourceLogo, setSourceLogo] = useState('');
-  const [foundResourceType, setFoundResourceType] = useState(true);
+  const [unknownResourceType, setUnknownResourceType] = useState(false);
 
   /** Functions */
   const showNotification = (type, message) => {
@@ -48,7 +48,6 @@ const SourceSection = () => {
 
   const { data: allResourceTypes } = useQuery(['resourceType'], () =>
     fetchAPIRequest({
-      // eslint-disable-next-line max-len
       urlPath: 'resource-type?page=1&per_page=100',
       token: authCtx.token,
       method: 'GET',
@@ -78,15 +77,14 @@ const SourceSection = () => {
   }, [sourceDataList]);
 
   useEffect(() => {
-    console.log('allResourceTypes', allResourceTypes);
-    console.log('sourceDataList', sourceDataList);
-
     const foundType = allResourceTypes?.items?.some(
-      (resourceType) => resourceType?.type === sourceDataList?.sourceType + '_resource',
+      (resourceType) => resourceType?.type === sourceDataList?.sourceType,
     );
-    console.log('foundType', foundType);
+
     if (!foundType) {
-      setFoundResourceType(false);
+      setUnknownResourceType(true);
+    } else {
+      setUnknownResourceType(false);
     }
   }, [allResourceTypes]);
 
@@ -144,7 +142,7 @@ const SourceSection = () => {
                   )}
                 </span>
               )}
-              {!foundResourceType && (
+              {unknownResourceType && (
                 <div style={{ right: '0', position: 'fixed', marginRight: '20px' }}>
                   {/* eslint-disable-next-line max-len */}
                   <Whisper
