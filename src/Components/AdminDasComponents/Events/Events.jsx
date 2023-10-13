@@ -248,7 +248,7 @@ const Events = () => {
                   label="Application"
                   placeholder="Select Application"
                   accepter={CustomReactSelect}
-                  apiURL={`${lmApiUrl}/application`}
+                  apiURL={`${lmApiUrl}/${authCtx.organization_id}/application`}
                   error={formError.application_id}
                   reqText="Application Id is required"
                 />
