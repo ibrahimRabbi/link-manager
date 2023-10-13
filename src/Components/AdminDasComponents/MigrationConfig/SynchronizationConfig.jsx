@@ -70,7 +70,7 @@ const SynchronizationConfig = () => {
   const [sourceResourceType, setSourceResourceType] = useState('');
   const [targetResourceType, setTargetResourceType] = useState('');
   const [disabledDropdown, setDisabledDropdown] = useState(false);
-  const [/*selectDirection,*/ setSelectDirection] = useState('');
+  const [selectDirection, setSelectDirection] = useState('');
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const dispatch = useDispatch();
 
@@ -186,7 +186,8 @@ const SynchronizationConfig = () => {
     setSourceResourceType(selectedItem);
   };
   const handleDirectChange = (selectedItem) => {
-    setSelectDirection(selectedItem?.value);
+    setSelectDirection(selectedItem);
+    console.log(selectDirection);
   };
   const handleCreateProject = () => {
     setDisabledDropdown(!disabledDropdown);
