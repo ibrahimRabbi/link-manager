@@ -264,8 +264,8 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
       setMultipleSelected(selectedNodes);
     } else {
       setSelectedFile(selectedNodes[0]);
-      if (selectedNodes[0]?.label) {
-        const fileName = selectedNodes[0]?.label;
+      if (selectedNodes[0]?.name) {
+        const fileName = selectedNodes[0]?.name;
         const fileExtension = fileName.split('.').pop();
         setFileExt(fileExtension);
       }
@@ -393,7 +393,7 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
                         return (
                           <>
                             {node.children ? <FolderFillIcon /> : <PageIcon />}{' '}
-                            {node.label}
+                            {node.name}
                           </>
                         );
                       }}
