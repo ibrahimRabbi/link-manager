@@ -23,7 +23,6 @@ import {
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
 import { useContext } from 'react';
 import AuthContext from '../../../Store/Auth-Context';
-// import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 import UseIconSelect from '../../SelectionDialog/GlobalSelector/UseIconSelect';
 import AppIconSelect from './AppIconSelect';
 import UseLoader from '../../Shared/UseLoader';
@@ -922,6 +921,93 @@ const SynchronizationConfig = () => {
             ))}
         </div>
       </div>
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
+        <div
+          style={{
+            display: 'flex',
+            border: '0.5px solid',
+            padding: '20px 30px',
+            borderRadius: '10px',
+            width: '100%',
+            position: 'relative',
+          }}
+        >
+          <h3
+            style={{
+              position: 'absolute',
+              top: '-22px',
+              bottom: '0',
+              right: '0',
+              left: '0',
+            }}
+          >
+            <span
+              style={{
+                backgroundColor: 'white',
+                color: '#575757',
+                fontWeight: 'bolder',
+                padding: '5px',
+                borderRadius: '10px',
+                marginLeft: '10px',
+              }}
+            >
+              Properties
+            </span>
+          </h3>
+          <div style={{ width: '100%' }}>
+            <FlexboxGrid>
+              <FlexboxGrid justify="center">
+                <FlexboxGrid.Item colspan={4} align="end" style={{ marginTop: '5px' }}>
+                  <h5>Source: </h5>
+                </FlexboxGrid.Item>
+              </FlexboxGrid>
+              <FlexboxGrid.Item colspan={20}>
+                <FlexboxGrid justify="center">
+                  {/* --- Application dropdown ---   */}
+                  <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
+                    <UseIconSelect
+                      name="glide_native_resource_type"
+                      placeholder="Choose Source Properties"
+                      onChange={handleTargetResourceTypeChange}
+                      disabled={authenticatedThirdApp}
+                      isLoading={targetResourceTypeLoading}
+                      value={targetResourceType?.name}
+                      appData={targetApplication}
+                      items={targetResourceList?.length ? targetResourceList : []}
+                    />
+                  </FlexboxGrid.Item>
+                </FlexboxGrid>
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          </div>
+          <div style={{ width: '100%' }}>
+            <FlexboxGrid>
+              <FlexboxGrid justify="center">
+                <FlexboxGrid.Item colspan={4} align="end" style={{ marginTop: '5px' }}>
+                  <h5>Target: </h5>
+                </FlexboxGrid.Item>
+              </FlexboxGrid>
+              <FlexboxGrid.Item colspan={20}>
+                <FlexboxGrid justify="center">
+                  {/* --- Application dropdown ---   */}
+                  <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
+                    <UseIconSelect
+                      name="glide_native_resource_type"
+                      placeholder="Choose Target Properties"
+                      onChange={handleTargetResourceTypeChange}
+                      disabled={authenticatedThirdApp}
+                      isLoading={targetResourceTypeLoading}
+                      value={targetResourceType?.name}
+                      appData={targetApplication}
+                      items={targetResourceList?.length ? targetResourceList : []}
+                    />
+                  </FlexboxGrid.Item>
+                </FlexboxGrid>
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          </div>
+        </div>
+      </div>
       {/* <div>
         {targetResourceType && (
           <div>
@@ -937,7 +1023,7 @@ const SynchronizationConfig = () => {
           </div>
         )}
       </div> */}
-      <div>
+      <div style={{ marginTop: '40px' }}>
         {authenticatedThirdApp ? (
           <ExternalAppModal
             showInNewLink={true}
