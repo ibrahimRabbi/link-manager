@@ -9,6 +9,7 @@ import {
   ButtonToolbar,
   Checkbox,
   Col,
+  Divider,
   FlexboxGrid,
   Message,
   toaster,
@@ -20,6 +21,8 @@ import {
   MICROSERVICES_APPLICATION_TYPES,
   OAUTH2_APPLICATION_TYPES,
 } from '../../../App';
+import { DndContext, closestCenter } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
 import { useContext } from 'react';
 import AuthContext from '../../../Store/Auth-Context';
@@ -28,6 +31,7 @@ import AppIconSelect from './AppIconSelect';
 import UseLoader from '../../Shared/UseLoader';
 import { TbArrowsHorizontal } from 'react-icons/tb';
 import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
+import SortableItem from './SortableItem';
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
@@ -37,6 +41,23 @@ const direction = [
     value: 'right',
   },
   { name: <TbArrowsHorizontal style={{ fontSize: '35px' }} />, value: 'bidirectional' },
+];
+const property = [
+  {
+    name: 'Todo',
+    value: 'Todo',
+    id: '1',
+  },
+  {
+    name: 'In progress',
+    value: 'In progress',
+    id: '2',
+  },
+  {
+    name: 'Done',
+    value: 'Done',
+    id: '3',
+  },
 ];
 const SynchronizationConfig = () => {
   const authCtx = useContext(AuthContext);
@@ -70,6 +91,8 @@ const SynchronizationConfig = () => {
   const [targetResourceType, setTargetResourceType] = useState('');
   const [disabledDropdown, setDisabledDropdown] = useState(false);
   const [selectDirection, setSelectDirection] = useState('');
+  const [sourceProperties, setSourceProperties] = useState(property);
+  const [targetProperties, setTargetProperties] = useState(property);
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const dispatch = useDispatch();
 
@@ -468,6 +491,38 @@ const SynchronizationConfig = () => {
         });
     }
   }, [targetProjectID, disabledDropdown]);
+  const handleSourceDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id !== over.id) {
+      const sourceCopy = [...sourceProperties];
+      const activeIndex = sourceCopy.findIndex((item) => item.id === active.id);
+      const overIndex = sourceCopy.findIndex((item) => item.id === over.id);
+
+      if (activeIndex !== -1 && overIndex !== -1) {
+        const [movedItem] = sourceCopy.splice(activeIndex, 1);
+        sourceCopy.splice(overIndex, 0, movedItem);
+
+        setSourceProperties(sourceCopy);
+      }
+    }
+  };
+
+  const handleTargetDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id !== over.id) {
+      const targetCopy = [...targetProperties];
+      const activeIndex = targetCopy.findIndex((item) => item.id === active.id);
+      const overIndex = targetCopy.findIndex((item) => item.id === over.id);
+
+      if (activeIndex !== -1 && overIndex !== -1) {
+        const [movedItem] = targetCopy.splice(activeIndex, 1);
+        targetCopy.splice(overIndex, 0, movedItem);
+
+        setTargetProperties(targetCopy);
+      }
+    }
+  };
+
   const handleMakeMigration = async () => {
     setSubmitLoading(true);
     const body = {
@@ -632,9 +687,9 @@ const SynchronizationConfig = () => {
                 </FlexboxGrid.Item>
               </FlexboxGrid>
               {sourceProjectID && sourceApplication?.type !== 'gitlab' && (
-                <FlexboxGrid style={{ marginBottom: '0px' }} align="middle">
+                <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
                   <FlexboxGrid.Item colspan={4}>
-                    <h5>Resource: </h5>
+                    <h5>Resource Type: </h5>
                   </FlexboxGrid.Item>
                   <FlexboxGrid.Item colspan={20}>
                     <FlexboxGrid justify="end">
@@ -659,6 +714,28 @@ const SynchronizationConfig = () => {
                   </FlexboxGrid.Item>
                 </FlexboxGrid>
               )}
+              <FlexboxGrid style={{ marginBottom: '0px' }} align="middle">
+                <FlexboxGrid.Item colspan={4}>
+                  <h5>Properties: </h5>
+                </FlexboxGrid.Item>
+                <FlexboxGrid.Item colspan={20}>
+                  <FlexboxGrid justify="end">
+                    {/* --- Application dropdown ---   */}
+                    <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
+                      <UseIconSelect
+                        name="glide_native_resource_type"
+                        placeholder="Choose Properties"
+                        onChange={handleTargetResourceTypeChange}
+                        disabled={authenticatedThirdApp}
+                        isLoading={targetResourceTypeLoading}
+                        value={targetResourceType?.name}
+                        appData={targetApplication}
+                        items={sourceProperties?.length ? sourceProperties : []}
+                      />
+                    </FlexboxGrid.Item>
+                  </FlexboxGrid>
+                </FlexboxGrid.Item>
+              </FlexboxGrid>
             </div>
           )}
         </div>
@@ -862,9 +939,9 @@ const SynchronizationConfig = () => {
                   ' '
                 )}
                 {targetProjectID && targetApplication?.type !== 'gitlab' && (
-                  <FlexboxGrid style={{ marginBottom: '0px' }} align="middle">
+                  <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
                     <FlexboxGrid.Item colspan={4}>
-                      <h5>Resource: </h5>
+                      <h5>Resource Type: </h5>
                     </FlexboxGrid.Item>
                     <FlexboxGrid.Item colspan={20}>
                       <FlexboxGrid justify="end">
@@ -890,7 +967,7 @@ const SynchronizationConfig = () => {
                   </FlexboxGrid>
                 )}
                 {disabledDropdown && (
-                  <FlexboxGrid style={{ marginBottom: '10px' }} align="middle">
+                  <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
                     <FlexboxGrid.Item colspan={4}>
                       <h5>Resource: </h5>
                     </FlexboxGrid.Item>
@@ -917,6 +994,32 @@ const SynchronizationConfig = () => {
                     </FlexboxGrid.Item>
                   </FlexboxGrid>
                 )}
+                <FlexboxGrid style={{ marginBottom: '0px' }} align="middle">
+                  <FlexboxGrid.Item colspan={4}>
+                    <h5>Properties: </h5>
+                  </FlexboxGrid.Item>
+                  <FlexboxGrid.Item colspan={20}>
+                    <FlexboxGrid justify="end">
+                      {/* --- Application dropdown ---   */}
+                      <FlexboxGrid.Item
+                        as={Col}
+                        colspan={20}
+                        style={{ paddingLeft: '0' }}
+                      >
+                        <UseIconSelect
+                          name="glide_native_resource_type"
+                          placeholder="Choose Properties"
+                          onChange={handleTargetResourceTypeChange}
+                          disabled={authenticatedThirdApp}
+                          isLoading={targetResourceTypeLoading}
+                          value={targetResourceType?.name}
+                          appData={targetApplication}
+                          items={targetProperties?.length ? targetProperties : []}
+                        />
+                      </FlexboxGrid.Item>
+                    </FlexboxGrid>
+                  </FlexboxGrid.Item>
+                </FlexboxGrid>
               </div>
             ))}
         </div>
@@ -928,7 +1031,7 @@ const SynchronizationConfig = () => {
             border: '0.5px solid',
             padding: '20px 30px',
             borderRadius: '10px',
-            width: '100%',
+            width: '50%',
             position: 'relative',
           }}
         >
@@ -954,75 +1057,48 @@ const SynchronizationConfig = () => {
               Properties
             </span>
           </h3>
-          <div style={{ width: '100%' }}>
-            <FlexboxGrid>
-              <FlexboxGrid justify="center">
-                <FlexboxGrid.Item colspan={4} align="end" style={{ marginTop: '5px' }}>
-                  <h5>Source: </h5>
-                </FlexboxGrid.Item>
-              </FlexboxGrid>
-              <FlexboxGrid.Item colspan={20}>
-                <FlexboxGrid justify="center">
-                  {/* --- Application dropdown ---   */}
-                  <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
-                    <UseIconSelect
-                      name="glide_native_resource_type"
-                      placeholder="Choose Source Properties"
-                      onChange={handleTargetResourceTypeChange}
-                      disabled={authenticatedThirdApp}
-                      isLoading={targetResourceTypeLoading}
-                      value={targetResourceType?.name}
-                      appData={targetApplication}
-                      items={targetResourceList?.length ? targetResourceList : []}
-                    />
-                  </FlexboxGrid.Item>
-                </FlexboxGrid>
-              </FlexboxGrid.Item>
-            </FlexboxGrid>
+          <div style={{ width: '100%', position: 'relative' }}>
+            <h5>Source:</h5>
+            <DndContext
+              collisionDetection={closestCenter}
+              onDragEnd={handleSourceDragEnd}
+            >
+              <div>
+                <SortableContext
+                  items={sourceProperties}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {sourceProperties.map((property) => (
+                    <SortableItem key={property.id} property={property} />
+                  ))}
+                </SortableContext>
+              </div>
+            </DndContext>
           </div>
-          <div style={{ width: '100%' }}>
-            <FlexboxGrid>
-              <FlexboxGrid justify="center">
-                <FlexboxGrid.Item colspan={4} align="end" style={{ marginTop: '5px' }}>
-                  <h5>Target: </h5>
-                </FlexboxGrid.Item>
-              </FlexboxGrid>
-              <FlexboxGrid.Item colspan={20}>
-                <FlexboxGrid justify="center">
-                  {/* --- Application dropdown ---   */}
-                  <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
-                    <UseIconSelect
-                      name="glide_native_resource_type"
-                      placeholder="Choose Target Properties"
-                      onChange={handleTargetResourceTypeChange}
-                      disabled={authenticatedThirdApp}
-                      isLoading={targetResourceTypeLoading}
-                      value={targetResourceType?.name}
-                      appData={targetApplication}
-                      items={targetResourceList?.length ? targetResourceList : []}
-                    />
-                  </FlexboxGrid.Item>
-                </FlexboxGrid>
-              </FlexboxGrid.Item>
-            </FlexboxGrid>
+          <Divider
+            vertical={true}
+            style={{ height: '13em', marginTop: '25px', border: '0.5px solid' }}
+          ></Divider>
+          <div style={{ width: '100%', position: 'relative' }}>
+            <h5>Target: </h5>
+            <DndContext
+              collisionDetection={closestCenter}
+              onDragEnd={handleTargetDragEnd}
+            >
+              <div>
+                <SortableContext
+                  items={targetProperties}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {targetProperties.map((property) => (
+                    <SortableItem key={property.id} property={property} />
+                  ))}
+                </SortableContext>
+              </div>
+            </DndContext>
           </div>
         </div>
       </div>
-      {/* <div>
-        {targetResourceType && (
-          <div>
-            <h3 style={{ textAlign: 'center' }}>Sync Frequency</h3>
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <Checkbox style={{ marginRight: '20px' }}>
-                <span style={{ fontSize: '18px' }}>One Time</span>
-              </Checkbox>
-              <Checkbox style={{ marginLeft: '20px' }}>
-                <span style={{ fontSize: '18px' }}>Automatic</span>
-              </Checkbox>
-            </div>
-          </div>
-        )}
-      </div> */}
       <div style={{ marginTop: '40px' }}>
         {authenticatedThirdApp ? (
           <ExternalAppModal

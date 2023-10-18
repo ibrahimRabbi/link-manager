@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import React, { useContext } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import Application from './Components/AdminDasComponents/Application/Application';
@@ -40,6 +41,7 @@ import AuthContext from './Store/Auth-Context';
 import Home from './Components/Home/Home';
 // eslint-disable-next-line max-len
 import SynchronizationConfig from './Components/AdminDasComponents/MigrationConfig/SynchronizationConfig';
+import Synchronization from './Components/AdminDasComponents/MigrationConfig/Synchronization';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -140,7 +142,8 @@ function App() {
               <Route path="/admin/pipelinessecrets" element={<PipelineSecrets />} />
               <Route path="/admin/pipelines" element={<Pipelines />} />
               <Route path="/admin/pipelinerun" element={<PipelineRun />} />
-              <Route path="/admin/synchronization" element={<SynchronizationConfig />} />
+              <Route path="/admin/synchronization" element={<Synchronization />} />
+              <Route path="/admin/createsync" element={<SynchronizationConfig />} />
               <Route path="/admin" element={<Users />} />
             </Route>
           )}
