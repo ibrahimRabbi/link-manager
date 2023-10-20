@@ -32,23 +32,16 @@ function Select({ values, onChange }) {
 
   const treeData = transformDataToTree(values);
 
-  const findNodeByValue = (nodes, targetValue) => {
-    for (const node of nodes) {
-      if (node.value === targetValue) {
-        return node;
-      }
-      if (node.children) {
-        const found = findNodeByValue(node.children, targetValue);
-        if (found) {
-          return found;
-        }
-      }
+  // Filter the treeData to only include child nodes
+  const childNodes = treeData.reduce((accumulator, currentNode) => {
+    if (currentNode.children) {
+      return [...accumulator, ...currentNode.children];
     }
-    return null;
-  };
+    return accumulator;
+  }, []);
 
   const handleSelect = (value) => {
-    const selectedNode = findNodeByValue(treeData, value);
+    const selectedNode = childNodes.find((node) => node.value === value);
 
     if (selectedNode) {
       onChange(selectedNode);
@@ -62,7 +55,8 @@ function Select({ values, onChange }) {
     <TreePicker
       style={{ width: 246 }}
       placement="topStart"
-      data={treeData}
+      data={childNodes}
+      defaultExpandAll
       value={selectedOption}
       cascade={false}
       onChange={(v) => {

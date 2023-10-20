@@ -1,5 +1,4 @@
 import React from 'react';
-import style from './SyncConfig.module.scss';
 import PlusIcon from '@rsuite/icons/Plus';
 import { Button, Col, FlexboxGrid, Table } from 'rsuite';
 import { useState } from 'react';
@@ -86,7 +85,7 @@ const EnumValueTable = ({
 
   return (
     <div>
-      <div className={style.table_wrapper}>
+      <div>
         <h4 style={{ textAlign: 'center' }}>Enum Value Mapping</h4>
         <div
           style={{
@@ -175,7 +174,7 @@ const EnumValueTable = ({
                     alignItems: 'center',
                     justifyContent: 'center',
                     height: '70px',
-                    width: '100%',
+                    width: '85%',
                   }}
                 >
                   <div style={{ width: '30%' }}>

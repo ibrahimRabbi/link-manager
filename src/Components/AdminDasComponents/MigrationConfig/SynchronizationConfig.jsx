@@ -9,7 +9,6 @@ import {
   ButtonToolbar,
   Checkbox,
   Col,
-  // Divider,
   FlexboxGrid,
   Message,
   toaster,
@@ -21,8 +20,6 @@ import {
   MICROSERVICES_APPLICATION_TYPES,
   OAUTH2_APPLICATION_TYPES,
 } from '../../../App';
-// import { DndContext, closestCenter } from '@dnd-kit/core';
-// import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
 import { useContext } from 'react';
 import AuthContext from '../../../Store/Auth-Context';
@@ -33,7 +30,6 @@ import { TbArrowsHorizontal } from 'react-icons/tb';
 import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
 import PropertyTable from './PropertyTable';
 import EnumValueTable from './EnumValueTable';
-// import SortableItem from './SortableItem';
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
@@ -44,117 +40,10 @@ const direction = [
   },
   { name: <TbArrowsHorizontal style={{ fontSize: '35px' }} />, value: 'bidirectional' },
 ];
-const property = [
-  {
-    datatype: 'int',
-    enum_values: [],
-    id: 'timespent',
-    name: 'Time Spent',
-  },
-  {
-    datatype: 'int',
-    enum_values: [],
-    id: 'aggregatetimespent',
-    name: 'Σ Time Spent',
-  },
-  {
-    datatype: 'int',
-    enum_values: [],
-    id: 'workratio',
-    name: 'Work Ratio',
-  },
-  {
-    datatype: 'enum',
-    enum_values: [
-      {
-        id: '1',
-        name: 'Highest',
-      },
-      {
-        id: '2',
-        name: 'High',
-      },
-      {
-        id: '3',
-        name: 'Medium',
-      },
-      {
-        id: '4',
-        name: 'Low',
-      },
-      {
-        id: '5',
-        name: 'Lowest',
-      },
-    ],
-    id: 'priority',
-    name: 'Priority',
-  },
-  {
-    datatype: 'int',
-    enum_values: [],
-    id: 'timeestimate',
-    name: 'Remaining Estimate',
-  },
-  {
-    datatype: 'int',
-    enum_values: [],
-    id: 'aggregatetimeoriginalestimate',
-    name: 'Σ Original Estimate',
-  },
-  {
-    datatype: 'enum',
-    enum_values: [
-      {
-        id: '1',
-        name: 'In Progress',
-      },
-      {
-        id: '3',
-        name: 'Done',
-      },
-      {
-        id: '2',
-        name: 'To Do',
-      },
-    ],
-    id: 'status',
-    name: 'Status',
-  },
-  {
-    datatype: 'int',
-    enum_values: [],
-    id: 'timeoriginalestimate',
-    name: 'Original estimate',
-  },
-  {
-    datatype: 'string',
-    enum_values: [],
-    id: 'description',
-    name: 'Description',
-  },
-  {
-    datatype: 'int',
-    enum_values: [],
-    id: 'aggregatetimeestimate',
-    name: 'Σ Remaining Estimate',
-  },
-  {
-    datatype: 'string',
-    enum_values: [],
-    id: 'summary',
-    name: 'Summary',
-  },
-  {
-    datatype: 'string',
-    enum_values: [],
-    id: 'environment',
-    name: 'Environment',
-  },
-];
 const SynchronizationConfig = () => {
   const authCtx = useContext(AuthContext);
-  const [externalProjectUrl, setExternalProjectUrl] = useState('');
+  const [sourceExternalProjectUrl, setSourceExternalProjectUrl] = useState('');
+  const [targetExternalProjectUrl, setTargetExternalProjectUrl] = useState('');
   const [restartExternalRequest, setRestartExternalRequest] = useState(false);
   const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
   const [sourceApplication, setSourceApplication] = useState('');
@@ -163,18 +52,10 @@ const SynchronizationConfig = () => {
   const [targetProjectList, setTargetProjectList] = useState([]);
   const [targetResourceList, setTargetResourceList] = useState([]);
   const [sourceResourceList, setSourceResourceList] = useState([]);
-  const [targetWorkspaceList, setTargetWorkspaceList] = useState([]);
-  const [sourceWorkspaceList, setSourceWorkspaceList] = useState([]);
   const [targetProject, setTargetProject] = useState('');
   const [sourceProject, setSourceProject] = useState('');
-  const [sourceWorkspace, setSourceWorkspace] = useState('');
-  const [targetWorkspace, setTargetWorkspace] = useState('');
   const [targetProjectID, setTargetProjectID] = useState('');
   const [sourceProjectID, setSourceProjectID] = useState('');
-  const [apiCall, setApiCall] = useState(false);
-  const [targetApiCall, setTargetApiCall] = useState(false);
-  const [sourceLoading, setSourceLoading] = useState(false);
-  const [targetLoading, setTargetLoading] = useState(false);
   const [sourceResourceTypeLoading, setSourceResourceTypeLoading] = useState(false);
   const [targetResourceTypeLoading, setTargetResourceTypeLoading] = useState(false);
   const [targetProjectLoading, setTargetProjectLoading] = useState(false);
@@ -185,8 +66,8 @@ const SynchronizationConfig = () => {
   const [disabledDropdown, setDisabledDropdown] = useState(false);
   const [propertyShow, setPropertyShow] = useState(false);
   const [selectDirection, setSelectDirection] = useState('');
-  const [sourceProperties, setSourceProperties] = useState(property);
-  const [targetProperties, setTargetProperties] = useState(property);
+  const [sourceProperties, setSourceProperties] = useState([]);
+  const [targetProperties, setTargetProperties] = useState([]);
   const [normalRows, setNormalRows] = useState([]);
   const [enumRows, setEnumRows] = useState([]);
   const [sourceProperty, setSourceProperty] = useState('');
@@ -231,36 +112,33 @@ const SynchronizationConfig = () => {
     dispatch(handleCurrPageTitle('Synchronization Configuration'));
   }, []);
   const handleSourceApplicationChange = (selectedItem) => {
+    setPropertyShow(false);
     setSourceProjectID('');
     setSourceResourceList([]);
     setTargetProjectID('');
-    setSourceWorkspace('');
     setSourceProject('');
     setSourceProjectList([]);
     setTargetApplication('');
-    setSourceWorkspaceList([]);
-    setTargetApiCall(false);
-    setApiCall(true);
-    setExternalProjectUrl('');
+    setSourceExternalProjectUrl('');
+    setTargetExternalProjectUrl('');
     closeExternalAppResetRequest();
     setSourceApplication(selectedItem);
   };
   const handleTargetApplicationChange = (selectedItem) => {
+    setPropertyShow(false);
     setDisabledDropdown(false);
     setTargetProjectID('');
     setTargetProject('');
     setTargetProjectList([]);
-    setTargetWorkspace('');
     setTargetApplication('');
-    setTargetWorkspaceList([]);
-    setApiCall(false);
-    setTargetApiCall(true);
     setTargetProjectList([]);
-    setExternalProjectUrl('');
+    setSourceExternalProjectUrl('');
+    setTargetExternalProjectUrl('');
     closeExternalAppResetRequest();
     setTargetApplication(selectedItem);
   };
   const handleTargetProject = (selectedItem) => {
+    setPropertyShow(false);
     setTargetProject('');
     setTargetProjectID('');
     setTargetResourceList([]);
@@ -273,15 +151,8 @@ const SynchronizationConfig = () => {
     setTargetProjectID(selectedItem?.id);
     setTargetProject(newSelectedItem);
   };
-  const handleSourceWorkspace = (selectedItem) => {
-    setSourceWorkspace('');
-    setSourceResourceList([]);
-    setSourceProject('');
-    setSourceProjectID('');
-    setSourceProjectList([]);
-    setSourceWorkspace(selectedItem);
-  };
   const handleSourceProject = (selectedItem) => {
+    setPropertyShow(false);
     setSourceProjectID('');
     setSourceProject('');
     setSourceResourceList([]);
@@ -294,23 +165,21 @@ const SynchronizationConfig = () => {
     setSourceProjectID(selectedItem?.id);
     setSourceProject(newSelectedItem);
   };
-  const handleTargetWorkspace = (selectedItem) => {
-    setTargetWorkspace(selectedItem);
-  };
-  // const handleLinkTypeChange = (selectedItem) => {
-  //   dispatch(handleLinkType(selectedItem));
-  // };
   const handleTargetResourceTypeChange = (selectedItem) => {
+    setPropertyShow(false);
     setTargetResourceType(selectedItem);
   };
   const handleSourceResourceTypeChange = (selectedItem) => {
+    setPropertyShow(false);
     setSourceResourceType(selectedItem);
   };
   const handleDirectChange = (selectedItem) => {
+    setPropertyShow(false);
     setSelectDirection(selectedItem);
     console.log(selectDirection);
   };
   const handleCreateProject = () => {
+    setPropertyShow(false);
     setDisabledDropdown(!disabledDropdown);
     setTargetProjectList([]);
     setTargetProjectID('');
@@ -321,51 +190,33 @@ const SynchronizationConfig = () => {
     setPropertyShow(!propertyShow);
   };
   useEffect(() => {
-    // prettier-ignore
-    switch (targetApplication?.type) {
-    case 'gitlab':
-      setExternalProjectUrl(`${thirdApiURL}/gitlab/workspace`);
-      break;
-    case 'valispace':
-      setExternalProjectUrl(`${thirdApiURL}/valispace/workspace`);
-      break;
-    case 'jira':
-      setExternalProjectUrl(`${thirdApiURL}/jira/containers`);
-      break;
-    case 'glideyoke':
-      setExternalProjectUrl(`${thirdApiURL}/glideyoke/containers`);
-      break;
-    case 'codebeamer':
-      setExternalProjectUrl(`${thirdApiURL}/codebeamer/containers`);
-      break;
-    case 'dng':
-      setExternalProjectUrl(`${thirdApiURL}/dng/containers`);
-      break;
-    }
-  }, [targetApplication]);
-  useEffect(() => {
     // prettier-ignorec
     switch (sourceApplication?.type) {
-      case 'gitlab':
-        setExternalProjectUrl(`${thirdApiURL}/gitlab/workspace`);
-        break;
       case 'valispace':
-        setExternalProjectUrl(`${thirdApiURL}/valispace/workspace`);
+        setSourceExternalProjectUrl(`${thirdApiURL}/valispace/containers`);
         break;
       case 'jira':
-        setExternalProjectUrl(`${thirdApiURL}/jira/containers`);
-        break;
-      case 'glideyoke':
-        setExternalProjectUrl(`${thirdApiURL}/glideyoke/containers`);
+        setSourceExternalProjectUrl(`${thirdApiURL}/jira/containers`);
         break;
       case 'codebeamer':
-        setExternalProjectUrl(`${thirdApiURL}/codebeamer/containers`);
-        break;
-      case 'dng':
-        setExternalProjectUrl(`${thirdApiURL}/dng/containers`);
+        setSourceExternalProjectUrl(`${thirdApiURL}/codebeamer/containers`);
         break;
     }
   }, [sourceApplication]);
+  useEffect(() => {
+    // prettier-ignore
+    switch (targetApplication?.type) {
+    case 'valispace':
+      setTargetExternalProjectUrl(`${thirdApiURL}/valispace/containers`);
+      break;
+    case 'jira':
+      setTargetExternalProjectUrl(`${thirdApiURL}/jira/containers`);
+      break;
+    case 'codebeamer':
+      setTargetExternalProjectUrl(`${thirdApiURL}/codebeamer/containers`);
+      break;
+    }
+  }, [targetApplication]);
   const handleResponse = (response) => {
     if (response.ok) {
       return response.json().then((data) => {
@@ -400,77 +251,12 @@ const SynchronizationConfig = () => {
         });
     }
   };
-  // for getting workspace
-  useEffect(() => {
-    if (
-      (apiCall || targetApiCall) &&
-      externalProjectUrl !== '' &&
-      (sourceApplication || targetApplication)
-    ) {
-      setSourceLoading(true);
-      setTargetLoading(true);
-      fetch(
-        `${externalProjectUrl}?page=1&per_page=10&application_id=${
-          targetApplication?.id || sourceApplication?.id
-        }`,
-        {
-          headers: {
-            Authorization: `Bearer ${authCtx.token}`,
-          },
-        },
-      )
-        .then((response) => {
-          if (response.status === 200) {
-            return response.json();
-          } else {
-            handleResponse(response);
-          }
-        })
-        .then((data) => {
-          if (
-            data &&
-            apiCall &&
-            (sourceApplication?.type === 'gitlab' ||
-              sourceApplication?.type === 'valispace')
-          ) {
-            setSourceWorkspaceList(data?.items);
-            setSourceLoading(false);
-            setTargetLoading(false);
-          } else {
-            setTargetWorkspaceList(data?.items);
-            setTargetLoading(false);
-            setSourceLoading(false);
-            setTargetApiCall(false);
-          }
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
-  }, [
-    externalProjectUrl,
-    apiCall,
-    sourceApplication,
-    targetApplication,
-    restartExternalRequest,
-  ]);
   // for getting projects
   useEffect(() => {
-    if (
-      sourceWorkspace ||
-      sourceApplication?.type === 'jira' ||
-      sourceApplication?.type === 'codebeamer' ||
-      sourceApplication?.type === 'dng' ||
-      sourceApplication?.type === 'glideyoke'
-    ) {
+    if (sourceApplication && sourceExternalProjectUrl) {
       setSourceProjectLoading(true);
       let url;
-      if (sourceWorkspace && sourceApplication) {
-        url = `${thirdApiURL}/${sourceApplication?.type}/containers/${sourceWorkspace?.id}
-?page=1&per_page=10&application_id=${sourceApplication?.id}`;
-      } else {
-        url = `${thirdApiURL}/${sourceApplication?.type}/containers?page=1&per_page=10&application_id=${sourceApplication?.id}`;
-      }
+      url = `${sourceExternalProjectUrl}?application_id=${sourceApplication?.id}`;
       fetch(url, {
         headers: {
           Authorization: `Bearer ${authCtx.token}`,
@@ -484,33 +270,18 @@ const SynchronizationConfig = () => {
           }
         })
         .then((data) => {
-          if (sourceWorkspace) {
-            setSourceProjectList(data?.items);
-            setSourceProjectLoading(false);
-          } else {
-            setSourceProjectList(data?.items);
-            setSourceProjectLoading(false);
-          }
+          setSourceProjectList(data?.items);
+          setSourceProjectLoading(false);
         });
     }
-  }, [sourceApplication, sourceWorkspace, restartExternalRequest]);
+  }, [sourceApplication, restartExternalRequest]);
+
   // for getting projects
   useEffect(() => {
-    if (
-      targetWorkspace ||
-      targetApplication?.type === 'jira' ||
-      targetApplication?.type === 'codebeamer' ||
-      targetApplication?.type === 'dng' ||
-      targetApplication?.type === 'glideyoke'
-    ) {
+    if (targetApplication && targetExternalProjectUrl) {
       setTargetProjectLoading(true);
       let url;
-      if (targetWorkspace && targetApplication) {
-        url = `${thirdApiURL}/${targetApplication?.type}/containers/${targetWorkspace?.id}
-?page=1&per_page=10&application_id=${targetApplication?.id}`;
-      } else {
-        url = `${thirdApiURL}/${targetApplication?.type}/containers?page=1&per_page=10&application_id=${targetApplication?.id}`;
-      }
+      url = `${targetExternalProjectUrl}?application_id=${targetApplication?.id}`;
       fetch(url, {
         headers: {
           Authorization: `Bearer ${authCtx.token}`,
@@ -524,19 +295,14 @@ const SynchronizationConfig = () => {
           }
         })
         .then((data) => {
-          if (targetWorkspace) {
-            setTargetProjectList(data?.items);
-            setTargetProjectLoading(false);
-          } else {
-            setTargetProjectList(data?.items);
-            setTargetProjectLoading(false);
-          }
+          setTargetProjectList(data?.items);
+          setTargetProjectLoading(false);
         });
     }
-  }, [targetApplication, targetWorkspace, restartExternalRequest]);
+  }, [targetApplication, restartExternalRequest]);
 
   useEffect(() => {
-    if (sourceProjectID && sourceApplication?.type !== 'gitlab') {
+    if (sourceProjectID) {
       setSourceResourceTypeLoading(true);
       let url;
       if (sourceApplication?.type === 'codebeamer') {
@@ -565,7 +331,7 @@ const SynchronizationConfig = () => {
     }
   }, [sourceProjectID]);
   useEffect(() => {
-    if ((targetProjectID && targetApplication?.type !== 'gitlab') || disabledDropdown) {
+    if (targetProjectID || disabledDropdown) {
       setTargetResourceTypeLoading(true);
       let url;
       if (targetApplication?.type === 'codebeamer' && !disabledDropdown) {
@@ -593,18 +359,74 @@ const SynchronizationConfig = () => {
         });
     }
   }, [targetProjectID, disabledDropdown]);
+  // for getting resource Properties
+  useEffect(() => {
+    if (sourceResourceType && sourceProject) {
+      let url;
+      if (sourceApplication?.type === 'jira') {
+        url = `${thirdApiURL}/${sourceApplication?.type}/resource_properties?application_id=${sourceApplication?.id}&resource_type=${sourceResourceType?.id}`;
+      } else if (sourceApplication?.type === 'codebeamer') {
+        url = `${thirdApiURL}/${sourceApplication?.type}/resource_properties?application_id=${sourceApplication?.id}&resource_id=${sourceResourceType?.id}`;
+      } else {
+        url = `${thirdApiURL}/${sourceApplication?.type}/resource_properties`;
+      }
+      fetch(url, {
+        headers: {
+          Authorization: `Bearer ${authCtx.token}`,
+        },
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            handleResponse(response);
+          }
+        })
+        .then((data) => {
+          console.log(data);
+          setSourceProperties(data?.items);
+        });
+    }
+  }, [sourceResourceType, restartExternalRequest]);
+  // for getting resource properties
+  useEffect(() => {
+    if (targetResourceType && sourceProject) {
+      let url;
+      if (targetApplication?.type === 'jira') {
+        url = `${thirdApiURL}/${targetApplication?.type}/resource_properties?application_id=${targetApplication?.id}&resource_type=${targetResourceType?.id}`;
+      } else if (targetApplication?.type === 'codebeamer') {
+        url = `${thirdApiURL}/${targetApplication?.type}/resource_properties?application_id=${targetApplication?.id}&resource_id=${targetResourceType?.id}`;
+      } else {
+        url = `${thirdApiURL}/${targetApplication?.type}/resource_properties`;
+      }
+      fetch(url, {
+        headers: {
+          Authorization: `Bearer ${authCtx.token}`,
+        },
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            handleResponse(response);
+          }
+        })
+        .then((data) => {
+          console.log(data);
+          setTargetProperties(data?.items);
+        });
+    }
+  }, [targetResourceType, restartExternalRequest]);
   const handleMakeMigration = async () => {
     setSubmitLoading(true);
     const body = {
       source_application_id: sourceApplication ? sourceApplication?.id : null,
-      source_workspace: sourceWorkspace ? sourceWorkspace?.name : null,
       source_project: sourceProject ? sourceProject?.name : null,
       source_resource:
         sourceApplication?.type === 'codebeamer'
           ? sourceResourceType?.name
           : sourceResourceType?.id,
       target_application_id: targetApplication ? targetApplication?.id : null,
-      target_workspace: targetWorkspace ? targetWorkspace?.name : null,
       target_project: targetProject ? targetProject?.name : null,
       target_resource:
         targetApplication?.type === 'codebeamer'
@@ -626,12 +448,10 @@ const SynchronizationConfig = () => {
       } else {
         setSubmitLoading(false);
         setSourceApplication('');
-        setSourceWorkspace('');
         setSourceProject('');
         setSourceProjectID('');
         setSourceResourceType('');
         setTargetApplication('');
-        setTargetWorkspace('');
         setTargetProject('');
         setTargetProjectID('');
         setTargetResourceType('');
@@ -777,29 +597,6 @@ const SynchronizationConfig = () => {
               </FlexboxGrid>
             </FlexboxGrid.Item>
           </FlexboxGrid>
-          {(sourceApplication?.type === 'gitlab' ||
-            sourceApplication?.type === 'valispace') && (
-            <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-              <FlexboxGrid.Item colspan={4}>
-                <h5>Workspace: </h5>
-              </FlexboxGrid.Item>
-              <FlexboxGrid.Item colspan={20}>
-                <FlexboxGrid justify="end">
-                  {/* --- Application dropdown ---   */}
-                  <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
-                    <UseReactSelect
-                      name="application_type"
-                      placeholder="Choose Workspace"
-                      onChange={handleSourceWorkspace}
-                      disabled={authenticatedThirdApp}
-                      isLoading={sourceLoading}
-                      items={sourceWorkspaceList?.length ? sourceWorkspaceList : []}
-                    />
-                  </FlexboxGrid.Item>
-                </FlexboxGrid>
-              </FlexboxGrid.Item>
-            </FlexboxGrid>
-          )}
           {sourceApplication && (
             <div>
               <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
@@ -915,36 +712,49 @@ const SynchronizationConfig = () => {
               </FlexboxGrid>
             </FlexboxGrid.Item>
           </FlexboxGrid>
-          {(targetApplication?.type === 'gitlab' ||
-            targetApplication?.type === 'valispace') && (
-            <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-              <FlexboxGrid.Item colspan={4}>
-                <h5>Workspace: </h5>
-              </FlexboxGrid.Item>
-              <FlexboxGrid.Item colspan={20}>
-                <FlexboxGrid justify="end">
-                  {/* --- Application dropdown ---   */}
-                  <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
-                    <UseReactSelect
-                      name="application_type"
-                      placeholder="Choose Workspace"
-                      onChange={handleTargetWorkspace}
-                      isLoading={targetLoading}
-                      disabled={authenticatedThirdApp}
-                      items={targetWorkspaceList?.length ? targetWorkspaceList : []}
-                    />
-                  </FlexboxGrid.Item>
-                </FlexboxGrid>
-              </FlexboxGrid.Item>
-            </FlexboxGrid>
-          )}
-          {targetWorkspace?.type === 'gitlab' ||
-            targetWorkspace?.type === 'valispace' ||
-            (targetApplication && (
-              <div>
+          {targetApplication && (
+            <div>
+              <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+                <FlexboxGrid.Item colspan={4}>
+                  <h5>Project: </h5>
+                </FlexboxGrid.Item>
+                <FlexboxGrid.Item colspan={20}>
+                  <FlexboxGrid justify="end">
+                    {/* --- Application dropdown ---   */}
+                    <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
+                      <UseReactSelect
+                        name="application_type"
+                        placeholder="Choose Project"
+                        onChange={handleTargetProject}
+                        isLoading={targetProjectLoading}
+                        disabled={
+                          authenticatedThirdApp || !targetApplication || disabledDropdown
+                        }
+                        items={targetProjectList?.length ? targetProjectList : []}
+                      />
+                    </FlexboxGrid.Item>
+                  </FlexboxGrid>
+                </FlexboxGrid.Item>
+              </FlexboxGrid>
+              {targetApplication?.type === 'jira' ||
+              targetApplication?.type === 'codebeamer' ||
+              targetApplication?.type === 'valispace' ? (
+                <div style={{ marginBottom: '15px' }}>
+                  <Checkbox
+                    value="Create New Project"
+                    checked={disabledDropdown}
+                    onChange={handleCreateProject}
+                  >
+                    Create New Project
+                  </Checkbox>
+                </div>
+              ) : (
+                ' '
+              )}
+              {targetProjectID && targetApplication?.type !== 'gitlab' && (
                 <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
                   <FlexboxGrid.Item colspan={4}>
-                    <h5>Project: </h5>
+                    <h5>Resource Type: </h5>
                   </FlexboxGrid.Item>
                   <FlexboxGrid.Item colspan={20}>
                     <FlexboxGrid justify="end">
@@ -954,99 +764,62 @@ const SynchronizationConfig = () => {
                         colspan={20}
                         style={{ paddingLeft: '0' }}
                       >
-                        <UseReactSelect
-                          name="application_type"
-                          placeholder="Choose Project"
-                          onChange={handleTargetProject}
-                          isLoading={targetProjectLoading}
-                          disabled={
-                            authenticatedThirdApp ||
-                            !targetApplication ||
-                            disabledDropdown
-                          }
-                          items={targetProjectList?.length ? targetProjectList : []}
+                        <UseIconSelect
+                          name="glide_native_resource_type"
+                          placeholder="Choose resource type"
+                          onChange={handleTargetResourceTypeChange}
+                          disabled={authenticatedThirdApp}
+                          isLoading={targetResourceTypeLoading}
+                          value={targetResourceType?.name}
+                          appData={targetApplication}
+                          items={targetResourceList?.length ? targetResourceList : []}
                         />
                       </FlexboxGrid.Item>
                     </FlexboxGrid>
                   </FlexboxGrid.Item>
                 </FlexboxGrid>
-                {targetApplication?.type === 'jira' ||
-                targetApplication?.type === 'codebeamer' ||
-                targetApplication?.type === 'valispace' ? (
-                  <div style={{ marginBottom: '15px' }}>
-                    <Checkbox
-                      value="Create New Project"
-                      checked={disabledDropdown}
-                      onChange={handleCreateProject}
-                    >
-                      Create New Project
-                    </Checkbox>
-                  </div>
-                ) : (
-                  ' '
-                )}
-                {targetProjectID && targetApplication?.type !== 'gitlab' && (
-                  <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-                    <FlexboxGrid.Item colspan={4}>
-                      <h5>Resource Type: </h5>
-                    </FlexboxGrid.Item>
-                    <FlexboxGrid.Item colspan={20}>
-                      <FlexboxGrid justify="end">
-                        {/* --- Application dropdown ---   */}
-                        <FlexboxGrid.Item
-                          as={Col}
-                          colspan={20}
-                          style={{ paddingLeft: '0' }}
-                        >
-                          <UseIconSelect
-                            name="glide_native_resource_type"
-                            placeholder="Choose resource type"
-                            onChange={handleTargetResourceTypeChange}
-                            disabled={authenticatedThirdApp}
-                            isLoading={targetResourceTypeLoading}
-                            value={targetResourceType?.name}
-                            appData={targetApplication}
-                            items={targetResourceList?.length ? targetResourceList : []}
-                          />
-                        </FlexboxGrid.Item>
-                      </FlexboxGrid>
-                    </FlexboxGrid.Item>
-                  </FlexboxGrid>
-                )}
-                {disabledDropdown && (
-                  <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-                    <FlexboxGrid.Item colspan={4}>
-                      <h5>Resource: </h5>
-                    </FlexboxGrid.Item>
-                    <FlexboxGrid.Item colspan={20}>
-                      <FlexboxGrid justify="end">
-                        {/* --- Application dropdown ---   */}
-                        <FlexboxGrid.Item
-                          as={Col}
-                          colspan={20}
-                          style={{ paddingLeft: '0' }}
-                        >
-                          <UseIconSelect
-                            name="glide_native_resource_type"
-                            placeholder="Choose resource type"
-                            onChange={handleTargetResourceTypeChange}
-                            disabled={authenticatedThirdApp}
-                            isLoading={targetResourceTypeLoading}
-                            value={targetResourceType?.name}
-                            appData={targetApplication}
-                            items={targetResourceList?.length ? targetResourceList : []}
-                          />
-                        </FlexboxGrid.Item>
-                      </FlexboxGrid>
-                    </FlexboxGrid.Item>
-                  </FlexboxGrid>
-                )}
-              </div>
-            ))}
+              )}
+              {disabledDropdown && (
+                <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+                  <FlexboxGrid.Item colspan={4}>
+                    <h5>Resource: </h5>
+                  </FlexboxGrid.Item>
+                  <FlexboxGrid.Item colspan={20}>
+                    <FlexboxGrid justify="end">
+                      {/* --- Application dropdown ---   */}
+                      <FlexboxGrid.Item
+                        as={Col}
+                        colspan={20}
+                        style={{ paddingLeft: '0' }}
+                      >
+                        <UseIconSelect
+                          name="glide_native_resource_type"
+                          placeholder="Choose resource type"
+                          onChange={handleTargetResourceTypeChange}
+                          disabled={authenticatedThirdApp}
+                          isLoading={targetResourceTypeLoading}
+                          value={targetResourceType?.name}
+                          appData={targetApplication}
+                          items={targetResourceList?.length ? targetResourceList : []}
+                        />
+                      </FlexboxGrid.Item>
+                    </FlexboxGrid>
+                  </FlexboxGrid.Item>
+                </FlexboxGrid>
+              )}
+            </div>
+          )}
         </div>
       </div>
       {targetResourceType && (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: '30px',
+          }}
+        >
           <Checkbox
             value="Create New Project"
             checked={propertyShow}

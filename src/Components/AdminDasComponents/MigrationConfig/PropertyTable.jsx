@@ -1,6 +1,5 @@
 /* eslint-disable indent */
 import React from 'react';
-import style from './SyncConfig.module.scss';
 import PlusIcon from '@rsuite/icons/Plus';
 import { Button, Col, FlexboxGrid, Table } from 'rsuite';
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
@@ -69,7 +68,7 @@ const PropertyTable = ({
 
   return (
     <div>
-      <div className={style.table_wrapper}>
+      <div>
         <div
           style={{
             display: 'flex',
