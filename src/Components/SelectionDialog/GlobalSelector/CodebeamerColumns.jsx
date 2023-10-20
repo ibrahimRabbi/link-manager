@@ -42,7 +42,7 @@ export const columnDefWithCheckBox = [
     ),
   },
   {
-    accessorFn: (row) => `${row?.label}`,
+    accessorFn: (row) => `${row?.name}`,
     header: 'Name',
   },
   {
