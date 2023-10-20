@@ -2,7 +2,7 @@ import React from 'react';
 import PlusIcon from '@rsuite/icons/Plus';
 import { Button, Col, FlexboxGrid, Table } from 'rsuite';
 import { useState } from 'react';
-import Select from './Select';
+import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
 const { Column, HeaderCell, Cell } = Table;
 
 const EnumValueTable = ({
@@ -177,7 +177,7 @@ const EnumValueTable = ({
                     width: '85%',
                   }}
                 >
-                  <div style={{ width: '30%' }}>
+                  <div style={{ width: '20%' }}>
                     <FlexboxGrid>
                       <FlexboxGrid.Item colspan={24}>
                         <FlexboxGrid justify="start">
@@ -187,7 +187,10 @@ const EnumValueTable = ({
                             colspan={24}
                             style={{ paddingLeft: '0' }}
                           >
-                            <Select values={source} onChange={handleSourcePro} />
+                            <UseReactSelect
+                              items={source?.enum_values}
+                              onChange={handleSourcePro}
+                            />
                           </FlexboxGrid.Item>
                         </FlexboxGrid>
                       </FlexboxGrid.Item>
@@ -203,7 +206,10 @@ const EnumValueTable = ({
                             colspan={24}
                             style={{ paddingLeft: '0' }}
                           >
-                            <Select values={target} onChange={handleTargetPro} />
+                            <UseReactSelect
+                              items={target?.enum_values}
+                              onChange={handleTargetPro}
+                            />
                           </FlexboxGrid.Item>
                         </FlexboxGrid>
                       </FlexboxGrid.Item>

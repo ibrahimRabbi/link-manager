@@ -368,7 +368,7 @@ const SynchronizationConfig = () => {
     if (sourceResourceType && sourceProject) {
       let url;
       if (sourceApplication?.type === 'jira') {
-        url = `${thirdApiURL}/${sourceApplication?.type}/resource_properties?application_id=${sourceApplication?.id}&resource_type=${sourceResourceType?.id}`;
+        url = `${thirdApiURL}/${sourceApplication?.type}/resource_properties?application_id=${sourceApplication?.id}&project_key=${sourceProject?.key}&resource_type=${sourceResourceType?.id}`;
       } else if (sourceApplication?.type === 'codebeamer') {
         url = `${thirdApiURL}/${sourceApplication?.type}/resource_properties?application_id=${sourceApplication?.id}&resource_id=${sourceResourceType?.id}`;
       } else {
@@ -393,10 +393,10 @@ const SynchronizationConfig = () => {
   }, [sourceResourceType, restartExternalRequest]);
   // for getting resource properties
   useEffect(() => {
-    if (targetResourceType && sourceProject) {
+    if (targetResourceType && targetProject) {
       let url;
       if (targetApplication?.type === 'jira') {
-        url = `${thirdApiURL}/${targetApplication?.type}/resource_properties?application_id=${targetApplication?.id}&resource_type=${targetResourceType?.id}`;
+        url = `${thirdApiURL}/${targetApplication?.type}/resource_properties?application_id=${targetApplication?.id}&project_key=${targetProject?.key}&resource_type=${targetResourceType?.id}`;
       } else if (targetApplication?.type === 'codebeamer') {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_properties?application_id=${targetApplication?.id}&resource_id=${targetResourceType?.id}`;
       } else {
