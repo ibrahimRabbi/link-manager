@@ -7,7 +7,6 @@ const SortableItem = ({ property }) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: property.id,
   });
-
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,

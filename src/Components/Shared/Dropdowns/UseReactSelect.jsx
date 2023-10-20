@@ -74,7 +74,7 @@ const UseReactSelect = (props) => {
       isMulti={isMulti}
       isClearable={true}
       isSearchable={true}
-      menuPlacement="auto"
+      menuPlacement="bottom"
       name={name}
       components={{
         SingleValue: customSingleValue,

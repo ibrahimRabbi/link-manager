@@ -9,7 +9,7 @@ import {
   ButtonToolbar,
   Checkbox,
   Col,
-  Divider,
+  // Divider,
   FlexboxGrid,
   Message,
   toaster,
@@ -21,8 +21,8 @@ import {
   MICROSERVICES_APPLICATION_TYPES,
   OAUTH2_APPLICATION_TYPES,
 } from '../../../App';
-import { DndContext, closestCenter } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+// import { DndContext, closestCenter } from '@dnd-kit/core';
+// import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
 import { useContext } from 'react';
 import AuthContext from '../../../Store/Auth-Context';
@@ -31,7 +31,9 @@ import AppIconSelect from './AppIconSelect';
 import UseLoader from '../../Shared/UseLoader';
 import { TbArrowsHorizontal } from 'react-icons/tb';
 import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
-import SortableItem from './SortableItem';
+import PropertyTable from './PropertyTable';
+import EnumValueTable from './EnumValueTable';
+// import SortableItem from './SortableItem';
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
@@ -44,19 +46,110 @@ const direction = [
 ];
 const property = [
   {
-    name: 'Todo',
-    value: 'Todo',
-    id: '1',
+    datatype: 'int',
+    enum_values: [],
+    id: 'timespent',
+    name: 'Time Spent',
   },
   {
-    name: 'In progress',
-    value: 'In progress',
-    id: '2',
+    datatype: 'int',
+    enum_values: [],
+    id: 'aggregatetimespent',
+    name: 'Σ Time Spent',
   },
   {
-    name: 'Done',
-    value: 'Done',
-    id: '3',
+    datatype: 'int',
+    enum_values: [],
+    id: 'workratio',
+    name: 'Work Ratio',
+  },
+  {
+    datatype: 'enum',
+    enum_values: [
+      {
+        id: '1',
+        name: 'Highest',
+      },
+      {
+        id: '2',
+        name: 'High',
+      },
+      {
+        id: '3',
+        name: 'Medium',
+      },
+      {
+        id: '4',
+        name: 'Low',
+      },
+      {
+        id: '5',
+        name: 'Lowest',
+      },
+    ],
+    id: 'priority',
+    name: 'Priority',
+  },
+  {
+    datatype: 'int',
+    enum_values: [],
+    id: 'timeestimate',
+    name: 'Remaining Estimate',
+  },
+  {
+    datatype: 'int',
+    enum_values: [],
+    id: 'aggregatetimeoriginalestimate',
+    name: 'Σ Original Estimate',
+  },
+  {
+    datatype: 'enum',
+    enum_values: [
+      {
+        id: '1',
+        name: 'In Progress',
+      },
+      {
+        id: '3',
+        name: 'Done',
+      },
+      {
+        id: '2',
+        name: 'To Do',
+      },
+    ],
+    id: 'status',
+    name: 'Status',
+  },
+  {
+    datatype: 'int',
+    enum_values: [],
+    id: 'timeoriginalestimate',
+    name: 'Original estimate',
+  },
+  {
+    datatype: 'string',
+    enum_values: [],
+    id: 'description',
+    name: 'Description',
+  },
+  {
+    datatype: 'int',
+    enum_values: [],
+    id: 'aggregatetimeestimate',
+    name: 'Σ Remaining Estimate',
+  },
+  {
+    datatype: 'string',
+    enum_values: [],
+    id: 'summary',
+    name: 'Summary',
+  },
+  {
+    datatype: 'string',
+    enum_values: [],
+    id: 'environment',
+    name: 'Environment',
   },
 ];
 const SynchronizationConfig = () => {
@@ -90,9 +183,15 @@ const SynchronizationConfig = () => {
   const [sourceResourceType, setSourceResourceType] = useState('');
   const [targetResourceType, setTargetResourceType] = useState('');
   const [disabledDropdown, setDisabledDropdown] = useState(false);
+  const [propertyShow, setPropertyShow] = useState(false);
   const [selectDirection, setSelectDirection] = useState('');
   const [sourceProperties, setSourceProperties] = useState(property);
   const [targetProperties, setTargetProperties] = useState(property);
+  const [normalRows, setNormalRows] = useState([]);
+  const [enumRows, setEnumRows] = useState([]);
+  const [sourceProperty, setSourceProperty] = useState('');
+  const [targetProperty, setTargetProperty] = useState('');
+  const [showAddEnum, setShowAddEnum] = useState(false);
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const dispatch = useDispatch();
 
@@ -217,6 +316,9 @@ const SynchronizationConfig = () => {
     setTargetProjectID('');
     setTargetProject('');
     setTargetResourceType('');
+  };
+  const handleShowProperty = () => {
+    setPropertyShow(!propertyShow);
   };
   useEffect(() => {
     // prettier-ignore
@@ -491,38 +593,6 @@ const SynchronizationConfig = () => {
         });
     }
   }, [targetProjectID, disabledDropdown]);
-  const handleSourceDragEnd = (event) => {
-    const { active, over } = event;
-    if (active.id !== over.id) {
-      const sourceCopy = [...sourceProperties];
-      const activeIndex = sourceCopy.findIndex((item) => item.id === active.id);
-      const overIndex = sourceCopy.findIndex((item) => item.id === over.id);
-
-      if (activeIndex !== -1 && overIndex !== -1) {
-        const [movedItem] = sourceCopy.splice(activeIndex, 1);
-        sourceCopy.splice(overIndex, 0, movedItem);
-
-        setSourceProperties(sourceCopy);
-      }
-    }
-  };
-
-  const handleTargetDragEnd = (event) => {
-    const { active, over } = event;
-    if (active.id !== over.id) {
-      const targetCopy = [...targetProperties];
-      const activeIndex = targetCopy.findIndex((item) => item.id === active.id);
-      const overIndex = targetCopy.findIndex((item) => item.id === over.id);
-
-      if (activeIndex !== -1 && overIndex !== -1) {
-        const [movedItem] = targetCopy.splice(activeIndex, 1);
-        targetCopy.splice(overIndex, 0, movedItem);
-
-        setTargetProperties(targetCopy);
-      }
-    }
-  };
-
   const handleMakeMigration = async () => {
     setSubmitLoading(true);
     const body = {
@@ -582,10 +652,76 @@ const SynchronizationConfig = () => {
           <UseLoader />
         </div>
       )}
-      <div style={{ display: 'flex' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+        }}
+      >
         <div
           style={{
-            width: '100%',
+            border: '0.5px solid gray',
+            borderRadius: '10px',
+            padding: '25px 20px',
+            marginTop: '50px',
+            position: 'relative',
+            width: '20%',
+          }}
+        >
+          <div>
+            <h3
+              style={{
+                position: 'absolute',
+                top: '-22px',
+                bottom: '0',
+                right: '0',
+                left: '0',
+              }}
+            >
+              <span
+                style={{
+                  backgroundColor: 'white',
+                  color: '#575757',
+                  fontWeight: 'bolder',
+                  padding: '5px',
+                  borderRadius: '10px',
+                  marginLeft: '10px',
+                }}
+              >
+                Direction
+              </span>
+            </h3>
+            <div style={{ marginTop: '0px' }}>
+              <div>
+                <FlexboxGrid align="middle">
+                  <FlexboxGrid.Item colspan={24}>
+                    <FlexboxGrid justify="center">
+                      {/* --- Application dropdown ---   */}
+                      <FlexboxGrid.Item
+                        as={Col}
+                        colspan={24}
+                        style={{ paddingLeft: '0' }}
+                      >
+                        <UseReactSelect
+                          name="application_type"
+                          placeholder="Choose Direction"
+                          onChange={handleDirectChange}
+                          disabled={authenticatedThirdApp}
+                          items={sourceApplication ? direction : []}
+                        />
+                      </FlexboxGrid.Item>
+                    </FlexboxGrid>
+                  </FlexboxGrid.Item>
+                </FlexboxGrid>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div
+          style={{
+            width: '40%',
             border: '0.5px solid gray',
             borderRadius: '10px',
             padding: '25px 20px',
@@ -714,101 +850,12 @@ const SynchronizationConfig = () => {
                   </FlexboxGrid.Item>
                 </FlexboxGrid>
               )}
-              <FlexboxGrid style={{ marginBottom: '0px' }} align="middle">
-                <FlexboxGrid.Item colspan={4}>
-                  <h5>Properties: </h5>
-                </FlexboxGrid.Item>
-                <FlexboxGrid.Item colspan={20}>
-                  <FlexboxGrid justify="end">
-                    {/* --- Application dropdown ---   */}
-                    <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
-                      <UseIconSelect
-                        name="glide_native_resource_type"
-                        placeholder="Choose Properties"
-                        onChange={handleTargetResourceTypeChange}
-                        disabled={authenticatedThirdApp}
-                        isLoading={targetResourceTypeLoading}
-                        value={targetResourceType?.name}
-                        appData={targetApplication}
-                        items={sourceProperties?.length ? sourceProperties : []}
-                      />
-                    </FlexboxGrid.Item>
-                  </FlexboxGrid>
-                </FlexboxGrid.Item>
-              </FlexboxGrid>
             </div>
           )}
         </div>
         <div
           style={{
-            width: '80%',
-            display: 'flex',
-            justifyContent: 'center',
-          }}
-        >
-          <div
-            style={{
-              width: '300px',
-              border: '0.5px solid gray',
-              borderRadius: '10px',
-              padding: '25px 20px',
-              marginTop: '50px',
-              position: 'relative',
-              height: '105px',
-              marginRight: '20px',
-            }}
-          >
-            <div>
-              <h3
-                style={{
-                  position: 'absolute',
-                  top: '-22px',
-                  bottom: '0',
-                  right: '0',
-                  left: '0',
-                }}
-              >
-                <span
-                  style={{
-                    backgroundColor: 'white',
-                    color: '#575757',
-                    fontWeight: 'bolder',
-                    padding: '5px',
-                    borderRadius: '10px',
-                    marginLeft: '10px',
-                  }}
-                >
-                  Direction
-                </span>
-              </h3>
-              <div style={{ marginTop: '0px' }}>
-                <div>
-                  <FlexboxGrid.Item colspan={24}>
-                    <FlexboxGrid justify="end">
-                      {/* --- Application dropdown ---   */}
-                      <FlexboxGrid.Item
-                        as={Col}
-                        colspan={24}
-                        style={{ paddingLeft: '0' }}
-                      >
-                        <UseReactSelect
-                          name="application_type"
-                          placeholder="Choose Direction"
-                          onChange={handleDirectChange}
-                          disabled={authenticatedThirdApp}
-                          items={sourceApplication ? direction : []}
-                        />
-                      </FlexboxGrid.Item>
-                    </FlexboxGrid>
-                  </FlexboxGrid.Item>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div
-          style={{
-            width: '100%',
+            width: '40%',
             border: '0.5px solid gray',
             borderRadius: '10px',
             padding: '25px 20px',
@@ -994,111 +1041,51 @@ const SynchronizationConfig = () => {
                     </FlexboxGrid.Item>
                   </FlexboxGrid>
                 )}
-                <FlexboxGrid style={{ marginBottom: '0px' }} align="middle">
-                  <FlexboxGrid.Item colspan={4}>
-                    <h5>Properties: </h5>
-                  </FlexboxGrid.Item>
-                  <FlexboxGrid.Item colspan={20}>
-                    <FlexboxGrid justify="end">
-                      {/* --- Application dropdown ---   */}
-                      <FlexboxGrid.Item
-                        as={Col}
-                        colspan={20}
-                        style={{ paddingLeft: '0' }}
-                      >
-                        <UseIconSelect
-                          name="glide_native_resource_type"
-                          placeholder="Choose Properties"
-                          onChange={handleTargetResourceTypeChange}
-                          disabled={authenticatedThirdApp}
-                          isLoading={targetResourceTypeLoading}
-                          value={targetResourceType?.name}
-                          appData={targetApplication}
-                          items={targetProperties?.length ? targetProperties : []}
-                        />
-                      </FlexboxGrid.Item>
-                    </FlexboxGrid>
-                  </FlexboxGrid.Item>
-                </FlexboxGrid>
               </div>
             ))}
         </div>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
-        <div
-          style={{
-            display: 'flex',
-            border: '0.5px solid',
-            padding: '20px 30px',
-            borderRadius: '10px',
-            width: '50%',
-            position: 'relative',
-          }}
-        >
-          <h3
-            style={{
-              position: 'absolute',
-              top: '-22px',
-              bottom: '0',
-              right: '0',
-              left: '0',
-            }}
-          >
-            <span
-              style={{
-                backgroundColor: 'white',
-                color: '#575757',
-                fontWeight: 'bolder',
-                padding: '5px',
-                borderRadius: '10px',
-                marginLeft: '10px',
-              }}
-            >
-              Properties
-            </span>
-          </h3>
-          <div style={{ width: '100%', position: 'relative' }}>
-            <h5>Source:</h5>
-            <DndContext
-              collisionDetection={closestCenter}
-              onDragEnd={handleSourceDragEnd}
-            >
-              <div>
-                <SortableContext
-                  items={sourceProperties}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {sourceProperties.map((property) => (
-                    <SortableItem key={property.id} property={property} />
-                  ))}
-                </SortableContext>
-              </div>
-            </DndContext>
-          </div>
-          <Divider
-            vertical={true}
-            style={{ height: '13em', marginTop: '25px', border: '0.5px solid' }}
-          ></Divider>
-          <div style={{ width: '100%', position: 'relative' }}>
-            <h5>Target: </h5>
-            <DndContext
-              collisionDetection={closestCenter}
-              onDragEnd={handleTargetDragEnd}
-            >
-              <div>
-                <SortableContext
-                  items={targetProperties}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {targetProperties.map((property) => (
-                    <SortableItem key={property.id} property={property} />
-                  ))}
-                </SortableContext>
-              </div>
-            </DndContext>
-          </div>
+      {targetResourceType && (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <Checkbox
+            value="Create New Project"
+            checked={propertyShow}
+            onChange={handleShowProperty}
+          ></Checkbox>
+          <h5>Property Mapping</h5>
         </div>
-      </div>
+      )}
+      {propertyShow ? (
+        <div style={{ marginTop: '30px' }}>
+          <PropertyTable
+            rows={normalRows}
+            setRows={setNormalRows}
+            source={sourceProperties}
+            target={targetProperties}
+            setSource={setSourceProperty}
+            setTarget={setTargetProperty}
+            setShowAddEnum={setShowAddEnum}
+          />
+          {sourceProperty?.datatype === 'enum' && targetProperty?.datatype === 'enum' && (
+            <div style={{ marginTop: '50px' }}>
+              <EnumValueTable
+                rows={enumRows}
+                setRows={setEnumRows}
+                source={sourceProperty}
+                target={targetProperty}
+                sourceProperty={sourceProperties}
+                TargetProperty={targetProperties}
+                setSource={setSourceProperties}
+                setTarget={setTargetProperties}
+                showAddEnum={showAddEnum}
+                setShowAddEnum={setShowAddEnum}
+              />
+            </div>
+          )}
+        </div>
+      ) : (
+        ''
+      )}
       <div style={{ marginTop: '40px' }}>
         {authenticatedThirdApp ? (
           <ExternalAppModal
