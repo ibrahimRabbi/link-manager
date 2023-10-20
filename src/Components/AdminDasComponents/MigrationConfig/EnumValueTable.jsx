@@ -188,6 +188,7 @@ const EnumValueTable = ({
                             style={{ paddingLeft: '0' }}
                           >
                             <UseReactSelect
+                              placeholder="Choose enumvalue"
                               items={source?.enum_values}
                               onChange={handleSourcePro}
                             />
@@ -207,6 +208,7 @@ const EnumValueTable = ({
                             style={{ paddingLeft: '0' }}
                           >
                             <UseReactSelect
+                              placeholder="Choose enumvalue"
                               items={target?.enum_values}
                               onChange={handleTargetPro}
                             />

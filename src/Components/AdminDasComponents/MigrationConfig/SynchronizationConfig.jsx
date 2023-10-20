@@ -112,6 +112,8 @@ const SynchronizationConfig = () => {
     dispatch(handleCurrPageTitle('Synchronization Configuration'));
   }, []);
   const handleSourceApplicationChange = (selectedItem) => {
+    setEnumRows([]);
+    setNormalRows([]);
     setSourceResourceType('');
     setPropertyShow(false);
     setSourceProjectID('');
@@ -126,6 +128,8 @@ const SynchronizationConfig = () => {
     setSourceApplication(selectedItem);
   };
   const handleTargetApplicationChange = (selectedItem) => {
+    setEnumRows([]);
+    setNormalRows([]);
     setTargetResourceType('');
     setPropertyShow(false);
     setDisabledDropdown(false);
@@ -140,6 +144,8 @@ const SynchronizationConfig = () => {
     setTargetApplication(selectedItem);
   };
   const handleTargetProject = (selectedItem) => {
+    setEnumRows([]);
+    setNormalRows([]);
     setTargetResourceType('');
     setPropertyShow(false);
     setTargetProject('');
@@ -155,6 +161,8 @@ const SynchronizationConfig = () => {
     setTargetProject(newSelectedItem);
   };
   const handleSourceProject = (selectedItem) => {
+    setEnumRows([]);
+    setNormalRows([]);
     setSourceResourceType('');
     setPropertyShow(false);
     setSourceProjectID('');
@@ -170,19 +178,27 @@ const SynchronizationConfig = () => {
     setSourceProject(newSelectedItem);
   };
   const handleTargetResourceTypeChange = (selectedItem) => {
+    setEnumRows([]);
+    setNormalRows([]);
     setPropertyShow(false);
     setTargetResourceType(selectedItem);
   };
   const handleSourceResourceTypeChange = (selectedItem) => {
+    setEnumRows([]);
+    setNormalRows([]);
     setPropertyShow(false);
     setSourceResourceType(selectedItem);
   };
   const handleDirectChange = (selectedItem) => {
+    setEnumRows([]);
+    setNormalRows([]);
     setPropertyShow(false);
     setSelectDirection(selectedItem);
     console.log(selectDirection);
   };
   const handleCreateProject = () => {
+    setEnumRows([]);
+    setNormalRows([]);
     setPropertyShow(false);
     setDisabledDropdown(!disabledDropdown);
     setTargetProjectList([]);
@@ -191,6 +207,8 @@ const SynchronizationConfig = () => {
     setTargetResourceType('');
   };
   const handleShowProperty = () => {
+    setEnumRows([]);
+    setNormalRows([]);
     setPropertyShow(!propertyShow);
   };
   useEffect(() => {
@@ -393,11 +411,13 @@ const SynchronizationConfig = () => {
   }, [sourceResourceType, restartExternalRequest]);
   // for getting resource properties
   useEffect(() => {
-    if (targetResourceType && targetProject) {
+    if (targetResourceType) {
       let url;
-      if (targetApplication?.type === 'jira') {
+      if (targetApplication?.type === 'jira' && targetProject !== '') {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_properties?application_id=${targetApplication?.id}&project_key=${targetProject?.key}&resource_type=${targetResourceType?.id}`;
-      } else if (targetApplication?.type === 'codebeamer') {
+      } else if (targetApplication?.type === 'jira' && disabledDropdown) {
+        url = `${thirdApiURL}/${targetApplication?.type}/resource_properties?application_id=${targetApplication?.id}&resource_type=${targetResourceType?.id}`;
+      } else if (targetApplication?.type === 'codebeamer' && targetProject !== '') {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_properties?application_id=${targetApplication?.id}&resource_id=${targetResourceType?.id}`;
       } else {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_properties`;
@@ -881,12 +901,13 @@ const SynchronizationConfig = () => {
           <div style={{ display: 'flex', justifyContent: 'end', marginTop: '20px' }}>
             <ButtonToolbar>
               <Button appearance="ghost">Cancel</Button>
+              <Button appearance="ghost">Save</Button>
               <Button
                 appearance="primary"
                 disabled={!sourceProject || !sourceResourceType || !targetApplication}
                 onClick={handleMakeMigration}
               >
-                Run Sync
+                Save & Run
               </Button>
             </ButtonToolbar>
           </div>

@@ -23,7 +23,7 @@ const PropertyTable = ({
   const [sourceEnum, setSourceEnum] = useState('');
   const [targetEnum, setTargetEnum] = useState('');
   const handleSourcePro = (selectedItem) => {
-    if (selectedItem.datatype === 'enum') {
+    if (selectedItem?.datatype === 'enum') {
       setSourceEnum(selectedItem);
     }
     setFormState({
@@ -33,7 +33,7 @@ const PropertyTable = ({
   };
 
   const handleTargetPro = (selectedItem) => {
-    if (selectedItem.datatype === 'enum') {
+    if (selectedItem?.datatype === 'enum') {
       setTargetEnum(selectedItem);
     }
     setFormState({
