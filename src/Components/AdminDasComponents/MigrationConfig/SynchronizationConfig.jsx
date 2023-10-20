@@ -112,6 +112,7 @@ const SynchronizationConfig = () => {
     dispatch(handleCurrPageTitle('Synchronization Configuration'));
   }, []);
   const handleSourceApplicationChange = (selectedItem) => {
+    setSourceResourceType('');
     setPropertyShow(false);
     setSourceProjectID('');
     setSourceResourceList([]);
@@ -125,6 +126,7 @@ const SynchronizationConfig = () => {
     setSourceApplication(selectedItem);
   };
   const handleTargetApplicationChange = (selectedItem) => {
+    setTargetResourceType('');
     setPropertyShow(false);
     setDisabledDropdown(false);
     setTargetProjectID('');
@@ -138,6 +140,7 @@ const SynchronizationConfig = () => {
     setTargetApplication(selectedItem);
   };
   const handleTargetProject = (selectedItem) => {
+    setTargetResourceType('');
     setPropertyShow(false);
     setTargetProject('');
     setTargetProjectID('');
@@ -152,6 +155,7 @@ const SynchronizationConfig = () => {
     setTargetProject(newSelectedItem);
   };
   const handleSourceProject = (selectedItem) => {
+    setSourceResourceType('');
     setPropertyShow(false);
     setSourceProjectID('');
     setSourceProject('');
@@ -383,7 +387,6 @@ const SynchronizationConfig = () => {
           }
         })
         .then((data) => {
-          console.log(data);
           setSourceProperties(data?.items);
         });
     }
@@ -412,7 +415,6 @@ const SynchronizationConfig = () => {
           }
         })
         .then((data) => {
-          console.log(data);
           setTargetProperties(data?.items);
         });
     }
@@ -526,7 +528,9 @@ const SynchronizationConfig = () => {
                           name="application_type"
                           placeholder="Choose Direction"
                           onChange={handleDirectChange}
-                          disabled={authenticatedThirdApp}
+                          disabled={
+                            authenticatedThirdApp || sourceResourceType ? false : true
+                          }
                           items={sourceApplication ? direction : []}
                         />
                       </FlexboxGrid.Item>

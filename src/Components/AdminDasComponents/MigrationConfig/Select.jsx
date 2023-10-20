@@ -12,7 +12,7 @@ const transformDataToTree = (values) => {
         value: item.id,
         children: item.enum_values.map((enumValue) => ({
           label: enumValue.name,
-          value: `${item.id}-${enumValue.id}`,
+          value: `${item.id}-${enumValue.id}-${Math.random()}`,
         })),
       };
       treeData.push(enumNode);
