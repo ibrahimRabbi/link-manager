@@ -23,6 +23,8 @@ import 'rsuite/styles/index.less';
 import SetPassword from './Components/Login/SetPassword';
 import Oauth2Success from './Components/Oauth2/oauth2Success.jsx';
 import Events from './Components/AdminDasComponents/Events/Events.jsx';
+// eslint-disable-next-line max-len
+import PipelineSecrets from './Components/AdminDasComponents/PipelineSecrets/PipelineSecrets';
 import Pipelines from './Components/AdminDasComponents/Pipelines/Pipelines.jsx';
 import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun.jsx';
 import Pipeline from './Components/Pipeline/Pipeline.jsx';
@@ -44,6 +46,7 @@ export const darkBgColor = '#0f131a';
 export const lightBgColor = 'white';
 
 export const OAUTH2_APPLICATION_TYPES = ['gitlab', 'jira', 'codebeamer'];
+export const OAUTH2_ROPC_APPLICATION_TYPES = ['servicenow'];
 export const OIDC_APPLICATION_TYPES = ['codebeamer'];
 export const MICROSERVICES_APPLICATION_TYPES = ['glideyoke'];
 export const BASIC_AUTH_APPLICATION_TYPES = ['valispace', 'dng'];
@@ -153,6 +156,7 @@ function App() {
               <Route path="/admin/projects" element={<Projects />} />
               <Route path="/admin/link-rules" element={<LinkRules />} />
               <Route path="/admin/events" element={<Events />} />
+              <Route path="/admin/pipelinessecrets" element={<PipelineSecrets />} />
               <Route path="/admin/pipelines" element={<Pipelines />} />
               <Route path="/admin/pipelinerun" element={<PipelineRun />} />
               <Route path="/admin/synchronization" element={<SynchronizationConfig />} />

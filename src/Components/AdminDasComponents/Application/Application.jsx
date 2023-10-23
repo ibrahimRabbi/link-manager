@@ -29,6 +29,7 @@ import styles from './Application.module.scss';
 import {
   MICROSERVICES_APPLICATION_TYPES,
   OAUTH2_APPLICATION_TYPES,
+  OAUTH2_ROPC_APPLICATION_TYPES,
   OIDC_APPLICATION_TYPES,
   THIRD_PARTY_INTEGRATIONS,
   USER_PASSWORD_APPLICATION_TYPES,
@@ -110,7 +111,9 @@ const Application = () => {
 
   // match application type to display input fields conditionally
   // and keep input fields required conditionally
-  const isOauth2AppTypes = OAUTH2_APPLICATION_TYPES.includes(formValue?.type);
+  const isOauth2AppTypes =
+    OAUTH2_APPLICATION_TYPES.includes(formValue?.type) ||
+    OAUTH2_ROPC_APPLICATION_TYPES.includes(formValue?.type);
   const isMicroServiceAppTypes = MICROSERVICES_APPLICATION_TYPES.includes(
     formValue?.type,
   );
@@ -822,7 +825,8 @@ const Application = () => {
 
               {
                 // prettier-ignore
-                USER_PASSWORD_APPLICATION_TYPES.includes(formValue?.type) &&
+                (USER_PASSWORD_APPLICATION_TYPES.includes(formValue?.type) ||
+                    OAUTH2_ROPC_APPLICATION_TYPES.includes(formValue?.type)) &&
                 steps === 1 &&
                 createSuccess && (
                   <ExternalLogin appData={formValue} onDataStatus={getExtLoginData} />

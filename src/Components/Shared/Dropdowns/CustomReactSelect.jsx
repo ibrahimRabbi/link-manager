@@ -161,20 +161,32 @@ const CustomReactSelect = forwardRef((props, ref) => {
               dng: '',
             };
             // domains for the filter application when creating links
-            const gitlabDomain = ['http://open-services.net/ns/scm#'];
-            const valispaceDomain = ['http://open-services.net/ns/rm#'];
-            const dngDomain = ['http://open-services.net/ns/rm#'];
+            const gitlabDomain = [
+              'http://open-services.net/ns/scm#',
+              'http://tracelynx.com/services/resources#',
+            ];
+            const valispaceDomain = [
+              'http://open-services.net/ns/rm#',
+              'http://tracelynx.com/services/resources#',
+            ];
+            const dngDomain = [
+              'http://open-services.net/ns/rm#',
+              'http://tracelynx.com/services/resources#',
+            ];
             const codeBeamerDomain = [
               'http://open-services.net/ns/rm#',
               'http://open-services.net/ns/qm#',
+              'http://tracelynx.com/services/resources#',
             ];
             const jiraDomain = [
               'http://open-services.net/ns/cm#',
               'http://open-services.net/ns/rm#',
+              'http://tracelynx.com/services/resources#',
             ];
             const glideYokeDomain = [
               'http://open-services.net/ns/plm#',
               'http://open-services.net/ns/cm#',
+              'http://tracelynx.com/services/resources#',
             ];
 
             const urlType = item?.type.split('#')[0] + '#';

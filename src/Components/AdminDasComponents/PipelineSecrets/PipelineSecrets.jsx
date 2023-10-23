@@ -11,21 +11,17 @@ import AdminDataTable from '../AdminDataTable';
 import { FlexboxGrid, Form, Loader, Message, Schema, toaster } from 'rsuite';
 import TextField from '../TextField';
 import { useRef } from 'react';
-import TextArea from '../TextArea';
 import {
   fetchCreateData,
   fetchDeleteData,
   fetchUpdateData,
 } from '../../../Redux/slices/useCRUDSlice';
 import { useQuery } from '@tanstack/react-query';
-import SelectField from '../SelectField.jsx';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
-import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 import AlertModal from '../../Shared/AlertModal';
-
+import PasswordField from '../PasswordField';
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
-// demo data
 const headerData = [
   {
     header: 'ID',
@@ -36,20 +32,8 @@ const headerData = [
     key: 'name',
   },
   {
-    header: 'Description',
-    key: 'description',
-  },
-  {
-    header: 'Organization',
-    key: 'organization_name',
-  },
-  {
-    header: 'Application',
-    key: 'application_name',
-  },
-  {
-    header: 'Trigger Endpoint',
-    key: 'trigger_endpoint',
+    header: 'Value',
+    key: 'display_value',
   },
 ];
 
@@ -57,10 +41,10 @@ const { StringType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
-  description: StringType().isRequired('This field is required.'),
+  value: StringType().isRequired('This field is required.'),
 });
 
-const Events = () => {
+const PipelineSecrets = () => {
   const { isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
     (state) => state.crud,
   );
@@ -88,7 +72,7 @@ const Events = () => {
     }
   };
 
-  const eventFormRef = useRef();
+  const pipelineSecretsFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
 
@@ -102,18 +86,22 @@ const Events = () => {
     setPageSize(dataKey);
   };
 
-  // handle open add event modal
+  // handle open add pipeline secret modal
   const handleAddNew = () => {
     handleResetForm();
     dispatch(handleIsAddNewModal(true));
   };
 
-  const handleAddLinkEvent = () => {
-    if (!eventFormRef.current.check()) {
-      console.error('Form Error', formError);
-      return;
+  const handleCopy = (data) => {
+    navigator.clipboard.writeText(data.value);
+  };
+
+  const handleAddPipelineSecret = () => {
+    if (!pipelineSecretsFormRef.current.check()) {
+      console.error(formError);
     } else if (isAdminEditing) {
-      const putUrl = `${lmApiUrl}/${authCtx.organization_id}/events/${editData?.id}`;
+      // eslint-disable-next-line max-len
+      const putUrl = `${lmApiUrl}/${authCtx.organization_id}/pipeline_secret/${editData?.id}`;
       dispatch(
         fetchUpdateData({
           url: putUrl,
@@ -123,20 +111,19 @@ const Events = () => {
         }),
       );
     } else {
-      const postUrl = `${lmApiUrl}/${authCtx.organization_id}/events`;
+      const postUrl = `${lmApiUrl}/${authCtx.organization_id}/pipeline_secret`;
       dispatch(
         fetchCreateData({
           url: postUrl,
           token: authCtx.token,
           bodyData: formValue,
-          message: 'event',
           showNotification: showNotification,
         }),
       );
     }
     dispatch(handleIsAddNewModal(false));
     if (isAdminEditing) dispatch(handleIsAdminEditing(false));
-    refetchEvents();
+    refetchPipelineSecrets();
   };
 
   // reset form
@@ -144,45 +131,45 @@ const Events = () => {
     setEditData({});
     setFormValue({
       name: '',
-      description: '',
+      value: '',
     });
   };
 
-  // get all events
-  const { data: allEvents, refetch: refetchEvents } = useQuery(
-    ['events'],
+  // get all pipeline secrets
+  const { data: allPipelineSecrets, refetch: refetchPipelineSecrets } = useQuery(
+    ['pipelineSecret'],
     () =>
       fetchAPIRequest({
         // eslint-disable-next-line max-len
-        urlPath: `${authCtx.organization_id}/events?page=${currPage}&per_page=${pageSize}`,
+        urlPath: `${authCtx.organization_id}/pipeline_secret?page=${currPage}&per_page=${pageSize}`,
         token: authCtx.token,
         method: 'GET',
         showNotification: showNotification,
       }),
     {
-      onSuccess(allEvents) {
-        for (let i = 0; i < allEvents.items.length; i++) {
-          allEvents.items[i]['application_name'] = allEvents.items[i].application.name;
-          allEvents.items[i]['organization_name'] = allEvents.items[i].organization.name;
+      onSuccess(allPipelineSecrets) {
+        for (let i = 0; i < allPipelineSecrets.items.length; i++) {
+          allPipelineSecrets.items[i]['display_value'] = '***********';
         }
       },
     },
   );
 
-  // get all events
+  // get all pipeline secrets
   useEffect(() => {
-    dispatch(handleCurrPageTitle('Event Configuration'));
-    refetchEvents();
-  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData]);
+    dispatch(handleCurrPageTitle('Pipeline Secrets'));
+    refetchPipelineSecrets();
+  }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData, isCrudLoading]);
 
-  // handle delete event
+  // handle delete pipeline secret
   const handleDelete = (data) => {
     setDeleteData(data);
     setOpen(true);
   };
   const handleConfirmed = (value) => {
     if (value) {
-      const deleteUrl = `${lmApiUrl}/${authCtx.organization_id}/events/${deleteData?.id}`;
+      // eslint-disable-next-line max-len
+      const deleteUrl = `${lmApiUrl}/${authCtx.organization_id}/pipeline_secret/${deleteData?.id}`;
       dispatch(
         fetchDeleteData({
           url: deleteUrl,
@@ -192,86 +179,62 @@ const Events = () => {
       );
     }
   };
-  // handle Edit Event
+  // handle edit pipeline secret
   const handleEdit = (data) => {
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
     setFormValue({
       name: data?.name,
-      description: data?.description,
-      application_id: data?.application_id,
-      organization_id: data?.organization_id,
+      value: data?.value,
     });
     dispatch(handleIsAddNewModal(true));
   };
 
   // send props in the batch action table
   const tableProps = {
-    title: 'Events',
-    rowData: allEvents?.items?.length ? allEvents?.items : [],
+    title: 'Pipeline Secrets',
+    rowData: allPipelineSecrets?.items?.length ? allPipelineSecrets?.items : [],
     headerData,
     handleEdit,
     handleDelete,
     handleAddNew,
+    handleCopy,
     handlePagination,
     handleChangeLimit,
-    totalItems: allEvents?.total_items,
-    totalPages: allEvents?.total_pages,
+    totalItems: allPipelineSecrets?.total_items,
+    totalPages: allPipelineSecrets?.total_pages,
     pageSize,
-    page: allEvents?.page,
-    inpPlaceholder: 'Search Events',
+    page: allPipelineSecrets?.page,
+    inpPlaceholder: 'Search Pipeline Secrets',
   };
 
   return (
     <div>
       <AddNewModal
-        title={isAdminEditing ? 'Edit Event' : 'Add New Event'}
-        handleSubmit={handleAddLinkEvent}
+        title={isAdminEditing ? 'Edit Pipeline Secret' : 'Add Pipeline Secret'}
+        handleSubmit={handleAddPipelineSecret}
         handleReset={handleResetForm}
       >
         <div className="show-grid">
           <Form
             fluid
-            ref={eventFormRef}
+            ref={pipelineSecretsFormRef}
             onChange={setFormValue}
             onCheck={setFormError}
             formValue={formValue}
             model={model}
           >
             <FlexboxGrid justify="space-between">
-              <FlexboxGrid.Item colspan={24}>
+              <FlexboxGrid.Item colspan={15}>
                 <TextField name="name" label="Name" reqText="Name is required" />
               </FlexboxGrid.Item>
-              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                <SelectField
-                  name="application_id"
-                  label="Application"
-                  placeholder="Select Application"
-                  accepter={CustomReactSelect}
-                  apiURL={`${lmApiUrl}/${authCtx.organization_id}/application`}
-                  error={formError.application_id}
-                  reqText="Application Id is required"
-                />
-              </FlexboxGrid.Item>
-              <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
-                <SelectField
-                  name="organization_id"
-                  label="Organization"
-                  placeholder="Select Organization"
-                  accepter={CustomReactSelect}
-                  apiURL={`${lmApiUrl}/organization`}
-                  error={formError.organization_id}
-                  reqText="Organization id is required"
-                />
-              </FlexboxGrid.Item>
-              <FlexboxGrid.Item colspan={24} style={{ marginBottom: '10px' }}>
-                <TextField
-                  name="description"
-                  label="Description"
-                  accepter={TextArea}
-                  rows={5}
-                  reqText="Description is required"
-                />
+              <FlexboxGrid.Item colspan={15}>
+                <PasswordField
+                  name="value"
+                  type="password"
+                  label="value"
+                  reqText="Value is required"
+                ></PasswordField>
               </FlexboxGrid.Item>
             </FlexboxGrid>
           </Form>
@@ -292,7 +255,7 @@ const Events = () => {
       <AlertModal
         open={open}
         setOpen={setOpen}
-        content={'Do you want to delete the event?'}
+        content={'Do you want to delete the pipeline secret?'}
         handleConfirmed={handleConfirmed}
       />
       <AdminDataTable props={tableProps} />
@@ -300,4 +263,4 @@ const Events = () => {
   );
 };
 
-export default Events;
+export default PipelineSecrets;

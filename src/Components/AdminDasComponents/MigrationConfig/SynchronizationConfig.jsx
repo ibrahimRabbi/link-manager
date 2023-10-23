@@ -32,10 +32,13 @@ import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
-// const direction = [
-//   { name: <TbArrowsHorizontal style={{ fontSize: '35px' }} /> },
-//   { name: <HiOutlineArrowNarrowRight style={{ fontSize: '35px' }} /> },
-// ];
+const direction = [
+  {
+    name: <HiOutlineArrowNarrowRight style={{ fontSize: '35px' }} />,
+    value: 'right',
+  },
+  { name: <TbArrowsHorizontal style={{ fontSize: '35px' }} />, value: 'bidirectional' },
+];
 const SynchronizationConfig = () => {
   const authCtx = useContext(AuthContext);
   const [externalProjectUrl, setExternalProjectUrl] = useState('');
@@ -66,9 +69,8 @@ const SynchronizationConfig = () => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [sourceResourceType, setSourceResourceType] = useState('');
   const [targetResourceType, setTargetResourceType] = useState('');
-  const [disbaledDropdown, setDisableDropdown] = useState(false);
-  const [rightDirection, setRightDirection] = useState(false);
-  const [biDirection, setBiDirection] = useState(false);
+  const [disabledDropdown, setDisabledDropdown] = useState(false);
+  const [selectDirection, setSelectDirection] = useState('');
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const dispatch = useDispatch();
 
@@ -123,7 +125,7 @@ const SynchronizationConfig = () => {
     setSourceApplication(selectedItem);
   };
   const handleTargetApplicationChange = (selectedItem) => {
-    setDisableDropdown(false);
+    setDisabledDropdown(false);
     setTargetProjectID('');
     setTargetProject('');
     setTargetProjectList([]);
@@ -184,16 +186,11 @@ const SynchronizationConfig = () => {
     setSourceResourceType(selectedItem);
   };
   const handleDirectChange = (selectedItem) => {
-    if (selectedItem === 'rightdirection') {
-      setBiDirection(false);
-      setRightDirection(true);
-    } else {
-      setRightDirection(false);
-      setBiDirection(true);
-    }
+    setSelectDirection(selectedItem);
+    console.log(selectDirection);
   };
   const handleCreateProject = () => {
-    setDisableDropdown(!disbaledDropdown);
+    setDisabledDropdown(!disabledDropdown);
     setTargetProjectList([]);
     setTargetProjectID('');
     setTargetProject('');
@@ -254,6 +251,7 @@ const SynchronizationConfig = () => {
     }
     switch (response.status) {
       case 400:
+        setAuthenticatedThirdApp(true);
         return response.json().then((data) => {
           showNotification('error', data?.message);
           return { items: [] };
@@ -411,7 +409,7 @@ const SynchronizationConfig = () => {
           }
         });
     }
-  }, [targetApplication, targetWorkspace]);
+  }, [targetApplication, targetWorkspace, restartExternalRequest]);
 
   useEffect(() => {
     if (sourceProjectID && sourceApplication?.type !== 'gitlab') {
@@ -443,12 +441,12 @@ const SynchronizationConfig = () => {
     }
   }, [sourceProjectID]);
   useEffect(() => {
-    if ((targetProjectID && targetApplication?.type !== 'gitlab') || disbaledDropdown) {
+    if ((targetProjectID && targetApplication?.type !== 'gitlab') || disabledDropdown) {
       setTargetResourceTypeLoading(true);
       let url;
-      if (targetApplication?.type === 'codebeamer' && !disbaledDropdown) {
+      if (targetApplication?.type === 'codebeamer' && !disabledDropdown) {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_types/${targetProjectID}?application_id=${targetApplication?.id}`;
-      } else if (disbaledDropdown) {
+      } else if (disabledDropdown) {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_types?application_id=${targetApplication?.id}`;
       } else {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_types`;
@@ -470,7 +468,7 @@ const SynchronizationConfig = () => {
           setTargetResourceTypeLoading(false);
         });
     }
-  }, [targetProjectID, disbaledDropdown]);
+  }, [targetProjectID, disabledDropdown]);
   const handleMakeMigration = async () => {
     setSubmitLoading(true);
     const body = {
@@ -513,7 +511,8 @@ const SynchronizationConfig = () => {
         setTargetProject('');
         setTargetProjectID('');
         setTargetResourceType('');
-        setDisableDropdown(false);
+        setDisabledDropdown(false);
+        setSelectDirection('');
       }
     } catch (error) {
       setSubmitLoading(false);
@@ -539,6 +538,7 @@ const SynchronizationConfig = () => {
             marginTop: '50px',
             position: 'relative',
             marginRight: '20px',
+            height: 'fit-content',
           }}
         >
           <h3
@@ -581,7 +581,7 @@ const SynchronizationConfig = () => {
                     isUpdateState={sourceApplication}
                     restartRequest={restartExternalRequest}
                     isApplication={true}
-                    removeApplication={''}
+                    removeApplication={['gitlab', 'glideyoke', 'dng']}
                   />
                 </FlexboxGrid.Item>
               </FlexboxGrid>
@@ -633,7 +633,7 @@ const SynchronizationConfig = () => {
                 </FlexboxGrid.Item>
               </FlexboxGrid>
               {sourceProjectID && sourceApplication?.type !== 'gitlab' && (
-                <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+                <FlexboxGrid style={{ marginBottom: '0px' }} align="middle">
                   <FlexboxGrid.Item colspan={4}>
                     <h5>Resource: </h5>
                   </FlexboxGrid.Item>
@@ -660,34 +660,6 @@ const SynchronizationConfig = () => {
                   </FlexboxGrid.Item>
                 </FlexboxGrid>
               )}
-              {sourceResourceType && (
-                <FlexboxGrid style={{ marginBottom: '10px' }} align="middle">
-                  <FlexboxGrid.Item colspan={4}>
-                    <h5>Properties: </h5>
-                  </FlexboxGrid.Item>
-                  <FlexboxGrid.Item colspan={20}>
-                    <FlexboxGrid justify="end">
-                      {/* --- Application dropdown ---   */}
-                      <FlexboxGrid.Item
-                        as={Col}
-                        colspan={20}
-                        style={{ paddingLeft: '0' }}
-                      >
-                        <UseIconSelect
-                          name="glide_native_resource_type"
-                          placeholder="Choose resource type"
-                          onChange={handleTargetResourceTypeChange}
-                          disabled={authenticatedThirdApp}
-                          isLoading={targetResourceTypeLoading}
-                          value={targetResourceType?.name}
-                          appData={targetApplication}
-                          items={targetResourceList?.length ? targetResourceList : []}
-                        />
-                      </FlexboxGrid.Item>
-                    </FlexboxGrid>
-                  </FlexboxGrid.Item>
-                </FlexboxGrid>
-              )}
             </div>
           )}
         </div>
@@ -706,7 +678,7 @@ const SynchronizationConfig = () => {
               padding: '25px 20px',
               marginTop: '50px',
               position: 'relative',
-              height: '120px',
+              height: '105px',
               marginRight: '20px',
             }}
           >
@@ -733,28 +705,26 @@ const SynchronizationConfig = () => {
                   Direction
                 </span>
               </h3>
-              <div style={{ marginTop: '10px' }}>
+              <div style={{ marginTop: '0px' }}>
                 <div>
-                  <Checkbox
-                    value="rightdirection"
-                    checked={rightDirection}
-                    onChange={handleDirectChange}
-                    style={{ marginTop: '-10px' }}
-                  >
-                    <HiOutlineArrowNarrowRight
-                      style={{ fontSize: '35px', marginTop: '-8px' }}
-                    />
-                  </Checkbox>
-                </div>
-                <div>
-                  <Checkbox
-                    value="bidirection"
-                    checked={biDirection}
-                    onChange={handleDirectChange}
-                    style={{ marginTop: '-10px' }}
-                  >
-                    <TbArrowsHorizontal style={{ fontSize: '35px', marginTop: '-8px' }} />
-                  </Checkbox>
+                  <FlexboxGrid.Item colspan={24}>
+                    <FlexboxGrid justify="end">
+                      {/* --- Application dropdown ---   */}
+                      <FlexboxGrid.Item
+                        as={Col}
+                        colspan={24}
+                        style={{ paddingLeft: '0' }}
+                      >
+                        <UseReactSelect
+                          name="application_type"
+                          placeholder="Choose Direction"
+                          onChange={handleDirectChange}
+                          disabled={authenticatedThirdApp}
+                          items={sourceApplication ? direction : []}
+                        />
+                      </FlexboxGrid.Item>
+                    </FlexboxGrid>
+                  </FlexboxGrid.Item>
                 </div>
               </div>
             </div>
@@ -768,6 +738,7 @@ const SynchronizationConfig = () => {
             padding: '25px 20px',
             marginTop: '50px',
             position: 'relative',
+            height: 'fit-content',
           }}
         >
           <h3
@@ -810,7 +781,12 @@ const SynchronizationConfig = () => {
                     isUpdateState={sourceApplication}
                     disabled={authenticatedThirdApp || sourceResourceType ? false : true}
                     isApplication={true}
-                    removeApplication={sourceApplication?.type}
+                    removeApplication={[
+                      sourceApplication?.type,
+                      'gitlab',
+                      'glideyoke',
+                      'dng',
+                    ]}
                   />
                 </FlexboxGrid.Item>
               </FlexboxGrid>
@@ -863,7 +839,7 @@ const SynchronizationConfig = () => {
                           disabled={
                             authenticatedThirdApp ||
                             !targetApplication ||
-                            disbaledDropdown
+                            disabledDropdown
                           }
                           items={targetProjectList?.length ? targetProjectList : []}
                         />
@@ -877,7 +853,7 @@ const SynchronizationConfig = () => {
                   <div style={{ marginBottom: '15px' }}>
                     <Checkbox
                       value="Create New Project"
-                      checked={disbaledDropdown}
+                      checked={disabledDropdown}
                       onChange={handleCreateProject}
                     >
                       Create New Project
@@ -887,65 +863,37 @@ const SynchronizationConfig = () => {
                   ' '
                 )}
                 {targetProjectID && targetApplication?.type !== 'gitlab' && (
-                  <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-                    <FlexboxGrid.Item colspan={4}>
-                      <h5>Resource: </h5>
-                    </FlexboxGrid.Item>
-                    <FlexboxGrid.Item colspan={20}>
-                      <FlexboxGrid justify="end">
-                        {/* --- Application dropdown ---   */}
-                        <FlexboxGrid.Item
-                          as={Col}
-                          colspan={20}
-                          style={{ paddingLeft: '0' }}
-                        >
-                          <UseIconSelect
-                            name="glide_native_resource_type"
-                            placeholder="Choose resource type"
-                            onChange={handleTargetResourceTypeChange}
-                            disabled={authenticatedThirdApp}
-                            isLoading={targetResourceTypeLoading}
-                            value={targetResourceType?.name}
-                            appData={targetApplication}
-                            items={targetResourceList?.length ? targetResourceList : []}
-                          />
-                        </FlexboxGrid.Item>
-                      </FlexboxGrid>
-                    </FlexboxGrid.Item>
-                  </FlexboxGrid>
-                )}
-                {disbaledDropdown && (
-                  <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-                    <FlexboxGrid.Item colspan={4}>
-                      <h5>Resource: </h5>
-                    </FlexboxGrid.Item>
-                    <FlexboxGrid.Item colspan={20}>
-                      <FlexboxGrid justify="end">
-                        {/* --- Application dropdown ---   */}
-                        <FlexboxGrid.Item
-                          as={Col}
-                          colspan={20}
-                          style={{ paddingLeft: '0' }}
-                        >
-                          <UseIconSelect
-                            name="glide_native_resource_type"
-                            placeholder="Choose resource type"
-                            onChange={handleTargetResourceTypeChange}
-                            disabled={authenticatedThirdApp}
-                            isLoading={targetResourceTypeLoading}
-                            value={targetResourceType?.name}
-                            appData={targetApplication}
-                            items={targetResourceList?.length ? targetResourceList : []}
-                          />
-                        </FlexboxGrid.Item>
-                      </FlexboxGrid>
-                    </FlexboxGrid.Item>
-                  </FlexboxGrid>
-                )}
-                {targetResourceType && (
                   <FlexboxGrid style={{ marginBottom: '0px' }} align="middle">
                     <FlexboxGrid.Item colspan={4}>
-                      <h5>Properties: </h5>
+                      <h5>Resource: </h5>
+                    </FlexboxGrid.Item>
+                    <FlexboxGrid.Item colspan={20}>
+                      <FlexboxGrid justify="end">
+                        {/* --- Application dropdown ---   */}
+                        <FlexboxGrid.Item
+                          as={Col}
+                          colspan={20}
+                          style={{ paddingLeft: '0' }}
+                        >
+                          <UseIconSelect
+                            name="glide_native_resource_type"
+                            placeholder="Choose resource type"
+                            onChange={handleTargetResourceTypeChange}
+                            disabled={authenticatedThirdApp}
+                            isLoading={targetResourceTypeLoading}
+                            value={targetResourceType?.name}
+                            appData={targetApplication}
+                            items={targetResourceList?.length ? targetResourceList : []}
+                          />
+                        </FlexboxGrid.Item>
+                      </FlexboxGrid>
+                    </FlexboxGrid.Item>
+                  </FlexboxGrid>
+                )}
+                {disabledDropdown && (
+                  <FlexboxGrid style={{ marginBottom: '10px' }} align="middle">
+                    <FlexboxGrid.Item colspan={4}>
+                      <h5>Resource: </h5>
                     </FlexboxGrid.Item>
                     <FlexboxGrid.Item colspan={20}>
                       <FlexboxGrid justify="end">
@@ -974,7 +922,7 @@ const SynchronizationConfig = () => {
             ))}
         </div>
       </div>
-      <div>
+      {/* <div>
         {targetResourceType && (
           <div>
             <h3 style={{ textAlign: 'center' }}>Sync Frequency</h3>
@@ -986,15 +934,9 @@ const SynchronizationConfig = () => {
                 <span style={{ fontSize: '18px' }}>Automatic</span>
               </Checkbox>
             </div>
-            <div style={{ textAlign: 'center', marginTop: '15px ' }}>
-              <span style={{ fontSize: '18px', fontWeight: 'bold', marginLeft: '15px' }}>
-                Sync newly created resources
-              </span>
-              <Checkbox style={{ marginBottom: '5px' }}></Checkbox>
-            </div>
           </div>
         )}
-      </div>
+      </div> */}
       <div>
         {authenticatedThirdApp ? (
           <ExternalAppModal
@@ -1018,7 +960,7 @@ const SynchronizationConfig = () => {
                 disabled={!sourceProject || !sourceResourceType || !targetApplication}
                 onClick={handleMakeMigration}
               >
-                Submit
+                Run Sync
               </Button>
             </ButtonToolbar>
           </div>
