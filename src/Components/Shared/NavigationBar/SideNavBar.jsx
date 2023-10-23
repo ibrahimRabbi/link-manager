@@ -22,33 +22,6 @@ const iconStyle = {
   marginRight: '17px',
 };
 
-const baseOptions = [
-  {
-    path: '/',
-    navigateTo: '/',
-    icon: <TableColumnIcon />,
-    content: <span>Dashboard</span>,
-  },
-  {
-    path: '/graph-view',
-    navigateTo: '/graph-view',
-    icon: <PiGraphFill size={20} style={iconStyle} />,
-    content: <span>Graph View</span>,
-  },
-  {
-    path: '/pipeline',
-    navigateTo: '/pipeline',
-    icon: <PlayOutlineIcon />,
-    content: <span>Pipelines</span>,
-  },
-  {
-    path: '/extension',
-    navigateTo: '/extension',
-    icon: <AttachmentIcon />,
-    content: <span>Extension</span>,
-  },
-];
-
 const SideNavBar = () => {
   const { isDark, isSidebarOpen } = useSelector((state) => state.nav);
   const { isWbe } = useSelector((state) => state.links);
@@ -72,6 +45,39 @@ const SideNavBar = () => {
       toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
     }
   };
+
+  // eslint-disable-next-line max-len
+  const organization = authCtx?.organization_name
+    ? `/${authCtx?.organization_name?.toLowerCase()}`
+    : '';
+
+  // options to navigate
+  const baseOptions = [
+    {
+      path: organization ? organization : '/',
+      navigateTo: organization ? organization : '/',
+      icon: <TableColumnIcon />,
+      content: <span>Dashboard</span>,
+    },
+    {
+      path: organization ? organization + '/graph-view' : '/graph-view',
+      navigateTo: organization ? organization + '/graph-view' : '/graph-view',
+      icon: <PiGraphFill size={20} style={iconStyle} />,
+      content: <span>Graph View</span>,
+    },
+    {
+      path: organization ? organization + '/pipeline' : '/pipeline',
+      navigateTo: organization ? organization + '/pipeline' : '/pipeline',
+      icon: <PlayOutlineIcon />,
+      content: <span>Pipelines</span>,
+    },
+    {
+      path: organization ? organization + '/extension' : '/extension',
+      navigateTo: organization ? organization + '/extension' : '/extension',
+      icon: <AttachmentIcon />,
+      content: <span>Extension</span>,
+    },
+  ];
 
   return (
     <>
@@ -103,16 +109,26 @@ const SideNavBar = () => {
           <Sidenav.Body className="link-nav-container">
             <Nav>
               {baseOptions?.map((option, index) => {
-                if (isWbe && option.path === '/extension') return null;
+                if (isWbe && option.path === organization + '/extension') {
+                  return null;
+                }
+
+                // get active status for the navigate path
+                const isActive = () => {
+                  if (!isWbe) {
+                    return option?.path === pathname || option.path + '/' === pathname;
+                  } else {
+                    return (
+                      `/wbe${option.path}` === pathname ||
+                      `/wbe${option.path}/` === pathname
+                    );
+                  }
+                };
                 return (
                   <Nav.Item
                     key={index}
                     eventKey={`${index}`}
-                    active={
-                      !isWbe
-                        ? option.path === pathname
-                        : `/wbe${option.path}` === pathname
-                    }
+                    active={isActive()}
                     icon={option.icon}
                     onClick={() => {
                       isWbe

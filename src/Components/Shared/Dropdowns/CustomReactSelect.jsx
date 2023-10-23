@@ -12,6 +12,7 @@ const icons = {
   valispace: '/valispace_logo.png',
   codebeamer: '/codebeamer_logo.png',
   dng: '/dng_logo.png',
+  servicenow: '/servicenow_logo.png',
   default: '/default_logo.png',
 };
 
@@ -25,6 +26,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
     customLabelKey,
     value,
     isLinkCreation,
+    getResponse,
     isApplication,
     isResourceType,
     selectedLinkType,
@@ -77,7 +79,15 @@ const CustomReactSelect = forwardRef((props, ref) => {
         .then((res) => {
           if (res.ok) {
             if (res.status !== 204) {
+              if (getResponse) {
+                getResponse?.handleLinkCreationResponses(getResponse?.name, res);
+              }
               return res.json();
+            } else {
+              // if response is 204 manage response for the link creation
+              if (getResponse) {
+                getResponse?.handleLinkCreationResponses(getResponse?.name, res);
+              }
             }
           } else {
             if (getErrorStatus) {
@@ -85,10 +95,29 @@ const CustomReactSelect = forwardRef((props, ref) => {
             }
             res.json().then((data) => {
               showNotification('error', data?.message);
+              if (getResponse) {
+                getResponse?.handleLinkCreationResponses(getResponse?.name, data);
+              }
+              throw new Error(data?.message);
             });
           }
         })
-        .catch(() => {});
+        .catch((error) => {
+          setIsLoading(false);
+          showNotification('error', error?.message);
+          if (getResponse) {
+            // eslint-disable-next-line max-len
+            getResponse?.handleLinkCreationResponses(
+              getResponse?.name,
+              error,
+              'catch_block',
+            );
+          }
+          throw new Error(
+            // eslint-disable-next-line max-len
+            `${error}: The server could not connect for the ${getResponse?.name} please try to contact with the admin to solve this issue`,
+          );
+        });
       setIsLoading(false);
       setCheckPagination(response);
       if (response?.items) {
@@ -128,6 +157,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
               jira: '',
               valispace: '',
               codebeamer: '',
+              servicenow: '',
               dng: '',
             };
             // domains for the filter application when creating links
@@ -167,6 +197,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
                 app.type === apps.jira ||
                 app.type === apps.valispace ||
                 app.type === apps.codebeamer ||
+                app.type === apps.servicenow ||
                 app.type === apps.dng
               ) {
                 const existingObject = accumulator.find(
@@ -206,6 +237,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
         else if (item?.type === 'jira') appIcon = icons.jira;
         else if (item?.type === 'valispace') appIcon = icons.valispace;
         else if (item?.type === 'codebeamer') appIcon = icons.codebeamer;
+        else if (item?.type === 'servicenow') appIcon = icons.servicenow;
         else if (item?.type === 'dng') appIcon = icons.dng;
         else {
           appIcon = icons.default;
@@ -250,6 +282,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
         else if (item?.api === 'jira') appIcon = icons.jira;
         else if (item?.api === 'valispace') appIcon = icons.valispace;
         else if (item?.api === 'codebeamer') appIcon = icons.codebeamer;
+        else if (item?.api === 'servicenow') appIcon = icons.servicenow;
         else if (item?.api === 'dng') appIcon = icons.dng;
         else {
           appIcon = icons.default;

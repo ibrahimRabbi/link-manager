@@ -18,6 +18,7 @@ import {
 import TextField from '../AdminDasComponents/TextField.jsx';
 import PasswordField from '../AdminDasComponents/PasswordField.jsx';
 import { handleGetSources } from '../../Redux/slices/linksSlice.jsx';
+import fetchAPIRequest from '../../apiRequests/apiRequest.js';
 
 const { titleSpan, main, title } = style;
 const loginURL = `${import.meta.env.VITE_LM_REST_API_URL}/auth/login`;
@@ -66,6 +67,17 @@ const Login = () => {
   }, []);
 
   mixpanel.init(mixPanelId);
+
+  const showNotification = (type, message) => {
+    if (type && message) {
+      const messages = (
+        <Message closable showIcon type={type}>
+          {message}
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
+    }
+  };
 
   const onSubmit = async () => {
     if (!loginFormRef.current.check()) {
@@ -117,29 +129,42 @@ const Login = () => {
           }
 
           console.log(data);
+          // get organization details from the api
+          const organization = await fetchAPIRequest({
+            urlPath: `organization/${data?.organization_id}`,
+            token: data?.access_token,
+            showNotification: showNotification,
+            method: 'GET',
+          });
 
-          authCtx.login(
-            data.access_token,
-            data.expires_in,
-            data?.user_id,
-            data?.organization_id,
-            role,
-          );
+          authCtx.login({
+            token: data.access_token,
+            expiresIn: data.expires_in,
+            user_id: data?.user_id,
+            organization_id: data?.organization_id,
+            user_role: role,
+            organization,
+          });
+
+          const orgName = organization?.name
+            ? `/${organization?.name?.toLowerCase()}`
+            : '';
           // Manage redirect
           if (location.state) {
             const redirectPath = location.state.from.pathname;
             const isAdminDashboard = redirectPath?.includes('/admin');
 
             // if redirect path is admin dashboard & user is not a admin.
-            if (isAdminDashboard && role === 'user') navigate('/');
-            else {
+            if (isAdminDashboard && role === 'user') {
+              navigate(orgName ? orgName : '/');
+            } else {
               navigate(redirectPath);
             }
           } else {
-            if (isSource) navigate('/wbe');
-            else if (isWbe) navigate('/wbe');
+            if (isSource) navigate('/wbe' + orgName);
+            else if (isWbe) navigate('/wbe' + orgName);
             else {
-              navigate('/');
+              navigate(orgName ? orgName : '/');
             }
           }
         } else {

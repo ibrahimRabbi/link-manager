@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import Application from './Components/AdminDasComponents/Application/Application';
 import LinkRules from './Components/AdminDasComponents/LinkRules/LinkRules';
 import Organization from './Components/AdminDasComponents/Organization/Organization';
@@ -62,6 +62,8 @@ function App() {
   const { isDark } = useSelector((state) => state.nav);
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
   const isSuperAdmin = authCtx?.user?.role === 'super_admin' ? true : false;
   const isAdmin = authCtx?.user?.role === 'admin' ? true : false;
 
@@ -69,6 +71,17 @@ function App() {
     const theme = localStorage.getItem('isDarkMode');
     dispatch(handleIsDarkMode(theme));
   }, []);
+  // eslint-disable-next-line max-len
+  const organization = authCtx?.organization_name
+    ? `/${authCtx?.organization_name?.toLowerCase()}`
+    : '';
+
+  useEffect(() => {
+    if (organization) {
+      if (pathname === '/') navigate(organization);
+      if (pathname === '/wbe') navigate(`/wbe${organization}`);
+    }
+  }, [pathname]);
 
   return (
     <CustomProvider theme={isDark}>
@@ -93,10 +106,16 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route path="/wbe/new-link" element={<NewLink />} />
-            <Route path="/wbe/graph-view" element={<CytoscapeGraphView />} />
-            <Route path="/wbe/pipeline" element={<Pipeline />} />
-            <Route path="/wbe" element={<LinkManager />} />
+            <Route path={`/wbe${organization}/new-link`} element={<NewLink />} />
+
+            <Route
+              path={`/wbe${organization}/graph-view`}
+              element={<CytoscapeGraphView />}
+            />
+
+            <Route path={`/wbe${organization}/pipeline`} element={<Pipeline />} />
+
+            <Route path={`/wbe${organization}`} element={<LinkManager />} />
           </Route>
 
           {/* This is Browser dashboard  */}
@@ -108,12 +127,12 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route path="/new-link" element={<NewLink />} />
-            <Route path="/graph-view" element={<CytoscapeGraphView />} />
-            <Route path="/pipeline" element={<Pipeline />} />
-            <Route path="/extension" element={<WebBrowserExtension />} />
-            <Route path="/profile" element={<UserProfile />} />
-            <Route path="/" element={<Home />} />
+            <Route path={`${organization}/new-link`} element={<NewLink />} />
+            <Route path={`${organization}/graph-view`} element={<CytoscapeGraphView />} />
+            <Route path={`${organization}/pipeline`} element={<Pipeline />} />
+            <Route path={`${organization}/extension`} element={<WebBrowserExtension />} />
+            <Route path={`${organization}/profile`} element={<UserProfile />} />
+            <Route path={`${organization}/`} element={<Home />} />
           </Route>
 
           {/* This is admin dashboard  */}

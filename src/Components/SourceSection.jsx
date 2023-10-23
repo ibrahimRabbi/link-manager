@@ -12,6 +12,7 @@ const sourceAppLogos = {
   glide: '/node_icons/glide_logo.png',
   codebeamer: '/node_icons/codebeamer_logo.png',
   dng: '/node_icons/dng_logo.png',
+  servicenow: '/node_icons/servicenow_logo.png',
   default: '/node_icons/default_logo.png',
 };
 
@@ -55,7 +56,7 @@ const SourceSection = () => {
         </FlexboxGrid.Item>
 
         <FlexboxGrid.Item colspan={21}>
-          {sourceDataList?.projectName && (
+          {sourceDataList?.appName && (
             <div
               style={{
                 display: 'flex',

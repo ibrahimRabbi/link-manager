@@ -159,7 +159,7 @@ const UserProfile = () => {
         {/* --- Left Section ---  */}
         <div className={leftContainer}>
           <div className={imageContainer}>
-            <img src="./default_avatar.jpg" alt="avatar" />
+            <img src="./default_avatar.jpg" alt={userInfo?.preferred_username} />
             <h5>{userInfo?.name ? userInfo?.name : 'First Name Last Name'}</h5>
             <Tag color={'orange'}>
               <p>{authCtx?.user ? authCtx?.user?.role : 'User role'}</p>

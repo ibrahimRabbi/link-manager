@@ -28,7 +28,7 @@ import {
 import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
 import GlobalSelector from '../SelectionDialog/GlobalSelector/GlobalSelector';
 
-const { newLinkMainContainer, targetBtnContainer } = styles;
+const { newLinkMainContainer, targetBtnContainer, errorMessageStyle } = styles;
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
@@ -51,11 +51,17 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const [externalProjectDisabled, setExternalProjectDisabled] = useState(false);
   const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
   const [restartExternalRequest, setRestartExternalRequest] = useState(false);
+  const [showMessages, setShowMessages] = useState({});
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
+
+  // eslint-disable-next-line max-len
+  const organization = authCtx?.organization_name
+    ? `/${authCtx?.organization_name?.toLowerCase()}`
+    : '';
 
   const closeExternalAppResetRequest = () => {
     setAuthenticatedThirdApp(false);
@@ -141,7 +147,10 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   useEffect(() => {
     if (createLinkRes) {
-      isWbe ? navigate('/wbe') : navigate('/');
+      if (isWbe) navigate(`/wbe${organization}`);
+      else {
+        navigate(organization ? organization : '/');
+      }
     }
   }, [createLinkRes]);
 
@@ -171,7 +180,10 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // cancel link handler
   const cancelLinkHandler = () => {
     dispatch(handleCancelLink());
-    isWbe ? navigate('/wbe') : navigate('/');
+    if (isWbe) navigate(`/wbe${organization}`);
+    else {
+      navigate(organization ? organization : '/');
+    }
   };
 
   // Create new link
@@ -324,6 +336,56 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     }
   }, [applicationType]);
 
+  // handle link creation responses
+  const handleLinkCreationResponses = (name, response, catch_block) => {
+    setShowMessages({});
+    // eslint-disable-next-line max-len
+    const notConnected = `The server could not connect for the ${name} please try to contact with the admin to solve this issue`;
+
+    if (catch_block) {
+      setShowMessages({ name, message: notConnected });
+    }
+    // error management for the link type dropdown
+    else if (name === 'link types') {
+      if (response?.status === 204) {
+        setShowMessages({
+          name,
+          message:
+            // eslint-disable-next-line max-len
+            'Link types are not configured please generate link types or contact with the admin to continue this process.',
+        });
+      } else {
+        setShowMessages({ name, message: response?.message });
+      }
+    }
+    // error management for the application type dropdown
+    else if (name === 'applications') {
+      if (response?.status === 204) {
+        setShowMessages({
+          name,
+          message:
+            // eslint-disable-next-line max-len
+            'No applications are available for this link type please configure the integrations or contact with the admin to continue this process.',
+        });
+      } else {
+        setShowMessages({ name, message: response?.message });
+      }
+    }
+    // error management for the target project type dropdown
+    else if (name === 'projects') {
+      if (response?.status === 204) {
+        setShowMessages({
+          name,
+          message:
+            // eslint-disable-next-line max-len
+            'No projects or workspace are available for this application please configure it or contact with admin to continue this process.',
+        });
+      } else {
+        setShowMessages({ name, message: response?.message });
+      }
+    }
+  };
+
   return (
     <>
       <SourceSection />
@@ -347,10 +409,15 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               isLinkType={true}
               onChange={handleLinkTypeChange}
               isLinkCreation={true}
+              getResponse={{ name: 'link types', handleLinkCreationResponses }}
               value={linkType?.label}
             />
           </FlexboxGrid.Item>
         </FlexboxGrid>
+
+        {showMessages?.name === 'link types' && showMessages?.message && (
+          <h5 className={errorMessageStyle}>{showMessages?.message}</h5>
+        )}
 
         {/* --- Application and project types --- */}
         {linkType && (
@@ -374,11 +441,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                           : ''
                       }
                       onChange={handleApplicationChange}
-                      isLinkCreation={true}
                       value={applicationType?.label}
                       isUpdateState={linkType}
                       selectedLinkType={linkType}
                       isApplication={true}
+                      isLinkCreation={true}
+                      getResponse={{ name: 'applications', handleLinkCreationResponses }}
                       removeApplication={sourceDataList?.appName}
                     />
                   </FlexboxGrid.Item>
@@ -400,8 +468,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                             : ''
                         }
                         onChange={handleTargetProject}
-                        isLinkCreation={true}
                         isUpdateState={applicationType?.label}
+                        isLinkCreation={true}
+                        getResponse={{
+                          name: 'projects',
+                          handleLinkCreationResponses,
+                        }}
                         value={projectType?.label}
                         disabled={externalProjectDisabled}
                         restartRequest={restartExternalRequest}
@@ -412,6 +484,14 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                 </FlexboxGrid>
               </FlexboxGrid.Item>
             </FlexboxGrid>
+
+            {showMessages?.name === 'applications' && showMessages?.message && (
+              <h5 className={errorMessageStyle}>{showMessages?.message}</h5>
+            )}
+
+            {showMessages?.name === 'projects' && showMessages?.message && (
+              <h5 className={errorMessageStyle}>{showMessages?.message}</h5>
+            )}
           </>
         )}
 
@@ -457,7 +537,10 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               size="md"
               onClick={() => {
                 dispatch(handleCancelLink());
-                isWbe ? navigate('/wbe') : navigate('/');
+                if (isWbe) navigate(`/wbe${organization}`);
+                else {
+                  navigate(organization ? organization : '/');
+                }
               }}
             >
               Cancel

@@ -22,7 +22,7 @@ import { darkColor, lightBgColor } from '../../../App';
 import AlertModal from '../AlertModal';
 import styles from './NavigationBar.module.scss';
 
-const { popoverContainer, userContainer, popButton } = styles;
+const { popoverContainer, userContainer, popButton, navbarBrand } = styles;
 
 const NavigationBar = () => {
   const authCtx = useContext(AuthContext);
@@ -64,10 +64,15 @@ const NavigationBar = () => {
     }
   };
 
+  // eslint-disable-next-line max-len
+  const organization = authCtx?.organization_name
+    ? `/${authCtx?.organization_name?.toLowerCase()}`
+    : '';
+
   const popItems = [
     {
       label: 'Profile',
-      path: '/profile',
+      path: organization + '/profile',
       icon: <BiUserCircle size={18} style={{ marginRight: '-1px' }} />,
     },
     { label: 'Admin Dashboard', path: '/admin', icon: <DashboardIcon size={17} /> },
@@ -140,13 +145,8 @@ const NavigationBar = () => {
           }}
         >
           <Navbar.Brand
-            onClick={() => navigate('/')}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              cursor: 'pointer',
-            }}
+            onClick={() => navigate(organization ? organization : '/')}
+            className={navbarBrand}
           >
             <img height={30} src={koneksysLogo} alt="Logo" />
             <h3>
@@ -162,8 +162,10 @@ const NavigationBar = () => {
                   color: isDark === 'dark' ? '#217ada' : '  #144272',
                 }}
               >
-                Lynx
+                Lynx{' '}
               </span>
+
+              <span> - {authCtx?.organization_name}</span>
             </h3>
           </Navbar.Brand>
           <Nav>
