@@ -30,6 +30,7 @@ import { TbArrowsHorizontal } from 'react-icons/tb';
 import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
 import PropertyTable from './PropertyTable';
 import EnumValueTable from './EnumValueTable';
+import UseCustomProjectSelect from './UseCustomProjectSelect';
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
@@ -113,6 +114,8 @@ const SynchronizationConfig = () => {
   }, []);
   const handleSourceApplicationChange = (selectedItem) => {
     setEnumRows([]);
+    setSourceProperty('');
+    setTargetProperty('');
     setNormalRows([]);
     setSourceResourceType('');
     setPropertyShow(false);
@@ -128,6 +131,8 @@ const SynchronizationConfig = () => {
     setSourceApplication(selectedItem);
   };
   const handleTargetApplicationChange = (selectedItem) => {
+    setSourceProperty('');
+    setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
     setTargetResourceType('');
@@ -144,6 +149,8 @@ const SynchronizationConfig = () => {
     setTargetApplication(selectedItem);
   };
   const handleTargetProject = (selectedItem) => {
+    setSourceProperty('');
+    setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
     setTargetResourceType('');
@@ -161,6 +168,8 @@ const SynchronizationConfig = () => {
     setTargetProject(newSelectedItem);
   };
   const handleSourceProject = (selectedItem) => {
+    setSourceProperty('');
+    setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
     setSourceResourceType('');
@@ -178,25 +187,29 @@ const SynchronizationConfig = () => {
     setSourceProject(newSelectedItem);
   };
   const handleTargetResourceTypeChange = (selectedItem) => {
+    setSourceProperty('');
+    setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
     setPropertyShow(false);
     setTargetResourceType(selectedItem);
   };
   const handleSourceResourceTypeChange = (selectedItem) => {
+    setSourceProperty('');
+    setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
     setPropertyShow(false);
     setSourceResourceType(selectedItem);
   };
   const handleDirectChange = (selectedItem) => {
-    setEnumRows([]);
-    setNormalRows([]);
     setPropertyShow(false);
     setSelectDirection(selectedItem);
     console.log(selectDirection);
   };
   const handleCreateProject = () => {
+    setSourceProperty('');
+    setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
     setPropertyShow(false);
@@ -207,6 +220,8 @@ const SynchronizationConfig = () => {
     setTargetResourceType('');
   };
   const handleShowProperty = () => {
+    setSourceProperty('');
+    setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
     setPropertyShow(!propertyShow);
@@ -631,7 +646,7 @@ const SynchronizationConfig = () => {
                   <FlexboxGrid justify="end">
                     {/* --- Application dropdown ---   */}
                     <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
-                      <UseReactSelect
+                      <UseCustomProjectSelect
                         name="application_type"
                         placeholder="Choose Project"
                         onChange={handleSourceProject}
@@ -723,7 +738,7 @@ const SynchronizationConfig = () => {
                     isLinkCreation={true}
                     value={targetApplication?.label}
                     isUpdateState={sourceApplication}
-                    disabled={authenticatedThirdApp || sourceResourceType ? false : true}
+                    disabled={authenticatedThirdApp || selectDirection ? false : true}
                     isApplication={true}
                     removeApplication={[
                       sourceApplication?.type,
@@ -746,7 +761,7 @@ const SynchronizationConfig = () => {
                   <FlexboxGrid justify="end">
                     {/* --- Application dropdown ---   */}
                     <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
-                      <UseReactSelect
+                      <UseCustomProjectSelect
                         name="application_type"
                         placeholder="Choose Project"
                         onChange={handleTargetProject}
