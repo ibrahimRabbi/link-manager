@@ -38,8 +38,15 @@ const ExternalPreview = (props) => {
   let { nodeData, fromGraphView, status, showExternalAuth, externalLoginAuthData } =
     props;
   let iconUrl = '';
+  let iconToEvaluate = '';
+  console.log('nodeData', nodeData);
+  if (nodeData?.application_type) {
+    iconToEvaluate = nodeData?.application_type;
+  } else {
+    iconToEvaluate = nodeData?.api;
+  }
   // prettier-ignore
-  switch (nodeData?.api) {
+  switch (iconToEvaluate) {
   case 'gitlab':
     iconUrl = '/gitlab_logo.png';
     break;
@@ -101,8 +108,8 @@ const ExternalPreview = (props) => {
   };
 
   const getExternalResourceData = (nodeData) => {
-    const requestMethod = nodeData?.api !== 'gitlab' ? 'GET' : 'POST';
-    if (nodeData?.api_url && nodeData?.application_id) {
+    const requestMethod = nodeData?.application_type !== 'gitlab' ? 'GET' : 'POST';
+    if (nodeData?.application_type && nodeData?.application_id) {
       fetch(`${nodeData.api_url}?application_id=${nodeData.application_id}`, {
         headers: {
           'Content-type': 'application/json',
@@ -134,7 +141,11 @@ const ExternalPreview = (props) => {
   };
   const decodeContent = (nodeData) => {
     if (nodeData?.content_hash) {
-      fetch(`${lmApiUrl}/third_party/${nodeData.api}/decode_selected_content`, {
+      // eslint-disable-next-line max-len
+      const application_type = nodeData?.application_type
+        ? nodeData?.application_type
+        : nodeData?.api;
+      fetch(`${lmApiUrl}/third_party/${application_type}/decode_selected_content`, {
         headers: {
           'Content-type': 'application/json',
           Authorization: `Bearer ${authCtx.token}`,
@@ -161,7 +172,7 @@ const ExternalPreview = (props) => {
   };
 
   const getLanguageExtension = (nodeData) => {
-    if (nodeData.api === 'gitlab') {
+    if (nodeData.application_type === 'gitlab' || nodeData.api === 'gitlab') {
       const extension = nodeData?.name.split('.')[1];
       setExtension(getLanguageFromExtension(extension).toLowerCase());
     }
@@ -263,7 +274,7 @@ const ExternalPreview = (props) => {
           {nodeData?.resource_type && (
             <PreviewRow
               name="Type"
-              icon={getIcon(nodeData?.api, nodeData?.resource_type)}
+              icon={getIcon(nodeData?.application_type, nodeData?.resource_type)}
               firstLetter={true}
               value={nodeData?.resource_type}
             />
@@ -275,7 +286,7 @@ const ExternalPreview = (props) => {
           {nodeData?.description && fromGraphView && (
             <PreviewRow name="Description" value={nodeData?.description} />
           )}
-          {nodeData?.api === 'gitlab' ? (
+          {nodeData?.application_type === 'gitlab' || nodeData?.api === 'gitlab' ? (
             <PreviewRow
               name="Repository"
               value={nodeData?.provider_name}
