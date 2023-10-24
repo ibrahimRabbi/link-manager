@@ -402,7 +402,6 @@ const SynchronizationConfig = () => {
   // for getting resource Properties
   useEffect(() => {
     if (sourceResourceType && sourceProject) {
-      console.log(sourceProject);
       let url;
       if (sourceApplication?.type === 'jira') {
         url = `${thirdApiURL}/${sourceApplication?.type}/resource_properties?application_id=${sourceApplication?.id}&project_key=${sourceProject?.key}&resource_type=${sourceResourceType?.id}`;
@@ -472,7 +471,9 @@ const SynchronizationConfig = () => {
           : sourceResourceType?.id,
       target_application_id: targetApplication ? targetApplication?.id : null,
       target_project: targetProject ? targetProject?.name : null,
-      target_workspace: targetProject ? targetProject?.workspace_name : null,
+      target_workspace: targetProject?.workspace_name
+        ? targetProject?.workspace_name
+        : null,
       target_resource:
         targetApplication?.type === 'codebeamer'
           ? targetResourceType?.name
