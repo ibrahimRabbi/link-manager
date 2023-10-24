@@ -144,12 +144,26 @@ const LinkManagerTable = ({ props }) => {
           trigger="hover"
           enterable
           placement="auto"
-          speaker={rowData?.api ? speaker(rowData, true) : speaker(rowData)}
+          //prettier-ignore
+          speaker={
+            rowData?.application_type
+              ? speaker(rowData, true)
+              : rowData?.api
+                ? speaker(rowData, true)
+                : speaker(rowData)
+          }
           delayOpen={550}
           delayClose={550}
         >
           <a
-            href={rowData?.api ? rowData?.web_url : rowData?.id}
+            //prettier-ignore
+            href={
+              rowData?.application_type
+                ? rowData?.web_url
+                : rowData?.api
+                  ? rowData?.web_url
+                  : rowData?.id
+            }
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -173,10 +187,23 @@ const LinkManagerTable = ({ props }) => {
     let appIcon = '';
     let resourceType = '';
     if (rowData?.resource_type) {
-      appIcon = getIcon(rowData?.api, rowData?.resource_type);
+      if (rowData?.application_type) {
+        appIcon = getIcon(rowData?.application_type, rowData?.resource_type);
+      } else {
+        appIcon = getIcon(rowData?.api, rowData?.resource_type);
+      }
       resourceType = rowData?.resource_type ? rowData.resource_type : '';
     }
-    if (rowData?.web_application_resource_type) {
+    if (rowData?.web_application_resource_type && rowData?.application_type) {
+      appIcon = getIcon(
+        rowData?.application_type,
+        rowData?.web_application_resource_type,
+      );
+      resourceType = rowData?.web_application_resource_type
+        ? rowData.web_application_resource_type
+        : '';
+    }
+    if (rowData?.web_application_resource_type && rowData?.api) {
       appIcon = getIcon(rowData?.api, rowData?.web_application_resource_type);
       resourceType = rowData?.web_application_resource_type
         ? rowData.web_application_resource_type
@@ -424,13 +451,15 @@ const LinkManagerTable = ({ props }) => {
         <ExternalAppModal
           formValue={{
             ...externalAuthData,
-            type: externalAuthData?.api,
+            type: externalAuthData?.application_type,
             rdf_type: externalAuthData?.type,
           }}
-          isOauth2={OAUTH2_APPLICATION_TYPES?.includes(externalAuthData?.api)}
+          isOauth2={OAUTH2_APPLICATION_TYPES?.includes(
+            externalAuthData?.application_type,
+          )}
           isBasic={(
             BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
-          ).includes(externalAuthData?.api)}
+          ).includes(externalAuthData?.application_type)}
           onDataStatus={getExtLoginData}
           integrated={true}
           openedModal={showExternalAuthWindow}

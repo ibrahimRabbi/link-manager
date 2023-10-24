@@ -216,14 +216,14 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         return {
           target_properties: {
             type: item?.type || item?.resource_type,
-            uri: targetUri || item?.web_url,
-            title: item?.name || item?.label,
+            link: targetUri || item?.web_url,
+            name: item?.name || item?.label,
             provider_id: item?.provider_id || item?.id,
             provider_name: item?.provider_name ? item?.provider_name : '',
-            api: item?.api ? item?.api : '',
+            application_id: applicationType?.id,
+            application_type: item?.application_type ? item?.application_type : '',
             description: item?.description ? item?.description : '',
             extra_properties: {
-              application_id: applicationType?.id,
               parent_properties: item?.parent_properties,
               branch_name: properties?.branch_name ? properties?.branch_name : '',
               commit_id: properties?.commit_id ? properties?.commit_id : '',
@@ -242,13 +242,14 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
       // parents properties for the source if source is gitlab
       const source_parent_properties = {
-        api: appName,
+        application_id: appName,
+        application_type: appName,
         description: '',
-        label: selectedLines ? selectedLines[0] : '',
+        name: selectedLines ? selectedLines[0] : '',
         type: parentSourceType ? decodeURIComponent(parentSourceType) : '',
         provider_id: projectId ? projectId : '',
         provider_name: appName,
-        uri: parentFileUri ? decodeURIComponent(parentFileUri) : '',
+        link: parentFileUri ? decodeURIComponent(parentFileUri) : '',
         web_url: parentFileUri ? decodeURIComponent(parentFileUri) : '',
         extended_properties: {
           branch_name: branch ? branch : '',
@@ -260,11 +261,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       const linkBodyData = {
         source_properties: {
           type: sourceType,
-          uri: uri,
-          title: title ? title : '',
+          link: uri,
+          name: title ? title : '',
           provider_id: projectId ? projectId : '',
           provider_name: appName,
-          api: appName,
+          application_id: appName,
+          application_type: appName,
           description: '',
           extra_properties: {
             branch_name: branch ? branch : '',

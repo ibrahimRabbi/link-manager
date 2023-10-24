@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import Select, { components } from 'react-select';
 
-const UseReactSelect = (props) => {
+const UseCustomProjectSelect = (props) => {
   const { name, items, onChange, value, placeholder, isLoading, disabled, isMulti } =
     props;
 
@@ -15,11 +15,21 @@ const UseReactSelect = (props) => {
   // map dropdown items
   useEffect(() => {
     if (items?.length > 0) {
-      const newItems = items?.map((item) => ({
-        ...item,
-        label: item?.name,
-        value: item?.name,
-      }));
+      const newItems = items?.map((item) => {
+        if (item.display_name) {
+          return {
+            ...item,
+            label: item.display_name,
+            value: item.display_name,
+          };
+        } else {
+          return {
+            ...item,
+            label: item.name,
+            value: item.name,
+          };
+        }
+      });
       setSelectOptions(newItems);
     } else {
       setSelectedValue(null);
@@ -92,4 +102,4 @@ const UseReactSelect = (props) => {
   );
 };
 
-export default UseReactSelect;
+export default UseCustomProjectSelect;

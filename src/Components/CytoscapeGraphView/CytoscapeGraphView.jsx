@@ -257,8 +257,13 @@ const CytoscapeGraphView = () => {
           nodeData: {
             ...item?.properties,
             childData: sourceDataList?.uri === item?.properties?.id,
+            // prettier-ignore
             ...checkNodeImage(
-              item?.properties?.api ? item?.properties?.api : item?.properties?.provider,
+              item?.properties?.api
+                ? item?.properties?.api
+                : item?.properties?.application_type
+                  ? item?.properties?.application_type
+                  : item?.properties?.provider,
             ),
           },
         },
