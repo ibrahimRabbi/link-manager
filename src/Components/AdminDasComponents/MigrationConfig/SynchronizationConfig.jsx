@@ -176,7 +176,6 @@ const SynchronizationConfig = () => {
     setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
-    setSourceResourceType('');
     setPropertyShow(false);
     setSourceProjectID('');
     setSourceProject('');
