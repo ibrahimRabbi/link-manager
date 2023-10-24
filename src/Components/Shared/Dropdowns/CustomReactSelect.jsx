@@ -257,12 +257,18 @@ const CustomReactSelect = forwardRef((props, ref) => {
     } else if (isResourceType) {
       dropdownJsonData = option?.map((item) => {
         let appIcon = '';
-        if (item?.api === 'gitlab') appIcon = icons.gitlab;
-        else if (item?.api === 'glideyoke') appIcon = icons.glide;
-        else if (item?.api === 'jira') appIcon = icons.jira;
-        else if (item?.api === 'valispace') appIcon = icons.valispace;
-        else if (item?.api === 'codebeamer') appIcon = icons.codebeamer;
-        else if (item?.api === 'dng') appIcon = icons.dng;
+        if (item?.application_type === 'gitlab' || item?.api === 'gitlab')
+          appIcon = icons.gitlab;
+        else if (item?.application_type === 'glideyoke' || item?.api === 'glideyoke')
+          appIcon = icons.glide;
+        else if (item?.application_type === 'jira' || item?.api === 'jira')
+          appIcon = icons.jira;
+        else if (item?.application_type === 'valispace' || item?.api === 'valispace')
+          appIcon = icons.valispace;
+        else if (item?.application_type === 'codebeamer' || item?.api === 'codebeamer')
+          appIcon = icons.codebeamer;
+        else if (item?.application_type === 'dng' || item?.api === 'dng')
+          appIcon = icons.dng;
         else {
           appIcon = icons.default;
         }
