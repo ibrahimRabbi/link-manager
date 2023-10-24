@@ -113,6 +113,7 @@ const SynchronizationConfig = () => {
     dispatch(handleCurrPageTitle('Synchronization Configuration'));
   }, []);
   const handleSourceApplicationChange = (selectedItem) => {
+    setSelectDirection('');
     setEnumRows([]);
     setSourceProperty('');
     setTargetProperty('');
@@ -125,6 +126,8 @@ const SynchronizationConfig = () => {
     setSourceProject('');
     setSourceProjectList([]);
     setTargetApplication('');
+    setTargetProject('');
+    setTargetResourceType('');
     setSourceExternalProjectUrl('');
     setTargetExternalProjectUrl('');
     closeExternalAppResetRequest();
@@ -135,6 +138,8 @@ const SynchronizationConfig = () => {
     setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
+    setSourceProject('');
+    setSourceResourceType('');
     setTargetResourceType('');
     setPropertyShow(false);
     setDisabledDropdown(false);
@@ -425,7 +430,7 @@ const SynchronizationConfig = () => {
   }, [sourceResourceType, restartExternalRequest]);
   // for getting resource properties
   useEffect(() => {
-    if (targetResourceType) {
+    if (targetResourceType && targetProject) {
       let url;
       if (targetApplication?.type === 'jira' && targetProject !== '') {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_properties?application_id=${targetApplication?.id}&project_key=${targetProject?.key}&resource_type=${targetResourceType?.id}`;
