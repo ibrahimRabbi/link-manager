@@ -19,6 +19,7 @@ const { Column, HeaderCell, Cell } = Table;
 
 const AdminDataTable = ({ props }) => {
   const {
+    title,
     rowData,
     headerData,
     handlePagination,
@@ -211,7 +212,11 @@ const AdminDataTable = ({ props }) => {
         }}
       >
         <FlexboxGrid.Item>
-          {handleAddNew && (
+          {handleAddNew && title === 'Synchronization' ? (
+            <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
+              Create New Sync
+            </Button>
+          ) : (
             <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
               Add New
             </Button>
