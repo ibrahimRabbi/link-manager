@@ -125,6 +125,7 @@ const SynchronizationConfig = () => {
     setTargetProjectID('');
     setSourceProject('');
     setSourceProjectList([]);
+    setTargetProjectList([]);
     setTargetApplication('');
     setTargetProject('');
     setTargetResourceType('');
@@ -138,8 +139,6 @@ const SynchronizationConfig = () => {
     setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
-    setSourceProject('');
-    setSourceResourceType('');
     setTargetResourceType('');
     setPropertyShow(false);
     setDisabledDropdown(false);
@@ -403,6 +402,7 @@ const SynchronizationConfig = () => {
   // for getting resource Properties
   useEffect(() => {
     if (sourceResourceType && sourceProject) {
+      console.log(sourceProject);
       let url;
       if (sourceApplication?.type === 'jira') {
         url = `${thirdApiURL}/${sourceApplication?.type}/resource_properties?application_id=${sourceApplication?.id}&project_key=${sourceProject?.key}&resource_type=${sourceResourceType?.id}`;
@@ -463,7 +463,9 @@ const SynchronizationConfig = () => {
     const body = {
       source_application_id: sourceApplication ? sourceApplication?.id : null,
       source_project: sourceProject ? sourceProject?.name : null,
-      source_workspace: sourceProject ? sourceProject?.workspace_name : null,
+      source_workspace: sourceProject?.workspace_name
+        ? sourceProject?.workspace_name
+        : null,
       source_resource:
         sourceApplication?.type === 'codebeamer'
           ? sourceResourceType?.name
@@ -919,13 +921,20 @@ const SynchronizationConfig = () => {
             integrated={false}
           />
         ) : (
-          <div style={{ display: 'flex', justifyContent: 'end', marginTop: '20px' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'end',
+              marginTop: '20px',
+              marginBottom: '20px',
+            }}
+          >
             <ButtonToolbar>
               <Button appearance="ghost">Cancel</Button>
               <Button appearance="ghost">Save</Button>
               <Button
                 appearance="primary"
-                disabled={!sourceProject || !sourceResourceType || !targetApplication}
+                disabled={!targetResourceType}
                 onClick={handleMakeMigration}
               >
                 Save & Run
