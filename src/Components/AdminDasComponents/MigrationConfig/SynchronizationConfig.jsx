@@ -205,7 +205,6 @@ const SynchronizationConfig = () => {
   const handleDirectChange = (selectedItem) => {
     setPropertyShow(false);
     setSelectDirection(selectedItem);
-    console.log(selectDirection);
   };
   const handleCreateProject = () => {
     setSourceProperty('');
@@ -459,12 +458,14 @@ const SynchronizationConfig = () => {
     const body = {
       source_application_id: sourceApplication ? sourceApplication?.id : null,
       source_project: sourceProject ? sourceProject?.name : null,
+      source_workspace: sourceProject ? sourceProject?.workspace_name : null,
       source_resource:
         sourceApplication?.type === 'codebeamer'
           ? sourceResourceType?.name
           : sourceResourceType?.id,
       target_application_id: targetApplication ? targetApplication?.id : null,
       target_project: targetProject ? targetProject?.name : null,
+      target_workspace: targetProject ? targetProject?.workspace_name : null,
       target_resource:
         targetApplication?.type === 'codebeamer'
           ? targetResourceType?.name

@@ -20,6 +20,7 @@ const PropertyTable = ({
     source: '',
     target: '',
   });
+  const [updateTarget, setUpdateTarget] = useState([]);
   const [sourceEnum, setSourceEnum] = useState('');
   const [targetEnum, setTargetEnum] = useState('');
   const handleSourcePro = (selectedItem) => {
@@ -30,6 +31,12 @@ const PropertyTable = ({
       ...formState, // Spread the existing formState
       source: selectedItem?.name, // Update the 'page' property with the new value
     });
+    if (selectedItem) {
+      const dataType = selectedItem.datatype;
+      const filteredTargetOptions = target.filter((item) => item.datatype === dataType);
+      setUpdateTarget(filteredTargetOptions);
+    }
+    console.log(selectedItem);
   };
 
   const handleTargetPro = (selectedItem) => {
@@ -195,7 +202,7 @@ const PropertyTable = ({
                           name="application_type"
                           placeholder="Choose property"
                           onChange={handleTargetPro}
-                          items={target?.length ? target : []}
+                          items={updateTarget?.length ? updateTarget : []}
                         />
                       </FlexboxGrid.Item>
                     </FlexboxGrid>
