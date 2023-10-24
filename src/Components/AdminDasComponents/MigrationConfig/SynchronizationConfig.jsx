@@ -176,7 +176,6 @@ const SynchronizationConfig = () => {
     setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
-    setSourceResourceType('');
     setPropertyShow(false);
     setSourceProjectID('');
     setSourceProject('');
@@ -488,7 +487,35 @@ const SynchronizationConfig = () => {
         },
         body: JSON.stringify(body),
       });
-      handleResponse(response);
+      if (response.ok) {
+        return response.json().then((data) => {
+          showNotification('success', data.message);
+          return data;
+        });
+      }
+      switch (response.status) {
+        case 400:
+          return response.json().then((data) => {
+            showNotification('error', data?.message);
+            return { items: [] };
+          });
+        case 401:
+          return response.json().then((data) => {
+            showNotification('error', data?.message);
+            return { items: [] };
+          });
+        case 403:
+          if (authCtx.token) {
+            showNotification('error', 'You do not have permission to access');
+          } else {
+            return { items: [] };
+          }
+          break;
+        default:
+          return response.json().then((data) => {
+            showNotification('error', data?.message);
+          });
+      }
       if (!response.ok) {
         setSubmitLoading(false);
       } else {
