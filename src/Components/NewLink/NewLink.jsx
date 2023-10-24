@@ -340,7 +340,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const handleLinkCreationResponses = (name, response, catch_block) => {
     setShowMessages({});
     // eslint-disable-next-line max-len
-    const notConnected = `The server could not connect for the ${name} please try to contact with the admin to solve this issue`;
+    const notConnected = `The server is not available to get information of ${name} please contact the administrator to notify about this issue.`;
 
     if (catch_block) {
       setShowMessages({ name, message: notConnected });
@@ -348,12 +348,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     // error management for the link type dropdown
     else if (name === 'link types') {
       if (response?.status === 204) {
-        setShowMessages({
-          name,
-          message:
-            // eslint-disable-next-line max-len
-            'Link types are not configured please generate link types or contact with the admin to continue this process.',
-        });
+        const message =
+          // eslint-disable-next-line max-len
+          'The Link types for the selected resource have not been configured yet, please contact the administrator to notify about this issue.';
+        setShowMessages({ name, message });
+        throw new Error(message);
       } else {
         setShowMessages({ name, message: response?.message });
       }
@@ -361,12 +360,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     // error management for the application type dropdown
     else if (name === 'applications') {
       if (response?.status === 204) {
-        setShowMessages({
-          name,
-          message:
-            // eslint-disable-next-line max-len
-            'No applications are available for this link type please configure the integrations or contact with the admin to continue this process.',
-        });
+        const message =
+          // eslint-disable-next-line max-len
+          'The target applications for the selected link type have not been configured yet, please contact the administrator to notify about this issue.';
+        setShowMessages({ name, message });
+        throw new Error(message);
       } else {
         setShowMessages({ name, message: response?.message });
       }
@@ -374,12 +372,11 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     // error management for the target project type dropdown
     else if (name === 'projects') {
       if (response?.status === 204) {
-        setShowMessages({
-          name,
-          message:
-            // eslint-disable-next-line max-len
-            'No projects or workspace are available for this application please configure it or contact with admin to continue this process.',
-        });
+        const message =
+          // eslint-disable-next-line max-len
+          'The target projects or workspace for the selected application have not been found, please contact the administrator to notify about this issue.';
+        setShowMessages({ name, message });
+        throw new Error(message);
       } else {
         setShowMessages({ name, message: response?.message });
       }

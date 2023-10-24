@@ -29,7 +29,6 @@ import Pipelines from './Components/AdminDasComponents/Pipelines/Pipelines.jsx';
 import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun.jsx';
 import Pipeline from './Components/Pipeline/Pipeline.jsx';
 import WebBrowserExtension from './Components/WebBrowserExtension/WebBrowserExtension';
-import GitlabSelector from './Components/SelectionDialog/GitlabSelector/GitlabSelector';
 // eslint-disable-next-line max-len
 import Oauth2Callback from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2Callback.jsx';
 import CytoscapeGraphView from './Components/CytoscapeGraphView/CytoscapeGraphView.jsx';
@@ -82,7 +81,8 @@ function App() {
   useEffect(() => {
     if (organization) {
       if (pathname === '/') navigate(organization);
-      if (pathname === '/wbe') navigate(`/wbe${organization}`);
+      else if (pathname === '/wbe') navigate(`/wbe${organization}`);
+      else if (pathname === '/admin') navigate(`${organization}/admin`);
     }
   }, [pathname]);
 
@@ -123,7 +123,7 @@ function App() {
 
           {/* This is Browser dashboard  */}
           <Route
-            path="/"
+            path={`${organization}/`}
             element={
               <ProtectedRoute>
                 <Dashboard />
@@ -141,7 +141,7 @@ function App() {
           {/* This is admin dashboard  */}
           {(isSuperAdmin || isAdmin) && (
             <Route
-              path="/admin"
+              path={`${organization}/admin`}
               element={
                 <ProtectedRoute>
                   <AdminDashboard />
@@ -149,25 +149,50 @@ function App() {
               }
             >
               {isSuperAdmin && (
-                <Route path="/admin/organizations" element={<Organization />} />
+                <Route
+                  path={`${organization}/admin/organizations`}
+                  element={<Organization />}
+                />
               )}
-              <Route path="/admin/users" element={<Users />} />
-              <Route path="/admin/integrations" element={<Application />} />
-              <Route path="/admin/projects" element={<Projects />} />
-              <Route path="/admin/link-rules" element={<LinkRules />} />
-              <Route path="/admin/events" element={<Events />} />
-              <Route path="/admin/pipelinessecrets" element={<PipelineSecrets />} />
-              <Route path="/admin/pipelines" element={<Pipelines />} />
-              <Route path="/admin/pipelinerun" element={<PipelineRun />} />
-              <Route path="/admin/synchronization" element={<SynchronizationConfig />} />
-              <Route path="/admin" element={<Users />} />
+
+              <Route path={`${organization}/admin/users`} element={<Users />} />
+
+              <Route
+                path={`${organization}/admin/integrations`}
+                element={<Application />}
+              />
+
+              <Route path={`${organization}/admin/projects`} element={<Projects />} />
+
+              <Route path={`${organization}/admin/link-rules`} element={<LinkRules />} />
+
+              <Route path={`${organization}/admin/events`} element={<Events />} />
+
+              <Route
+                path={`${organization}/admin/pipelinessecrets`}
+                element={<PipelineSecrets />}
+              />
+
+              <Route path={`${organization}/admin/pipelines`} element={<Pipelines />} />
+
+              <Route
+                path={`${organization}/admin/pipelinerun`}
+                element={<PipelineRun />}
+              />
+
+              <Route
+                path={`${organization}/admin/synchronization`}
+                element={<SynchronizationConfig />}
+              />
+
+              <Route path={`${organization}/admin`} element={<Users />} />
             </Route>
           )}
 
-          <Route path="/gitlabselection/:id" element={<GitlabSelector />}></Route>
           <Route path="/oauth2-status" element={<Oauth2Success />} />
           <Route path="/set-password" element={<SetPassword />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path={`${organization}/*`} element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

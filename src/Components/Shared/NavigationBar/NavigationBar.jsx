@@ -75,7 +75,11 @@ const NavigationBar = () => {
       path: organization + '/profile',
       icon: <BiUserCircle size={18} style={{ marginRight: '-1px' }} />,
     },
-    { label: 'Admin Dashboard', path: '/admin', icon: <DashboardIcon size={17} /> },
+    {
+      label: 'Admin Dashboard',
+      path: organization + '/admin',
+      icon: <DashboardIcon size={17} />,
+    },
     { label: darkModeText, path: '', icon: <ImBrightnessContrast size={17} /> },
     { label: 'Logout', path: '', icon: <BiLogOut size={17} /> },
   ];
