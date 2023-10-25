@@ -412,7 +412,7 @@ const SynchronizationConfig = () => {
       } else if (sourceApplication?.type === 'codebeamer') {
         url = `${thirdApiURL}/${sourceApplication?.type}/resource_properties?application_id=${sourceApplication?.id}&resource_id=${sourceResourceType?.id}`;
       } else {
-        url = `${thirdApiURL}/${sourceApplication?.type}/resource_properties`;
+        url = `${thirdApiURL}/${sourceApplication?.type}/resource_properties?application_id=${sourceApplication?.id}&resource_type=${sourceResourceType?.id}`;
       }
       fetch(url, {
         headers: {
@@ -433,16 +433,14 @@ const SynchronizationConfig = () => {
   }, [sourceResourceType, restartExternalRequest]);
   // for getting resource properties
   useEffect(() => {
-    if (targetResourceType && targetProject) {
+    if (targetResourceType) {
       let url;
       if (targetApplication?.type === 'jira' && targetProject !== '') {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_properties?application_id=${targetApplication?.id}&project_key=${targetProject?.key}&resource_type=${targetResourceType?.id}`;
-      } else if (targetApplication?.type === 'jira' && disabledDropdown) {
-        url = `${thirdApiURL}/${targetApplication?.type}/resource_properties?application_id=${targetApplication?.id}&resource_type=${targetResourceType?.id}`;
       } else if (targetApplication?.type === 'codebeamer' && targetProject !== '') {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_properties?application_id=${targetApplication?.id}&resource_id=${targetResourceType?.id}`;
       } else {
-        url = `${thirdApiURL}/${targetApplication?.type}/resource_properties`;
+        url = `${thirdApiURL}/${targetApplication?.type}/resource_properties?application_id=${targetApplication?.id}&resource_type=${targetResourceType?.id}`;
       }
       fetch(url, {
         headers: {
