@@ -31,6 +31,7 @@ import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
 import PropertyTable from './PropertyTable';
 import EnumValueTable from './EnumValueTable';
 import UseCustomProjectSelect from './UseCustomProjectSelect';
+import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
@@ -74,6 +75,7 @@ const SynchronizationConfig = () => {
   const [sourceProperty, setSourceProperty] = useState('');
   const [targetProperty, setTargetProperty] = useState('');
   const [showAddEnum, setShowAddEnum] = useState(false);
+  const [targetWorkspace, setTargetWorkspace] = useState('');
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const dispatch = useDispatch();
 
@@ -151,6 +153,9 @@ const SynchronizationConfig = () => {
     setTargetExternalProjectUrl('');
     closeExternalAppResetRequest();
     setTargetApplication(selectedItem);
+  };
+  const handleTargetWorkspace = (selectedItem) => {
+    setTargetWorkspace(selectedItem);
   };
   const handleTargetProject = (selectedItem) => {
     setSourceProperty('');
@@ -470,9 +475,12 @@ const SynchronizationConfig = () => {
           : sourceResourceType?.id,
       target_application_id: targetApplication ? targetApplication?.id : null,
       target_project: targetProject ? targetProject?.name : null,
-      target_workspace: targetProject?.workspace_name
-        ? targetProject?.workspace_name
-        : null,
+      target_workspace:
+        targetApplication?.type === 'valispace'
+          ? targetWorkspace?.name
+          : targetProject?.workspace_name
+          ? targetProject?.workspace_name
+          : null,
       target_resource:
         targetApplication?.type === 'codebeamer'
           ? targetResourceType?.name
@@ -488,10 +496,23 @@ const SynchronizationConfig = () => {
         body: JSON.stringify(body),
       });
       if (response.ok) {
+        setSubmitLoading(false);
+        setSourceApplication('');
+        setSourceProject('');
+        setSourceProjectID('');
+        setSourceResourceType('');
+        setTargetApplication('');
+        setTargetProject('');
+        setTargetProjectID('');
+        setTargetResourceType('');
+        setDisabledDropdown(false);
+        setSelectDirection('');
         return response.json().then((data) => {
           showNotification('success', data.message);
           return data;
         });
+      } else if (!response.ok) {
+        setSubmitLoading(false);
       }
       switch (response.status) {
         case 400:
@@ -515,21 +536,6 @@ const SynchronizationConfig = () => {
           return response.json().then((data) => {
             showNotification('error', data?.message);
           });
-      }
-      if (!response.ok) {
-        setSubmitLoading(false);
-      } else {
-        setSubmitLoading(false);
-        setSourceApplication('');
-        setSourceProject('');
-        setSourceProjectID('');
-        setSourceResourceType('');
-        setTargetApplication('');
-        setTargetProject('');
-        setTargetProjectID('');
-        setTargetResourceType('');
-        setDisabledDropdown(false);
-        setSelectDirection('');
       }
     } catch (error) {
       setSubmitLoading(false);
@@ -787,6 +793,31 @@ const SynchronizationConfig = () => {
               </FlexboxGrid>
             </FlexboxGrid.Item>
           </FlexboxGrid>
+          {disabledDropdown && targetApplication?.type === 'valispace' && (
+            <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+              <FlexboxGrid.Item colspan={4}>
+                <h5>Application: </h5>
+              </FlexboxGrid.Item>
+              <FlexboxGrid.Item colspan={20}>
+                <FlexboxGrid justify="end">
+                  {/* --- Application dropdown ---   */}
+                  <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
+                    <CustomReactSelect
+                      name="application_type"
+                      placeholder="Choose Workspace"
+                      apiURL={`${thirdApiURL}/valispace/workspace`}
+                      apiQueryParams={`application_id=${targetApplication?.id}`}
+                      onChange={handleTargetWorkspace}
+                      value={targetWorkspace?.name}
+                      isLinkCreation={true}
+                      disabled={authenticatedThirdApp || selectDirection ? false : true}
+                      // isApplication={true}
+                    />
+                  </FlexboxGrid.Item>
+                </FlexboxGrid>
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          )}
           {targetApplication && (
             <div>
               <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
