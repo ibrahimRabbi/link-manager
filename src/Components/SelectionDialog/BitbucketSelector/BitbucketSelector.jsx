@@ -69,8 +69,8 @@ const BitbucketSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
     setCommitId('');
     setProjectId(selectedItem?.id);
     setDefaultBranch(selectedItem?.default_branch);
-    setDefaultCommit(selectedItem?.last_commit?.name);
-    setDefaultCommitId(selectedItem?.last_commit?.id);
+    // setDefaultCommit(selectedItem?.last_commit?.name);
+    // setDefaultCommitId(selectedItem?.last_commit?.id);
     setBranchList([]);
     setTreeData([]);
   };
@@ -95,13 +95,47 @@ const BitbucketSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
   };
 
   useEffect(() => {
+    if (projectId && appData?.workspace_id) {
+      fetch(
+        `${lmApiUrl}/third_party/bitbucket/containers/${appData.workspace_id}/${projectId}?application_id=${appData?.application_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authCtx.token}`,
+          },
+        },
+      )
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            if (response.status === 401) {
+              setAuthenticatedThirdApp(true);
+              return {};
+            }
+          }
+        })
+        .then((data) => {
+          if (data) {
+            setDefaultBranch(data?.default_branch);
+            setDefaultCommit(data?.last_commit?.name);
+            setDefaultCommitId(data?.last_commit?.id);
+          } else {
+            setDefaultBranch('');
+            setDefaultCommit('');
+            setDefaultCommitId('');
+          }
+        });
+    }
+  }, [projectId]);
+
+  useEffect(() => {
     if (appData?.workspace_id) {
       setProjectId(''); // Clear the project selection
       setProjects([]);
       setTreeData([]);
       setLoading(true);
       fetch(
-        `${lmApiUrl}/third_party/bitbucket/containers/${appData?.workspace_id}?page=1&per_page=10&application_id=${appData?.application_id}`,
+        `${lmApiUrl}/third_party/bitbucket/containers/${appData?.workspace_id}?page=1&per_page=100&application_id=${appData?.application_id}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -138,7 +172,7 @@ const BitbucketSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
     if (projectId) {
       setBranchLoading(true);
       fetch(
-        `${lmApiUrl}/third_party/bitbucket/containers/${appData?.workspace_id}/${projectId}/branch?page=1&per_page=10&application_id=${appData?.application_id}`,
+        `${lmApiUrl}/third_party/bitbucket/containers/${appData?.workspace_id}/${projectId}/branch?page=1&per_page=100&application_id=${appData?.application_id}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -169,7 +203,7 @@ const BitbucketSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
       fetch(
         `${lmApiUrl}/third_party/bitbucket/containers/${
           appData?.workspace_id
-        }/${projectId}/commit?page=1&per_page=10&application_id=${
+        }/${projectId}/commit?page=1&per_page=100&application_id=${
           appData?.application_id
         }&branch=${branchId || defaultBranch}`,
         {
@@ -335,7 +369,7 @@ const BitbucketSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
           </FlexboxGrid>
 
           {/* --- Branches ---  */}
-          {(projectId || defaultBranch) && (
+          {(projectId || defaultBranch) && branchList && (
             <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
               <FlexboxGrid.Item colspan={4}>
                 <h3>Branches: </h3>
@@ -354,9 +388,8 @@ const BitbucketSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
               </FlexboxGrid.Item>
             </FlexboxGrid>
           )}
-
           {/* --- Commits ---  */}
-          {(projectId && branchId) || defaultCommit || defaultBranch ? (
+          {((projectId && (branchId || defaultBranch)) || defaultCommit) && commitList ? (
             <FlexboxGrid style={{ margin: '15px 0' }} align="middle">
               <FlexboxGrid.Item colspan={4}>
                 <h3>Commits: </h3>
