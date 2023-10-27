@@ -404,7 +404,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                     >
                       <CustomReactSelect
                         name="target_project_type"
-                        placeholder="Choose Project"
+                        placeholder="Choose workspace"
                         apiURL={externalProjectUrl}
                         apiQueryParams={
                           applicationType?.id
