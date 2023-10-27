@@ -71,6 +71,9 @@ const ExternalPreview = (props) => {
   case 'servicenow':
     iconUrl = 'servicenow_logo.png';
     break;
+  case 'bitbucket':
+    iconUrl = 'bitbucket_logo.png';
+    break;
   default:
     iconUrl = '/default_preview_logo.svg';
     break;
