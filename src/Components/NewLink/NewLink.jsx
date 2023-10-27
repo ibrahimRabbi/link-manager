@@ -27,6 +27,8 @@ import {
 // eslint-disable-next-line max-len
 import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
 import GlobalSelector from '../SelectionDialog/GlobalSelector/GlobalSelector';
+// eslint-disable-next-line max-len
+import BitbucketSelector from '../SelectionDialog/BitbucketSelector/BitbucketSelector.jsx';
 
 const { newLinkMainContainer, targetBtnContainer } = styles;
 
@@ -45,6 +47,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     linkCreateLoading,
   } = useSelector((state) => state.links);
   const [gitlabDialog, setGitlabDialog] = useState(false);
+  const [bitbucketDialog, setBitbucketDialog] = useState(false);
   const [globalDialog, setGlobalDialog] = useState(false);
   const [appWithWorkspace, setAppWithWorkspace] = useState(false);
   const [externalProjectUrl, setExternalProjectUrl] = useState('');
@@ -111,6 +114,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // set iframe SRC conditionally
   useEffect(() => {
     setGitlabDialog(false);
+    setBitbucketDialog(false);
     setGlobalDialog(false);
     setAppWithWorkspace(false);
 
@@ -118,6 +122,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       switch (applicationType?.type) {
         case 'gitlab':
           setGitlabDialog(true);
+          break;
+        case 'bitbucket':
+          setBitbucketDialog(true);
           break;
         case 'glideyoke':
           setGlobalDialog(true);
@@ -308,6 +315,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     case 'gitlab':
       setExternalProjectUrl(`${thirdApiURL}/gitlab/workspace`);
       break;
+    case 'bitbucket':
+        setExternalProjectUrl(`${thirdApiURL}/bitbucket/workspace`);
+        break;
     case 'valispace':
       setExternalProjectUrl(`${thirdApiURL}/valispace/workspace`);
       break;
@@ -439,6 +449,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               handleSaveLink={handleSaveLink}
               cancelLinkHandler={cancelLinkHandler}
             ></GitlabSelector>
+          )}
+          {linkType && bitbucketDialog && (
+            <BitbucketSelector
+              appData={projectType}
+              handleSaveLink={handleSaveLink}
+              cancelLinkHandler={cancelLinkHandler}
+            ></BitbucketSelector>
           )}
           {linkType && globalDialog && (
             <GlobalSelector
