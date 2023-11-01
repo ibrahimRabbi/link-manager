@@ -7,6 +7,25 @@ import fetchAPIRequest from '../../../apiRequests/apiRequest';
 import { useQuery } from '@tanstack/react-query';
 import AdminDataTable from '../AdminDataTable';
 import { useNavigate } from 'react-router-dom';
+const fakeData=[{
+  'source_application_id': 1,
+  'source_workspace': 'training workspace',
+  'source_project': 'Valicopter_5000',
+  'source_resource': 'requirements',
+  'target_application_id': 2,
+  'target_workspace': null,
+  'target_project': null,
+  'target_resource': 'tasks',
+  'bidirectional': true,
+  'active' : true,
+  'property_mappings': [{
+    'source_property' : 'summary',
+    'target_property' : 'description',
+    'source_datatype' : 'string',
+    'target_datatype' : 'string',
+    'enum_mapping' : {},
+  }],
+}];
 const headerData = [
   {
     header: 'Source Project',
@@ -24,7 +43,11 @@ const headerData = [
     header: 'Target Resource',
     key: 'target_resource',
   },
-  { header: 'Sync', buttonKey: 'button' },
+  { header: 'Sync', 
+    buttonKey: 'button' ,
+    width:120},
+  {header:'Status',
+    syncStatus:'active',width:120},
 ];
 const Synchronization = () => {
   const { isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
@@ -81,7 +104,7 @@ const Synchronization = () => {
   // send props in the batch action table
   const tableProps = {
     title: 'Synchronization',
-    rowData: allPipelineSecrets?.items?.length ? allPipelineSecrets?.items : [],
+    rowData: fakeData?.length ? fakeData : [],
     headerData,
     // handleEdit,
     // handleDelete,
