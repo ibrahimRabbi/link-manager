@@ -17,10 +17,6 @@ const headerData = [
     key: 'source_resource',
   },
   {
-    header: 'Source Property',
-    key: 'source_property',
-  },
-  {
     header: 'Target Project',
     key: 'target_project',
   },
@@ -28,10 +24,7 @@ const headerData = [
     header: 'Target Resource',
     key: 'target_resource',
   },
-  {
-    header: 'Target Property',
-    key: 'target_property',
-  },
+  { header: 'Sync', buttonKey: 'button' },
 ];
 const Synchronization = () => {
   const { isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
