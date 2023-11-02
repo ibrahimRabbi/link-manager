@@ -127,6 +127,8 @@ const AdminDataTable = ({ props }) => {
     iconKey,
     statusKey,
     pipelinerunkey,
+    buttonKey,
+    syncStatus,
     ...props
   }) => {
     const logo = rowData[iconKey] ? rowData[iconKey] : defaultLogo;
@@ -195,6 +197,40 @@ const AdminDataTable = ({ props }) => {
             </h5>
 
             <p style={{ marginTop: '2px' }}>{rowData[statusKey]}</p>
+          </div>
+        )}
+        {syncStatus && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+            }}
+          >
+            <h5>
+              {rowData?.active === true ? (
+                <SuccessStatus color="#378f17" />
+              ) : (
+                rowData?.active === false && <FailedStatus color="#de1655" />
+              )}
+            </h5>
+          </div>
+        )}
+        {buttonKey && (
+          <div>
+            <Button appearance="primary" size="xs" style={{ marginRight: '5px' }}>
+              Sync now
+            </Button>
+          </div>
+        )}
+        {buttonKey && (
+          <div>
+            {rowData?.active === false && (
+              <Button appearance="primary" size="xs">
+                Migrate
+              </Button>
+            )}
           </div>
         )}
       </Cell>
@@ -281,6 +317,8 @@ const AdminDataTable = ({ props }) => {
               iconKey={header?.iconKey}
               statusKey={header?.statusKey}
               pipelinerunkey={header?.pipelinerunkey}
+              buttonKey={header?.buttonKey}
+              syncStatus={header?.syncStatus}
             />
           </Column>
         ))}
