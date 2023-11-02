@@ -32,6 +32,7 @@ import PropertyTable from './PropertyTable';
 import EnumValueTable from './EnumValueTable';
 import UseCustomProjectSelect from './UseCustomProjectSelect';
 import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
+import ProgressModal from './ProgressModal';
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
@@ -473,11 +474,9 @@ const SynchronizationConfig = () => {
           : sourceResourceType?.id,
       target_application_id: targetApplication ? targetApplication?.id : null,
       target_project: targetProject ? targetProject?.name : null,
-      target_workspace:
-        targetApplication?.type === 'valispace'
-          ? targetWorkspace?.name
-          : targetProject?.workspace_name
-          ? targetProject?.workspace_name
+      target_workspace:targetWorkspace?.name
+          ? targetWorkspace?.name:targetProject?.name
+          ? targetProject?.name
           : null,
       target_resource:
         targetApplication?.type === 'codebeamer'
@@ -505,6 +504,8 @@ const SynchronizationConfig = () => {
         setTargetResourceType('');
         setDisabledDropdown(false);
         setSelectDirection('');
+        setEnumRows([]);
+        setNormalRows([]);
         return response.json().then((data) => {
           showNotification('success', data.message);
           return data;
@@ -547,6 +548,7 @@ const SynchronizationConfig = () => {
           style={{ position: 'absolute', top: '100', left: '0', right: '0', bottom: '0' }}
         >
           <UseLoader />
+          <ProgressModal open={submitLoading}/>
         </div>
       )}
       <div
@@ -983,7 +985,7 @@ const SynchronizationConfig = () => {
               display: 'flex',
               justifyContent: 'end',
               marginTop: '20px',
-              marginBottom: '20px',
+              marginBottom: '40px',
             }}
           >
             <ButtonToolbar>

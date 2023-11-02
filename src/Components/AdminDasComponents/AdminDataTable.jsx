@@ -213,7 +213,12 @@ const AdminDataTable = ({ props }) => {
             )}
           </h5>
         </div>)}
-        {buttonKey&&<div><Button appearance='ghost' size='sm'>Sync Now</Button></div>}
+        {buttonKey&&<div>
+          <Button appearance='primary' size='xs' style={{marginRight:'5px'}}>Sync now
+          </Button>
+        </div>}
+        {buttonKey&&<div>{rowData?.active===false &&
+        <Button appearance='primary' size='xs'>Migrate</Button>}</div>}
       </Cell>
     );
   };
