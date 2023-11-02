@@ -106,10 +106,10 @@ const Synchronization = () => {
   };
   useEffect(() => {
     dispatch(handleCurrPageTitle('Synchronization'));
-    refetchPipelineSecrets();
+    refetchsyncConfigList();
   }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData, isCrudLoading]);
   // get all pipeline secrets
-  const { data: allPipelineSecrets, refetch: refetchPipelineSecrets } = useQuery(
+  const { data: syncConfigList, refetch: refetchsyncConfigList } = useQuery(
     ['pipelineSecret'],
     () =>
       fetchAPIRequest({
@@ -117,7 +117,7 @@ const Synchronization = () => {
         urlPath: `${authCtx.organization_id}/sync?page=${currPage}&per_page=${pageSize}`,
         token: authCtx.token,
         method: 'GET',
-        showNotification: showNotification,
+        // showNotification: showNotification,
       }),
   );
   // handle open add pipeline secret modal
@@ -125,7 +125,7 @@ const Synchronization = () => {
     navigate('/admin/createsync');
   };
   const handleDelete = () => {
-    console.log('deleted');
+    showNotification('success', 'deleted');
   };
   // send props in the batch action table
   const tableProps = {
@@ -137,10 +137,10 @@ const Synchronization = () => {
     handleAddNew,
     handlePagination,
     handleChangeLimit,
-    totalItems: allPipelineSecrets?.total_items,
-    totalPages: allPipelineSecrets?.total_pages,
+    totalItems: syncConfigList?.total_items,
+    totalPages: syncConfigList?.total_pages,
     pageSize,
-    page: allPipelineSecrets?.page,
+    page: syncConfigList?.page,
     inpPlaceholder: 'Search Synchronization  Data',
   };
   return (

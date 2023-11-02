@@ -344,7 +344,7 @@ const SynchronizationConfig = () => {
           setTargetProjectLoading(false);
         });
     }
-  }, [targetApplication, restartExternalRequest]);
+  }, [targetApplication, disabledDropdown, restartExternalRequest]);
 
   useEffect(() => {
     if (sourceProjectID) {
@@ -474,10 +474,11 @@ const SynchronizationConfig = () => {
           : sourceResourceType?.id,
       target_application_id: targetApplication ? targetApplication?.id : null,
       target_project: targetProject ? targetProject?.name : null,
-      target_workspace:targetWorkspace?.name
-          ? targetWorkspace?.name:targetProject?.name
-          ? targetProject?.name
-          : null,
+      target_workspace: targetWorkspace?.name
+        ? targetWorkspace?.name
+        : targetProject?.name
+        ? targetProject?.name
+        : null,
       target_resource:
         targetApplication?.type === 'codebeamer'
           ? targetResourceType?.name
@@ -548,7 +549,7 @@ const SynchronizationConfig = () => {
           style={{ position: 'absolute', top: '100', left: '0', right: '0', bottom: '0' }}
         >
           <UseLoader />
-          <ProgressModal open={submitLoading}/>
+          <ProgressModal open={submitLoading} />
         </div>
       )}
       <div
