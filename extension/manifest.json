@@ -1,0 +1,22 @@
+{
+    "manifest_version": 3,
+    "name": "Glide WBE",
+    "version": "1.0",
+    "content_scripts": [
+      {
+        "matches": [
+          "*://*/*"
+        ],
+        "all_frames": true,
+        "js": [
+          "content-script.js",
+          "src/js/icon.js",
+          "src/js/interfaces.js",
+          "src/js/initializer.js"
+        ],
+        "css": [
+          "src/css/dialog.css"
+        ]
+      }
+    ]
+}
