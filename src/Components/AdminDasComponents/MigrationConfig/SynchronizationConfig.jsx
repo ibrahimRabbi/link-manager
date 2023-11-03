@@ -476,8 +476,8 @@ const SynchronizationConfig = () => {
       target_project: targetProject ? targetProject?.name : null,
       target_workspace: targetWorkspace?.name
         ? targetWorkspace?.name
-        : targetProject?.name
-        ? targetProject?.name
+        : targetProject?.workspace_name
+        ? targetProject?.workspace_name
         : null,
       target_resource:
         targetApplication?.type === 'codebeamer'
