@@ -32,7 +32,7 @@ import PropertyTable from './PropertyTable';
 import EnumValueTable from './EnumValueTable';
 import UseCustomProjectSelect from './UseCustomProjectSelect';
 import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
-import ProgressModal from './ProgressModal';
+// import ProgressModal from './ProgressModal';
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
@@ -549,7 +549,7 @@ const SynchronizationConfig = () => {
           style={{ position: 'absolute', top: '100', left: '0', right: '0', bottom: '0' }}
         >
           <UseLoader />
-          <ProgressModal open={submitLoading} />
+          {/* <ProgressModal open={submitLoading} /> */}
         </div>
       )}
       <div
