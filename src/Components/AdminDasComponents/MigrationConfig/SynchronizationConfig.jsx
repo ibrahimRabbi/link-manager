@@ -797,11 +797,11 @@ const SynchronizationConfig = () => {
           {disabledDropdown && targetApplication?.type === 'valispace' && (
             <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
               <FlexboxGrid.Item colspan={4}>
-                <h5>Application: </h5>
+                <h5>Workspace: </h5>
               </FlexboxGrid.Item>
               <FlexboxGrid.Item colspan={20}>
                 <FlexboxGrid justify="end">
-                  {/* --- Application dropdown ---   */}
+                  {/* --- workspace dropdown ---   */}
                   <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
                     <CustomReactSelect
                       name="application_type"
