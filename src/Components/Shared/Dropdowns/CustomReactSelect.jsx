@@ -13,6 +13,7 @@ const icons = {
   codebeamer: '/codebeamer_logo.png',
   dng: '/dng_logo.png',
   bitbucket: '/bitbucket_logo.png',
+  github: '/github_logo.png',
   default: '/default_logo.png',
 };
 
@@ -131,9 +132,14 @@ const CustomReactSelect = forwardRef((props, ref) => {
               codebeamer: '',
               dng: '',
               bitbucket: '',
+              github: '',
             };
             // domains for the filter application when creating links
             const bitbucketDomain = [
+              'http://open-services.net/ns/scm#',
+              'http://tracelynx.com/services/resources#',
+            ];
+            const githubDomain = [
               'http://open-services.net/ns/scm#',
               'http://tracelynx.com/services/resources#',
             ];
@@ -168,6 +174,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
             const urlType = item?.type.split('#')[0] + '#';
             if (urlType?.includes(bitbucketDomain[0])) apps['bitbucket'] = 'bitbucket';
             if (urlType?.includes(bitbucketDomain[1])) apps['bitbucket'] = 'bitbucket';
+            if (urlType?.includes(githubDomain[0])) apps['github'] = 'github';
+            if (urlType?.includes(githubDomain[1])) apps['github'] = 'github';
             if (urlType?.includes(gitlabDomain[0])) apps['gitlab'] = 'gitlab';
             if (urlType?.includes(codeBeamerDomain[0])) apps['codebeamer'] = 'codebeamer';
             if (urlType?.includes(codeBeamerDomain[1])) apps['codebeamer'] = 'codebeamer';
@@ -187,6 +195,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
                 app.type === apps.valispace ||
                 app.type === apps.codebeamer ||
                 app.type === apps.bitbucket ||
+                app.type === apps.github ||
                 app.type === apps.dng
               ) {
                 const existingObject = accumulator.find(
@@ -228,6 +237,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
         else if (item?.type === 'codebeamer') appIcon = icons.codebeamer;
         else if (item?.type === 'dng') appIcon = icons.dng;
         else if (item?.type === 'bitbucket') appIcon = icons.bitbucket;
+        else if (item?.type === 'github') appIcon = icons.github;
         else {
           appIcon = icons.default;
         }
@@ -270,6 +280,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
           appIcon = icons.gitlab;
         else if (item?.application_type === 'glideyoke' || item?.api === 'glideyoke')
           appIcon = icons.glide;
+        else if (item?.application_type === 'github' || item?.api === 'github')
+          appIcon = icons.github;
         else if (item?.application_type === 'jira' || item?.api === 'jira')
           appIcon = icons.jira;
         else if (item?.application_type === 'valispace' || item?.api === 'valispace')
