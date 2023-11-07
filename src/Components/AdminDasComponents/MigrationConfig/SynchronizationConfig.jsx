@@ -507,6 +507,7 @@ const SynchronizationConfig = () => {
         setSelectDirection('');
         setEnumRows([]);
         setNormalRows([]);
+        setPropertyShow(false);
         return response.json().then((data) => {
           showNotification('success', data.message);
           return data;
@@ -546,10 +547,11 @@ const SynchronizationConfig = () => {
     <div style={{ position: 'relative' }}>
       {submitLoading && (
         <div
-          style={{ position: 'absolute', top: '100', left: '0', right: '0', bottom: '0' }}
+          style={{
+            marginTop: '25px',
+          }}
         >
           <UseLoader />
-          {/* <ProgressModal open={submitLoading} /> */}
         </div>
       )}
       <div

@@ -69,8 +69,8 @@ const headerData = [
     header: 'Target Resource',
     key: 'target_resource',
   },
-  { header: 'Sync/Migrate', buttonKey: 'button' },
-  { header: 'Status', syncStatus: 'active', width: 120 },
+  { header: 'Migrate', buttonKey: 'button' },
+  { header: 'Status', syncStatus: 'active' },
 ];
 const Synchronization = () => {
   const { isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(

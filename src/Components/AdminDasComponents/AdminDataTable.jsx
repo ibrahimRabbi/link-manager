@@ -219,16 +219,9 @@ const AdminDataTable = ({ props }) => {
         )}
         {buttonKey && (
           <div>
-            <Button appearance="primary" size="xs" style={{ marginRight: '5px' }}>
-              Sync now
-            </Button>
-          </div>
-        )}
-        {buttonKey && (
-          <div>
             {rowData?.active === false && (
               <Button appearance="primary" size="xs">
-                Migrate
+                Migrate now
               </Button>
             )}
           </div>
