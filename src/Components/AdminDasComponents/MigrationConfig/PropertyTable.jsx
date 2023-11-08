@@ -31,7 +31,7 @@ const PropertyTable = ({
     }
     setFormState({
       ...formState, // Spread the existing formState
-      source_property: selectedItem?.name,
+      source_property: selectedItem?.id,
       source_datatype: selectedItem?.datatype,
     });
     if (selectedItem) {
@@ -48,7 +48,7 @@ const PropertyTable = ({
     }
     setFormState({
       ...formState, // Spread the existing formState
-      target_property: selectedItem?.name,
+      target_property: selectedItem?.id,
       target_datatype: selectedItem?.datatype,
     });
   };

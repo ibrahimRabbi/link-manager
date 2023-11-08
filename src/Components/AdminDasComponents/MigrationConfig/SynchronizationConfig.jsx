@@ -32,6 +32,7 @@ import PropertyTable from './PropertyTable';
 import EnumValueTable from './EnumValueTable';
 import UseCustomProjectSelect from './UseCustomProjectSelect';
 import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
+import { useNavigate } from 'react-router-dom';
 // import ProgressModal from './ProgressModal';
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
@@ -79,6 +80,7 @@ const SynchronizationConfig = () => {
   const [targetWorkspace, setTargetWorkspace] = useState('');
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const showNotification = (type, message) => {
     if (type && message) {
@@ -460,8 +462,8 @@ const SynchronizationConfig = () => {
         });
     }
   }, [targetResourceType, restartExternalRequest]);
-  const handleMakeMigration = async () => {
-    console.log(normalRows);
+  const handleMakeMigration = async (value) => {
+    console.log(value);
     setSubmitLoading(true);
     const body = {
       source_application_id: sourceApplication ? sourceApplication?.id : null,
@@ -485,9 +487,10 @@ const SynchronizationConfig = () => {
           ? targetResourceType?.name
           : targetResourceType?.id,
       bidirectional: true,
-      active: true,
+      active: value,
       property_mappings: normalRows ? normalRows : [],
     };
+    // console.log(JSON.stringify(body));
     try {
       const response = await fetch(
         `${apiURL}/${authCtx?.organization_id}/synchronization`,
@@ -501,6 +504,7 @@ const SynchronizationConfig = () => {
         },
       );
       if (response.ok) {
+        navigate('/admin/synchronization');
         setSubmitLoading(false);
         setSourceApplication('');
         setSourceProject('');
@@ -1000,11 +1004,13 @@ const SynchronizationConfig = () => {
           >
             <ButtonToolbar>
               <Button appearance="ghost">Cancel</Button>
-              <Button appearance="ghost">Save</Button>
+              <Button appearance="ghost" onClick={() => handleMakeMigration(false)}>
+                Save
+              </Button>
               <Button
                 appearance="primary"
                 disabled={!targetResourceType}
-                onClick={handleMakeMigration}
+                onClick={() => handleMakeMigration(true)}
               >
                 Save & Run
               </Button>

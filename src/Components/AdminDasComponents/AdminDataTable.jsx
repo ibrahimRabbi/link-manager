@@ -209,10 +209,10 @@ const AdminDataTable = ({ props }) => {
             }}
           >
             <h5>
-              {rowData?.active === true ? (
+              {rowData?.migrated === true ? (
                 <SuccessStatus color="#378f17" />
               ) : (
-                rowData?.active === false && <FailedStatus color="#de1655" />
+                rowData?.migrated === false && <FailedStatus color="#de1655" />
               )}
             </h5>
           </div>

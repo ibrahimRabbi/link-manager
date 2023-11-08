@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Loader, Message, toaster } from 'rsuite';
@@ -8,50 +9,6 @@ import { useQuery } from '@tanstack/react-query';
 import AdminDataTable from '../AdminDataTable';
 import { useNavigate } from 'react-router-dom';
 
-const fakeData = [
-  {
-    source_application_id: 1,
-    source_workspace: 'training workspace',
-    source_project: 'Valicopter_5000',
-    source_resource: 'requirements',
-    target_application_id: 2,
-    target_workspace: null,
-    target_project: 'Aras Oslc Api',
-    target_resource: 'tasks',
-    bidirectional: true,
-    active: true,
-    property_mappings: [
-      {
-        source_property: 'summary',
-        target_property: 'description',
-        source_datatype: 'string',
-        target_datatype: 'string',
-        enum_mapping: {},
-      },
-    ],
-  },
-  {
-    source_application_id: 2,
-    source_workspace: 'training workspace',
-    source_project: 'Cross Domain Int',
-    source_resource: 'requirements',
-    target_application_id: 3,
-    target_workspace: null,
-    target_project: 'Link Manager',
-    target_resource: 'tasks',
-    bidirectional: true,
-    active: false,
-    property_mappings: [
-      {
-        source_property: 'summary',
-        target_property: 'description',
-        source_datatype: 'string',
-        target_datatype: 'string',
-        enum_mapping: {},
-      },
-    ],
-  },
-];
 const headerData = [
   {
     header: 'Source Project',
@@ -69,8 +26,7 @@ const headerData = [
     header: 'Target Resource',
     key: 'target_resource',
   },
-  { header: 'Migrate', buttonKey: 'button' },
-  { header: 'Status', syncStatus: 'active' },
+  { header: 'Status', syncStatus: 'migrated', width: 120 },
 ];
 const Synchronization = () => {
   const { isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
@@ -110,14 +66,14 @@ const Synchronization = () => {
   }, [isCreated, isUpdated, isDeleted, pageSize, currPage, refreshData, isCrudLoading]);
   // get all pipeline secrets
   const { data: syncConfigList, refetch: refetchsyncConfigList } = useQuery(
-    ['pipelineSecret'],
+    ['sync'],
     () =>
       fetchAPIRequest({
         // eslint-disable-next-line max-len
-        urlPath: `${authCtx.organization_id}/sync?page=${currPage}&per_page=${pageSize}`,
+        urlPath: `${authCtx.organization_id}/synchronization?page=${currPage}&per_page=${pageSize}`,
         token: authCtx.token,
         method: 'GET',
-        // showNotification: showNotification,
+        showNotification: showNotification,
       }),
   );
   // handle open add pipeline secret modal
@@ -128,9 +84,24 @@ const Synchronization = () => {
     showNotification('success', 'deleted');
   };
   // send props in the batch action table
+  // console.log(syncConfigList);
+  const data = !syncConfigList?.items
+    ? []
+    : syncConfigList?.items.flatMap((syncProjects) =>
+        syncProjects?.sync_projects.map((syncproject) => {
+          const { sync_resources, ...rest } = syncproject;
+          const syncResource = sync_resources[0] || null;
+          return {
+            ...rest,
+            ...(syncResource || {}),
+          };
+        }),
+      );
+
+  console.log(data);
   const tableProps = {
     title: 'Synchronization',
-    rowData: fakeData?.length ? fakeData : [],
+    rowData: data ? data : [],
     headerData,
     // handleEdit,
     handleDelete,
