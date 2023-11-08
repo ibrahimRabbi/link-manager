@@ -461,6 +461,7 @@ const SynchronizationConfig = () => {
     }
   }, [targetResourceType, restartExternalRequest]);
   const handleMakeMigration = async () => {
+    console.log(normalRows);
     setSubmitLoading(true);
     const body = {
       source_application_id: sourceApplication ? sourceApplication?.id : null,
@@ -483,16 +484,22 @@ const SynchronizationConfig = () => {
         targetApplication?.type === 'codebeamer'
           ? targetResourceType?.name
           : targetResourceType?.id,
+      bidirectional: true,
+      active: true,
+      property_mappings: normalRows ? normalRows : [],
     };
     try {
-      const response = await fetch(`${apiURL}/migrations`, {
-        method: 'POST',
-        headers: {
-          'Content-type': 'application/json',
-          Authorization: 'Bearer ' + authCtx.token, // Make sure 'Authorization' is capitalized correctly
+      const response = await fetch(
+        `${apiURL}/${authCtx?.organization_id}/synchronization`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-type': 'application/json',
+            Authorization: 'Bearer ' + authCtx.token, // Make sure 'Authorization' is capitalized correctly
+          },
+          body: JSON.stringify(body),
         },
-        body: JSON.stringify(body),
-      });
+      );
       if (response.ok) {
         setSubmitLoading(false);
         setSourceApplication('');

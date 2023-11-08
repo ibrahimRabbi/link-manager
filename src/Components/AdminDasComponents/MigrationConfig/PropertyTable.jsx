@@ -17,8 +17,10 @@ const PropertyTable = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [formState, setFormState] = useState({
-    source: '',
-    target: '',
+    source_property: '',
+    target_property: '',
+    source_datatype: '',
+    target_datatype: '',
   });
   const [updateTarget, setUpdateTarget] = useState([]);
   const [sourceEnum, setSourceEnum] = useState('');
@@ -29,7 +31,8 @@ const PropertyTable = ({
     }
     setFormState({
       ...formState, // Spread the existing formState
-      source: selectedItem?.name, // Update the 'page' property with the new value
+      source_property: selectedItem?.name,
+      source_datatype: selectedItem?.datatype,
     });
     if (selectedItem) {
       const dataType = selectedItem.datatype;
@@ -45,15 +48,19 @@ const PropertyTable = ({
     }
     setFormState({
       ...formState, // Spread the existing formState
-      target: selectedItem?.name,
+      target_property: selectedItem?.name,
+      target_datatype: selectedItem?.datatype,
     });
   };
-  const isButtonDisabled = !formState.source || !formState.target;
+  const isButtonDisabled = !formState.source_property || !formState.target_property;
   const handleSubmit = () => {
     // Create a new row using the current form state
     const newRow = {
-      source: formState?.source,
-      target: formState?.target,
+      source_property: formState?.source_property,
+      target_property: formState?.target_property,
+      source_datatype: formState?.source_datatype,
+      target_datatype: formState?.target_datatype,
+      enum_mapping: {},
     };
     if (sourceEnum !== '' && targetEnum !== '') {
       setShowAddEnum(true);
@@ -64,9 +71,8 @@ const PropertyTable = ({
     }
     setRows([...rows, newRow]);
     setFormState({
-      source: '',
-      target: '',
-      status: 'live',
+      source_property: '',
+      target_property: '',
     });
     setSourceEnum('');
     setTargetEnum('');
@@ -107,7 +113,7 @@ const PropertyTable = ({
               <HeaderCell>
                 <h6>Source</h6>
               </HeaderCell>
-              <Cell dataKey="source" />
+              <Cell dataKey="source_property" />
             </Column>
 
             <Column
@@ -124,7 +130,7 @@ const PropertyTable = ({
               <HeaderCell>
                 <h6>Target</h6>
               </HeaderCell>
-              <Cell dataKey="target" />
+              <Cell dataKey="target_property" />
             </Column>
           </Table>
         </div>
