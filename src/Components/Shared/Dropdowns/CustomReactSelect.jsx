@@ -12,6 +12,7 @@ const icons = {
   valispace: '/valispace_logo.png',
   codebeamer: '/codebeamer_logo.png',
   dng: '/dng_logo.png',
+  bitbucket: '/bitbucket_logo.png',
   default: '/default_logo.png',
 };
 
@@ -129,8 +130,13 @@ const CustomReactSelect = forwardRef((props, ref) => {
               valispace: '',
               codebeamer: '',
               dng: '',
+              bitbucket: '',
             };
             // domains for the filter application when creating links
+            const bitbucketDomain = [
+              'http://open-services.net/ns/scm#',
+              'http://tracelynx.com/services/resources#',
+            ];
             const gitlabDomain = [
               'http://open-services.net/ns/scm#',
               'http://tracelynx.com/services/resources#',
@@ -160,7 +166,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
             ];
 
             const urlType = item?.type.split('#')[0] + '#';
-
+            if (urlType?.includes(bitbucketDomain[0])) apps['bitbucket'] = 'bitbucket';
+            if (urlType?.includes(bitbucketDomain[1])) apps['bitbucket'] = 'bitbucket';
             if (urlType?.includes(gitlabDomain[0])) apps['gitlab'] = 'gitlab';
             if (urlType?.includes(codeBeamerDomain[0])) apps['codebeamer'] = 'codebeamer';
             if (urlType?.includes(codeBeamerDomain[1])) apps['codebeamer'] = 'codebeamer';
@@ -179,6 +186,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
                 app.type === apps.jira ||
                 app.type === apps.valispace ||
                 app.type === apps.codebeamer ||
+                app.type === apps.bitbucket ||
                 app.type === apps.dng
               ) {
                 const existingObject = accumulator.find(
@@ -219,6 +227,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
         else if (item?.type === 'valispace') appIcon = icons.valispace;
         else if (item?.type === 'codebeamer') appIcon = icons.codebeamer;
         else if (item?.type === 'dng') appIcon = icons.dng;
+        else if (item?.type === 'bitbucket') appIcon = icons.bitbucket;
         else {
           appIcon = icons.default;
         }
