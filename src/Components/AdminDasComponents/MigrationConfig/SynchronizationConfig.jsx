@@ -376,7 +376,7 @@ const SynchronizationConfig = () => {
           }
         });
     }
-  }, [sourceProjectID]);
+  }, [sourceProjectID, sourceProject]);
   useEffect(() => {
     if (targetProjectID || disabledDropdown) {
       setTargetResourceTypeLoading(true);
@@ -463,7 +463,6 @@ const SynchronizationConfig = () => {
     }
   }, [targetResourceType, restartExternalRequest]);
   const handleMakeMigration = async (value) => {
-    console.log(value);
     setSubmitLoading(true);
     const body = {
       source_application_id: sourceApplication ? sourceApplication?.id : null,
