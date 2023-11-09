@@ -18,7 +18,7 @@ import {
   Stack,
   toaster,
 } from 'rsuite';
-import { handleCurrPageTitle, handleRefreshData } from '../../Redux/slices/navSlice';
+import { handleRefreshData } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import styles from './LinkManager.module.scss';
 import SourceSection from '../SourceSection';
@@ -49,9 +49,7 @@ const model = Schema.Model({
 });
 
 const LinkManager = () => {
-  const { sourceDataList, linksData, isLoading, configuration_aware } = useSelector(
-    (state) => state.links,
-  );
+  const { sourceDataList, linksData, isLoading } = useSelector((state) => state.links);
 
   const { linksStream, refreshData, isDark } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
@@ -73,6 +71,9 @@ const LinkManager = () => {
 
   useEffect(() => {
     dispatch(handleIsWbe(isWbe));
+    if (isWbe) {
+      localStorage.setItem('wbe', 'wbe');
+    }
   }, [location]);
 
   // delete link using react-query
@@ -105,34 +106,19 @@ const LinkManager = () => {
 
   // get all links
   useEffect(() => {
-    (async () => {
-      dispatch(handleCurrPageTitle('Link Editor'));
+    if (sourceFileURL) {
+      const getLinkUrl = `${apiURL}/link/resource?resource_id=${encodeURIComponent(
+        sourceFileURL,
+      )}&page=${currPage}&per_page=${pageSize}&search_term=${searchValue.search_term}`;
 
-      let streamRes = [];
-      if (configuration_aware && !linksStream.key) {
-        streamRes = await fetch('.././gcm_context.json')
-          .then((res) => res.json())
-          .catch((err) => console.log(err));
-      }
-
-      let stream = linksStream.key ? linksStream.key : streamRes[0]?.key;
-
-      // Get all links
-      if (sourceFileURL) {
-        // eslint-disable-next-line max-len
-        const getLinkUrl = `${apiURL}/link/resource?stream=${stream}&resource_id=${encodeURIComponent(
-          sourceFileURL,
-        )}&page=${currPage}&per_page=${pageSize}&search_term=${searchValue.search_term}`;
-
-        dispatch(
-          fetchLinksData({
-            url: getLinkUrl,
-            token: authCtx.token,
-            showNotification: showNotification,
-          }),
-        );
-      }
-    })();
+      dispatch(
+        fetchLinksData({
+          url: getLinkUrl,
+          token: authCtx.token,
+          showNotification: showNotification,
+        }),
+      );
+    }
   }, [linksStream, pageSize, currPage, deleteSuccess, isLinkSearching, refreshData]);
 
   const showNotification = (type, message) => {
@@ -174,7 +160,6 @@ const LinkManager = () => {
   };
 
   const exportToExcel = () => {
-    console.log(sourceDataList);
     if (sourceFileURL) {
       const exportUrl = `${apiURL}/link/export?source_id=${sourceFileURL}`;
       const filename = sourceDataList['titleLabel']?.replace(' ', '_');
@@ -186,7 +171,6 @@ const LinkManager = () => {
       });
     }
   };
-
   const tableProps = {
     data: linksData?.items?.length ? linksData?.items : [],
     handleChangeLimit,
@@ -295,7 +279,6 @@ const LinkManager = () => {
                     <Button
                       color="blue"
                       appearance="primary"
-                      active
                       onClick={() =>
                         isWbe ? navigate('/wbe/new-link') : navigate('/new-link')
                       }

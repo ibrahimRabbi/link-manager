@@ -80,7 +80,8 @@ const Projects = () => {
     ['project'],
     () =>
       fetchAPIRequest({
-        urlPath: `project?page=${currPage}&per_page=${pageSize}`,
+        // eslint-disable-next-line max-len
+        urlPath: `${authCtx.organization_id}/project?page=${currPage}&per_page=${pageSize}`,
         token: authCtx.token,
         method: 'GET',
         showNotification: showNotification,
@@ -103,7 +104,7 @@ const Projects = () => {
   } = useMutation(
     () =>
       fetchAPIRequest({
-        urlPath: 'project',
+        urlPath: `${authCtx.organization_id}/project`,
         token: authCtx.token,
         method: 'POST',
         body: formValue,
@@ -124,7 +125,7 @@ const Projects = () => {
   } = useMutation(
     () =>
       fetchAPIRequest({
-        urlPath: `project/${editData?.id}`,
+        urlPath: `${authCtx.organization_id}/project/${editData?.id}`,
         token: authCtx.token,
         method: 'PUT',
         body: formValue,
@@ -144,7 +145,7 @@ const Projects = () => {
     mutate: deleteMutate,
   } = useMutation(() =>
     fetchAPIRequest({
-      urlPath: `project/${deleteData?.id}`,
+      urlPath: `${authCtx.organization_id}/project/${deleteData?.id}`,
       token: authCtx.token,
       method: 'DELETE',
       showNotification: showNotification,

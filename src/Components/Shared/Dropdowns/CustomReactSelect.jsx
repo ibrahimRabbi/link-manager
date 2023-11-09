@@ -11,6 +11,8 @@ const icons = {
   glide: '/glide_logo.png',
   valispace: '/valispace_logo.png',
   codebeamer: '/codebeamer_logo.png',
+  dng: '/dng_logo.png',
+  bitbucket: '/bitbucket_logo.png',
   default: '/default_logo.png',
 };
 
@@ -25,6 +27,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
     value,
     isLinkCreation,
     isApplication,
+    isResourceType,
     selectedLinkType,
     isIntegration,
     isEventAssociation,
@@ -32,6 +35,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
     restartRequest,
     removeApplication,
     getErrorStatus,
+    isLinkType,
+    isMulti,
     ...rest
   } = props;
 
@@ -123,29 +128,51 @@ const CustomReactSelect = forwardRef((props, ref) => {
               glideYoke: '',
               jira: '',
               valispace: '',
+              codebeamer: '',
+              dng: '',
+              bitbucket: '',
             };
             // domains for the filter application when creating links
-            const gitlabDomain = ['http://open-services.net/ns/scm#'];
-            const valispaceDomain = ['http://open-services.net/ns/rm#'];
+            const bitbucketDomain = [
+              'http://open-services.net/ns/scm#',
+              'http://tracelynx.com/services/resources#',
+            ];
+            const gitlabDomain = [
+              'http://open-services.net/ns/scm#',
+              'http://tracelynx.com/services/resources#',
+            ];
+            const valispaceDomain = [
+              'http://open-services.net/ns/rm#',
+              'http://tracelynx.com/services/resources#',
+            ];
+            const dngDomain = [
+              'http://open-services.net/ns/rm#',
+              'http://tracelynx.com/services/resources#',
+            ];
             const codeBeamerDomain = [
               'http://open-services.net/ns/rm#',
               'http://open-services.net/ns/qm#',
+              'http://tracelynx.com/services/resources#',
             ];
             const jiraDomain = [
               'http://open-services.net/ns/cm#',
               'http://open-services.net/ns/rm#',
+              'http://tracelynx.com/services/resources#',
             ];
             const glideYokeDomain = [
               'http://open-services.net/ns/plm#',
               'http://open-services.net/ns/cm#',
+              'http://tracelynx.com/services/resources#',
             ];
 
-            const urlType = item?.type;
-
+            const urlType = item?.type.split('#')[0] + '#';
+            if (urlType?.includes(bitbucketDomain[0])) apps['bitbucket'] = 'bitbucket';
+            if (urlType?.includes(bitbucketDomain[1])) apps['bitbucket'] = 'bitbucket';
             if (urlType?.includes(gitlabDomain[0])) apps['gitlab'] = 'gitlab';
             if (urlType?.includes(codeBeamerDomain[0])) apps['codebeamer'] = 'codebeamer';
             if (urlType?.includes(codeBeamerDomain[1])) apps['codebeamer'] = 'codebeamer';
             if (urlType?.includes(valispaceDomain[0])) apps['valispace'] = 'valispace';
+            if (urlType?.includes(dngDomain[0])) apps['dng'] = 'dng';
             if (urlType?.includes(jiraDomain[0])) apps['jira'] = 'jira';
             if (urlType?.includes(jiraDomain[1])) apps['jira'] = 'jira';
             if (urlType?.includes(glideYokeDomain[0])) apps['glideYoke'] = 'glideyoke';
@@ -158,7 +185,9 @@ const CustomReactSelect = forwardRef((props, ref) => {
                 app.type === apps.glideYoke ||
                 app.type === apps.jira ||
                 app.type === apps.valispace ||
-                app.type === apps.codebeamer
+                app.type === apps.codebeamer ||
+                app.type === apps.bitbucket ||
+                app.type === apps.dng
               ) {
                 const existingObject = accumulator.find(
                   (obj) => obj.id === app.id && obj.name === app.name,
@@ -176,13 +205,13 @@ const CustomReactSelect = forwardRef((props, ref) => {
 
       if (removeApplication) {
         if (removeApplication === 'glide') {
-          applicationsForLinks = applicationsForLinks.filter((item) => {
+          applicationsForLinks = applicationsForLinks?.filter((item) => {
             if (item?.type !== 'glideyoke') {
               return item;
             }
           });
         }
-        applicationsForLinks = applicationsForLinks.filter((item) => {
+        applicationsForLinks = applicationsForLinks?.filter((item) => {
           if (item?.type !== removeApplication) {
             return item;
           }
@@ -197,6 +226,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
         else if (item?.type === 'jira') appIcon = icons.jira;
         else if (item?.type === 'valispace') appIcon = icons.valispace;
         else if (item?.type === 'codebeamer') appIcon = icons.codebeamer;
+        else if (item?.type === 'dng') appIcon = icons.dng;
+        else if (item?.type === 'bitbucket') appIcon = icons.bitbucket;
         else {
           appIcon = icons.default;
         }
@@ -224,6 +255,39 @@ const CustomReactSelect = forwardRef((props, ref) => {
         label: item?.service_provider_id,
         value: item?.id,
       }));
+    } else if (isLinkType) {
+      dropdownJsonData = option?.map((item) => ({
+        ...item,
+        // eslint-disable-next-line max-len
+        target_resource: item?.target_link?.constraints?.map((constraint) => constraint),
+        label: item?.source_link?.name,
+        value: item?.id,
+      }));
+    } else if (isResourceType) {
+      dropdownJsonData = option?.map((item) => {
+        let appIcon = '';
+        if (item?.application_type === 'gitlab' || item?.api === 'gitlab')
+          appIcon = icons.gitlab;
+        else if (item?.application_type === 'glideyoke' || item?.api === 'glideyoke')
+          appIcon = icons.glide;
+        else if (item?.application_type === 'jira' || item?.api === 'jira')
+          appIcon = icons.jira;
+        else if (item?.application_type === 'valispace' || item?.api === 'valispace')
+          appIcon = icons.valispace;
+        else if (item?.application_type === 'codebeamer' || item?.api === 'codebeamer')
+          appIcon = icons.codebeamer;
+        else if (item?.application_type === 'dng' || item?.api === 'dng')
+          appIcon = icons.dng;
+        else {
+          appIcon = icons.default;
+        }
+        return {
+          ...item,
+          label: item?.name,
+          value: item?.id,
+          icon: appIcon,
+        };
+      });
     } else {
       dropdownJsonData = option?.map((item) => ({
         ...item,
@@ -300,9 +364,12 @@ const CustomReactSelect = forwardRef((props, ref) => {
       </div>
     );
   };
+
   return (
     <Select
-      value={value ? dropdownData?.find((v) => v?.value === value) : null}
+      value={
+        value ? (isMulti ? value : dropdownData?.find((v) => v?.value === value)) : null
+      }
       ref={ref}
       {...rest}
       className={isDark === 'dark' ? 'reactSelectContainer' : ''}
@@ -310,12 +377,13 @@ const CustomReactSelect = forwardRef((props, ref) => {
       options={dropdownData}
       placeholder={<p style={{ fontSize: '17px' }}>{placeholder}</p>}
       onChange={(v) => {
-        if (isLinkCreation) onChange(v || null);
+        if (isLinkCreation || isMulti) onChange(v || null);
         else {
           onChange(v?.value || null);
         }
       }}
       isClearable
+      isMulti={isMulti}
       isDisabled={disabled}
       isLoading={isLoading}
       isSearchable={true}

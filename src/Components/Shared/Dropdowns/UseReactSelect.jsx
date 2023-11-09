@@ -5,19 +5,26 @@ import { useSelector } from 'react-redux';
 import Select, { components } from 'react-select';
 
 const UseReactSelect = (props) => {
-  const { name, items, onChange, placeholder, isLoading, disabled } = props;
+  const { name, items, onChange, value, placeholder, isLoading, disabled, isMulti } =
+    props;
 
   const [selectOptions, setSelectOptions] = useState([]);
+  const [selectedValue, setSelectedValue] = useState(null);
   const { isDark } = useSelector((state) => state.nav);
 
   // map dropdown items
   useEffect(() => {
-    const newItems = items?.map((item) => ({
-      ...item,
-      label: item?.name,
-      value: item?.name,
-    }));
-    setSelectOptions(newItems);
+    if (items?.length > 0) {
+      const newItems = items?.map((item) => ({
+        ...item,
+        label: item?.name,
+        value: item?.name,
+      }));
+      setSelectOptions(newItems);
+    } else {
+      setSelectedValue(null);
+      setSelectOptions([]);
+    }
   }, [items]);
 
   // react select menu items style
@@ -59,19 +66,28 @@ const UseReactSelect = (props) => {
       options={selectOptions}
       placeholder={<p>{placeholder}</p>}
       onChange={(v) => {
-        onChange(v);
+        setSelectedValue(v);
+        onChange(v || null);
       }}
       isDisabled={disabled}
       isLoading={isLoading}
-      isMulti={false}
+      isMulti={isMulti}
       isClearable={true}
       isSearchable={true}
-      menuPlacement="auto"
+      menuPlacement="bottom"
       name={name}
       components={{
         SingleValue: customSingleValue,
         Option: customOption,
       }}
+      value={
+        // eslint-disable-next-line max-len
+        value
+          ? isMulti
+            ? value
+            : selectOptions?.find((v) => v?.value === value)
+          : selectedValue
+      }
     />
   );
 };

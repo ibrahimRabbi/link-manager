@@ -68,8 +68,11 @@ const Login = () => {
   mixpanel.init(mixPanelId);
 
   const onSubmit = async () => {
-    setIsLoading(true);
+    if (!loginFormRef.current.check()) {
+      return;
+    }
 
+    setIsLoading(true);
     // Track who tried to login
     mixpanel.track('Trying to login.', {
       username: formValue.userName,
@@ -103,10 +106,36 @@ const Login = () => {
 
       if (isMounted.current) {
         if ('access_token' in data) {
-          authCtx.login(data.access_token, data.expires_in, data?.user_id);
+          // set user role
+          let role = '';
+          if (data?.user_role?.includes('super_admin')) {
+            role = 'super_admin';
+          } else if (data?.user_role?.includes('admin')) {
+            role = 'admin';
+          } else if (data?.user_role?.includes('user')) {
+            role = 'user';
+          }
+
+          console.log(data);
+
+          authCtx.login(
+            data.access_token,
+            data.expires_in,
+            data?.user_id,
+            data?.organization_id,
+            role,
+          );
           // Manage redirect
-          if (location.state) navigate(location.state.from.pathname);
-          else {
+          if (location.state) {
+            const redirectPath = location.state.from.pathname;
+            const isAdminDashboard = redirectPath?.includes('/admin');
+
+            // if redirect path is admin dashboard & user is not a admin.
+            if (isAdminDashboard && role === 'user') navigate('/');
+            else {
+              navigate(redirectPath);
+            }
+          } else {
             if (isSource) navigate('/wbe');
             else if (isWbe) navigate('/wbe');
             else {
@@ -194,6 +223,7 @@ const Login = () => {
 
               <Button
                 color="blue"
+                data-cy="login-submit"
                 block
                 type="submit"
                 appearance="primary"

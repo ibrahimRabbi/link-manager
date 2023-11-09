@@ -8,11 +8,7 @@ import {
   handleCancelLink,
   handleIsTargetModalOpen,
   handleLinkType,
-  handleOslcResponse,
   handleProjectType,
-  handleTargetDataArr,
-  handleOslcCancelResponse,
-  resetOslcCancelResponse,
 } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
@@ -31,9 +27,10 @@ import {
 // eslint-disable-next-line max-len
 import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
 import GlobalSelector from '../SelectionDialog/GlobalSelector/GlobalSelector';
+// eslint-disable-next-line max-len
+import BitbucketSelector from '../SelectionDialog/BitbucketSelector/BitbucketSelector.jsx';
 
-const { newLinkMainContainer, targetContainer, targetIframe, targetBtnContainer } =
-  styles;
+const { newLinkMainContainer, targetBtnContainer } = styles;
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
@@ -41,23 +38,18 @@ const thirdApiURL = `${apiURL}/third_party`;
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // links states
   const {
-    configuration_aware,
     isWbe,
-    oslcResponse,
     sourceDataList,
     linkType,
     applicationType,
-    streamType,
     projectType,
-    targetDataArr,
     createLinkRes,
     linkCreateLoading,
-    oslcCancelResponse,
   } = useSelector((state) => state.links);
   const [gitlabDialog, setGitlabDialog] = useState(false);
+  const [bitbucketDialog, setBitbucketDialog] = useState(false);
   const [globalDialog, setGlobalDialog] = useState(false);
   const [appWithWorkspace, setAppWithWorkspace] = useState(false);
-  const [projectFrameSrc, setProjectFrameSrc] = useState('');
   const [externalProjectUrl, setExternalProjectUrl] = useState('');
   const [externalProjectDisabled, setExternalProjectDisabled] = useState(false);
   const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
@@ -106,7 +98,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   };
 
   useEffect(() => {
-    dispatch(handleCurrPageTitle(isEditLinkPage ? isEditLinkPage : 'New Link'));
+    dispatch(handleCurrPageTitle('New Link'));
   }, []);
 
   useEffect(() => {
@@ -122,14 +114,17 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // set iframe SRC conditionally
   useEffect(() => {
     setGitlabDialog(false);
+    setBitbucketDialog(false);
     setGlobalDialog(false);
     setAppWithWorkspace(false);
-    setProjectFrameSrc('');
 
     if (projectType?.value) {
       switch (applicationType?.type) {
         case 'gitlab':
           setGitlabDialog(true);
+          break;
+        case 'bitbucket':
+          setBitbucketDialog(true);
           break;
         case 'glideyoke':
           setGlobalDialog(true);
@@ -144,81 +139,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         case 'codebeamer':
           setGlobalDialog(true);
           break;
+        case 'dng':
+          setGlobalDialog(true);
+          break;
       }
     }
   }, [projectType]);
-
-  //// Get Selection dialog response data
-  window.addEventListener(
-    'message',
-    function (event) {
-      let message = event.data;
-      if (!message.source && !oslcResponse) {
-        if (message.toString()?.startsWith('oslc-response')) {
-          const response = JSON.parse(message?.substr('oslc-response:'?.length));
-          const results = response['oslc:results'];
-          const isCancelled = response['oslc:cancel'];
-          const targetArray = [];
-          if (results?.length > 0) {
-            results?.forEach((v, i) => {
-              const koatl_path = results[i]['koatl:apiPath'];
-              const koatl_uri = results[i]['koatl:apiUrl'];
-              const oslcApplication = results[i]['oslc:api'];
-              const branch_name = results[i]['oslc:branchName'];
-              const target_provider = results[i]['oslc:api'];
-              const content = results[i]['oslc:content'];
-              const content_lines = results[i]['oslc:contentLine'];
-              const provider_id = results[i]['oslc:providerId'];
-              const resource_id = results[i]['oslc:resourceId'];
-              const resource_type = results[i]['oslc:resourceType'];
-              const selected_lines = results[i]['oslc:selectedLines'];
-              const label = results[i]['oslc:label'];
-              const uri = results[i]['rdf:resource'];
-              const type = results[i]['rdf:type'];
-              targetArray.push({
-                koatl_uri,
-                koatl_path,
-                oslcApplication,
-                branch_name,
-                target_provider,
-                provider_id,
-                resource_id,
-                resource_type,
-                content_lines,
-                selected_lines,
-                uri,
-                label,
-                type,
-                content,
-              });
-            });
-            dispatch(handleOslcResponse(true));
-            dispatch(handleTargetDataArr([...targetArray]));
-          } else if (isCancelled) {
-            dispatch(handleOslcCancelResponse());
-          }
-        }
-      }
-    },
-    false,
-  );
-
-  useEffect(() => {
-    if (oslcCancelResponse) {
-      dispatch(resetOslcCancelResponse());
-      dispatch(handleApplicationType(null));
-      setTimeout(() => {
-        dispatch(handleApplicationType(applicationType));
-      }, 50);
-    }
-  }, [oslcCancelResponse]);
-
-  // Call create link function
-  useEffect(() => {
-    if (projectType && oslcResponse && targetDataArr.length) {
-      handleSaveLink();
-    }
-  }, [oslcResponse, targetDataArr]);
 
   useEffect(() => {
     if (createLinkRes) {
@@ -257,8 +183,20 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
 
   // Create new link
   const handleSaveLink = (res) => {
-    const { projectName, sourceType, title, uri, appName, branch, commit, searchString } =
-      sourceDataList;
+    const {
+      projectName,
+      sourceType,
+      resourceTypeLabel,
+      title,
+      uri,
+      appName,
+      branch,
+      commit,
+      searchString,
+      parentSourceType,
+      parentFileUri,
+      projectId,
+    } = sourceDataList;
     const selectedLines = title?.split('#');
 
     // create link with new response formate with new endpoint
@@ -266,56 +204,80 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       const targetRes = JSON.parse(res);
       const mappedTargetData = targetRes?.map((item) => {
         const properties = item?.extended_properties;
-        // eslint-disable-next-line max-len
+
         const targetUri = properties?.selected_lines
-          ? item?.uri + '#' + properties?.selected_lines
-          : item?.uri;
+          ? item?.web_url + '#' + properties?.selected_lines
+          : item?.web_url;
         return {
           target_properties: {
             type: item?.type || item?.resource_type,
-            uri: targetUri || item?.link,
-            title: item?.name || item?.label,
+            link: targetUri || item?.web_url,
+            name: item?.name || item?.label,
             provider_id: item?.provider_id || item?.id,
             provider_name: item?.provider_name ? item?.provider_name : '',
-            api: item?.api ? item?.api : '',
+            application_id: applicationType?.id,
+            application_type: item?.application_type ? item?.application_type : '',
             description: item?.description ? item?.description : '',
             extra_properties: {
-              application_id: applicationType?.id,
-              parent_properties: item?.parent_properties ? item?.parent_properties : '',
+              parent_properties: item?.parent_properties,
               branch_name: properties?.branch_name ? properties?.branch_name : '',
               commit_id: properties?.commit_id ? properties?.commit_id : '',
               content_hash: properties?.content_hash ? properties?.content_hash : '',
-              selected_lines: properties?.selected_lines
-                ? properties?.selected_lines
-                : '',
+              selected_lines: properties?.selected_lines,
               path: properties?.path ? properties?.path : '',
-              web_url: item?.web_url ? item?.web_url : '',
+              api_url: item?.link ? item?.link : '',
+              web_application_resource_type: item?.web_application_resource_type
+                ? item?.web_application_resource_type
+                : properties?.web_application_resource_type,
+              web_url_with_commit: properties?.web_url_with_commit,
             },
           },
         };
       });
 
+      // parents properties for the source if source is gitlab
+      const source_parent_properties = {
+        application_id: appName,
+        application_type: appName,
+        description: '',
+        name: selectedLines ? selectedLines[0] : '',
+        type: parentSourceType ? decodeURIComponent(parentSourceType) : '',
+        provider_id: projectId ? projectId : '',
+        provider_name: appName,
+        link: parentFileUri ? decodeURIComponent(parentFileUri) : '',
+        web_url: parentFileUri ? decodeURIComponent(parentFileUri) : '',
+        extended_properties: {
+          branch_name: branch ? branch : '',
+          commit_id: commit ? commit : '',
+          path: selectedLines ? selectedLines[0] : '',
+        },
+      };
+
       const linkBodyData = {
         source_properties: {
           type: sourceType,
-          uri: uri,
-          title: title ? title : '',
-          provider_id: '',
-          provider_name: projectName,
-          api: appName,
+          link: uri,
+          name: title ? title : '',
+          provider_id: projectId ? projectId : '',
+          provider_name: appName,
+          application_id: appName,
+          application_type: appName,
           description: '',
           extra_properties: {
             branch_name: branch ? branch : '',
             commit_id: commit ? commit : '',
+            parent_properties: parentFileUri ? source_parent_properties : '',
             search_params: searchString ? searchString : '',
             selected_lines: selectedLines
               ? selectedLines[1]
                 ? selectedLines[1]
                 : ''
               : '',
+            project_name: projectName ? projectName : '',
             content_hash: '',
+            web_application_resource_type: resourceTypeLabel ? resourceTypeLabel : '',
             path: '',
-            web_url: '',
+            web_url: uri,
           },
         },
         link_properties: {
@@ -338,79 +300,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       } else {
         showNotification('info', 'Sorry, Source data not found !!!');
       }
-    } else if (!res && targetDataArr?.length) {
-      console.log('targetDataArr', targetDataArr);
-      const targetsData = targetDataArr?.map((data) => {
-        const id = data?.selected_lines
-          ? data.koatl_uri + '#' + data?.selected_lines
-          : data.koatl_uri;
-        const platform_uri = data?.uri;
-        return {
-          koatl_uri: platform_uri,
-          koatl_path: data.koatl_path ? data.koatl_path : '',
-          api: data.oslcApplication ? data.oslcApplication : '',
-          content_lines: data.content_lines ? data.content_lines : '',
-          selected_lines: data.selected_lines ? data.selected_lines : '',
-          branch_name: data.branch_name ? data.branch_name : '',
-          provider_id: data.provider_id ? data.provider_id : '',
-          resource_id: data.resource_id ? data.resource_id : '',
-          resource_type: data.type ? data.type : '',
-          content: data.content ? data.content : '',
-          target_type: data.resource_type ? data.resource_type : '',
-          target_title: data.label ? data.label : '',
-          target_id: id,
-          target_project: projectType?.label ? projectType?.label : '',
-          target_provider: data.target_provider ? data?.target_provider : '',
-        };
-      });
-      let appNameTwo = '';
-      if (appName === null) {
-        appNameTwo = 'JIRA';
-      } else {
-        appNameTwo = appName;
-      }
-
-      const linkObj = {
-        stream: streamType ? streamType : '',
-        source_type: sourceType ? sourceType : '',
-        source_title: title ? title : '',
-        source_project: projectName,
-        source_provider: appNameTwo,
-        source_id: uri,
-        relation: linkType?.label,
-        status: 'valid',
-        target_data: targetsData,
-      };
-      // console.log('Link Obj: ', linkObj);
-      if (sourceDataList?.uri) {
-        dispatch(
-          fetchCreateLink({
-            url: `${apiURL}/link`,
-            token: authCtx.token,
-            bodyData: linkObj,
-            message: 'link',
-            showNotification: showNotification,
-          }),
-        );
-        setExternalProjectUrl('');
-      } else {
-        showNotification('info', 'Sorry, Source data not found found !!!');
-      }
     }
   };
-
-  // eslint-disable-next-line max-len
-  // GCM Config_Aware This value manages the GCM context dropdown and conditional rendering.
-  const [withConfigAware, setWith] = useState(false);
-  const [withoutConfigAware, setWithout] = useState(false);
-
-  useEffect(() => {
-    if (configuration_aware) {
-      if (streamType && linkType && projectType) setWith(true);
-    } else {
-      if (linkType && projectType) setWithout(true);
-    }
-  }, [configuration_aware, linkType, projectType, streamType]);
 
   useEffect(() => {
     if (linkType && projectType) {
@@ -424,6 +315,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     case 'gitlab':
       setExternalProjectUrl(`${thirdApiURL}/gitlab/workspace`);
       break;
+    case 'bitbucket':
+        setExternalProjectUrl(`${thirdApiURL}/bitbucket/workspace`);
+        break;
     case 'valispace':
       setExternalProjectUrl(`${thirdApiURL}/valispace/workspace`);
       break;
@@ -436,8 +330,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     case 'codebeamer':
       setExternalProjectUrl(`${thirdApiURL}/codebeamer/containers`);
       break;
+    case 'dng':
+      setExternalProjectUrl(`${thirdApiURL}/dng/containers`);
+      break;
     }
   }, [applicationType]);
+
   return (
     <>
       <SourceSection />
@@ -453,8 +351,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               name="link_type"
               placeholder="Choose Link Type"
               apiURL={sourceDataList?.sourceType ? `${apiURL}/link-type` : ''}
-              // after configure the source_type endpoints we need to uncomment line
-              // apiQueryParams={`source_resource=${sourceDataList?.sourceType}`}
+              apiQueryParams={`source_resource=${
+                sourceDataList?.sourceType
+                  ? encodeURIComponent(sourceDataList?.sourceType)
+                  : ''
+              }`}
+              isLinkType={true}
               onChange={handleLinkTypeChange}
               isLinkCreation={true}
               value={linkType?.label}
@@ -477,7 +379,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                     <CustomReactSelect
                       name="application_type"
                       placeholder="Choose Application"
-                      apiURL={sourceDataList?.sourceType ? `${apiURL}/application` : ''}
+                      /* eslint-disable-next-line max-len */
+                      apiURL={
+                        sourceDataList?.sourceType
+                          ? `${apiURL}/${authCtx.organization_id}/application`
+                          : ''
+                      }
                       onChange={handleApplicationChange}
                       isLinkCreation={true}
                       value={applicationType?.label}
@@ -497,10 +404,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                     >
                       <CustomReactSelect
                         name="target_project_type"
-                        placeholder="Choose Project"
+                        placeholder="Choose workspace"
                         apiURL={externalProjectUrl}
                         apiQueryParams={
-                          // eslint-disable-next-line max-len
                           applicationType?.id
                             ? `application_id=${applicationType?.id}`
                             : ''
@@ -508,7 +414,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                         onChange={handleTargetProject}
                         isLinkCreation={true}
                         isUpdateState={applicationType?.label}
-                        isValispace={applicationType?.label === 'Valispace'}
                         value={projectType?.label}
                         disabled={externalProjectDisabled}
                         restartRequest={restartExternalRequest}
@@ -523,16 +428,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         )}
 
         {linkCreateLoading && <UseLoader />}
+
         {/* --- Target Selection dialog ---  */}
-
-        {(withConfigAware || withoutConfigAware) && (
-          <div className={targetContainer}>
-            {linkType && projectType && projectFrameSrc && (
-              <iframe className={targetIframe} src={projectFrameSrc} />
-            )}
-          </div>
-        )}
-
         <>
           {authenticatedThirdApp && (
             <ExternalAppModal
@@ -552,6 +449,13 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               handleSaveLink={handleSaveLink}
               cancelLinkHandler={cancelLinkHandler}
             ></GitlabSelector>
+          )}
+          {linkType && bitbucketDialog && (
+            <BitbucketSelector
+              appData={projectType}
+              handleSaveLink={handleSaveLink}
+              cancelLinkHandler={cancelLinkHandler}
+            ></BitbucketSelector>
           )}
           {linkType && globalDialog && (
             <GlobalSelector

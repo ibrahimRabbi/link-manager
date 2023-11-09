@@ -129,7 +129,11 @@ const RecentLink = ({ recentCreatedLinks }) => {
           </div>
         ),
         cell: ({ row }) => (
-          <p style={{ fontSize: '20px' }}>{row?.original?.source?.name}</p>
+          <p style={{ fontSize: '20px' }}>
+            {row?.original?.source?.name.length > 100
+              ? `${row?.original?.source?.name.slice(0, 100)}...`
+              : row?.original?.source?.name}
+          </p>
         ),
         footer: (props) => props.column.id,
       },
@@ -185,9 +189,12 @@ const RecentLink = ({ recentCreatedLinks }) => {
   return (
     <div>
       <table className={styled_table}>
-        <thead style={{ background: 'white' }}>
+        <thead>
           {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
+            <tr
+              key={headerGroup.id}
+              style={{ backgroundColor: isDark === 'dark' ? '#0f131a' : 'white' }}
+            >
               {headerGroup.headers.map((header) => {
                 const status = header.id.includes('status');
                 return (

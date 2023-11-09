@@ -16,6 +16,7 @@ const ProtectedRoute = ({ children }) => {
   const origin = searchParams.get('origin');
   const appName = searchParams.get('appName');
   const sourceType = searchParams.get('sourceType');
+  const resourceTypeLabel = searchParams.get('resourceTypeLabel');
   const uri = searchParams.get('uri');
   const title = searchParams.get('title');
   const titleLabel = searchParams.get('titleLabel');
@@ -24,28 +25,42 @@ const ProtectedRoute = ({ children }) => {
   const commit = searchParams.get('commit');
   const logoUrl = searchParams.get('logoUrl');
   const searchString = searchParams.get('searchParams');
+  const projectId = searchParams.get('projectId');
+  const parentSourceType = searchParams.get('parentSourceType');
+  const parentFileUri = searchParams.get('parentFileUri');
 
   useEffect(() => {
     dispatch(handleIsWbe(wbePath));
+    if (wbePath) {
+      localStorage.setItem('wbe', 'wbe');
+    }
   }, [location]);
 
   useEffect(() => {
-    if (uri) {
+    if (uri || commit) {
       const sources = {
-        projectName,
-        title,
-        titleLabel,
-        uri,
-        branch,
-        commit,
-        origin,
-        sourceType,
+        uri: uri ? decodeURIComponent(uri) : '',
+        sourceType: sourceType ? decodeURIComponent(sourceType) : '',
+        resourceTypeLabel: resourceTypeLabel ? resourceTypeLabel : '',
+        projectName: projectName ? projectName : '',
+        branch: branch ? branch : '',
+        commit: commit ? commit : '',
+        title: title ? title : '',
+        titleLabel: titleLabel ? titleLabel : '',
+        origin: origin ? origin : '',
+        projectId: projectId ? projectId : '',
+        logoUrl: logoUrl ? logoUrl : '',
+        searchString: searchString ? searchString : '',
         appName,
-        logoUrl,
-        searchString,
+        // for the block of code
+        parentSourceType: parentSourceType ? parentSourceType : '',
+        parentFileUri: parentFileUri ? parentFileUri : '',
       };
+
       dispatch(handleGetSources(sources));
       sessionStorage.setItem('sourceData', JSON.stringify(sources));
+    } else {
+      sessionStorage.removeItem('sourceData');
     }
   }, [uri, title, projectName]);
 

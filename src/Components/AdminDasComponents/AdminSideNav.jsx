@@ -1,19 +1,20 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Sidebar, Sidenav, Nav, Divider } from 'rsuite';
+import { Sidebar, Sidenav, Nav, Divider, Navbar } from 'rsuite';
 import { handleIsAdminSidebarOpen } from '../../Redux/slices/navSlice';
 import { FaUsers, FaLink } from 'react-icons/fa';
 import { SlOrganization } from 'react-icons/sl';
 import { SiAzurepipelines } from 'react-icons/si';
 import { PiPlugsDuotone } from 'react-icons/pi';
 import { VscProject } from 'react-icons/vsc';
-import { CgLink } from 'react-icons/cg';
 import { MdEvent, MdArrowForwardIos } from 'react-icons/md';
 import { darkColor, lightBgColor } from '../../App';
 import PlayOutlineIcon from '@rsuite/icons/PlayOutline';
 import { useContext } from 'react';
 import AuthContext from '../../Store/Auth-Context';
+import { BiTransferAlt } from 'react-icons/bi';
+import { RiLockPasswordLine } from 'react-icons/ri';
 
 const iconStyle = {
   marginLeft: '-35px',
@@ -51,44 +52,51 @@ const options = [
     hidden: false,
   },
   {
-    path: ['/admin/link-types'],
-    navigateTo: '/admin/link-types',
+    path: ['/admin/link-rules'],
+    navigateTo: '/admin/link-rules',
     icon: <FaLink size={16.5} style={{ ...iconStyle }} />,
-    content: <span>Link Types</span>,
-    hidden: false,
-  },
-  {
-    path: ['/admin/link-constraint'],
-    navigateTo: '/admin/link-constraint',
-    icon: (
-      <CgLink
-        size={24}
-        style={{ ...iconStyle, marginLeft: '-40px', marginRight: '17px' }}
-      />
-    ),
-    content: <span>Link Constraint</span>,
+    content: <span>Link Rules</span>,
     hidden: false,
   },
   {
     path: ['/admin/events'],
     navigateTo: '/admin/events',
     icon: <MdEvent size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />,
-    content: <span>Events</span>,
+    content: <span>Event Config</span>,
+    hidden: false,
+  },
+  {
+    path: ['/admin/pipelinessecrets'],
+    navigateTo: '/admin/pipelinessecrets',
+    icon: <RiLockPasswordLine size={16} style={{ ...iconStyle }} />,
+    content: <span>Pipeline Secrets</span>,
     hidden: false,
   },
   {
     path: ['/admin/pipelines'],
     navigateTo: '/admin/pipelines',
     icon: <SiAzurepipelines size={16} style={{ ...iconStyle }} />,
-    content: <span>Pipelines</span>,
+    content: <span>Pipeline Config</span>,
     hidden: false,
   },
+
   {
     path: ['/admin/pipelinerun'],
     navigateTo: '/admin/pipelinerun',
     icon: <PlayOutlineIcon size={15} style={{ ...iconStyle, marginLeft: '0' }} />,
     content: <span>Pipeline Runs</span>,
     hidden: true,
+  },
+  {
+    path: ['/admin/synchronization'],
+    navigateTo: '/admin/synchronization',
+    icon: (
+      <span>
+        <BiTransferAlt style={{ ...iconStyle, marginLeft: '-38px', fontSize: '20px' }} />
+      </span>
+    ),
+    content: <span>Sync Configs</span>,
+    hidden: false,
   },
 ];
 
@@ -108,18 +116,9 @@ const AdminSideNav = () => {
           backgroundColor: isDark === 'dark' ? darkColor : lightBgColor,
         }}
         className="admin-components-sidebar"
-        width={isAdminSidebarOpen ? 210 : 60}
+        width={isAdminSidebarOpen ? 200 : 56}
         collapsible
       >
-        <Sidenav.Header className="dashboard_sidebar_header">
-          <h3
-            style={{ transform: isAdminSidebarOpen ? 'rotate(180deg)' : '' }}
-            onClick={() => dispatch(handleIsAdminSidebarOpen(!isAdminSidebarOpen))}
-          >
-            <MdArrowForwardIos />
-          </h3>
-        </Sidenav.Header>
-
         <Divider style={{ margin: '0' }} />
 
         <Sidenav
@@ -151,6 +150,21 @@ const AdminSideNav = () => {
             </Nav>
           </Sidenav.Body>
         </Sidenav>
+
+        <Navbar style={{ margin: 'auto 0 10px 0' }}>
+          <Nav pullRight>
+            <Nav.Item
+              onClick={() => dispatch(handleIsAdminSidebarOpen(!isAdminSidebarOpen))}
+              style={{
+                textAlign: 'center',
+                transition: '0.2s',
+                transform: isAdminSidebarOpen ? 'rotate(180deg)' : '',
+              }}
+            >
+              <MdArrowForwardIos size={25} />
+            </Nav.Item>
+          </Nav>
+        </Navbar>
       </Sidebar>
     </>
   );

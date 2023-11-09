@@ -157,7 +157,7 @@ const Pipelines = () => {
   };
 
   useEffect(() => {
-    dispatch(handleCurrPageTitle('Pipelines'));
+    dispatch(handleCurrPageTitle('Pipeline Configuration'));
 
     const getUrl = `${lmApiUrl}/pipelines?page=${currPage}&per_page=${pageSize}`;
     dispatch(
@@ -273,7 +273,7 @@ const Pipelines = () => {
                   name="event_id"
                   label="Event"
                   accepter={CustomReactSelect}
-                  apiURL={`${lmApiUrl}/events`}
+                  apiURL={`${lmApiUrl}/${authCtx.organization_id}/events`}
                   error={formError.event_id}
                   reqText="Event is required"
                 />

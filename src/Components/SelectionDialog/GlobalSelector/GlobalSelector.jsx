@@ -18,6 +18,7 @@ import {
 } from '@tanstack/react-table';
 import { columnDefWithCheckBox as glideColumns } from './GlideColumns';
 import { columnDefWithCheckBox as jiraColumns } from './JiraColumns';
+import { columnDefWithCheckBox as dngColumns } from './DngColumns';
 import { columnDefWithCheckBox as valispaceColumns } from './ValispaceColumns.jsx';
 import { columnDefWithCheckBox as codebeamerColumns } from './CodebeamerColumns';
 import { Button, ButtonToolbar, FlexboxGrid, Message, Pagination, toaster } from 'rsuite';
@@ -25,7 +26,9 @@ import { useSelector } from 'react-redux';
 import Filter from './FilterFunction';
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
 import { isEqual } from 'rsuite/cjs/utils/dateUtils.js';
+import UseIconSelect from './UseIconSelect';
 
+const NEW_RESOURCE_TYPES = ['codebeamer', 'dng', 'jira', 'glideyoke', 'valispace'];
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 const nativeAppUrl = `${lmApiUrl}/third_party/`;
 const GlobalSelector = ({
@@ -53,6 +56,7 @@ const GlobalSelector = ({
   const [columnFilters, setColumnFilters] = React.useState([]);
   const [previousColumnFilters, setPreviousColumnFilters] = React.useState([]);
   const [resourceLoading, setResourceLoading] = useState(false);
+  const [resourceTypesName, setResourceTypesName] = useState('');
   const [filterIn, setFilterIn] = useState('');
 
   const authCtx = useContext(AuthContext);
@@ -91,7 +95,8 @@ const GlobalSelector = ({
     setResourceTypeId('');
   };
   const handleResourceTypeChange = (selectedItem) => {
-    if (appData.application_type === 'codebeamer') {
+    setResourceTypesName(selectedItem?.name);
+    if (NEW_RESOURCE_TYPES.includes(appData.application_type)) {
       setResourceTypeId(selectedItem?.id);
     } else {
       setResourceTypeId(selectedItem?.name);
@@ -244,7 +249,7 @@ const GlobalSelector = ({
         if (data?.length > 0) {
           setResourceLoading(false);
           setResourceTypes(data);
-        } else if (appData.application_type === 'codebeamer') {
+        } else if (NEW_RESOURCE_TYPES.includes(appData.application_type)) {
           if (data?.items.length > 0) {
             setResourceLoading(false);
             setResourceTypes(data?.items);
@@ -300,8 +305,9 @@ const GlobalSelector = ({
 
   useEffect(() => {
     if (resourceTypes.length === 1) {
-      if (appData.application_type === 'codebeamer') {
+      if (NEW_RESOURCE_TYPES.includes(appData.application_type)) {
         setResourceTypeId(resourceTypes[0]?.id);
+        setResourceTypesName(resourceTypes[0]?.name);
       } else {
         setResourceTypeId(resourceTypes[0]?.name);
       }
@@ -316,6 +322,8 @@ const GlobalSelector = ({
       return valispaceColumns;
     } else if (appData?.application_type === 'codebeamer') {
       return codebeamerColumns;
+    } else if (appData?.application_type === 'dng') {
+      return dngColumns;
     } else {
       return glideColumns;
     }
@@ -352,6 +360,9 @@ const GlobalSelector = ({
         }
         if (!newRow?.label) {
           newRow = { ...newRow, label: newRow?.label };
+        }
+        if (!newRow.resourceTypes) {
+          newRow = { ...newRow, resourceTypes: resourceTypesName };
         }
         return JSON.stringify(newRow);
       })
@@ -415,12 +426,13 @@ const GlobalSelector = ({
                 <h3>Resource: </h3>
               </FlexboxGrid.Item>
               <FlexboxGrid.Item colspan={20}>
-                <UseReactSelect
+                <UseIconSelect
                   name="glide_native_resource_type"
                   placeholder="Choose resource type"
                   onChange={handleResourceTypeChange}
                   disabled={authenticatedThirdApp}
                   isLoading={resourceLoading}
+                  appData={appData}
                   items={resourceTypes?.length ? resourceTypes : []}
                 />
               </FlexboxGrid.Item>
@@ -437,7 +449,13 @@ const GlobalSelector = ({
                   <thead>
                     {tableInstance.getHeaderGroups().map((headerEl) => {
                       return (
-                        <tr key={headerEl.id} style={{ fontSize: '20px' }}>
+                        <tr
+                          key={headerEl.id}
+                          style={{
+                            fontSize: '20px',
+                            backgroundColor: isDark === 'dark' && '#0f131a',
+                          }}
+                        >
                           {headerEl.headers.map((columnEl) => {
                             return (
                               <th

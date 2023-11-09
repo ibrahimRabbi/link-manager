@@ -69,8 +69,8 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
     setCommitId('');
     setProjectId(selectedItem?.id);
     setDefaultBranch(selectedItem?.default_branch);
-    setDefaultCommit(selectedItem?.last_commit?.name);
-    setDefaultCommitId(selectedItem?.last_commit?.id);
+    // setDefaultCommit(selectedItem?.last_commit?.name);
+    // setDefaultCommitId(selectedItem?.last_commit?.id);
     setBranchList([]);
     setTreeData([]);
   };
@@ -93,6 +93,40 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
       setTreeData([]);
     }
   };
+
+  useEffect(() => {
+    if (projectId) {
+      fetch(
+        `${lmApiUrl}/third_party/gitlab/container/${projectId}?application_id=${appData?.application_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authCtx.token}`,
+          },
+        },
+      )
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            if (response.status === 401) {
+              setAuthenticatedThirdApp(true);
+              return {};
+            }
+          }
+        })
+        .then((data) => {
+          if (data) {
+            setDefaultBranch(data?.default_branch);
+            setDefaultCommit(data?.last_commit?.name);
+            setDefaultCommitId(data?.last_commit?.id);
+          } else {
+            setDefaultBranch('');
+            setDefaultCommit('');
+            setDefaultCommitId('');
+          }
+        });
+    }
+  }, [projectId]);
 
   useEffect(() => {
     if (appData?.workspace_id) {
@@ -264,8 +298,8 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
       setMultipleSelected(selectedNodes);
     } else {
       setSelectedFile(selectedNodes[0]);
-      if (selectedNodes[0]?.label) {
-        const fileName = selectedNodes[0]?.label;
+      if (selectedNodes[0]?.name) {
+        const fileName = selectedNodes[0]?.name;
         const fileExtension = fileName.split('.').pop();
         setFileExt(fileExtension);
       }
@@ -393,7 +427,7 @@ const GitlabSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
                         return (
                           <>
                             {node.children ? <FolderFillIcon /> : <PageIcon />}{' '}
-                            {node.label}
+                            {node.name}
                           </>
                         );
                       }}

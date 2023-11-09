@@ -43,6 +43,8 @@ const Pipeline = () => {
   const [tableFilterValue, setTableFilterValue] = useState('');
   const [displayTableData, setDisplayTableData] = useState([]);
   const authCtx = useContext(AuthContext);
+  const isSuperAdmin = authCtx?.user?.role === 'super_admin' ? true : false;
+  const isAdmin = authCtx?.user?.role === 'admin' ? true : false;
   const dispatch = useDispatch();
   const wbePath = location.pathname?.includes('wbe');
   const [pageSize, setPageSize] = useState(5);
@@ -111,6 +113,7 @@ const Pipeline = () => {
         return {
           id: run.id,
           event: run.pipeline.event.name,
+          organization: run.pipeline.event.application.organization.name,
           start_time: new Date(run.start_time).toLocaleString('en-US', {
             hour12: true,
           }),
@@ -207,6 +210,12 @@ const Pipeline = () => {
                       </HeaderCell>
                       <Cell style={{ fontSize: '17px' }} dataKey="event" />
                     </Column>
+                    <Column flexGrow={1} align="left" fixed>
+                      <HeaderCell>
+                        <h5>Organization</h5>
+                      </HeaderCell>
+                      <Cell style={{ fontSize: '17px' }} dataKey="organization" />
+                    </Column>
                     <Column flexGrow={1} width={180} align="left" fixed>
                       <HeaderCell>
                         <h5>Status</h5>
@@ -258,12 +267,14 @@ const Pipeline = () => {
                                   setPipelineOutput(rowData.output);
                                 }}
                               />
-                              <IconButton
-                                size="sm"
-                                title="Delete"
-                                icon={<MdDelete />}
-                                onClick={() => handleDelete(rowData.id)}
-                              />
+                              {(isSuperAdmin || isAdmin) && (
+                                <IconButton
+                                  size="sm"
+                                  title="Delete"
+                                  icon={<MdDelete />}
+                                  onClick={() => handleDelete(rowData.id)}
+                                />
+                              )}
                             </ButtonToolbar>
                           );
                         }}

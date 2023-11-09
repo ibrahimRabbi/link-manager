@@ -65,14 +65,10 @@ export async function exportLinksToExcel({ url, token, showNotification, filenam
     });
 }
 
-let gcmAware = JSON.parse(import.meta.env.VITE_CONFIGURATION_AWARE);
-
 const initialState = {
   isTargetModalOpen: false,
-  configuration_aware: gcmAware,
   sourceDataList: {},
   isWbe: false,
-  oslcResponse: null,
   oslcCancelResponse: false,
   isLinkCreate: false,
   isLinkDeleting: false,
@@ -81,13 +77,8 @@ const initialState = {
   allLinks: [],
   linksData: [],
   createLinkRes: null,
-  editTargetData: {},
-  targetDataArr: [],
-  linkedData: {},
-  editLinkData: {},
   linkType: null,
   applicationType: null,
-  streamType: null,
   projectType: null,
   resourceType: null,
 };
@@ -124,53 +115,6 @@ export const linksSlice = createSlice({
       state.sourceDataList = payload;
     },
 
-    handleViewLinkDetails: (state, { payload }) => {
-      state.linkedData = payload;
-    },
-
-    // edit link first step get data
-    handleEditLinkData: (state, { payload }) => {
-      state.linkType = null;
-      state.projectType = null;
-      state.resourceType = null;
-      state.oslcResponse = false;
-      state.editTargetData = payload?.targetData;
-      state.editLinkData = payload;
-    },
-
-    // edit link
-    handleUpdateCreatedLink: (state) => {
-      const index = state.allLinks.findIndex(
-        (item) => item?.id === state.editLinkData?.id,
-      );
-      state.allLinks[index] = {
-        ...state.allLinks[index],
-        ...{
-          targetData: state.editTargetData,
-          linkType: state.linkType ? state?.linkType : state.editLinkData?.linkType,
-          project: state.projectType ? state.projectType : state.editLinkData?.project,
-          resource: state.resourceType
-            ? state.resourceType
-            : state.editLinkData?.resource,
-        },
-      };
-      state.linkType = null;
-      state.projectType = null;
-      state.resourceType = null;
-      state.editTargetData = {};
-      state.targetDataArr = [];
-    },
-
-    // edit target data
-    handleEditTargetData: (state, { payload }) => {
-      state.editTargetData = payload;
-    },
-
-    // get multiple target data
-    handleTargetDataArr: (state, { payload }) => {
-      state.targetDataArr = payload;
-    },
-
     handleLinkType: (state, { payload }) => {
       state.applicationType = null;
       state.projectType = null;
@@ -180,10 +124,6 @@ export const linksSlice = createSlice({
     handleApplicationType: (state, { payload }) => {
       state.projectType = null;
       state.applicationType = payload;
-    },
-
-    handleStreamType: (state, { payload }) => {
-      state.streamType = payload;
     },
 
     handleProjectType: (state, { payload }) => {
@@ -204,23 +144,6 @@ export const linksSlice = createSlice({
       state.editTargetData = {};
       state.targetDataArr = [];
       state.oslcResponse = null;
-    },
-
-    // status update
-    handleSetStatus: (state, { payload }) => {
-      const id = payload.row?.id;
-      localStorage.setItem(
-        id,
-        JSON.stringify({ ...payload.row, status: payload.status }),
-      );
-      const link = state.allLinks.find((data) => data?.id === id);
-      link.status = payload.status;
-    },
-
-    // delete link
-    handleDeleteLink: (state, { payload }) => {
-      localStorage.removeItem(payload.id);
-      state.allLinks = state.allLinks.filter((data) => data?.id !== payload?.id);
     },
   },
   /// Extra Reducers ///
@@ -252,13 +175,6 @@ export const linksSlice = createSlice({
     // Create new link controller
     builder.addCase(fetchCreateLink.pending, (state) => {
       state.linkCreateLoading = true;
-      state.oslcResponse = false;
-      state.targetDataArr = [];
-      state.linkType = null;
-      state.streamType = null;
-      state.projectType = null;
-      state.resourceType = null;
-      state.isLinkEdit = false;
     });
 
     builder.addCase(fetchCreateLink.fulfilled, (state, { payload }) => {
@@ -293,18 +209,11 @@ export const {
   handleOslcResponse,
   handleIsLoading,
   handleGetSources,
-  handleViewLinkDetails,
-  handleEditLinkData,
-  handleTargetDataArr,
-  handleEditTargetData,
-  handleUpdateCreatedLink,
   handleLinkType,
   handleApplicationType,
-  handleStreamType,
   handleProjectType,
   handleResourceType,
   handleSetStatus,
-  handleDeleteLink,
   handleCancelLink,
   handleIsTargetModalOpen,
   handleOslcCancelResponse,

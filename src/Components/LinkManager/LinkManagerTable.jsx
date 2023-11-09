@@ -11,6 +11,7 @@ import {
   getExpandedRowModel,
   flexRender,
 } from '@tanstack/react-table';
+
 import { Dropdown, IconButton, Input, Popover, Whisper } from 'rsuite';
 import cssStyles from './LinkManager.module.scss';
 import { useSelector } from 'react-redux';
@@ -19,6 +20,15 @@ import CustomFilterSelect from './CustomFilterSelect';
 import ExternalPreview from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreview.jsx';
 // eslint-disable-next-line max-len
 import { showOslcData } from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreviewConfig.jsx';
+import { getIcon } from './ResourceTypeIcon.jsx';
+// eslint-disable-next-line max-len
+import {
+  BASIC_AUTH_APPLICATION_TYPES,
+  MICROSERVICES_APPLICATION_TYPES,
+  OAUTH2_APPLICATION_TYPES,
+} from '../../App.jsx';
+// eslint-disable-next-line max-len
+import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
 const {
   table_row_dark,
   table_row_light,
@@ -53,6 +63,9 @@ const codebeamerURL = `${import.meta.env.VITE_CODEBEAMER_DIALOG_URL}`;
 const LinkManagerTable = ({ props }) => {
   const { data, handleDeleteLink, setSelectedRowData } = props;
   const { isDark } = useSelector((state) => state.nav);
+  const [showExternalAuthWindow, setShowExternalAuthWindow] = useState(false);
+  const [externalAuthData, setExternalAuthData] = useState({});
+
   // Action table cell control
   const renderMenu = ({ onClose, left, top, className }, ref) => {
     const handleSelect = (key) => {
@@ -71,6 +84,14 @@ const LinkManagerTable = ({ props }) => {
         </Dropdown.Menu>
       </Popover>
     );
+  };
+
+  const getExtLoginData = (data) => {
+    console.log('External Login Data: ', data);
+  };
+
+  const closeExternalAuthWindow = () => {
+    setShowExternalAuthWindow(false);
   };
 
   // target cell
@@ -96,15 +117,23 @@ const LinkManagerTable = ({ props }) => {
     const speaker = (rowData, native = false) => {
       if (rowData && native) {
         return (
-          <Popover>
-            <ExternalPreview nodeData={rowData} />
+          <Popover close={12}>
+            <ExternalPreview
+              nodeData={rowData}
+              showExternalAuth={setShowExternalAuthWindow}
+              externalLoginAuthData={setExternalAuthData}
+            />
           </Popover>
         );
       } else {
         const updatedRowData = showOslcData(rowData);
         return (
           <Popover>
-            <ExternalPreview nodeData={updatedRowData} />
+            <ExternalPreview
+              nodeData={updatedRowData}
+              externalAuth={setShowExternalAuthWindow}
+              authData={setExternalAuthData}
+            />
           </Popover>
         );
       }
@@ -115,12 +144,26 @@ const LinkManagerTable = ({ props }) => {
           trigger="hover"
           enterable
           placement="auto"
-          speaker={rowData?.api ? speaker(rowData, true) : speaker(rowData)}
+          //prettier-ignore
+          speaker={
+            rowData?.application_type
+              ? speaker(rowData, true)
+              : rowData?.api
+                ? speaker(rowData, true)
+                : speaker(rowData)
+          }
           delayOpen={550}
           delayClose={550}
         >
           <a
-            href={rowData?.api ? rowData?.web_url : rowData?.id}
+            //prettier-ignore
+            href={
+              rowData?.application_type
+                ? rowData?.web_url
+                : rowData?.api
+                  ? rowData?.web_url
+                  : rowData?.id
+            }
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -132,9 +175,44 @@ const LinkManagerTable = ({ props }) => {
                   rowData?.selected_lines +
                   ']'
                 : rowData?.name + ' [' + rowData?.selected_lines + ']'
-              : rowData?.name}
+              : rowData?.name?.slice(0, 30) + '....'}
           </a>
         </Whisper>
+      </div>
+    );
+  };
+  const resource = (row) => {
+    const rowData = row?.original;
+
+    let appIcon = '';
+    let resourceType = '';
+    if (rowData?.resource_type) {
+      if (rowData?.application_type) {
+        appIcon = getIcon(rowData?.application_type, rowData?.resource_type);
+      } else {
+        appIcon = getIcon(rowData?.api, rowData?.resource_type);
+      }
+      resourceType = rowData?.resource_type ? rowData.resource_type : '';
+    }
+    if (rowData?.web_application_resource_type && rowData?.application_type) {
+      appIcon = getIcon(
+        rowData?.application_type,
+        rowData?.web_application_resource_type,
+      );
+      resourceType = rowData?.web_application_resource_type
+        ? rowData.web_application_resource_type
+        : '';
+    }
+    if (rowData?.web_application_resource_type && rowData?.api) {
+      appIcon = getIcon(rowData?.api, rowData?.web_application_resource_type);
+      resourceType = rowData?.web_application_resource_type
+        ? rowData.web_application_resource_type
+        : '';
+    }
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', marginLeft: '10px' }}>
+        <p style={{ marginRight: '5px' }}>{appIcon}</p>
+        <div style={{ fontSize: '17px' }}>{resourceType}</div>
       </div>
     );
   };
@@ -181,9 +259,9 @@ const LinkManagerTable = ({ props }) => {
           ) : status?.toLowerCase() === 'invalid' ? (
             <FailedStatus color="#de1655" />
           ) : status?.toLowerCase() === 'suspect' ? (
-            <InfoStatus color="#25b3f5" />
+            <InfoStatus color="#ffcc00" />
           ) : (
-            <InfoStatus color="#25b3f5" />
+            <InfoStatus color="#ffcc00" />
           )}
         </h5>
       </div>
@@ -217,6 +295,16 @@ const LinkManagerTable = ({ props }) => {
           );
         },
         cell: ({ row, getValue }) => expandCell(row, getValue),
+        footer: (props) => props.column.id,
+      },
+      {
+        accessorKey: 'resource_type',
+        header: () => (
+          <div className={headerCell}>
+            <h6>Resource Type</h6>
+          </div>
+        ),
+        cell: ({ row }) => resource(row),
         footer: (props) => props.column.id,
       },
       // Link type cell
@@ -278,7 +366,7 @@ const LinkManagerTable = ({ props }) => {
       expanded,
     },
     onExpandedChange: setExpanded,
-    getSubRows: (row) => row.children,
+    getSubRows: (row) => (row.children ? row?.children[0] : []),
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
@@ -287,7 +375,14 @@ const LinkManagerTable = ({ props }) => {
   return (
     <div>
       <table className={tableStyle}>
-        <thead style={{ position: 'sticky', zIndex: '1', top: '0', background: 'white' }}>
+        <thead
+          style={{
+            position: 'sticky',
+            zIndex: '10',
+            top: '0',
+            background: isDark === 'dark' ? '#0f131a' : 'white',
+          }}
+        >
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
@@ -298,11 +393,11 @@ const LinkManagerTable = ({ props }) => {
                     key={header.id}
                     colSpan={header.colSpan}
                     style={{
-                      width: status ? '120px' : action ? '120px' : '',
+                      width: status ? '100px' : action ? '100px' : '',
                     }}
                   >
                     {header.isPlaceholder ? null : (
-                      <div>
+                      <div style={{ fontWeight: 'normal' }}>
                         {flexRender(header.column.columnDef.header, header.getContext())}
 
                         {header.column.getCanFilter() ? (
@@ -311,8 +406,8 @@ const LinkManagerTable = ({ props }) => {
                               <Filter
                                 column={header.column}
                                 table={table}
-                                isAction={header.index === 3 ? true : false}
-                                isStatusFilter={header.index === 2 ? true : false}
+                                isAction={header.index === 4 ? true : false}
+                                isStatusFilter={header.index === 3 ? true : false}
                               />
                             )}
                           </div>
@@ -338,7 +433,7 @@ const LinkManagerTable = ({ props }) => {
                   <td
                     key={cell.id}
                     style={{
-                      width: status ? '120px' : action ? '120px' : '',
+                      width: status ? '100px' : action ? '100px' : '',
                     }}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -352,6 +447,25 @@ const LinkManagerTable = ({ props }) => {
       <div />
 
       {!table.getRowModel().rows[0] && <p className={emptyTableContent}>No Data Found</p>}
+      {showExternalAuthWindow && (
+        <ExternalAppModal
+          formValue={{
+            ...externalAuthData,
+            type: externalAuthData?.application_type,
+            rdf_type: externalAuthData?.type,
+          }}
+          isOauth2={OAUTH2_APPLICATION_TYPES?.includes(
+            externalAuthData?.application_type,
+          )}
+          isBasic={(
+            BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
+          ).includes(externalAuthData?.application_type)}
+          onDataStatus={getExtLoginData}
+          integrated={true}
+          openedModal={showExternalAuthWindow}
+          closeModal={closeExternalAuthWindow}
+        />
+      )}
     </div>
   );
 };
@@ -363,8 +477,8 @@ function Filter({ column, table, isAction, isStatusFilter }) {
   const statusFilterItems = [
     {
       icon: <SuccessStatus color="#378f17" />,
-      label: 'Active',
-      value: 'active',
+      label: 'Valid',
+      value: 'valid',
     },
     {
       icon: <FailedStatus color="#de1655" />,
@@ -372,7 +486,7 @@ function Filter({ column, table, isAction, isStatusFilter }) {
       value: 'invalid',
     },
     {
-      icon: <InfoStatus color="#25b3f5" />,
+      icon: <InfoStatus color="#ffcc00" />,
       label: 'Suspect',
       value: 'suspect',
     },

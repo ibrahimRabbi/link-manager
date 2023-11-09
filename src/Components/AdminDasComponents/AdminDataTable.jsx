@@ -14,16 +14,18 @@ import { handleRefreshData } from '../../Redux/slices/navSlice';
 import { darkBgColor, lightBgColor } from '../../App';
 import { MdDelete, MdEdit, MdLock } from 'react-icons/md';
 import { PiEyeBold } from 'react-icons/pi';
-
+import { MdOutlineContentCopy } from 'react-icons/md';
 const { Column, HeaderCell, Cell } = Table;
 
 const AdminDataTable = ({ props }) => {
   const {
+    title,
     rowData,
     headerData,
     handlePagination,
     handleChangeLimit,
     handleAddNew,
+    handleCopy,
     handleEdit,
     handleDelete,
     handleScriptView,
@@ -73,6 +75,10 @@ const AdminDataTable = ({ props }) => {
       handleScriptView(rowData);
     };
 
+    const copySecret = () => {
+      handleCopy(rowData);
+    };
+
     return (
       <ButtonToolbar>
         {handleScriptView && (
@@ -83,7 +89,14 @@ const AdminDataTable = ({ props }) => {
             onClick={viewScript}
           />
         )}
-
+        {handleCopy && (
+          <IconButton
+            size="sm"
+            title="Copy Value"
+            icon={<MdOutlineContentCopy />}
+            onClick={copySecret}
+          />
+        )}
         {handleEdit && (
           <IconButton size="sm" title="Edit" icon={<MdEdit />} onClick={editSelected} />
         )}
@@ -114,6 +127,8 @@ const AdminDataTable = ({ props }) => {
     iconKey,
     statusKey,
     pipelinerunkey,
+    buttonKey,
+    syncStatus,
     ...props
   }) => {
     const logo = rowData[iconKey] ? rowData[iconKey] : defaultLogo;
@@ -184,6 +199,40 @@ const AdminDataTable = ({ props }) => {
             <p style={{ marginTop: '2px' }}>{rowData[statusKey]}</p>
           </div>
         )}
+        {syncStatus && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+            }}
+          >
+            <h5>
+              {rowData?.active === true ? (
+                <SuccessStatus color="#378f17" />
+              ) : (
+                rowData?.active === false && <FailedStatus color="#de1655" />
+              )}
+            </h5>
+          </div>
+        )}
+        {buttonKey && (
+          <div>
+            <Button appearance="primary" size="xs" style={{ marginRight: '5px' }}>
+              Sync now
+            </Button>
+          </div>
+        )}
+        {buttonKey && (
+          <div>
+            {rowData?.active === false && (
+              <Button appearance="primary" size="xs">
+                Migrate
+              </Button>
+            )}
+          </div>
+        )}
       </Cell>
     );
   };
@@ -199,7 +248,11 @@ const AdminDataTable = ({ props }) => {
         }}
       >
         <FlexboxGrid.Item>
-          {handleAddNew && (
+          {handleAddNew && title === 'Synchronization' ? (
+            <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
+              Create New Sync
+            </Button>
+          ) : (
             <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
               Add New
             </Button>
@@ -264,6 +317,8 @@ const AdminDataTable = ({ props }) => {
               iconKey={header?.iconKey}
               statusKey={header?.statusKey}
               pipelinerunkey={header?.pipelinerunkey}
+              buttonKey={header?.buttonKey}
+              syncStatus={header?.syncStatus}
             />
           </Column>
         ))}

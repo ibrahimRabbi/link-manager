@@ -10,8 +10,9 @@ const ExternalAppModal = (props) => {
     isOauth2,
     isBasic,
     onDataStatus,
-    showInNewLink = false,
-    integrated = true,
+    showInNewLink,
+    integrated,
+    preview,
   } = props;
 
   return (
@@ -38,10 +39,15 @@ const ExternalAppModal = (props) => {
                   <Oauth2Waiting
                     data={formValue}
                     message={'Once you have authenticated the window will be closed'}
+                    preview={preview}
                   />
                 )}
                 {isBasic && (
-                  <ExternalLogin appData={formValue} onDataStatus={onDataStatus} />
+                  <ExternalLogin
+                    appData={formValue}
+                    onDataStatus={onDataStatus}
+                    preview={preview}
+                  />
                 )}
               </FlexboxGrid.Item>
             </FlexboxGrid>
