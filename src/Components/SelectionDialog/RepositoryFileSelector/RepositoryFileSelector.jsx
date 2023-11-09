@@ -2,7 +2,7 @@
 /* eslint-disable max-len */
 import React, { useContext, useEffect, useState } from 'react';
 import { CheckTree, FlexboxGrid } from 'rsuite';
-import style from './BitbucketSelector.module.scss';
+import style from './RepositoryFileSelector.module.scss';
 import FolderFillIcon from '@rsuite/icons/FolderFill';
 import PageIcon from '@rsuite/icons/Page';
 import CodeEditor from './CodeEditor';
@@ -20,7 +20,7 @@ import UseDefaultSelect from './UseDefaultSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
-const BitbucketSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
+const RepositoryFileSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
   const [pExist, setPExist] = useState(false);
   const [projects, setProjects] = useState([]);
   const [selectedFile, setSelectedFile] = useState('');
@@ -46,6 +46,7 @@ const BitbucketSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
   const [defaultCommit, setDefaultCommit] = useState('');
   const [defaultCommitId, setDefaultCommitId] = useState('');
 
+  console.log('appData', appData);
   const getExtLoginData = (data) => {
     if (data?.status) {
       setAuthenticatedThirdApp(false);
@@ -97,7 +98,7 @@ const BitbucketSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
   useEffect(() => {
     if (projectId && appData?.workspace_id) {
       fetch(
-        `${lmApiUrl}/third_party/bitbucket/containers/${appData.workspace_id}/${projectId}?application_id=${appData?.application_id}`,
+        `${lmApiUrl}/third_party/${appData.application_type}/containers/${appData.workspace_id}/${projectId}?application_id=${appData?.application_id}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -135,7 +136,7 @@ const BitbucketSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
       setTreeData([]);
       setLoading(true);
       fetch(
-        `${lmApiUrl}/third_party/bitbucket/containers/${appData?.workspace_id}?page=1&per_page=100&application_id=${appData?.application_id}`,
+        `${lmApiUrl}/third_party/${appData.application_type}/containers/${appData?.workspace_id}?page=1&per_page=100&application_id=${appData?.application_id}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -172,7 +173,7 @@ const BitbucketSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
     if (projectId) {
       setBranchLoading(true);
       fetch(
-        `${lmApiUrl}/third_party/bitbucket/containers/${appData?.workspace_id}/${projectId}/branch?page=1&per_page=100&application_id=${appData?.application_id}`,
+        `${lmApiUrl}/third_party/${appData.application_type}/containers/${appData?.workspace_id}/${projectId}/branch?page=1&per_page=100&application_id=${appData?.application_id}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -201,7 +202,7 @@ const BitbucketSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
     if ((projectId && branchId) || (projectId && defaultBranch)) {
       setCommitLoading(true);
       fetch(
-        `${lmApiUrl}/third_party/bitbucket/containers/${
+        `${lmApiUrl}/third_party/${appData.application_type}/containers/${
           appData?.workspace_id
         }/${projectId}/commit?page=1&per_page=100&application_id=${
           appData?.application_id
@@ -235,7 +236,7 @@ const BitbucketSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
       setTreeLoading(true);
       setTreeData([]);
       fetch(
-        `${lmApiUrl}/third_party/bitbucket/containers/${
+        `${lmApiUrl}/third_party/${appData.application_type}/containers/${
           appData?.workspace_id
         }/${projectId}/files?ref=${commitId || defaultCommitId}&application_id=${
           appData?.application_id
@@ -315,7 +316,7 @@ const BitbucketSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
   const getChildren = async (node) => {
     try {
       const response = await fetch(
-        `${lmApiUrl}/third_party/bitbucket/containers/${appData?.workspace_id}/${projectId}/files?path=${node?.extended_properties?.path}&ref=${node?.extended_properties?.commit_id}&application_id=${appData?.application_id}`,
+        `${lmApiUrl}/third_party/${appData.application_type}/containers/${appData?.workspace_id}/${projectId}/files?path=${node?.extended_properties?.path}&ref=${node?.extended_properties?.commit_id}&application_id=${appData?.application_id}`,
         {
           headers: {
             Authorization: `Bearer ${authCtx.token}`,
@@ -453,6 +454,7 @@ const BitbucketSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
                             commitId={commitId ? commitId : defaultCommitId}
                             appId={appData?.application_id}
                             workspaceId={appData?.workspace_id}
+                            appType={appData?.application_type}
                           ></CodeEditor>
                         )
                       )}
@@ -486,4 +488,4 @@ const BitbucketSelector = ({ handleSaveLink, appData, cancelLinkHandler }) => {
   );
 };
 
-export default BitbucketSelector;
+export default RepositoryFileSelector;

@@ -99,6 +99,12 @@ const Oauth2Waiting = (props) => {
   case 'codebeamer':
     iconUrl = '/codebeamer_logo.png';
     break;
+  case 'bitbucket':
+    iconUrl = '/bitbucket_logo.png';
+    break;
+  case 'github':
+    iconUrl = '/github_logo.png';
+    break;
   default:
     defaultAppType = true;
   }

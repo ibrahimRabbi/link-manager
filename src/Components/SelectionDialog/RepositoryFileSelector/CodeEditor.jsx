@@ -14,6 +14,7 @@ const CodeEditor = ({
   commitId,
   appId,
   workspaceId,
+  appType,
 }) => {
   const [fileCode, setFileCode] = useState('');
   const [ext, setExt] = useState('');
@@ -35,7 +36,7 @@ const CodeEditor = ({
       setExt(getLanguageFromExtension(fileExtension).toLowerCase());
       let joinedFilePath = singleSelected?.extended_properties?.path;
       fetch(
-        `${lmApiUrl}/third_party/bitbucket/containers/${workspaceId}/${projectId}/file?path=${joinedFilePath}&branch=${commitId}&application_id=${appId}`,
+        `${lmApiUrl}/third_party/${appType}/containers/${workspaceId}/${projectId}/file?path=${joinedFilePath}&branch=${commitId}&application_id=${appId}`,
         {
           method: 'POST',
           headers: {
