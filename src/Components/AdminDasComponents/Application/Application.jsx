@@ -20,20 +20,10 @@ import TextField from '../TextField';
 import SelectField from '../SelectField';
 import TextArea from '../TextArea';
 import UseLoader from '../../Shared/UseLoader';
-import { fetchApplicationPublisherIcon } from '../../../Redux/slices/applicationSlice';
 import Oauth2Modal from '../../Oauth2Modal/Oauth2Modal';
-import { handleIsOauth2ModalOpen } from '../../../Redux/slices/oauth2ModalSlice';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import styles from './Application.module.scss';
-import {
-  MICROSERVICES_APPLICATION_TYPES,
-  OAUTH2_APPLICATION_TYPES,
-  OAUTH2_ROPC_APPLICATION_TYPES,
-  OIDC_APPLICATION_TYPES,
-  THIRD_PARTY_INTEGRATIONS,
-  USER_PASSWORD_APPLICATION_TYPES,
-} from '../../../App.jsx';
 import Oauth2Waiting from '../ExternalAppIntegrations/Oauth2Waiting/Oauth2Waiting.jsx';
 import ExternalLogin from '../ExternalAppIntegrations/ExternalLogin/ExternalLogin.jsx';
 import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
@@ -69,8 +59,22 @@ const { StringType, NumberType } = Schema.Types;
 const requiredLabel = 'This field is required';
 
 const Application = () => {
+  const APPLICATION_FORM = {
+    type: '',
+    organization_id: '',
+    name: '',
+    description: '',
+    tenant_id: '',
+    client_id: '',
+    client_secret: '',
+    redirect_uris: [`${window.location.origin}/oauth2/callback`],
+    rest: '',
+    auth: '',
+    ui: '',
+    oidc: '',
+  };
+
   const appFormRef = useRef();
-  const iframeRef = useRef(null);
   const oauth2ModalRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
@@ -84,72 +88,54 @@ const Application = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [loading, setLoading] = useState(false);
+  const [newFormTitle, setNewFormTitle] = useState('');
+  const [editFormTitle, setEditFormTitle] = useState('');
+  const [advancedOptions, setAdvancedOptions] = useState(false);
+  const [applicationType, setApplicationType] = useState({});
 
   const [openModal, setOpenModal] = useState(false);
-  const [formValue, setFormValue] = useState({
-    type: '',
-    organization_id: '',
-    name: '',
-    server_url: '',
-    description: '',
-    client_id: '',
-    client_secret: '',
-    server_url_auth: '',
-    server_url_ui: '',
-    tenant_id: '',
-    oidc_url: '',
-  });
+  const [formValue, setFormValue] = useState(APPLICATION_FORM);
 
   /** Application variables */
   const [steps, setSteps] = useState(0);
   const [appsWithIcon, setAppsWithIcon] = useState([]);
   const [appCreateSuccess, setAppCreateSuccess] = useState(false);
-  const [authorizeFrameSrc, setAuthorizeFrameSrc] = useState('');
   const [authorizedAppConsumption, setAuthorizedAppConsumption] = useState(false);
   const [isAppAuthorize, setIsAppAuthorize] = useState(false);
   const [open, setOpen] = useState(false);
-
-  // match application type to display input fields conditionally
-  // and keep input fields required conditionally
-  const isOauth2AppTypes =
-    OAUTH2_APPLICATION_TYPES.includes(formValue?.type) ||
-    OAUTH2_ROPC_APPLICATION_TYPES.includes(formValue?.type);
-  const isMicroServiceAppTypes = MICROSERVICES_APPLICATION_TYPES.includes(
-    formValue?.type,
-  );
-  const isOidcAppTypes = OIDC_APPLICATION_TYPES.includes(formValue?.type);
 
   /** Model Schema */
   const model = Schema.Model({
     type: StringType().isRequired(requiredLabel),
     organization_id: NumberType().isRequired(requiredLabel),
     name: StringType().isRequired(requiredLabel),
-    server_url: StringType().isRequired(requiredLabel),
     description: StringType(),
-    client_id: isOauth2AppTypes ? StringType().isRequired(requiredLabel) : StringType(),
-    client_secret: isOauth2AppTypes
+    client_id:
+      applicationType?.mandatory_client_secret || advancedOptions
+        ? StringType().isRequired(requiredLabel)
+        : StringType(),
+    client_secret:
+      applicationType?.mandatory_client_secret || advancedOptions
+        ? StringType().isRequired(requiredLabel)
+        : StringType(),
+    rest:
+      applicationType?.mandatory_rest_url || advancedOptions
+        ? StringType().isRequired(requiredLabel)
+        : StringType(),
+    auth: applicationType?.has_microservice
       ? StringType().isRequired(requiredLabel)
       : StringType(),
-    server_url_auth: isMicroServiceAppTypes
+    ui: applicationType?.has_microservice
       ? StringType().isRequired(requiredLabel)
       : StringType(),
-    server_url_ui: isMicroServiceAppTypes
+    oidc: applicationType?.has_oidc
       ? StringType().isRequired(requiredLabel)
       : StringType(),
-    tenant_id: isMicroServiceAppTypes
+    tenant_id: applicationType?.has_microservice
       ? StringType().isRequired(requiredLabel)
       : StringType(),
-    oidc_url: isOidcAppTypes ? StringType().isRequired(requiredLabel) : StringType(),
   });
 
-  // required data for create the application using OSLC APIs
-  const redirect_uris = [
-    // eslint-disable-next-line max-len
-    `${lmApiUrl}/${authCtx.organization_id}/application/consumer/callback?consumer=${formValue.name}`,
-  ];
-  const scopes = 'rest_api_access';
-  const response_types = ['code'];
-  const grant_types = ['service_provider', 'authorization_code'];
   const [payload, setPayload] = useState({});
 
   // Data for 3rd party integrations
@@ -167,7 +153,7 @@ const Application = () => {
     }
   };
 
-  // GET: Fetch data using react-query
+  // GET: Application data using react-query
   const {
     data: allApplications,
     isLoading,
@@ -182,25 +168,29 @@ const Application = () => {
     }),
   );
 
-  // handle step manager for add application and edit application
-  const handleStepManger = (res) => {
-    setAppCreateSuccess(true);
-    setSteps(1);
-    let query = `client_id=${res?.client_id}`;
-    query += `&scope=${scopes}`;
+  const { data: applicationDataTypes } = useQuery(['applicationTypes'], () =>
+    fetchAPIRequest({
+      // eslint-disable-next-line max-len
+      urlPath: 'external-integrations',
+      token: authCtx.token,
+      method: 'GET',
+      showNotification: showNotification,
+    }),
+  );
 
-    response_types?.forEach((response_type) => {
-      if (response_types?.indexOf(response_type) === 0) {
-        query += `&response_type=${response_type}`;
-      } else {
-        query += ` ${response_type}`;
-      }
-    }, query);
-
-    query += `&redirect_uri=${redirect_uris[0]}`;
-    let authorizeUri = res?.oauth_client_authorize_uri + '?' + query;
-    setAuthorizeFrameSrc(authorizeUri);
-  };
+  const {
+    data: organizationData,
+    // isLoading: organizationLoading,
+    // refetch: refetchOrganization,
+  } = useQuery(['organization'], () =>
+    fetchAPIRequest({
+      // eslint-disable-next-line max-len
+      urlPath: `organization/${authCtx.organization_id}`,
+      token: authCtx.token,
+      method: 'GET',
+      showNotification: showNotification,
+    }),
+  );
 
   // POST: Create data using react query
   const {
@@ -213,17 +203,12 @@ const Application = () => {
         urlPath: `${authCtx.organization_id}/application`,
         token: authCtx.token,
         method: 'POST',
-        body: { ...formValue, ...payload },
+        body: { ...payload },
         showNotification: showNotification,
       }),
     {
       onSuccess: (res) => {
         console.log('Create: ', res);
-        if (res) {
-          if (res?.status) {
-            handleStepManger(res);
-          }
-        }
       },
       onError: () => {},
     },
@@ -246,11 +231,6 @@ const Application = () => {
     {
       onSuccess: (res) => {
         console.log('Update: ', res);
-        if (res) {
-          if (res?.status) {
-            handleStepManger(res);
-          }
-        }
       },
     },
   );
@@ -289,14 +269,6 @@ const Application = () => {
     isAppAuthorize,
   ]);
 
-  // Check for changes to the iframe URL when it is loaded
-  const handleLoad = () => {
-    const currentUrl = iframeRef.current.contentWindow.location.href;
-    if (currentUrl !== authorizeFrameSrc) {
-      setAuthorizeFrameSrc(currentUrl);
-    }
-  };
-
   // Pagination
   const handlePagination = (value) => {
     setCurrentPage(value);
@@ -309,6 +281,24 @@ const Application = () => {
 
   // Create and edit application
   const handleAddApplication = () => {
+    setPayload({
+      type: formValue?.type,
+      organization_id: formValue?.organization_id,
+      name: formValue?.name,
+      description: formValue?.description,
+      tenant_id: formValue?.tenant_id,
+      oauth2_data: {
+        client_id: formValue?.client_id,
+        client_secret: formValue?.client_secret,
+        redirect_uris: [`${window.location.origin}/oauth2/callback`],
+      },
+      url_data: {
+        rest: formValue?.rest,
+        auth: formValue?.auth,
+        ui: formValue?.ui,
+        oidc: formValue?.oidc,
+      },
+    });
     if (!appFormRef.current.check()) {
       return;
     } else if (isAdminEditing) {
@@ -325,22 +315,9 @@ const Application = () => {
   const handleResetForm = () => {
     setEditData({});
     setSteps(0);
-    setFormValue({
-      type: '',
-      organization_id: '',
-      name: '',
-      server_url: '',
-      description: '',
-      client_id: '',
-      client_secret: '',
-      server_url_auth: '',
-      server_url_ui: '',
-      tenant_id: '',
-      oidc_url: '',
-    });
+    setFormValue(APPLICATION_FORM);
     setAuthorizedAppConsumption(false);
     setIsAppAuthorize(false);
-    setAuthorizeFrameSrc('');
     setPayload({});
   };
 
@@ -354,6 +331,8 @@ const Application = () => {
     setSteps(0);
     setOpenModal(false);
     setAppCreateSuccess(false);
+    setApplicationType({});
+    setAdvancedOptions(false);
     setTimeout(() => {
       handleResetForm();
       dispatch(handleIsAdminEditing(false));
@@ -363,8 +342,18 @@ const Application = () => {
   /** Custom functions for authorization */
   //handle application type
   const handleApplicationType = (value) => {
+    if (!value) {
+      setApplicationType({});
+      setPayload({});
+      setAdvancedOptions(false);
+    }
     formValue.type = value;
+    formValue.organization_id = parseInt(authCtx.organization_id);
     setFormValue({ ...formValue });
+    const selectedAppType = Object.values(applicationDataTypes['items']).find(
+      (item) => item.id === value,
+    );
+    setApplicationType(selectedAppType);
   };
 
   // Listen to the notifications in Oauth2 status window
@@ -400,6 +389,11 @@ const Application = () => {
       );
       toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
     }
+  };
+
+  // Show advanced options for integration
+  const handleShowAdvancedOptions = () => {
+    setAdvancedOptions(!advancedOptions);
   };
 
   // Open deletion modal
@@ -460,99 +454,74 @@ const Application = () => {
     (async () => {
       if (allApplications?.items) {
         setLoading(true);
-        let tempData = [];
-        allApplications?.items?.forEach((item) => {
-          tempData.push({
-            id: item?.id,
-            rootservicesUrl: item?.server_url ? item.server_url : null,
-          });
-        });
-
-        const response = await dispatch(
-          fetchApplicationPublisherIcon({
-            applicationData: tempData,
-          }),
-        );
         // merge icons data with application data
         const customAppItems = allApplications?.items?.reduce(
           (accumulator, currentValue) => {
-            if (currentValue?.server_url && currentValue?.type === 'oslc') {
-              if (response.payload) {
-                if (response?.payload?.length) {
-                  response?.payload?.forEach((icon) => {
-                    if (currentValue.id === icon.id) {
-                      const withIcon = {
-                        ...currentValue,
-                        iconUrl: icon.iconUrl,
-                        status: currentValue?.oauth2_application
-                          ? currentValue?.oauth2_application[0]?.token_status?.status
-                          : '',
-                      };
-                      accumulator.push(withIcon);
-                    }
-                  });
-                }
-              }
-            } else if (THIRD_PARTY_INTEGRATIONS.includes(currentValue?.type)) {
-              if (currentValue?.type === 'gitlab') {
-                accumulator.push({
-                  ...currentValue,
-                  iconUrl: '/gitlab_logo.png',
-                  status: currentValue?.oauth2_application[0]?.token_status?.status,
-                });
-              } else if (currentValue?.type === 'bitbucket') {
-                accumulator.push({
-                  ...currentValue,
-                  iconUrl: '/bitbucket_logo.png',
-                  status: currentValue?.oauth2_application[0]?.token_status?.status,
-                });
-              } else if (currentValue?.type === 'github') {
-                accumulator.push({
-                  ...currentValue,
-                  iconUrl: '/github_logo.png',
-                  status: currentValue?.oauth2_application[0]?.token_status?.status,
-                });
-              } else if (currentValue?.type === 'jira') {
-                accumulator.push({
-                  ...currentValue,
-                  iconUrl: '/jira_logo.png',
-                  status: currentValue?.oauth2_application[0]?.token_status?.status,
-                });
-              }
-              if (currentValue?.type === 'glideyoke') {
-                accumulator.push({
-                  ...currentValue,
-                  iconUrl: '/glide_logo.png',
-                  status: currentValue?.oauth2_application[0]?.token_status?.status,
-                });
-              }
-              if (currentValue?.type === 'valispace') {
-                accumulator.push({
-                  ...currentValue,
-                  iconUrl: '/valispace_logo.png',
-                  status: currentValue?.oauth2_application[0]?.token_status?.status,
-                });
-              }
-              if (currentValue?.type === 'codebeamer') {
-                accumulator.push({
-                  ...currentValue,
-                  iconUrl: '/codebeamer_logo.png',
-                  status: currentValue?.oauth2_application[0]?.token_status?.status,
-                });
-              }
-              if (currentValue?.type === 'dng') {
-                accumulator.push({
-                  ...currentValue,
-                  iconUrl: '/dng_logo.png',
-                  status: currentValue?.oauth2_application[0]?.token_status?.status,
-                });
-              }
-            } else {
+            // prettier-ignore
+            switch (currentValue?.type) {
+            case 'gitlab':
+              accumulator.push({
+                ...currentValue,
+                iconUrl: '/gitlab_logo.png',
+                status: currentValue?.status,
+              });
+              break;
+            case 'bitbucket':
+              accumulator.push({
+                ...currentValue,
+                iconUrl: '/bitbucket_logo.png',
+                status: currentValue?.status,
+              });
+              break;
+            case 'github':
+              accumulator.push({
+                ...currentValue,
+                iconUrl: '/github_logo.png',
+                status: currentValue?.status,
+              });
+              break;
+            case 'jira':
+              accumulator.push({
+                ...currentValue,
+                iconUrl: '/jira_logo.png',
+                status: currentValue?.status,
+              });
+              break;
+            case 'glideyoke':
+              accumulator.push({
+                ...currentValue,
+                iconUrl: '/glide_logo.png',
+                status: currentValue?.status,
+              });
+              break;
+            case 'valispace':
+              accumulator.push({
+                ...currentValue,
+                iconUrl: '/valispace_logo.png',
+                status: currentValue?.status,
+              });
+              break;
+            case 'codebeamer':
+              accumulator.push({
+                ...currentValue,
+                iconUrl: '/codebeamer_logo.png',
+                status: currentValue?.status,
+              });
+              break;
+            case 'dng':
+              accumulator.push({
+                ...currentValue,
+                iconUrl: '/dng_logo.png',
+                status: currentValue?.status,
+              });
+              break;
+            default:
               accumulator.push({
                 ...currentValue,
                 iconUrl: '/default_logo.png',
-                status: currentValue?.oauth2_application[0]?.token_status?.status,
+                status: currentValue?.status,
               });
+              break;
             }
             return accumulator;
           },
@@ -564,60 +533,15 @@ const Application = () => {
     setLoading(false);
   }, [allApplications]);
 
-  // Manage Redirect URI
   useEffect(() => {
-    if (formValue?.type === 'oslc') {
-      setPayload({
-        redirect_uris,
-        scopes,
-        response_types,
-        grant_types,
-      });
-    } else if (OAUTH2_APPLICATION_TYPES.includes(formValue?.type)) {
-      setPayload({
-        redirect_uris: [`${window.location.origin}/oauth2/callback`],
-      });
-    } else if (MICROSERVICES_APPLICATION_TYPES.includes(formValue?.type)) {
-      setPayload({
-        client_id: formValue?.tenant_id,
-        client_secret: formValue?.tenant_id,
-      });
+    if (organizationData?.name) {
+      setEditFormTitle(`${organizationData.name} - Edit external integration`);
+      setNewFormTitle(`${organizationData.name} - Add external integration`);
+    } else {
+      setEditFormTitle('Edit external integration');
+      setNewFormTitle('Add external integration');
     }
-  }, [formValue]);
-
-  // manage oauth iframe
-  useEffect(() => {
-    if (iframeRef.current) {
-      iframeRef.current.addEventListener('load', handleLoad);
-    }
-    return () => {
-      if (iframeRef.current) {
-        iframeRef.current.removeEventListener('load', handleLoad);
-      }
-    };
-  }, [iframeRef]);
-
-  /** Event listeners */
-  window.addEventListener(
-    'message',
-    function (event) {
-      let message = event.data;
-      if (!message.source) {
-        if (message.toString()?.startsWith('consumer-token-info')) {
-          const response = JSON.parse(message?.substr('consumer-token-info:'?.length));
-          if (response?.consumerStatus === 'success') {
-            setIsAppAuthorize(true);
-            dispatch(handleIsOauth2ModalOpen(false));
-            if (steps === 1) {
-              setAuthorizedAppConsumption(true);
-              setSteps(2);
-            }
-          }
-        }
-      }
-    },
-    false,
-  );
+  }, [organizationData]);
 
   // send props in the batch action table
   const tableProps = {
@@ -651,7 +575,7 @@ const Application = () => {
       >
         <Modal.Header>
           <Modal.Title className="adminModalTitle">
-            {isAdminEditing ? 'Edit external integration' : 'Add external integration'}
+            {isAdminEditing ? editFormTitle : newFormTitle}
           </Modal.Title>
 
           {/* {!isAdminEditing && ( */}
@@ -675,27 +599,15 @@ const Application = () => {
                 model={model}
               >
                 <FlexboxGrid justify="space-between">
-                  <FlexboxGrid.Item style={{ margin: '25px 0' }} colspan={11}>
-                    <SelectField
-                      name="organization_id"
-                      label="Organization"
-                      placeholder="Select Organization"
-                      accepter={CustomReactSelect}
-                      apiURL={`${lmApiUrl}/organization`}
-                      error={formError.organization_id}
-                      reqText="Organization Id is required"
-                    />
-                  </FlexboxGrid.Item>
-
-                  <FlexboxGrid.Item style={{ margin: '25px 0' }} colspan={11}>
+                  <FlexboxGrid.Item style={{ margin: '4px 0' }} colspan={11}>
                     <SelectField
                       name="type"
-                      label="Application type"
-                      placeholder="Select application type"
+                      label="Integration type"
+                      placeholder="Select integration type"
                       accepter={CustomReactSelect}
                       apiURL={`${lmApiUrl}/external-integrations`}
                       error={formError.type}
-                      reqText="Application type is required"
+                      reqText="Integration type is required"
                       disabled={isAdminEditing}
                       onChange={(value) => handleApplicationType(value)}
                     />
@@ -705,25 +617,15 @@ const Application = () => {
                     <TextField
                       name="name"
                       label="Name"
-                      reqText="Application name is required"
-                    />
-                  </FlexboxGrid.Item>
-
-                  <FlexboxGrid.Item colspan={11}>
-                    <TextField
-                      name="server_url"
-                      label={
-                        formValue?.type === 'oslc' ? 'Rootservices URL' : 'Server URL'
-                      }
-                      reqText="Server URL is required"
+                      reqText="Integration name is required"
                     />
                   </FlexboxGrid.Item>
 
                   <FlexboxGrid.Item
                     colspan={24}
                     style={{
-                      marginBottom: '25px',
-                      marginTop: '30px',
+                      marginBottom: '10px',
+                      marginTop: '15px',
                     }}
                   >
                     <TextField
@@ -734,64 +636,99 @@ const Application = () => {
                     />
                   </FlexboxGrid.Item>
 
-                  {isOauth2AppTypes && (
-                    <React.Fragment>
-                      <FlexboxGrid.Item colspan={11}>
-                        <TextField
-                          name="client_id"
-                          label="Client ID"
-                          reqText="OAuth2 client ID of app is required"
-                        />
-                      </FlexboxGrid.Item>
-
-                      <FlexboxGrid.Item colspan={11} style={{ marginBottom: '5%' }}>
-                        <TextField
-                          name="client_secret"
-                          label="Client secret"
-                          reqText="OAuth2 client secret of app is required"
-                        />
-                      </FlexboxGrid.Item>
-                    </React.Fragment>
+                  {(applicationType?.mandatory_rest_url || advancedOptions) && (
+                    <FlexboxGrid.Item colspan={11} style={{ marginBottom: '3%' }}>
+                      <TextField
+                        name="rest"
+                        label="REST URL"
+                        reqText="REST URL is required"
+                      />
+                    </FlexboxGrid.Item>
                   )}
 
-                  {isMicroServiceAppTypes && (
-                    <React.Fragment>
-                      <FlexboxGrid.Item colspan={11} style={{ marginBottom: '3%' }}>
-                        <TextField
-                          name="server_url_auth"
-                          label="Authentication server"
-                          reqText="Authentication server of app is required"
-                        />
-                      </FlexboxGrid.Item>
+                  {/* eslint-disable-next-line max-len */}
+                  {(advancedOptions ||
+                    applicationType?.has_oidc ||
+                    applicationType?.has_microservice ||
+                    applicationType?.mandatory_client_secret) && (
+                    <>
+                      {/* eslint-disable-next-line max-len */}
+                      {(applicationType?.authentication_type === 'oauth2' ||
+                        applicationType?.has_oidc ||
+                        applicationType?.mandatory_client_secret) && (
+                        <>
+                          <FlexboxGrid.Item colspan={11} style={{ marginBottom: '3%' }}>
+                            <TextField
+                              name="client_id"
+                              label="Client ID"
+                              reqText="OAuth2 client ID is required"
+                            />
+                          </FlexboxGrid.Item>
 
-                      <FlexboxGrid.Item colspan={11} style={{ marginBottom: '3%' }}>
-                        <TextField
-                          name="server_url_ui"
-                          label="UI server"
-                          reqText="UI server of app is required"
-                        />
-                      </FlexboxGrid.Item>
+                          <FlexboxGrid.Item colspan={11} style={{ marginBottom: '3%' }}>
+                            <TextField
+                              name="client_secret"
+                              label="Client secret"
+                              reqText="OAuth2 secret is required"
+                            />
+                          </FlexboxGrid.Item>
+                        </>
+                      )}
 
-                      <FlexboxGrid.Item colspan={11} style={{ marginBottom: '3%' }}>
-                        <TextField
-                          name="tenant_id"
-                          label="Tenant ID"
-                          reqText="Tenant ID is required"
-                        />
-                      </FlexboxGrid.Item>
-                    </React.Fragment>
+                      {applicationType?.has_microservice && (
+                        <React.Fragment>
+                          <FlexboxGrid.Item colspan={11} style={{ marginBottom: '3%' }}>
+                            <TextField
+                              name="auth"
+                              label="Auth server URL"
+                              reqText="Authentication server of app is required"
+                            />
+                          </FlexboxGrid.Item>
+
+                          <FlexboxGrid.Item colspan={11} style={{ marginBottom: '3%' }}>
+                            <TextField
+                              name="ui"
+                              label="UI server URL"
+                              reqText="UI server of app is required"
+                            />
+                          </FlexboxGrid.Item>
+
+                          <FlexboxGrid.Item colspan={11} style={{ marginBottom: '3%' }}>
+                            <TextField
+                              name="tenant_id"
+                              label="Tenant ID"
+                              reqText="Tenant ID is required"
+                            />
+                          </FlexboxGrid.Item>
+                        </React.Fragment>
+                      )}
+
+                      {applicationType?.has_oidc && (
+                        <React.Fragment>
+                          <FlexboxGrid.Item colspan={11}>
+                            <TextField
+                              name="oidc"
+                              label="OIDC issuer"
+                              reqText="OIDC issuer is required"
+                            />
+                          </FlexboxGrid.Item>
+                        </React.Fragment>
+                      )}
+                    </>
                   )}
-
-                  {isOidcAppTypes && (
-                    <React.Fragment>
-                      <FlexboxGrid.Item colspan={11}>
-                        <TextField
-                          name="oidc_url"
-                          label="OIDC issuer"
-                          reqText="OIDC issuer is required"
-                        />
+                  {/* eslint-disable-next-line max-len */}
+                  {applicationType?.show_advanced && applicationType && (
+                    <>
+                      <FlexboxGrid.Item
+                        style={{ marginTop: '2px', marginBottom: '2px' }}
+                        colspan={22}
+                      >
+                        <Button appearance="link" onClick={handleShowAdvancedOptions}>
+                          {/* eslint-disable-next-line max-len */}
+                          {advancedOptions ? 'Show less' : 'Advanced options'}
+                        </Button>
                       </FlexboxGrid.Item>
-                    </React.Fragment>
+                    </>
                   )}
                 </FlexboxGrid>
               </Form>
@@ -823,22 +760,16 @@ const Application = () => {
 
           {steps === 1 && (
             <div className={step1Container}>
-              <h4>{'Authorize the access to the application'}</h4>
-              {formValue?.type === 'oslc' && (
-                <iframe
-                  className={'authorize-iframe'}
-                  ref={iframeRef}
-                  src={authorizeFrameSrc}
-                />
-              )}
-              {OAUTH2_APPLICATION_TYPES.includes(formValue?.type) &&
+              <h4>{'Authorize the access to the integration'}</h4>
+              {applicationType?.authentication_type === 'oauth2' &&
                 steps === 1 &&
                 createSuccess && <Oauth2Waiting data={formValue} />}
 
               {
                 // prettier-ignore
-                (USER_PASSWORD_APPLICATION_TYPES.includes(formValue?.type) ||
-                    OAUTH2_ROPC_APPLICATION_TYPES.includes(formValue?.type)) &&
+                (['basic', 'oauth2_ropc'].includes(
+                  applicationType?.authentication_type)
+                ) &&
                 steps === 1 &&
                 createSuccess && (
                   <ExternalLogin appData={formValue} onDataStatus={getExtLoginData} />
@@ -898,7 +829,7 @@ const Application = () => {
       <AlertModal
         open={open}
         setOpen={setOpen}
-        content={'Do you want to delete the application?'}
+        content={'Do you want to delete the integration?'}
         handleConfirmed={handleConfirmed}
       />
 
