@@ -118,7 +118,7 @@ const SynchronizationConfig = () => {
     dispatch(handleCurrPageTitle('Synchronization Configuration'));
   }, []);
   const handleSourceApplicationChange = (selectedItem) => {
-    setSelectDirection('');
+    // setSelectDirection('');
     setEnumRows([]);
     setSourceProperty('');
     setTargetProperty('');
@@ -405,7 +405,7 @@ const SynchronizationConfig = () => {
           setTargetResourceTypeLoading(false);
         });
     }
-  }, [targetProjectID, disabledDropdown]);
+  }, [targetProjectID, disabledDropdown, targetProject]);
   // for getting resource Properties
   useEffect(() => {
     if (sourceResourceType && sourceProject) {
@@ -553,6 +553,9 @@ const SynchronizationConfig = () => {
       console.log('error', error);
     }
   };
+  const handleCancel = () => {
+    navigate('/admin/synchronization');
+  };
   return (
     <div style={{ position: 'relative' }}>
       {submitLoading && (
@@ -685,7 +688,7 @@ const SynchronizationConfig = () => {
                     isUpdateState={sourceApplication}
                     restartRequest={restartExternalRequest}
                     isApplication={true}
-                    removeApplication={['gitlab', 'glideyoke', 'dng']}
+                    removeApplication={['gitlab', 'glideyoke', 'dng', 'bitbucket']}
                   />
                 </FlexboxGrid.Item>
               </FlexboxGrid>
@@ -800,6 +803,7 @@ const SynchronizationConfig = () => {
                       'gitlab',
                       'glideyoke',
                       'dng',
+                      'bitbucket',
                     ]}
                   />
                 </FlexboxGrid.Item>
@@ -1002,7 +1006,9 @@ const SynchronizationConfig = () => {
             }}
           >
             <ButtonToolbar>
-              <Button appearance="ghost">Cancel</Button>
+              <Button appearance="ghost" onClick={handleCancel}>
+                Cancel
+              </Button>
               <Button appearance="ghost" onClick={() => handleMakeMigration(false)}>
                 Save
               </Button>

@@ -98,7 +98,7 @@ const Synchronization = () => {
         }),
       );
 
-  console.log(data);
+  console.log(syncConfigList);
   const tableProps = {
     title: 'Synchronization',
     rowData: data ? data : [],
