@@ -12,7 +12,7 @@ import AlertModal from '../../Shared/AlertModal';
 import UseLoader from '../../Shared/UseLoader';
 
 const headerData = [
-  { header: 'ID', key: 'id' },
+  { header: 'ID', key: 'id', width: 45 },
   {
     header: 'Source Project',
     key: 'source_project',
@@ -31,7 +31,8 @@ const headerData = [
     header: 'Target Resource',
     key: 'target_resource',
   },
-  { header: 'Status', syncStatus: 'migrated', width: 120 },
+  { header: 'Last Synced Time', syncTime: 'last_synced' },
+  { header: 'Status', syncStatus: 'migrated', width: 80 },
 ];
 const Synchronization = () => {
   const { isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
@@ -126,7 +127,6 @@ const Synchronization = () => {
   const handleConfirmed = (value) => {
     if (value) deleteMutate();
   };
-
   const data = !syncConfigList?.items
     ? []
     : syncConfigList?.items
@@ -149,6 +149,7 @@ const Synchronization = () => {
           }),
         )
         .flat();
+  console.log(data);
   const tableProps = {
     title: 'Synchronization',
     rowData: data ? data : [],

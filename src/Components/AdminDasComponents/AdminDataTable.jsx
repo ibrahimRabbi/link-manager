@@ -148,6 +148,7 @@ const AdminDataTable = ({ props }) => {
     syncStatus,
     sourceIcon,
     targetIcon,
+    syncTime,
     ...props
   }) => {
     const logo = rowData[iconKey] ? rowData[iconKey] : defaultLogo;
@@ -244,6 +245,22 @@ const AdminDataTable = ({ props }) => {
             <p style={{ marginTop: '2px' }}>{rowData[statusKey]}</p>
           </div>
         )}
+        {syncTime && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+            }}
+          >
+            <p>
+              {new Date(rowData[syncTime]).toLocaleString('en-US', {
+                hour12: true,
+              })}
+            </p>
+          </div>
+        )}
+
         {syncStatus && (
           <div
             style={{
@@ -359,6 +376,7 @@ const AdminDataTable = ({ props }) => {
               pipelinerunkey={header?.pipelinerunkey}
               buttonKey={header?.buttonKey}
               syncStatus={header?.syncStatus}
+              syncTime={header?.syncTime}
             />
           </Column>
         ))}
