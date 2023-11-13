@@ -32,6 +32,8 @@ const {
   graphPreviewContainer,
 } = styles;
 
+const REPOSITORY_FILE_APPLICATION_TYPES = ['gitlab', 'github', 'bitbucket'];
+
 const ExternalPreview = (props) => {
   const { isDark } = useSelector((state) => state.nav);
   const authCtx = useContext(AuthContext);
@@ -70,6 +72,12 @@ const ExternalPreview = (props) => {
     break;
   case 'servicenow':
     iconUrl = 'servicenow_logo.png';
+    break;
+  case 'bitbucket':
+    iconUrl = 'bitbucket_logo.png';
+    break;
+  case 'github':
+    iconUrl = 'github_logo.png';
     break;
   default:
     iconUrl = '/default_preview_logo.svg';
@@ -172,7 +180,7 @@ const ExternalPreview = (props) => {
   };
 
   const getLanguageExtension = (nodeData) => {
-    if (nodeData.application_type === 'gitlab' || nodeData.api === 'gitlab') {
+    if (REPOSITORY_FILE_APPLICATION_TYPES.includes(nodeData.application_type)) {
       const extension = nodeData?.name.split('.')[1];
       setExtension(getLanguageFromExtension(extension).toLowerCase());
     }

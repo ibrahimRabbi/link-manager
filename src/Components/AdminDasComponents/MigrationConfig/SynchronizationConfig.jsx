@@ -31,6 +31,8 @@ import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
 import PropertyTable from './PropertyTable';
 import EnumValueTable from './EnumValueTable';
 import UseCustomProjectSelect from './UseCustomProjectSelect';
+import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
+// import ProgressModal from './ProgressModal';
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
@@ -74,6 +76,7 @@ const SynchronizationConfig = () => {
   const [sourceProperty, setSourceProperty] = useState('');
   const [targetProperty, setTargetProperty] = useState('');
   const [showAddEnum, setShowAddEnum] = useState(false);
+  const [targetWorkspace, setTargetWorkspace] = useState('');
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const dispatch = useDispatch();
 
@@ -125,6 +128,7 @@ const SynchronizationConfig = () => {
     setTargetProjectID('');
     setSourceProject('');
     setSourceProjectList([]);
+    setTargetProjectList([]);
     setTargetApplication('');
     setTargetProject('');
     setTargetResourceType('');
@@ -138,8 +142,6 @@ const SynchronizationConfig = () => {
     setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
-    setSourceProject('');
-    setSourceResourceType('');
     setTargetResourceType('');
     setPropertyShow(false);
     setDisabledDropdown(false);
@@ -152,6 +154,9 @@ const SynchronizationConfig = () => {
     setTargetExternalProjectUrl('');
     closeExternalAppResetRequest();
     setTargetApplication(selectedItem);
+  };
+  const handleTargetWorkspace = (selectedItem) => {
+    setTargetWorkspace(selectedItem);
   };
   const handleTargetProject = (selectedItem) => {
     setSourceProperty('');
@@ -177,7 +182,6 @@ const SynchronizationConfig = () => {
     setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
-    setSourceResourceType('');
     setPropertyShow(false);
     setSourceProjectID('');
     setSourceProject('');
@@ -340,7 +344,7 @@ const SynchronizationConfig = () => {
           setTargetProjectLoading(false);
         });
     }
-  }, [targetApplication, restartExternalRequest]);
+  }, [targetApplication, disabledDropdown, restartExternalRequest]);
 
   useEffect(() => {
     if (sourceProjectID) {
@@ -409,7 +413,7 @@ const SynchronizationConfig = () => {
       } else if (sourceApplication?.type === 'codebeamer') {
         url = `${thirdApiURL}/${sourceApplication?.type}/resource_properties?application_id=${sourceApplication?.id}&resource_id=${sourceResourceType?.id}`;
       } else {
-        url = `${thirdApiURL}/${sourceApplication?.type}/resource_properties`;
+        url = `${thirdApiURL}/${sourceApplication?.type}/resource_properties?application_id=${sourceApplication?.id}&resource_type=${sourceResourceType?.id}`;
       }
       fetch(url, {
         headers: {
@@ -430,16 +434,14 @@ const SynchronizationConfig = () => {
   }, [sourceResourceType, restartExternalRequest]);
   // for getting resource properties
   useEffect(() => {
-    if (targetResourceType && targetProject) {
+    if (targetResourceType) {
       let url;
       if (targetApplication?.type === 'jira' && targetProject !== '') {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_properties?application_id=${targetApplication?.id}&project_key=${targetProject?.key}&resource_type=${targetResourceType?.id}`;
-      } else if (targetApplication?.type === 'jira' && disabledDropdown) {
-        url = `${thirdApiURL}/${targetApplication?.type}/resource_properties?application_id=${targetApplication?.id}&resource_type=${targetResourceType?.id}`;
       } else if (targetApplication?.type === 'codebeamer' && targetProject !== '') {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_properties?application_id=${targetApplication?.id}&resource_id=${targetResourceType?.id}`;
       } else {
-        url = `${thirdApiURL}/${targetApplication?.type}/resource_properties`;
+        url = `${thirdApiURL}/${targetApplication?.type}/resource_properties?application_id=${targetApplication?.id}&resource_type=${targetResourceType?.id}`;
       }
       fetch(url, {
         headers: {
@@ -463,14 +465,20 @@ const SynchronizationConfig = () => {
     const body = {
       source_application_id: sourceApplication ? sourceApplication?.id : null,
       source_project: sourceProject ? sourceProject?.name : null,
-      source_workspace: sourceProject ? sourceProject?.workspace_name : null,
+      source_workspace: sourceProject?.workspace_name
+        ? sourceProject?.workspace_name
+        : null,
       source_resource:
         sourceApplication?.type === 'codebeamer'
           ? sourceResourceType?.name
           : sourceResourceType?.id,
       target_application_id: targetApplication ? targetApplication?.id : null,
       target_project: targetProject ? targetProject?.name : null,
-      target_workspace: targetProject ? targetProject?.workspace_name : null,
+      target_workspace: targetWorkspace?.name
+        ? targetWorkspace?.name
+        : targetProject?.workspace_name
+        ? targetProject?.workspace_name
+        : null,
       target_resource:
         targetApplication?.type === 'codebeamer'
           ? targetResourceType?.name
@@ -485,10 +493,7 @@ const SynchronizationConfig = () => {
         },
         body: JSON.stringify(body),
       });
-      handleResponse(response);
-      if (!response.ok) {
-        setSubmitLoading(false);
-      } else {
+      if (response.ok) {
         setSubmitLoading(false);
         setSourceApplication('');
         setSourceProject('');
@@ -500,6 +505,37 @@ const SynchronizationConfig = () => {
         setTargetResourceType('');
         setDisabledDropdown(false);
         setSelectDirection('');
+        setEnumRows([]);
+        setNormalRows([]);
+        return response.json().then((data) => {
+          showNotification('success', data.message);
+          return data;
+        });
+      } else if (!response.ok) {
+        setSubmitLoading(false);
+      }
+      switch (response.status) {
+        case 400:
+          return response.json().then((data) => {
+            showNotification('error', data?.message);
+            return { items: [] };
+          });
+        case 401:
+          return response.json().then((data) => {
+            showNotification('error', data?.message);
+            return { items: [] };
+          });
+        case 403:
+          if (authCtx.token) {
+            showNotification('error', 'You do not have permission to access');
+          } else {
+            return { items: [] };
+          }
+          break;
+        default:
+          return response.json().then((data) => {
+            showNotification('error', data?.message);
+          });
       }
     } catch (error) {
       setSubmitLoading(false);
@@ -513,6 +549,7 @@ const SynchronizationConfig = () => {
           style={{ position: 'absolute', top: '100', left: '0', right: '0', bottom: '0' }}
         >
           <UseLoader />
+          {/* <ProgressModal open={submitLoading} /> */}
         </div>
       )}
       <div
@@ -757,6 +794,31 @@ const SynchronizationConfig = () => {
               </FlexboxGrid>
             </FlexboxGrid.Item>
           </FlexboxGrid>
+          {disabledDropdown && targetApplication?.type === 'valispace' && (
+            <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
+              <FlexboxGrid.Item colspan={4}>
+                <h5>Workspace: </h5>
+              </FlexboxGrid.Item>
+              <FlexboxGrid.Item colspan={20}>
+                <FlexboxGrid justify="end">
+                  {/* --- workspace dropdown ---   */}
+                  <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
+                    <CustomReactSelect
+                      name="application_type"
+                      placeholder="Choose Workspace"
+                      apiURL={`${thirdApiURL}/valispace/workspace`}
+                      apiQueryParams={`application_id=${targetApplication?.id}`}
+                      onChange={handleTargetWorkspace}
+                      value={targetWorkspace?.name}
+                      isLinkCreation={true}
+                      disabled={authenticatedThirdApp || selectDirection ? false : true}
+                      // isApplication={true}
+                    />
+                  </FlexboxGrid.Item>
+                </FlexboxGrid>
+              </FlexboxGrid.Item>
+            </FlexboxGrid>
+          )}
           {targetApplication && (
             <div>
               <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
@@ -919,13 +981,20 @@ const SynchronizationConfig = () => {
             integrated={false}
           />
         ) : (
-          <div style={{ display: 'flex', justifyContent: 'end', marginTop: '20px' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'end',
+              marginTop: '20px',
+              marginBottom: '40px',
+            }}
+          >
             <ButtonToolbar>
               <Button appearance="ghost">Cancel</Button>
               <Button appearance="ghost">Save</Button>
               <Button
                 appearance="primary"
-                disabled={!sourceProject || !sourceResourceType || !targetApplication}
+                disabled={!targetResourceType}
                 onClick={handleMakeMigration}
               >
                 Save & Run

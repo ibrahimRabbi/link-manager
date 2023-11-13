@@ -500,6 +500,18 @@ const Application = () => {
                   iconUrl: '/gitlab_logo.png',
                   status: currentValue?.oauth2_application[0]?.token_status?.status,
                 });
+              } else if (currentValue?.type === 'bitbucket') {
+                accumulator.push({
+                  ...currentValue,
+                  iconUrl: '/bitbucket_logo.png',
+                  status: currentValue?.oauth2_application[0]?.token_status?.status,
+                });
+              } else if (currentValue?.type === 'github') {
+                accumulator.push({
+                  ...currentValue,
+                  iconUrl: '/github_logo.png',
+                  status: currentValue?.oauth2_application[0]?.token_status?.status,
+                });
               } else if (currentValue?.type === 'jira') {
                 accumulator.push({
                   ...currentValue,
