@@ -6,7 +6,16 @@ import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
 import InfoStatus from '@rsuite/icons/InfoRound';
 
-import { Table, Pagination, FlexboxGrid, Button, InputGroup, Input } from 'rsuite';
+import {
+  Table,
+  Pagination,
+  FlexboxGrid,
+  Button,
+  InputGroup,
+  Input,
+  Whisper,
+  Tooltip,
+} from 'rsuite';
 import { IconButton, ButtonToolbar } from 'rsuite';
 import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
@@ -55,6 +64,18 @@ const AdminDataTable = ({ props }) => {
       setDisplayTableData(filteredData);
     }
   }, [tableFilterValue]);
+
+  const getStatusLabel = (status) => {
+    // prettier-ignore
+    switch (status) {
+    case 1:
+      return 'Authenticated';
+    case 2:
+      return 'Suspect';
+    default:
+      return 'Not Authenticated';
+    }
+  };
 
   // Action cell
   // Action table cell control
@@ -163,18 +184,23 @@ const AdminDataTable = ({ props }) => {
             }}
           >
             <h5>
-              {rowData[statusKey]?.toLowerCase() === 'valid' ? (
-                <SuccessStatus color="#378f17" />
-              ) : rowData[statusKey]?.toLowerCase() === 'invalid' ? (
-                <FailedStatus color="#de1655" />
-              ) : rowData[statusKey]?.toLowerCase() === 'suspect' ? (
-                <InfoStatus color="#25b3f5" />
-              ) : (
-                <InfoStatus color="#25b3f5" />
-              )}
+              <Whisper
+                placement="top"
+                controlId="control-id-click"
+                trigger="hover"
+                speaker={<Tooltip>{getStatusLabel(rowData[statusKey])}</Tooltip>}
+              >
+                {rowData[statusKey] === 1 ? (
+                  <SuccessStatus color="#378f17" />
+                ) : rowData[statusKey] === 0 ? (
+                  <FailedStatus color="#de1655" />
+                ) : rowData[statusKey] === 2 ? (
+                  <InfoStatus color="#25b3f5" />
+                ) : (
+                  <InfoStatus color="#25b3f5" />
+                )}
+              </Whisper>
             </h5>
-
-            <p style={{ marginTop: '2px' }}>{rowData[statusKey]}</p>
           </div>
         )}
         {pipelinerunkey && (
