@@ -17,6 +17,23 @@ import { PiEyeBold } from 'react-icons/pi';
 import { MdOutlineContentCopy } from 'react-icons/md';
 const { Column, HeaderCell, Cell } = Table;
 
+const getSourceTargetIcon = (iconKey) => {
+  // Define your icon mappings here
+  const iconMappings = {
+    jira: '/jira_logo.png',
+    gitlab: '/gitlab_logo.png',
+    glide: '/glide_logo.png',
+    valispace: '/valispace_logo.png',
+    codebeamer: '/codebeamer_logo.png',
+    dng: '/dng_logo.png',
+    bitbucket: '/bitbucket_logo.png',
+    default: '/default_logo.png',
+  };
+
+  // Get the icon from the mapping or use a default icon if not found
+  return iconMappings[iconKey] || '/default_logo.png';
+};
+
 const AdminDataTable = ({ props }) => {
   const {
     title,
@@ -129,9 +146,13 @@ const AdminDataTable = ({ props }) => {
     pipelinerunkey,
     buttonKey,
     syncStatus,
+    sourceIcon,
+    targetIcon,
     ...props
   }) => {
     const logo = rowData[iconKey] ? rowData[iconKey] : defaultLogo;
+    const sourceLogo = sourceIcon && getSourceTargetIcon(rowData[sourceIcon]);
+    const targetLogo = targetIcon && getSourceTargetIcon(rowData[targetIcon]);
     return (
       <Cell {...props}>
         {/* display logo  */}
@@ -143,6 +164,30 @@ const AdminDataTable = ({ props }) => {
             style={{
               backgroundColor: rowData[iconKey] ? '' : 'white',
               borderRadius: rowData[iconKey] ? '' : '50%',
+              padding: '1px',
+            }}
+          />
+        )}
+        {sourceIcon && (
+          <img
+            height={25}
+            src={sourceLogo}
+            alt=""
+            style={{
+              backgroundColor: sourceIcon ? '' : 'white',
+              borderRadius: sourceIcon ? '' : '50%',
+              padding: '1px',
+            }}
+          />
+        )}
+        {targetIcon && (
+          <img
+            height={25}
+            src={targetLogo}
+            alt=""
+            style={{
+              backgroundColor: targetIcon ? '' : 'white',
+              borderRadius: targetIcon ? '' : '50%',
               padding: '1px',
             }}
           />
@@ -308,6 +353,8 @@ const AdminDataTable = ({ props }) => {
               }}
               dataKey={header?.key}
               iconKey={header?.iconKey}
+              sourceIcon={header?.source_icon}
+              targetIcon={header?.target_icon}
               statusKey={header?.statusKey}
               pipelinerunkey={header?.pipelinerunkey}
               buttonKey={header?.buttonKey}

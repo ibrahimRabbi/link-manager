@@ -39,7 +39,6 @@ const PropertyTable = ({
       const filteredTargetOptions = target.filter((item) => item.datatype === dataType);
       setUpdateTarget(filteredTargetOptions);
     }
-    console.log(selectedItem);
   };
 
   const handleTargetPro = (selectedItem) => {
