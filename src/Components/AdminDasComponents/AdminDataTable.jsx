@@ -13,6 +13,7 @@ import CloseIcon from '@rsuite/icons/Close';
 import { handleRefreshData } from '../../Redux/slices/navSlice';
 import { darkBgColor, lightBgColor } from '../../App';
 import { MdDelete, MdEdit, MdLock } from 'react-icons/md';
+import { BiShowAlt } from 'react-icons/bi';
 import { PiEyeBold } from 'react-icons/pi';
 import { MdOutlineContentCopy } from 'react-icons/md';
 const { Column, HeaderCell, Cell } = Table;
@@ -28,6 +29,7 @@ const AdminDataTable = ({ props }) => {
     handleCopy,
     handleEdit,
     handleDelete,
+    handleViewAccess,
     handleScriptView,
     authorizeModal,
     totalItems,
@@ -61,6 +63,9 @@ const AdminDataTable = ({ props }) => {
   const ActionMenu = ({ rowData }) => {
     const editSelected = () => {
       handleEdit(rowData);
+    };
+    const viewAccess = () => {
+      handleViewAccess(rowData);
     };
 
     const deleteSelected = () => {
@@ -99,6 +104,9 @@ const AdminDataTable = ({ props }) => {
         )}
         {handleEdit && (
           <IconButton size="sm" title="Edit" icon={<MdEdit />} onClick={editSelected} />
+        )}
+        {handleViewAccess && (
+          <IconButton size="sm" title="View" icon={<BiShowAlt />} onClick={viewAccess} />
         )}
         {handleDelete && (
           <IconButton

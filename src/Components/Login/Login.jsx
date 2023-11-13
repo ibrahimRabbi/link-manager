@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import style from './Login.module.scss';
 import { useDispatch, useSelector } from 'react-redux';
-import { useMixpanel } from 'react-mixpanel-browser';
+import { Mixpanel } from '../../../Mixpanel.js';
 import {
   FlexboxGrid,
   Button,
@@ -22,7 +22,6 @@ import fetchAPIRequest from '../../apiRequests/apiRequest.js';
 
 const { titleSpan, main, title } = style;
 const loginURL = `${import.meta.env.VITE_LM_REST_API_URL}/auth/login`;
-const mixPanelId = import.meta.env.VITE_MIXPANEL_TOKEN;
 const { StringType } = Schema.Types;
 
 const model = Schema.Model({
@@ -47,7 +46,6 @@ const Login = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const toaster = useToaster();
-  const mixpanel = useMixpanel();
   const dispatch = useDispatch();
   const isMounted = useRef(null); // Variable to track component mount state
   const sourceData = sessionStorage.getItem('sourceData');
@@ -65,8 +63,6 @@ const Login = () => {
       isMounted.current = true; // Update the mount state on unmount
     };
   }, []);
-
-  mixpanel.init(mixPanelId);
 
   const showNotification = (type, message) => {
     if (type && message) {
@@ -86,7 +82,7 @@ const Login = () => {
 
     setIsLoading(true);
     // Track who tried to login
-    mixpanel.track('Trying to login.', {
+    Mixpanel.track('Trying to login.', {
       username: formValue.userName,
     });
 
@@ -103,12 +99,12 @@ const Login = () => {
       if (isMounted.current) {
         if (response.ok) {
           // Track successful login
-          mixpanel.track('Successfully logged in.', {
+          Mixpanel.track('Successfully logged in.', {
             username: formValue.userName,
           });
         } else {
           // Track failed login
-          mixpanel.track('Failed to login.', {
+          Mixpanel.track('Failed to login.', {
             username: formValue.userName,
           });
         }

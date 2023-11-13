@@ -31,26 +31,25 @@ export default function fetchAPIRequest({
           return data;
         });
       } else {
-        if (response.status === 401) {
-          response.json().then((data) => {
-            showNotification('error', data?.message);
-            window.location.replace('/login');
-          });
-          return '';
-        } else if (response.status === 403) {
+        if (response.status === 403) {
           if (token) {
             showNotification('error', 'You do not have permission to access');
-          } else {
-            window.location.replace('/login');
+            return false;
           }
-          return '';
         }
 
-        return response.json().then((data) => {
-          showNotification('error', data?.message);
-          return '';
+        response.json().then((data) => {
+          let errorMessage = data?.message;
+          if (response.status === 403) {
+            errorMessage = `${response?.status} not authorized ${data?.message}`;
+          }
+          showNotification('error', errorMessage);
+          throw new Error(errorMessage);
         });
       }
     })
-    .catch((error) => showNotification('error', error?.message));
+    .catch((error) => {
+      showNotification('error', error?.message);
+      throw new Error(error?.message);
+    });
 }

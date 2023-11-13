@@ -12,7 +12,6 @@ import {
 } from '../../Redux/slices/linksSlice';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
-
 import { FlexboxGrid, Col, Button, Message, toaster } from 'rsuite';
 import SourceSection from '../SourceSection';
 import UseLoader from '../Shared/UseLoader';
@@ -27,10 +26,13 @@ import {
 // eslint-disable-next-line max-len
 import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
 import GlobalSelector from '../SelectionDialog/GlobalSelector/GlobalSelector';
+import { useMixpanel } from 'react-mixpanel-browser';
+import jwt_decode from 'jwt-decode';
 
 const { newLinkMainContainer, targetBtnContainer, errorMessageStyle } = styles;
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
+const mixPanelId = import.meta.env.VITE_MIXPANEL_TOKEN;
 const thirdApiURL = `${apiURL}/third_party`;
 
 const NewLink = ({ pageTitle: isEditLinkPage }) => {
@@ -57,6 +59,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   const location = useLocation();
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
+  const userInfo = jwt_decode(authCtx?.token);
+  const mixpanel = useMixpanel();
+  mixpanel.init(mixPanelId);
 
   // eslint-disable-next-line max-len
   const organization = authCtx?.organization_name
@@ -209,7 +214,6 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
       const targetRes = JSON.parse(res);
       const mappedTargetData = targetRes?.map((item) => {
         const properties = item?.extended_properties;
-
         const targetUri = properties?.selected_lines
           ? item?.web_url + '#' + properties?.selected_lines
           : item?.web_url;
@@ -296,17 +300,35 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         dispatch(
           fetchCreateLink({
             url: `${apiURL}/link/new_link`,
-            token: authCtx.token,
+            token: authCtx.token + 1,
             bodyData: linkBodyData,
             message: 'link',
             showNotification: showNotification,
           }),
-        );
+        ).then((res) => {
+          if (res?.payload) {
+            mixpanel.track('Links created successfully', {
+              username: userInfo?.preferred_username,
+              source_application: appName,
+              target_application: applicationType?.type,
+            });
+          } else {
+            mixpanel.track('Links created failed', {
+              username: userInfo?.preferred_username,
+              source_application: appName,
+              target_application: applicationType?.type,
+            });
+          }
+        });
       } else {
         showNotification('info', 'Sorry, Source data not found !!!');
       }
     }
   };
+
+  addEventListener('error', (event) => {
+    console.log(event);
+  });
 
   useEffect(() => {
     if (linkType && projectType) {

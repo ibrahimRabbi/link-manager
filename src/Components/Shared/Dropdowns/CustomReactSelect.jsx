@@ -38,6 +38,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
     getErrorStatus,
     isLinkType,
     isMulti,
+    closeMenuOnSelect = true,
+    defaultMenuIsOpen = false,
     ...rest
   } = props;
 
@@ -93,12 +95,25 @@ const CustomReactSelect = forwardRef((props, ref) => {
             if (getErrorStatus) {
               getErrorStatus();
             }
+
+            if (res.status === 403) {
+              if (authCtx?.token) {
+                showNotification('error', 'You do not have permission to access');
+                return false;
+              }
+            }
+
             res.json().then((data) => {
-              showNotification('error', data?.message);
               if (getResponse) {
                 getResponse?.handleLinkCreationResponses(getResponse?.name, data);
               }
-              throw new Error(data?.message);
+
+              let errorMessage = data?.message;
+              if (res.status === 403) {
+                errorMessage = `${res?.status} not authorized ${data?.message}`;
+              }
+              showNotification('error', errorMessage);
+              throw new Error(errorMessage);
             });
           }
         })
@@ -106,18 +121,19 @@ const CustomReactSelect = forwardRef((props, ref) => {
           setIsLoading(false);
           showNotification('error', error?.message);
           if (getResponse) {
-            // eslint-disable-next-line max-len
             getResponse?.handleLinkCreationResponses(
               getResponse?.name,
               error,
               'catch_block',
             );
           }
-          throw new Error(
-            // eslint-disable-next-line max-len
-            `${error}: The server could not connect for the ${getResponse?.name} please try to contact with the admin to solve this issue`,
-          );
+          // eslint-disable-next-line max-len
+          const errorMsg = `${error}: The server could not connect for the ${
+            getResponse?.name || rest?.name
+          } please try to contact with the admin to solve this issue`;
+          throw new Error(errorMsg);
         });
+
       setIsLoading(false);
       setCheckPagination(response);
       if (response?.items) {
@@ -316,11 +332,12 @@ const CustomReactSelect = forwardRef((props, ref) => {
     } else {
       dropdownJsonData = option?.map((item) => ({
         ...item,
-        label: isIntegration ? item?.project?.name : item?.name || item?.label,
+        label: isIntegration
+          ? item?.project?.name
+          : item?.name || item?.label || item?.email,
         value: item?.id,
       }));
     }
-
     setDropdownData(dropdownJsonData);
   }, [option]);
 
@@ -412,6 +429,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
       isDisabled={disabled}
       isLoading={isLoading}
       isSearchable={true}
+      closeMenuOnSelect={closeMenuOnSelect}
+      defaultMenuIsOpen={defaultMenuIsOpen}
       menuPlacement="bottom"
       name={name}
       components={{

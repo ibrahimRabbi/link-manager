@@ -57,7 +57,7 @@ const AdminSideNav = () => {
       hidden: false,
     },
     {
-      path: [`${organization}admin/projects`],
+      path: [`${organization}/admin/projects`],
       navigateTo: `${organization}/admin/projects`,
       icon: <VscProject size={18} style={{ ...iconStyle }} />,
       content: <span>Projects</span>,

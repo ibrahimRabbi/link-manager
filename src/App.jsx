@@ -88,6 +88,17 @@ function App() {
     }
   }, [pathname]);
 
+  // handle Unhandled Promise Rejection errors.
+  window.addEventListener('unhandledrejection', (event) => {
+    const error = event.reason;
+    // logout if token api response is 401 or 403
+    if (error?.message?.toLowerCase()?.includes('token does not match')) {
+      authCtx?.logout();
+    } else if (error?.message?.toLowerCase()?.includes('403 not authorized')) {
+      authCtx?.logout();
+    }
+  });
+
   return (
     <CustomProvider theme={isDark}>
       <div

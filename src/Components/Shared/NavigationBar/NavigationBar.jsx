@@ -99,7 +99,7 @@ const NavigationBar = () => {
       }
     >
       {popItems.map((item, index) => {
-        if (item?.path === '/admin') {
+        if (item?.path === organization + '/admin') {
           if (isAdmin || isSuperAdmin) {
             // display dashboard option
           } else {
