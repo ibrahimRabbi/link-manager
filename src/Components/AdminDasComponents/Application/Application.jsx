@@ -51,7 +51,7 @@ const headerData = [
   {
     header: 'Status',
     statusKey: 'status',
-    width: 120,
+    width: 150,
   },
 ];
 
@@ -208,9 +208,13 @@ const Application = () => {
       }),
     {
       onSuccess: (res) => {
-        console.log('Create: ', res);
+        if (res) {
+          setSteps(1);
+        }
       },
-      onError: () => {},
+      onError: () => {
+        setSteps(0);
+      },
     },
   );
 
@@ -412,40 +416,59 @@ const Application = () => {
 
     // get data from authentication server array.
     const serverData = {};
-    data?.authentication_server?.forEach((item) => {
+    data?.integration_urls?.forEach((item) => {
       if (data?.type === 'codebeamer') {
         const isOidc = item?.type?.toLowerCase()?.includes('oidc');
-        if (isOidc) serverData['oidc_url'] = item?.type;
+        if (isOidc) serverData['oidc'] = item?.url;
         else {
-          serverData['server_url'] = item?.type;
+          serverData['rest'] = item?.url;
         }
       } else if (data?.type === 'glideyoke') {
         if (item?.type?.toLowerCase()?.includes('rest')) {
-          serverData['server_url'] = item?.type;
+          serverData['rest'] = item?.url;
         } else if (item?.type?.toLowerCase()?.includes('auth')) {
-          serverData['url_auth'] = item?.type;
+          serverData['auth'] = item?.url;
+        } else if (item?.type?.toLowerCase()?.includes('tenant')) {
+          serverData['tenant'] = item?.url;
         } else {
-          serverData['url_ui'] = item?.type;
+          serverData['ui'] = item?.url;
         }
       } else {
-        serverData['server_url'] = item.type;
+        serverData['rest'] = item.url;
       }
     });
 
-    const oauth2 = data?.oauth2_application;
-    setFormValue({
+    const oauth2 = data?.oauth2_data[0];
+    handleApplicationType(data?.type);
+    const foundApplicationType = Object.values(applicationDataTypes['items']).find(
+      (item) => item.id === data?.type,
+    );
+    const editForm = {
       type: data?.type,
       organization_id: data?.organization_id,
       name: data?.name,
-      server_url: serverData?.server_url,
       description: data?.description,
-      client_id: oauth2?.client_id ? oauth2?.client_id : '',
-      client_secret: oauth2?.client_secret ? oauth2?.client_secret : '',
-      server_url_auth: serverData?.url_auth ? serverData?.url_auth : '',
-      server_url_ui: serverData?.url_ui ? serverData?.url_ui : '',
-      tenant_id: oauth2?.client_id ? oauth2?.client_id : '',
-      oidc_url: serverData?.oidc_url ? serverData?.oidc_url : '',
-    });
+      tenant_id: serverData?.tenant ? serverData?.tenant : '',
+      client_id:
+        oauth2?.client_id && !data?.default_oauth2_credentials ? oauth2?.client_id : '',
+      client_secret:
+        oauth2?.client_secret && !data?.default_oauth2_credentials
+          ? oauth2?.client_secret
+          : '',
+      redirect_uris: oauth2?.redirect_uris ? oauth2?.redirect_uris : [],
+      rest:
+        (serverData?.rest && !data?.default_oauth2_credentials) ||
+        foundApplicationType?.mandatory_rest_url
+          ? serverData?.rest
+          : '',
+      auth: serverData?.auth ? serverData?.auth : '',
+      ui: serverData?.ui ? serverData?.ui : '',
+      oidc: serverData?.oidc ? serverData?.oidc : '',
+    };
+
+    setFormValue(editForm);
+    console.log('data', data);
+    setAdvancedOptions(!data?.default_oauth2_credentials);
     setOpenModal(true);
   };
 
@@ -578,7 +601,6 @@ const Application = () => {
             {isAdminEditing ? editFormTitle : newFormTitle}
           </Modal.Title>
 
-          {/* {!isAdminEditing && ( */}
           <Steps current={steps} style={{ marginTop: '5px' }}>
             <Steps.Item />
             <Steps.Item status={manageStep2} />
@@ -746,10 +768,7 @@ const Application = () => {
                   color="blue"
                   className="adminModalFooterBtn"
                   onClick={() => {
-                    if (appCreateSuccess) setSteps(1);
-                    else {
-                      handleAddApplication();
-                    }
+                    handleAddApplication();
                   }}
                 >
                   {appCreateSuccess ? 'Next' : 'Save'}
