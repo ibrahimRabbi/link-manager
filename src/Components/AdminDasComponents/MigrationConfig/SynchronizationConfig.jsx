@@ -688,7 +688,13 @@ const SynchronizationConfig = () => {
                     isUpdateState={sourceApplication}
                     restartRequest={restartExternalRequest}
                     isApplication={true}
-                    removeApplication={['gitlab', 'glideyoke', 'dng', 'bitbucket']}
+                    removeApplication={[
+                      'gitlab',
+                      'glideyoke',
+                      'dng',
+                      'bitbucket',
+                      'codebeamer',
+                    ]}
                   />
                 </FlexboxGrid.Item>
               </FlexboxGrid>

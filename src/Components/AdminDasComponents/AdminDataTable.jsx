@@ -267,7 +267,6 @@ const AdminDataTable = ({ props }) => {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              cursor: 'pointer',
             }}
           >
             <h5>

@@ -21,6 +21,7 @@ const headerData = [
   {
     header: 'Source Resource',
     key: 'source_resource',
+    width: 170,
   },
   {
     header: 'Target Project',
@@ -30,6 +31,7 @@ const headerData = [
   {
     header: 'Target Resource',
     key: 'target_resource',
+    width: 170,
   },
   { header: 'Last Synced Time', syncTime: 'last_synced' },
   { header: 'Status', syncStatus: 'migrated', width: 80 },
@@ -149,7 +151,6 @@ const Synchronization = () => {
           }),
         )
         .flat();
-  console.log(data);
   const tableProps = {
     title: 'Synchronization',
     rowData: data ? data : [],
