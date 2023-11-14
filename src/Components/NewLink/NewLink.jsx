@@ -28,7 +28,7 @@ import {
 import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
 import GlobalSelector from '../SelectionDialog/GlobalSelector/GlobalSelector';
 // eslint-disable-next-line max-len
-import BitbucketSelector from '../SelectionDialog/BitbucketSelector/BitbucketSelector.jsx';
+import RepositoryFileSelector from '../SelectionDialog/RepositoryFileSelector/RepositoryFileSelector.jsx';
 
 const { newLinkMainContainer, targetBtnContainer } = styles;
 
@@ -47,7 +47,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     linkCreateLoading,
   } = useSelector((state) => state.links);
   const [gitlabDialog, setGitlabDialog] = useState(false);
-  const [bitbucketDialog, setBitbucketDialog] = useState(false);
+  const [repositoryFileDialog, setRepositoryFileDialog] = useState(false);
   const [globalDialog, setGlobalDialog] = useState(false);
   const [appWithWorkspace, setAppWithWorkspace] = useState(false);
   const [externalProjectUrl, setExternalProjectUrl] = useState('');
@@ -114,7 +114,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
   // set iframe SRC conditionally
   useEffect(() => {
     setGitlabDialog(false);
-    setBitbucketDialog(false);
+    setRepositoryFileDialog(false);
     setGlobalDialog(false);
     setAppWithWorkspace(false);
 
@@ -124,7 +124,10 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
           setGitlabDialog(true);
           break;
         case 'bitbucket':
-          setBitbucketDialog(true);
+          setRepositoryFileDialog(true);
+          break;
+        case 'github':
+          setRepositoryFileDialog(true);
           break;
         case 'glideyoke':
           setGlobalDialog(true);
@@ -318,6 +321,9 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
     case 'bitbucket':
         setExternalProjectUrl(`${thirdApiURL}/bitbucket/workspace`);
         break;
+    case 'github':
+      setExternalProjectUrl(`${thirdApiURL}/github/workspace`);
+      break;
     case 'valispace':
       setExternalProjectUrl(`${thirdApiURL}/valispace/workspace`);
       break;
@@ -450,12 +456,12 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
               cancelLinkHandler={cancelLinkHandler}
             ></GitlabSelector>
           )}
-          {linkType && bitbucketDialog && (
-            <BitbucketSelector
+          {linkType && repositoryFileDialog && (
+            <RepositoryFileSelector
               appData={projectType}
               handleSaveLink={handleSaveLink}
               cancelLinkHandler={cancelLinkHandler}
-            ></BitbucketSelector>
+            ></RepositoryFileSelector>
           )}
           {linkType && globalDialog && (
             <GlobalSelector
