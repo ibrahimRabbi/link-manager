@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { HiRefresh } from 'react-icons/hi';
@@ -254,9 +255,11 @@ const AdminDataTable = ({ props }) => {
             }}
           >
             <p>
-              {new Date(rowData[syncTime]).toLocaleString('en-US', {
-                hour12: true,
-              })}
+              {rowData[syncTime] !== null
+                ? new Date(rowData[syncTime]).toLocaleString('en-US', {
+                    hour12: true,
+                  })
+                : 'Never'}
             </p>
           </div>
         )}
