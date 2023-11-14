@@ -102,6 +102,7 @@ const Application = () => {
   const [appCreateSuccess, setAppCreateSuccess] = useState(false);
   const [authorizedAppConsumption, setAuthorizedAppConsumption] = useState(false);
   const [isAppAuthorize, setIsAppAuthorize] = useState(false);
+  const [authorizeButton, setAuthorizeButton] = useState(false);
   const [open, setOpen] = useState(false);
 
   /** Model Schema */
@@ -335,6 +336,35 @@ const Application = () => {
     handleResetForm();
     setOpenModal(true);
   };
+
+  // Get server data
+  const getServerData = (data) => {
+    // get data from authentication server array.
+    const serverData = {};
+    data?.integration_urls?.forEach((item) => {
+      if (data?.type === 'codebeamer') {
+        const isOidc = item?.type?.toLowerCase()?.includes('oidc');
+        if (isOidc) serverData['oidc'] = item?.url;
+        else {
+          serverData['rest'] = item?.url;
+        }
+      } else if (data?.type === 'glideyoke') {
+        if (item?.type?.toLowerCase()?.includes('rest')) {
+          serverData['rest'] = item?.url;
+        } else if (item?.type?.toLowerCase()?.includes('auth')) {
+          serverData['auth'] = item?.url;
+        } else if (item?.type?.toLowerCase()?.includes('tenant')) {
+          serverData['tenant'] = item?.url;
+        } else {
+          serverData['ui'] = item?.url;
+        }
+      } else {
+        serverData['rest'] = item.url;
+      }
+    });
+    return serverData;
+  };
+
   // handle close modal
   const handleCloseModal = () => {
     setSteps(0);
@@ -383,20 +413,44 @@ const Application = () => {
     }
   };
 
-  // oauth2 modal for authorize applications
+  // Use modal in second step to authorize the access to this application
   const handleOpenAuthorizeModal = (data) => {
-    if (data?.status && data?.status?.toLowerCase() !== 'valid') {
-      setIsAppAuthorize(false);
-      if (oauth2ModalRef.current && oauth2ModalRef.current?.verifyAndOpenModal) {
-        oauth2ModalRef.current?.verifyAndOpenModal(data, data?.id);
-      }
-    } else if (data?.status && data?.status?.toLowerCase() === 'valid') {
-      const message = (
-        <Message closable showIcon type="info" style={{ fontSize: '17px' }}>
-          Sorry, This application has been already authorized
-        </Message>
+    if (!data.status) {
+      handleApplicationType(data?.type);
+
+      setSteps(1);
+      const serverData = getServerData(data);
+      const oauth2 = data?.oauth2_data[0];
+
+      const foundApplicationType = Object.values(applicationDataTypes['items']).find(
+        (item) => item.id === data?.type,
       );
-      toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
+
+      const editForm = {
+        type: data?.type,
+        organization_id: data?.organization_id,
+        name: data?.name,
+        description: data?.description,
+        tenant_id: serverData?.tenant ? serverData?.tenant : '',
+        client_id:
+          oauth2?.client_id && !data?.default_oauth2_credentials ? oauth2?.client_id : '',
+        client_secret:
+          oauth2?.client_secret && !data?.default_oauth2_credentials
+            ? oauth2?.client_secret
+            : '',
+        redirect_uris: oauth2?.redirect_uris ? oauth2?.redirect_uris : [],
+        rest:
+          (serverData?.rest && !data?.default_oauth2_credentials) ||
+          foundApplicationType?.mandatory_rest_url
+            ? serverData?.rest
+            : '',
+        auth: serverData?.auth ? serverData?.auth : '',
+        ui: serverData?.ui ? serverData?.ui : '',
+        oidc: serverData?.oidc ? serverData?.oidc : '',
+      };
+      setFormValue(editForm);
+      setOpenModal(true);
+      setAuthorizeButton(true);
     }
   };
 
@@ -440,36 +494,14 @@ const Application = () => {
   const handleConfirmed = (value) => {
     if (value) deleteMutate();
   };
+
   // Open edit application modal
   const handleEdit = (data) => {
     setSteps(0);
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
 
-    // get data from authentication server array.
-    const serverData = {};
-    data?.integration_urls?.forEach((item) => {
-      if (data?.type === 'codebeamer') {
-        const isOidc = item?.type?.toLowerCase()?.includes('oidc');
-        if (isOidc) serverData['oidc'] = item?.url;
-        else {
-          serverData['rest'] = item?.url;
-        }
-      } else if (data?.type === 'glideyoke') {
-        if (item?.type?.toLowerCase()?.includes('rest')) {
-          serverData['rest'] = item?.url;
-        } else if (item?.type?.toLowerCase()?.includes('auth')) {
-          serverData['auth'] = item?.url;
-        } else if (item?.type?.toLowerCase()?.includes('tenant')) {
-          serverData['tenant'] = item?.url;
-        } else {
-          serverData['ui'] = item?.url;
-        }
-      } else {
-        serverData['rest'] = item.url;
-      }
-    });
-
+    const serverData = getServerData(data);
     const oauth2 = data?.oauth2_data[0];
     handleApplicationType(data?.type);
     const foundApplicationType = Object.values(applicationDataTypes['items']).find(
@@ -499,7 +531,6 @@ const Application = () => {
     };
 
     setFormValue(editForm);
-    console.log('data', data);
     setAdvancedOptions(!data?.default_oauth2_credentials);
     setOpenModal(true);
   };
@@ -814,7 +845,7 @@ const Application = () => {
               <h4>{'Authorize the access to the integration'}</h4>
               {applicationType?.authentication_type === 'oauth2' &&
                 steps === 1 &&
-                createSuccess && <Oauth2Waiting data={formValue} />}
+                (createSuccess || authorizeButton) && <Oauth2Waiting data={formValue} />}
 
               {
                 // prettier-ignore
@@ -822,7 +853,7 @@ const Application = () => {
                   applicationType?.authentication_type)
                 ) &&
                 steps === 1 &&
-                createSuccess && (
+                (createSuccess || authorizeButton) && (
                   <ExternalLogin appData={formValue} onDataStatus={getExtLoginData} />
                 )
               }
