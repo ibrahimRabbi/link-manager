@@ -17,6 +17,23 @@ import { PiEyeBold } from 'react-icons/pi';
 import { MdOutlineContentCopy } from 'react-icons/md';
 const { Column, HeaderCell, Cell } = Table;
 
+const getSourceTargetIcon = (iconKey) => {
+  // Define your icon mappings here
+  const iconMappings = {
+    jira: '/jira_logo.png',
+    gitlab: '/gitlab_logo.png',
+    glide: '/glide_logo.png',
+    valispace: '/valispace_logo.png',
+    codebeamer: '/codebeamer_logo.png',
+    dng: '/dng_logo.png',
+    bitbucket: '/bitbucket_logo.png',
+    default: '/default_logo.png',
+  };
+
+  // Get the icon from the mapping or use a default icon if not found
+  return iconMappings[iconKey] || '/default_logo.png';
+};
+
 const AdminDataTable = ({ props }) => {
   const {
     title,
@@ -129,9 +146,14 @@ const AdminDataTable = ({ props }) => {
     pipelinerunkey,
     buttonKey,
     syncStatus,
+    sourceIcon,
+    targetIcon,
+    syncTime,
     ...props
   }) => {
     const logo = rowData[iconKey] ? rowData[iconKey] : defaultLogo;
+    const sourceLogo = sourceIcon && getSourceTargetIcon(rowData[sourceIcon]);
+    const targetLogo = targetIcon && getSourceTargetIcon(rowData[targetIcon]);
     return (
       <Cell {...props}>
         {/* display logo  */}
@@ -143,6 +165,30 @@ const AdminDataTable = ({ props }) => {
             style={{
               backgroundColor: rowData[iconKey] ? '' : 'white',
               borderRadius: rowData[iconKey] ? '' : '50%',
+              padding: '1px',
+            }}
+          />
+        )}
+        {sourceIcon && (
+          <img
+            height={25}
+            src={sourceLogo}
+            alt=""
+            style={{
+              backgroundColor: sourceIcon ? '' : 'white',
+              borderRadius: sourceIcon ? '' : '50%',
+              padding: '1px',
+            }}
+          />
+        )}
+        {targetIcon && (
+          <img
+            height={25}
+            src={targetLogo}
+            alt=""
+            style={{
+              backgroundColor: targetIcon ? '' : 'white',
+              borderRadius: targetIcon ? '' : '50%',
               padding: '1px',
             }}
           />
@@ -199,36 +245,44 @@ const AdminDataTable = ({ props }) => {
             <p style={{ marginTop: '2px' }}>{rowData[statusKey]}</p>
           </div>
         )}
+        {syncTime && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+            }}
+          >
+            <p>
+              {new Date(rowData[syncTime]).toLocaleString('en-US', {
+                hour12: true,
+              })}
+            </p>
+          </div>
+        )}
+
         {syncStatus && (
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              cursor: 'pointer',
             }}
           >
             <h5>
-              {rowData?.active === true ? (
+              {rowData?.migrated === true ? (
                 <SuccessStatus color="#378f17" />
               ) : (
-                rowData?.active === false && <FailedStatus color="#de1655" />
+                rowData?.migrated === false && <FailedStatus color="#de1655" />
               )}
             </h5>
           </div>
         )}
         {buttonKey && (
           <div>
-            <Button appearance="primary" size="xs" style={{ marginRight: '5px' }}>
-              Sync now
-            </Button>
-          </div>
-        )}
-        {buttonKey && (
-          <div>
             {rowData?.active === false && (
               <Button appearance="primary" size="xs">
-                Migrate
+                Migrate now
               </Button>
             )}
           </div>
@@ -315,10 +369,13 @@ const AdminDataTable = ({ props }) => {
               }}
               dataKey={header?.key}
               iconKey={header?.iconKey}
+              sourceIcon={header?.source_icon}
+              targetIcon={header?.target_icon}
               statusKey={header?.statusKey}
               pipelinerunkey={header?.pipelinerunkey}
               buttonKey={header?.buttonKey}
               syncStatus={header?.syncStatus}
+              syncTime={header?.syncTime}
             />
           </Column>
         ))}
