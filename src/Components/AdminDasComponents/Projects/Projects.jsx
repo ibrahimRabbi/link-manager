@@ -42,7 +42,7 @@ const { StringType, NumberType, ArrayType } = Schema.Types;
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
   description: StringType().isRequired('This field is required.'),
-  organization_id: NumberType().isRequired('This field is required.'),
+  organization_id: NumberType(),
   users: ArrayType(),
 });
 
@@ -60,7 +60,7 @@ const Projects = () => {
   const [formValue, setFormValue] = useState({
     name: '',
     description: '',
-    organization_id: Number(authCtx?.organization_id),
+    organization_id: '',
     users: [],
   });
   const [open, setOpen] = useState(false);
@@ -123,9 +123,15 @@ const Projects = () => {
       }),
     {
       onSuccess: (value) => {
-        Mixpanel.track('Project created success', {
-          username: userInfo?.preferred_username,
-        });
+        if (value?.message) {
+          Mixpanel.track('Project created success.', {
+            username: userInfo?.preferred_username,
+          });
+        } else {
+          Mixpanel.track('Project created failed.', {
+            username: userInfo?.preferred_username,
+          });
+        }
         showNotification(value?.status, value?.message);
       },
     },
@@ -151,9 +157,15 @@ const Projects = () => {
       }),
     {
       onSuccess: (value) => {
-        Mixpanel.track('Project updated success', {
-          username: userInfo?.preferred_username,
-        });
+        if (value?.message) {
+          Mixpanel.track('Project updated success', {
+            username: userInfo?.preferred_username,
+          });
+        } else {
+          Mixpanel.track('Project updated failed', {
+            username: userInfo?.preferred_username,
+          });
+        }
         showNotification(value?.status, value?.message);
       },
     },
@@ -174,9 +186,15 @@ const Projects = () => {
       }),
     {
       onSuccess: (value) => {
-        Mixpanel.track('Project deleted success', {
-          username: userInfo?.preferred_username,
-        });
+        if (value?.message) {
+          Mixpanel.track('Project deleted success.', {
+            username: userInfo?.preferred_username,
+          });
+        } else {
+          Mixpanel.track('Project deleted failed.', {
+            username: userInfo?.preferred_username,
+          });
+        }
         showNotification(value?.status, value?.message);
       },
     },
@@ -240,10 +258,12 @@ const Projects = () => {
       deleteMutate();
     }
   };
+
   // handle Edit project
   const handleEdit = async (data) => {
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
+
     const userRes = await fetchAPIRequest({
       urlPath: 'user?page=1&per_page=100',
       token: authCtx.token,
@@ -251,7 +271,7 @@ const Projects = () => {
       showNotification: showNotification,
     });
 
-    const defaultUsers = data?.users || [40, 9, 33];
+    const defaultUsers = data?.users || [];
     const mappedUserList = userRes?.items?.reduce((accumulator, user) => {
       defaultUsers?.forEach((userId) => {
         if (Number(user?.id) === Number(userId)) {
@@ -292,8 +312,8 @@ const Projects = () => {
     inpPlaceholder: 'Search Project',
   };
 
-  const isApiUpdated = true;
-
+  //After updating the project POST API this flag has to be true
+  const isDisplayUsersDropdown = false;
   return (
     <div>
       <AddNewModal
@@ -318,8 +338,9 @@ const Projects = () => {
               apiURL={`${lmApiUrl}/organization`}
               error={formError.organization_id}
               disabled={true}
-              value={editData?.organization_id || Number(authCtx?.organization_id)}
               reqText="Organization Id is required"
+              value={Number(authCtx?.organization_id)}
+              defaultValue={Number(authCtx?.organization_id)}
             />
           </FlexboxGrid.Item>
 
@@ -339,7 +360,7 @@ const Projects = () => {
             </div>
           </FlexboxGrid.Item>
 
-          {isApiUpdated && (
+          {isDisplayUsersDropdown && (
             <FlexboxGrid.Item style={{ marginBottom: '30px' }} colspan={24}>
               <SelectField
                 name="users"

@@ -24,7 +24,7 @@ export default function fetchAPIRequest({
           return '';
         } else if (method === 'DELETE' && response.status === 204) {
           showNotification('success', 'The content was successfully deleted');
-          return '';
+          return { status: 'success', message: 'The content was successfully deleted' };
         }
         return response.json().then((data) => {
           showNotification('success', data?.message);
