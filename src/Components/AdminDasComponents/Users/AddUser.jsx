@@ -3,12 +3,15 @@ import AuthContext from '../../../Store/Auth-Context';
 import { Form, Button, Schema, FlexboxGrid, Message, toaster } from 'rsuite';
 import TextField from '../TextField';
 import { useContext } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { handleIsAdminEditing } from '../../../Redux/slices/navSlice';
 import { useMutation } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
+import SelectField from '../SelectField';
+import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 
-const { StringType } = Schema.Types;
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
+const { StringType, ArrayType } = Schema.Types;
 
 const model = Schema.Model({
   first_name: StringType().isRequired('This field is required.'),
@@ -17,6 +20,7 @@ const model = Schema.Model({
   email: StringType()
     .isEmail('Please enter a valid email address.')
     .isRequired('This field is required.'),
+  projects: ArrayType(),
 });
 
 const AddUser = ({
@@ -25,13 +29,13 @@ const AddUser = ({
   editData,
   formValue,
   setFormValue,
-  isAdminEditing,
   setCreateSuccess,
   setUpdateSuccess,
   createSuccess,
   updateSuccess,
   setCreateUpdateLoading,
 }) => {
+  const { isAdminEditing } = useSelector((state) => state.nav);
   const [formError, setFormError] = React.useState({});
   const userFormRef = React.useRef();
   const authCtx = useContext(AuthContext);
@@ -48,6 +52,8 @@ const AddUser = ({
     }
   };
 
+  const mappedProjectList = formValue?.projects?.map((item) => item?.id);
+
   // create data using react query
   const { isLoading: createLoading, mutate: createMutate } = useMutation(
     () =>
@@ -55,11 +61,12 @@ const AddUser = ({
         urlPath: 'user',
         token: authCtx?.token,
         method: 'POST',
-        body: { ...formValue, enabled: 'true' },
+        body: { ...formValue, enabled: 'true', projects: mappedProjectList },
         showNotification: showNotification,
       }),
     {
-      onSettled: () => {
+      onSettled: (v) => {
+        console.log(v);
         setCreateUpdateLoading(false);
         setCreateSuccess(!createSuccess);
       },
@@ -73,7 +80,7 @@ const AddUser = ({
         urlPath: `user/${editData?.id}`,
         token: authCtx?.token,
         method: 'PUT',
-        body: { ...formValue, enabled: true },
+        body: { ...formValue, enabled: 'true', projects: mappedProjectList },
         showNotification: showNotification,
       }),
     {
@@ -130,16 +137,42 @@ const AddUser = ({
               reqText="Last name is required"
             />
           </FlexboxGrid.Item>
-          <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0' }}>
+
+          <FlexboxGrid.Item colspan={24} style={{ margin: '25px 0' }}>
             <TextField name="username" label="User name" reqText="Username is required" />
           </FlexboxGrid.Item>
+
           <FlexboxGrid.Item colspan={24}>
             <TextField name="email" label="Email" reqText="Email is required" />
+          </FlexboxGrid.Item>
+
+          <FlexboxGrid.Item
+            colspan={24}
+            style={{ margin: '25px 0 0 0', padding: editData?.id ? '0 5px' : '0' }}
+          >
+            <SelectField
+              name="projects"
+              label="Assign projects"
+              placeholder="Select Projects"
+              accepter={CustomReactSelect}
+              apiURL={`${lmApiUrl}/${authCtx.organization_id}/project`}
+              error={formError.projects}
+              isMulti={true}
+              closeMenuOnSelect={false}
+            />
           </FlexboxGrid.Item>
         </FlexboxGrid>
 
         {isUserSection ? (
-          <FlexboxGrid justify="end" style={{ marginTop: '20px' }}>
+          <FlexboxGrid
+            justify="end"
+            style={{
+              marginTop: '20px',
+              position: 'absolute',
+              right: '0px',
+              bottom: '0px',
+            }}
+          >
             <Button
               onClick={() => handleClose()}
               className="adminModalFooterBtn"

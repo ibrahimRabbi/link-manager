@@ -13,22 +13,21 @@ export default async function getAPI({ url, token, message, authCtx, showNotific
         showNotification('info', message ? message : 'No content available !!');
       }
     } else {
-      if (res.status === 401) {
-        return res.json().then((data) => {
-          showNotification('error', data.message);
-          window.location.replace('/login');
-        });
-      } else if (res.status === 403) {
+      if (res.status === 403) {
         if (authCtx?.token) {
-          showNotification('error', 'You do not have permission to access');
-        } else {
-          window.location.replace('/login');
+          showNotification('error', ' You do not have permission to access');
+          return false;
         }
-      } else {
-        return res.json().then((data) => {
-          showNotification('error', data.message);
-        });
       }
+
+      res.json().then((data) => {
+        let errorMessage = data?.message;
+        if (res.status === 403) {
+          errorMessage = `${res?.status} not authorized ${data?.message}`;
+        }
+        showNotification('error', errorMessage);
+        throw new Error(errorMessage);
+      });
     }
   });
   return response;
@@ -48,26 +47,26 @@ export async function deleteAPI({ url, token, showNotification }) {
         return res;
       }
     } else {
-      if (res.status === 401) {
-        return res.json().then((data) => {
-          showNotification('error', data.message);
-          window.location.replace('/login');
-        });
-      } else if (res.status === 403) {
+      if (res.status === 403) {
         if (token) {
           showNotification('error', 'You do not have permission to access');
-        } else {
-          window.location.replace('/login');
+          return false;
         }
-      } else {
-        return res.json().then((data) => {
-          showNotification('error', data.message);
-        });
       }
+
+      res.json().then((data) => {
+        let errorMessage = data?.message;
+        if (res.status === 403) {
+          errorMessage = `${res?.status} not authorized ${data?.message}`;
+        }
+        showNotification('error', errorMessage);
+        throw new Error(errorMessage);
+      });
     }
   });
   return response;
 }
+
 export async function saveResource({ url, token, bodyData, showNotification }) {
   const response = await fetch(`${url}`, {
     method: 'POST',
@@ -86,26 +85,21 @@ export async function saveResource({ url, token, bodyData, showNotification }) {
       showNotification('success', 'Resource already linked');
       return { message: 'Resource already linked' };
     } else {
-      if (res.status === 400) {
-        return res.json().then((data) => {
-          showNotification('error', data?.message);
-        });
-      } else if (res.status === 401) {
-        return res.json().then((data) => {
-          showNotification('error', data.message);
-          window.location.replace('/login');
-        });
-      } else if (res.status === 403) {
+      if (res.status === 403) {
         if (token) {
           showNotification('error', 'You do not have permission to access');
-        } else {
-          window.location.replace('/login');
+          return false;
         }
-      } else {
-        return res.json().then((data) => {
-          showNotification('error', data.message);
-        });
       }
+
+      res.json().then((data) => {
+        let errorMessage = data?.message;
+        if (res.status === 403) {
+          errorMessage = `${res?.status} not authorized ${data?.message}`;
+        }
+        showNotification('error', errorMessage);
+        throw new Error(errorMessage);
+      });
     }
   });
   return response;
@@ -133,22 +127,21 @@ export async function saveResourceForm({ url, token, bodyData, showNotification 
         return data;
       });
     } else {
-      if (res.status === 401) {
-        return res.json().then((data) => {
-          showNotification('error', data.message);
-          window.location.replace('/login');
-        });
-      } else if (res.status === 403) {
+      if (res.status === 403) {
         if (token) {
           showNotification('error', 'You do not have permission to access');
-        } else {
-          window.location.replace('/login');
+          return false;
         }
-      } else {
-        return res.json().then((data) => {
-          showNotification('error', data.message);
-        });
       }
+
+      res.json().then((data) => {
+        let errorMessage = data?.message;
+        if (res.status === 403) {
+          errorMessage = `${res?.status} not authorized ${data?.message}`;
+        }
+        showNotification('error', errorMessage);
+        throw new Error(errorMessage);
+      });
     }
   });
   return response;
@@ -168,27 +161,27 @@ export async function putAPI({ url, token, bodyData, showNotification }) {
         return data;
       });
     } else {
-      if (res.status === 401) {
-        return res.json().then((data) => {
-          showNotification('error', data.message);
-          window.location.replace('/login');
-        });
-      } else if (res.status === 403) {
+      if (res.status === 403) {
         if (token) {
           showNotification('error', 'You do not have permission to access');
-        } else {
-          window.location.replace('/login');
+          return false;
         }
-      } else {
-        return res.json().then((data) => {
-          showNotification('error', data.message);
-        });
       }
+
+      res.json().then((data) => {
+        let errorMessage = data?.message;
+        if (res.status === 403) {
+          errorMessage = `${res?.status} not authorized ${data?.message}`;
+        }
+        showNotification('error', errorMessage);
+        throw new Error(errorMessage);
+      });
     }
   });
 
   return response;
 }
+
 export async function putAPIForm({ url, token, bodyData, showNotification }) {
   const formData = new FormData();
   for (const name in bodyData) {
@@ -214,22 +207,21 @@ export async function putAPIForm({ url, token, bodyData, showNotification }) {
         return data;
       });
     } else {
-      if (res.status === 401) {
-        return res.json().then((data) => {
-          showNotification('error', data.message);
-          window.location.replace('/login');
-        });
-      } else if (res.status === 403) {
+      if (res.status === 403) {
         if (token) {
           showNotification('error', 'You do not have permission to access');
-        } else {
-          window.location.replace('/login');
+          return false;
         }
-      } else {
-        return res.json().then((data) => {
-          showNotification('error', data.message);
-        });
       }
+
+      res.json().then((data) => {
+        let errorMessage = data?.message;
+        if (res.status === 403) {
+          errorMessage = `${res?.status} not authorized ${data?.message}`;
+        }
+        showNotification('error', errorMessage);
+        throw new Error(errorMessage);
+      });
     }
   });
   return response;
