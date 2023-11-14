@@ -310,7 +310,7 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
         dispatch(
           fetchCreateLink({
             url: `${apiURL}/link/new_link`,
-            token: authCtx.token + 1,
+            token: authCtx.token,
             bodyData: linkBodyData,
             message: 'link',
             showNotification: showNotification,
