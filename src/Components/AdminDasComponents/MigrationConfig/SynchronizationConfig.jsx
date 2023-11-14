@@ -33,7 +33,6 @@ import EnumValueTable from './EnumValueTable';
 import UseCustomProjectSelect from './UseCustomProjectSelect';
 import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 import { useNavigate } from 'react-router-dom';
-// import ProgressModal from './ProgressModal';
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
