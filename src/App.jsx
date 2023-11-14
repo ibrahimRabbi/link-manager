@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import React, { useContext } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import Application from './Components/AdminDasComponents/Application/Application';
 import LinkRules from './Components/AdminDasComponents/LinkRules/LinkRules';
 import Organization from './Components/AdminDasComponents/Organization/Organization';
@@ -30,7 +30,6 @@ import Pipelines from './Components/AdminDasComponents/Pipelines/Pipelines.jsx';
 import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun.jsx';
 import Pipeline from './Components/Pipeline/Pipeline.jsx';
 import WebBrowserExtension from './Components/WebBrowserExtension/WebBrowserExtension';
-import GitlabSelector from './Components/SelectionDialog/GitlabSelector/GitlabSelector';
 // eslint-disable-next-line max-len
 import Oauth2Callback from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2Callback.jsx';
 import CytoscapeGraphView from './Components/CytoscapeGraphView/CytoscapeGraphView.jsx';
@@ -73,6 +72,8 @@ function App() {
   const { isDark } = useSelector((state) => state.nav);
   const dispatch = useDispatch();
   const authCtx = useContext(AuthContext);
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
   const isSuperAdmin = authCtx?.user?.role === 'super_admin' ? true : false;
   const isAdmin = authCtx?.user?.role === 'admin' ? true : false;
 
@@ -80,6 +81,29 @@ function App() {
     const theme = localStorage.getItem('isDarkMode');
     dispatch(handleIsDarkMode(theme));
   }, []);
+  // eslint-disable-next-line max-len
+  const organization = authCtx?.organization_name
+    ? `/${authCtx?.organization_name?.toLowerCase()}`
+    : '';
+
+  useEffect(() => {
+    if (organization) {
+      if (pathname === '/') navigate(organization);
+      else if (pathname === '/wbe') navigate(`/wbe${organization}`);
+      else if (pathname === '/admin') navigate(`${organization}/admin`);
+    }
+  }, [pathname]);
+
+  // handle Unhandled Promise Rejection errors.
+  window.addEventListener('unhandledrejection', (event) => {
+    const error = event.reason;
+    // logout if token api response is 401 or 403
+    if (error?.message?.toLowerCase()?.includes('token does not match')) {
+      authCtx?.logout();
+    } else if (error?.message?.toLowerCase()?.includes('403 not authorized')) {
+      authCtx?.logout();
+    }
+  });
 
   return (
     <CustomProvider theme={isDark}>
@@ -104,33 +128,39 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route path="/wbe/new-link" element={<NewLink />} />
-            <Route path="/wbe/graph-view" element={<CytoscapeGraphView />} />
-            <Route path="/wbe/pipeline" element={<Pipeline />} />
-            <Route path="/wbe" element={<LinkManager />} />
+            <Route path={`/wbe${organization}/new-link`} element={<NewLink />} />
+
+            <Route
+              path={`/wbe${organization}/graph-view`}
+              element={<CytoscapeGraphView />}
+            />
+
+            <Route path={`/wbe${organization}/pipeline`} element={<Pipeline />} />
+
+            <Route path={`/wbe${organization}`} element={<LinkManager />} />
           </Route>
 
           {/* This is Browser dashboard  */}
           <Route
-            path="/"
+            path={`${organization}/`}
             element={
               <ProtectedRoute>
                 <Dashboard />
               </ProtectedRoute>
             }
           >
-            <Route path="/new-link" element={<NewLink />} />
-            <Route path="/graph-view" element={<CytoscapeGraphView />} />
-            <Route path="/pipeline" element={<Pipeline />} />
-            <Route path="/extension" element={<WebBrowserExtension />} />
-            <Route path="/profile" element={<UserProfile />} />
-            <Route path="/" element={<Home />} />
+            <Route path={`${organization}/new-link`} element={<NewLink />} />
+            <Route path={`${organization}/graph-view`} element={<CytoscapeGraphView />} />
+            <Route path={`${organization}/pipeline`} element={<Pipeline />} />
+            <Route path={`${organization}/extension`} element={<WebBrowserExtension />} />
+            <Route path={`${organization}/profile`} element={<UserProfile />} />
+            <Route path={`${organization}/`} element={<Home />} />
           </Route>
 
           {/* This is admin dashboard  */}
           {(isSuperAdmin || isAdmin) && (
             <Route
-              path="/admin"
+              path={`${organization}/admin`}
               element={
                 <ProtectedRoute>
                   <AdminDashboard />
@@ -138,26 +168,55 @@ function App() {
               }
             >
               {isSuperAdmin && (
-                <Route path="/admin/organizations" element={<Organization />} />
+                <Route
+                  path={`${organization}/admin/organizations`}
+                  element={<Organization />}
+                />
               )}
-              <Route path="/admin/users" element={<Users />} />
-              <Route path="/admin/integrations" element={<Application />} />
-              <Route path="/admin/projects" element={<Projects />} />
-              <Route path="/admin/link-rules" element={<LinkRules />} />
-              <Route path="/admin/events" element={<Events />} />
-              <Route path="/admin/pipelinessecrets" element={<PipelineSecrets />} />
-              <Route path="/admin/pipelines" element={<Pipelines />} />
-              <Route path="/admin/pipelinerun" element={<PipelineRun />} />
-              <Route path="/admin/synchronization" element={<Synchronization />} />
-              <Route path="/admin/createsync" element={<SynchronizationConfig />} />
-              <Route path="/admin" element={<Users />} />
+
+              <Route path={`${organization}/admin/users`} element={<Users />} />
+
+              <Route
+                path={`${organization}/admin/integrations`}
+                element={<Application />}
+              />
+
+              <Route path={`${organization}/admin/projects`} element={<Projects />} />
+
+              <Route path={`${organization}/admin/link-rules`} element={<LinkRules />} />
+
+              <Route path={`${organization}/admin/events`} element={<Events />} />
+
+              <Route
+                path={`${organization}/admin/pipelinessecrets`}
+                element={<PipelineSecrets />}
+              />
+
+              <Route path={`${organization}/admin/pipelines`} element={<Pipelines />} />
+
+              <Route
+                path={`${organization}/admin/pipelinerun`}
+                element={<PipelineRun />}
+              />
+
+              <Route
+                path={`${organization}/admin/synchronization`}
+                element={<Synchronization />}
+              />
+
+              <Route
+                path={`${organization}/admin/createsync`}
+                element={<SynchronizationConfig />}
+              />
+
+              <Route path={`${organization}/admin`} element={<Users />} />
             </Route>
           )}
 
-          <Route path="/gitlabselection/:id" element={<GitlabSelector />}></Route>
           <Route path="/oauth2-status" element={<Oauth2Success />} />
           <Route path="/set-password" element={<SetPassword />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path={`${organization}/*`} element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

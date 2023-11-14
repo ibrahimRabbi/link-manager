@@ -59,6 +59,9 @@ export const nodeImageStyle = {
   dng: {
     image: '/node_icons/dng_logo.png',
   },
+  servicenow: {
+    image: '/node_icons/servicenow_logo.png',
+  },
   default: {
     image: '/node_icons/default_logo.png',
   },

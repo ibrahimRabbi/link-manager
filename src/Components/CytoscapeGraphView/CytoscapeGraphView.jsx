@@ -41,9 +41,10 @@ const CytoscapeGraphView = () => {
   const [externalAuthData, setExternalAuthData] = useState({});
   const [isExpandedGraph, setIsExpandedGraph] = useState(false);
   const [isResetGraph, setIsResetGraph] = useState(false);
-
   const [selectedResourceType, setSelectedResourceType] = useState([]);
   const [selectedApplications, setSelectedApplications] = useState([]);
+  const [appFilterValue, setAppFilterValue] = useState([]);
+  const [resourceFilterValue, setResourceFilterValue] = useState([]);
 
   const dispatch = useDispatch();
   const containerRef = useRef(null);
@@ -401,8 +402,6 @@ const CytoscapeGraphView = () => {
     contextMenuCommands,
   };
 
-  const [appFilterValue, setAppFilterValue] = useState([]);
-  const [resourceFilterValue, setResourceFilterValue] = useState([]);
   return (
     <div ref={graphContainerRef}>
       {isWbe && isLoading && <UseLoader />}

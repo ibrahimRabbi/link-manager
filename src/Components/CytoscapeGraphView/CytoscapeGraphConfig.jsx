@@ -1,6 +1,6 @@
 export const graphLayout = {
-  name: 'breadthfirst',
-  spacingFactor: 1.85, // Adjust this value to control node separation
+  name: 'concentric', // Adjust the graph layout by changing the name.
+  spacingFactor: 1.85, // Adjust this value to control node separation.
   padding: 150,
   avoidOverlap: true,
 };

@@ -180,6 +180,10 @@ const LinkManager = () => {
     totalPages: linksData?.total_pages,
   };
 
+  // eslint-disable-next-line max-len
+  const organization = authCtx?.organization_name
+    ? `/${authCtx?.organization_name?.toLowerCase()}`
+    : '';
   return (
     <div>
       <SourceSection />
@@ -279,9 +283,12 @@ const LinkManager = () => {
                     <Button
                       color="blue"
                       appearance="primary"
-                      onClick={() =>
-                        isWbe ? navigate('/wbe/new-link') : navigate('/new-link')
-                      }
+                      onClick={() => {
+                        if (isWbe) navigate(`/wbe${organization}/new-link`);
+                        else {
+                          navigate(`${organization}/new-link`);
+                        }
+                      }}
                     >
                       Create Link
                     </Button>
