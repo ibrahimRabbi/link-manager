@@ -234,7 +234,12 @@ const Application = () => {
       }),
     {
       onSuccess: (res) => {
-        console.log('Update: ', res);
+        if (res) {
+          setSteps(1);
+        }
+      },
+      onError: () => {
+        setSteps(0);
       },
     },
   );
@@ -397,6 +402,33 @@ const Application = () => {
 
   // Show advanced options for integration
   const handleShowAdvancedOptions = () => {
+    if (advancedOptions) {
+      setAdvancedOptions(false);
+      if (applicationType?.mandatory_rest_url) {
+        setFormValue({
+          ...formValue,
+          tenant_id: '',
+          client_id: '',
+          client_secret: '',
+          auth: '',
+          ui: '',
+          oidc: '',
+        });
+      } else {
+        setFormValue({
+          ...formValue,
+          tenant_id: '',
+          client_id: '',
+          client_secret: '',
+          rest: '',
+          auth: '',
+          ui: '',
+          oidc: '',
+        });
+      }
+    } else {
+      setAdvancedOptions(true);
+    }
     setAdvancedOptions(!advancedOptions);
   };
 
