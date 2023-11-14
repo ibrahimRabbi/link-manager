@@ -51,7 +51,7 @@ const headerData = [
   {
     header: 'Status',
     statusKey: 'status',
-    width: 150,
+    width: 80,
   },
 ];
 
