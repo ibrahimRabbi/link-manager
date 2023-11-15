@@ -47,6 +47,7 @@ const Synchronization = () => {
   const [pageSize, setPageSize] = useState(10);
   const [open, setOpen] = useState(false);
   const [deleteData, setDeleteData] = useState({});
+  const [syncData, setSyncData] = useState({});
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -103,6 +104,22 @@ const Synchronization = () => {
       },
     },
   );
+  // create data using react query
+  const { isLoading: createLoading, mutate: createMutate } = useMutation(
+    () =>
+      fetchAPIRequest({
+        // eslint-disable-next-line max-len
+        urlPath: `${authCtx.organization_id}/synchronization/run/?sync_resource_id=${syncData?.id}`,
+        token: authCtx?.token,
+        method: 'POST',
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: () => {
+        setSyncData({});
+      },
+    },
+  );
 
   useEffect(() => {
     dispatch(handleCurrPageTitle('Synchronization'));
@@ -128,6 +145,11 @@ const Synchronization = () => {
   };
   const handleConfirmed = (value) => {
     if (value) deleteMutate();
+  };
+  const handleSync = (data) => {
+    setSyncData(data);
+    createMutate();
+    console.log(data);
   };
   const data = !syncConfigList?.items
     ? []
@@ -157,6 +179,7 @@ const Synchronization = () => {
     headerData,
     handleDelete,
     handleAddNew,
+    handleSync,
     handlePagination,
     handleChangeLimit,
     totalItems: syncConfigList?.total_items,
@@ -167,7 +190,7 @@ const Synchronization = () => {
   };
   return (
     <div>
-      {(isLoading || isCrudLoading || deleteLoading) && <UseLoader />}
+      {(isLoading || isCrudLoading || deleteLoading || createLoading) && <UseLoader />}
       <AdminDataTable props={tableProps} />
       {/* confirmation modal  */}
       <AlertModal

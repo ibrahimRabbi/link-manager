@@ -16,6 +16,7 @@ import { darkBgColor, lightBgColor } from '../../App';
 import { MdDelete, MdEdit, MdLock } from 'react-icons/md';
 import { PiEyeBold } from 'react-icons/pi';
 import { MdOutlineContentCopy } from 'react-icons/md';
+import { VscRunAll } from 'react-icons/vsc';
 const { Column, HeaderCell, Cell } = Table;
 
 const getSourceTargetIcon = (iconKey) => {
@@ -47,6 +48,7 @@ const AdminDataTable = ({ props }) => {
     handleEdit,
     handleDelete,
     handleScriptView,
+    handleSync,
     authorizeModal,
     totalItems,
     pageSize,
@@ -96,6 +98,9 @@ const AdminDataTable = ({ props }) => {
     const copySecret = () => {
       handleCopy(rowData);
     };
+    const syncSelected = () => {
+      handleSync(rowData);
+    };
 
     return (
       <ButtonToolbar>
@@ -124,6 +129,14 @@ const AdminDataTable = ({ props }) => {
             title="Delete"
             icon={<MdDelete />}
             onClick={deleteSelected}
+          />
+        )}
+        {handleSync && (
+          <IconButton
+            size="sm"
+            title="Sync now"
+            icon={<VscRunAll />}
+            onClick={syncSelected}
           />
         )}
         {authorizeModal && (
