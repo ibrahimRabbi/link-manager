@@ -61,6 +61,9 @@ const Synchronization = () => {
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const organization = authCtx?.organization_name
+    ? `/${authCtx?.organization_name?.toLowerCase()}`
+    : '';
 
   // Pagination
   const handlePagination = (value) => {
@@ -137,7 +140,7 @@ const Synchronization = () => {
 
   // handle open add pipeline secret modal
   const handleAddNew = () => {
-    navigate('/admin/createsync');
+    navigate(`${organization}/admin/createsync`);
   };
   const handleDelete = (data) => {
     setDeleteData(data);
