@@ -143,7 +143,10 @@ const PropertyTable = ({
             }}
           >
             <span
-              onClick={() => setOpen(true)}
+              onClick={() => {
+                setOpen(true);
+                setShowAddEnum(false);
+              }}
               style={{
                 marginLeft: '10px',
                 cursor: 'pointer',

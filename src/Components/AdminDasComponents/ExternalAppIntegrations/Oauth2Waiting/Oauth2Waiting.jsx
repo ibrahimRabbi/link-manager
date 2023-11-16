@@ -60,14 +60,18 @@ const Oauth2Waiting = (props) => {
   };
 
   useEffect(() => {
-    if (applicationId) {
-      // eslint-disable-next-line max-len
-      const openUrl = `${lmApiUrl}/third_party/${data?.type}/oauth2/login?application_id=${applicationId}`;
-      setUrl(openUrl);
-    } else if (oauth2Data) {
-      // eslint-disable-next-line max-len
-      const openUrl = `${lmApiUrl}/third_party/${data?.type}/oauth2/login?application_id=${oauth2Data?.items[0]?.id}`;
-      setUrl(openUrl);
+    if (authCtx?.user_id) {
+      if (applicationId) {
+        // eslint-disable-next-line max-len
+        const openUrl = `${lmApiUrl}/third_party/${data?.type}/oauth2/login?application_id=${applicationId}&user_id=${authCtx.user_id}`;
+        setUrl(openUrl);
+      } else if (oauth2Data) {
+        // eslint-disable-next-line max-len
+        const openUrl = `${lmApiUrl}/third_party/${data?.type}/oauth2/login?application_id=${oauth2Data?.items[0]?.id}&user_id=${authCtx.user_id}`;
+        setUrl(openUrl);
+      }
+    } else {
+      throw new Error('User ID not contained in the context');
     }
   }, [oauth2Data, applicationId]);
 

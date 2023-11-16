@@ -15,17 +15,21 @@ const EnumValueTable = ({
   sourceProperty,
   TargetProperty,
   showAddEnum,
-  setShowAddEnum,
+  addEnumId,
+  normalProperty,
 }) => {
   const [open, setOpen] = useState(false);
   const [formState, setFormState] = useState({
     source: '',
+    source_id: '',
     target: '',
+    target_id: '',
   });
   const handleSourcePro = (selectedItem) => {
     setFormState({
       ...formState,
       source: selectedItem?.label,
+      source_id: selectedItem?.id,
     });
   };
 
@@ -33,13 +37,16 @@ const EnumValueTable = ({
     setFormState({
       ...formState,
       target: selectedItem?.label,
+      target_id: selectedItem?.id,
     });
   };
   const isButtonDisabled = !formState.source || !formState.target;
   const handleSubmit = () => {
     const newRow = {
       source: formState?.source,
+      source_id: formState?.source_id,
       target: formState?.target,
+      target_id: formState?.target_id,
     };
 
     const updatedSource = sourceProperty.map((item) => {
@@ -74,12 +81,24 @@ const EnumValueTable = ({
 
     setSource(updatedSource);
     setTarget(updatedTarget);
+    // Update the enum_mapping property only in the last object of normalProperty
+    const lastObjectIndex = normalProperty.length - 1;
+    if (lastObjectIndex >= 0) {
+      normalProperty[lastObjectIndex].enum_mapping = {
+        ...(normalProperty[lastObjectIndex].enum_mapping || {}),
+        [formState.source_id]: formState.target_id,
+      };
 
+      // Update the addEnumId prop with the modified normalProperty array
+      addEnumId([...normalProperty]);
+    }
     setFormState({
       source: '',
+      source_id: '',
       target: '',
+      target_id: '',
     });
-    setShowAddEnum(false);
+    // setShowAddEnum(false);
     setOpen(false);
   };
 

@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { HiRefresh } from 'react-icons/hi';
@@ -6,7 +7,16 @@ import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
 import InfoStatus from '@rsuite/icons/InfoRound';
 
-import { Table, Pagination, FlexboxGrid, Button, InputGroup, Input } from 'rsuite';
+import {
+  Table,
+  Pagination,
+  FlexboxGrid,
+  Button,
+  InputGroup,
+  Input,
+  Whisper,
+  Tooltip,
+} from 'rsuite';
 import { IconButton, ButtonToolbar } from 'rsuite';
 import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
@@ -16,6 +26,9 @@ import { MdDelete, MdEdit, MdLock } from 'react-icons/md';
 import { BiShowAlt } from 'react-icons/bi';
 import { PiEyeBold } from 'react-icons/pi';
 import { MdOutlineContentCopy } from 'react-icons/md';
+import { IoPlay } from 'react-icons/io5';
+import { Icon } from '@rsuite/icons';
+import { FaSpinner } from 'react-icons/fa';
 const { Column, HeaderCell, Cell } = Table;
 
 const getSourceTargetIcon = (iconKey) => {
@@ -48,6 +61,7 @@ const AdminDataTable = ({ props }) => {
     handleDelete,
     handleViewAccess,
     handleScriptView,
+    handleSync,
     authorizeModal,
     totalItems,
     pageSize,
@@ -75,6 +89,18 @@ const AdminDataTable = ({ props }) => {
     }
   }, [tableFilterValue]);
 
+  const getStatusLabel = (status) => {
+    // prettier-ignore
+    switch (status) {
+    case 1:
+      return 'Authenticated';
+    case 2:
+      return 'Suspect';
+    default:
+      return 'Not Authenticated';
+    }
+  };
+
   // Action cell
   // Action table cell control
   const ActionMenu = ({ rowData }) => {
@@ -99,6 +125,9 @@ const AdminDataTable = ({ props }) => {
 
     const copySecret = () => {
       handleCopy(rowData);
+    };
+    const syncSelected = () => {
+      handleSync(rowData);
     };
 
     return (
@@ -131,6 +160,14 @@ const AdminDataTable = ({ props }) => {
             title="Delete"
             icon={<MdDelete />}
             onClick={deleteSelected}
+          />
+        )}
+        {handleSync && (
+          <IconButton
+            size="sm"
+            title="Sync now"
+            icon={<IoPlay />}
+            onClick={syncSelected}
           />
         )}
         {authorizeModal && (
@@ -217,18 +254,23 @@ const AdminDataTable = ({ props }) => {
             }}
           >
             <h5>
-              {rowData[statusKey]?.toLowerCase() === 'valid' ? (
-                <SuccessStatus color="#378f17" />
-              ) : rowData[statusKey]?.toLowerCase() === 'invalid' ? (
-                <FailedStatus color="#de1655" />
-              ) : rowData[statusKey]?.toLowerCase() === 'suspect' ? (
-                <InfoStatus color="#25b3f5" />
-              ) : (
-                <InfoStatus color="#25b3f5" />
-              )}
+              <Whisper
+                placement="top"
+                controlId="control-id-click"
+                trigger="hover"
+                speaker={<Tooltip>{getStatusLabel(rowData[statusKey])}</Tooltip>}
+              >
+                {rowData[statusKey] === 1 ? (
+                  <SuccessStatus color="#378f17" />
+                ) : rowData[statusKey] === 0 ? (
+                  <FailedStatus color="#de1655" />
+                ) : rowData[statusKey] === 2 ? (
+                  <InfoStatus color="#25b3f5" />
+                ) : (
+                  <InfoStatus color="#25b3f5" />
+                )}
+              </Whisper>
             </h5>
-
-            <p style={{ marginTop: '2px' }}>{rowData[statusKey]}</p>
           </div>
         )}
         {pipelinerunkey && (
@@ -262,9 +304,11 @@ const AdminDataTable = ({ props }) => {
             }}
           >
             <p>
-              {new Date(rowData[syncTime]).toLocaleString('en-US', {
-                hour12: true,
-              })}
+              {rowData[syncTime] !== null
+                ? new Date(rowData[syncTime]).toLocaleString('en-US', {
+                    hour12: true,
+                  })
+                : 'Never'}
             </p>
           </div>
         )}
@@ -278,10 +322,14 @@ const AdminDataTable = ({ props }) => {
             }}
           >
             <h5>
-              {rowData?.migrated === true ? (
+              {rowData[syncStatus] === 'Done' ? (
                 <SuccessStatus color="#378f17" />
+              ) : rowData[syncStatus] === 'Todo' ? (
+                <FailedStatus color="#de1655" />
               ) : (
-                rowData?.migrated === false && <FailedStatus color="#de1655" />
+                rowData[syncStatus] === 'In Progress' && (
+                  <Icon as={FaSpinner} pulse size="25px" />
+                )
               )}
             </h5>
           </div>

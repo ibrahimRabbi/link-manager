@@ -14,7 +14,7 @@ import process from 'process/browser';
 window.process = process;
 window.global = window;
 
-//// Sentry error tracing setup
+// Sentry error tracing setup
 import * as Sentry from '@sentry/react';
 import { BrowserTracing, Replay } from '@sentry/react';
 

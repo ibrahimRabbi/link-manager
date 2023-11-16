@@ -34,7 +34,7 @@ const headerData = [
     width: 170,
   },
   { header: 'Last Synced Time', syncTime: 'last_synced' },
-  { header: 'Status', syncStatus: 'migrated', width: 80 },
+  { header: 'Status', syncStatus: 'migration_status', width: 80 },
 ];
 const Synchronization = () => {
   const { isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
@@ -47,6 +47,7 @@ const Synchronization = () => {
   const [pageSize, setPageSize] = useState(10);
   const [open, setOpen] = useState(false);
   const [deleteData, setDeleteData] = useState({});
+  const [syncData, setSyncData] = useState({});
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -60,6 +61,9 @@ const Synchronization = () => {
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const organization = authCtx?.organization_name
+    ? `/${authCtx?.organization_name?.toLowerCase()}`
+    : '';
 
   // Pagination
   const handlePagination = (value) => {
@@ -103,6 +107,22 @@ const Synchronization = () => {
       },
     },
   );
+  // create data using react query
+  const { isLoading: createLoading, mutate: createMutate } = useMutation(
+    () =>
+      fetchAPIRequest({
+        // eslint-disable-next-line max-len
+        urlPath: `${authCtx.organization_id}/synchronization/run/?sync_resource_id=${syncData?.id}`,
+        token: authCtx?.token,
+        method: 'POST',
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: () => {
+        setSyncData({});
+      },
+    },
+  );
 
   useEffect(() => {
     dispatch(handleCurrPageTitle('Synchronization'));
@@ -120,7 +140,7 @@ const Synchronization = () => {
 
   // handle open add pipeline secret modal
   const handleAddNew = () => {
-    navigate('/admin/createsync');
+    navigate(`${organization}/admin/createsync`);
   };
   const handleDelete = (data) => {
     setDeleteData(data);
@@ -128,6 +148,10 @@ const Synchronization = () => {
   };
   const handleConfirmed = (value) => {
     if (value) deleteMutate();
+  };
+  const handleSync = (data) => {
+    setSyncData(data);
+    createMutate();
   };
   const data = !syncConfigList?.items
     ? []
@@ -157,6 +181,7 @@ const Synchronization = () => {
     headerData,
     handleDelete,
     handleAddNew,
+    handleSync,
     handlePagination,
     handleChangeLimit,
     totalItems: syncConfigList?.total_items,
@@ -167,7 +192,7 @@ const Synchronization = () => {
   };
   return (
     <div>
-      {(isLoading || isCrudLoading || deleteLoading) && <UseLoader />}
+      {(isLoading || isCrudLoading || deleteLoading || createLoading) && <UseLoader />}
       <AdminDataTable props={tableProps} />
       {/* confirmation modal  */}
       <AlertModal
