@@ -52,7 +52,15 @@ const AddUser = ({
     }
   };
 
-  const mappedProjectList = formValue?.projects?.map((item) => item?.id);
+  const mappedProjectList = formValue?.projects?.map((item) => ({
+    id: item?.id,
+    name: item?.name,
+    organization_id: item?.organization_id,
+    description: item?.description,
+  }));
+
+  const bodyData = { ...formValue, enabled: true, projects: mappedProjectList };
+  console.log(bodyData);
 
   // create data using react query
   const { isLoading: createLoading, mutate: createMutate } = useMutation(
@@ -61,7 +69,7 @@ const AddUser = ({
         urlPath: 'user',
         token: authCtx?.token,
         method: 'POST',
-        body: { ...formValue, enabled: 'true', projects: mappedProjectList },
+        body: bodyData,
         showNotification: showNotification,
       }),
     {
@@ -80,7 +88,7 @@ const AddUser = ({
         urlPath: `user/${editData?.id}`,
         token: authCtx?.token,
         method: 'PUT',
-        body: { ...formValue, enabled: 'true', projects: mappedProjectList },
+        body: bodyData,
         showNotification: showNotification,
       }),
     {

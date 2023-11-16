@@ -75,9 +75,6 @@ const Projects = () => {
     }
   };
 
-  // map user list
-  const mappedUserList = formValue?.user_list?.map((item) => item?.id);
-  console.log(mappedUserList);
   // get projects using react-query
   const {
     data: allProjects,
@@ -114,11 +111,7 @@ const Projects = () => {
         urlPath: `${authCtx.organization_id}/project`,
         token: authCtx.token,
         method: 'POST',
-        body: {
-          name: formValue?.name,
-          description: formValue?.description,
-          organization_id: formValue?.organization_id,
-        },
+        body: formValue,
         showNotification: showNotification,
       }),
     {
@@ -148,11 +141,7 @@ const Projects = () => {
         urlPath: `${authCtx.organization_id}/project/${editData?.id}`,
         token: authCtx.token,
         method: 'PUT',
-        body: {
-          name: formValue?.name,
-          description: formValue?.description,
-          organization_id: formValue?.organization_id,
-        },
+        body: formValue,
         showNotification: showNotification,
       }),
     {
@@ -261,26 +250,15 @@ const Projects = () => {
 
   // handle Edit project
   const handleEdit = async (data) => {
+    console.log(data);
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
-
-    const userRes = await fetchAPIRequest({
-      urlPath: 'user?page=1&per_page=100',
-      token: authCtx.token,
-      method: 'GET',
-      showNotification: showNotification,
-    });
-
-    const defaultUsers = data?.users || [];
-    const mappedUserList = userRes?.items?.reduce((accumulator, user) => {
-      defaultUsers?.forEach((userId) => {
-        if (Number(user?.id) === Number(userId)) {
-          accumulator.push({
-            ...user,
-            label: user?.email,
-            value: user?.id,
-          });
-        }
+    // map user data to display in the dropdown
+    const mappedUserList = data?.users?.reduce((accumulator, user) => {
+      accumulator.push({
+        ...user,
+        label: user?.email,
+        value: user?.id,
       });
       return accumulator;
     }, []);
@@ -313,7 +291,7 @@ const Projects = () => {
   };
 
   //After updating the project POST API this flag has to be true
-  const isDisplayUsersDropdown = false;
+  const isDisplayUsersDropdown = true;
   return (
     <div>
       <AddNewModal

@@ -92,30 +92,36 @@ const CustomReactSelect = forwardRef((props, ref) => {
               if (getResponse) {
                 getResponse?.handleLinkCreationResponses(getResponse?.name, res);
               }
+              return false;
             }
           } else {
             if (getErrorStatus) {
               getErrorStatus();
             }
-
-            if (res.status === 403) {
-              if (authCtx?.token) {
-                showNotification('error', 'You do not have permission to access');
-                return false;
-              }
-            }
-
-            res.json().then((data) => {
+            // return response messages
+            return res.json().then((data) => {
               if (getResponse) {
                 getResponse?.handleLinkCreationResponses(getResponse?.name, data);
               }
 
-              let errorMessage = data?.message;
-              if (res.status === 403) {
-                errorMessage = `${res?.status} not authorized ${data?.message}`;
+              if (res.status === 401) {
+                showNotification('error', data?.message);
+                return false;
+              } else if (res.status === 403) {
+                if (authCtx.token) {
+                  showNotification('error', 'You do not have permission to access');
+                  return false;
+                } else {
+                  showNotification(
+                    'error',
+                    `${res?.status} not authorized ${data?.message}`,
+                  );
+                  authCtx?.logout();
+                  return false;
+                }
               }
-              showNotification('error', errorMessage);
-              throw new Error(errorMessage);
+              showNotification('error', data?.message);
+              return false;
             });
           }
         })
