@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { HiRefresh } from 'react-icons/hi';
@@ -16,6 +17,7 @@ import { MdDelete, MdEdit, MdLock } from 'react-icons/md';
 import { BiShowAlt } from 'react-icons/bi';
 import { PiEyeBold } from 'react-icons/pi';
 import { MdOutlineContentCopy } from 'react-icons/md';
+import { IoPlay } from 'react-icons/io5';
 const { Column, HeaderCell, Cell } = Table;
 
 const getSourceTargetIcon = (iconKey) => {
@@ -48,6 +50,7 @@ const AdminDataTable = ({ props }) => {
     handleDelete,
     handleViewAccess,
     handleScriptView,
+    handleSync,
     authorizeModal,
     totalItems,
     pageSize,
@@ -100,6 +103,9 @@ const AdminDataTable = ({ props }) => {
     const copySecret = () => {
       handleCopy(rowData);
     };
+    const syncSelected = () => {
+      handleSync(rowData);
+    };
 
     return (
       <ButtonToolbar>
@@ -131,6 +137,14 @@ const AdminDataTable = ({ props }) => {
             title="Delete"
             icon={<MdDelete />}
             onClick={deleteSelected}
+          />
+        )}
+        {handleSync && (
+          <IconButton
+            size="sm"
+            title="Sync now"
+            icon={<IoPlay />}
+            onClick={syncSelected}
           />
         )}
         {authorizeModal && (
@@ -262,9 +276,11 @@ const AdminDataTable = ({ props }) => {
             }}
           >
             <p>
-              {new Date(rowData[syncTime]).toLocaleString('en-US', {
-                hour12: true,
-              })}
+              {rowData[syncTime] !== null
+                ? new Date(rowData[syncTime]).toLocaleString('en-US', {
+                    hour12: true,
+                  })
+                : 'Never'}
             </p>
           </div>
         )}
