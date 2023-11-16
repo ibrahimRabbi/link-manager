@@ -18,6 +18,8 @@ import { BiShowAlt } from 'react-icons/bi';
 import { PiEyeBold } from 'react-icons/pi';
 import { MdOutlineContentCopy } from 'react-icons/md';
 import { IoPlay } from 'react-icons/io5';
+import { Icon } from '@rsuite/icons';
+import { FaSpinner } from 'react-icons/fa';
 const { Column, HeaderCell, Cell } = Table;
 
 const getSourceTargetIcon = (iconKey) => {
@@ -294,10 +296,14 @@ const AdminDataTable = ({ props }) => {
             }}
           >
             <h5>
-              {rowData?.migrated === true ? (
+              {rowData[syncStatus] === 'Done' ? (
                 <SuccessStatus color="#378f17" />
+              ) : rowData[syncStatus] === 'Todo' ? (
+                <FailedStatus color="#de1655" />
               ) : (
-                rowData?.migrated === false && <FailedStatus color="#de1655" />
+                rowData[syncStatus] === 'In Progress' && (
+                  <Icon as={FaSpinner} pulse size="25px" />
+                )
               )}
             </h5>
           </div>

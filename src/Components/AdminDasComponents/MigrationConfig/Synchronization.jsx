@@ -34,7 +34,7 @@ const headerData = [
     width: 170,
   },
   { header: 'Last Synced Time', syncTime: 'last_synced' },
-  { header: 'Status', syncStatus: 'migrated', width: 80 },
+  { header: 'Status', syncStatus: 'migration_status', width: 80 },
 ];
 const Synchronization = () => {
   const { isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
@@ -152,7 +152,6 @@ const Synchronization = () => {
   const handleSync = (data) => {
     setSyncData(data);
     createMutate();
-    console.log(data);
   };
   const data = !syncConfigList?.items
     ? []
