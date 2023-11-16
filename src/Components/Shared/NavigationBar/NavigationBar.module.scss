@@ -27,3 +27,10 @@
 .popButton:last-child {
   border-radius: 0 0 8px 8px !important;
 }
+
+.navbarBrand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  cursor: pointer !important;
+}

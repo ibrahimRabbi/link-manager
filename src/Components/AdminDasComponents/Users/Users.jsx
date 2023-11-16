@@ -12,6 +12,8 @@ import UseLoader from '../../Shared/UseLoader';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
 import AlertModal from '../../Shared/AlertModal';
+import { Mixpanel } from '../../../../Mixpanel';
+import jwt_decode from 'jwt-decode';
 
 // demo data
 const headerData = [
@@ -48,10 +50,15 @@ const Users = () => {
     last_name: '',
     username: '',
     email: '',
+    projects: [],
   });
   const [open, setOpen] = useState(false);
   const [notificationType, setNotificationType] = React.useState('');
   const [notificationMessage, setNotificationMessage] = React.useState('');
+  const authCtx = useContext(AuthContext);
+  const dispatch = useDispatch();
+  const userInfo = jwt_decode(authCtx?.token);
+
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -69,8 +76,6 @@ const Users = () => {
       toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
     }
   };
-  const authCtx = useContext(AuthContext);
-  const dispatch = useDispatch();
 
   // get data using react-query
   const {
@@ -101,6 +106,10 @@ const Users = () => {
       }),
     {
       onSuccess: () => {
+        Mixpanel.track('User deleted success', {
+          username: userInfo?.preferred_username,
+          deleted_user_id: deleteData?.id,
+        });
         setDeleteData({});
       },
     },
@@ -127,6 +136,7 @@ const Users = () => {
         last_name: '',
         username: '',
         email: '',
+        projects: [],
       });
     }, 500);
   };
@@ -158,16 +168,40 @@ const Users = () => {
     }
   };
 
-  // handle Edit user
-  const handleEdit = (data) => {
+  const handleViewAccess = async (data) => {
     setEditData(data);
+    dispatch(handleIsAdminEditing(true));
+
+    const projectRes = await fetchAPIRequest({
+      urlPath: `${authCtx.organization_id}/project?page=1&per_page=100`,
+      token: authCtx.token,
+      method: 'GET',
+      showNotification: showNotification,
+    });
+
+    const defaultProjects = data?.projects || [];
+    const mappedProjects = projectRes?.items?.reduce((accumulator, project) => {
+      defaultProjects?.forEach((projectId) => {
+        if (Number(project?.id) === Number(projectId)) {
+          accumulator.push({
+            ...project,
+            label: project?.name,
+            value: project?.id,
+          });
+        }
+      });
+      return accumulator;
+    }, []);
+
+    console.log(mappedProjects);
+
     setFormValue({
       first_name: data?.first_name,
       last_name: data?.last_name,
       username: data?.username,
       email: data?.email,
+      projects: mappedProjects,
     });
-    dispatch(handleIsAdminEditing(true));
     setIsAddModal(true);
   };
 
@@ -176,7 +210,7 @@ const Users = () => {
     title: 'Users',
     rowData: allUsers ? allUsers?.items : [],
     headerData,
-    handleEdit,
+    handleViewAccess,
     handleDelete,
     handleAddNew,
     handlePagination,
@@ -190,14 +224,20 @@ const Users = () => {
 
   return (
     <div>
-      <Modal backdrop={'true'} keyboard={false} open={isAddModal} onClose={handleClose}>
+      <Modal
+        backdrop={'true'}
+        keyboard={false}
+        open={isAddModal}
+        onClose={handleClose}
+        size="md"
+      >
         <Modal.Header>
           <Modal.Title className="adminModalTitle">
-            {isAdminEditing ? 'Edit User' : 'Add New User'}
+            {isAdminEditing ? 'View Access' : 'Add New User'}
           </Modal.Title>
         </Modal.Header>
 
-        <Modal.Body>
+        <Modal.Body style={{ minHeight: '580px' }}>
           <AddUser
             formValue={formValue}
             setFormValue={setFormValue}

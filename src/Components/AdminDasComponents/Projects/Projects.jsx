@@ -17,7 +17,8 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest.js';
 import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 import AlertModal from '../../Shared/AlertModal';
-
+import { Mixpanel } from '../../../../Mixpanel';
+import jwt_decode from 'jwt-decode';
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 // demo data
@@ -36,12 +37,13 @@ const headerData = [
   },
 ];
 
-const { StringType, NumberType } = Schema.Types;
+const { StringType, NumberType, ArrayType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
   description: StringType().isRequired('This field is required.'),
-  organization_id: NumberType().isRequired('This field is required.'),
+  organization_id: NumberType(),
+  users: ArrayType(),
 });
 
 const Projects = () => {
@@ -51,10 +53,15 @@ const Projects = () => {
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
   const [deleteData, setDeleteData] = useState({});
+  const authCtx = useContext(AuthContext);
+  const dispatch = useDispatch();
+  const userInfo = jwt_decode(authCtx?.token);
+  const projectFormRef = useRef();
   const [formValue, setFormValue] = useState({
     name: '',
     description: '',
     organization_id: '',
+    users: [],
   });
   const [open, setOpen] = useState(false);
   const showNotification = (type, message) => {
@@ -67,10 +74,10 @@ const Projects = () => {
       toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
     }
   };
-  const projectFormRef = useRef();
-  const authCtx = useContext(AuthContext);
-  const dispatch = useDispatch();
 
+  // map user list
+  const mappedUserList = formValue?.user_list?.map((item) => item?.id);
+  console.log(mappedUserList);
   // get projects using react-query
   const {
     data: allProjects,
@@ -107,11 +114,24 @@ const Projects = () => {
         urlPath: `${authCtx.organization_id}/project`,
         token: authCtx.token,
         method: 'POST',
-        body: formValue,
+        body: {
+          name: formValue?.name,
+          description: formValue?.description,
+          organization_id: formValue?.organization_id,
+        },
         showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {
+        if (value?.message) {
+          Mixpanel.track('Project created success.', {
+            username: userInfo?.preferred_username,
+          });
+        } else {
+          Mixpanel.track('Project created failed.', {
+            username: userInfo?.preferred_username,
+          });
+        }
         showNotification(value?.status, value?.message);
       },
     },
@@ -128,11 +148,24 @@ const Projects = () => {
         urlPath: `${authCtx.organization_id}/project/${editData?.id}`,
         token: authCtx.token,
         method: 'PUT',
-        body: formValue,
+        body: {
+          name: formValue?.name,
+          description: formValue?.description,
+          organization_id: formValue?.organization_id,
+        },
         showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {
+        if (value?.message) {
+          Mixpanel.track('Project updated success', {
+            username: userInfo?.preferred_username,
+          });
+        } else {
+          Mixpanel.track('Project updated failed', {
+            username: userInfo?.preferred_username,
+          });
+        }
         showNotification(value?.status, value?.message);
       },
     },
@@ -143,13 +176,28 @@ const Projects = () => {
     isLoading: deleteLoading,
     isSuccess: deleteSuccess,
     mutate: deleteMutate,
-  } = useMutation(() =>
-    fetchAPIRequest({
-      urlPath: `${authCtx.organization_id}/project/${deleteData?.id}`,
-      token: authCtx.token,
-      method: 'DELETE',
-      showNotification: showNotification,
-    }),
+  } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: `${authCtx.organization_id}/project/${deleteData?.id}`,
+        token: authCtx.token,
+        method: 'DELETE',
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (value) => {
+        if (value?.message) {
+          Mixpanel.track('Project deleted success.', {
+            username: userInfo?.preferred_username,
+          });
+        } else {
+          Mixpanel.track('Project deleted failed.', {
+            username: userInfo?.preferred_username,
+          });
+        }
+        showNotification(value?.status, value?.message);
+      },
+    },
   );
 
   // Pagination
@@ -183,6 +231,7 @@ const Projects = () => {
       name: '',
       description: '',
       organization_id: '',
+      users: [],
     });
   };
 
@@ -209,14 +258,38 @@ const Projects = () => {
       deleteMutate();
     }
   };
+
   // handle Edit project
-  const handleEdit = (data) => {
+  const handleEdit = async (data) => {
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
+
+    const userRes = await fetchAPIRequest({
+      urlPath: 'user?page=1&per_page=100',
+      token: authCtx.token,
+      method: 'GET',
+      showNotification: showNotification,
+    });
+
+    const defaultUsers = data?.users || [];
+    const mappedUserList = userRes?.items?.reduce((accumulator, user) => {
+      defaultUsers?.forEach((userId) => {
+        if (Number(user?.id) === Number(userId)) {
+          accumulator.push({
+            ...user,
+            label: user?.email,
+            value: user?.id,
+          });
+        }
+      });
+      return accumulator;
+    }, []);
+
     setFormValue({
       name: data?.name,
       description: data?.description,
       organization_id: data?.organization_id,
+      users: mappedUserList,
     });
 
     dispatch(handleIsAddNewModal(true));
@@ -239,6 +312,8 @@ const Projects = () => {
     inpPlaceholder: 'Search Project',
   };
 
+  //After updating the project POST API this flag has to be true
+  const isDisplayUsersDropdown = false;
   return (
     <div>
       <AddNewModal
@@ -254,17 +329,7 @@ const Projects = () => {
           formValue={formValue}
           model={model}
         >
-          <TextField name="name" label="Name" reqText="Name is required" />
-          <div style={{ margin: '30px 0 10px' }}>
-            <TextField
-              name="description"
-              label="Description"
-              accepter={TextArea}
-              rows={5}
-              reqText="Description is required"
-            />
-          </div>
-          <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+          <FlexboxGrid.Item colspan={24} style={{ marginBottom: '30px' }}>
             <SelectField
               name="organization_id"
               label="Organization"
@@ -272,9 +337,42 @@ const Projects = () => {
               accepter={CustomReactSelect}
               apiURL={`${lmApiUrl}/organization`}
               error={formError.organization_id}
+              disabled={true}
               reqText="Organization Id is required"
+              value={Number(authCtx?.organization_id)}
+              defaultValue={Number(authCtx?.organization_id)}
             />
           </FlexboxGrid.Item>
+
+          <FlexboxGrid.Item colspan={24} style={{ marginBottom: '30px' }}>
+            <TextField name="name" label="Name" reqText="Name is required" />
+          </FlexboxGrid.Item>
+
+          <FlexboxGrid.Item colspan={24} style={{ marginBottom: '30px' }}>
+            <div>
+              <TextField
+                name="description"
+                label="Description"
+                accepter={TextArea}
+                rows={3}
+                reqText="Description is required"
+              />
+            </div>
+          </FlexboxGrid.Item>
+
+          {isDisplayUsersDropdown && (
+            <FlexboxGrid.Item style={{ marginBottom: '30px' }} colspan={24}>
+              <SelectField
+                name="users"
+                label="Assign users"
+                placeholder="Select Users"
+                accepter={CustomReactSelect}
+                apiURL={`${lmApiUrl}/user`}
+                error={formError.users}
+                isMulti={true}
+              />
+            </FlexboxGrid.Item>
+          )}
         </Form>
       </AddNewModal>
 

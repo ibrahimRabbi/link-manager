@@ -14,6 +14,7 @@ const icons = {
   dng: '/dng_logo.png',
   bitbucket: '/bitbucket_logo.png',
   github: '/github_logo.png',
+  servicenow: '/servicenow_logo.png',
   default: '/default_logo.png',
 };
 
@@ -27,6 +28,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
     customLabelKey,
     value,
     isLinkCreation,
+    getResponse,
     isApplication,
     isResourceType,
     selectedLinkType,
@@ -38,6 +40,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
     getErrorStatus,
     isLinkType,
     isMulti,
+    closeMenuOnSelect = true,
+    defaultMenuIsOpen = false,
     ...rest
   } = props;
 
@@ -79,18 +83,59 @@ const CustomReactSelect = forwardRef((props, ref) => {
         .then((res) => {
           if (res.ok) {
             if (res.status !== 204) {
+              if (getResponse) {
+                getResponse?.handleLinkCreationResponses(getResponse?.name, res);
+              }
               return res.json();
+            } else {
+              // if response is 204 manage response for the link creation
+              if (getResponse) {
+                getResponse?.handleLinkCreationResponses(getResponse?.name, res);
+              }
             }
           } else {
             if (getErrorStatus) {
               getErrorStatus();
             }
+
+            if (res.status === 403) {
+              if (authCtx?.token) {
+                showNotification('error', 'You do not have permission to access');
+                return false;
+              }
+            }
+
             res.json().then((data) => {
-              showNotification('error', data?.message);
+              if (getResponse) {
+                getResponse?.handleLinkCreationResponses(getResponse?.name, data);
+              }
+
+              let errorMessage = data?.message;
+              if (res.status === 403) {
+                errorMessage = `${res?.status} not authorized ${data?.message}`;
+              }
+              showNotification('error', errorMessage);
+              throw new Error(errorMessage);
             });
           }
         })
-        .catch(() => {});
+        .catch((error) => {
+          setIsLoading(false);
+          showNotification('error', error?.message);
+          if (getResponse) {
+            getResponse?.handleLinkCreationResponses(
+              getResponse?.name,
+              error,
+              'catch_block',
+            );
+          }
+          // eslint-disable-next-line max-len
+          const errorMsg = `${error}: The server could not connect for the ${
+            getResponse?.name || rest?.name
+          } please try to contact with the admin to solve this issue`;
+          throw new Error(errorMsg);
+        });
+
       setIsLoading(false);
       setCheckPagination(response);
       if (response?.items) {
@@ -130,6 +175,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
               jira: '',
               valispace: '',
               codebeamer: '',
+              servicenow: '',
               dng: '',
               bitbucket: '',
               github: '',
@@ -196,6 +242,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
                 app.type === apps.codebeamer ||
                 app.type === apps.bitbucket ||
                 app.type === apps.github ||
+                app.type === apps.servicenow ||
                 app.type === apps.dng
               ) {
                 const existingObject = accumulator.find(
@@ -235,6 +282,7 @@ const CustomReactSelect = forwardRef((props, ref) => {
         else if (item?.type === 'jira') appIcon = icons.jira;
         else if (item?.type === 'valispace') appIcon = icons.valispace;
         else if (item?.type === 'codebeamer') appIcon = icons.codebeamer;
+        else if (item?.type === 'servicenow') appIcon = icons.servicenow;
         else if (item?.type === 'dng') appIcon = icons.dng;
         else if (item?.type === 'bitbucket') appIcon = icons.bitbucket;
         else if (item?.type === 'github') appIcon = icons.github;
@@ -290,6 +338,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
           appIcon = icons.codebeamer;
         else if (item?.application_type === 'dng' || item?.api === 'dng')
           appIcon = icons.dng;
+        else if (item?.application_type === 'servicenow' || item?.api === 'servicenow')
+          appIcon = icons.servicenow;
         else {
           appIcon = icons.default;
         }
@@ -303,11 +353,12 @@ const CustomReactSelect = forwardRef((props, ref) => {
     } else {
       dropdownJsonData = option?.map((item) => ({
         ...item,
-        label: isIntegration ? item?.project?.name : item?.name || item?.label,
+        label: isIntegration
+          ? item?.project?.name
+          : item?.name || item?.label || item?.email,
         value: item?.id,
       }));
     }
-
     setDropdownData(dropdownJsonData);
   }, [option]);
 
@@ -399,6 +450,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
       isDisabled={disabled}
       isLoading={isLoading}
       isSearchable={true}
+      closeMenuOnSelect={closeMenuOnSelect}
+      defaultMenuIsOpen={defaultMenuIsOpen}
       menuPlacement="bottom"
       name={name}
       components={{

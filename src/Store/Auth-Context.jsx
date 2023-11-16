@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 let logoutTimer;
 import jwtDecode from 'jwt-decode';
-
 const AuthContext = React.createContext({
   token: '',
   isLoggedIn: false,
@@ -14,6 +13,7 @@ const retrieveStoredToken = () => {
   const storedToken = localStorage.getItem('token');
   const storedUserId = localStorage.getItem('user_id');
   const storedOrganizationId = localStorage.getItem('organization_id');
+  const storedOrganizationName = localStorage.getItem('organization_name');
   const storedUserRole = localStorage.getItem('user_role');
   const storedExpirationTime = localStorage.getItem('expirationTime');
 
@@ -26,6 +26,7 @@ const retrieveStoredToken = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user_id');
     localStorage.removeItem('organization_id');
+    localStorage.removeItem('organization_name');
     localStorage.removeItem('user_role');
     localStorage.removeItem('expirationTime');
     localStorage.removeItem('wbe');
@@ -36,6 +37,7 @@ const retrieveStoredToken = () => {
     token: storedToken,
     user_id: storedUserId,
     organization_id: storedOrganizationId,
+    organization_name: storedOrganizationName,
     user_role: storedUserRole,
     expirationTime: expirationTime,
   };
@@ -46,17 +48,20 @@ export const AuthContextProvider = (props) => {
   let initialToken;
   let initialUserId;
   let initialOrganizationId;
+  let initialOrganizationName;
   let initialUserRole;
   if (tokenData) {
     initialToken = tokenData.token;
     initialUserId = tokenData.user_id;
     initialOrganizationId = tokenData.organization_id;
+    initialOrganizationName = tokenData.organization_name;
     initialUserRole = tokenData.user_role;
   }
 
   const [token, setToken] = useState(initialToken);
   const [userId, setUserId] = useState(initialUserId);
   const [organizationId, setOrganizationId] = useState(initialOrganizationId);
+  const [organizationName, setOrganizationName] = useState(initialOrganizationName);
   const [userRole, setUserRole] = useState(initialUserRole);
 
   var userIsLoggedIn = !!token;
@@ -66,6 +71,7 @@ export const AuthContextProvider = (props) => {
     localStorage.removeItem('token');
     localStorage.removeItem('user_id');
     localStorage.removeItem('organization_id');
+    localStorage.removeItem('organization_name');
     localStorage.removeItem('user_role');
     localStorage.removeItem('expirationTime');
     localStorage.removeItem('wbe');
@@ -75,13 +81,25 @@ export const AuthContextProvider = (props) => {
     }
   }, []);
 
-  const loginHandler = (token, expiresIn, user_id, organization_id, user_role) => {
+  // eslint-disable-next-line max-len
+  const loginHandler = ({
+    token,
+    expiresIn,
+    user_id,
+    organization_id,
+    user_role,
+    organization,
+  }) => {
     const expirationTime = Math.floor(Date.now() / 1000) + expiresIn;
 
     setToken(token);
     setUserId(user_id);
     setOrganizationId(organization_id);
     setUserRole(user_role);
+    if (organization?.name) {
+      setOrganizationName(organization?.name);
+      localStorage.setItem('organization_name', organization?.name);
+    }
     localStorage.setItem('token', token);
     localStorage.setItem('user_id', user_id);
     localStorage.setItem('organization_id', organization_id);
@@ -117,6 +135,7 @@ export const AuthContextProvider = (props) => {
     token: token,
     user_id: userId,
     organization_id: organizationId,
+    organization_name: organizationName,
     user: { ...user, role: userRole },
     isLoggedIn: userIsLoggedIn,
     login: loginHandler,

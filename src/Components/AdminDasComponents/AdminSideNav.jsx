@@ -22,84 +22,6 @@ const iconStyle = {
   marginRight: '20px',
 };
 
-const options = [
-  {
-    path: ['admin', '/admin/users'],
-    navigateTo: '/admin/users',
-    icon: <FaUsers style={iconStyle} />,
-    content: <span>Users</span>,
-    hidden: false,
-  },
-  {
-    path: ['/admin/organizations'],
-    navigateTo: '/admin/organizations',
-    icon: <SlOrganization size={17} style={iconStyle} />,
-    content: <span>Organizations</span>,
-    hidden: false,
-  },
-  {
-    path: ['/admin/integrations'],
-    navigateTo: '/admin/integrations',
-    icon: <PiPlugsDuotone size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />,
-    content: <span>Integrations</span>,
-    hidden: false,
-  },
-  {
-    path: ['/admin/projects'],
-    navigateTo: '/admin/projects',
-    icon: <VscProject size={18} style={{ ...iconStyle }} />,
-    content: <span>Projects</span>,
-    hidden: false,
-  },
-  {
-    path: ['/admin/link-rules'],
-    navigateTo: '/admin/link-rules',
-    icon: <FaLink size={16.5} style={{ ...iconStyle }} />,
-    content: <span>Link Rules</span>,
-    hidden: false,
-  },
-  {
-    path: ['/admin/events'],
-    navigateTo: '/admin/events',
-    icon: <MdEvent size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />,
-    content: <span>Event Config</span>,
-    hidden: false,
-  },
-  {
-    path: ['/admin/pipelinessecrets'],
-    navigateTo: '/admin/pipelinessecrets',
-    icon: <RiLockPasswordLine size={16} style={{ ...iconStyle }} />,
-    content: <span>Pipeline Secrets</span>,
-    hidden: false,
-  },
-  {
-    path: ['/admin/pipelines'],
-    navigateTo: '/admin/pipelines',
-    icon: <SiAzurepipelines size={16} style={{ ...iconStyle }} />,
-    content: <span>Pipeline Config</span>,
-    hidden: false,
-  },
-
-  {
-    path: ['/admin/pipelinerun'],
-    navigateTo: '/admin/pipelinerun',
-    icon: <PlayOutlineIcon size={15} style={{ ...iconStyle, marginLeft: '0' }} />,
-    content: <span>Pipeline Runs</span>,
-    hidden: true,
-  },
-  {
-    path: ['/admin/synchronization'],
-    navigateTo: '/admin/synchronization',
-    icon: (
-      <span>
-        <BiTransferAlt style={{ ...iconStyle, marginLeft: '-38px', fontSize: '20px' }} />
-      </span>
-    ),
-    content: <span>Sync Configs</span>,
-    hidden: false,
-  },
-];
-
 const AdminSideNav = () => {
   const { isDark, isAdminSidebarOpen } = useSelector((state) => state.nav);
   const navigate = useNavigate();
@@ -107,6 +29,86 @@ const AdminSideNav = () => {
   const { pathname } = useLocation();
   const authCtx = useContext(AuthContext);
   const isSuperAdmin = authCtx?.user?.role === 'super_admin' ? true : false;
+  // eslint-disable-next-line max-len
+  const organization = authCtx?.organization_name
+    ? `/${authCtx?.organization_name?.toLowerCase()}`
+    : '';
+
+  const options = [
+    {
+      path: [`${organization}/admin`, `${organization}/admin/users`],
+      navigateTo: `${organization}/admin/users`,
+      icon: <FaUsers style={iconStyle} />,
+      content: <span>Users</span>,
+      hidden: false,
+    },
+    {
+      path: [`${organization}/admin/organizations`],
+      navigateTo: `${organization}/admin/organizations`,
+      icon: <SlOrganization size={17} style={iconStyle} />,
+      content: <span>Organizations</span>,
+      hidden: false,
+    },
+    {
+      path: [`${organization}/admin/integrations`],
+      navigateTo: `${organization}/admin/integrations`,
+      icon: <PiPlugsDuotone size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />,
+      content: <span>Integrations</span>,
+      hidden: false,
+    },
+    {
+      path: [`${organization}/admin/projects`],
+      navigateTo: `${organization}/admin/projects`,
+      icon: <VscProject size={18} style={{ ...iconStyle }} />,
+      content: <span>Projects</span>,
+      hidden: false,
+    },
+    {
+      path: [`${organization}/admin/link-rules`],
+      navigateTo: `${organization}/admin/link-rules`,
+      icon: <FaLink size={16.5} style={{ ...iconStyle }} />,
+      content: <span>Link Rules</span>,
+      hidden: false,
+    },
+    {
+      path: [`${organization}/admin/events`],
+      navigateTo: `${organization}/admin/events`,
+      icon: <MdEvent size={21} style={{ ...iconStyle, marginLeft: '-37px' }} />,
+      content: <span>Event Config</span>,
+      hidden: false,
+    },
+    {
+      path: [`${organization}/admin/pipelinessecrets`],
+      navigateTo: `${organization}/admin/pipelinessecrets`,
+      icon: <RiLockPasswordLine size={16} style={{ ...iconStyle }} />,
+      content: <span>Pipeline Secrets</span>,
+      hidden: false,
+    },
+    {
+      path: [`${organization}/admin/pipelines`],
+      navigateTo: `${organization}/admin/pipelines`,
+      icon: <SiAzurepipelines size={16} style={{ ...iconStyle }} />,
+      content: <span>Pipeline Config</span>,
+      hidden: false,
+    },
+
+    {
+      path: [`${organization}/admin/pipelinerun`],
+      navigateTo: `${organization}/admin/pipelinerun`,
+      icon: <PlayOutlineIcon size={15} style={{ ...iconStyle, marginLeft: '0' }} />,
+      content: <span>Pipeline Runs</span>,
+      hidden: true,
+    },
+    {
+      path: [`${organization}/admin/synchronization`],
+      navigateTo: `${organization}/admin/synchronization`,
+      icon: (
+        <BiTransferAlt style={{ ...iconStyle, marginLeft: '-38px', fontSize: '20px' }} />
+      ),
+      content: <span>Synchronization</span>,
+      hidden: false,
+    },
+  ];
 
   return (
     <>
