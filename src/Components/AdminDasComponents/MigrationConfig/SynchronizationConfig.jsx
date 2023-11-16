@@ -20,7 +20,6 @@ import {
   MICROSERVICES_APPLICATION_TYPES,
   OAUTH2_APPLICATION_TYPES,
 } from '../../../App';
-import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
 import { useContext } from 'react';
 import AuthContext from '../../../Store/Auth-Context';
 import UseIconSelect from '../../SelectionDialog/GlobalSelector/UseIconSelect';
@@ -33,6 +32,7 @@ import EnumValueTable from './EnumValueTable';
 import UseCustomProjectSelect from './UseCustomProjectSelect';
 import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 import { useNavigate } from 'react-router-dom';
+import DirectionSelect from './DirectionSelect';
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
@@ -214,6 +214,7 @@ const SynchronizationConfig = () => {
   };
   const handleDirectChange = (selectedItem) => {
     setPropertyShow(false);
+    console.log(selectedItem);
     setSelectDirection(selectedItem);
   };
   const handleCreateProject = () => {
@@ -484,7 +485,7 @@ const SynchronizationConfig = () => {
         targetApplication?.type === 'codebeamer'
           ? targetResourceType?.name
           : targetResourceType?.id,
-      bidirectional: true,
+      bidirectional: selectDirection?.value !== 'right' ? true : false,
       active: value,
       property_mappings: normalRows ? normalRows : [],
     };
@@ -616,7 +617,7 @@ const SynchronizationConfig = () => {
                         colspan={24}
                         style={{ paddingLeft: '0' }}
                       >
-                        <UseReactSelect
+                        <DirectionSelect
                           name="application_type"
                           placeholder="Choose Direction"
                           onChange={handleDirectChange}
@@ -979,7 +980,8 @@ const SynchronizationConfig = () => {
                 setSource={setSourceProperties}
                 setTarget={setTargetProperties}
                 showAddEnum={showAddEnum}
-                setShowAddEnum={setShowAddEnum}
+                addEnumId={setNormalRows}
+                normalProperty={normalRows}
               />
             </div>
           )}
