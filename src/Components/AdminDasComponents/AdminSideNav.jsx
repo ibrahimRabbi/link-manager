@@ -105,7 +105,7 @@ const AdminSideNav = () => {
       icon: (
         <BiTransferAlt style={{ ...iconStyle, marginLeft: '-38px', fontSize: '20px' }} />
       ),
-      content: <span>Synchronization</span>,
+      content: <span>Sync Configs</span>,
       hidden: false,
     },
   ];

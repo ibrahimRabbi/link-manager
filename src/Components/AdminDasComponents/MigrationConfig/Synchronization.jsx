@@ -34,7 +34,7 @@ const headerData = [
     width: 170,
   },
   { header: 'Last Synced Time', syncTime: 'last_synced' },
-  { header: 'Status', syncStatus: 'migrated', width: 80 },
+  { header: 'Status', syncStatus: 'migration_status', width: 80 },
 ];
 const Synchronization = () => {
   const { isCreated, isDeleted, isUpdated, isCrudLoading } = useSelector(
@@ -61,6 +61,9 @@ const Synchronization = () => {
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const organization = authCtx?.organization_name
+    ? `/${authCtx?.organization_name?.toLowerCase()}`
+    : '';
 
   // Pagination
   const handlePagination = (value) => {
@@ -137,7 +140,7 @@ const Synchronization = () => {
 
   // handle open add pipeline secret modal
   const handleAddNew = () => {
-    navigate('/admin/createsync');
+    navigate(`${organization}/admin/createsync`);
   };
   const handleDelete = (data) => {
     setDeleteData(data);
@@ -149,7 +152,6 @@ const Synchronization = () => {
   const handleSync = (data) => {
     setSyncData(data);
     createMutate();
-    console.log(data);
   };
   const data = !syncConfigList?.items
     ? []

@@ -80,6 +80,9 @@ const SynchronizationConfig = () => {
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const organization = authCtx?.organization_name
+    ? `/${authCtx?.organization_name?.toLowerCase()}`
+    : '';
 
   const showNotification = (type, message) => {
     if (type && message) {
@@ -503,7 +506,7 @@ const SynchronizationConfig = () => {
         },
       );
       if (response.ok) {
-        navigate('/admin/synchronization');
+        navigate(`${organization}/admin/synchronization`);
         setSubmitLoading(false);
         setSourceApplication('');
         setSourceProject('');
@@ -554,7 +557,7 @@ const SynchronizationConfig = () => {
     }
   };
   const handleCancel = () => {
-    navigate('/admin/synchronization');
+    navigate(`${organization}/admin/synchronization`);
   };
   return (
     <div style={{ position: 'relative' }}>
