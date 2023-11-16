@@ -250,7 +250,6 @@ const Projects = () => {
 
   // handle Edit project
   const handleEdit = async (data) => {
-    console.log(data);
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
     // map user data to display in the dropdown

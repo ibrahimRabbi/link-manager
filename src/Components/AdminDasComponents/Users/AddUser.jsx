@@ -52,6 +52,7 @@ const AddUser = ({
     }
   };
 
+  // map projects data to not send duplicate values
   const mappedProjectList = formValue?.projects?.map((item) => ({
     id: item?.id,
     name: item?.name,
@@ -60,7 +61,6 @@ const AddUser = ({
   }));
 
   const bodyData = { ...formValue, enabled: true, projects: mappedProjectList };
-  console.log(bodyData);
 
   // create data using react query
   const { isLoading: createLoading, mutate: createMutate } = useMutation(
@@ -73,8 +73,7 @@ const AddUser = ({
         showNotification: showNotification,
       }),
     {
-      onSettled: (v) => {
-        console.log(v);
+      onSettled: () => {
         setCreateUpdateLoading(false);
         setCreateSuccess(!createSuccess);
       },
