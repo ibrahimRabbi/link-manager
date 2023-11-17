@@ -279,6 +279,13 @@ const Application = () => {
     isAppAuthorize,
   ]);
 
+  useEffect(() => {
+    if (steps === 2) {
+      dispatch(handleCurrPageTitle('Integrations'));
+      refetchApplications();
+    }
+  }, [steps]);
+
   // Pagination
   const handlePagination = (value) => {
     setCurrentPage(value);
@@ -844,17 +851,18 @@ const Application = () => {
           {steps === 1 && (
             <div className={step1Container}>
               <h4>{'Authorize the access to the integration'}</h4>
-              {applicationType?.authentication_type === 'oauth2' &&
+              {(applicationType?.authentication_type === 'oauth2' &&
                 steps === 1 &&
-                (createSuccess || authorizeButton) && <Oauth2Waiting data={formValue} />}
-
+                createSuccess) ||
+                updateSuccess ||
+                (authorizeButton && <Oauth2Waiting data={formValue} />)}
               {
                 // prettier-ignore
                 (['basic', 'oauth2_ropc'].includes(
                   applicationType?.authentication_type)
                 ) &&
                 steps === 1 &&
-                (createSuccess || authorizeButton) && (
+                (createSuccess || updateSuccess || authorizeButton) && (
                   <ExternalLogin appData={formValue} onDataStatus={getExtLoginData} />
                 )
               }
