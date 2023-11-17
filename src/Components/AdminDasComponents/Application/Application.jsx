@@ -415,7 +415,8 @@ const Application = () => {
 
   // Use modal in second step to authorize the access to this application
   const handleOpenAuthorizeModal = (data) => {
-    if (!data.status) {
+    // Use authorize button in case of having an unauthorized, suspect or null status
+    if (!data.status || data.status === 0 || data.status === 2) {
       handleApplicationType(data?.type);
 
       setSteps(1);
