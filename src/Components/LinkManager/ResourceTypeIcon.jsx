@@ -179,8 +179,6 @@ const valispaceIcon = {
 
 export const getIcon = (applicationType, resourceType) => {
   let appIcon = '';
-  console.log('applicationType ', applicationType);
-  console.log('resourceType ', resourceType);
   if (applicationType === 'gitlab') {
     if (resourceType === 'Source Code File' || resourceType === 'Repository File')
       appIcon = gitlabIcon.Source_code;

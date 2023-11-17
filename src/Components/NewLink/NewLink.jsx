@@ -514,6 +514,8 @@ const NewLink = ({ pageTitle: isEditLinkPage }) => {
                         value={projectType?.label}
                         disabled={externalProjectDisabled}
                         restartRequest={restartExternalRequest}
+                        verifyRequest={authenticatedThirdApp}
+                        getVerifiedRequestStatus={closeExternalAppResetRequest}
                         getErrorStatus={getFailedExternalAuthentication}
                       />
                     </FlexboxGrid.Item>
