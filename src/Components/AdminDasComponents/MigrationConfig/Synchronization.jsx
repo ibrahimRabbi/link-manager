@@ -137,7 +137,6 @@ const Synchronization = () => {
     isCrudLoading,
     deleteSuccess,
   ]);
-
   // handle open add pipeline secret modal
   const handleAddNew = () => {
     navigate(`${organization}/admin/createsync`);
@@ -151,6 +150,7 @@ const Synchronization = () => {
   };
   const handleSync = (data) => {
     setSyncData(data);
+    console.log(data);
     createMutate();
   };
   const data = !syncConfigList?.items
