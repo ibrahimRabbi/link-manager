@@ -36,6 +36,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
     isEventAssociation,
     isUpdateState,
     restartRequest,
+    verifyRequest,
+    getVerifiedRequestStatus,
     removeApplication,
     getErrorStatus,
     isLinkType,
@@ -66,7 +68,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
     }
   };
 
-  const fetchOptions = async (pageNumber, itemsPerPage) => {
+  const fetchOptions = async (pageNumber, itemsPerPage, displayNotification) => {
+    const showNotificationMessage = displayNotification ?? true;
     const queryPath = apiQueryParams ? apiQueryParams : null;
     let url = `${apiURL}?page=${pageNumber}&per_page=${itemsPerPage}`;
     if (queryPath) url = `${url}&${queryPath}`;
@@ -92,30 +95,38 @@ const CustomReactSelect = forwardRef((props, ref) => {
               if (getResponse) {
                 getResponse?.handleLinkCreationResponses(getResponse?.name, res);
               }
+              return false;
             }
           } else {
             if (getErrorStatus) {
               getErrorStatus();
             }
-
-            if (res.status === 403) {
-              if (authCtx?.token) {
-                showNotification('error', 'You do not have permission to access');
-                return false;
-              }
-            }
-
-            res.json().then((data) => {
+            // return response messages
+            return res.json().then((data) => {
               if (getResponse) {
                 getResponse?.handleLinkCreationResponses(getResponse?.name, data);
               }
-
-              let errorMessage = data?.message;
-              if (res.status === 403) {
-                errorMessage = `${res?.status} not authorized ${data?.message}`;
+              if (showNotificationMessage) {
+                if (res.status === 401) {
+                  showNotification('error', data?.message);
+                  return false;
+                } else if (res.status === 403) {
+                  if (authCtx.token) {
+                    showNotification('error', 'You do not have permission to access');
+                    return false;
+                  } else {
+                    showNotification(
+                      'error',
+                      `${res?.status} not authorized ${data?.message}`,
+                    );
+                    authCtx?.logout();
+                    return false;
+                  }
+                }
+                showNotification('error', data?.message);
               }
-              showNotification('error', errorMessage);
-              throw new Error(errorMessage);
+
+              return false;
             });
           }
         })
@@ -367,6 +378,24 @@ const CustomReactSelect = forwardRef((props, ref) => {
     let isNotScrolled = true;
     handleLoadMore(isNotScrolled);
   }, [isUpdateState, restartRequest]);
+
+  useEffect(() => {
+    const captureData = async () => {
+      if (verifyRequest) {
+        const newOptions = await fetchOptions(page, pageSize);
+        if (newOptions?.length > 0) {
+          getVerifiedRequestStatus();
+        }
+      }
+    };
+    if (verifyRequest) {
+      // Set up interval to execute the function every 10 seconds
+      const intervalId = setInterval(captureData, 10000);
+
+      // Cleanup function to clear the interval when the component is unmounted
+      return () => clearInterval(intervalId);
+    }
+  }, [verifyRequest]);
 
   // react select menu items style
   const customOption = (props) => {

@@ -171,29 +171,14 @@ const Users = () => {
   const handleViewAccess = async (data) => {
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
-
-    const projectRes = await fetchAPIRequest({
-      urlPath: `${authCtx.organization_id}/project?page=1&per_page=100`,
-      token: authCtx.token,
-      method: 'GET',
-      showNotification: showNotification,
-    });
-
-    const defaultProjects = data?.projects || [];
-    const mappedProjects = projectRes?.items?.reduce((accumulator, project) => {
-      defaultProjects?.forEach((projectId) => {
-        if (Number(project?.id) === Number(projectId)) {
-          accumulator.push({
-            ...project,
-            label: project?.name,
-            value: project?.id,
-          });
-        }
+    const mappedProjects = data?.projects?.reduce((accumulator, project) => {
+      accumulator.push({
+        ...project,
+        label: project?.name,
+        value: project?.id,
       });
       return accumulator;
     }, []);
-
-    console.log(mappedProjects);
 
     setFormValue({
       first_name: data?.first_name,

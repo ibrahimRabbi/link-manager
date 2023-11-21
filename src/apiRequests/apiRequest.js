@@ -17,34 +17,36 @@ export default function fetchAPIRequest({
     },
     body: JSON.stringify(body),
   })
-    .then((response) => {
-      if (response.ok) {
-        if (method === 'GET' && response.status === 204) {
+    .then((res) => {
+      if (res.ok) {
+        if (method === 'GET' && res.status === 204) {
           showNotification('success', 'No content available');
           return '';
-        } else if (method === 'DELETE' && response.status === 204) {
+        } else if (method === 'DELETE' && res.status === 204) {
           showNotification('success', 'The content was successfully deleted');
           return { status: 'success', message: 'The content was successfully deleted' };
         }
-        return response.json().then((data) => {
+        return res.json().then((data) => {
           showNotification('success', data?.message);
           return data;
         });
       } else {
-        if (response.status === 403) {
-          if (token) {
-            showNotification('error', 'You do not have permission to access');
+        return res.json().then((data) => {
+          if (res.status === 401) {
+            showNotification('error', data?.message);
             return false;
+          } else if (res.status === 403) {
+            if (token) {
+              showNotification('error', 'You do not have permission to access');
+              return false;
+            } else {
+              showNotification('error', `${res?.status} not authorized ${data?.message}`);
+              return false;
+            }
           }
-        }
 
-        response.json().then((data) => {
-          let errorMessage = data?.message;
-          if (response.status === 403) {
-            errorMessage = `${response?.status} not authorized ${data?.message}`;
-          }
-          showNotification('error', errorMessage);
-          throw new Error(errorMessage);
+          showNotification('error', data?.message);
+          return false;
         });
       }
     })
