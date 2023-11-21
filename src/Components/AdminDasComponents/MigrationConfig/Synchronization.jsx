@@ -150,7 +150,6 @@ const Synchronization = () => {
   };
   const handleSync = (data) => {
     setSyncData(data);
-    console.log(data);
     createMutate();
   };
   const data = !syncConfigList?.items
