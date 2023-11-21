@@ -42,6 +42,9 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false, // default: true
+      onError: (error) => {
+        console.error('catch error globally: ', error);
+      },
     },
   },
 });
