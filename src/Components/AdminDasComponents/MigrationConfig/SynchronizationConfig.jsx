@@ -490,6 +490,7 @@ const SynchronizationConfig = () => {
           : targetResourceType?.id,
       bidirectional: selectDirection?.value !== 'right' ? true : false,
       active: value,
+      link_type: 'syncedTo',
       property_mappings: normalRows ? normalRows : [],
     };
     // console.log(JSON.stringify(body));
