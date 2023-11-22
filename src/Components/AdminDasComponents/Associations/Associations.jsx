@@ -635,7 +635,7 @@ const Associations = () => {
           model={model}
         >
           <FlexboxGrid>
-            <FlexboxGrid.Item colspan={24}>
+            <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
               <SelectField
                 name="organization_id"
                 label="Organization"
@@ -647,7 +647,7 @@ const Associations = () => {
               />
             </FlexboxGrid.Item>
 
-            <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+            <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={24}>
               <SelectField
                 name="project_id"
                 label="Workspace"
@@ -661,7 +661,7 @@ const Associations = () => {
               />
             </FlexboxGrid.Item>
 
-            <FlexboxGrid.Item colspan={24}>
+            <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
               <SelectField
                 name="application_id"
                 label="External application"
@@ -688,7 +688,7 @@ const Associations = () => {
                   <>
                     {/* eslint-disable-next-line max-len */} {/* I had consumerToken */}
                     {appData?.type === 'oslc' && oslcCatalogDropdown && (
-                      <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                      <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={24}>
                         <SelectField
                           size="lg"
                           block
@@ -765,7 +765,7 @@ const Associations = () => {
                       </p>
                     )}
                     {WORKSPACE_APPLICATION_TYPES.includes(appData?.type) && workspace && (
-                      <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+                      <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={24}>
                         <SelectField
                           block
                           size="lg"
@@ -785,14 +785,7 @@ const Associations = () => {
                       </FlexboxGrid.Item>
                     )}
                     {workspaceContainer && (
-                      <FlexboxGrid.Item
-                        style={
-                          !WORKSPACE_APPLICATION_TYPES.includes(appData?.type)
-                            ? { margin: '30px 0' }
-                            : { marginBottom: '30px' }
-                        }
-                        colspan={24}
-                      >
+                      <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
                         <SelectField
                           block
                           size="lg"

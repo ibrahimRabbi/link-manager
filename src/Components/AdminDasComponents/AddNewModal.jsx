@@ -20,8 +20,10 @@ const AddNewModal = ({
 
   const handleClose = () => {
     dispatch(handleIsAddNewModal(false));
-    setTimeout(() => handleReset(), 500);
-    if (isAdminEditing) dispatch(handleIsAdminEditing(false));
+    setTimeout(() => {
+      if (isAdminEditing) dispatch(handleIsAdminEditing(false));
+      handleReset();
+    }, 500);
   };
 
   return (
@@ -30,11 +32,11 @@ const AddNewModal = ({
         <Modal.Title className="adminModalTitle">{title}</Modal.Title>
       </Modal.Header>
       <Modal.Body
-        style={{ padding: '10px 10px 30px', minHeight: minHeight ? minHeight : '400px' }}
+        style={{ padding: '10px 10px 30px', minHeight: minHeight ? minHeight : '200px' }}
       >
         {children}
       </Modal.Body>
-      <Modal.Footer style={{ marginTop: '20px' }}>
+      <Modal.Footer style={{ marginTop: '25px' }}>
         <Button
           onClick={handleClose}
           appearance="default"

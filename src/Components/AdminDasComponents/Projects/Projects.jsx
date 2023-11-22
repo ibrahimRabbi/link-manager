@@ -215,13 +215,15 @@ const Projects = () => {
 
   // reset form
   const handleResetForm = () => {
-    setEditData({});
-    setFormValue({
-      name: '',
-      description: '',
-      organization_id: '',
-      users: [],
-    });
+    setTimeout(() => {
+      setEditData({});
+      setFormValue({
+        name: '',
+        description: '',
+        organization_id: '',
+        users: [],
+      });
+    }, 500);
   };
 
   // get all projects
@@ -289,8 +291,6 @@ const Projects = () => {
     inpPlaceholder: 'Search Project',
   };
 
-  //After updating the project POST API this flag has to be true
-  const isDisplayUsersDropdown = true;
   return (
     <div>
       <AddNewModal
@@ -306,7 +306,7 @@ const Projects = () => {
           formValue={formValue}
           model={model}
         >
-          <FlexboxGrid.Item colspan={24} style={{ marginBottom: '30px' }}>
+          <FlexboxGrid.Item colspan={24}>
             <SelectField
               name="organization_id"
               label="Organization"
@@ -321,35 +321,31 @@ const Projects = () => {
             />
           </FlexboxGrid.Item>
 
-          <FlexboxGrid.Item colspan={24} style={{ marginBottom: '30px' }}>
+          <FlexboxGrid.Item colspan={24} style={{ margin: '25px 0' }}>
             <TextField name="name" label="Name" reqText="Name is required" />
           </FlexboxGrid.Item>
 
-          <FlexboxGrid.Item colspan={24} style={{ marginBottom: '30px' }}>
-            <div>
-              <TextField
-                name="description"
-                label="Description"
-                accepter={TextArea}
-                rows={3}
-                reqText="Description is required"
-              />
-            </div>
+          <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
+            <SelectField
+              name="users"
+              label="Assign users"
+              placeholder="Select Users"
+              accepter={CustomReactSelect}
+              apiURL={`${lmApiUrl}/user`}
+              error={formError.users}
+              isMulti={true}
+            />
           </FlexboxGrid.Item>
 
-          {isDisplayUsersDropdown && (
-            <FlexboxGrid.Item style={{ marginBottom: '30px' }} colspan={24}>
-              <SelectField
-                name="users"
-                label="Assign users"
-                placeholder="Select Users"
-                accepter={CustomReactSelect}
-                apiURL={`${lmApiUrl}/user`}
-                error={formError.users}
-                isMulti={true}
-              />
-            </FlexboxGrid.Item>
-          )}
+          <FlexboxGrid.Item colspan={24}>
+            <TextField
+              name="description"
+              label="Description"
+              accepter={TextArea}
+              rows={3}
+              reqText="Description is required"
+            />
+          </FlexboxGrid.Item>
         </Form>
       </AddNewModal>
 

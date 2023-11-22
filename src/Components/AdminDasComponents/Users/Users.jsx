@@ -6,7 +6,7 @@ import {
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
-import { Message, Modal, toaster } from 'rsuite';
+import { Button, Message, Modal, toaster } from 'rsuite';
 import AddUser from './AddUser';
 import UseLoader from '../../Shared/UseLoader';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -55,6 +55,7 @@ const Users = () => {
   const [open, setOpen] = useState(false);
   const [notificationType, setNotificationType] = React.useState('');
   const [notificationMessage, setNotificationMessage] = React.useState('');
+  const [isSubmitClick, setIsSubmitClick] = React.useState(0);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
   const userInfo = jwt_decode(authCtx?.token);
@@ -130,6 +131,7 @@ const Users = () => {
   const handleResetForm = () => {
     setTimeout(() => {
       setEditData({});
+      setIsSubmitClick(0);
       if (isAdminEditing) dispatch(handleIsAdminEditing(false));
       setFormValue({
         first_name: '',
@@ -222,7 +224,7 @@ const Users = () => {
           </Modal.Title>
         </Modal.Header>
 
-        <Modal.Body style={{ minHeight: '580px' }}>
+        <Modal.Body>
           <AddUser
             formValue={formValue}
             setFormValue={setFormValue}
@@ -236,9 +238,25 @@ const Users = () => {
             setNotificationType={setNotificationType}
             setNotificationMessage={setNotificationMessage}
             isUserSection={true}
+            isSubmitClick={isSubmitClick}
           />
         </Modal.Body>
-        <Modal.Footer></Modal.Footer>
+        <Modal.Footer>
+          <Button
+            onClick={handleClose}
+            appearance="default"
+            className="adminModalFooterBtn"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={() => setIsSubmitClick(isSubmitClick + 1)}
+            appearance="primary"
+            className="adminModalFooterBtn"
+          >
+            Save
+          </Button>
+        </Modal.Footer>
       </Modal>
 
       {(isLoading || createUpdateLoading || deleteLoading) && <UseLoader />}
