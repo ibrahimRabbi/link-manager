@@ -275,6 +275,13 @@ const Application = () => {
     isAppAuthorize,
   ]);
 
+  useEffect(() => {
+    if (steps === 2) {
+      dispatch(handleCurrPageTitle('Integrations'));
+      refetchApplications();
+    }
+  }, [steps]);
+
   // Pagination
   const handlePagination = (value) => {
     setCurrentPage(value);
@@ -411,7 +418,8 @@ const Application = () => {
 
   // Use modal in second step to authorize the access to this application
   const handleOpenAuthorizeModal = (data) => {
-    if (!data.status) {
+    // Use authorize button in case of having an unauthorized, suspect or null status
+    if (!data.status || data.status === 0 || data.status === 2) {
       handleApplicationType(data?.type);
 
       setSteps(1);
@@ -618,7 +626,7 @@ const Application = () => {
   useEffect(() => {
     if (organizationData?.name) {
       setEditFormTitle(`${organizationData.name} - Edit external integration`);
-      setNewFormTitle(`${organizationData.name} - Add external integration`);
+      setNewFormTitle('Add external integration');
     } else {
       setEditFormTitle('Edit external integration');
       setNewFormTitle('Add external integration');
@@ -682,9 +690,24 @@ const Application = () => {
                 <FlexboxGrid justify="space-between">
                   <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={24}>
                     <SelectField
+                      name="organization_id"
+                      label="Organization"
+                      placeholder="Select Organization"
+                      accepter={CustomReactSelect}
+                      apiURL={`${lmApiUrl}/organization`}
+                      error={formError.organization_id}
+                      disabled={true}
+                      reqText="Organization Id is required"
+                      value={Number(authCtx?.organization_id)}
+                      defaultValue={Number(authCtx?.organization_id)}
+                    />
+                  </FlexboxGrid.Item>
+
+                  <FlexboxGrid.Item style={{ margin: '4px 0' }} colspan={11}>
+                    <SelectField
                       name="type"
                       label="Integration type"
-                      placeholder="Select integration type"
+                      placeholder="Select integration"
                       accepter={CustomReactSelect}
                       apiURL={`${lmApiUrl}/external-integrations`}
                       error={formError.type}
@@ -838,17 +861,18 @@ const Application = () => {
           {steps === 1 && (
             <div className={step1Container}>
               <h4>{'Authorize the access to the integration'}</h4>
-              {applicationType?.authentication_type === 'oauth2' &&
+              {(applicationType?.authentication_type === 'oauth2' &&
                 steps === 1 &&
-                (createSuccess || authorizeButton) && <Oauth2Waiting data={formValue} />}
-
+                createSuccess) ||
+                updateSuccess ||
+                (authorizeButton && <Oauth2Waiting data={formValue} />)}
               {
                 // prettier-ignore
                 (['basic', 'oauth2_ropc'].includes(
                   applicationType?.authentication_type)
                 ) &&
                 steps === 1 &&
-                (createSuccess || authorizeButton) && (
+                (createSuccess || updateSuccess || authorizeButton) && (
                   <ExternalLogin appData={formValue} onDataStatus={getExtLoginData} />
                 )
               }

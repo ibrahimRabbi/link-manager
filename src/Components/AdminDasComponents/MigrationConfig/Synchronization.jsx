@@ -137,7 +137,6 @@ const Synchronization = () => {
     isCrudLoading,
     deleteSuccess,
   ]);
-
   // handle open add pipeline secret modal
   const handleAddNew = () => {
     navigate(`${organization}/admin/createsync`);
