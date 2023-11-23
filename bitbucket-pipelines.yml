@@ -25,7 +25,6 @@ definitions:
           - yarn run lint src/
 
     - step: &build
-        deployment: test
         name: 'Build'
         caches:
           - node
@@ -68,7 +67,6 @@ pipelines:
       - step:
           <<: *build
           name: 'Build for Testing'
-          # deployment: test
 
       # The following deployment steps will be executed for each pipeline run. To configure your steps and conditionally deploy see https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/
       - step:
