@@ -255,16 +255,16 @@ const Organization = () => {
             model={model}
           >
             <FlexboxGrid justify="space-between">
-              <FlexboxGrid.Item colspan={11}>
+              <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
                 <TextField name="name" label="Name" reqText="Name is Required" />
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0 10px' }}>
+              <FlexboxGrid.Item colspan={24}>
                 <TextField
                   name="description"
                   label="Description"
                   accepter={TextArea}
-                  rows={5}
+                  rows={3}
                   reqText="Description is Required"
                 />
               </FlexboxGrid.Item>

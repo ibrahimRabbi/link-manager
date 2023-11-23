@@ -14,16 +14,16 @@ import process from 'process/browser';
 window.process = process;
 window.global = window;
 
-//// Sentry error tracing setup
+// Sentry error tracing setup
 import * as Sentry from '@sentry/react';
 import { BrowserTracing, Replay } from '@sentry/react';
+
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
 const ENVIRONMENT = import.meta.env.VITE_NODE_ENV;
 
 Sentry.init({
   dsn: SENTRY_DSN,
   integrations: [new BrowserTracing(), new Replay()],
-
   // We recommend adjusting this value in production, or using tracesSampler
   // for finer control
   tracesSampleRate: 1.0,
@@ -42,6 +42,9 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       refetchOnWindowFocus: false, // default: true
+      onError: (error) => {
+        console.error('catch error globally: ', error);
+      },
     },
   },
 });

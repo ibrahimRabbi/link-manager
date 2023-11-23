@@ -20,7 +20,6 @@ import {
   MICROSERVICES_APPLICATION_TYPES,
   OAUTH2_APPLICATION_TYPES,
 } from '../../../App';
-import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
 import { useContext } from 'react';
 import AuthContext from '../../../Store/Auth-Context';
 import UseIconSelect from '../../SelectionDialog/GlobalSelector/UseIconSelect';
@@ -32,7 +31,8 @@ import PropertyTable from './PropertyTable';
 import EnumValueTable from './EnumValueTable';
 import UseCustomProjectSelect from './UseCustomProjectSelect';
 import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
-// import ProgressModal from './ProgressModal';
+import { useNavigate } from 'react-router-dom';
+import DirectionSelect from './DirectionSelect';
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const thirdApiURL = `${apiURL}/third_party`;
@@ -79,6 +79,10 @@ const SynchronizationConfig = () => {
   const [targetWorkspace, setTargetWorkspace] = useState('');
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const organization = authCtx?.organization_name
+    ? `/${authCtx?.organization_name?.toLowerCase()}`
+    : '';
 
   const showNotification = (type, message) => {
     if (type && message) {
@@ -116,7 +120,7 @@ const SynchronizationConfig = () => {
     dispatch(handleCurrPageTitle('Synchronization Configuration'));
   }, []);
   const handleSourceApplicationChange = (selectedItem) => {
-    setSelectDirection('');
+    // setSelectDirection('');
     setEnumRows([]);
     setSourceProperty('');
     setTargetProperty('');
@@ -213,6 +217,7 @@ const SynchronizationConfig = () => {
   };
   const handleDirectChange = (selectedItem) => {
     setPropertyShow(false);
+    console.log(selectedItem);
     setSelectDirection(selectedItem);
   };
   const handleCreateProject = () => {
@@ -374,7 +379,7 @@ const SynchronizationConfig = () => {
           }
         });
     }
-  }, [sourceProjectID]);
+  }, [sourceProjectID, sourceProject]);
   useEffect(() => {
     if (targetProjectID || disabledDropdown) {
       setTargetResourceTypeLoading(true);
@@ -403,7 +408,7 @@ const SynchronizationConfig = () => {
           setTargetResourceTypeLoading(false);
         });
     }
-  }, [targetProjectID, disabledDropdown]);
+  }, [targetProjectID, disabledDropdown, targetProject]);
   // for getting resource Properties
   useEffect(() => {
     if (sourceResourceType && sourceProject) {
@@ -460,7 +465,7 @@ const SynchronizationConfig = () => {
         });
     }
   }, [targetResourceType, restartExternalRequest]);
-  const handleMakeMigration = async () => {
+  const handleMakeMigration = async (value) => {
     setSubmitLoading(true);
     const body = {
       source_application_id: sourceApplication ? sourceApplication?.id : null,
@@ -483,17 +488,26 @@ const SynchronizationConfig = () => {
         targetApplication?.type === 'codebeamer'
           ? targetResourceType?.name
           : targetResourceType?.id,
+      bidirectional: selectDirection?.value !== 'right' ? true : false,
+      active: value,
+      link_type: 'syncedTo',
+      property_mappings: normalRows ? normalRows : [],
     };
+    // console.log(JSON.stringify(body));
     try {
-      const response = await fetch(`${apiURL}/migrations`, {
-        method: 'POST',
-        headers: {
-          'Content-type': 'application/json',
-          Authorization: 'Bearer ' + authCtx.token, // Make sure 'Authorization' is capitalized correctly
+      const response = await fetch(
+        `${apiURL}/${authCtx?.organization_id}/synchronization`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-type': 'application/json',
+            Authorization: 'Bearer ' + authCtx.token, // Make sure 'Authorization' is capitalized correctly
+          },
+          body: JSON.stringify(body),
         },
-        body: JSON.stringify(body),
-      });
+      );
       if (response.ok) {
+        navigate(`${organization}/admin/synchronization`);
         setSubmitLoading(false);
         setSourceApplication('');
         setSourceProject('');
@@ -507,6 +521,7 @@ const SynchronizationConfig = () => {
         setSelectDirection('');
         setEnumRows([]);
         setNormalRows([]);
+        setPropertyShow(false);
         return response.json().then((data) => {
           showNotification('success', data.message);
           return data;
@@ -542,14 +557,18 @@ const SynchronizationConfig = () => {
       console.log('error', error);
     }
   };
+  const handleCancel = () => {
+    navigate(`${organization}/admin/synchronization`);
+  };
   return (
     <div style={{ position: 'relative' }}>
       {submitLoading && (
         <div
-          style={{ position: 'absolute', top: '100', left: '0', right: '0', bottom: '0' }}
+          style={{
+            marginTop: '25px',
+          }}
         >
           <UseLoader />
-          {/* <ProgressModal open={submitLoading} /> */}
         </div>
       )}
       <div
@@ -602,7 +621,7 @@ const SynchronizationConfig = () => {
                         colspan={24}
                         style={{ paddingLeft: '0' }}
                       >
-                        <UseReactSelect
+                        <DirectionSelect
                           name="application_type"
                           placeholder="Choose Direction"
                           onChange={handleDirectChange}
@@ -673,7 +692,13 @@ const SynchronizationConfig = () => {
                     isUpdateState={sourceApplication}
                     restartRequest={restartExternalRequest}
                     isApplication={true}
-                    removeApplication={['gitlab', 'glideyoke', 'dng']}
+                    removeApplication={[
+                      'gitlab',
+                      'glideyoke',
+                      'dng',
+                      'bitbucket',
+                      'codebeamer',
+                    ]}
                   />
                 </FlexboxGrid.Item>
               </FlexboxGrid>
@@ -788,6 +813,7 @@ const SynchronizationConfig = () => {
                       'gitlab',
                       'glideyoke',
                       'dng',
+                      'bitbucket',
                     ]}
                   />
                 </FlexboxGrid.Item>
@@ -958,7 +984,8 @@ const SynchronizationConfig = () => {
                 setSource={setSourceProperties}
                 setTarget={setTargetProperties}
                 showAddEnum={showAddEnum}
-                setShowAddEnum={setShowAddEnum}
+                addEnumId={setNormalRows}
+                normalProperty={normalRows}
               />
             </div>
           )}
@@ -990,12 +1017,16 @@ const SynchronizationConfig = () => {
             }}
           >
             <ButtonToolbar>
-              <Button appearance="ghost">Cancel</Button>
-              <Button appearance="ghost">Save</Button>
+              <Button appearance="ghost" onClick={handleCancel}>
+                Cancel
+              </Button>
+              <Button appearance="ghost" onClick={() => handleMakeMigration(false)}>
+                Save
+              </Button>
               <Button
                 appearance="primary"
                 disabled={!targetResourceType}
-                onClick={handleMakeMigration}
+                onClick={() => handleMakeMigration(true)}
               >
                 Save & Run
               </Button>

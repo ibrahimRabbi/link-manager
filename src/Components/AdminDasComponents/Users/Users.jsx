@@ -6,12 +6,14 @@ import {
   handleIsAdminEditing,
 } from '../../../Redux/slices/navSlice';
 import AdminDataTable from '../AdminDataTable';
-import { Message, Modal, toaster } from 'rsuite';
+import { Button, Message, Modal, toaster } from 'rsuite';
 import AddUser from './AddUser';
 import UseLoader from '../../Shared/UseLoader';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
 import AlertModal from '../../Shared/AlertModal';
+import { Mixpanel } from '../../../../Mixpanel';
+import jwt_decode from 'jwt-decode';
 
 // demo data
 const headerData = [
@@ -48,10 +50,16 @@ const Users = () => {
     last_name: '',
     username: '',
     email: '',
+    projects: [],
   });
   const [open, setOpen] = useState(false);
   const [notificationType, setNotificationType] = React.useState('');
   const [notificationMessage, setNotificationMessage] = React.useState('');
+  const [isSubmitClick, setIsSubmitClick] = React.useState(0);
+  const authCtx = useContext(AuthContext);
+  const dispatch = useDispatch();
+  const userInfo = jwt_decode(authCtx?.token);
+
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -69,8 +77,6 @@ const Users = () => {
       toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
     }
   };
-  const authCtx = useContext(AuthContext);
-  const dispatch = useDispatch();
 
   // get data using react-query
   const {
@@ -101,6 +107,10 @@ const Users = () => {
       }),
     {
       onSuccess: () => {
+        Mixpanel.track('User deleted success', {
+          username: userInfo?.preferred_username,
+          deleted_user_id: deleteData?.id,
+        });
         setDeleteData({});
       },
     },
@@ -121,12 +131,14 @@ const Users = () => {
   const handleResetForm = () => {
     setTimeout(() => {
       setEditData({});
+      setIsSubmitClick(0);
       if (isAdminEditing) dispatch(handleIsAdminEditing(false));
       setFormValue({
         first_name: '',
         last_name: '',
         username: '',
         email: '',
+        projects: [],
       });
     }, 500);
   };
@@ -158,16 +170,25 @@ const Users = () => {
     }
   };
 
-  // handle Edit user
-  const handleEdit = (data) => {
+  const handleViewAccess = async (data) => {
     setEditData(data);
+    dispatch(handleIsAdminEditing(true));
+    const mappedProjects = data?.projects?.reduce((accumulator, project) => {
+      accumulator.push({
+        ...project,
+        label: project?.name,
+        value: project?.id,
+      });
+      return accumulator;
+    }, []);
+
     setFormValue({
       first_name: data?.first_name,
       last_name: data?.last_name,
       username: data?.username,
       email: data?.email,
+      projects: mappedProjects,
     });
-    dispatch(handleIsAdminEditing(true));
     setIsAddModal(true);
   };
 
@@ -176,7 +197,7 @@ const Users = () => {
     title: 'Users',
     rowData: allUsers ? allUsers?.items : [],
     headerData,
-    handleEdit,
+    handleViewAccess,
     handleDelete,
     handleAddNew,
     handlePagination,
@@ -190,10 +211,16 @@ const Users = () => {
 
   return (
     <div>
-      <Modal backdrop={'true'} keyboard={false} open={isAddModal} onClose={handleClose}>
+      <Modal
+        backdrop={'true'}
+        keyboard={false}
+        open={isAddModal}
+        onClose={handleClose}
+        size="md"
+      >
         <Modal.Header>
           <Modal.Title className="adminModalTitle">
-            {isAdminEditing ? 'Edit User' : 'Add New User'}
+            {isAdminEditing ? 'View Access' : 'Add New User'}
           </Modal.Title>
         </Modal.Header>
 
@@ -211,9 +238,25 @@ const Users = () => {
             setNotificationType={setNotificationType}
             setNotificationMessage={setNotificationMessage}
             isUserSection={true}
+            isSubmitClick={isSubmitClick}
           />
         </Modal.Body>
-        <Modal.Footer></Modal.Footer>
+        <Modal.Footer>
+          <Button
+            onClick={handleClose}
+            appearance="default"
+            className="adminModalFooterBtn"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={() => setIsSubmitClick(isSubmitClick + 1)}
+            appearance="primary"
+            className="adminModalFooterBtn"
+          >
+            Save
+          </Button>
+        </Modal.Footer>
       </Modal>
 
       {(isLoading || createUpdateLoading || deleteLoading) && <UseLoader />}

@@ -26,6 +26,25 @@ const gitlabIcon = {
     <FontAwesomeIcon icon={faCode} style={{ color: '#fc7238', fontSize: '20px' }} />
   ),
 };
+
+const bitbucketIcon = {
+  Source_code: (
+    <FontAwesomeIcon icon={faFileLines} style={{ color: '#2684ff', fontSize: '20px' }} />
+  ),
+  Block_code: (
+    <FontAwesomeIcon icon={faCode} style={{ color: '#2684ff', fontSize: '20px' }} />
+  ),
+};
+
+const githubIcon = {
+  Source_code: (
+    <FontAwesomeIcon icon={faFileLines} style={{ color: '#24292f', fontSize: '20px' }} />
+  ),
+  Block_code: (
+    <FontAwesomeIcon icon={faCode} style={{ color: '#24292f', fontSize: '20px' }} />
+  ),
+};
+
 const jiraIcon = {
   Task: (
     <FontAwesomeIcon
@@ -164,6 +183,14 @@ export const getIcon = (applicationType, resourceType) => {
     if (resourceType === 'Source Code File' || resourceType === 'Repository File')
       appIcon = gitlabIcon.Source_code;
     else if (resourceType === 'Block of code') appIcon = gitlabIcon.Block_code;
+  } else if (applicationType === 'bitbucket') {
+    if (resourceType === 'Source Code File' || resourceType === 'Repository File')
+      appIcon = bitbucketIcon.Source_code;
+    else if (resourceType === 'Block of code') appIcon = bitbucketIcon.Block_code;
+  } else if (applicationType === 'github') {
+    if (resourceType === 'Source Code File' || resourceType === 'Repository File')
+      appIcon = githubIcon.Source_code;
+    else if (resourceType === 'Block of code') appIcon = githubIcon.Block_code;
   } else if (applicationType === 'jira') {
     if (resourceType === 'Tasks') appIcon = jiraIcon.Task;
     else if (resourceType === 'Epics') appIcon = jiraIcon.Epic;

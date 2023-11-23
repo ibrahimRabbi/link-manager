@@ -3,12 +3,15 @@ import AuthContext from '../../../Store/Auth-Context';
 import { Form, Button, Schema, FlexboxGrid, Message, toaster } from 'rsuite';
 import TextField from '../TextField';
 import { useContext } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { handleIsAdminEditing } from '../../../Redux/slices/navSlice';
 import { useMutation } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
+import SelectField from '../SelectField';
+import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 
-const { StringType } = Schema.Types;
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
+const { StringType, ArrayType } = Schema.Types;
 
 const model = Schema.Model({
   first_name: StringType().isRequired('This field is required.'),
@@ -17,6 +20,7 @@ const model = Schema.Model({
   email: StringType()
     .isEmail('Please enter a valid email address.')
     .isRequired('This field is required.'),
+  projects: ArrayType(),
 });
 
 const AddUser = ({
@@ -25,13 +29,14 @@ const AddUser = ({
   editData,
   formValue,
   setFormValue,
-  isAdminEditing,
   setCreateSuccess,
   setUpdateSuccess,
   createSuccess,
   updateSuccess,
   setCreateUpdateLoading,
+  isSubmitClick,
 }) => {
+  const { isAdminEditing } = useSelector((state) => state.nav);
   const [formError, setFormError] = React.useState({});
   const userFormRef = React.useRef();
   const authCtx = useContext(AuthContext);
@@ -48,6 +53,16 @@ const AddUser = ({
     }
   };
 
+  // map projects data to not send duplicate values
+  const mappedProjectList = formValue?.projects?.map((item) => ({
+    id: item?.id,
+    name: item?.name,
+    organization_id: item?.organization_id,
+    description: item?.description,
+  }));
+
+  const bodyData = { ...formValue, enabled: true, projects: mappedProjectList };
+
   // create data using react query
   const { isLoading: createLoading, mutate: createMutate } = useMutation(
     () =>
@@ -55,7 +70,7 @@ const AddUser = ({
         urlPath: 'user',
         token: authCtx?.token,
         method: 'POST',
-        body: { ...formValue, enabled: 'true' },
+        body: bodyData,
         showNotification: showNotification,
       }),
     {
@@ -73,7 +88,7 @@ const AddUser = ({
         urlPath: `user/${editData?.id}`,
         token: authCtx?.token,
         method: 'PUT',
-        body: { ...formValue, enabled: true },
+        body: bodyData,
         showNotification: showNotification,
       }),
     {
@@ -92,7 +107,6 @@ const AddUser = ({
   // handle create and update form submit
   const handleSubmit = () => {
     if (!userFormRef.current.check()) {
-      console.error('Form Error', formError);
       return;
     } else if (isAdminEditing) {
       updateMutate();
@@ -104,6 +118,10 @@ const AddUser = ({
     if (handleClose) handleClose();
   };
 
+  useEffect(() => {
+    if (isSubmitClick) handleSubmit();
+  }, [isSubmitClick]);
+
   return (
     <div className="show-grid">
       <Form
@@ -114,7 +132,7 @@ const AddUser = ({
         formValue={formValue}
         model={model}
       >
-        <FlexboxGrid justify="space-between">
+        <FlexboxGrid justify="space-between" style={{ marginBottom: '25px' }}>
           <FlexboxGrid.Item colspan={11}>
             <TextField
               name="first_name"
@@ -130,16 +148,43 @@ const AddUser = ({
               reqText="Last name is required"
             />
           </FlexboxGrid.Item>
-          <FlexboxGrid.Item colspan={24} style={{ margin: '30px 0' }}>
+
+          <FlexboxGrid.Item colspan={24} style={{ margin: '25px 0' }}>
             <TextField name="username" label="User name" reqText="Username is required" />
           </FlexboxGrid.Item>
-          <FlexboxGrid.Item colspan={24}>
+
+          <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
             <TextField name="email" label="Email" reqText="Email is required" />
+          </FlexboxGrid.Item>
+
+          <FlexboxGrid.Item
+            colspan={24}
+            style={{ padding: editData?.id ? '0 5px' : '0' }}
+          >
+            <SelectField
+              name="projects"
+              label="Assign projects"
+              placeholder="Select Projects"
+              accepter={CustomReactSelect}
+              apiURL={`${lmApiUrl}/${authCtx.organization_id}/project`}
+              error={formError.projects}
+              isMulti={true}
+              closeMenuOnSelect={false}
+            />
           </FlexboxGrid.Item>
         </FlexboxGrid>
 
-        {isUserSection ? (
-          <FlexboxGrid justify="end" style={{ marginTop: '20px' }}>
+        {!isUserSection && (
+          <FlexboxGrid
+            justify="end"
+            style={{
+              marginTop: '20px',
+              position: 'absolute',
+              height: '100px',
+              right: '0px',
+              bottom: '0px',
+            }}
+          >
             <Button
               onClick={() => handleClose()}
               className="adminModalFooterBtn"
@@ -157,17 +202,6 @@ const AddUser = ({
               color="blue"
             >
               Save
-            </Button>
-          </FlexboxGrid>
-        ) : (
-          <FlexboxGrid justify="end">
-            <Button
-              className="adminModalFooterBtn"
-              style={{ margin: '30px 0' }}
-              appearance="primary"
-              onClick={handleSubmit}
-            >
-              Submit
             </Button>
           </FlexboxGrid>
         )}

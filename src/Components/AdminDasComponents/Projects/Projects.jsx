@@ -17,7 +17,8 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest.js';
 import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 import AlertModal from '../../Shared/AlertModal';
-
+import { Mixpanel } from '../../../../Mixpanel';
+import jwt_decode from 'jwt-decode';
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 // demo data
@@ -36,12 +37,13 @@ const headerData = [
   },
 ];
 
-const { StringType, NumberType } = Schema.Types;
+const { StringType, NumberType, ArrayType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
   description: StringType().isRequired('This field is required.'),
-  organization_id: NumberType().isRequired('This field is required.'),
+  organization_id: NumberType(),
+  users: ArrayType(),
 });
 
 const Projects = () => {
@@ -51,10 +53,15 @@ const Projects = () => {
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
   const [deleteData, setDeleteData] = useState({});
+  const authCtx = useContext(AuthContext);
+  const dispatch = useDispatch();
+  const userInfo = jwt_decode(authCtx?.token);
+  const projectFormRef = useRef();
   const [formValue, setFormValue] = useState({
     name: '',
     description: '',
     organization_id: '',
+    users: [],
   });
   const [open, setOpen] = useState(false);
   const showNotification = (type, message) => {
@@ -67,9 +74,6 @@ const Projects = () => {
       toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
     }
   };
-  const projectFormRef = useRef();
-  const authCtx = useContext(AuthContext);
-  const dispatch = useDispatch();
 
   // get projects using react-query
   const {
@@ -112,6 +116,15 @@ const Projects = () => {
       }),
     {
       onSuccess: (value) => {
+        if (value?.message) {
+          Mixpanel.track('Project created success.', {
+            username: userInfo?.preferred_username,
+          });
+        } else {
+          Mixpanel.track('Project created failed.', {
+            username: userInfo?.preferred_username,
+          });
+        }
         showNotification(value?.status, value?.message);
       },
     },
@@ -133,6 +146,15 @@ const Projects = () => {
       }),
     {
       onSuccess: (value) => {
+        if (value?.message) {
+          Mixpanel.track('Project updated success', {
+            username: userInfo?.preferred_username,
+          });
+        } else {
+          Mixpanel.track('Project updated failed', {
+            username: userInfo?.preferred_username,
+          });
+        }
         showNotification(value?.status, value?.message);
       },
     },
@@ -143,13 +165,28 @@ const Projects = () => {
     isLoading: deleteLoading,
     isSuccess: deleteSuccess,
     mutate: deleteMutate,
-  } = useMutation(() =>
-    fetchAPIRequest({
-      urlPath: `${authCtx.organization_id}/project/${deleteData?.id}`,
-      token: authCtx.token,
-      method: 'DELETE',
-      showNotification: showNotification,
-    }),
+  } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: `${authCtx.organization_id}/project/${deleteData?.id}`,
+        token: authCtx.token,
+        method: 'DELETE',
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (value) => {
+        if (value?.message) {
+          Mixpanel.track('Project deleted success.', {
+            username: userInfo?.preferred_username,
+          });
+        } else {
+          Mixpanel.track('Project deleted failed.', {
+            username: userInfo?.preferred_username,
+          });
+        }
+        showNotification(value?.status, value?.message);
+      },
+    },
   );
 
   // Pagination
@@ -178,12 +215,15 @@ const Projects = () => {
 
   // reset form
   const handleResetForm = () => {
-    setEditData({});
-    setFormValue({
-      name: '',
-      description: '',
-      organization_id: '',
-    });
+    setTimeout(() => {
+      setEditData({});
+      setFormValue({
+        name: '',
+        description: '',
+        organization_id: '',
+        users: [],
+      });
+    }, 500);
   };
 
   // get all projects
@@ -209,14 +249,26 @@ const Projects = () => {
       deleteMutate();
     }
   };
+
   // handle Edit project
-  const handleEdit = (data) => {
+  const handleEdit = async (data) => {
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
+    // map user data to display in the dropdown
+    const mappedUserList = data?.users?.reduce((accumulator, user) => {
+      accumulator.push({
+        ...user,
+        label: user?.email,
+        value: user?.id,
+      });
+      return accumulator;
+    }, []);
+
     setFormValue({
       name: data?.name,
       description: data?.description,
       organization_id: data?.organization_id,
+      users: mappedUserList,
     });
 
     dispatch(handleIsAddNewModal(true));
@@ -254,17 +306,7 @@ const Projects = () => {
           formValue={formValue}
           model={model}
         >
-          <TextField name="name" label="Name" reqText="Name is required" />
-          <div style={{ margin: '30px 0 10px' }}>
-            <TextField
-              name="description"
-              label="Description"
-              accepter={TextArea}
-              rows={5}
-              reqText="Description is required"
-            />
-          </div>
-          <FlexboxGrid.Item style={{ margin: '30px 0' }} colspan={24}>
+          <FlexboxGrid.Item colspan={24}>
             <SelectField
               name="organization_id"
               label="Organization"
@@ -272,7 +314,36 @@ const Projects = () => {
               accepter={CustomReactSelect}
               apiURL={`${lmApiUrl}/organization`}
               error={formError.organization_id}
+              disabled={true}
               reqText="Organization Id is required"
+              value={Number(authCtx?.organization_id)}
+              defaultValue={Number(authCtx?.organization_id)}
+            />
+          </FlexboxGrid.Item>
+
+          <FlexboxGrid.Item colspan={24} style={{ margin: '25px 0' }}>
+            <TextField name="name" label="Name" reqText="Name is required" />
+          </FlexboxGrid.Item>
+
+          <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
+            <SelectField
+              name="users"
+              label="Assign users"
+              placeholder="Select Users"
+              accepter={CustomReactSelect}
+              apiURL={`${lmApiUrl}/user`}
+              error={formError.users}
+              isMulti={true}
+            />
+          </FlexboxGrid.Item>
+
+          <FlexboxGrid.Item colspan={24}>
+            <TextField
+              name="description"
+              label="Description"
+              accepter={TextArea}
+              rows={3}
+              reqText="Description is required"
             />
           </FlexboxGrid.Item>
         </Form>

@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { HiRefresh } from 'react-icons/hi';
@@ -6,16 +7,46 @@ import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
 import InfoStatus from '@rsuite/icons/InfoRound';
 
-import { Table, Pagination, FlexboxGrid, Button, InputGroup, Input } from 'rsuite';
+import {
+  Table,
+  Pagination,
+  FlexboxGrid,
+  Button,
+  InputGroup,
+  Input,
+  Whisper,
+  Tooltip,
+} from 'rsuite';
 import { IconButton, ButtonToolbar } from 'rsuite';
 import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
 import { handleRefreshData } from '../../Redux/slices/navSlice';
 import { darkBgColor, lightBgColor } from '../../App';
 import { MdDelete, MdEdit, MdLock } from 'react-icons/md';
+import { BiShowAlt } from 'react-icons/bi';
 import { PiEyeBold } from 'react-icons/pi';
 import { MdOutlineContentCopy } from 'react-icons/md';
+import { IoPlay } from 'react-icons/io5';
+import { Icon } from '@rsuite/icons';
+import { FaSpinner } from 'react-icons/fa';
 const { Column, HeaderCell, Cell } = Table;
+
+const getSourceTargetIcon = (iconKey) => {
+  // Define your icon mappings here
+  const iconMappings = {
+    jira: '/jira_logo.png',
+    gitlab: '/gitlab_logo.png',
+    glide: '/glide_logo.png',
+    valispace: '/valispace_logo.png',
+    codebeamer: '/codebeamer_logo.png',
+    dng: '/dng_logo.png',
+    bitbucket: '/bitbucket_logo.png',
+    default: '/default_logo.png',
+  };
+
+  // Get the icon from the mapping or use a default icon if not found
+  return iconMappings[iconKey] || '/default_logo.png';
+};
 
 const AdminDataTable = ({ props }) => {
   const {
@@ -28,7 +59,9 @@ const AdminDataTable = ({ props }) => {
     handleCopy,
     handleEdit,
     handleDelete,
+    handleViewAccess,
     handleScriptView,
+    handleSync,
     authorizeModal,
     totalItems,
     pageSize,
@@ -56,11 +89,26 @@ const AdminDataTable = ({ props }) => {
     }
   }, [tableFilterValue]);
 
+  const getStatusLabel = (status) => {
+    // prettier-ignore
+    switch (status) {
+    case 1:
+      return 'Authenticated';
+    case 2:
+      return 'Suspect';
+    default:
+      return 'Not Authenticated';
+    }
+  };
+
   // Action cell
   // Action table cell control
   const ActionMenu = ({ rowData }) => {
     const editSelected = () => {
       handleEdit(rowData);
+    };
+    const viewAccess = () => {
+      handleViewAccess(rowData);
     };
 
     const deleteSelected = () => {
@@ -77,6 +125,9 @@ const AdminDataTable = ({ props }) => {
 
     const copySecret = () => {
       handleCopy(rowData);
+    };
+    const syncSelected = () => {
+      handleSync(rowData);
     };
 
     return (
@@ -100,12 +151,23 @@ const AdminDataTable = ({ props }) => {
         {handleEdit && (
           <IconButton size="sm" title="Edit" icon={<MdEdit />} onClick={editSelected} />
         )}
+        {handleViewAccess && (
+          <IconButton size="sm" title="View" icon={<BiShowAlt />} onClick={viewAccess} />
+        )}
         {handleDelete && (
           <IconButton
             size="sm"
             title="Delete"
             icon={<MdDelete />}
             onClick={deleteSelected}
+          />
+        )}
+        {handleSync && (
+          <IconButton
+            size="sm"
+            title="Sync now"
+            icon={<IoPlay />}
+            onClick={syncSelected}
           />
         )}
         {authorizeModal && (
@@ -129,9 +191,14 @@ const AdminDataTable = ({ props }) => {
     pipelinerunkey,
     buttonKey,
     syncStatus,
+    sourceIcon,
+    targetIcon,
+    syncTime,
     ...props
   }) => {
     const logo = rowData[iconKey] ? rowData[iconKey] : defaultLogo;
+    const sourceLogo = sourceIcon && getSourceTargetIcon(rowData[sourceIcon]);
+    const targetLogo = targetIcon && getSourceTargetIcon(rowData[targetIcon]);
     return (
       <Cell {...props}>
         {/* display logo  */}
@@ -143,6 +210,30 @@ const AdminDataTable = ({ props }) => {
             style={{
               backgroundColor: rowData[iconKey] ? '' : 'white',
               borderRadius: rowData[iconKey] ? '' : '50%',
+              padding: '1px',
+            }}
+          />
+        )}
+        {sourceIcon && (
+          <img
+            height={25}
+            src={sourceLogo}
+            alt=""
+            style={{
+              backgroundColor: sourceIcon ? '' : 'white',
+              borderRadius: sourceIcon ? '' : '50%',
+              padding: '1px',
+            }}
+          />
+        )}
+        {targetIcon && (
+          <img
+            height={25}
+            src={targetLogo}
+            alt=""
+            style={{
+              backgroundColor: targetIcon ? '' : 'white',
+              borderRadius: targetIcon ? '' : '50%',
               padding: '1px',
             }}
           />
@@ -163,18 +254,23 @@ const AdminDataTable = ({ props }) => {
             }}
           >
             <h5>
-              {rowData[statusKey]?.toLowerCase() === 'valid' ? (
-                <SuccessStatus color="#378f17" />
-              ) : rowData[statusKey]?.toLowerCase() === 'invalid' ? (
-                <FailedStatus color="#de1655" />
-              ) : rowData[statusKey]?.toLowerCase() === 'suspect' ? (
-                <InfoStatus color="#25b3f5" />
-              ) : (
-                <InfoStatus color="#25b3f5" />
-              )}
+              <Whisper
+                placement="top"
+                controlId="control-id-click"
+                trigger="hover"
+                speaker={<Tooltip>{getStatusLabel(rowData[statusKey])}</Tooltip>}
+              >
+                {rowData[statusKey] === 1 ? (
+                  <SuccessStatus color="#378f17" />
+                ) : rowData[statusKey] === 0 ? (
+                  <FailedStatus color="#de1655" />
+                ) : rowData[statusKey] === 2 ? (
+                  <InfoStatus color="#25b3f5" />
+                ) : (
+                  <InfoStatus color="#25b3f5" />
+                )}
+              </Whisper>
             </h5>
-
-            <p style={{ marginTop: '2px' }}>{rowData[statusKey]}</p>
           </div>
         )}
         {pipelinerunkey && (
@@ -199,36 +295,50 @@ const AdminDataTable = ({ props }) => {
             <p style={{ marginTop: '2px' }}>{rowData[statusKey]}</p>
           </div>
         )}
+        {syncTime && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+            }}
+          >
+            <p>
+              {rowData[syncTime] !== null
+                ? new Date(rowData[syncTime]).toLocaleString('en-US', {
+                    hour12: true,
+                  })
+                : 'Never'}
+            </p>
+          </div>
+        )}
+
         {syncStatus && (
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              cursor: 'pointer',
             }}
           >
             <h5>
-              {rowData?.active === true ? (
+              {rowData[syncStatus] === 'Done' ? (
                 <SuccessStatus color="#378f17" />
+              ) : rowData[syncStatus] === 'Todo' ? (
+                <FailedStatus color="#de1655" />
               ) : (
-                rowData?.active === false && <FailedStatus color="#de1655" />
+                rowData[syncStatus] === 'In Progress' && (
+                  <Icon as={FaSpinner} pulse size="25px" />
+                )
               )}
             </h5>
           </div>
         )}
         {buttonKey && (
           <div>
-            <Button appearance="primary" size="xs" style={{ marginRight: '5px' }}>
-              Sync now
-            </Button>
-          </div>
-        )}
-        {buttonKey && (
-          <div>
             {rowData?.active === false && (
               <Button appearance="primary" size="xs">
-                Migrate
+                Migrate now
               </Button>
             )}
           </div>
@@ -315,10 +425,13 @@ const AdminDataTable = ({ props }) => {
               }}
               dataKey={header?.key}
               iconKey={header?.iconKey}
+              sourceIcon={header?.source_icon}
+              targetIcon={header?.target_icon}
               statusKey={header?.statusKey}
               pipelinerunkey={header?.pipelinerunkey}
               buttonKey={header?.buttonKey}
               syncStatus={header?.syncStatus}
+              syncTime={header?.syncTime}
             />
           </Column>
         ))}
