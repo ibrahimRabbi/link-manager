@@ -62,8 +62,6 @@ pipelines:
     develop:
       - step: *lint
 
-      - step: *build
-
       - stage:
           name: Deploy to Test
           deployment: test
