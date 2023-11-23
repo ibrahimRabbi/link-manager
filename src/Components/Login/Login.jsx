@@ -124,7 +124,6 @@ const Login = () => {
             role = 'user';
           }
 
-          console.log(data);
           // get organization details from the api
           const organization = await fetchAPIRequest({
             urlPath: `organization/${data?.organization_id}`,
