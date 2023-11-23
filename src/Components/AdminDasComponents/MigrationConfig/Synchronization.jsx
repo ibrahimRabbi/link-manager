@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /* eslint-disable indent */
 import React, { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,7 +11,14 @@ import AdminDataTable from '../AdminDataTable';
 import { useNavigate } from 'react-router-dom';
 import AlertModal from '../../Shared/AlertModal';
 import UseLoader from '../../Shared/UseLoader';
+import ExternalAppModal from '../ExternalAppIntegrations/ExternalAppModal/ExternalAppModal';
+import {
+  BASIC_AUTH_APPLICATION_TYPES,
+  MICROSERVICES_APPLICATION_TYPES,
+  OAUTH2_APPLICATION_TYPES,
+} from '../../../App';
 
+const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const headerData = [
   { header: 'ID', key: 'id', width: 45 },
   {
@@ -48,6 +56,21 @@ const Synchronization = () => {
   const [open, setOpen] = useState(false);
   const [deleteData, setDeleteData] = useState({});
   const [syncData, setSyncData] = useState({});
+  const [sourceApplication, setSourceApplication] = useState('');
+  const [targetApplication, setTargetApplication] = useState('');
+  const [restartExternalRequest, setRestartExternalRequest] = useState(false);
+  const [authenticatedThirdApp, setAuthenticatedThirdApp] = useState(false);
+  const [syncLoading, setSyncLoading] = useState(false);
+  const [syncAgain, setSyncAgain] = useState(false);
+
+  const authCtx = useContext(AuthContext);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const organization = authCtx?.organization_name
+    ? `/${authCtx?.organization_name?.toLowerCase()}`
+    : '';
+  const broadcastChannel = new BroadcastChannel('oauth2-app-status');
+
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -58,12 +81,29 @@ const Synchronization = () => {
       toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
     }
   };
-  const authCtx = useContext(AuthContext);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const organization = authCtx?.organization_name
-    ? `/${authCtx?.organization_name?.toLowerCase()}`
-    : '';
+
+  const closeExternalAppResetRequest = () => {
+    setAuthenticatedThirdApp(false);
+    setSyncAgain(true);
+    setRestartExternalRequest(true);
+  };
+
+  broadcastChannel.onmessage = (event) => {
+    const { status } = event.data;
+    if (status === 'success') {
+      closeExternalAppResetRequest();
+    }
+  };
+  const getExtLoginData = (data) => {
+    if (data?.status) {
+      closeExternalAppResetRequest();
+    }
+  };
+  useEffect(() => {
+    if (restartExternalRequest) {
+      setRestartExternalRequest(false);
+    }
+  }, [restartExternalRequest]);
 
   // Pagination
   const handlePagination = (value) => {
@@ -107,22 +147,6 @@ const Synchronization = () => {
       },
     },
   );
-  // create data using react query
-  const { isLoading: createLoading, mutate: createMutate } = useMutation(
-    () =>
-      fetchAPIRequest({
-        // eslint-disable-next-line max-len
-        urlPath: `${authCtx.organization_id}/synchronization/run/?sync_resource_id=${syncData?.id}`,
-        token: authCtx?.token,
-        method: 'POST',
-        showNotification: showNotification,
-      }),
-    {
-      onSuccess: () => {
-        setSyncData({});
-      },
-    },
-  );
 
   useEffect(() => {
     dispatch(handleCurrPageTitle('Synchronization'));
@@ -150,8 +174,87 @@ const Synchronization = () => {
   };
   const handleSync = (data) => {
     setSyncData(data);
-    createMutate();
+    setSyncAgain(true);
+    // createMutate();
   };
+
+  useEffect(() => {
+    if (syncAgain) {
+      (async () => {
+        try {
+          setSyncLoading(true);
+          const response = await fetch(
+            `${apiURL}/${authCtx.organization_id}/synchronization/run/?sync_resource_id=${syncData?.id}`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-type': 'application/json',
+                Authorization: 'Bearer ' + authCtx.token,
+              },
+            },
+          );
+
+          if (response.ok) {
+            setSourceApplication('');
+            setTargetApplication('');
+            setSyncLoading(false);
+            setSyncAgain(false);
+            const data = await response.json();
+            showNotification('success', data.message);
+            return data;
+          } else if (!response.ok) {
+            setSyncLoading(false);
+            setSyncAgain(false);
+          }
+
+          switch (response.status) {
+            case 400: {
+              const errorData400 = await response.json();
+              showNotification('error', errorData400?.message);
+              return false;
+            }
+            case 401: {
+              const errorData401 = await response.json();
+              showNotification('error', errorData401?.message);
+              setSyncAgain(false);
+              if (errorData401?.application_type) {
+                if (
+                  errorData401?.application_type === syncData?.source_application_type
+                ) {
+                  setSourceApplication(syncData?.source_application);
+                  setAuthenticatedThirdApp(true);
+                } else {
+                  setTargetApplication(syncData?.target_application);
+                  setAuthenticatedThirdApp(true);
+                }
+              } else {
+                authCtx?.logout();
+              }
+              return false;
+            }
+            case 403: {
+              if (authCtx.token) {
+                showNotification('error', 'You do not have permission to access');
+              } else {
+                authCtx?.logout();
+                return false;
+              }
+              break;
+            }
+            default: {
+              const errorDataDefault = await response.json();
+              showNotification('error', errorDataDefault?.message);
+              return false;
+            }
+          }
+        } catch (error) {
+          console.error('An error occurred:', error);
+          setSyncLoading(false);
+        }
+      })();
+    }
+  }, [restartExternalRequest, syncAgain]);
+
   const data = !syncConfigList?.items
     ? []
     : syncConfigList?.items
@@ -167,6 +270,8 @@ const Synchronization = () => {
                 ...(syncResource || {}),
                 source_application_type: sourceAppDetails?.type || null,
                 target_application_type: targetAppDetails?.type || null,
+                source_application: sourceAppDetails,
+                target_application: targetAppDetails,
               };
             });
 
@@ -191,7 +296,7 @@ const Synchronization = () => {
   };
   return (
     <div>
-      {(isLoading || isCrudLoading || deleteLoading || createLoading) && <UseLoader />}
+      {(isLoading || isCrudLoading || deleteLoading || syncLoading) && <UseLoader />}
       <AdminDataTable props={tableProps} />
       {/* confirmation modal  */}
       <AlertModal
@@ -200,6 +305,22 @@ const Synchronization = () => {
         content={'Do you want to delete the sync?'}
         handleConfirmed={handleConfirmed}
       />
+      <div>
+        {authenticatedThirdApp && (
+          <ExternalAppModal
+            showInNewLink={true}
+            formValue={targetApplication || sourceApplication}
+            isOauth2={OAUTH2_APPLICATION_TYPES?.includes(
+              targetApplication?.type || sourceApplication?.type,
+            )}
+            isBasic={(
+              BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
+            ).includes(targetApplication?.type || sourceApplication?.type)}
+            onDataStatus={getExtLoginData}
+            integrated={false}
+          />
+        )}
+      </div>
     </div>
   );
 };
