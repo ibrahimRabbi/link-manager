@@ -673,7 +673,6 @@ const Application = () => {
             <Steps.Item status={manageStep2} />
             <Steps.Item />
           </Steps>
-          {/* )} */}
         </Modal.Header>
 
         <Modal.Body className={modalBodyStyle}>
@@ -703,7 +702,7 @@ const Application = () => {
                     />
                   </FlexboxGrid.Item>
 
-                  <FlexboxGrid.Item style={{ margin: '4px 0' }} colspan={11}>
+                  <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={24}>
                     <SelectField
                       name="type"
                       label="Integration type"
@@ -717,7 +716,7 @@ const Application = () => {
                     />
                   </FlexboxGrid.Item>
 
-                  <FlexboxGrid.Item colspan={24}>
+                  <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
                     <TextField
                       name="name"
                       label="Name"
@@ -725,12 +724,7 @@ const Application = () => {
                     />
                   </FlexboxGrid.Item>
 
-                  <FlexboxGrid.Item
-                    colspan={24}
-                    style={{
-                      margin: '25px 0',
-                    }}
-                  >
+                  <FlexboxGrid.Item colspan={24}>
                     <TextField
                       name="description"
                       label="Description"
