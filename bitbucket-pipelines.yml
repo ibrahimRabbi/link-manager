@@ -69,11 +69,6 @@ pipelines:
           name: 'Build for Testing'
           deployment: test
 
-      - step:
-          <<: *build
-          name: 'Build for Staging'
-          deployment: staging
-
       # The following deployment steps will be executed for each pipeline run. To configure your steps and conditionally deploy see https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/
       - step:
           name: 'Deployment to Test'
@@ -85,6 +80,11 @@ pipelines:
                 SERVER: $SERVER_IP
                 REMOTE_PATH: '/var/www/lm-dev'
                 LOCAL_PATH: 'dist/**'
+
+      - step:
+          <<: *build
+          name: 'Build for Staging'
+          deployment: staging
 
       # The following deployment steps will be executed for each pipeline run. To configure your steps and conditionally deploy see https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/
       - step:
