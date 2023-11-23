@@ -147,27 +147,57 @@ const Synchronization = () => {
       },
     },
   );
-  // create data using react query
-  const { isLoading: createLoading, mutate: createMutate } = useMutation(
-    () =>
-      fetchAPIRequest({
-        // eslint-disable-next-line max-len
-        urlPath: `${authCtx.organization_id}/synchronization/run/?sync_resource_id=${syncData?.id}`,
-        token: authCtx?.token,
-        method: 'POST',
-        showNotification: showNotification,
-      }),
-    {
-      onSuccess: () => {
-        setSyncData({});
-      },
-    },
-    {
-      onError: (res) => {
-        console.log(res);
-      },
-    },
-  );
+  // // create data using react query
+  // const { isLoading: createLoading, mutate: createMutate } = useMutation(
+  //   () =>
+  //     fetchAPIRequest({
+  //       // eslint-disable-next-line max-len
+  //       urlPath: `${authCtx.organization_id}/synchronization/run/?sync_resource_id=${syncData?.id}`,
+  //       token: authCtx?.token,
+  //       method: 'POST',
+  //       showNotification: showNotification,
+  //     }),
+  //   {
+  //     onSuccess: () => {
+  //       setSyncData({});
+  //     },
+  //   },
+  //   {
+  //     onError: (res) => {
+  //       console.log(res);
+  //     },
+  //   },
+  // );
+
+  useEffect(() => {
+    dispatch(handleCurrPageTitle('Synchronization'));
+    refetchsyncConfigList();
+  }, [
+    isCreated,
+    isUpdated,
+    isDeleted,
+    pageSize,
+    currPage,
+    refreshData,
+    isCrudLoading,
+    deleteSuccess,
+  ]);
+  // handle open add pipeline secret modal
+  const handleAddNew = () => {
+    navigate(`${organization}/admin/createsync`);
+  };
+  const handleDelete = (data) => {
+    setDeleteData(data);
+    setOpen(true);
+  };
+  const handleConfirmed = (value) => {
+    if (value) deleteMutate();
+  };
+  const handleSync = (data) => {
+    setSyncData(data);
+    setSyncAgain(true);
+    // createMutate();
+  };
 
   useEffect(() => {
     if (syncAgain) {
@@ -207,6 +237,7 @@ const Synchronization = () => {
             case 401: {
               const errorData401 = await response.json();
               showNotification('error', errorData401?.message);
+              setSyncAgain(false);
               if (errorData401?.application_type) {
                 if (
                   errorData401?.application_type === syncData?.source_application_type
@@ -217,6 +248,8 @@ const Synchronization = () => {
                   setTargetApplication(syncData?.target_application);
                   setAuthenticatedThirdApp(true);
                 }
+              } else {
+                authCtx?.logout();
               }
               return false;
             }
@@ -224,6 +257,7 @@ const Synchronization = () => {
               if (authCtx.token) {
                 showNotification('error', 'You do not have permission to access');
               } else {
+                authCtx?.logout();
                 return false;
               }
               break;
@@ -236,40 +270,12 @@ const Synchronization = () => {
           }
         } catch (error) {
           console.error('An error occurred:', error);
+          setSyncLoading(false);
         }
       })();
     }
   }, [restartExternalRequest, syncAgain]);
 
-  useEffect(() => {
-    dispatch(handleCurrPageTitle('Synchronization'));
-    refetchsyncConfigList();
-  }, [
-    isCreated,
-    isUpdated,
-    isDeleted,
-    pageSize,
-    currPage,
-    refreshData,
-    isCrudLoading,
-    deleteSuccess,
-  ]);
-  // handle open add pipeline secret modal
-  const handleAddNew = () => {
-    navigate(`${organization}/admin/createsync`);
-  };
-  const handleDelete = (data) => {
-    setDeleteData(data);
-    setOpen(true);
-  };
-  const handleConfirmed = (value) => {
-    if (value) deleteMutate();
-  };
-  const handleSync = (data) => {
-    setSyncData(data);
-    setSyncAgain(true);
-    createMutate();
-  };
   const data = !syncConfigList?.items
     ? []
     : syncConfigList?.items
@@ -294,7 +300,6 @@ const Synchronization = () => {
           }),
         )
         .flat();
-  console.log(data);
   const tableProps = {
     title: 'Synchronization',
     rowData: data ? data : [],
@@ -312,9 +317,7 @@ const Synchronization = () => {
   };
   return (
     <div>
-      {(isLoading || isCrudLoading || deleteLoading || createLoading || syncLoading) && (
-        <UseLoader />
-      )}
+      {(isLoading || isCrudLoading || deleteLoading || syncLoading) && <UseLoader />}
       <AdminDataTable props={tableProps} />
       {/* confirmation modal  */}
       <AlertModal
