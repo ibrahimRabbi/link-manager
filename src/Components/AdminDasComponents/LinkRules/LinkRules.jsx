@@ -48,9 +48,10 @@ const headerData = [
 const requiredLabel = 'This field is required.';
 const regexLabel = 'Please try to enter a label without spaces nor special characters.';
 
-const { StringType, ArrayType } = Schema.Types;
+const { StringType, ArrayType, NumberType } = Schema.Types;
 
 const model = Schema.Model({
+  organization_id: NumberType(),
   source_resource_id: ArrayType().isRequired(requiredLabel),
   label: StringType()
     .addRule((value) => {
@@ -81,6 +82,7 @@ const LinkRoles = () => {
   const [deleteData, setDeleteData] = useState({});
   const [mappedLinkTypes, setMappedLinkTypes] = useState([]);
   const [formValue, setFormValue] = useState({
+    organization_id: '',
     source_resource_id: '',
     label: '',
     target_resource_id: '',
@@ -160,6 +162,12 @@ const LinkRoles = () => {
     // map source and target to send only id list
     const source_resource_id = formValue?.source_resource_id?.map((v) => v?.id);
     const target_resource_id = formValue?.target_resource_id?.map((v) => v?.id);
+    const bodyData = {
+      source_resource_id: source_resource_id,
+      label: formValue.label,
+      target_resource_id: target_resource_id,
+      inverse_label: formValue.inverse_label,
+    };
 
     if (isAdminEditing) {
       const putUrl = `${lmApiUrl}/link-type/${editData?.id}`;
@@ -167,7 +175,7 @@ const LinkRoles = () => {
         fetchUpdateData({
           url: putUrl,
           token: authCtx.token,
-          bodyData: { ...formValue, source_resource_id, target_resource_id },
+          bodyData: bodyData,
           showNotification: showNotification,
         }),
       );
@@ -177,7 +185,7 @@ const LinkRoles = () => {
         fetchCreateData({
           url: postUrl,
           token: authCtx.token,
-          bodyData: { ...formValue, source_resource_id, target_resource_id },
+          bodyData: bodyData,
           message: 'link roles',
           showNotification: showNotification,
         }),
@@ -191,6 +199,7 @@ const LinkRoles = () => {
   const handleResetForm = () => {
     setEditData({});
     setFormValue({
+      organization_id: '',
       source_resource_id: '',
       label: '',
       target_resource_id: '',
@@ -218,7 +227,6 @@ const LinkRoles = () => {
   // handle Edit link type
   const handleEdit = async (data) => {
     setEditData(data);
-    console.log(data);
     dispatch(handleIsAdminEditing(true));
     const sourceLinks = data?.source_link?.constraints;
     const targetLinks = data?.target_link?.constraints;
@@ -246,6 +254,7 @@ const LinkRoles = () => {
     }, []);
 
     setFormValue({
+      organization_id: data?.organization_id || Number(authCtx?.organization_id),
       label: data?.source_link?.name,
       source_resource_id: source_links,
       inverse_label: data?.target_link?.name,
@@ -287,6 +296,19 @@ const LinkRoles = () => {
             model={model}
           >
             <FlexboxGrid justify="space-between">
+              <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={24}>
+                <SelectField
+                  name="organization_id"
+                  label="Organization"
+                  value={Number(authCtx?.organization_id)}
+                  placeholder="Select Organization"
+                  accepter={CustomReactSelect}
+                  apiURL={`${lmApiUrl}/organization`}
+                  error={formError.organization_id}
+                  disabled
+                />
+              </FlexboxGrid.Item>
+
               <FlexboxGrid.Item colspan={11}>
                 <SelectField
                   name="source_resource_id"
@@ -308,10 +330,7 @@ const LinkRoles = () => {
               </FlexboxGrid.Item>
 
               {/* -- by directional arrow --  */}
-              <FlexboxGrid.Item
-                colspan={24}
-                style={{ textAlign: 'center', margin: '20px 0' }}
-              >
+              <FlexboxGrid.Item colspan={24} style={{ textAlign: 'center', margin: '0' }}>
                 <PiArrowsClockwiseFill
                   size={50}
                   color={isDark === 'dark' ? '#169de0' : '#3498ff'}

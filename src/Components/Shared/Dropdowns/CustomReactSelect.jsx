@@ -102,31 +102,28 @@ const CustomReactSelect = forwardRef((props, ref) => {
               getErrorStatus();
             }
             // return response messages
-            return res.json().then((data) => {
+            res.json().then((data) => {
               if (getResponse) {
                 getResponse?.handleLinkCreationResponses(getResponse?.name, data);
               }
               if (showNotificationMessage) {
-                if (res.status === 401) {
-                  showNotification('error', data?.message);
-                  return false;
-                } else if (res.status === 403) {
+                if (res.status === 403) {
                   if (authCtx.token) {
                     showNotification('error', 'You do not have permission to access');
                     return false;
                   } else {
-                    showNotification(
-                      'error',
-                      `${res?.status} not authorized ${data?.message}`,
-                    );
+                    const errorMessage = `${res?.status} not authorized ${data?.message}`;
+                    showNotification('error', errorMessage);
                     authCtx?.logout();
                     return false;
                   }
                 }
                 showNotification('error', data?.message);
+                throw new Error(data?.message);
+              } else {
+                showNotification('error', data?.message);
+                return false;
               }
-
-              return false;
             });
           }
         })
@@ -143,7 +140,8 @@ const CustomReactSelect = forwardRef((props, ref) => {
           // eslint-disable-next-line max-len
           const errorMsg = `${error}: The server could not connect for the ${
             getResponse?.name || rest?.name
-          } please try to contact with the admin to solve this issue`;
+          } 
+            please try to contact with the admin to solve this issue`;
           throw new Error(errorMsg);
         });
 

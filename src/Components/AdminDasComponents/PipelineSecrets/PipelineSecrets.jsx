@@ -20,6 +20,8 @@ import { useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../apiRequests/apiRequest';
 import AlertModal from '../../Shared/AlertModal';
 import PasswordField from '../PasswordField';
+import SelectField from '../SelectField';
+import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 const headerData = [
@@ -37,9 +39,10 @@ const headerData = [
   },
 ];
 
-const { StringType } = Schema.Types;
+const { StringType, NumberType } = Schema.Types;
 
 const model = Schema.Model({
+  organization_id: NumberType(),
   name: StringType().isRequired('This field is required.'),
   value: StringType().isRequired('This field is required.'),
 });
@@ -56,6 +59,7 @@ const PipelineSecrets = () => {
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
   const [formValue, setFormValue] = useState({
+    organization_id: '',
     name: '',
     description: '',
   });
@@ -97,8 +101,13 @@ const PipelineSecrets = () => {
   };
 
   const handleAddPipelineSecret = () => {
+    const bodyData = {
+      name: formValue.name,
+      value: formValue.value,
+    };
+
     if (!pipelineSecretsFormRef.current.check()) {
-      console.error(formError);
+      return;
     } else if (isAdminEditing) {
       // eslint-disable-next-line max-len
       const putUrl = `${lmApiUrl}/${authCtx.organization_id}/pipeline_secret/${editData?.id}`;
@@ -106,7 +115,7 @@ const PipelineSecrets = () => {
         fetchUpdateData({
           url: putUrl,
           token: authCtx.token,
-          bodyData: formValue,
+          bodyData: bodyData,
           showNotification: showNotification,
         }),
       );
@@ -116,7 +125,7 @@ const PipelineSecrets = () => {
         fetchCreateData({
           url: postUrl,
           token: authCtx.token,
-          bodyData: formValue,
+          bodyData: bodyData,
           showNotification: showNotification,
         }),
       );
@@ -130,6 +139,7 @@ const PipelineSecrets = () => {
   const handleResetForm = () => {
     setEditData({});
     setFormValue({
+      organization_id: '',
       name: '',
       value: '',
     });
@@ -184,6 +194,7 @@ const PipelineSecrets = () => {
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
     setFormValue({
+      organization_id: data?.organization_id || Number(authCtx?.organization_id),
       name: data?.name,
       value: data?.value,
     });
@@ -225,15 +236,35 @@ const PipelineSecrets = () => {
             model={model}
           >
             <FlexboxGrid justify="space-between">
-              <FlexboxGrid.Item colspan={15}>
-                <TextField name="name" label="Name" reqText="Name is required" />
+              <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={24}>
+                <SelectField
+                  name="organization_id"
+                  label="Organization"
+                  value={Number(authCtx?.organization_id)}
+                  placeholder="Select Organization"
+                  accepter={CustomReactSelect}
+                  apiURL={`${lmApiUrl}/organization`}
+                  error={formError.organization_id}
+                  disabled
+                />
               </FlexboxGrid.Item>
-              <FlexboxGrid.Item colspan={15}>
+
+              <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
+                <TextField
+                  name="name"
+                  label="Name"
+                  reqText="Name is required"
+                  error={formError.name}
+                />
+              </FlexboxGrid.Item>
+
+              <FlexboxGrid.Item colspan={24}>
                 <PasswordField
                   name="value"
                   type="password"
                   label="value"
                   reqText="Value is required"
+                  error={formError.value}
                 ></PasswordField>
               </FlexboxGrid.Item>
             </FlexboxGrid>

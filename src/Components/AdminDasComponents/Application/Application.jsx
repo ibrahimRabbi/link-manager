@@ -179,11 +179,7 @@ const Application = () => {
     }),
   );
 
-  const {
-    data: organizationData,
-    // isLoading: organizationLoading,
-    // refetch: refetchOrganization,
-  } = useQuery(['organization'], () =>
+  const { data: organizationData } = useQuery(['organization'], () =>
     fetchAPIRequest({
       // eslint-disable-next-line max-len
       urlPath: `organization/${authCtx.organization_id}`,
@@ -692,7 +688,7 @@ const Application = () => {
                 model={model}
               >
                 <FlexboxGrid justify="space-between">
-                  <FlexboxGrid.Item style={{ margin: '4px 0' }} colspan={11}>
+                  <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={24}>
                     <SelectField
                       name="organization_id"
                       label="Organization"
@@ -732,8 +728,7 @@ const Application = () => {
                   <FlexboxGrid.Item
                     colspan={24}
                     style={{
-                      marginBottom: '10px',
-                      marginTop: '15px',
+                      margin: '25px 0',
                     }}
                   >
                     <TextField
@@ -841,7 +836,7 @@ const Application = () => {
                 </FlexboxGrid>
               </Form>
 
-              <FlexboxGrid justify="end">
+              <FlexboxGrid justify="end" style={{ margin: '25px 0 0 0' }}>
                 <Button
                   className="adminModalFooterBtn"
                   appearance="default"
