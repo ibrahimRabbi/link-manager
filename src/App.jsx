@@ -41,6 +41,7 @@ import Home from './Components/Home/Home';
 // eslint-disable-next-line max-len
 import SynchronizationConfig from './Components/AdminDasComponents/MigrationConfig/SynchronizationConfig';
 import Synchronization from './Components/AdminDasComponents/MigrationConfig/Synchronization';
+import * as Sentry from '@sentry/react';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -94,15 +95,24 @@ function App() {
     }
   }, [pathname]);
 
-  // handle Unhandled Promise Rejection errors.
-  window.addEventListener('unhandledrejection', (event) => {
-    const error = event.reason;
-    // logout if token api response is 401 or 403
-    if (error?.message?.toLowerCase()?.includes('token does not match')) {
-      authCtx?.logout();
-    } else if (error?.message?.toLowerCase()?.includes('403 not authorized')) {
-      authCtx?.logout();
+  // add condition to not send error message to the sentry for specific reason
+  Sentry.addGlobalEventProcessor(function (event) {
+    // Add anything to the event here
+    // returning `null` will drop the event
+    if (event?.exception?.values) {
+      for (let error of event.exception.values) {
+        console.log(error);
+        if (error?.value?.toLowerCase()?.includes('token does not match')) {
+          authCtx?.logout();
+          return null;
+        } else if (error?.value?.toLowerCase()?.includes('403 not authorized')) {
+          authCtx?.logout();
+          return null;
+        }
+      }
     }
+
+    return event;
   });
 
   return (

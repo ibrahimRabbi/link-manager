@@ -34,6 +34,7 @@ const AddUser = ({
   createSuccess,
   updateSuccess,
   setCreateUpdateLoading,
+  isSubmitClick,
 }) => {
   const { isAdminEditing } = useSelector((state) => state.nav);
   const [formError, setFormError] = React.useState({});
@@ -106,7 +107,6 @@ const AddUser = ({
   // handle create and update form submit
   const handleSubmit = () => {
     if (!userFormRef.current.check()) {
-      console.error('Form Error', formError);
       return;
     } else if (isAdminEditing) {
       updateMutate();
@@ -118,6 +118,10 @@ const AddUser = ({
     if (handleClose) handleClose();
   };
 
+  useEffect(() => {
+    if (isSubmitClick) handleSubmit();
+  }, [isSubmitClick]);
+
   return (
     <div className="show-grid">
       <Form
@@ -128,7 +132,7 @@ const AddUser = ({
         formValue={formValue}
         model={model}
       >
-        <FlexboxGrid justify="space-between">
+        <FlexboxGrid justify="space-between" style={{ marginBottom: '25px' }}>
           <FlexboxGrid.Item colspan={11}>
             <TextField
               name="first_name"
@@ -149,13 +153,13 @@ const AddUser = ({
             <TextField name="username" label="User name" reqText="Username is required" />
           </FlexboxGrid.Item>
 
-          <FlexboxGrid.Item colspan={24}>
+          <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
             <TextField name="email" label="Email" reqText="Email is required" />
           </FlexboxGrid.Item>
 
           <FlexboxGrid.Item
             colspan={24}
-            style={{ margin: '25px 0 0 0', padding: editData?.id ? '0 5px' : '0' }}
+            style={{ padding: editData?.id ? '0 5px' : '0' }}
           >
             <SelectField
               name="projects"
@@ -170,12 +174,13 @@ const AddUser = ({
           </FlexboxGrid.Item>
         </FlexboxGrid>
 
-        {isUserSection ? (
+        {!isUserSection && (
           <FlexboxGrid
             justify="end"
             style={{
               marginTop: '20px',
               position: 'absolute',
+              height: '100px',
               right: '0px',
               bottom: '0px',
             }}
@@ -197,17 +202,6 @@ const AddUser = ({
               color="blue"
             >
               Save
-            </Button>
-          </FlexboxGrid>
-        ) : (
-          <FlexboxGrid justify="end">
-            <Button
-              className="adminModalFooterBtn"
-              style={{ margin: '30px 0' }}
-              appearance="primary"
-              onClick={handleSubmit}
-            >
-              Submit
             </Button>
           </FlexboxGrid>
         )}
