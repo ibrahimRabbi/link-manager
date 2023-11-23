@@ -147,27 +147,6 @@ const Synchronization = () => {
       },
     },
   );
-  // // create data using react query
-  // const { isLoading: createLoading, mutate: createMutate } = useMutation(
-  //   () =>
-  //     fetchAPIRequest({
-  //       // eslint-disable-next-line max-len
-  //       urlPath: `${authCtx.organization_id}/synchronization/run/?sync_resource_id=${syncData?.id}`,
-  //       token: authCtx?.token,
-  //       method: 'POST',
-  //       showNotification: showNotification,
-  //     }),
-  //   {
-  //     onSuccess: () => {
-  //       setSyncData({});
-  //     },
-  //   },
-  //   {
-  //     onError: (res) => {
-  //       console.log(res);
-  //     },
-  //   },
-  // );
 
   useEffect(() => {
     dispatch(handleCurrPageTitle('Synchronization'));
