@@ -62,36 +62,44 @@ pipelines:
     develop:
       - step: *lint
 
-      # - step: *build
-      - step:
-          <<: *build
-          name: 'Build for Testing'
-          deployment: test
+      - step: *build
 
-      # The following deployment steps will be executed for each pipeline run. To configure your steps and conditionally deploy see https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/
-      - step:
-          name: 'Deployment to Test'
+      - stage:
+          name: Deploy to Test
           deployment: test
-          script:
-            - pipe: atlassian/rsync-deploy:0.8.1
-              variables:
-                USER: $SERVER_USER
-                SERVER: $SERVER_IP
-                REMOTE_PATH: '/var/www/lm-dev'
-                LOCAL_PATH: 'dist/**'
+          steps:
+            - step:
+                <<: *build
+                name: 'Building for Test Environment'
 
-      # The following deployment steps will be executed for each pipeline run. To configure your steps and conditionally deploy see https://support.atlassian.com/bitbucket-cloud/docs/configure-bitbucket-pipelinesyml/
-      - step:
-          name: 'Deployment to Staging'
+            - step:
+                name: 'Deploying to Test Environment'
+                script:
+                  - pipe: atlassian/rsync-deploy:0.11.0
+                    variables:
+                      USER: $SERVER_USER
+                      SERVER: $SERVER_IP
+                      REMOTE_PATH: '/var/www/lm-dev'
+                      LOCAL_PATH: 'dist/**'
+
+      - stage:
+          name: Deploy to Staging
           deployment: staging
           trigger: 'manual'
-          script:
-            - pipe: atlassian/rsync-deploy:0.11.0
-              variables:
-                USER: $SERVER_USER
-                SERVER: $SERVER_IP
-                REMOTE_PATH: $SERVER_PATH
-                LOCAL_PATH: $LOCAL_PATH
+          steps:
+            - step:
+                <<: *build
+                name: 'Building for Staging Environment'
+
+            - step:
+                name: 'Deploying to Staging Environment'
+                script:
+                  - pipe: atlassian/rsync-deploy:0.11.0
+                    variables:
+                      USER: $SERVER_USER
+                      SERVER: $SERVER_IP
+                      REMOTE_PATH: $SERVER_PATH
+                      LOCAL_PATH: $LOCAL_PATH
 
     main:
       - step: *lint
@@ -103,7 +111,7 @@ pipelines:
           deployment: production
           trigger: 'manual'
           script:
-            - pipe: atlassian/rsync-deploy:0.8.1
+            - pipe: atlassian/rsync-deploy:0.11.0
               variables:
                 USER: $SERVER_USER
                 SERVER: $SERVER_IP
