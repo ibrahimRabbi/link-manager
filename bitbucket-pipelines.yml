@@ -62,7 +62,7 @@ pipelines:
     develop:
       - step: *lint
 
-      - step: *build
+      # - step: *build
 
       - step:
           <<: *build
