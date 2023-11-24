@@ -28,7 +28,7 @@ const AdminSideNav = () => {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const authCtx = useContext(AuthContext);
-  const isSuperAdmin = authCtx?.user?.role === 'super_admin' ? true : false;
+  let isSuperAdmin = authCtx?.user?.role === 'super_admin' ? true : false;
   // eslint-disable-next-line max-len
   const organization = authCtx?.organization_name
     ? `/${authCtx?.organization_name?.toLowerCase()}`
@@ -134,7 +134,11 @@ const AdminSideNav = () => {
               {options
                 .filter((options) => !options.hidden)
                 .map((option, index) => {
-                  if (option.navigateTo === '/admin/organizations' && !isSuperAdmin) {
+                  // eslint-disable-next-line max-len
+                  if (
+                    option.navigateTo === `${organization}/admin/organizations` &&
+                    !isSuperAdmin
+                  ) {
                     return null;
                   }
                   return (
