@@ -1,6 +1,4 @@
 import { defineConfig } from 'cypress';
-const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
-console.log(lmApiUrl);
 export default defineConfig({
   e2e: {
     setupNodeEvents(on, config){
