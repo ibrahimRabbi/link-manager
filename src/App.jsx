@@ -101,7 +101,6 @@ function App() {
     // returning `null` will drop the event
     if (event?.exception?.values) {
       for (let error of event.exception.values) {
-        console.log(error);
         if (error?.value?.toLowerCase()?.includes('token does not match')) {
           authCtx?.logout();
           return null;
