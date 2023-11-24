@@ -175,7 +175,12 @@ const AddUser = ({
           </FlexboxGrid.Item>
 
           <FlexboxGrid.Item colspan={11} style={{ margin: '25px 0' }}>
-            <TextField name="username" label="User name" reqText="Username is required" />
+            <TextField
+              name="username"
+              label="Username"
+              reqText="Username is required"
+              {...(isAdminEditing && { disabled: true })}
+            />
           </FlexboxGrid.Item>
 
           <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
