@@ -2,9 +2,9 @@ import React from 'react';
 import { Form } from 'rsuite';
 
 const SelectField = React.forwardRef((props, ref) => {
-  const { name, reqText, label, accepter, error, ...rest } = props;
+  const { name, reqText, label, accepter, error, style, ...rest } = props;
   return (
-    <Form.Group ref={ref} className={error ? 'has-error' : ''}>
+    <Form.Group ref={ref} className={error ? 'has-error' : ''} style={style}>
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <Form.ControlLabel style={{ fontSize: '17px' }}>{label}</Form.ControlLabel>
         {reqText && <Form.HelpText tooltip>{reqText}</Form.HelpText>}

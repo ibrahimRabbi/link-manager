@@ -15,27 +15,28 @@ import {
   toaster,
 } from 'rsuite';
 import TextField from '../AdminDasComponents/TextField';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import AuthContext from '../../Store/Auth-Context';
 import fetchAPIRequest from '../../apiRequests/apiRequest';
 import UseLoader from '../Shared/UseLoader';
 import PasswordField from '../AdminDasComponents/PasswordField';
 import jwt_decode from 'jwt-decode';
+import SelectField from '../AdminDasComponents/SelectField.jsx';
+import CustomReactSelect from '../Shared/Dropdowns/CustomReactSelect.jsx';
 
 const {
   profileMainContainer,
   leftContainer,
   imageContainer,
   infoStyle,
-
-  //------------//
   rightContainer,
   navBarStyle,
   saveButton,
 } = styles;
 
 /** Model Schema */
-const { StringType } = Schema.Types;
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
+const { StringType, NumberType } = Schema.Types;
 const passwordRule = (value) => {
   return value.length >= 5;
 };
@@ -46,10 +47,12 @@ const confirmRule = (value, data) => {
 const ruleMessage = 'Password should include at least 5 characters';
 const requiredMessage = 'This field is required';
 const confirmMessage = 'The two passwords do not match';
+
 const userModel = Schema.Model({
   first_name: StringType().isRequired(requiredMessage),
   last_name: StringType().isRequired(requiredMessage),
   username: StringType().isRequired(requiredMessage),
+  organization_id: NumberType().isRequired('This field is required.'),
   email: StringType().isRequired(requiredMessage),
 });
 const passwordModel = Schema.Model({
@@ -71,16 +74,36 @@ const UserProfile = () => {
   const passwordRef = useRef();
   const authCtx = useContext(AuthContext);
   const userInfo = jwt_decode(authCtx?.token);
+
+  const { data: userProfileData } = useQuery(['userProfile'], () =>
+    fetchAPIRequest({
+      // eslint-disable-next-line max-len
+      urlPath: `user/${authCtx.user_id}`,
+      token: authCtx.token,
+      method: 'GET',
+      showNotification: showNotification,
+    }),
+  );
+
   const [userFormValue, setUserFormValue] = useState({
     first_name: userInfo?.given_name ? userInfo?.given_name : '',
     last_name: userInfo?.family_name ? userInfo?.family_name : '',
     username: userInfo?.preferred_username ? userInfo?.preferred_username : '',
     email: userInfo?.email ? userInfo?.email : '',
+    organization_id: Number(authCtx?.organization_id),
   });
   const [passwordFormValue, setPasswordFormValue] = useState({
     new_password: '',
     new_password_confirm: '',
   });
+
+  useEffect(() => {
+    setUserFormValue({
+      ...userFormValue,
+      projects: userProfileData?.data?.projects,
+      organization_id: userProfileData?.data?.organization[0]?.id,
+    });
+  }, [userProfileData]);
 
   useEffect(() => {
     dispatch(handleCurrPageTitle('Profile'));
@@ -238,8 +261,26 @@ const UserProfile = () => {
                   />
                 </FlexboxGrid.Item>
 
+                <FlexboxGrid.Item colspan={24}>
+                  <SelectField
+                    name="organization_id"
+                    label="Organization"
+                    placeholder="Select Organization"
+                    accepter={CustomReactSelect}
+                    apiURL={`${lmApiUrl}/organization`}
+                    error={formError.organization_id}
+                    disabled={true}
+                    reqText="Organization Id is required"
+                    defaultValue={Number(authCtx?.organization_id)}
+                    onChange={(value) => {
+                      setUserFormValue({ ...userFormValue, organization_id: value });
+                    }}
+                    style={{ marginBottom: '30px' }}
+                  />
+                </FlexboxGrid.Item>
+
                 <FlexboxGrid.Item colspan={24} style={{ marginBottom: '30px' }}>
-                  <TextField name="username" label="Username" />
+                  <TextField name="username" label="Username" disabled />
                 </FlexboxGrid.Item>
 
                 <FlexboxGrid.Item colspan={24} style={{ marginBottom: '30px' }}>
