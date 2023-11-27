@@ -79,7 +79,7 @@ const LinkManager = () => {
   // delete link using react-query
   const deleteURl = `link/resource?source_id=${encodeURIComponent(
     sourceFileURL,
-  )}&target_id=${encodeURIComponent(selectedRowData?.id)}&link_type=${
+  )}&target_id=${encodeURIComponent(selectedRowData?.uri)}&link_type=${
     selectedRowData?.link_type
   }`;
   const {

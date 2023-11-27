@@ -41,7 +41,6 @@ const ExternalPreview = (props) => {
     props;
   let iconUrl = '';
   let iconToEvaluate = '';
-  console.log('nodeData', nodeData);
   if (nodeData?.application_type) {
     iconToEvaluate = nodeData?.application_type;
   } else {
@@ -112,7 +111,7 @@ const ExternalPreview = (props) => {
   };
 
   const sendToWebApplication = () => {
-    window.open(nodeData?.web_url ? nodeData?.web_url : nodeData?.id, '_blank');
+    window.open(nodeData?.uri ? nodeData?.uri : nodeData?.web_url_with_commit, '_blank');
   };
 
   const getExternalResourceData = (nodeData) => {
