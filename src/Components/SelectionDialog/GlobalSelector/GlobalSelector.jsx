@@ -50,7 +50,7 @@ const GlobalSelector = ({
   const [projectName, setProjectName] = useState('');
   const [resourceTypeId, setResourceTypeId] = useState('');
   const [currPage, setCurrPage] = useState(1);
-  const [limit, setLimit] = React.useState(50);
+  const [limit, setLimit] = React.useState(25);
   const [page, setPage] = React.useState(1);
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnFilters, setColumnFilters] = React.useState([]);
@@ -375,13 +375,7 @@ const GlobalSelector = ({
     cancelLinkHandler();
   };
   return (
-    <div
-      className={
-        tableshow && projectId && resourceTypeId && finalData?.length > 0
-          ? style.mainContainerTwo
-          : style.mainContainerOne
-      }
-    >
+    <div>
       {loading ? (
         <div style={{ marginTop: '50px' }}>
           <UseLoader />
@@ -439,9 +433,11 @@ const GlobalSelector = ({
             </FlexboxGrid>
           )}
           {tableData?.items?.length < 1 ? (
-            <h3 style={{ textAlign: 'center', marginTop: '50px', color: '#1675e0' }}>
-              Selected resource type has no data.
-            </h3>
+            <div>
+              <h3 style={{ textAlign: 'center', marginTop: '50px', color: '#1675e0' }}>
+                Selected resource type has no data.
+              </h3>
+            </div>
           ) : tableshow && projectId && resourceTypeId && finalData?.length > 0 ? (
             <div className={style.mainTableContainer}>
               <div className={style.tableContainer}>
@@ -553,29 +549,27 @@ const GlobalSelector = ({
           )}
         </div>
       )}
-      {!loading && (
-        <div
-          className={
-            tableshow && projectId && resourceTypeId && finalData?.length > 0
-              ? style.targetBtnContainerTwo
-              : style.targetBtnContainerOne
-          }
-        >
-          <ButtonToolbar>
-            <Button appearance="ghost" onClick={handleCancel}>
-              Cancel
-            </Button>
-            <Button
-              appearance="primary"
-              size="md"
-              disabled={Object.keys(rowSelection).length > 0 ? false : true}
-              onClick={handleSelect}
-            >
-              OK
-            </Button>
-          </ButtonToolbar>
-        </div>
-      )}
+      <div
+        className={
+          tableshow && projectId && resourceTypeId && finalData?.length > 0
+            ? style.targetBtnContainerTwo
+            : style.targetBtnContainerOne
+        }
+      >
+        <ButtonToolbar>
+          <Button appearance="ghost" onClick={handleCancel}>
+            Cancel
+          </Button>
+          <Button
+            appearance="primary"
+            size="md"
+            disabled={Object.keys(rowSelection).length > 0 ? false : true}
+            onClick={handleSelect}
+          >
+            OK
+          </Button>
+        </ButtonToolbar>
+      </div>
     </div>
   );
 };
