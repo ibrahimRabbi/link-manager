@@ -209,13 +209,13 @@ const CytoscapeGraphView = () => {
   useEffect(() => {
     if (expandNode && !expandNode?.data?.nodeData?.childData) {
       let updatedGraphData = nodeData.map((item) => {
-        if (item?.data?.id === expandNode?.data?.id) {
+        if (item?.data?.uri === expandNode?.data?.uri) {
           item.data.nodeData.childData = true;
         }
         return item;
       });
       setNodeData(updatedGraphData);
-      fetchNodeData(expandNode?.data?.nodeData?.id);
+      fetchNodeData(expandNode?.data?.nodeData?.uri);
     }
   }, [expandNode]);
 
@@ -252,7 +252,10 @@ const CytoscapeGraphView = () => {
       return {
         data: {
           id: item.id.toString(),
-          label: codeBlockLabel ? item?.label + ` [${codeBlockLabel}]` : item.label,
+          // eslint-disable-next-line max-len
+          label: codeBlockLabel
+            ? item?.properties?.name + ` [${codeBlockLabel}]`
+            : item?.properties?.name,
           classes: 'bottom-center',
           nodeData: {
             ...item?.properties,
