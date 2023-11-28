@@ -116,8 +116,19 @@ const ExternalPreview = (props) => {
 
   const getExternalResourceData = (nodeData) => {
     const requestMethod = nodeData?.application_type !== 'gitlab' ? 'GET' : 'POST';
+    let externalResourceUrl = '';
+    if (nodeData.api_url.includes('?')) {
+      // eslint-disable-next-line max-len
+      externalResourceUrl =
+        nodeData.api_url + `&application_id=${nodeData.application_id}`;
+    } else {
+      // eslint-disable-next-line max-len
+      externalResourceUrl =
+        nodeData.api_url + `?application_id=${nodeData.application_id}`;
+    }
+
     if (nodeData?.application_type && nodeData?.application_id) {
-      fetch(`${nodeData.api_url}?application_id=${nodeData.application_id}`, {
+      fetch(externalResourceUrl, {
         headers: {
           'Content-type': 'application/json',
           Authorization: `Bearer ${authCtx.token}`,
