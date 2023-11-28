@@ -42,15 +42,6 @@ const NavigationBar = () => {
   const handleConfirmed = async (value) => {
     if (value) {
       authCtx.logout();
-
-      await fetch(`${import.meta.env.VITE_LM_REST_API_URL}/auth/logout`, {
-        method: 'DELETE',
-        headers: {
-          'Content-type': 'application/json',
-          Authorization: 'Bearer ' + authCtx.token,
-        },
-      });
-
       const message = (
         <Message closable showIcon type="success">
           Logout successful
