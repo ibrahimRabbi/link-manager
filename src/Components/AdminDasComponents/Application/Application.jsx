@@ -687,7 +687,7 @@ const Application = () => {
                 model={model}
               >
                 <FlexboxGrid justify="space-between">
-                  <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={24}>
+                  <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={11}>
                     <SelectField
                       name="organization_id"
                       label="Organization"
@@ -702,7 +702,7 @@ const Application = () => {
                     />
                   </FlexboxGrid.Item>
 
-                  <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={24}>
+                  <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={11}>
                     <SelectField
                       name="type"
                       label="Integration type"
@@ -855,11 +855,12 @@ const Application = () => {
           {steps === 1 && (
             <div className={step1Container}>
               <h4>{'Authorize the access to the integration'}</h4>
-              {(applicationType?.authentication_type === 'oauth2' &&
-                steps === 1 &&
-                createSuccess) ||
-                updateSuccess ||
-                (authorizeButton && <Oauth2Waiting data={formValue} />)}
+              {
+                (updateSuccess || authorizeButton || (steps === 1 && createSuccess)) &&
+                applicationType?.authentication_type === 'oauth2' && // prettier-ignore
+                <Oauth2Waiting data={formValue} />
+                // prettier-ignore
+              }
               {
                 // prettier-ignore
                 (['basic', 'oauth2_ropc'].includes(

@@ -41,7 +41,6 @@ const ExternalPreview = (props) => {
     props;
   let iconUrl = '';
   let iconToEvaluate = '';
-  console.log('nodeData', nodeData);
   if (nodeData?.application_type) {
     iconToEvaluate = nodeData?.application_type;
   } else {
@@ -71,13 +70,13 @@ const ExternalPreview = (props) => {
     iconUrl = '/dng_logo.png';
     break;
   case 'servicenow':
-    iconUrl = 'servicenow_logo.png';
+    iconUrl = '/servicenow_logo.png';
     break;
   case 'bitbucket':
-    iconUrl = 'bitbucket_logo.png';
+    iconUrl = '/bitbucket_logo.png';
     break;
   case 'github':
-    iconUrl = 'github_logo.png';
+    iconUrl = '/github_logo.png';
     break;
   default:
     iconUrl = '/default_preview_logo.svg';
@@ -112,13 +111,24 @@ const ExternalPreview = (props) => {
   };
 
   const sendToWebApplication = () => {
-    window.open(nodeData?.web_url ? nodeData?.web_url : nodeData?.id, '_blank');
+    window.open(nodeData?.uri ? nodeData?.uri : nodeData?.web_url_with_commit, '_blank');
   };
 
   const getExternalResourceData = (nodeData) => {
     const requestMethod = nodeData?.application_type !== 'gitlab' ? 'GET' : 'POST';
+    let externalResourceUrl = '';
+    if (nodeData.api_url.includes('?')) {
+      // eslint-disable-next-line max-len
+      externalResourceUrl =
+        nodeData.api_url + `&application_id=${nodeData.application_id}`;
+    } else {
+      // eslint-disable-next-line max-len
+      externalResourceUrl =
+        nodeData.api_url + `?application_id=${nodeData.application_id}`;
+    }
+
     if (nodeData?.application_type && nodeData?.application_id) {
-      fetch(`${nodeData.api_url}?application_id=${nodeData.application_id}`, {
+      fetch(externalResourceUrl, {
         headers: {
           'Content-type': 'application/json',
           Authorization: `Bearer ${authCtx.token}`,
