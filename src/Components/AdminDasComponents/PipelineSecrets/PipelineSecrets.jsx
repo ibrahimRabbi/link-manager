@@ -249,7 +249,7 @@ const PipelineSecrets = () => {
                 />
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
+              <FlexboxGrid.Item colspan={11}>
                 <TextField
                   name="name"
                   label="Name"
@@ -258,7 +258,7 @@ const PipelineSecrets = () => {
                 />
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={24}>
+              <FlexboxGrid.Item colspan={11}>
                 <PasswordField
                   name="value"
                   type="password"
