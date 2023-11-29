@@ -141,8 +141,8 @@ const CytoscapeGraphView = () => {
       select: function (ele) {
         const selectedNode = findSelectedNode(ele.id());
         if (selectedNode) {
-          const url = selectedNode?.data?.nodeData?.web_url
-            ? selectedNode?.data?.nodeData?.web_url
+          const url = selectedNode?.data?.nodeData?.uri
+            ? selectedNode?.data?.nodeData?.uri
             : selectedNode?.data?.nodeData?.id;
           if (url) {
             window.open(url, '_blank');
@@ -209,13 +209,13 @@ const CytoscapeGraphView = () => {
   useEffect(() => {
     if (expandNode && !expandNode?.data?.nodeData?.childData) {
       let updatedGraphData = nodeData.map((item) => {
-        if (item?.data?.id === expandNode?.data?.id) {
+        if (item?.data?.uri === expandNode?.data?.uri) {
           item.data.nodeData.childData = true;
         }
         return item;
       });
       setNodeData(updatedGraphData);
-      fetchNodeData(expandNode?.data?.nodeData?.id);
+      fetchNodeData(expandNode?.data?.nodeData?.uri);
     }
   }, [expandNode]);
 
@@ -243,8 +243,8 @@ const CytoscapeGraphView = () => {
   // map nodes
   function mapNodes(nodes) {
     return nodes?.map((item) => {
-      let nodeStyle = checkNodeStyle(item?.properties?.resource_type);
-      if (sourceDataList?.uri === item?.properties?.id) {
+      let nodeStyle = checkNodeStyle(item?.properties?.web_application_resource_type);
+      if (sourceDataList?.uri === item?.properties?.uri) {
         nodeStyle = null;
         item.expanded = true;
       }
@@ -252,7 +252,10 @@ const CytoscapeGraphView = () => {
       return {
         data: {
           id: item.id.toString(),
-          label: codeBlockLabel ? item?.label + ` [${codeBlockLabel}]` : item.label,
+          // eslint-disable-next-line max-len
+          label: codeBlockLabel
+            ? item?.properties?.name + ` [${codeBlockLabel}]`
+            : item?.properties?.name,
           classes: 'bottom-center',
           nodeData: {
             ...item?.properties,
@@ -291,7 +294,7 @@ const CytoscapeGraphView = () => {
     let filteredNodes = [];
     filteredNodes = nodeData?.reduce((accumulator, item) => {
       // get source node
-      if (item?.data?.nodeData?.id === sourceDataList?.uri) {
+      if (item?.data?.nodeData?.uri === sourceDataList?.uri) {
         sourceData['sourceNode'] = item;
       }
       return accumulator;
@@ -301,7 +304,7 @@ const CytoscapeGraphView = () => {
       filteredNodes = nodeData?.reduce((accumulator, item) => {
         selectedApplications?.forEach((value) => {
           // filter nodes and edges
-          if (value?.name === item?.data?.nodeData?.api) {
+          if (value?.name === item?.data?.nodeData?.application_type) {
             accumulator.push(item);
           }
         });
@@ -314,7 +317,7 @@ const CytoscapeGraphView = () => {
     if (selectedResourceType?.length > 0) {
       filteredNodes = filteredNodes?.reduce((accumulator, item) => {
         selectedResourceType?.forEach((value) => {
-          if (value?.name === item?.data?.nodeData?.resource_type) {
+          if (value?.name === item?.data?.nodeData?.web_application_resource_type) {
             accumulator.push(item);
           }
         });
@@ -348,14 +351,14 @@ const CytoscapeGraphView = () => {
   // filter target application dropdown item dynamically
   const targetDropdownItem = nodeData?.reduce((accumulator, item) => {
     const isObjectInArray = accumulator.some((value) => {
-      return item?.data?.nodeData?.api === value?.name;
+      return item?.data?.nodeData?.application_type === value?.name;
     });
 
     if (!isObjectInArray) {
-      if (item?.data?.nodeData?.api) {
+      if (item?.data?.nodeData?.application_type) {
         accumulator.push({
-          name: item?.data?.nodeData?.api,
-          icon: checkNodeImage(item?.data?.nodeData?.api)?.image,
+          name: item?.data?.nodeData?.application_type,
+          icon: checkNodeImage(item?.data?.nodeData?.application_type)?.image,
         });
       }
     }
@@ -365,13 +368,13 @@ const CytoscapeGraphView = () => {
   //filter resource type dropdown item dynamically
   const resourceTypeDropdownItem = nodeData?.reduce((accumulator, item) => {
     const isObjectInArray = accumulator.some((value) => {
-      return item?.data?.nodeData?.resource_type === value?.name;
+      return item?.data?.nodeData?.web_application_resource_type === value?.name;
     });
 
     if (!isObjectInArray) {
-      if (item?.data?.nodeData?.resource_type) {
+      if (item?.data?.nodeData?.web_application_resource_type) {
         accumulator.push({
-          name: item?.data?.nodeData?.resource_type,
+          name: item?.data?.nodeData?.web_application_resource_type,
         });
       }
     }
@@ -472,17 +475,20 @@ const CytoscapeGraphView = () => {
           />
         </div>
       )}
+
       {showExternalAuthWindow && (
         <ExternalAppModal
           formValue={{
             ...externalAuthData,
-            type: externalAuthData?.api,
+            type: externalAuthData?.application_type,
             rdf_type: externalAuthData?.type,
           }}
-          isOauth2={OAUTH2_APPLICATION_TYPES?.includes(externalAuthData?.api)}
+          isOauth2={OAUTH2_APPLICATION_TYPES?.includes(
+            externalAuthData?.application_type,
+          )}
           isBasic={(
             BASIC_AUTH_APPLICATION_TYPES + MICROSERVICES_APPLICATION_TYPES
-          ).includes(externalAuthData?.api)}
+          ).includes(externalAuthData?.application_type)}
           onDataStatus={getExtLoginData}
           integrated={true}
           openedModal={showExternalAuthWindow}
