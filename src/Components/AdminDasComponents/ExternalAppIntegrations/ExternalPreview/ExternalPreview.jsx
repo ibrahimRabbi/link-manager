@@ -117,14 +117,16 @@ const ExternalPreview = (props) => {
   const getExternalResourceData = (nodeData) => {
     const requestMethod = nodeData?.application_type !== 'gitlab' ? 'GET' : 'POST';
     let externalResourceUrl = '';
-    if (nodeData.api_url.includes('?')) {
+    if (nodeData?.api_url && nodeData?.api_url?.includes('?')) {
       // eslint-disable-next-line max-len
       externalResourceUrl =
         nodeData.api_url + `&application_id=${nodeData.application_id}`;
-    } else {
+    } else if (nodeData?.api_url) {
       // eslint-disable-next-line max-len
       externalResourceUrl =
-        nodeData.api_url + `?application_id=${nodeData.application_id}`;
+        nodeData?.api_url + `?application_id=${nodeData.application_id}`;
+    } else {
+      externalResourceUrl = nodeData?.api_url;
     }
 
     if (nodeData?.application_type && nodeData?.application_id) {
