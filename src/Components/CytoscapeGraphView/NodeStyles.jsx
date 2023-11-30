@@ -62,6 +62,9 @@ export const nodeImageStyle = {
   servicenow: {
     image: '/node_icons/servicenow_logo.png',
   },
+  bitbucket: {
+    image: '/node_icons/bitbucket_logo.png',
+  },
   default: {
     image: '/node_icons/default_logo.png',
   },

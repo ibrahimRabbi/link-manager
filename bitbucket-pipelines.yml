@@ -77,6 +77,24 @@ pipelines:
                     variables:
                       USER: $SERVER_USER
                       SERVER: $SERVER_IP
+                      REMOTE_PATH: $SERVER_PATH
+                      LOCAL_PATH: $LOCAL_PATH
+
+      - stage:
+          name: Deploy to CLM Droplet
+          deployment: st-clm
+          steps:
+            - step:
+                <<: *build
+                name: 'Building for Staging CLM Environment'
+
+            - step:
+                name: 'Deploying to Staging CLM Environment'
+                script:
+                  - pipe: atlassian/rsync-deploy:0.11.0
+                    variables:
+                      USER: $SERVER_USER
+                      SERVER: $SERVER_IP
                       REMOTE_PATH: '/var/www/lm-dev'
                       LOCAL_PATH: 'dist/**'
 
