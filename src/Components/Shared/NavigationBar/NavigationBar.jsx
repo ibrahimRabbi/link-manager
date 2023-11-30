@@ -90,7 +90,12 @@ const NavigationBar = () => {
       className={popoverContainer}
       title={
         <div className={userContainer}>
-          <Avatar size="md" circle src={'./default_avatar.jpg'} alt="User" />
+          <Avatar
+            size="md"
+            circle
+            src={`${location.origin}/default_avatar.png`}
+            alt="User"
+          />
           <div>
             <h6>{userInfo?.name ? userInfo?.name : 'First Name Last Name'}</h6>
             <p>{userInfo?.email ? userInfo?.email : 'Email'}</p>
