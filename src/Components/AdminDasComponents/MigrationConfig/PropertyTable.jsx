@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import React from 'react';
+import React, { useEffect } from 'react';
 import PlusIcon from '@rsuite/icons/Plus';
 import { Button, Col, FlexboxGrid, IconButton, Table } from 'rsuite';
 import UseReactSelect from '../../Shared/Dropdowns/UseReactSelect';
@@ -15,7 +15,8 @@ const PropertyTable = ({
   setSource,
   setTarget,
   setShowAddEnum,
-  // property,
+  property,
+  showNotification,
 }) => {
   const [open, setOpen] = useState(false);
   const [editingRow, setEditingRow] = useState(null);
@@ -29,6 +30,30 @@ const PropertyTable = ({
   const [sourceEnum, setSourceEnum] = useState('');
   const [targetEnum, setTargetEnum] = useState('');
 
+  useEffect(() => {
+    const toCamelCase = (str) => {
+      const camelCaseStr = str.replace(/[-_](.)/g, (_, char) => char.toUpperCase());
+      return camelCaseStr.charAt(0).toUpperCase() + camelCaseStr.slice(1);
+    };
+    const updatedApiResponse = property?.map((obj) => ({
+      ...obj,
+      source_name: toCamelCase(obj?.source_property),
+      target_name: toCamelCase(obj?.target_property),
+      enum_mapping: {},
+    }));
+    setRows(updatedApiResponse);
+  }, [property]);
+  const updateTargetDropdown = (selectedItem) => {
+    if (selectedItem?.source_name) {
+      const editDataType = selectedItem.source_datatype;
+      const editFilteredTarget = target.filter((item) => item.datatype === editDataType);
+      setUpdateTarget(editFilteredTarget);
+    } else {
+      const dataType = selectedItem.datatype;
+      const filteredTargetOptions = target.filter((item) => item.datatype === dataType);
+      setUpdateTarget(filteredTargetOptions);
+    }
+  };
   const handleSourcePro = (selectedItem) => {
     if (selectedItem?.datatype === 'enum') {
       setSourceEnum(selectedItem);
@@ -39,11 +64,7 @@ const PropertyTable = ({
       source_name: selectedItem?.name,
       source_datatype: selectedItem?.datatype,
     });
-    if (selectedItem) {
-      const dataType = selectedItem.datatype;
-      const filteredTargetOptions = target.filter((item) => item.datatype === dataType);
-      setUpdateTarget(filteredTargetOptions);
-    }
+    updateTargetDropdown(selectedItem);
   };
 
   const handleTargetPro = (selectedItem) => {
@@ -70,6 +91,21 @@ const PropertyTable = ({
       target_datatype: formState?.target_datatype,
       enum_mapping: {},
     };
+    // Check for duplicate rows
+    const isDuplicate = rows.some(
+      (row) =>
+        row.source_property === newRow.source_property &&
+        row.target_property === newRow.target_property &&
+        row.source_name === newRow.source_name &&
+        row.target_name === newRow.target_name &&
+        row.source_datatype === newRow.source_datatype &&
+        row.target_datatype === newRow.target_datatype,
+    );
+    if (isDuplicate) {
+      showNotification('error', 'Duplicate row. Already exist data!!!!.');
+      return;
+    }
+
     if (sourceEnum !== '' && targetEnum !== '') {
       setShowAddEnum(true);
       setSource(sourceEnum);
@@ -78,19 +114,19 @@ const PropertyTable = ({
       setShowAddEnum(false);
     }
     if (editingRow) {
-      // If editing, update the existing row
       const updatedRows = rows.map((row) =>
         row === editingRow ? { ...newRow, enum_mapping: editingRow.enum_mapping } : row,
       );
       setRows(updatedRows);
       setEditingRow(null);
     } else {
-      // If not editing, add a new row
       setRows([...rows, newRow]);
     }
     setFormState({
       source_property: '',
       target_property: '',
+      source_datatype: '',
+      target_datatype: '',
     });
     setSourceEnum('');
     setTargetEnum('');
@@ -99,30 +135,54 @@ const PropertyTable = ({
 
   const handleEditClick = (rowData) => {
     setEditingRow(rowData);
-    setFormState({
+
+    const updatedFormState = {
       source_property: rowData.source_property,
-      source_name: rowData?.source_name,
+      source_name: rowData.source_name,
       target_property: rowData.target_property,
-      target_name: rowData?.target_name,
+      target_name: rowData.target_name,
       source_datatype: rowData.source_datatype,
       target_datatype: rowData.target_datatype,
-      enum_mapping: {},
-    });
+    };
+    setFormState(updatedFormState);
+    setTimeout(() => {
+      updateTargetDropdown(rowData);
+    }, 0);
+
     setOpen(true);
   };
 
   const handleCancelEdit = () => {
     setEditingRow(null);
     setOpen(false);
+    setFormState({});
+    setUpdateTarget([]);
   };
-
   const handleSubmitEdit = () => {
+    const isDuplicateUpdate = rows.some(
+      (row) =>
+        row !== editingRow &&
+        row.source_property === formState.source_property &&
+        row.target_property === formState.target_property &&
+        row.source_name === formState.source_name &&
+        row.target_name === formState.target_name &&
+        row.source_datatype === formState.source_datatype &&
+        row.target_datatype === formState.target_datatype,
+    );
+
+    if (isDuplicateUpdate) {
+      showNotification('error', 'Cannot update. Already exist data!!!!.');
+      return;
+    }
+
     const updatedRows = rows.map((row) =>
       row === editingRow
         ? {
             ...row,
             source_property: formState.source_property,
+            source_name: formState.source_name,
             target_property: formState.target_property,
+            target_name: formState.target_name,
             source_datatype: formState.source_datatype,
             target_datatype: formState.target_datatype,
             enum_mapping: {},
@@ -166,7 +226,7 @@ const PropertyTable = ({
               <HeaderCell>
                 <h6>Source</h6>
               </HeaderCell>
-              <Cell dataKey="source_property" />
+              <Cell dataKey="source_name" />
             </Column>
             <Column
               width={250}
@@ -181,7 +241,7 @@ const PropertyTable = ({
               <HeaderCell>
                 <h6>Target</h6>
               </HeaderCell>
-              <Cell dataKey="target_property" />
+              <Cell dataKey="target_name" />
             </Column>
             <Column
               width={100}
@@ -305,6 +365,11 @@ const PropertyTable = ({
                 </Button>
                 {editingRow && (
                   <Button onClick={handleCancelEdit} appearance="subtle">
+                    Cancel
+                  </Button>
+                )}
+                {!editingRow && (
+                  <Button onClick={() => setOpen(false)} appearance="subtle">
                     Cancel
                   </Button>
                 )}

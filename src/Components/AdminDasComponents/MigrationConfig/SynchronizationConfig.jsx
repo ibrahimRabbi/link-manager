@@ -470,7 +470,7 @@ const SynchronizationConfig = () => {
   useEffect(() => {
     if (targetResourceType) {
       let url;
-      url = `${apiURL}/${authCtx?.organization_id}/synchronization/property_mappings/?source_application_type=jira&target_application_type=valispace`;
+      url = `${apiURL}/${authCtx?.organization_id}/synchronization/property_mappings/?source_application_type=${sourceApplication?.type}&target_application_type=${targetApplication?.type}`;
       fetch(url, {
         headers: {
           Authorization: `Bearer ${authCtx.token}`,
@@ -995,6 +995,7 @@ const SynchronizationConfig = () => {
             setTarget={setTargetProperty}
             setShowAddEnum={setShowAddEnum}
             property={defaultProperty}
+            showNotification={showNotification}
           />
           {sourceProperty?.datatype === 'enum' && targetProperty?.datatype === 'enum' && (
             <div style={{ marginTop: '50px' }}>
