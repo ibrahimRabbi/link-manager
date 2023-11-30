@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
-let logoutTimer;
 import jwtDecode from 'jwt-decode';
+const logoutURL = `${import.meta.env.VITE_LM_REST_API_URL}/auth/logout`;
+
+let logoutTimer;
 const AuthContext = React.createContext({
   token: '',
   isLoggedIn: false,
@@ -67,6 +69,14 @@ export const AuthContextProvider = (props) => {
   var userIsLoggedIn = !!token;
 
   const logoutHandler = useCallback(() => {
+    fetch(logoutURL, {
+      method: 'DELETE',
+      headers: {
+        'Content-type': 'application/json',
+        Authorization: 'Bearer ' + token,
+      },
+    });
+
     setToken(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user_id');
