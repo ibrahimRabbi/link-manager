@@ -19,6 +19,8 @@ export const graphStyle = [
       'border-width': 0,
       'border-opacity': 0.5,
       'background-size': 'contain',
+      'text-wrap': 'wrap',
+      'text-max-width': 50,
     },
   },
   {
