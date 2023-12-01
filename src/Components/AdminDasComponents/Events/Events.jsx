@@ -275,6 +275,7 @@ const Events = () => {
                   placeholder="Select Application"
                   accepter={CustomReactSelect}
                   apiURL={`${lmApiUrl}/${authCtx.organization_id}/application`}
+                  apiQueryParams={'events=true'}
                   error={formError.application_id}
                   reqText="Application Id is required"
                 />
