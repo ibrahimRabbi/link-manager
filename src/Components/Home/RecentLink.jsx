@@ -27,12 +27,11 @@ const RecentLink = ({ recentCreatedLinks }) => {
   const { isDark } = useSelector((state) => state.nav);
 
   // target cell
-  const targetCell = (row) => {
-    let rowData = row?.original?.target;
+  const targetCell = (rowData, status = null) => {
     if (rowData.properties?.selected_lines === 'None') {
       rowData.properties.selected_lines = '';
     }
-    const status = row?.original?.link?.properties?.status;
+    // const status = row?.original?.link?.properties?.status;
     // OSLC API URL Receiving conditionally
 
     const speaker = (rowData, native = false) => {
@@ -110,14 +109,10 @@ const RecentLink = ({ recentCreatedLinks }) => {
             <h6>Source</h6>
           </div>
         ),
-        cell: ({ row }) => (
-          <p style={{ fontSize: '20px' }}>
-            {row?.original?.source?.properties?.name &&
-            row?.original?.source?.properties?.name?.length > 100
-              ? `${row?.original?.source?.properties?.name.slice(0, 100)}...`
-              : row?.original?.source?.properties?.name}
-          </p>
-        ),
+        cell: ({ row }) => {
+          const rowData = row?.original?.source;
+          return targetCell(rowData);
+        },
         footer: (props) => props.column.id,
       },
       {
@@ -142,7 +137,11 @@ const RecentLink = ({ recentCreatedLinks }) => {
             <h6>Target</h6>
           </div>
         ),
-        cell: ({ row }) => targetCell(row),
+        cell: ({ row }) => {
+          const rowData = row?.original?.target;
+          const status = row?.original?.link?.properties?.status;
+          return targetCell(rowData, status);
+        },
         footer: (props) => props.column.id,
       },
       {
