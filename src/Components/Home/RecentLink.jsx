@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux';
 import ExternalPreview from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreview.jsx';
 // eslint-disable-next-line max-len
 import { showOslcData } from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreviewConfig.jsx';
+import { addNodeLabel } from '../CytoscapeGraphView/Graph.jsx';
 const {
   table_row_dark,
   table_row_light,
@@ -73,18 +74,7 @@ const RecentLink = ({ recentCreatedLinks }) => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {rowData?.properties?.selected_lines
-              ? rowData?.properties?.name?.length > 15
-                ? rowData?.properties?.name?.slice(0, 15 - 1) +
-                  '...' +
-                  ' [' +
-                  rowData?.properties?.selected_lines +
-                  ']'
-                : rowData?.properties?.name +
-                  ' [' +
-                  rowData?.properties?.selected_lines +
-                  ']'
-              : rowData?.properties?.name}
+            {addNodeLabel(rowData?.properties?.name, rowData?.properties?.selected_lines)}
           </a>
         </Whisper>
       </div>
@@ -122,7 +112,8 @@ const RecentLink = ({ recentCreatedLinks }) => {
         ),
         cell: ({ row }) => (
           <p style={{ fontSize: '20px' }}>
-            {row?.original?.source?.properties?.name?.length > 100
+            {row?.original?.source?.properties?.name &&
+            row?.original?.source?.properties?.name?.length > 100
               ? `${row?.original?.source?.properties?.name.slice(0, 100)}...`
               : row?.original?.source?.properties?.name}
           </p>
