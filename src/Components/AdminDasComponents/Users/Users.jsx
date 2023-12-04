@@ -117,6 +117,27 @@ const Users = () => {
     },
   );
 
+  //Resend email via react query
+  const { mutate: resendEmailMutate } = useMutation(
+    (userId) =>
+      fetchAPIRequest({
+        urlPath: 'user/resend_verification_email',
+        token: authCtx.token,
+        method: 'POST',
+        body: {
+          user_id: userId,
+        },
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: () => {
+        Mixpanel.track('Verification email sent again to user', {
+          username: userInfo?.preferred_username,
+        });
+      },
+    },
+  );
+
   const handleClose = () => {
     setIsAddModal(false);
     handleResetForm();
@@ -161,6 +182,11 @@ const Users = () => {
     refetchUsers();
   }, [createSuccess, updateSuccess, deleteSuccess, pageSize, currPage, refreshData]);
 
+  //option to send email verification to the user
+  const handleResendEmailVerification = (data) => {
+    resendEmailMutate(data.id);
+  };
+
   // handle delete user
   const handleDelete = (data) => {
     setDeleteData(data);
@@ -201,6 +227,7 @@ const Users = () => {
     rowData: allUsers ? allUsers?.items : [],
     headerData,
     handleViewAccess,
+    handleResendEmailVerification,
     handleDelete,
     handleAddNew,
     handlePagination,

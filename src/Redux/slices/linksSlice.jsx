@@ -157,7 +157,6 @@ export const linksSlice = createSlice({
 
     builder.addCase(fetchLinksData.fulfilled, (state, { payload }) => {
       state.isLoading = false;
-      console.log('fetchLinksData -> payload', payload);
       if (payload) {
         if (payload?.isConfirmed) state.linksData = {};
         else {
