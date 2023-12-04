@@ -102,7 +102,7 @@ const PropertyTable = ({
         row.target_datatype === newRow.target_datatype,
     );
     if (isDuplicate) {
-      showNotification('error', 'Duplicate row. Already exist data!!!!.');
+      showNotification('error', 'Duplicate row. Already exist data!');
       return;
     }
 
@@ -171,7 +171,7 @@ const PropertyTable = ({
     );
 
     if (isDuplicateUpdate) {
-      showNotification('error', 'Cannot update. Already exist data!!!!.');
+      showNotification('error', 'Cannot update. Already exist data!');
       return;
     }
 
