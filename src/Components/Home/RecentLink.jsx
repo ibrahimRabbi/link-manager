@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux';
 import ExternalPreview from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreview.jsx';
 // eslint-disable-next-line max-len
 import { showOslcData } from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreviewConfig.jsx';
+import { addNodeLabel } from '../CytoscapeGraphView/Graph.jsx';
 const {
   table_row_dark,
   table_row_light,
@@ -26,12 +27,11 @@ const RecentLink = ({ recentCreatedLinks }) => {
   const { isDark } = useSelector((state) => state.nav);
 
   // target cell
-  const targetCell = (row) => {
-    let rowData = row?.original?.target;
+  const targetCell = (rowData, status = null) => {
     if (rowData.properties?.selected_lines === 'None') {
       rowData.properties.selected_lines = '';
     }
-    const status = row?.original?.link?.properties?.status;
+    // const status = row?.original?.link?.properties?.status;
     // OSLC API URL Receiving conditionally
 
     const speaker = (rowData, native = false) => {
@@ -73,18 +73,7 @@ const RecentLink = ({ recentCreatedLinks }) => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {rowData?.properties?.selected_lines
-              ? rowData?.properties?.name?.length > 15
-                ? rowData?.properties?.name?.slice(0, 15 - 1) +
-                  '...' +
-                  ' [' +
-                  rowData?.properties?.selected_lines +
-                  ']'
-                : rowData?.properties?.name +
-                  ' [' +
-                  rowData?.properties?.selected_lines +
-                  ']'
-              : rowData?.properties?.name}
+            {addNodeLabel(rowData?.properties?.name, rowData?.properties?.selected_lines)}
           </a>
         </Whisper>
       </div>
@@ -120,13 +109,10 @@ const RecentLink = ({ recentCreatedLinks }) => {
             <h6>Source</h6>
           </div>
         ),
-        cell: ({ row }) => (
-          <p style={{ fontSize: '20px' }}>
-            {row?.original?.source?.properties?.name?.length > 100
-              ? `${row?.original?.source?.properties?.name.slice(0, 100)}...`
-              : row?.original?.source?.properties?.name}
-          </p>
-        ),
+        cell: ({ row }) => {
+          const rowData = row?.original?.source;
+          return targetCell(rowData);
+        },
         footer: (props) => props.column.id,
       },
       {
@@ -151,7 +137,11 @@ const RecentLink = ({ recentCreatedLinks }) => {
             <h6>Target</h6>
           </div>
         ),
-        cell: ({ row }) => targetCell(row),
+        cell: ({ row }) => {
+          const rowData = row?.original?.target;
+          const status = row?.original?.link?.properties?.status;
+          return targetCell(rowData, status);
+        },
         footer: (props) => props.column.id,
       },
       {

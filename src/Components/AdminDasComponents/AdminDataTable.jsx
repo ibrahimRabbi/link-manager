@@ -22,7 +22,7 @@ import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
 import { handleRefreshData } from '../../Redux/slices/navSlice';
 import { darkBgColor, lightBgColor } from '../../App';
-import { MdDelete, MdEdit, MdLock } from 'react-icons/md';
+import { MdDelete, MdEdit, MdEmail, MdLock } from 'react-icons/md';
 import { BiShowAlt } from 'react-icons/bi';
 import { PiEyeBold } from 'react-icons/pi';
 import { MdOutlineContentCopy } from 'react-icons/md';
@@ -60,6 +60,7 @@ const AdminDataTable = ({ props }) => {
     handleEdit,
     handleDelete,
     handleViewAccess,
+    handleResendEmailVerification,
     handleScriptView,
     handleSync,
     authorizeModal,
@@ -111,6 +112,10 @@ const AdminDataTable = ({ props }) => {
       handleViewAccess(rowData);
     };
 
+    const resendEmailVerification = () => {
+      handleResendEmailVerification(rowData);
+    };
+
     const deleteSelected = () => {
       handleDelete(rowData);
     };
@@ -150,6 +155,15 @@ const AdminDataTable = ({ props }) => {
         )}
         {handleEdit && (
           <IconButton size="sm" title="Edit" icon={<MdEdit />} onClick={editSelected} />
+        )}
+        {handleResendEmailVerification && !rowData.verified && (
+          <IconButton
+            size="sm"
+            title="Send verfication email"
+            disabled={rowData.verified}
+            icon={<MdEmail />}
+            onClick={resendEmailVerification}
+          />
         )}
         {handleViewAccess && (
           <IconButton size="sm" title="View" icon={<BiShowAlt />} onClick={viewAccess} />

@@ -17,7 +17,7 @@ import { nodeColorStyles, nodeImageStyle } from './NodeStyles.jsx';
 // eslint-disable-next-line max-len
 import { showOslcData } from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreviewConfig.jsx';
 import UseReactSelect from '../Shared/Dropdowns/UseReactSelect.jsx';
-import Graph from './Graph.jsx';
+import Graph, { addNodeLabel } from './Graph.jsx';
 // eslint-disable-next-line max-len
 import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
 import {
@@ -249,13 +249,11 @@ const CytoscapeGraphView = () => {
         item.expanded = true;
       }
       const codeBlockLabel = item?.properties?.selected_lines;
+      const nodeLabel = item?.properties?.name;
       return {
         data: {
           id: item.id.toString(),
-          // eslint-disable-next-line max-len
-          label: codeBlockLabel
-            ? item?.properties?.name + ` [${codeBlockLabel}]`
-            : item?.properties?.name,
+          label: addNodeLabel(nodeLabel, codeBlockLabel, true),
           classes: 'bottom-center',
           nodeData: {
             ...item?.properties,
