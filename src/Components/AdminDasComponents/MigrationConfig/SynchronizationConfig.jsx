@@ -77,6 +77,7 @@ const SynchronizationConfig = () => {
   const [targetProperty, setTargetProperty] = useState('');
   const [showAddEnum, setShowAddEnum] = useState(false);
   const [targetWorkspace, setTargetWorkspace] = useState('');
+  const [defaultProperty, setDefaultProperty] = useState('');
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -465,6 +466,28 @@ const SynchronizationConfig = () => {
         });
     }
   }, [targetResourceType, restartExternalRequest]);
+  // for getting default property mapping
+  useEffect(() => {
+    if (targetResourceType) {
+      let url;
+      url = `${apiURL}/${authCtx?.organization_id}/synchronization/property_mappings/?source_application_type=${sourceApplication?.type}&target_application_type=${targetApplication?.type}`;
+      fetch(url, {
+        headers: {
+          Authorization: `Bearer ${authCtx.token}`,
+        },
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            handleResponse(response);
+          }
+        })
+        .then((data) => {
+          setDefaultProperty(data);
+        });
+    }
+  }, [targetResourceType, restartExternalRequest]);
   const handleMakeMigration = async (value) => {
     setSubmitLoading(true);
     const body = {
@@ -493,7 +516,7 @@ const SynchronizationConfig = () => {
       link_type: 'syncedTo',
       property_mappings: normalRows ? normalRows : [],
     };
-    // console.log(JSON.stringify(body));
+
     try {
       const response = await fetch(
         `${apiURL}/${authCtx?.organization_id}/synchronization`,
@@ -971,6 +994,8 @@ const SynchronizationConfig = () => {
             setSource={setSourceProperty}
             setTarget={setTargetProperty}
             setShowAddEnum={setShowAddEnum}
+            property={defaultProperty}
+            showNotification={showNotification}
           />
           {sourceProperty?.datatype === 'enum' && targetProperty?.datatype === 'enum' && (
             <div style={{ marginTop: '50px' }}>
@@ -1020,7 +1045,11 @@ const SynchronizationConfig = () => {
               <Button appearance="ghost" onClick={handleCancel}>
                 Cancel
               </Button>
-              <Button appearance="ghost" onClick={() => handleMakeMigration(false)}>
+              <Button
+                appearance="ghost"
+                disabled={!targetResourceType}
+                onClick={() => handleMakeMigration(false)}
+              >
                 Save
               </Button>
               <Button
