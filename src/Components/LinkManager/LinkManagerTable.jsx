@@ -29,6 +29,7 @@ import {
 } from '../../App.jsx';
 // eslint-disable-next-line max-len
 import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
+import { addNodeLabel } from '../CytoscapeGraphView/Graph.jsx';
 const {
   table_row_dark,
   table_row_light,
@@ -167,15 +168,7 @@ const LinkManagerTable = ({ props }) => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {rowData?.selected_lines
-              ? rowData?.name?.length > 15
-                ? rowData?.name?.slice(0, 15 - 1) +
-                  '...' +
-                  ' [' +
-                  rowData?.selected_lines +
-                  ']'
-                : rowData?.name + ' [' + rowData?.selected_lines + ']'
-              : rowData?.name?.slice(0, 30) + '....'}
+            {addNodeLabel(rowData?.name, rowData?.selected_lines)}
           </a>
         </Whisper>
       </div>

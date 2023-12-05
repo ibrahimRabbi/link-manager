@@ -46,7 +46,6 @@ const RepositoryFileSelector = ({ handleSaveLink, appData, cancelLinkHandler }) 
   const [defaultCommit, setDefaultCommit] = useState('');
   const [defaultCommitId, setDefaultCommitId] = useState('');
 
-  console.log('appData', appData);
   const getExtLoginData = (data) => {
     if (data?.status) {
       setAuthenticatedThirdApp(false);

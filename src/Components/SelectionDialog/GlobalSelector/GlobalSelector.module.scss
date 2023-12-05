@@ -187,7 +187,7 @@
 }
 .tableContainer {
   border: 1px solid lightgray;
-  height: 55vh;
+  max-height: 40vh;
   overflow: auto;
 }
 
@@ -205,10 +205,8 @@
   }
 }
 .targetBtnContainerTwo {
-  position: absolute;
-  bottom: 0px;
-  right: 0px;
-
+  display: flex;
+  justify-content: end;
   button {
     border-radius: 5px;
   }
@@ -218,10 +216,6 @@
   }
 }
 
-.mainTableContainer {
-  position: absolute;
-  z-index: 0;
-}
 .emptyTableContent {
   display: flex;
   align-items: center;
@@ -231,13 +225,26 @@
   font-size: 20px;
   border-top: 0;
 }
-.mainContainerOne {
-  min-height: 85vh;
-}
-.mainContainerTwo {
-  position: relative;
-  min-height: 97vh;
-}
 .first_column {
   text-align: center;
+}
+@media screen and (min-height: 750px) and (max-height: 849px) {
+  .tableContainer {
+    max-height: 44vh;
+  }
+}
+@media screen and (min-height: 850px) and (max-height: 1019px) {
+  .tableContainer {
+    max-height: 49vh;
+  }
+}
+@media screen and (min-height: 1020px) and (max-height: 1100px) {
+  .tableContainer {
+    max-height: 55vh;
+  }
+}
+@media screen and (min-height: 1101px) {
+  .tableContainer {
+    max-height: 62vh;
+  }
 }
