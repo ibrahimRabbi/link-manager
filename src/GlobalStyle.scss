@@ -53,6 +53,19 @@
   padding-bottom: 10px;
 }
 
+.traceLynx_logo {
+  font-weight: bold;
+  background: linear-gradient(
+    to left,
+    #144272 33.3%,
+    #205295 33.3% 66.9%,
+    #2c74b3 33.3% 90%
+  );
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
 .show_nav {
   margin-left: 200px;
   width: 100%;
