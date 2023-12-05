@@ -361,6 +361,12 @@ const Application = () => {
         } else {
           serverData['ui'] = item?.url;
         }
+      } else if (data?.type === 'jira') {
+        if (item?.type?.toLowerCase()?.includes('oauth2')) {
+          serverData['rest'] = item?.url;
+        } else if (item?.type?.toLowerCase()?.includes('ui')) {
+          serverData['ui'] = item?.url;
+        }
       } else {
         serverData['rest'] = item.url;
       }
@@ -511,6 +517,7 @@ const Application = () => {
     const foundApplicationType = Object.values(applicationDataTypes['items']).find(
       (item) => item.id === data?.type,
     );
+
     const editForm = {
       type: data?.type,
       organization_id: data?.organization_id,
