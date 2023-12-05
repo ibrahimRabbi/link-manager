@@ -126,7 +126,7 @@ const RecentLink = ({ recentCreatedLinks }) => {
           );
         },
         cell: ({ row }) => (
-          <p style={{ fontSize: '20px' }}>{row?.original?.link?.label}</p>
+          <p style={{ fontSize: '17px' }}>{row?.original?.link?.label}</p>
         ),
         footer: (props) => props.column.id,
       },
