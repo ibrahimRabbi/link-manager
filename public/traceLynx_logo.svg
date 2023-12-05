@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="120" viewBox="0 0 200 120">
+  <defs>
+    <style>
+      .cls-1, .cls-2 {
+        fill: #fff;
+      }
+
+      .cls-1 {
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <image width="71" height="120" xlink:href="data:img/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEcAAAB4CAYAAACgnO9nAAABK0lEQVR4nO3QoU1EAQAFwcfPCQRIPDXRG+3RAPIM6nIewlp+wkwFm314fXv/2PYyvvu8bHve9mTND1/HttvJos7idvz3A8WcYE4wJ5gTzAnmBHOCOcGcYE4wJ5gTzAnmBHOCOcGcYE4wJ5gTzAnmBHOCOcGcYE4wJ5gTzAnmBHOCOcGcYE4wJ5gTzAnmBHOCOcGcYE4wJ5gTzAnmBHOCOcGcYE4wJ5gTzAnmBHOCOcGcYE4wJ5gTzAnmBHOCOcGcYE4wJ5gTzAnmBHOCOcGcYE4wJ5gTzAnmBHOCOcGcYE4wJ5gTzAnmBHOCOcGcYE4wJ5gTzAnmBHOCOcGcYE4wJ5gTzAnmBHOCOcGcYE4wJ5gTzAnmBHOCOcGcYE44DPrVcdl23fZ40sC/s13v5rQI2MyHdR4AAAAASUVORK5CYII="/>
+  <image id="Layer_2_copy" data-name="Layer 2 copy" x="68" width="68" height="120" xlink:href="data:img/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAB4CAYAAABLq1RkAAABH0lEQVR4nO3dsU0DAQAEweOFiCCCiiiJimmAyBmBZZmMbYCXmKngtA3cw9v7x+e213H39bjtZduzHD++j23XEww5i+vx3wuUICFICBKChCAhSAgSgoQgIUgIEoKEICFICBKChCAhSAgSgoQgIUgIEoKEICFICBKChCAhSAgSgoQgIUgIEoKEICFICBKChCAhSAgSgoQgIUgIEoKEICFICBKChCAhSAgSgoQgIUgIEoKEICFICBKChCAhSAgSgoQgIUgIEoKEICFICBKChCAhSAgSgoQgIUgIEoKEICFICBKChCAhSAgSgoQgIUgIEoKEICFICBKChCAhSAgSgoQgIUgIEoKEICFICBKChCAhSByi/HLcX90v255ONOrvbJcbirIIm43z/6QAAAAASUVORK5CYII="/>
+  <image id="Layer_2_copy_2" data-name="Layer 2 copy 2" x="132" width="68" height="120" xlink:href="data:img/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEQAAAB4CAYAAABLq1RkAAABIUlEQVR4nO3dsU0DAQAEweOFCBBE9EAr9N8BDRA5I7Ask7EN8BIzFZy2gXt4fv/43PY27r4et71ue5Hjx/ex7XqCIWdxPf57gRIkBAlBQpAQJAQJQUKQECQECUFCkBAkBAlBQpAQJAQJQUKQECQECUFCkBAkBAlBQpAQJAQJQUKQECQECUFCkBAkBAlBQpAQJAQJQUKQECQECUFCkBAkBAlBQpAQJAQJQUKQECQECUFCkBAkBAlBQpAQJAQJQUKQECQECUFCkBAkBAlBQpAQJAQJQUKQECQECUFCkBAkBAlBQpAQJAQJQUKQECQECUFCkBAkBAlBQpAQJAQJQUKQECQECUFCkBAkBAlBQpAQJASJQ5Rfjvur+2Xb04lG/Z3tcgMLpQhKxPXAOgAAAABJRU5ErkJggg=="/>
+  <path class="cls-1" d="M49.994,62.23l2.893-4.218L81.006,72.77l-2.893,4.218Z"/>
+  <path class="cls-1" d="M116.034,78.267l-2.671-4.25,35.261-21.453,2.672,4.25Z"/>
+  <circle id="Ellipse_1_copy_2" data-name="Ellipse 1 copy 2" class="cls-2" cx="30" cy="54" r="24"/>
+  <circle id="Ellipse_1_copy_4" data-name="Ellipse 1 copy 4" class="cls-2" cx="102" cy="74" r="24"/>
+  <circle id="Ellipse_1_copy_3" data-name="Ellipse 1 copy 3" class="cls-2" cx="168" cy="44" r="24"/>
+</svg>
