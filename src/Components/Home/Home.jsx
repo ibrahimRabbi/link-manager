@@ -1,9 +1,10 @@
+/* eslint-disable indent */
 /* eslint-disable max-len */
 import React from 'react';
 import { useState } from 'react';
 import AuthContext from '../../Store/Auth-Context';
 import { useContext } from 'react';
-import { Message, toaster } from 'rsuite';
+import { Button, Message, toaster } from 'rsuite';
 import fetchAPIRequest from '../../apiRequests/apiRequest';
 import { useQuery } from '@tanstack/react-query';
 import RecentProjects from './RecentProjects';
@@ -75,7 +76,9 @@ const Home = () => {
     <div style={{ padding: '20px 20px 0 30px', marginBottom: '30px' }}>
       {projectLoading || pipelineLoading || linkLoading ? (
         <UseLoader />
-      ) : (
+      ) : recentProject?.items?.length ||
+        recentPipelines?.items?.length ||
+        recentCreatedLinks?.data?.length ? (
         <div>
           <div>
             <h3>Recent Projects</h3>
@@ -137,6 +140,17 @@ const Home = () => {
               </div>
             )}
           </div>
+        </div>
+      ) : authCtx?.user?.role === 'super_admin' || authCtx?.user?.role === 'admin' ? (
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '250px' }}>
+          <Button appearance="primary">Create New Project</Button>
+        </div>
+      ) : (
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '250px' }}>
+          <h3>
+            Hello there! It looks like you are new. To see dashboard, please create a new
+            links or projects.
+          </h3>
         </div>
       )}
     </div>
