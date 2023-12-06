@@ -14,6 +14,7 @@ import RecentLink from './RecentLink';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
+import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const { isDark } = useSelector((state) => state.nav);
@@ -21,6 +22,7 @@ const Home = () => {
   const [pageSize] = useState(5);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -31,6 +33,9 @@ const Home = () => {
       toaster.push(messages, { placement: 'bottomCenter', duration: 1000 });
     }
   };
+  const organization = authCtx?.organization_name
+    ? `/${authCtx?.organization_name?.toLowerCase()}`
+    : '';
 
   useEffect(() => {
     dispatch(handleCurrPageTitle('Dashboard'));
@@ -71,7 +76,9 @@ const Home = () => {
   const tableProps = {
     data: recentCreatedLinks?.data?.length ? recentCreatedLinks?.data : [],
   };
-
+  const handleExtension = () => {
+    navigate(`${organization}/extension`);
+  };
   return (
     <div style={{ padding: '20px 20px 0 30px', marginBottom: '30px' }}>
       {projectLoading || pipelineLoading || linkLoading ? (
@@ -147,10 +154,11 @@ const Home = () => {
         </div>
       ) : (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '250px' }}>
-          <h3>
-            Hello there! It looks like you are new. To see dashboard, please create a new
-            links or projects.
-          </h3>
+          <h5>
+            You do not have any recent data. To see dashboard, please create a new links
+            or projects. Download extension for create links by
+            <a onClick={() => handleExtension()}> click here</a>.
+          </h5>
         </div>
       )}
     </div>
