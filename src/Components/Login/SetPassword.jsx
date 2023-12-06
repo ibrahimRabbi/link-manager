@@ -41,6 +41,7 @@ const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 const UserVerify = () => {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const [formError, setFormError] = useState({});
   const [formValue, setFormValue] = useState({ password: '', password_confirm: '' });
   const navigate = useNavigate();
@@ -84,12 +85,16 @@ const UserVerify = () => {
           });
           navigate('/login');
         } else {
+          setError(true);
           res.json().then((data) => {
             showNotification('error', data?.message);
           });
         }
       })
-      .catch((error) => showNotification('error', error?.message))
+      .catch((error) => {
+        setError(true);
+        showNotification('error', error?.message);
+      })
       .finally(() => setLoading(false));
   };
 
@@ -139,6 +144,7 @@ const UserVerify = () => {
                 style={{ marginTop: '40px' }}
                 color="blue"
                 block
+                disbaled={error}
                 type="submit"
                 appearance="primary"
                 onClick={handlePasswordSubmit}
