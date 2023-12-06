@@ -1,5 +1,15 @@
 import React, { useState, useRef } from 'react';
-import { Form, Button, FlexboxGrid, Panel, Col, Schema, Loader } from 'rsuite';
+import {
+  Form,
+  Button,
+  FlexboxGrid,
+  Panel,
+  Col,
+  Schema,
+  Loader,
+  toaster,
+  Message,
+} from 'rsuite';
 import PasswordField from '../AdminDasComponents/PasswordField';
 
 import styles from './Login.module.scss';
@@ -40,6 +50,17 @@ const UserVerify = () => {
   const email = searchParams.get('email');
   const verification_token = searchParams.get('verification_token');
 
+  const showNotification = (type, message) => {
+    if (type && message) {
+      const messages = (
+        <Message closable type={type}>
+          <h6>{message}</h6>
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 10000 });
+    }
+  };
+
   // handle submit password
   const handlePasswordSubmit = async () => {
     if (!passRef.current.check()) {
@@ -58,10 +79,17 @@ const UserVerify = () => {
     })
       .then((res) => {
         if (res.ok) {
+          res.json().then((data) => {
+            showNotification('success', data?.message);
+          });
           navigate('/login');
+        } else {
+          res.json().then((data) => {
+            showNotification('error', data?.message);
+          });
         }
       })
-      .catch((error) => console.log(error))
+      .catch((error) => showNotification('error', error?.message))
       .finally(() => setLoading(false));
   };
 
