@@ -21,7 +21,7 @@
 .env.production.local
 
 # cypress testing env
-cypress.env.json
+# cypress.env.json
 
 npm-debug.log*
 yarn-debug.log*
