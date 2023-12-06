@@ -1,4 +1,3 @@
-/* eslint-disable */
 describe('The Profile Page', () => {
   const env= Cypress.env();
 

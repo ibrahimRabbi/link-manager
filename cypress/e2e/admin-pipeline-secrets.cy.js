@@ -9,7 +9,7 @@ describe('The Admin Dashboard test', () => {
     cy.get('[data-cy="profile-options-btn"]').click();
     cy.get('[data-cy="profile-btns"]').contains('Admin Dashboard').click();
     cy.get('.admin-side-nav-body').find('ul a.rs-sidenav-item').eq(6).click();
-    cy.get('h3').should('contain', 'Pipeline Secrets');
+    cy.get('h5').should('contain', 'Pipeline Secrets');
     cy.get('button').contains('Add New').click();
     cy.get('button').contains('Cancel').click();
     cy.get('.rs-message-error').should('not.exist');
