@@ -156,7 +156,7 @@ const AdminDataTable = ({ props }) => {
         {handleEdit && (
           <IconButton size="sm" title="Edit" icon={<MdEdit />} onClick={editSelected} />
         )}
-        {handleResendEmailVerification && !rowData.verified && (
+        {handleResendEmailVerification && (
           <IconButton
             size="sm"
             title="Send verfication email"
