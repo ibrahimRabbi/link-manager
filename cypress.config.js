@@ -1,5 +1,5 @@
-/* eslint-disable */
 import { defineConfig } from 'cypress';
+
 export default defineConfig({
   e2e: {
     setupNodeEvents(on, config){
@@ -9,11 +9,6 @@ export default defineConfig({
       });
     },
     baseUrl: 'http://localhost:5173',
-    env: {
-      apiUrl:'https://lm-api-dev.koneksys.com/api/v1',
-      username: 'mario',
-      password: 'admin',
-    },
     setupNodeEvents() {
       // implement node event listeners here
     },

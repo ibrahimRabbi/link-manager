@@ -18,11 +18,9 @@ import {
   Stack,
   toaster,
 } from 'rsuite';
-import { handleRefreshData } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import styles from './LinkManager.module.scss';
 import SourceSection from '../SourceSection';
-import { HiRefresh } from 'react-icons/hi';
 import { FaRegFileExcel } from 'react-icons/fa';
 import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
@@ -298,13 +296,6 @@ const LinkManager = () => {
                       color="blue"
                     >
                       <FaRegFileExcel title="Export To Excel" size={25} />
-                    </Button>
-                    <Button
-                      appearance="default"
-                      onClick={() => dispatch(handleRefreshData(!refreshData))}
-                      color="blue"
-                    >
-                      <HiRefresh size={25} />
                     </Button>
                   </div>
                 </FlexboxGrid.Item>
