@@ -52,7 +52,7 @@ const userModel = Schema.Model({
   first_name: StringType().isRequired(requiredMessage),
   last_name: StringType().isRequired(requiredMessage),
   username: StringType().isRequired(requiredMessage),
-  organization_id: NumberType().isRequired('This field is required.'),
+  organization_id: NumberType(),
   email: StringType().isRequired(requiredMessage),
 });
 const passwordModel = Schema.Model({
@@ -75,21 +75,24 @@ const UserProfile = () => {
   const authCtx = useContext(AuthContext);
   const userInfo = jwt_decode(authCtx?.token);
 
-  const { data: userProfileData } = useQuery(['userProfile'], () =>
-    fetchAPIRequest({
-      // eslint-disable-next-line max-len
-      urlPath: `user/${authCtx.user_id}`,
-      token: authCtx.token,
-      method: 'GET',
-      showNotification: showNotification,
-    }),
+  const { data: userData, refetch: refetchUserData } = useQuery(
+    ['userProfile'],
+    async () => {
+      const res = await fetchAPIRequest({
+        urlPath: `user/${authCtx.user_id}`,
+        token: authCtx.token,
+        method: 'GET',
+        showNotification: showNotification,
+      });
+      return res;
+    },
   );
 
   const [userFormValue, setUserFormValue] = useState({
-    first_name: userInfo?.given_name ? userInfo?.given_name : '',
-    last_name: userInfo?.family_name ? userInfo?.family_name : '',
-    username: userInfo?.preferred_username ? userInfo?.preferred_username : '',
-    email: userInfo?.email ? userInfo?.email : '',
+    first_name: userInfo?.given_name ? userInfo.given_name : '',
+    last_name: userInfo?.family_name ? userInfo.family_name : '',
+    username: userInfo?.preferred_username ? userInfo.preferred_username : '',
+    email: userInfo?.email ? userInfo.email : '',
     organization_id: Number(authCtx?.organization_id),
   });
   const [passwordFormValue, setPasswordFormValue] = useState({
@@ -100,10 +103,13 @@ const UserProfile = () => {
   useEffect(() => {
     setUserFormValue({
       ...userFormValue,
-      projects: userProfileData?.data?.projects,
-      organization_id: userProfileData?.data?.organization[0]?.id,
+      first_name: userData?.data ? userData.data.first_name : userInfo?.given_name,
+      last_name: userData?.data ? userData.data.last_name : userInfo?.family_name,
+      username: userData?.data ? userData.data.username : userInfo?.preferred_username,
+      email: userData?.data ? userData.data.email : userInfo.email,
+      projects: userData?.data ? userData.data.projects : [],
     });
-  }, [userProfileData]);
+  }, [userData]);
 
   useEffect(() => {
     dispatch(handleCurrPageTitle('Profile'));
@@ -127,11 +133,15 @@ const UserProfile = () => {
         urlPath: `user/${authCtx?.user_id}`,
         token: authCtx.token,
         method: 'PUT',
-        body: { ...userFormValue, enabled: true },
+        body: {
+          ...userFormValue,
+          enabled: true,
+        },
         showNotification: showNotification,
       }),
     {
       onSuccess: (value) => {
+        refetchUserData();
         showNotification(value?.status, value?.message);
       },
     },
@@ -159,14 +169,12 @@ const UserProfile = () => {
     // submit user info
     if (navKey === 'user') {
       if (!profileRef.current.check()) {
-        console.log(formError);
         return;
       }
       updateUserMutate();
       // submit update password
     } else if (navKey === 'password') {
       if (!passwordRef.current.check()) {
-        console.log(passwordError);
         return;
       }
       updatePasswordMutate();
@@ -182,8 +190,15 @@ const UserProfile = () => {
         {/* --- Left Section ---  */}
         <div className={leftContainer}>
           <div className={imageContainer}>
-            <img src="./default_avatar.jpg" alt={userInfo?.preferred_username} />
-            <h5>{userInfo?.name ? userInfo?.name : 'First Name Last Name'}</h5>
+            <img
+              src={`${location.origin}/default_avatar.png`}
+              alt={userInfo?.preferred_username}
+            />
+            <h5>
+              {userData?.data
+                ? userData?.data?.first_name + ' ' + userData?.data?.last_name
+                : userInfo?.name}
+            </h5>
             <Tag color={'orange'}>
               <p>{authCtx?.user ? authCtx?.user?.role : 'User role'}</p>
             </Tag>
@@ -193,19 +208,19 @@ const UserProfile = () => {
           <Divider style={{ marginTop: '0' }} />
           <p className={infoStyle}>
             <span>First Name: </span>
-            {userInfo?.given_name}
+            {userData?.data ? userData?.data?.first_name : userInfo?.given_name}
           </p>
           <p className={infoStyle}>
             <span>Last Name: </span>
-            {userInfo?.family_name}
+            {userData?.data ? userData?.data?.last_name : userInfo?.family_name}
           </p>
           <p className={infoStyle}>
             <span>Username: </span>
-            {userInfo?.preferred_username}
+            {userData?.data ? userData?.data?.username : userInfo?.preferred_username}
           </p>
           <p className={infoStyle}>
             <span>Email: </span>
-            {userInfo?.email}
+            {userData?.data ? userData?.data?.email : userInfo?.email}
           </p>
           <p className={infoStyle}>
             <span>Status: </span>active
@@ -245,23 +260,7 @@ const UserProfile = () => {
               data-cy="profile-form"
             >
               <FlexboxGrid justify="space-between">
-                <FlexboxGrid.Item colspan={11} style={{ marginBottom: '30px' }}>
-                  <TextField
-                    name="first_name"
-                    label="First Name"
-                    reqText="First name is required"
-                  />
-                </FlexboxGrid.Item>
-
-                <FlexboxGrid.Item colspan={11} style={{ marginBottom: '30px' }}>
-                  <TextField
-                    name="last_name"
-                    label="Last Name"
-                    reqText="Last name is required"
-                  />
-                </FlexboxGrid.Item>
-
-                <FlexboxGrid.Item colspan={24}>
+                <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
                   <SelectField
                     name="organization_id"
                     label="Organization"
@@ -270,20 +269,31 @@ const UserProfile = () => {
                     apiURL={`${lmApiUrl}/organization`}
                     error={formError.organization_id}
                     disabled={true}
-                    reqText="Organization Id is required"
                     defaultValue={Number(authCtx?.organization_id)}
-                    onChange={(value) => {
-                      setUserFormValue({ ...userFormValue, organization_id: value });
-                    }}
-                    style={{ marginBottom: '30px' }}
                   />
                 </FlexboxGrid.Item>
 
-                <FlexboxGrid.Item colspan={24} style={{ marginBottom: '30px' }}>
+                <FlexboxGrid.Item colspan={11} style={{ marginBottom: '25px' }}>
+                  <TextField
+                    name="first_name"
+                    label="First Name"
+                    reqText="First name is required"
+                  />
+                </FlexboxGrid.Item>
+
+                <FlexboxGrid.Item colspan={11} style={{ marginBottom: '25px' }}>
+                  <TextField
+                    name="last_name"
+                    label="Last Name"
+                    reqText="Last name is required"
+                  />
+                </FlexboxGrid.Item>
+
+                <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
                   <TextField name="username" label="Username" disabled />
                 </FlexboxGrid.Item>
 
-                <FlexboxGrid.Item colspan={24} style={{ marginBottom: '30px' }}>
+                <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
                   <TextField name="email" label="Email" type="email" />
                 </FlexboxGrid.Item>
               </FlexboxGrid>
@@ -312,19 +322,21 @@ const UserProfile = () => {
               model={passwordModel}
             >
               <FlexboxGrid justify="space-between">
-                <FlexboxGrid.Item colspan={11} style={{ marginBottom: '30px' }}>
+                <FlexboxGrid.Item colspan={11} style={{ marginBottom: '25px' }}>
                   <PasswordField
                     name="new_password"
                     label="New Password"
                     type="password"
+                    error={passwordError.new_password}
                     reqText="New password is required"
                   />
                 </FlexboxGrid.Item>
 
-                <FlexboxGrid.Item colspan={11} style={{ marginBottom: '30px' }}>
+                <FlexboxGrid.Item colspan={11} style={{ marginBottom: '25px' }}>
                   <PasswordField
                     name="new_password_confirm"
                     label="Confirm Password"
+                    error={passwordError.new_password_confirm}
                     type="password"
                     reqText="Confirm password is required"
                   />

@@ -12,12 +12,11 @@ import UseLoader from '../Shared/UseLoader';
 import RecentPipeline from './RecentPipeline';
 import RecentLink from './RecentLink';
 import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
 import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
-  const { isDark } = useSelector((state) => state.nav);
   const [currPage] = useState(1);
   const [pageSize] = useState(5);
   const authCtx = useContext(AuthContext);
@@ -88,18 +87,17 @@ const Home = () => {
         recentCreatedLinks?.data?.length ? (
         <div>
           <div>
-            <h3>Recent Projects</h3>
+            <h5>Recent Projects</h5>
             {recentProject?.items?.length < 1 ? (
               <div>
-                <h3
+                <h5
                   style={{
                     textAlign: 'center',
                     marginTop: '10px',
-                    color: isDark === 'dark' ? 'white' : '#1675e0',
                   }}
                 >
                   No recent projects
-                </h3>
+                </h5>
               </div>
             ) : (
               <div>
@@ -108,18 +106,17 @@ const Home = () => {
             )}
           </div>
           <div style={{ marginTop: '30px' }}>
-            <h3>Recently Created Links</h3>
+            <h5>Recently Created Links</h5>
             {tableProps?.data?.length < 1 ? (
               <div>
-                <h3
+                <h5
                   style={{
                     textAlign: 'center',
                     marginTop: '10px',
-                    color: isDark === 'dark' ? 'white' : '#1675e0',
                   }}
                 >
                   No links created
-                </h3>
+                </h5>
               </div>
             ) : (
               <div>
@@ -128,18 +125,17 @@ const Home = () => {
             )}
           </div>
           <div style={{ marginTop: '30px' }}>
-            <h3>Recent Pipeline Runs</h3>
+            <h5>Recent Pipeline Runs</h5>
             {recentPipelines?.items?.length < 1 ? (
               <div>
-                <h3
+                <h5
                   style={{
                     textAlign: 'center',
                     marginTop: '10px',
-                    color: isDark === 'dark' ? 'white' : '#1675e0',
                   }}
                 >
                   No pipelines executed
-                </h3>
+                </h5>
               </div>
             ) : (
               <div>

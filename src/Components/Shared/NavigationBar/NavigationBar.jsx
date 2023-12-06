@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { handleIsDarkMode, handleIsProfileOpen } from '../../../Redux/slices/navSlice';
 import AuthContext from '../../../Store/Auth-Context.jsx';
-import koneksysLogo from './koneksys_logo.png';
 import DashboardIcon from '@rsuite/icons/Dashboard';
 import {
   Avatar,
@@ -90,7 +89,12 @@ const NavigationBar = () => {
       className={popoverContainer}
       title={
         <div className={userContainer}>
-          <Avatar size="md" circle src={'./default_avatar.jpg'} alt="User" />
+          <Avatar
+            size="md"
+            circle
+            src={`${location.origin}/default_avatar.png`}
+            alt="User"
+          />
           <div>
             <h6>{userInfo?.name ? userInfo?.name : 'First Name Last Name'}</h6>
             <p>{userInfo?.email ? userInfo?.email : 'Email'}</p>
@@ -152,28 +156,17 @@ const NavigationBar = () => {
             onClick={() => navigate(organization ? organization : '/')}
             className={navbarBrand}
           >
-            <img height={30} src={koneksysLogo} alt="Logo" />
-            <h3>
-              <span
-                style={{
-                  color: isDark === 'dark' ? '#44a5fa' : '#2c74b3',
-                }}
-              >
-                Trace
-              </span>
-              <span
-                style={{
-                  color: isDark === 'dark' ? '#217ada' : '  #144272',
-                }}
-              >
-                Lynx{' '}
-              </span>
-
-              <span> - {authCtx?.organization_name}</span>
-            </h3>
+            <img
+              height={30}
+              alt="TraceLynx"
+              src={window.location.origin + '/traceLynx_logo.svg'}
+            />
+            <h2>
+              <span className="traceLynx_logo">TraceLynx</span>
+            </h2>
           </Navbar.Brand>
           <Nav>
-            <h3 style={{ textAlign: 'center' }}>{currPageTitle}</h3>
+            <h5 style={{ textAlign: 'center' }}>{currPageTitle}</h5>
           </Nav>
 
           <Nav style={{ padding: '5px 20px 0 0' }}>

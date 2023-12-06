@@ -8,7 +8,6 @@ export default function fetchAPIRequest({
   showNotification,
 }) {
   const apiURL = `${lmApiUrl}/${urlPath}`;
-
   return fetch(apiURL, {
     method: method,
     headers: {
