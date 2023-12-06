@@ -1,7 +1,6 @@
 /* eslint-disable indent */
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { HiRefresh } from 'react-icons/hi';
+import { useSelector } from 'react-redux';
 import defaultLogo from './logo.png';
 import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
@@ -20,7 +19,6 @@ import {
 import { IconButton, ButtonToolbar } from 'rsuite';
 import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
-import { handleRefreshData } from '../../Redux/slices/navSlice';
 import { darkBgColor, lightBgColor } from '../../App';
 import { MdDelete, MdEdit, MdEmail, MdLock } from 'react-icons/md';
 import { BiShowAlt } from 'react-icons/bi';
@@ -67,11 +65,10 @@ const AdminDataTable = ({ props }) => {
     totalItems,
     pageSize,
   } = props;
-  const { isDark, refreshData } = useSelector((state) => state.nav);
+  const { isDark } = useSelector((state) => state.nav);
   const [tableFilterValue, setTableFilterValue] = useState('');
   const [displayTableData, setDisplayTableData] = useState([]);
   const [page, setPage] = useState(1);
-  const dispatch = useDispatch();
 
   useEffect(() => {
     handlePagination(page);
@@ -368,48 +365,32 @@ const AdminDataTable = ({ props }) => {
         style={{
           backgroundColor: isDark == 'dark' ? darkBgColor : lightBgColor,
           marginTop: '20px',
-          padding: '10px',
+          padding: '10px 0',
         }}
       >
         <FlexboxGrid.Item>
-          {handleAddNew && title === 'Synchronization' ? (
-            <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
-              Create New Sync
-            </Button>
-          ) : (
-            <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
-              Add New
-            </Button>
-          )}
+          <InputGroup size="lg" inside style={{ width: '400px' }}>
+            <Input
+              placeholder={'Search...'}
+              value={tableFilterValue}
+              onChange={(v) => setTableFilterValue(v)}
+            />
+            {tableFilterValue ? (
+              <InputGroup.Button onClick={() => setTableFilterValue('')}>
+                <CloseIcon />
+              </InputGroup.Button>
+            ) : (
+              <InputGroup.Button>
+                <SearchIcon />
+              </InputGroup.Button>
+            )}
+          </InputGroup>
         </FlexboxGrid.Item>
 
         <FlexboxGrid.Item>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <InputGroup size="lg" inside style={{ width: '400px' }}>
-              <Input
-                placeholder={'Search...'}
-                value={tableFilterValue}
-                onChange={(v) => setTableFilterValue(v)}
-              />
-              {tableFilterValue ? (
-                <InputGroup.Button onClick={() => setTableFilterValue('')}>
-                  <CloseIcon />
-                </InputGroup.Button>
-              ) : (
-                <InputGroup.Button>
-                  <SearchIcon />
-                </InputGroup.Button>
-              )}
-            </InputGroup>
-
-            <Button
-              appearance="default"
-              onClick={() => dispatch(handleRefreshData(!refreshData))}
-              color="blue"
-            >
-              <HiRefresh size={25} />
-            </Button>
-          </div>
+          <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
+            {handleAddNew && title === 'Synchronization' ? 'Create New Sync' : 'Add New'}
+          </Button>
         </FlexboxGrid.Item>
       </FlexboxGrid>
 

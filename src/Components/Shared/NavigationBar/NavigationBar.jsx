@@ -79,6 +79,11 @@ const NavigationBar = () => {
       path: organization + '/admin',
       icon: <DashboardIcon size={17} />,
     },
+    {
+      label: 'Homepage',
+      path: organization,
+      icon: <DashboardIcon size={17} />,
+    },
     { label: darkModeText, path: '', icon: <ImBrightnessContrast size={17} /> },
     { label: 'Logout', path: '', icon: <BiLogOut size={17} /> },
   ];
@@ -103,12 +108,21 @@ const NavigationBar = () => {
       }
     >
       {popItems.map((item, index) => {
+        // hide admin dashboard module if the user not an admin
         if (item?.path === organization + '/admin') {
           if (isAdmin || isSuperAdmin) {
             // display dashboard option
           } else {
             return null;
           }
+        }
+        // hide admin dashboard module if the user already in the admin dashboard
+        if (item.label === 'Admin Dashboard' && location.pathname.includes('/admin')) {
+          return null;
+        }
+        // hide homepage module if the user is not in the admin dashboard
+        else if (item.label === 'Homepage' && !location.pathname.includes('/admin')) {
+          return null;
         }
         return (
           <Button
