@@ -18,19 +18,19 @@ import jwt_decode from 'jwt-decode';
 // demo data
 const headerData = [
   {
-    header: 'User Names',
+    header: 'Username',
     key: 'username',
   },
   {
-    header: 'First Names',
+    header: 'First Name',
     key: 'first_name',
   },
   {
-    header: 'Last Names',
+    header: 'Last Name',
     key: 'last_name',
   },
   {
-    header: 'Emails',
+    header: 'Email',
     key: 'email',
   },
 ];

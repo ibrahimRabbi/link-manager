@@ -164,8 +164,12 @@ const Login = () => {
             const redirectPath = location.state.from.pathname;
             const isAdminDashboard = redirectPath?.includes('/admin');
 
-            if (role === 'super_admin' || role === 'admin') {
-              navigate('/admin');
+            if (role.includes('admin')) {
+              if (isSource || location.state.from.pathname.includes('wbe')) {
+                navigate('/wbe');
+              } else {
+                navigate('/admin');
+              }
             }
             // if redirect path is admin dashboard & user is not a admin.
             else if (isAdminDashboard && role === 'user') {
