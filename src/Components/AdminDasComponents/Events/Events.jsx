@@ -247,11 +247,11 @@ const Events = () => {
             model={model}
           >
             <FlexboxGrid justify="space-between">
-              <FlexboxGrid.Item colspan={24}>
+              <FlexboxGrid.Item colspan={11}>
                 <TextField name="name" label="Name" reqText="Name is required" />
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item style={{ margin: '25px 0' }} colspan={24}>
+              <FlexboxGrid.Item colspan={11}>
                 <SelectField
                   name="application_id"
                   label="Application"
@@ -264,7 +264,7 @@ const Events = () => {
                 />
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={24}>
+              <FlexboxGrid.Item colspan={24} style={{ marginTop: '25px' }}>
                 <TextField
                   name="description"
                   label="Description"
