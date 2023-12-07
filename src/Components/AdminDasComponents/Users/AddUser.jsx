@@ -11,13 +11,12 @@ import SelectField from '../SelectField';
 import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
-const { StringType, ArrayType, NumberType } = Schema.Types;
+const { StringType, ArrayType } = Schema.Types;
 
 const model = Schema.Model({
   first_name: StringType().isRequired('This field is required.'),
   last_name: StringType().isRequired('This field is required.'),
   username: StringType().isRequired('This field is required.'),
-  organization_id: NumberType().isRequired('This field is required.'),
   email: StringType()
     .isEmail('Please enter a valid email address.')
     .isRequired('This field is required.'),
@@ -139,7 +138,7 @@ const AddUser = ({
         formValue={formValue}
         model={model}
       >
-        <FlexboxGrid justify="space-between" style={{ marginBottom: '25px' }}>
+        <FlexboxGrid justify="space-between">
           <FlexboxGrid.Item colspan={11}>
             <TextField
               name="first_name"
@@ -156,24 +155,6 @@ const AddUser = ({
             />
           </FlexboxGrid.Item>
 
-          <FlexboxGrid.Item colspan={11}>
-            <SelectField
-              name="organization_id"
-              label="Organization"
-              placeholder="Select Organization"
-              accepter={CustomReactSelect}
-              apiURL={`${lmApiUrl}/organization`}
-              error={formError.organization_id}
-              disabled={true}
-              reqText="Organization Id is required"
-              defaultValue={Number(authCtx?.organization_id)}
-              onChange={(value) => {
-                setFormValue({ ...formValue, organization_id: value });
-              }}
-              style={{ marginTop: '30px' }}
-            />
-          </FlexboxGrid.Item>
-
           <FlexboxGrid.Item colspan={11} style={{ margin: '25px 0' }}>
             <TextField
               name="username"
@@ -183,7 +164,7 @@ const AddUser = ({
             />
           </FlexboxGrid.Item>
 
-          <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
+          <FlexboxGrid.Item colspan={11} style={{ margin: '25px 0' }}>
             <TextField name="email" label="Email" reqText="Email is required" />
           </FlexboxGrid.Item>
 

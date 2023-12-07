@@ -55,7 +55,7 @@ const headerData = [
   },
 ];
 
-const { StringType, NumberType } = Schema.Types;
+const { StringType } = Schema.Types;
 const requiredLabel = 'This field is required';
 
 const Application = () => {
@@ -108,7 +108,6 @@ const Application = () => {
   /** Model Schema */
   const model = Schema.Model({
     type: StringType().isRequired(requiredLabel),
-    organization_id: NumberType().isRequired(requiredLabel),
     name: StringType().isRequired(requiredLabel),
     description: StringType(),
     client_id:
@@ -396,7 +395,6 @@ const Application = () => {
       setAdvancedOptions(false);
     }
     formValue.type = value;
-    formValue.organization_id = parseInt(authCtx.organization_id);
     setFormValue({ ...formValue });
     const selectedAppType = Object.values(applicationDataTypes['items']).find(
       (item) => item.id === value,
@@ -520,7 +518,6 @@ const Application = () => {
 
     const editForm = {
       type: data?.type,
-      organization_id: data?.organization_id,
       name: data?.name,
       description: data?.description,
       tenant_id: serverData?.tenant ? serverData?.tenant : '',
@@ -694,22 +691,7 @@ const Application = () => {
                 model={model}
               >
                 <FlexboxGrid justify="space-between">
-                  <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={11}>
-                    <SelectField
-                      name="organization_id"
-                      label="Organization"
-                      placeholder="Select Organization"
-                      accepter={CustomReactSelect}
-                      apiURL={`${lmApiUrl}/organization`}
-                      error={formError.organization_id}
-                      disabled={true}
-                      reqText="Organization Id is required"
-                      value={Number(authCtx?.organization_id)}
-                      defaultValue={Number(authCtx?.organization_id)}
-                    />
-                  </FlexboxGrid.Item>
-
-                  <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={11}>
+                  <FlexboxGrid.Item colspan={11}>
                     <SelectField
                       name="type"
                       label="Integration type"
@@ -723,7 +705,7 @@ const Application = () => {
                     />
                   </FlexboxGrid.Item>
 
-                  <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
+                  <FlexboxGrid.Item colspan={11}>
                     <TextField
                       name="name"
                       label="Name"
@@ -731,7 +713,7 @@ const Application = () => {
                     />
                   </FlexboxGrid.Item>
 
-                  <FlexboxGrid.Item colspan={24}>
+                  <FlexboxGrid.Item colspan={24} style={{ marginTop: '25px' }}>
                     <TextField
                       name="description"
                       label="Description"
