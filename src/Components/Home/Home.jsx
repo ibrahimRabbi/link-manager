@@ -13,7 +13,7 @@ import RecentPipeline from './RecentPipeline';
 import RecentLink from './RecentLink';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
+import { handleCurrPageTitle, handleIsAddNewModal } from '../../Redux/slices/navSlice';
 import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
@@ -76,7 +76,8 @@ const Home = () => {
     data: recentCreatedLinks?.data?.length ? recentCreatedLinks?.data : [],
   };
   const handleExtension = () => {
-    navigate(`${organization}/extension`);
+    navigate(`${organization}/admin/projects`);
+    dispatch(handleIsAddNewModal(true));
   };
   return (
     <div style={{ padding: '20px 20px 0 30px', marginBottom: '30px' }}>
@@ -86,6 +87,21 @@ const Home = () => {
         recentPipelines?.items?.length ||
         recentCreatedLinks?.data?.length ? (
         <div>
+          <div
+            style={{
+              marginTop: '10px',
+              marginBottom: '30px',
+            }}
+          >
+            {(authCtx?.user?.role === 'super_admin' ||
+              authCtx?.user?.role === 'admin') && (
+              <div>
+                <Button appearance="primary" onClick={() => handleExtension()}>
+                  Create New Project
+                </Button>
+              </div>
+            )}
+          </div>
           <div>
             <h5>Recent Projects</h5>
             {recentProject?.items?.length < 1 ? (
@@ -144,16 +160,19 @@ const Home = () => {
             )}
           </div>
         </div>
-      ) : authCtx?.user?.role === 'super_admin' || authCtx?.user?.role === 'admin' ? (
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '250px' }}>
-          <Button appearance="primary">Create New Project</Button>
-        </div>
       ) : (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '250px' }}>
           <h5>
             You do not have any recent data. To see dashboard, please create a new links
             or projects. Download extension for create links by
-            <a onClick={() => handleExtension()}> click here</a>.
+            <a
+              href="https://chrome.google.com/webstore/detail/tracelynx/mkpcjknonnajlmnlccbkppaiggobfjio?hl=en&authuser=4"
+              target="_blank"
+              rel="noreferrer"
+            >
+              click here
+            </a>
+            .
           </h5>
         </div>
       )}
