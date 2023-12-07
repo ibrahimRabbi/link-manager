@@ -19,6 +19,7 @@ import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 import AlertModal from '../../Shared/AlertModal';
 import { Mixpanel } from '../../../../Mixpanel';
 import jwt_decode from 'jwt-decode';
+import { useLocation } from 'react-router-dom';
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 // demo data
@@ -41,12 +42,14 @@ const { StringType, NumberType, ArrayType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
-  description: StringType().isRequired('This field is required.'),
+  description: StringType(),
   organization_id: NumberType(),
   users: ArrayType(),
 });
 
 const Projects = () => {
+  const location = useLocation();
+
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -287,6 +290,7 @@ const Projects = () => {
     totalItems: allProjects?.total_items,
     totalPages: allProjects?.total_pages,
     pageSize,
+    showResourceLink: location.pathname.replace('projects', 'project'),
     page: allProjects?.page,
     inpPlaceholder: 'Search Project',
   };

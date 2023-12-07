@@ -27,6 +27,7 @@ import { MdOutlineContentCopy } from 'react-icons/md';
 import { IoPlay } from 'react-icons/io5';
 import { Icon } from '@rsuite/icons';
 import { FaSpinner } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 const { Column, HeaderCell, Cell } = Table;
 
 const getSourceTargetIcon = (iconKey) => {
@@ -64,7 +65,9 @@ const AdminDataTable = ({ props }) => {
     authorizeModal,
     totalItems,
     pageSize,
+    showResourceLink,
   } = props;
+  const navigate = useNavigate();
   const { isDark } = useSelector((state) => state.nav);
   const [tableFilterValue, setTableFilterValue] = useState('');
   const [displayTableData, setDisplayTableData] = useState([]);
@@ -205,6 +208,7 @@ const AdminDataTable = ({ props }) => {
     sourceIcon,
     targetIcon,
     syncTime,
+    showResourceLink,
     ...props
   }) => {
     const logo = rowData[iconKey] ? rowData[iconKey] : defaultLogo;
@@ -251,7 +255,21 @@ const AdminDataTable = ({ props }) => {
         )}
 
         {/* display row data  */}
-        {dataKey && <p style={{ marginLeft: '5px' }}>{rowData[dataKey]}</p>}
+        {/* eslint-disable-next-line max-len */}
+        {dataKey && dataKey !== 'name' && (
+          <p style={{ marginLeft: '5px' }}>{rowData[dataKey]}</p>
+        )}
+
+        {dataKey && dataKey === 'name' && showResourceLink && (
+          <a
+            style={{ marginLeft: '5px' }}
+            onClick={() => {
+              navigate(`${showResourceLink}/${rowData['id']}`);
+            }}
+          >
+            {rowData[dataKey]}
+          </a>
+        )}
 
         {/* display status data  */}
         {statusKey && (
@@ -427,6 +445,7 @@ const AdminDataTable = ({ props }) => {
               buttonKey={header?.buttonKey}
               syncStatus={header?.syncStatus}
               syncTime={header?.syncTime}
+              showResourceLink={showResourceLink}
             />
           </Column>
         ))}
