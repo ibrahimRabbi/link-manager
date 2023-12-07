@@ -42,6 +42,7 @@ import Home from './Components/Home/Home';
 import SynchronizationConfig from './Components/AdminDasComponents/MigrationConfig/SynchronizationConfig';
 import Synchronization from './Components/AdminDasComponents/MigrationConfig/Synchronization';
 import * as Sentry from '@sentry/react';
+import ResourceDetails from './Components/AdminDasComponents/ResourceDetails/ResourceDetails.jsx';
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -191,6 +192,10 @@ function App() {
               />
 
               <Route path={`${organization}/admin/projects`} element={<Projects />} />
+              <Route
+                path={`${organization}/admin/project/:id`}
+                element={<ResourceDetails type="project" />}
+              />
 
               <Route path={`${organization}/admin/link-rules`} element={<LinkRules />} />
 
