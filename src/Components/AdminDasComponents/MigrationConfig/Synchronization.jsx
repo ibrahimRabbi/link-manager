@@ -20,7 +20,6 @@ import {
 
 const apiURL = import.meta.env.VITE_LM_REST_API_URL;
 const headerData = [
-  { header: 'ID', key: 'id', width: 45 },
   {
     header: 'Source Project',
     key: 'source_project',

@@ -12,10 +12,6 @@ const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 const headerData = [
   {
-    header: 'ID',
-    key: 'id',
-  },
-  {
     header: 'Started',
     key: 'start_time',
   },

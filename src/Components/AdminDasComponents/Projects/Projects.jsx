@@ -24,10 +24,6 @@ const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 // demo data
 const headerData = [
   {
-    header: 'ID',
-    key: 'id',
-  },
-  {
     header: 'Projects',
     key: 'name',
   },
