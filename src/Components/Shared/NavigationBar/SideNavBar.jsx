@@ -109,7 +109,7 @@ const SideNavBar = () => {
       navigateTo: `${organization}/organizations`,
       icon: <SlOrganization size={17} style={{ ...iconStyle, marginLeft: '-35px' }} />,
       content: <span>Organizations</span>,
-      hidden: false,
+      hidden: true,
       isAdminModule: true,
     },
     {
