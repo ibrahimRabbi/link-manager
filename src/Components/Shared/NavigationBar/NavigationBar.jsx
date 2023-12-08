@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { handleIsDarkMode, handleIsProfileOpen } from '../../../Redux/slices/navSlice';
 import AuthContext from '../../../Store/Auth-Context.jsx';
-import DashboardIcon from '@rsuite/icons/Dashboard';
 import {
   Avatar,
   Button,
@@ -73,16 +72,6 @@ const NavigationBar = () => {
       label: 'Profile',
       path: organization + '/profile',
       icon: <BiUserCircle size={18} style={{ marginRight: '-1px' }} />,
-    },
-    {
-      label: 'Admin Dashboard',
-      path: organization + '/admin',
-      icon: <DashboardIcon size={17} />,
-    },
-    {
-      label: 'Homepage',
-      path: organization,
-      icon: <DashboardIcon size={17} />,
     },
     { label: darkModeText, path: '', icon: <ImBrightnessContrast size={17} /> },
     { label: 'Logout', path: '', icon: <BiLogOut size={17} /> },
@@ -175,8 +164,21 @@ const NavigationBar = () => {
               alt="TraceLynx"
               src={window.location.origin + '/traceLynx_logo.svg'}
             />
-            <h2>
-              <span className="traceLynx_logo">TraceLynx</span>
+            <h2 style={{ fontWeight: '600' }}>
+              <span
+                style={{
+                  color: isDark === 'dark' ? '#3491e2' : '#2c74b3',
+                }}
+              >
+                Trace
+              </span>
+              <span
+                style={{
+                  color: isDark === 'dark' ? '#1d69ba' : '#144272',
+                }}
+              >
+                Lynx
+              </span>
             </h2>
           </Navbar.Brand>
           <Nav>

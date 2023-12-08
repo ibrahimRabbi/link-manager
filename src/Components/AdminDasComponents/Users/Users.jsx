@@ -50,7 +50,6 @@ const Users = () => {
     last_name: '',
     username: '',
     email: '',
-    organization_id: '',
     projects: [],
   });
   const [open, setOpen] = useState(false);
@@ -160,7 +159,6 @@ const Users = () => {
         last_name: '',
         username: '',
         email: '',
-        organization_id: '',
         projects: [],
       });
     }, 500);
@@ -215,7 +213,6 @@ const Users = () => {
       last_name: data?.last_name,
       username: data?.username,
       email: data?.email,
-      organization_id: data?.organization[0]?.id,
       projects: mappedProjects,
     });
     setIsAddModal(true);

@@ -59,7 +59,6 @@ const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
   description: StringType().isRequired('This field is required.'),
   application_id: NumberType().isRequired('This field is required.'),
-  organization_id: NumberType(),
 });
 
 const Events = () => {
@@ -74,7 +73,6 @@ const Events = () => {
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
   const [formValue, setFormValue] = useState({
-    organization_id: '',
     name: '',
     application_id: '',
     description: '',
@@ -153,7 +151,6 @@ const Events = () => {
   const handleResetForm = () => {
     setEditData({});
     setFormValue({
-      organization_id: '',
       name: '',
       description: '',
       application_id: '',
@@ -212,7 +209,6 @@ const Events = () => {
       name: data?.name,
       description: data?.description,
       application_id: data?.application_id,
-      organization_id: data?.organization_id,
     });
     dispatch(handleIsAddNewModal(true));
   };
@@ -251,24 +247,11 @@ const Events = () => {
             model={model}
           >
             <FlexboxGrid justify="space-between">
-              <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={24}>
-                <SelectField
-                  name="organization_id"
-                  label="Organization"
-                  value={Number(authCtx?.organization_id)}
-                  placeholder="Select Organization"
-                  accepter={CustomReactSelect}
-                  apiURL={`${lmApiUrl}/organization`}
-                  error={formError.organization_id}
-                  disabled
-                />
-              </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item colspan={24}>
+              <FlexboxGrid.Item colspan={11}>
                 <TextField name="name" label="Name" reqText="Name is required" />
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item style={{ margin: '25px 0' }} colspan={24}>
+              <FlexboxGrid.Item colspan={11}>
                 <SelectField
                   name="application_id"
                   label="Application"
@@ -281,7 +264,7 @@ const Events = () => {
                 />
               </FlexboxGrid.Item>
 
-              <FlexboxGrid.Item colspan={24}>
+              <FlexboxGrid.Item colspan={24} style={{ marginTop: '25px' }}>
                 <TextField
                   name="description"
                   label="Description"

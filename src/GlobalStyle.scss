@@ -39,9 +39,7 @@
 }
 
 .mainContainer {
-  max-width: 1600px;
   margin: 0 auto;
-  padding: 0 1vw;
 }
 
 .adminContainer {
@@ -55,15 +53,13 @@
 
 .traceLynx_logo {
   font-weight: bold;
-  background: linear-gradient(
-    to left,
-    #144272 33.3%,
-    #205295 33.3% 66.9%,
-    #2c74b3 33.3% 90%
-  );
-  -webkit-text-fill-color: transparent;
-  -webkit-background-clip: text;
-  background-clip: text;
+  // background: linear-gradient(to left,
+  //     #144272 33.3%,
+  //     #205295 33.3% 66.9%,
+  //     #2c74b3 33.3% 90%);
+  // -webkit-text-fill-color: transparent;
+  // -webkit-background-clip: text;
+  // background-clip: text;
 }
 
 .show_nav {
@@ -98,7 +94,7 @@
   }
 }
 
-.linkFileContainer > h5 {
+.linkFileContainer>h5 {
   span {
     margin-left: 10px;
     margin-bottom: -10px;
@@ -246,6 +242,7 @@
 
 // react select styles for dark theme --- start
 .reactSelectContainer {
+
   // react select value container style
   .reactSelect__control {
     background-color: #1a1d24;

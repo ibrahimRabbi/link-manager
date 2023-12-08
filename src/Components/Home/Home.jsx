@@ -71,7 +71,7 @@ const Home = () => {
   };
 
   return (
-    <div style={{ padding: '20px 20px 0 30px', marginBottom: '30px' }}>
+    <div style={{ marginBottom: '30px' }}>
       {projectLoading || pipelineLoading || linkLoading ? (
         <UseLoader />
       ) : (
