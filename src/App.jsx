@@ -196,6 +196,10 @@ function App() {
                 path={`${organization}/admin/project/:id`}
                 element={<ResourceDetails type="project" />}
               />
+              <Route
+                path={`${organization}/admin/project/:id/user-permissions`}
+                element={<ResourceDetails type="project-permissions" />}
+              />
 
               <Route path={`${organization}/admin/link-rules`} element={<LinkRules />} />
 
