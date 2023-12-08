@@ -61,7 +61,6 @@ const Pipelines = () => {
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
 
   const model = Schema.Model({
-    organization_id: NumberType(),
     event_id: NumberType().isRequired('Event is required.'),
     script_path: isAdminEditing
       ? ObjectType()
@@ -74,7 +73,6 @@ const Pipelines = () => {
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
   const [formValue, setFormValue] = useState({
-    organization_id: '',
     event_id: 0,
     script_path: null,
     filename: '',
@@ -153,7 +151,6 @@ const Pipelines = () => {
   const handleResetForm = () => {
     setEditData({});
     setFormValue({
-      organization_id: '',
       event_id: 0,
       script_path: null,
       filename: '',
@@ -216,7 +213,6 @@ const Pipelines = () => {
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
     setFormValue({
-      organization_id: data?.organization_id || Number(authCtx?.organization_id),
       event_id: data?.event_id,
       script_path: null,
       filename: data?.filename,
@@ -272,20 +268,7 @@ const Pipelines = () => {
             model={model}
           >
             <FlexboxGrid justify="space-between">
-              <FlexboxGrid.Item colspan={24}>
-                <SelectField
-                  name="organization_id"
-                  label="Organization"
-                  value={Number(authCtx?.organization_id)}
-                  placeholder="Select Organization"
-                  accepter={CustomReactSelect}
-                  apiURL={`${lmApiUrl}/organization`}
-                  error={formError.organization_id}
-                  disabled
-                />
-              </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item style={{ margin: '25px 0' }} colspan={24}>
+              <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={24}>
                 <SelectField
                   placeholder="Select Event"
                   name="event_id"

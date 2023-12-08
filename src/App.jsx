@@ -11,7 +11,6 @@ import NewLink from './Components/NewLink/NewLink';
 import ProtectedRoute from './Components/Shared/ProtectedRoute/ProtectedRoute';
 import './GlobalStyle.scss';
 import NotFound from './Pages/404';
-import AdminDashboard from './Pages/AdminDashboard';
 import Dashboard from './Pages/Dashboard';
 import LoginPage from './Pages/Login';
 import WbeDashboard from './Pages/WbeDashboard';
@@ -75,8 +74,8 @@ function App() {
   const authCtx = useContext(AuthContext);
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const isSuperAdmin = authCtx?.user?.role === 'super_admin' ? true : false;
-  const isAdmin = authCtx?.user?.role === 'admin' ? true : false;
+  const isSuperAdmin = authCtx?.user?.role === 'super_admin';
+  const isAdmin = authCtx?.user?.role === 'admin';
 
   useEffect(() => {
     const theme = localStorage.getItem('isDarkMode');
@@ -91,7 +90,6 @@ function App() {
     if (organization) {
       if (pathname === '/') navigate(organization);
       else if (pathname === '/wbe') navigate(`/wbe${organization}`);
-      else if (pathname === '/admin') navigate(`${organization}/admin`);
     }
   }, [pathname]);
 
@@ -133,19 +131,17 @@ function App() {
             path="/wbe"
             element={
               <ProtectedRoute>
+                {' '}
                 <WbeDashboard />
               </ProtectedRoute>
             }
           >
             <Route path={`/wbe${organization}/new-link`} element={<NewLink />} />
-
             <Route
               path={`/wbe${organization}/graph-view`}
               element={<CytoscapeGraphView />}
             />
-
             <Route path={`/wbe${organization}/pipeline`} element={<Pipeline />} />
-
             <Route path={`/wbe${organization}`} element={<LinkManager />} />
           </Route>
 
@@ -164,63 +160,40 @@ function App() {
             <Route path={`${organization}/extension`} element={<WebBrowserExtension />} />
             <Route path={`${organization}/profile`} element={<UserProfile />} />
             <Route path={`${organization}/`} element={<Home />} />
-          </Route>
 
-          {/* This is admin dashboard  */}
-          {(isSuperAdmin || isAdmin) && (
-            <Route
-              path={`${organization}/admin`}
-              element={
-                <ProtectedRoute>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            >
-              {isSuperAdmin && (
+            {/* ---- admin modules ---- */}
+            {(isAdmin || isSuperAdmin) && (
+              <>
+                {/* ---- display organization module if user is an super admin ---- */}
+                {isSuperAdmin && (
+                  <Route
+                    path={`${organization}/organizations`}
+                    element={<Organization />}
+                  />
+                )}
+
+                <Route path={`${organization}/users`} element={<Users />} />
+                <Route path={`${organization}/projects`} element={<Projects />} />
+                <Route path={`${organization}/link-rules`} element={<LinkRules />} />
+                <Route path={`${organization}/events`} element={<Events />} />
+                <Route path={`${organization}/integrations`} element={<Application />} />
                 <Route
-                  path={`${organization}/admin/organizations`}
-                  element={<Organization />}
+                  path={`${organization}/pipelinessecrets`}
+                  element={<PipelineSecrets />}
                 />
-              )}
-
-              <Route path={`${organization}/admin/users`} element={<Users />} />
-
-              <Route
-                path={`${organization}/admin/integrations`}
-                element={<Application />}
-              />
-
-              <Route path={`${organization}/admin/projects`} element={<Projects />} />
-
-              <Route path={`${organization}/admin/link-rules`} element={<LinkRules />} />
-
-              <Route path={`${organization}/admin/events`} element={<Events />} />
-
-              <Route
-                path={`${organization}/admin/pipelinessecrets`}
-                element={<PipelineSecrets />}
-              />
-
-              <Route path={`${organization}/admin/pipelines`} element={<Pipelines />} />
-
-              <Route
-                path={`${organization}/admin/pipelinerun`}
-                element={<PipelineRun />}
-              />
-
-              <Route
-                path={`${organization}/admin/synchronization`}
-                element={<Synchronization />}
-              />
-
-              <Route
-                path={`${organization}/admin/createsync`}
-                element={<SynchronizationConfig />}
-              />
-
-              <Route path={`${organization}/admin`} element={<Users />} />
-            </Route>
-          )}
+                <Route path={`${organization}/pipelines`} element={<Pipelines />} />
+                <Route path={`${organization}/pipelinerun`} element={<PipelineRun />} />
+                <Route
+                  path={`${organization}/synchronization`}
+                  element={<Synchronization />}
+                />
+                <Route
+                  path={`${organization}/createsync`}
+                  element={<SynchronizationConfig />}
+                />
+              </>
+            )}
+          </Route>
 
           <Route path="/oauth2-status" element={<Oauth2Success />} />
           <Route path="/set-password" element={<SetPassword />} />

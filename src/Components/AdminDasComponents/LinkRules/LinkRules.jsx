@@ -44,10 +44,9 @@ const headerData = [
 const requiredLabel = 'This field is required.';
 const regexLabel = 'Please try to enter a label without spaces nor special characters.';
 
-const { StringType, ArrayType, NumberType } = Schema.Types;
+const { StringType, ArrayType } = Schema.Types;
 
 const model = Schema.Model({
-  organization_id: NumberType(),
   source_resource_id: ArrayType().isRequired(requiredLabel),
   label: StringType()
     .addRule((value) => {
@@ -78,7 +77,6 @@ const LinkRoles = () => {
   const [deleteData, setDeleteData] = useState({});
   const [mappedLinkTypes, setMappedLinkTypes] = useState([]);
   const [formValue, setFormValue] = useState({
-    organization_id: '',
     source_resource_id: '',
     label: '',
     target_resource_id: '',
@@ -195,7 +193,6 @@ const LinkRoles = () => {
   const handleResetForm = () => {
     setEditData({});
     setFormValue({
-      organization_id: '',
       source_resource_id: '',
       label: '',
       target_resource_id: '',
@@ -250,7 +247,6 @@ const LinkRoles = () => {
     }, []);
 
     setFormValue({
-      organization_id: data?.organization_id || Number(authCtx?.organization_id),
       label: data?.source_link?.name,
       source_resource_id: source_links,
       inverse_label: data?.target_link?.name,
@@ -292,19 +288,6 @@ const LinkRoles = () => {
             model={model}
           >
             <FlexboxGrid justify="space-between">
-              <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={24}>
-                <SelectField
-                  name="organization_id"
-                  label="Organization"
-                  value={Number(authCtx?.organization_id)}
-                  placeholder="Select Organization"
-                  accepter={CustomReactSelect}
-                  apiURL={`${lmApiUrl}/organization`}
-                  error={formError.organization_id}
-                  disabled
-                />
-              </FlexboxGrid.Item>
-
               <FlexboxGrid.Item colspan={11}>
                 <SelectField
                   name="source_resource_id"

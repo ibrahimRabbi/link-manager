@@ -56,7 +56,6 @@ const Projects = () => {
   const [formValue, setFormValue] = useState({
     name: '',
     description: '',
-    organization_id: '',
     users: [],
   });
   const [open, setOpen] = useState(false);
@@ -216,7 +215,6 @@ const Projects = () => {
       setFormValue({
         name: '',
         description: '',
-        organization_id: '',
         users: [],
       });
     }, 500);
@@ -263,7 +261,6 @@ const Projects = () => {
     setFormValue({
       name: data?.name,
       description: data?.description,
-      organization_id: data?.organization_id,
       users: mappedUserList,
     });
 
@@ -302,22 +299,7 @@ const Projects = () => {
           formValue={formValue}
           model={model}
         >
-          <FlexboxGrid.Item colspan={24}>
-            <SelectField
-              name="organization_id"
-              label="Organization"
-              placeholder="Select Organization"
-              accepter={CustomReactSelect}
-              apiURL={`${lmApiUrl}/organization`}
-              error={formError.organization_id}
-              disabled={true}
-              reqText="Organization Id is required"
-              value={Number(authCtx?.organization_id)}
-              defaultValue={Number(authCtx?.organization_id)}
-            />
-          </FlexboxGrid.Item>
-
-          <FlexboxGrid.Item colspan={24} style={{ margin: '25px 0' }}>
+          <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
             <TextField name="name" label="Name" reqText="Name is required" />
           </FlexboxGrid.Item>
 
@@ -330,6 +312,7 @@ const Projects = () => {
               apiURL={`${lmApiUrl}/user`}
               error={formError.users}
               isMulti={true}
+              closeMenuOnSelect={false}
             />
           </FlexboxGrid.Item>
 
