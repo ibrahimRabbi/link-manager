@@ -15,6 +15,7 @@ import {
   Input,
   Whisper,
   Tooltip,
+  Toggle,
 } from 'rsuite';
 import { IconButton, ButtonToolbar } from 'rsuite';
 import SearchIcon from '@rsuite/icons/Search';
@@ -66,12 +67,32 @@ const AdminDataTable = ({ props }) => {
     totalItems,
     pageSize,
     showResourceLink,
+    handleEnableDisable,
+    rowStatus,
+    showSearchBar,
+    showAddNewButton,
   } = props;
   const navigate = useNavigate();
   const { isDark } = useSelector((state) => state.nav);
   const [tableFilterValue, setTableFilterValue] = useState('');
   const [displayTableData, setDisplayTableData] = useState([]);
+  const [displaySearchBar, setDisplaySearchBar] = useState(true);
+  const [displayAddNew, setDisplayAddNew] = useState(true);
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    console.log(showSearchBar);
+    if (showSearchBar || showSearchBar === undefined) {
+      setDisplaySearchBar(true);
+    } else {
+      setDisplaySearchBar(false);
+    }
+    if (showAddNewButton || showAddNewButton === undefined) {
+      setDisplayAddNew(true);
+    } else {
+      setDisplayAddNew(false);
+    }
+  }, []);
 
   useEffect(() => {
     handlePagination(page);
@@ -184,6 +205,9 @@ const AdminDataTable = ({ props }) => {
             onClick={syncSelected}
           />
         )}
+        {handleEnableDisable && (
+          <Toggle checked={rowStatus} onChange={handleEnableDisable} />
+        )}
         {authorizeModal && (
           <IconButton
             size="sm"
@@ -214,6 +238,28 @@ const AdminDataTable = ({ props }) => {
     const logo = rowData[iconKey] ? rowData[iconKey] : defaultLogo;
     const sourceLogo = sourceIcon && getSourceTargetIcon(rowData[sourceIcon]);
     const targetLogo = targetIcon && getSourceTargetIcon(rowData[targetIcon]);
+
+    const getLabelRow = (rowData, dataKey, link) => {
+      if (dataKey && link) {
+        if (dataKey === 'name') {
+          return (
+            <a
+              style={{ marginLeft: '5px' }}
+              onClick={() => {
+                navigate(`${link}/${rowData['id']}`);
+              }}
+            >
+              {rowData[dataKey]}
+            </a>
+          );
+        } else {
+          return <p style={{ marginLeft: '5px' }}>{rowData[dataKey]}</p>;
+        }
+      } else {
+        return <p style={{ marginLeft: '5px' }}>{rowData[dataKey]}</p>;
+      }
+    };
+
     return (
       <Cell {...props}>
         {/* display logo  */}
@@ -256,20 +302,7 @@ const AdminDataTable = ({ props }) => {
 
         {/* display row data  */}
         {/* eslint-disable-next-line max-len */}
-        {dataKey && dataKey !== 'name' && (
-          <p style={{ marginLeft: '5px' }}>{rowData[dataKey]}</p>
-        )}
-
-        {dataKey && dataKey === 'name' && showResourceLink && (
-          <a
-            style={{ marginLeft: '5px' }}
-            onClick={() => {
-              navigate(`${showResourceLink}/${rowData['id']}`);
-            }}
-          >
-            {rowData[dataKey]}
-          </a>
-        )}
+        {getLabelRow(rowData, dataKey, showResourceLink)}
 
         {/* display status data  */}
         {statusKey && (
@@ -386,30 +419,35 @@ const AdminDataTable = ({ props }) => {
           padding: '10px 0',
         }}
       >
-        <FlexboxGrid.Item>
-          <InputGroup size="lg" inside style={{ width: '400px' }}>
-            <Input
-              placeholder={'Search...'}
-              value={tableFilterValue}
-              onChange={(v) => setTableFilterValue(v)}
-            />
-            {tableFilterValue ? (
-              <InputGroup.Button onClick={() => setTableFilterValue('')}>
-                <CloseIcon />
-              </InputGroup.Button>
-            ) : (
-              <InputGroup.Button>
-                <SearchIcon />
-              </InputGroup.Button>
-            )}
-          </InputGroup>
-        </FlexboxGrid.Item>
-
-        <FlexboxGrid.Item>
-          <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
-            {handleAddNew && title === 'Synchronization' ? 'Create New Sync' : 'Add New'}
-          </Button>
-        </FlexboxGrid.Item>
+        {displaySearchBar && (
+          <FlexboxGrid.Item>
+            <InputGroup size="lg" inside style={{ width: '400px' }}>
+              <Input
+                placeholder={'Search...'}
+                value={tableFilterValue}
+                onChange={(v) => setTableFilterValue(v)}
+              />
+              {tableFilterValue ? (
+                <InputGroup.Button onClick={() => setTableFilterValue('')}>
+                  <CloseIcon />
+                </InputGroup.Button>
+              ) : (
+                <InputGroup.Button>
+                  <SearchIcon />
+                </InputGroup.Button>
+              )}
+            </InputGroup>
+          </FlexboxGrid.Item>
+        )}
+        {displayAddNew && (
+          <FlexboxGrid.Item>
+            <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
+              {handleAddNew && title === 'Synchronization'
+                ? 'Create New Sync'
+                : 'Add New'}
+            </Button>
+          </FlexboxGrid.Item>
+        )}
       </FlexboxGrid>
 
       <Table
