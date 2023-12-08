@@ -169,6 +169,7 @@ const Home = () => {
               href="https://chrome.google.com/webstore/detail/tracelynx/mkpcjknonnajlmnlccbkppaiggobfjio?hl=en&authuser=4"
               target="_blank"
               rel="noreferrer"
+              style={{ marginLeft: '2px' }}
             >
               click here
             </a>

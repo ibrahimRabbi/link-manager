@@ -853,6 +853,7 @@ const SynchronizationConfig = () => {
                       apiQueryParams={`application_id=${targetApplication?.id}`}
                       onChange={handleTargetWorkspace}
                       value={targetWorkspace?.name}
+                      restartRequest={restartExternalRequest}
                       isLinkCreation={true}
                       disabled={authenticatedThirdApp || selectDirection ? false : true}
                       // isApplication={true}
