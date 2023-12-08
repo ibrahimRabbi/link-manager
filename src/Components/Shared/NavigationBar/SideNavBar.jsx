@@ -17,6 +17,15 @@ import { MdArrowForwardIos } from 'react-icons/md';
 import { useState } from 'react';
 import AlertModal from '../AlertModal';
 
+import { FaUsers, FaLink } from 'react-icons/fa';
+import { SlOrganization } from 'react-icons/sl';
+import { SiAzurepipelines } from 'react-icons/si';
+import { PiPlugsDuotone } from 'react-icons/pi';
+import { VscProject } from 'react-icons/vsc';
+import { MdEvent } from 'react-icons/md';
+import { BiTransferAlt } from 'react-icons/bi';
+import { RiLockPasswordLine } from 'react-icons/ri';
+
 const iconStyle = {
   marginLeft: '-38px',
   marginRight: '17px',
@@ -31,6 +40,8 @@ const SideNavBar = () => {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
   const toaster = useToaster();
+
+  // handle logout
   const handleLogout = () => {
     setOpen(true);
   };
@@ -46,6 +57,10 @@ const SideNavBar = () => {
     }
   };
 
+  // check user role
+  const isSuperAdmin = authCtx?.user?.role === 'super_admin';
+  const isAdmin = authCtx?.user?.role === 'admin';
+
   // eslint-disable-next-line max-len
   const organization = authCtx?.organization_name
     ? `/${authCtx?.organization_name?.toLowerCase()}`
@@ -58,24 +73,109 @@ const SideNavBar = () => {
       navigateTo: organization ? organization : '/',
       icon: <TableColumnIcon />,
       content: <span>Dashboard</span>,
+      isAdminModule: false,
     },
     {
       path: organization ? organization + '/graph-view' : '/graph-view',
       navigateTo: organization ? organization + '/graph-view' : '/graph-view',
       icon: <PiGraphFill size={20} style={iconStyle} />,
       content: <span>Graph View</span>,
+      isAdminModule: false,
     },
     {
       path: organization ? organization + '/pipeline' : '/pipeline',
       navigateTo: organization ? organization + '/pipeline' : '/pipeline',
       icon: <PlayOutlineIcon />,
       content: <span>Pipelines</span>,
+      isAdminModule: false,
     },
     {
       path: organization ? organization + '/extension' : '/extension',
       navigateTo: organization ? organization + '/extension' : '/extension',
       icon: <AttachmentIcon />,
       content: <span>Extension</span>,
+      isAdminModule: false,
+    },
+    {
+      path: organization ? organization + '/users' : '/users',
+      navigateTo: `${organization}/users`,
+      icon: <FaUsers style={{ ...iconStyle, marginLeft: '-35px' }} />,
+      content: <span>Users</span>,
+      hidden: false,
+      isAdminModule: true,
+    },
+    {
+      path: organization ? organization + '/organizations' : '/organizations',
+      navigateTo: `${organization}/organizations`,
+      icon: <SlOrganization size={17} style={{ ...iconStyle, marginLeft: '-35px' }} />,
+      content: <span>Organizations</span>,
+      hidden: false,
+      isAdminModule: true,
+    },
+    {
+      path: organization ? organization + '/integrations' : '/integrations',
+      navigateTo: `${organization}/integrations`,
+      icon: <PiPlugsDuotone size={20} style={{ ...iconStyle }} />,
+      content: <span>Integrations</span>,
+      hidden: false,
+      isAdminModule: true,
+    },
+    {
+      path: organization ? organization + '/projects' : '/projects',
+      navigateTo: `${organization}/projects`,
+      icon: <VscProject size={18} style={{ ...iconStyle, marginLeft: '-37px' }} />,
+      content: <span>Projects</span>,
+      hidden: false,
+      isAdminModule: true,
+    },
+    {
+      path: organization ? organization + '/link-rules' : '/link-rules',
+      navigateTo: `${organization}/link-rules`,
+      icon: <FaLink size={16} style={{ ...iconStyle, marginLeft: '-37px' }} />,
+      content: <span>Link Rules</span>,
+      hidden: false,
+      isAdminModule: true,
+    },
+    {
+      path: organization ? organization + '/events' : '/events',
+      navigateTo: `${organization}/events`,
+      icon: <MdEvent size={19} style={{ ...iconStyle }} />,
+      content: <span>Event Config</span>,
+      hidden: false,
+      isAdminModule: true,
+    },
+    {
+      path: organization ? organization + '/pipelinessecrets' : '/pipelinessecrets',
+      navigateTo: `${organization}/pipelinessecrets`,
+      icon: <RiLockPasswordLine size={19} style={{ ...iconStyle }} />,
+      content: <span>Pipeline Secrets</span>,
+      hidden: false,
+      isAdminModule: true,
+    },
+    {
+      path: organization ? organization + '/pipelines' : '/pipelines',
+      navigateTo: `${organization}/pipelines`,
+      icon: <SiAzurepipelines size={15} style={{ ...iconStyle, marginLeft: '-36px' }} />,
+      content: <span>Pipeline Config</span>,
+      hidden: false,
+      isAdminModule: true,
+    },
+
+    {
+      path: organization ? organization + '/pipelinerun' : '/pipelinerun',
+      navigateTo: `${organization}/pipelinerun`,
+      icon: <PlayOutlineIcon />,
+      content: <span>Pipeline Runs</span>,
+      hidden: true,
+      isAdminModule: true,
+    },
+    {
+      path: organization ? organization + '/synchronization' : '/synchronization',
+      navigateTo: `${organization}/synchronization`,
+      icon: <BiTransferAlt size={21} style={{ ...iconStyle }} />,
+      content: <span>Sync Configs</span>,
+      hidden: false,
+      isAdminModule: true,
     },
   ];
 
@@ -103,7 +203,6 @@ const SideNavBar = () => {
         <Sidenav
           className="links-side-nav-body"
           expanded={isSidebarOpen}
-          defaultOpenKeys={['3']}
           appearance="subtle"
         >
           <Sidenav.Body className="link-nav-container">
@@ -111,6 +210,12 @@ const SideNavBar = () => {
               {baseOptions?.map((option, index) => {
                 if (isWbe && option.path === organization + '/extension') {
                   return null;
+                }
+
+                // display extra nav module if user is a admin
+                if (option.isAdminModule) {
+                  if (!isSuperAdmin && !isAdmin) return null;
+                  if (isWbe) return null;
                 }
 
                 // get active status for the navigate path

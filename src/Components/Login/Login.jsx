@@ -45,6 +45,7 @@ const resetModel = Schema.Model({
 
 const Login = () => {
   const { isWbe, sourceDataList } = useSelector((state) => state.links);
+  const { isDark } = useSelector((state) => state.nav);
   const [isLoading, setIsLoading] = useState(false);
   const [resetFormError, setResetFormError] = useState({});
   const [formValue, setFormValue] = useState({
@@ -162,18 +163,13 @@ const Login = () => {
           // Manage redirect
           if (location.state) {
             const redirectPath = location.state.from.pathname;
-            const isAdminDashboard = redirectPath?.includes('/admin');
 
             if (role.includes('admin')) {
               if (isSource || location.state.from.pathname.includes('wbe')) {
                 navigate('/wbe');
               } else {
-                navigate('/admin');
+                navigate(orgName + '/projects');
               }
-            }
-            // if redirect path is admin dashboard & user is not a admin.
-            else if (isAdminDashboard && role === 'user') {
-              navigate(orgName ? orgName : '/');
             } else {
               navigate(redirectPath);
             }
@@ -270,7 +266,22 @@ const Login = () => {
                   height={30}
                   alt="TL_logo"
                 />
-                <h2 className={`${'traceLynx_logo'} ${title}`}>TraceLynx</h2>
+                <h2 className={title}>
+                  <span
+                    style={{
+                      color: isDark === 'dark' ? '#3491e2' : '#2c74b3',
+                    }}
+                  >
+                    Trace
+                  </span>
+                  <span
+                    style={{
+                      color: isDark === 'dark' ? '#1d69ba' : '#144272',
+                    }}
+                  >
+                    Lynx
+                  </span>
+                </h2>
               </div>
             </div>
 
