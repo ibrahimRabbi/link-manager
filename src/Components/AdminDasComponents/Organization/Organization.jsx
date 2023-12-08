@@ -19,11 +19,6 @@ import AlertModal from '../../Shared/AlertModal';
 // demo data
 const headerData = [
   {
-    header: 'ID',
-    key: 'id',
-    width: 120,
-  },
-  {
     header: 'Organization',
     key: 'name',
   },

@@ -46,11 +46,6 @@ const thirdPartyUrl = `${lmApiUrl}/third_party`;
 // demo data
 const headerData = [
   {
-    header: 'ID',
-    key: 'id',
-    width: 60,
-  },
-  {
     header: 'Application',
     key: 'application_name',
     width: 160,

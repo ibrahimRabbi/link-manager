@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import React, { useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -65,7 +66,6 @@ const SideNavBar = () => {
   const organization = authCtx?.organization_name
     ? `/${authCtx?.organization_name?.toLowerCase()}`
     : '';
-
   // options to navigate
   const baseOptions = [
     {
@@ -178,7 +178,12 @@ const SideNavBar = () => {
       isAdminModule: true,
     },
   ];
-
+  const redirectToChromeWebStore = () => {
+    window.open(
+      'https://chrome.google.com/webstore/detail/tracelynx/mkpcjknonnajlmnlccbkppaiggobfjio?hl=en&authuser=4',
+      '_blank',
+    );
+  };
   return (
     <>
       {/* confirmation modal  */}
@@ -229,6 +234,9 @@ const SideNavBar = () => {
                     );
                   }
                 };
+                if (option.path === organization + '/extension' && isActive()) {
+                  redirectToChromeWebStore();
+                }
                 return (
                   <Nav.Item
                     key={index}
