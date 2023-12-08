@@ -15,7 +15,6 @@ import {
   Input,
   Whisper,
   Tooltip,
-  Toggle,
 } from 'rsuite';
 import { IconButton, ButtonToolbar } from 'rsuite';
 import SearchIcon from '@rsuite/icons/Search';
@@ -25,7 +24,7 @@ import { MdDelete, MdEdit, MdEmail, MdLock } from 'react-icons/md';
 import { BiShowAlt } from 'react-icons/bi';
 import { PiEyeBold } from 'react-icons/pi';
 import { MdOutlineContentCopy } from 'react-icons/md';
-import { IoPlay } from 'react-icons/io5';
+import { IoPersonAddSharp, IoPersonRemoveSharp, IoPlay } from 'react-icons/io5';
 import { Icon } from '@rsuite/icons';
 import { FaSpinner } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
@@ -67,8 +66,11 @@ const AdminDataTable = ({ props }) => {
     totalItems,
     pageSize,
     showResourceLink,
-    handleEnableDisable,
-    rowStatus,
+    handleAddToResource,
+    addToResourceLabel,
+    handleRemoveFromResource,
+    removeFromResourceLabel,
+    registeredUsers,
     showSearchBar,
     showAddNewButton,
   } = props;
@@ -156,6 +158,37 @@ const AdminDataTable = ({ props }) => {
       handleSync(rowData);
     };
 
+    const addToResource = () => {
+      handleAddToResource(rowData);
+    };
+    const removeFromResource = () => {
+      handleRemoveFromResource(rowData);
+    };
+
+    const addRemoveResourceButton = (rowData) => {
+      if (handleAddToResource && handleRemoveFromResource) {
+        if (rowData?.id && registeredUsers?.includes(rowData?.id)) {
+          return (
+            <IconButton
+              size="sm"
+              title={removeFromResourceLabel}
+              icon={<IoPersonRemoveSharp />}
+              onClick={removeFromResource}
+            />
+          );
+        } else {
+          return (
+            <IconButton
+              size="sm"
+              title={addToResourceLabel}
+              icon={<IoPersonAddSharp />}
+              onClick={addToResource}
+            />
+          );
+        }
+      }
+    };
+
     return (
       <ButtonToolbar>
         {handleScriptView && (
@@ -205,9 +238,7 @@ const AdminDataTable = ({ props }) => {
             onClick={syncSelected}
           />
         )}
-        {handleEnableDisable && (
-          <Toggle checked={rowStatus} onChange={handleEnableDisable} />
-        )}
+        {addRemoveResourceButton(rowData)}
         {authorizeModal && (
           <IconButton
             size="sm"
