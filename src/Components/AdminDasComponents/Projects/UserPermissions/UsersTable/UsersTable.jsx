@@ -1,6 +1,6 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Message, toaster } from 'rsuite';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import AdminDataTable from '../../../AdminDataTable.jsx';
 import AuthContext from '../../../../../Store/Auth-Context.jsx';
 import fetchAPIRequest from '../../../../../apiRequests/apiRequest.js';
@@ -8,29 +8,37 @@ import fetchAPIRequest from '../../../../../apiRequests/apiRequest.js';
 // demo data
 const headerData = [
   {
-    header: 'First Name',
-    key: 'first_name',
-  },
-  {
-    header: 'Last Name',
-    key: 'last_name',
-  },
-  {
-    header: 'Email',
-    key: 'email',
+    header: 'Full name',
+    key: 'full_name',
   },
   {
     header: 'Username',
     key: 'username',
   },
+  {
+    header: 'Email',
+    key: 'email',
+  },
 ];
 
-const UsersTable = () => {
+const UsersTable = (props) => {
+  const authCtx = useContext(AuthContext);
+  const { identifier } = props;
+
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [notificationType, setNotificationType] = React.useState('');
-  const [notificationMessage, setNotificationMessage] = React.useState('');
-  const authCtx = useContext(AuthContext);
+  const [notificationType] = React.useState('');
+  const [notificationMessage] = React.useState('');
+  const [addedUser, setAddedUser] = useState(false);
+  const [deletedUser, setDeletedUser] = useState(false);
+  const [projectData, setProjectData] = useState({});
+  const [projectUsers, setProjectUsers] = useState([]);
+  const [formValue, setFormValue] = useState({
+    name: '',
+    description: '',
+    organization_id: '',
+    users: [],
+  });
 
   const showNotification = (type, message) => {
     if (type && message) {
@@ -50,6 +58,45 @@ const UsersTable = () => {
     }
   };
 
+  const {
+    // eslint-disable-next-line no-unused-vars
+    data: singleProject,
+    refetch: refetchSingleProject,
+  } = useQuery(
+    ['project'],
+    () =>
+      fetchAPIRequest({
+        // eslint-disable-next-line max-len
+        urlPath: `${authCtx.organization_id}/project/${identifier}`,
+        token: authCtx.token,
+        method: 'GET',
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: (singleProject) => {
+        setProjectData(singleProject);
+      },
+    },
+  );
+
+  const { mutate: updateMutate } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: `${authCtx.organization_id}/project/${identifier}`,
+        token: authCtx.token,
+        method: 'PUT',
+        body: formValue,
+        showNotification: showNotification,
+      }),
+    {
+      onSuccess: () => {
+        refetchSingleProject();
+        setAddedUser(false);
+        setDeletedUser(false);
+      },
+    },
+  );
+
   // get data using react-query
   const { data: allUsers } = useQuery(['user'], () =>
     fetchAPIRequest({
@@ -59,7 +106,6 @@ const UsersTable = () => {
       showNotification: showNotification,
     }),
   );
-  console.log(allUsers);
 
   // Pagination
   const handlePagination = (value) => {
@@ -71,8 +117,22 @@ const UsersTable = () => {
     setPageSize(dataKey);
   };
 
-  const handleEnableDisable = (data) => {
-    console.log(data);
+  const handleAddToResource = (data) => {
+    const newFormValue = {
+      ...formValue,
+      users: [...formValue.users, data],
+    };
+    setFormValue(newFormValue);
+    setAddedUser(true);
+  };
+
+  const handleRemoveFromResource = (data) => {
+    const newFormValue = {
+      ...formValue,
+      users: formValue.users.filter((item) => item.id !== data.id),
+    };
+    setFormValue(newFormValue);
+    setDeletedUser(true);
   };
 
   // send props in the batch action table
@@ -82,7 +142,11 @@ const UsersTable = () => {
     headerData,
     handlePagination,
     handleChangeLimit,
-    handleEnableDisable,
+    handleAddToResource,
+    handleRemoveFromResource,
+    addToResourceLabel: 'Add to Project',
+    removeFromResourceLabel: 'Remove from Project',
+    registeredUsers: projectUsers,
     totalItems: allUsers?.total_items,
     totalPages: allUsers?.total_pages,
     pageSize,
@@ -90,6 +154,27 @@ const UsersTable = () => {
     inpPlaceholder: 'Search User',
     showAddNewButton: false,
   };
+
+  useEffect(() => {
+    const registeredUsers = projectData?.users?.map((item) => item.id);
+    setProjectUsers(registeredUsers);
+
+    const newFormValue = {
+      name: projectData.name,
+      description: projectData.description,
+      organization_id: projectData.organization_id,
+      users: projectData.users,
+    };
+    setFormValue(newFormValue);
+  }, [projectData]);
+
+  useEffect(() => {
+    if (addedUser) {
+      updateMutate();
+    } else if (deletedUser) {
+      updateMutate();
+    }
+  }, [addedUser, deletedUser]);
 
   return (
     <div>
