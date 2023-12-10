@@ -6,11 +6,11 @@ import UserPermissions from '../Projects/UserPermissions/UserPermissions.jsx';
 const ResourceDetails = (props) => {
   const { id } = useParams();
 
-  const { type } = props;
+  const { type, newResource } = props;
 
   const evaluateResourceType = (resourceType) => {
     if (resourceType === 'project') {
-      return <ProjectDetails identifier={id} />;
+      return <ProjectDetails identifier={id} newResource={newResource} />;
     }
     if (resourceType === 'project-permissions') {
       return <UserPermissions identifier={id} />;

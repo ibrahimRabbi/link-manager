@@ -19,7 +19,7 @@ import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 import AlertModal from '../../Shared/AlertModal';
 import { Mixpanel } from '../../../../Mixpanel';
 import jwt_decode from 'jwt-decode';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 // demo data
@@ -45,6 +45,7 @@ const model = Schema.Model({
 
 const Projects = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
@@ -232,8 +233,11 @@ const Projects = () => {
 
   // handle open add user modal
   const handleAddNew = () => {
-    handleResetForm();
-    dispatch(handleIsAddNewModal(true));
+    const pathSegments = location.pathname.split('/');
+    const newPathSegments = pathSegments.slice(0, -1).join('/');
+    navigate(newPathSegments + '/project/new');
+    // handleResetForm();
+    // dispatch(handleIsAddNewModal(true));
   };
 
   // handle delete project

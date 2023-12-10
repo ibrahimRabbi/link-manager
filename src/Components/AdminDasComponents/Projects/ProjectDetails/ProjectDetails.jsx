@@ -22,7 +22,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import AlertModal from '../../../Shared/AlertModal.jsx';
 import TextField from '../../TextField.jsx';
 import TextArea from '../../TextArea.jsx';
+import CustomReactSelect from '../../../Shared/Dropdowns/CustomReactSelect.jsx';
+import SelectField from '../../SelectField.jsx';
+import { FaCircleInfo } from 'react-icons/fa6';
+import { GoProjectTemplate } from 'react-icons/go';
 
+const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 const { StringType, NumberType, ArrayType } = Schema.Types;
 
 const model = Schema.Model({
@@ -39,7 +44,8 @@ const ProjectDetails = (props) => {
 
   const DELETION_ALERT_MESSAGE = 'Deleting a project cannot be undone.';
 
-  const { identifier } = props;
+  const { identifier, newResource } = props;
+
   const {
     resourceButton,
     mainSection,
@@ -49,24 +55,26 @@ const ProjectDetails = (props) => {
     editButtonSection,
     detailsSection,
     detailsTitle,
+    detailsTitleIcon,
     detailsSubTitle,
     editButton,
     detailsContent,
     detailsLabel,
+    newProjectDescription,
   } = styles;
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
-
-  const [projectData, setProjectData] = useState({});
-  const [editData, setEditData] = useState(false);
-  const [openDeleteModal, setOpenDeleteModal] = useState(false);
-
-  const [formValue, setFormValue] = useState({
+  const PROJECT_FORM = {
     name: '',
     description: '',
     organization_id: '',
     users: [],
-  });
+  };
+  const [projectData, setProjectData] = useState({});
+  const [editData, setEditData] = useState(false);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
+  const [newProject, setNewProject] = useState(newResource ? true : false);
+  const [formValue, setFormValue] = useState(PROJECT_FORM);
   const [formError, setFormError] = useState({});
 
   const showNotification = (type, message) => {
@@ -96,13 +104,21 @@ const ProjectDetails = (props) => {
     if (!projectFormRef.current.check()) {
       console.error('Form Error', formError);
       return;
+    } else if (newProject) {
+      createMutate();
     } else {
       updateMutate();
     }
   };
 
   const resetProjectData = () => {
-    setEditData(false);
+    if (newProject) {
+      const pathSegments = location.pathname.split('/');
+      const newPathSegments = pathSegments.slice(0, -2).join('/');
+      navigate(newPathSegments + '/projects');
+    } else {
+      setEditData(false);
+    }
   };
 
   const { mutate: updateMutate } = useMutation(
@@ -118,6 +134,30 @@ const ProjectDetails = (props) => {
       onSuccess: () => {
         setEditData(false);
         refetchSingleProject();
+      },
+    },
+  );
+
+  // create project using react query
+  const { mutate: createMutate } = useMutation(
+    () =>
+      fetchAPIRequest({
+        urlPath: `${authCtx.organization_id}/project`,
+        token: authCtx.token,
+        method: 'POST',
+        body: formValue,
+        showNotification: showNotification,
+        responseHeaders: true,
+      }),
+    {
+      onSuccess: (value) => {
+        if (value?.status === 'success') {
+          setNewProject(false);
+          setEditData(false);
+          const pathSegments = location.pathname.split('/');
+          const newPathSegments = pathSegments.slice(0, -2).join('/');
+          navigate(newPathSegments + '/project/' + value?.id);
+        }
       },
     },
   );
@@ -140,6 +180,7 @@ const ProjectDetails = (props) => {
     },
   );
 
+  //prettier-ignore
   const {
     // eslint-disable-next-line no-unused-vars
     data: singleProject,
@@ -147,13 +188,18 @@ const ProjectDetails = (props) => {
   } = useQuery(
     ['project'],
     () =>
-      fetchAPIRequest({
-        // eslint-disable-next-line max-len
-        urlPath: `${authCtx.organization_id}/project/${identifier}`,
-        token: authCtx.token,
-        method: 'GET',
-        showNotification: showNotification,
-      }),
+      newProject
+        ? {
+          ...PROJECT_FORM,
+          organization_id: authCtx.organization_id,
+        }
+        : fetchAPIRequest({
+          // eslint-disable-next-line max-len
+          urlPath: `${authCtx.organization_id}/project/${identifier}`,
+          token: authCtx.token,
+          method: 'GET',
+          showNotification: showNotification,
+        }),
     {
       onSuccess: (singleProject) => {
         setProjectData(singleProject);
@@ -166,12 +212,19 @@ const ProjectDetails = (props) => {
   }, []);
 
   useEffect(() => {
-    if (editData) {
+    if (!newProject) {
+      refetchSingleProject();
+    }
+  }, [newProject]);
+  -useEffect(() => {
+    if (newProject) {
+      dispatch(handleCurrPageTitle('New project'));
+    } else if (editData) {
       dispatch(handleCurrPageTitle('Edit project'));
     } else {
       dispatch(handleCurrPageTitle(''));
     }
-  }, [editData]);
+  }, [editData, newProject]);
 
   useEffect(() => {
     const newFormValue = {
@@ -185,9 +238,29 @@ const ProjectDetails = (props) => {
 
   return (
     <FlexboxGrid>
-      <FlexboxGrid.Item colspan={18} className={mainSection}>
+      {(editData || newProject) && <FlexboxGrid.Item colspan={2}></FlexboxGrid.Item>}
+      <FlexboxGrid.Item
+        colspan={editData || newProject ? 20 : 18}
+        className={mainSection}
+      >
+        {editData && (
+          <p>Update the project details and click save to apply the changes.</p>
+        )}
+        {newProject && (
+          <FlexboxGrid>
+            <FlexboxGrid.Item colspan={2}>
+              <GoProjectTemplate size={100} />
+            </FlexboxGrid.Item>
+            <FlexboxGrid.Item colspan={18}>
+              <p className={newProjectDescription}>
+                Create a blank project to group link nodes, plan your work, among other
+                things.
+              </p>
+            </FlexboxGrid.Item>
+          </FlexboxGrid>
+        )}
         <FlexboxGrid className={editData ? summarySectionEdit : summarySection}>
-          {editData ? (
+          {editData || newProject ? (
             <Form
               fluid
               style={{ width: '100%' }}
@@ -209,6 +282,20 @@ const ProjectDetails = (props) => {
                   rows={3}
                 />
               </FlexboxGrid.Item>
+              {newProject && (
+                <FlexboxGrid.Item colspan={23}>
+                  <SelectField
+                    name="users"
+                    label="Assign users"
+                    placeholder="Select Users"
+                    accepter={CustomReactSelect}
+                    apiURL={`${lmApiUrl}/user`}
+                    error={formError.users}
+                    isMulti={true}
+                    closeMenuOnSelect={false}
+                  />
+                </FlexboxGrid.Item>
+              )}
             </Form>
           ) : (
             <>
@@ -228,7 +315,7 @@ const ProjectDetails = (props) => {
                   className={resourceButton}
                 />
                 <ProjectOptions
-                  handleEdit={() => setEditData(!editData)}
+                  handleEdit={() => setEditData(true)}
                   handleDelete={() => setOpenDeleteModal(true)}
                 />
               </FlexboxGrid.Item>
@@ -244,8 +331,8 @@ const ProjectDetails = (props) => {
           )}
         </FlexboxGrid>
 
-        {editData && (
-          <FlexboxGrid className={editButtonSection} colspan={23}>
+        {(editData || newProject) && (
+          <FlexboxGrid className={editButtonSection} colspan={20}>
             <FlexboxGrid.Item colspan={19}></FlexboxGrid.Item>
             <FlexboxGrid.Item colspan={5}>
               <Button
@@ -266,37 +353,47 @@ const ProjectDetails = (props) => {
           </FlexboxGrid>
         )}
       </FlexboxGrid.Item>
-
-      <FlexboxGrid.Item colspan={6} className={detailsSection}>
-        <h3 className={detailsTitle}>Project details</h3>
-        <Divider />
-        <div className={detailsContent}>
-          {projectData?.updated && (
-            <>
-              <p className={detailsSubTitle}>Last updated:</p>
-              <p className={detailsLabel}>{convertTime(projectData.updated)}</p>
-            </>
-          )}
-          {projectData?.created && (
-            <>
-              <p className={detailsSubTitle}>Created:</p>
-              <p className={detailsLabel}>Created: {convertTime(projectData.created)}</p>
-            </>
-          )}
-          {projectData?.organization?.name && (
-            <>
-              <p className={detailsSubTitle}>Organization:</p>
-              <p className={detailsLabel}>{projectData?.organization?.name}</p>
-            </>
-          )}
-          {authCtx?.user?.role && (
-            <>
-              <p className={detailsSubTitle}>Access level:</p>
-              <p className={detailsLabel}>{authCtx?.user?.role}</p>
-            </>
-          )}
-        </div>
-      </FlexboxGrid.Item>
+      {!editData && !newProject && (
+        <FlexboxGrid.Item colspan={6} className={detailsSection}>
+          <FlexboxGrid className={detailsTitle}>
+            <FlexboxGrid.Item colspan={2} className={detailsTitleIcon}>
+              <FaCircleInfo />
+            </FlexboxGrid.Item>
+            <FlexboxGrid.Item colspan={15}>
+              <h3>Project details</h3>
+            </FlexboxGrid.Item>
+          </FlexboxGrid>
+          <Divider />
+          <div className={detailsContent}>
+            {projectData?.updated && (
+              <>
+                <p className={detailsSubTitle}>Last updated:</p>
+                <p className={detailsLabel}>{convertTime(projectData.updated)}</p>
+              </>
+            )}
+            {projectData?.created && (
+              <>
+                <p className={detailsSubTitle}>Created:</p>
+                <p className={detailsLabel}>
+                  Created: {convertTime(projectData.created)}
+                </p>
+              </>
+            )}
+            {projectData?.organization?.name && (
+              <>
+                <p className={detailsSubTitle}>Organization:</p>
+                <p className={detailsLabel}>{projectData?.organization?.name}</p>
+              </>
+            )}
+            {authCtx?.user?.role && (
+              <>
+                <p className={detailsSubTitle}>Access level:</p>
+                <p className={detailsLabel}>{authCtx?.user?.role}</p>
+              </>
+            )}
+          </div>
+        </FlexboxGrid.Item>
+      )}
 
       <AlertModal
         open={openDeleteModal}
