@@ -175,6 +175,19 @@ function App() {
 
                 <Route path={`${organization}/users`} element={<Users />} />
                 <Route path={`${organization}/projects`} element={<Projects />} />
+                <Route
+                  path={`${organization}/project/:id`}
+                  element={<ResourceDetails type="project" />}
+                />
+                <Route
+                  path={`${organization}/project/new`}
+                  element={<ResourceDetails type="project" newResource={true} />}
+                />
+
+                <Route
+                  path={`${organization}/project/:id/user-permissions`}
+                  element={<ResourceDetails type="project-permissions" />}
+                />
                 <Route path={`${organization}/link-rules`} element={<LinkRules />} />
                 <Route path={`${organization}/events`} element={<Events />} />
                 <Route path={`${organization}/integrations`} element={<Application />} />
@@ -196,14 +209,6 @@ function App() {
             )}
           </Route>
 
-          <Route
-            path={`${organization}/admin/project/:id`}
-            element={<ResourceDetails type="project" />}
-          />
-          <Route
-            path={`${organization}/admin/project/:id/user-permissions`}
-            element={<ResourceDetails type="project-permissions" />}
-          />
           <Route path="/oauth2-status" element={<Oauth2Success />} />
           <Route path="/set-password" element={<SetPassword />} />
           <Route path="/login" element={<LoginPage />} />
