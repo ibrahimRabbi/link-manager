@@ -83,7 +83,6 @@ const AdminDataTable = ({ props }) => {
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    console.log(showSearchBar);
     if (showSearchBar || showSearchBar === undefined) {
       setDisplaySearchBar(true);
     } else {
