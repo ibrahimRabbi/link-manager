@@ -1,5 +1,15 @@
 import React, { useState, useRef } from 'react';
-import { Form, Button, FlexboxGrid, Panel, Col, Schema, Loader } from 'rsuite';
+import {
+  Form,
+  Button,
+  FlexboxGrid,
+  Panel,
+  Col,
+  Schema,
+  Loader,
+  toaster,
+  Message,
+} from 'rsuite';
 import PasswordField from '../AdminDasComponents/PasswordField';
 
 import styles from './Login.module.scss';
@@ -31,6 +41,7 @@ const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 const UserVerify = () => {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const [formError, setFormError] = useState({});
   const [formValue, setFormValue] = useState({ password: '', password_confirm: '' });
   const navigate = useNavigate();
@@ -39,6 +50,17 @@ const UserVerify = () => {
 
   const email = searchParams.get('email');
   const verification_token = searchParams.get('verification_token');
+
+  const showNotification = (type, message) => {
+    if (type && message) {
+      const messages = (
+        <Message closable type={type}>
+          <h6>{message}</h6>
+        </Message>
+      );
+      toaster.push(messages, { placement: 'bottomCenter', duration: 10000 });
+    }
+  };
 
   // handle submit password
   const handlePasswordSubmit = async () => {
@@ -58,10 +80,21 @@ const UserVerify = () => {
     })
       .then((res) => {
         if (res.ok) {
+          res.json().then((data) => {
+            showNotification('success', data?.message);
+          });
           navigate('/login');
+        } else {
+          setError(true);
+          res.json().then((data) => {
+            showNotification('error', data?.message);
+          });
         }
       })
-      .catch((error) => console.log(error))
+      .catch((error) => {
+        setError(true);
+        showNotification('error', error?.message);
+      })
       .finally(() => setLoading(false));
   };
 
@@ -111,6 +144,7 @@ const UserVerify = () => {
                 style={{ marginTop: '40px' }}
                 color="blue"
                 block
+                disbaled={error}
                 type="submit"
                 appearance="primary"
                 onClick={handlePasswordSubmit}

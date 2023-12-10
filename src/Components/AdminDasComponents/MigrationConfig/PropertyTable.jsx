@@ -30,21 +30,20 @@ const PropertyTable = ({
   const [sourceEnum, setSourceEnum] = useState('');
   const [targetEnum, setTargetEnum] = useState('');
 
+  const toCamelCase = (str) => {
+    const camelCaseStr = str?.replace(/[-_](.)/g, (_, char) => char?.toUpperCase());
+    return camelCaseStr?.charAt(0)?.toUpperCase() + camelCaseStr?.slice(1);
+  };
+
   useEffect(() => {
-    const toCamelCase = (str) => {
-      const camelCaseStr = str.replace(/[-_](.)/g, (_, char) => char.toUpperCase());
-      return camelCaseStr.charAt(0).toUpperCase() + camelCaseStr.slice(1);
-    };
     const updatedApiResponse = property?.map((obj) => ({
       ...obj,
-      source_name: toCamelCase(obj?.source_property),
-      target_name: toCamelCase(obj?.target_property),
       enum_mapping: {},
     }));
     setRows(updatedApiResponse);
   }, [property]);
   const updateTargetDropdown = (selectedItem) => {
-    if (selectedItem?.source_name) {
+    if (selectedItem?.source_property) {
       const editDataType = selectedItem.source_datatype;
       const editFilteredTarget = target.filter((item) => item.datatype === editDataType);
       setUpdateTarget(editFilteredTarget);
@@ -61,7 +60,6 @@ const PropertyTable = ({
     setFormState({
       ...formState,
       source_property: selectedItem?.id,
-      source_name: selectedItem?.name,
       source_datatype: selectedItem?.datatype,
     });
     updateTargetDropdown(selectedItem);
@@ -74,7 +72,6 @@ const PropertyTable = ({
     setFormState({
       ...formState,
       target_property: selectedItem?.id,
-      target_name: selectedItem?.name,
       target_datatype: selectedItem?.datatype,
     });
   };
@@ -84,9 +81,7 @@ const PropertyTable = ({
   const handleSubmit = () => {
     const newRow = {
       source_property: formState?.source_property,
-      source_name: formState?.source_name,
       target_property: formState?.target_property,
-      target_name: formState?.target_name,
       source_datatype: formState?.source_datatype,
       target_datatype: formState?.target_datatype,
       enum_mapping: {},
@@ -96,8 +91,6 @@ const PropertyTable = ({
       (row) =>
         row.source_property === newRow.source_property &&
         row.target_property === newRow.target_property &&
-        row.source_name === newRow.source_name &&
-        row.target_name === newRow.target_name &&
         row.source_datatype === newRow.source_datatype &&
         row.target_datatype === newRow.target_datatype,
     );
@@ -138,9 +131,7 @@ const PropertyTable = ({
 
     const updatedFormState = {
       source_property: rowData.source_property,
-      source_name: rowData.source_name,
       target_property: rowData.target_property,
-      target_name: rowData.target_name,
       source_datatype: rowData.source_datatype,
       target_datatype: rowData.target_datatype,
     };
@@ -164,8 +155,6 @@ const PropertyTable = ({
         row !== editingRow &&
         row.source_property === formState.source_property &&
         row.target_property === formState.target_property &&
-        row.source_name === formState.source_name &&
-        row.target_name === formState.target_name &&
         row.source_datatype === formState.source_datatype &&
         row.target_datatype === formState.target_datatype,
     );
@@ -180,9 +169,7 @@ const PropertyTable = ({
         ? {
             ...row,
             source_property: formState.source_property,
-            source_name: formState.source_name,
             target_property: formState.target_property,
-            target_name: formState.target_name,
             source_datatype: formState.source_datatype,
             target_datatype: formState.target_datatype,
             enum_mapping: {},
@@ -226,7 +213,7 @@ const PropertyTable = ({
               <HeaderCell>
                 <h6>Source</h6>
               </HeaderCell>
-              <Cell dataKey="source_name" />
+              <Cell dataKey="source_property" />
             </Column>
             <Column
               width={250}
@@ -241,7 +228,7 @@ const PropertyTable = ({
               <HeaderCell>
                 <h6>Target</h6>
               </HeaderCell>
-              <Cell dataKey="target_name" />
+              <Cell dataKey="target_property" />
             </Column>
             <Column
               width={100}
@@ -327,7 +314,7 @@ const PropertyTable = ({
                           placeholder="Choose property"
                           onChange={handleSourcePro}
                           items={source?.length ? source : []}
-                          value={formState?.source_name}
+                          value={toCamelCase(formState?.source_property)}
                         />
                       </FlexboxGrid.Item>
                     </FlexboxGrid>
@@ -348,7 +335,7 @@ const PropertyTable = ({
                           placeholder="Choose property"
                           onChange={handleTargetPro}
                           items={updateTarget?.length ? updateTarget : []}
-                          value={formState?.target_name}
+                          value={toCamelCase(formState?.target_property)}
                         />
                       </FlexboxGrid.Item>
                     </FlexboxGrid>

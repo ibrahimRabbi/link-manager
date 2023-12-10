@@ -25,7 +25,7 @@ const Dashboard = () => {
         </div>
         <div
           className={isSidebarOpen ? 'show_nav' : 'hide_nav'}
-          style={{ marginTop: isWbe ? '' : '50px' }}
+          style={{ marginTop: isWbe ? '' : '50px', padding: '20px 1vw 0' }}
         >
           <Outlet />
         </div>

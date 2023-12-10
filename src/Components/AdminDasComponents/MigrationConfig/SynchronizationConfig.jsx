@@ -205,7 +205,8 @@ const SynchronizationConfig = () => {
     setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
-    setPropertyShow(false);
+    setDefaultProperty('');
+    setPropertyShow(true);
     setTargetResourceType(selectedItem);
   };
   const handleSourceResourceTypeChange = (selectedItem) => {
@@ -232,13 +233,6 @@ const SynchronizationConfig = () => {
     setTargetProjectID('');
     setTargetProject('');
     setTargetResourceType('');
-  };
-  const handleShowProperty = () => {
-    setSourceProperty('');
-    setTargetProperty('');
-    setEnumRows([]);
-    setNormalRows([]);
-    setPropertyShow(!propertyShow);
   };
   useEffect(() => {
     // prettier-ignorec
@@ -859,6 +853,7 @@ const SynchronizationConfig = () => {
                       apiQueryParams={`application_id=${targetApplication?.id}`}
                       onChange={handleTargetWorkspace}
                       value={targetWorkspace?.name}
+                      restartRequest={restartExternalRequest}
                       isLinkCreation={true}
                       disabled={authenticatedThirdApp || selectDirection ? false : true}
                       // isApplication={true}
@@ -967,56 +962,49 @@ const SynchronizationConfig = () => {
           )}
         </div>
       </div>
-      {targetResourceType && (
+      {targetResourceType && defaultProperty && (
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
             marginTop: '30px',
           }}
         >
-          <Checkbox
-            value="Create New Project"
-            checked={propertyShow}
-            onChange={handleShowProperty}
-          ></Checkbox>
-          <h5>Property Mapping</h5>
-        </div>
-      )}
-      {propertyShow ? (
-        <div style={{ marginTop: '30px' }}>
-          <PropertyTable
-            rows={normalRows}
-            setRows={setNormalRows}
-            source={sourceProperties}
-            target={targetProperties}
-            setSource={setSourceProperty}
-            setTarget={setTargetProperty}
-            setShowAddEnum={setShowAddEnum}
-            property={defaultProperty}
-            showNotification={showNotification}
-          />
-          {sourceProperty?.datatype === 'enum' && targetProperty?.datatype === 'enum' && (
-            <div style={{ marginTop: '50px' }}>
-              <EnumValueTable
-                rows={enumRows}
-                setRows={setEnumRows}
-                source={sourceProperty}
-                target={targetProperty}
-                sourceProperty={sourceProperties}
-                TargetProperty={targetProperties}
-                setSource={setSourceProperties}
-                setTarget={setTargetProperties}
-                showAddEnum={showAddEnum}
-                addEnumId={setNormalRows}
-                normalProperty={normalRows}
+          <h5 style={{ textAlign: 'center' }}>Property Mapping</h5>
+          {propertyShow && defaultProperty ? (
+            <div style={{ marginTop: '30px' }}>
+              <PropertyTable
+                rows={normalRows}
+                setRows={setNormalRows}
+                source={sourceProperties}
+                target={targetProperties}
+                setSource={setSourceProperty}
+                setTarget={setTargetProperty}
+                setShowAddEnum={setShowAddEnum}
+                property={defaultProperty?.length ? defaultProperty : []}
+                showNotification={showNotification}
               />
+              {sourceProperty?.datatype === 'enum' &&
+                targetProperty?.datatype === 'enum' && (
+                  <div style={{ marginTop: '50px' }}>
+                    <EnumValueTable
+                      rows={enumRows}
+                      setRows={setEnumRows}
+                      source={sourceProperty}
+                      target={targetProperty}
+                      sourceProperty={sourceProperties}
+                      TargetProperty={targetProperties}
+                      setSource={setSourceProperties}
+                      setTarget={setTargetProperties}
+                      showAddEnum={showAddEnum}
+                      addEnumId={setNormalRows}
+                      normalProperty={normalRows}
+                    />
+                  </div>
+                )}
             </div>
+          ) : (
+            ''
           )}
         </div>
-      ) : (
-        ''
       )}
       <div style={{ marginTop: '40px' }}>
         {authenticatedThirdApp ? (

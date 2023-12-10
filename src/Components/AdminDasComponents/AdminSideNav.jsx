@@ -47,7 +47,7 @@ const AdminSideNav = () => {
       navigateTo: `${organization}/admin/organizations`,
       icon: <SlOrganization size={17} style={iconStyle} />,
       content: <span>Organizations</span>,
-      hidden: false,
+      hidden: true,
     },
     {
       path: [`${organization}/admin/integrations`],
