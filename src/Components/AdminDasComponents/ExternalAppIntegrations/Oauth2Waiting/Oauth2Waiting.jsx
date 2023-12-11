@@ -43,7 +43,7 @@ const Oauth2Waiting = (props) => {
     }
   };
   const { data, message, preview } = props;
-  console.log(data);
+
   const { data: oauth2Data, refetch: refetchOauth2Data } = useQuery(
     ['oauth2DataApp'],
     () =>
@@ -56,7 +56,6 @@ const Oauth2Waiting = (props) => {
       }),
   );
   const openOauth2Login = () => {
-    console.log(applicationId);
     window.open(url, '_blank');
   };
 
