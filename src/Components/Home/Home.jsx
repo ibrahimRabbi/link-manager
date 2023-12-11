@@ -163,8 +163,7 @@ const Home = () => {
       ) : (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '250px' }}>
           <h5>
-            You do not have any recent data. To see dashboard, please create a new links
-            or projects. Download extension for create links by
+            You do not have any recent data. To see dashboard, Download extension by
             <a
               href="https://chrome.google.com/webstore/detail/tracelynx/mkpcjknonnajlmnlccbkppaiggobfjio?hl=en&authuser=4"
               target="_blank"
