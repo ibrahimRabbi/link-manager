@@ -575,7 +575,7 @@ const SynchronizationConfig = () => {
     }
   };
   const handleCancel = () => {
-    navigate(`${organization}/admin/synchronization`);
+    navigate(`${organization}/synchronization`);
   };
   return (
     <div style={{ position: 'relative' }}>
@@ -709,13 +709,7 @@ const SynchronizationConfig = () => {
                     isUpdateState={sourceApplication}
                     restartRequest={restartExternalRequest}
                     isApplication={true}
-                    removeApplication={[
-                      'gitlab',
-                      'glideyoke',
-                      'dng',
-                      'bitbucket',
-                      'codebeamer',
-                    ]}
+                    removeApplication={['gitlab']}
                   />
                 </FlexboxGrid.Item>
               </FlexboxGrid>

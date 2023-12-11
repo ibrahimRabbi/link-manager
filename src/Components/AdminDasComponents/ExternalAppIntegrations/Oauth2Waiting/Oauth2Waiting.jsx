@@ -43,7 +43,7 @@ const Oauth2Waiting = (props) => {
     }
   };
   const { data, message, preview } = props;
-
+  console.log(data);
   const { data: oauth2Data, refetch: refetchOauth2Data } = useQuery(
     ['oauth2DataApp'],
     () =>
@@ -56,6 +56,7 @@ const Oauth2Waiting = (props) => {
       }),
   );
   const openOauth2Login = () => {
+    console.log(applicationId);
     window.open(url, '_blank');
   };
 
@@ -89,6 +90,8 @@ const Oauth2Waiting = (props) => {
   useEffect(() => {
     if (data?.application_id && !applicationId) {
       setApplicationId(data.application_id);
+    } else if (data?.id && !applicationId) {
+      setApplicationId(data?.id);
     }
   }, []);
 
