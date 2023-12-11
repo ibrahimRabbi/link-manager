@@ -162,7 +162,7 @@ const Synchronization = () => {
   ]);
   // handle open add pipeline secret modal
   const handleAddNew = () => {
-    navigate(`${organization}/admin/createsync`);
+    navigate(`${organization}/createsync`);
   };
   const handleDelete = (data) => {
     setDeleteData(data);

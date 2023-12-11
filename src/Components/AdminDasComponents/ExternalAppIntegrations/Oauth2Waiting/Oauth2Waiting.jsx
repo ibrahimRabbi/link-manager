@@ -89,6 +89,8 @@ const Oauth2Waiting = (props) => {
   useEffect(() => {
     if (data?.application_id && !applicationId) {
       setApplicationId(data.application_id);
+    } else if (data?.id && !applicationId) {
+      setApplicationId(data?.id);
     }
   }, []);
 

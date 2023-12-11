@@ -575,7 +575,7 @@ const SynchronizationConfig = () => {
     }
   };
   const handleCancel = () => {
-    navigate(`${organization}/admin/synchronization`);
+    navigate(`${organization}/synchronization`);
   };
   return (
     <div style={{ position: 'relative' }}>
@@ -711,10 +711,10 @@ const SynchronizationConfig = () => {
                     isApplication={true}
                     removeApplication={[
                       'gitlab',
-                      'glideyoke',
+                      'codebeamer',
                       'dng',
                       'bitbucket',
-                      'codebeamer',
+                      'glideyoke',
                     ]}
                   />
                 </FlexboxGrid.Item>

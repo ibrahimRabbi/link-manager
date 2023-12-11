@@ -15,6 +15,7 @@ import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { handleCurrPageTitle, handleIsAddNewModal } from '../../Redux/slices/navSlice';
 import { useNavigate } from 'react-router-dom';
+const wbeUrl = import.meta.env.VITE_GENERIC_WBE;
 
 const Home = () => {
   const [currPage] = useState(1);
@@ -161,20 +162,24 @@ const Home = () => {
           </div>
         </div>
       ) : (
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '250px' }}>
-          <h5>
-            You do not have any recent data. To see dashboard, please create a new links
-            or projects. Download extension for create links by
-            <a
-              href="https://chrome.google.com/webstore/detail/tracelynx/mkpcjknonnajlmnlccbkppaiggobfjio?hl=en&authuser=4"
-              target="_blank"
-              rel="noreferrer"
-              style={{ marginLeft: '2px' }}
-            >
-              click here
-            </a>
-            .
-          </h5>
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
+            <img src="/no_data.jpg" style={{ width: '75vh' }} />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
+            <h5>
+              To see dashboard, download the extension by
+              <a
+                href={wbeUrl}
+                target="_blank"
+                rel="noreferrer"
+                style={{ marginLeft: '2px' }}
+              >
+                click here
+              </a>
+              .
+            </h5>
+          </div>
         </div>
       )}
     </div>
