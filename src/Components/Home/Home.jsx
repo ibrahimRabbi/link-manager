@@ -175,9 +175,8 @@ const Home = () => {
                 rel="noreferrer"
                 style={{ marginLeft: '2px' }}
               >
-                click here
+                click here.
               </a>
-              .
             </h5>
           </div>
         </div>
