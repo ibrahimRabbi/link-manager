@@ -30,6 +30,7 @@ const iconStyle = {
   marginLeft: '-38px',
   marginRight: '17px',
 };
+const wbeUrl = import.meta.env.VITE_GENERIC_WBE;
 
 const SideNavBar = () => {
   const { isDark, isSidebarOpen } = useSelector((state) => state.nav);
@@ -170,10 +171,7 @@ const SideNavBar = () => {
     },
   ];
   const redirectToChromeWebStore = () => {
-    window.open(
-      'https://chrome.google.com/webstore/detail/tracelynx/mkpcjknonnajlmnlccbkppaiggobfjio?hl=en&authuser=4',
-      '_blank',
-    );
+    window.open(`${wbeUrl}`, '_blank');
   };
   return (
     <>
