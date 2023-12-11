@@ -711,10 +711,10 @@ const SynchronizationConfig = () => {
                     isApplication={true}
                     removeApplication={[
                       'gitlab',
-                      'glideyoke',
+                      'codebeamer',
                       'dng',
                       'bitbucket',
-                      'codebeamer',
+                      'glideyoke',
                     ]}
                   />
                 </FlexboxGrid.Item>
