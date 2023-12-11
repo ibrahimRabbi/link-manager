@@ -161,19 +161,24 @@ const Home = () => {
           </div>
         </div>
       ) : (
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '250px' }}>
-          <h5>
-            You do not have any recent data. To see dashboard, Download extension by
-            <a
-              href="https://chrome.google.com/webstore/detail/tracelynx/mkpcjknonnajlmnlccbkppaiggobfjio?hl=en&authuser=4"
-              target="_blank"
-              rel="noreferrer"
-              style={{ marginLeft: '2px' }}
-            >
-              click here
-            </a>
-            .
-          </h5>
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
+            <img src="/no_data.jpg" style={{ width: '75vh' }} />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
+            <h5>
+              To see dashboard, download the extension by
+              <a
+                href="https://chrome.google.com/webstore/detail/tracelynx/mkpcjknonnajlmnlccbkppaiggobfjio?hl=en&authuser=4"
+                target="_blank"
+                rel="noreferrer"
+                style={{ marginLeft: '2px' }}
+              >
+                click here
+              </a>
+              .
+            </h5>
+          </div>
         </div>
       )}
     </div>
