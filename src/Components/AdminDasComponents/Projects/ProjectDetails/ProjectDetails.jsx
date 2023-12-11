@@ -12,7 +12,7 @@ import {
 import { useMutation, useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../../../../apiRequests/apiRequest.js';
 import AuthContext from '../../../../Store/Auth-Context.jsx';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { handleCurrPageTitle } from '../../../../Redux/slices/navSlice.jsx';
 import { FiUsers } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
@@ -26,6 +26,7 @@ import CustomReactSelect from '../../../Shared/Dropdowns/CustomReactSelect.jsx';
 import SelectField from '../../SelectField.jsx';
 import { FaCircleInfo } from 'react-icons/fa6';
 import { GoProjectTemplate } from 'react-icons/go';
+import { darkBgColor } from '../../../../App.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 const { StringType, NumberType, ArrayType } = Schema.Types;
@@ -38,6 +39,7 @@ const model = Schema.Model({
 });
 
 const ProjectDetails = (props) => {
+  const { isDark } = useSelector((state) => state.nav);
   const location = useLocation();
   const navigate = useNavigate();
   const projectFormRef = useRef();
@@ -302,23 +304,27 @@ const ProjectDetails = (props) => {
               <FlexboxGrid.Item colspan={15}>
                 <h2>{projectData?.name ? projectData.name : 'Project info'}</h2>
               </FlexboxGrid.Item>
-              <FlexboxGrid.Item colspan={6}></FlexboxGrid.Item>
-              <FlexboxGrid.Item colspan={2}>
-                <IconButton
-                  size="md"
-                  title="Invite users"
-                  icon={<FiUsers />}
-                  onClick={() => {
-                    const link = location.pathname;
-                    navigate(`${link}/user-permissions`);
-                  }}
-                  className={resourceButton}
-                />
-                <ProjectOptions
-                  handleEdit={() => setEditData(true)}
-                  handleDelete={() => setOpenDeleteModal(true)}
-                />
-              </FlexboxGrid.Item>
+              <FlexboxGrid.Item colspan={5}></FlexboxGrid.Item>
+              <FlexboxGrid>
+                <FlexboxGrid.Item>
+                  <IconButton
+                    size="md"
+                    title="Invite users"
+                    icon={<FiUsers />}
+                    onClick={() => {
+                      const link = location.pathname;
+                      navigate(`${link}/user-permissions`);
+                    }}
+                    className={resourceButton}
+                  />
+                </FlexboxGrid.Item>
+                <FlexboxGrid.Item>
+                  <ProjectOptions
+                    handleEdit={() => setEditData(true)}
+                    handleDelete={() => setOpenDeleteModal(true)}
+                  />
+                </FlexboxGrid.Item>
+              </FlexboxGrid>
               <FlexboxGrid.Item colspan={23}>
                 <Divider style={{ margin: '5px 0' }} />
               </FlexboxGrid.Item>
@@ -354,8 +360,12 @@ const ProjectDetails = (props) => {
         )}
       </FlexboxGrid.Item>
       {!editData && !newProject && (
-        <FlexboxGrid.Item colspan={6} className={detailsSection}>
-          <FlexboxGrid className={detailsTitle}>
+        <FlexboxGrid.Item
+          colspan={6}
+          className={detailsSection}
+          style={{ backgroundColor: isDark === 'dark' && darkBgColor }}
+        >
+          <FlexboxGrid className={detailsTitle} align="middle">
             <FlexboxGrid.Item colspan={2} className={detailsTitleIcon}>
               <FaCircleInfo />
             </FlexboxGrid.Item>
@@ -363,8 +373,11 @@ const ProjectDetails = (props) => {
               <h3>Project details</h3>
             </FlexboxGrid.Item>
           </FlexboxGrid>
-          <Divider />
-          <div className={detailsContent}>
+          <Divider style={{ marginTop: '13px' }} />
+          <div
+            className={detailsContent}
+            style={{ backgroundColor: isDark === 'dark' && darkBgColor }}
+          >
             {projectData?.updated && (
               <>
                 <p className={detailsSubTitle}>Last updated:</p>
