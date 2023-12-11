@@ -524,7 +524,7 @@ const SynchronizationConfig = () => {
         },
       );
       if (response.ok) {
-        navigate(`${organization}/admin/synchronization`);
+        navigate(`${organization}/synchronization`);
         setSubmitLoading(false);
         setSourceApplication('');
         setSourceProject('');
