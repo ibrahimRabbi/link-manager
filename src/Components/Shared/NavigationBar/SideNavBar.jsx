@@ -22,9 +22,10 @@ import { FaUsers, FaLink } from 'react-icons/fa';
 import { SiAzurepipelines } from 'react-icons/si';
 import { PiPlugsDuotone } from 'react-icons/pi';
 import { VscProject } from 'react-icons/vsc';
-import { MdEvent } from 'react-icons/md';
+import { MdEvent, MdAdminPanelSettings } from 'react-icons/md';
 import { BiTransferAlt } from 'react-icons/bi';
 import { RiLockPasswordLine } from 'react-icons/ri';
+import { IoArrowBackCircle } from 'react-icons/io5';
 
 const iconStyle = {
   marginLeft: '-38px',
@@ -97,56 +98,75 @@ const SideNavBar = () => {
       isAdminModule: false,
     },
     {
-      path: organization ? organization + '/users' : '/users',
-      navigateTo: `${organization}/users`,
+      path: organization ? organization + '/admin' : '/admin',
+      navigateTo: organization ? organization + '/admin' : '/admin',
+      icon: (
+        <MdAdminPanelSettings size={20} style={{ ...iconStyle, marginLeft: '-35px' }} />
+      ),
+      content: <span>Administrator configuration</span>,
+      isAdminModule: false,
+    },
+    // admin modules
+    {
+      path: organization ? organization : '/',
+      navigateTo: organization ? organization : '/',
+      icon: <IoArrowBackCircle size={20} style={{ ...iconStyle, marginLeft: '-35px' }} />,
+      content: <span>Back</span>,
+      isAdminModule: true,
+    },
+    {
+      path: organization ? organization + '/admin/users' : '/admin/users',
+      navigateTo: `${organization}/admin/users`,
       icon: <FaUsers style={{ ...iconStyle, marginLeft: '-35px' }} />,
       content: <span>Users</span>,
       hidden: false,
       isAdminModule: true,
     },
     {
-      path: organization ? organization + '/integrations' : '/integrations',
-      navigateTo: `${organization}/integrations`,
+      path: organization ? organization + '/admin/integrations' : '/admin/integrations',
+      navigateTo: `${organization}/admin/integrations`,
       icon: <PiPlugsDuotone size={20} style={{ ...iconStyle }} />,
       content: <span>Integrations</span>,
       hidden: false,
       isAdminModule: true,
     },
     {
-      path: organization ? organization + '/projects' : '/projects',
-      navigateTo: `${organization}/projects`,
+      path: organization ? organization + '/admin/projects' : '/admin/projects',
+      navigateTo: `${organization}/admin/projects`,
       icon: <VscProject size={18} style={{ ...iconStyle, marginLeft: '-37px' }} />,
       content: <span>Projects</span>,
       hidden: true,
       isAdminModule: true,
     },
     {
-      path: organization ? organization + '/link-rules' : '/link-rules',
-      navigateTo: `${organization}/link-rules`,
+      path: organization ? organization + '/admin/link-rules' : '/admin/link-rules',
+      navigateTo: `${organization}/admin/link-rules`,
       icon: <FaLink size={16} style={{ ...iconStyle, marginLeft: '-37px' }} />,
       content: <span>Link Rules</span>,
       hidden: false,
       isAdminModule: true,
     },
     {
-      path: organization ? organization + '/events' : '/events',
-      navigateTo: `${organization}/events`,
+      path: organization ? organization + '/admin/events' : '/admin/events',
+      navigateTo: `${organization}/admin/events`,
       icon: <MdEvent size={19} style={{ ...iconStyle }} />,
       content: <span>Event Config</span>,
       hidden: false,
       isAdminModule: true,
     },
     {
-      path: organization ? organization + '/pipelinessecrets' : '/pipelinessecrets',
-      navigateTo: `${organization}/pipelinessecrets`,
+      path: organization
+        ? organization + '/admin/pipelinessecrets'
+        : '/admin/pipelinessecrets',
+      navigateTo: `${organization}/admin/pipelinessecrets`,
       icon: <RiLockPasswordLine size={19} style={{ ...iconStyle }} />,
       content: <span>Pipeline Secrets</span>,
       hidden: false,
       isAdminModule: true,
     },
     {
-      path: organization ? organization + '/pipelines' : '/pipelines',
-      navigateTo: `${organization}/pipelines`,
+      path: organization ? organization + '/admin/pipelines' : '/admin/pipelines',
+      navigateTo: `${organization}/admin/pipelines`,
       icon: <SiAzurepipelines size={15} style={{ ...iconStyle, marginLeft: '-36px' }} />,
       content: <span>Pipeline Config</span>,
       hidden: false,
@@ -154,22 +174,26 @@ const SideNavBar = () => {
     },
 
     {
-      path: organization ? organization + '/pipelinerun' : '/pipelinerun',
-      navigateTo: `${organization}/pipelinerun`,
+      path: organization ? organization + '/admin/pipelinerun' : '/admin/pipelinerun',
+      navigateTo: `${organization}/admin/pipelinerun`,
       icon: <PlayOutlineIcon />,
       content: <span>Pipeline Runs</span>,
       hidden: true,
       isAdminModule: true,
     },
     {
-      path: organization ? organization + '/synchronization' : '/synchronization',
-      navigateTo: `${organization}/synchronization`,
+      path: organization
+        ? organization + '/admin/synchronization'
+        : '/admin/synchronization',
+      navigateTo: `${organization}/admin/synchronization`,
       icon: <BiTransferAlt size={21} style={{ ...iconStyle }} />,
       content: <span>Sync Configs</span>,
       hidden: false,
       isAdminModule: true,
     },
   ];
+
+  // redirect to chrome store
   const redirectToChromeWebStore = () => {
     window.open(`${wbeUrl}`, '_blank');
   };
@@ -202,6 +226,12 @@ const SideNavBar = () => {
           <Sidenav.Body className="link-nav-container">
             <Nav>
               {baseOptions?.map((option, index) => {
+                // manage admin or normal user modules to display it
+                if (pathname.includes('/admin') && !option.isAdminModule) return null;
+                else if (!pathname.includes('/admin') && option.isAdminModule)
+                  return null;
+
+                // manage extension redirect
                 if (isWbe && option.path === organization + '/extension') {
                   return null;
                 }
@@ -210,12 +240,26 @@ const SideNavBar = () => {
                 if (option.isAdminModule) {
                   if (!isSuperAdmin && !isAdmin) return null;
                   if (isWbe) return null;
+                } else {
+                  if (
+                    !isSuperAdmin &&
+                    !isAdmin &&
+                    option.navigateTo === organization + '/admin'
+                  ) {
+                    return null;
+                  }
                 }
 
                 // get active status for the navigate path
                 const isActive = () => {
                   if (!isWbe) {
-                    return option?.path === pathname || option.path + '/' === pathname;
+                    if (
+                      pathname === organization + '/admin' ||
+                      pathname === organization + '/admin/'
+                    ) {
+                      if (option.path === organization + '/admin/projects') return true;
+                    }
+                    return option.path === pathname || option.path + '/' === pathname;
                   } else {
                     return (
                       `/wbe${option.path}` === pathname ||
@@ -223,6 +267,7 @@ const SideNavBar = () => {
                     );
                   }
                 };
+
                 if (option.path === organization + '/extension' && isActive()) {
                   redirectToChromeWebStore();
                 }
