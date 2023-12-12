@@ -168,14 +168,13 @@ const Login = () => {
               if (isSource || location.state.from.pathname.includes('wbe')) {
                 navigate('/wbe');
               } else {
-                navigate(orgName + '/projects');
+                navigate(orgName + '/admin');
               }
             } else {
               navigate(redirectPath);
             }
           } else {
-            if (isSource) navigate('/wbe' + orgName);
-            else if (isWbe) navigate('/wbe' + orgName);
+            if (isSource || isWbe) navigate('/wbe' + orgName);
             else {
               navigate(orgName ? orgName : '/');
             }

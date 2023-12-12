@@ -122,6 +122,8 @@ function App() {
         }}
       >
         <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/set-password" element={<SetPassword />} />
           <Route path="/oauth2/callback" element={<Oauth2Callback />} />
           <Route path="/oauth2/status" element={<Oauth2TokenStatus />} />
 
@@ -131,7 +133,6 @@ function App() {
             path="/wbe"
             element={
               <ProtectedRoute>
-                {' '}
                 <WbeDashboard />
               </ProtectedRoute>
             }
@@ -206,8 +207,6 @@ function App() {
           </Route>
 
           <Route path="/oauth2-status" element={<Oauth2Success />} />
-          <Route path="/set-password" element={<SetPassword />} />
-          <Route path="/login" element={<LoginPage />} />
           <Route path={`${organization}/*`} element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
