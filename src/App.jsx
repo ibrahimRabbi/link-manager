@@ -131,7 +131,6 @@ function App() {
             path="/wbe"
             element={
               <ProtectedRoute>
-                {' '}
                 <WbeDashboard />
               </ProtectedRoute>
             }
