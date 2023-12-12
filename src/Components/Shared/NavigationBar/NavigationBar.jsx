@@ -1,11 +1,12 @@
 import React, { useContext, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { handleIsDarkMode, handleIsProfileOpen } from '../../../Redux/slices/navSlice';
 import AuthContext from '../../../Store/Auth-Context.jsx';
 import {
   Avatar,
   Button,
+  FlexboxGrid,
   Message,
   Nav,
   Navbar,
@@ -26,6 +27,7 @@ const NavigationBar = () => {
   const authCtx = useContext(AuthContext);
   const { currPageTitle, isDark, isProfileOpen } = useSelector((state) => state.nav);
   const [open, setOpen] = useState(false);
+  const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const toaster = useToaster();
@@ -148,56 +150,85 @@ const NavigationBar = () => {
           content={'You want to logout!'}
           handleConfirmed={handleConfirmed}
         />
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Navbar.Brand
-            onClick={() => navigate(organization ? organization : '/')}
-            className={navbarBrand}
-          >
-            <img
-              height={30}
-              alt="TraceLynx"
-              src={window.location.origin + '/traceLynx_logo.svg'}
-            />
-            <h2 style={{ fontWeight: '600' }}>
-              <span
-                style={{
-                  color: isDark === 'dark' ? '#3491e2' : '#2c74b3',
-                }}
+        <div>
+          <FlexboxGrid align="middle">
+            <FlexboxGrid.Item colspan={5}>
+              <Navbar.Brand
+                onClick={() => navigate(organization ? organization : '/')}
+                className={navbarBrand}
               >
-                Trace
-              </span>
-              <span
-                style={{
-                  color: isDark === 'dark' ? '#1d69ba' : '#144272',
+                <img
+                  height={30}
+                  alt="TraceLynx"
+                  src={window.location.origin + '/traceLynx_logo.svg'}
+                />
+                <h2 style={{ fontWeight: '600' }}>
+                  <span
+                    style={{
+                      color: isDark === 'dark' ? '#3491e2' : '#2c74b3',
+                    }}
+                  >
+                    Trace
+                  </span>
+                  <span
+                    style={{
+                      color: isDark === 'dark' ? '#1d69ba' : '#144272',
+                    }}
+                  >
+                    Lynx
+                  </span>
+                </h2>
+              </Navbar.Brand>
+            </FlexboxGrid.Item>
+            <FlexboxGrid.Item colspan={2}>
+              <NavLink
+                // className="active"
+                style={({ isActive }) => {
+                  return {
+                    color: isActive ? '#1675e0' : '#8e8e93',
+                    textDecoration: 'none',
+                  };
                 }}
+                to={`${organization}/projects`}
               >
-                Lynx
-              </span>
-            </h2>
-          </Navbar.Brand>
-          <Nav>
-            <h5 style={{ textAlign: 'center' }}>{currPageTitle}</h5>
-          </Nav>
+                <h5> Projects</h5>
+              </NavLink>
+            </FlexboxGrid.Item>
+            <FlexboxGrid.Item colspan={2}>
+              <Nav>
+                <Button
+                  size="sm"
+                  appearance="primary"
+                  onClick={() => {
+                    navigate(`${organization}/project/new`);
+                  }}
+                >
+                  Create
+                </Button>
+              </Nav>
+            </FlexboxGrid.Item>
+            <FlexboxGrid.Item colspan={14}>
+              <Nav>
+                <h5 style={{ textAlign: 'center' }}>{currPageTitle}</h5>
+              </Nav>
+            </FlexboxGrid.Item>
 
-          <Nav style={{ padding: '5px 20px 0 0' }}>
-            <Whisper
-              placement="bottomEnd"
-              trigger="click"
-              controlId="control-id-hover-enterable"
-              speaker={speaker}
-              enterable
-            >
-              <Button data-cy="profile-options-btn">
-                <BiUserCircle size={30} />
-              </Button>
-            </Whisper>
-          </Nav>
+            <FlexboxGrid.Item colspan={1}>
+              <Nav style={{ padding: '5px 20px 0 0' }}>
+                <Whisper
+                  placement="bottomEnd"
+                  trigger="click"
+                  controlId="control-id-hover-enterable"
+                  speaker={speaker}
+                  enterable
+                >
+                  <Button data-cy="profile-options-btn">
+                    <BiUserCircle size={30} />
+                  </Button>
+                </Whisper>
+              </Nav>
+            </FlexboxGrid.Item>
+          </FlexboxGrid>
         </div>
       </div>
     </>

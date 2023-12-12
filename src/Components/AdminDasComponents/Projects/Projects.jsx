@@ -226,7 +226,7 @@ const Projects = () => {
 
   // get all projects
   useEffect(() => {
-    dispatch(handleCurrPageTitle('Projects'));
+    dispatch(handleCurrPageTitle('Current Projects'));
 
     refetchProjects();
   }, [createSuccess, updateSuccess, deleteSuccess, pageSize, currPage, refreshData]);
