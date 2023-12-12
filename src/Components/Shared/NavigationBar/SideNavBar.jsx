@@ -19,7 +19,6 @@ import { useState } from 'react';
 import AlertModal from '../AlertModal';
 
 import { FaUsers, FaLink } from 'react-icons/fa';
-import { SlOrganization } from 'react-icons/sl';
 import { SiAzurepipelines } from 'react-icons/si';
 import { PiPlugsDuotone } from 'react-icons/pi';
 import { VscProject } from 'react-icons/vsc';
@@ -31,6 +30,7 @@ const iconStyle = {
   marginLeft: '-38px',
   marginRight: '17px',
 };
+const wbeUrl = import.meta.env.VITE_GENERIC_WBE;
 
 const SideNavBar = () => {
   const { isDark, isSidebarOpen } = useSelector((state) => state.nav);
@@ -105,14 +105,6 @@ const SideNavBar = () => {
       isAdminModule: true,
     },
     {
-      path: organization ? organization + '/organizations' : '/organizations',
-      navigateTo: `${organization}/organizations`,
-      icon: <SlOrganization size={17} style={{ ...iconStyle, marginLeft: '-35px' }} />,
-      content: <span>Organizations</span>,
-      hidden: false,
-      isAdminModule: true,
-    },
-    {
       path: organization ? organization + '/integrations' : '/integrations',
       navigateTo: `${organization}/integrations`,
       icon: <PiPlugsDuotone size={20} style={{ ...iconStyle }} />,
@@ -125,7 +117,7 @@ const SideNavBar = () => {
       navigateTo: `${organization}/projects`,
       icon: <VscProject size={18} style={{ ...iconStyle, marginLeft: '-37px' }} />,
       content: <span>Projects</span>,
-      hidden: false,
+      hidden: true,
       isAdminModule: true,
     },
     {
@@ -179,10 +171,7 @@ const SideNavBar = () => {
     },
   ];
   const redirectToChromeWebStore = () => {
-    window.open(
-      'https://chrome.google.com/webstore/detail/tracelynx/mkpcjknonnajlmnlccbkppaiggobfjio?hl=en&authuser=4',
-      '_blank',
-    );
+    window.open(`${wbeUrl}`, '_blank');
   };
   return (
     <>
