@@ -123,6 +123,8 @@ function App() {
         }}
       >
         <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/set-password" element={<SetPassword />} />
           <Route path="/oauth2/callback" element={<Oauth2Callback />} />
           <Route path="/oauth2/status" element={<Oauth2TokenStatus />} />
 
@@ -132,7 +134,6 @@ function App() {
             path="/wbe"
             element={
               <ProtectedRoute>
-                {' '}
                 <WbeDashboard />
               </ProtectedRoute>
             }
@@ -168,7 +169,7 @@ function App() {
                 {/* ---- display organization module if user is an super admin ---- */}
                 {isSuperAdmin && (
                   <Route
-                    path={`${organization}/organizations`}
+                    path={`${organization}/admin/organizations`}
                     element={<Organization />}
                   />
                 )}
@@ -191,18 +192,33 @@ function App() {
                 <Route path={`${organization}/link-rules`} element={<LinkRules />} />
                 <Route path={`${organization}/events`} element={<Events />} />
                 <Route path={`${organization}/integrations`} element={<Application />} />
+                <Route path={`${organization}/admin`} element={<Projects />} />
+                <Route path={`${organization}/admin/users`} element={<Users />} />
+                <Route path={`${organization}/admin/projects`} element={<Projects />} />
                 <Route
-                  path={`${organization}/pipelinessecrets`}
+                  path={`${organization}/admin/link-rules`}
+                  element={<LinkRules />}
+                />
+                <Route path={`${organization}/admin/events`} element={<Events />} />
+                <Route
+                  path={`${organization}/admin/integrations`}
+                  element={<Application />}
+                />
+                <Route
+                  path={`${organization}/admin/pipelinessecrets`}
                   element={<PipelineSecrets />}
                 />
-                <Route path={`${organization}/pipelines`} element={<Pipelines />} />
-                <Route path={`${organization}/pipelinerun`} element={<PipelineRun />} />
+                <Route path={`${organization}/admin/pipelines`} element={<Pipelines />} />
                 <Route
-                  path={`${organization}/synchronization`}
+                  path={`${organization}/admin/pipelinerun`}
+                  element={<PipelineRun />}
+                />
+                <Route
+                  path={`${organization}/admin/synchronization`}
                   element={<Synchronization />}
                 />
                 <Route
-                  path={`${organization}/createsync`}
+                  path={`${organization}/admin/createsync`}
                   element={<SynchronizationConfig />}
                 />
               </>
@@ -210,8 +226,6 @@ function App() {
           </Route>
 
           <Route path="/oauth2-status" element={<Oauth2Success />} />
-          <Route path="/set-password" element={<SetPassword />} />
-          <Route path="/login" element={<LoginPage />} />
           <Route path={`${organization}/*`} element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

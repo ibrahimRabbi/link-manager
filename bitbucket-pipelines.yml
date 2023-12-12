@@ -40,6 +40,7 @@ definitions:
           - echo "VITE_CODEBEAMER_DIALOG_URL=$CODEBEAMER_OSLC_API_URL" >> .env
           - echo "VITE_SENTRY_DSN=$SENTRY_DSN" >> .env
           - echo "VITE_MIXPANEL_TOKEN=$MIXPANEL_TOKEN" >> .env
+          - echo "VITE_GENERIC_WBE=$GENERIC_WBE" >> .env
           - yarn install
           - yarn build
         artifacts:
