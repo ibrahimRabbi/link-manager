@@ -221,12 +221,17 @@ const SideNavBar = () => {
             <Nav>
               {baseOptions?.map((option, index) => {
                 // manage admin or normal user modules to display it
-                if (pathname.includes('/admin') && !option.isAdminModule) return null;
-                else if (!pathname.includes('/admin') && option.isAdminModule)
+                if (pathname.includes('/admin') && !option.isAdminModule) {
                   return null;
+                } else if (!pathname.includes('/admin') && option.isAdminModule) {
+                  return null;
+                }
 
                 // manage extension redirect
                 if (isWbe && option.path === organization + '/extension') {
+                  return null;
+                }
+                if (isWbe && option.path === organization + '/admin') {
                   return null;
                 }
 

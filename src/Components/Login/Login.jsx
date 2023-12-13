@@ -171,7 +171,10 @@ const Login = () => {
                 navigate(orgName + '/admin/projects');
               }
             } else {
-              navigate(redirectPath);
+              if (redirectPath.includes('admin')) navigate(orgName ? orgName : '/');
+              else {
+                navigate(redirectPath);
+              }
             }
           } else {
             if (isSource || isWbe) navigate('/wbe' + orgName);
