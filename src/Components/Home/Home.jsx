@@ -4,7 +4,7 @@ import React from 'react';
 import { useState } from 'react';
 import AuthContext from '../../Store/Auth-Context';
 import { useContext } from 'react';
-import { Message, toaster } from 'rsuite';
+import { Button, Message, toaster } from 'rsuite';
 import fetchAPIRequest from '../../apiRequests/apiRequest';
 import { useQuery } from '@tanstack/react-query';
 import RecentProjects from './RecentProjects';
@@ -14,6 +14,7 @@ import RecentLink from './RecentLink';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { handleCurrPageTitle } from '../../Redux/slices/navSlice';
+import { useNavigate } from 'react-router-dom';
 const wbeUrl = import.meta.env.VITE_GENERIC_WBE;
 
 const Home = () => {
@@ -21,6 +22,10 @@ const Home = () => {
   const [pageSize] = useState(5);
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const organization = authCtx?.organization_name
+    ? `/${authCtx?.organization_name?.toLowerCase()}`
+    : '';
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -81,7 +86,8 @@ const Home = () => {
         <div>
           <div>
             <h5>Recent Projects</h5>
-            {recentProject?.items?.length < 1 ? (
+            {recentProject?.items?.length < 1 &&
+            (authCtx?.user?.role === 'super_admin' || authCtx?.user?.role === 'admin') ? (
               <div>
                 <h5
                   style={{
@@ -89,7 +95,12 @@ const Home = () => {
                     marginTop: '10px',
                   }}
                 >
-                  No recent projects
+                  <Button
+                    appearance="primary"
+                    onClick={() => navigate(`${organization}/admin/project/new`)}
+                  >
+                    Create Project
+                  </Button>
                 </h5>
               </div>
             ) : (

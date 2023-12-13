@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { handleIsDarkMode, handleIsProfileOpen } from '../../../Redux/slices/navSlice';
 import AuthContext from '../../../Store/Auth-Context.jsx';
 import {
@@ -180,40 +180,13 @@ const NavigationBar = () => {
                 </h2>
               </Navbar.Brand>
             </FlexboxGrid.Item>
-            <FlexboxGrid.Item colspan={2}>
-              <NavLink
-                // className="active"
-                style={({ isActive }) => {
-                  return {
-                    color: isActive ? '#1675e0' : '#8e8e93',
-                    textDecoration: 'none',
-                  };
-                }}
-                to={`${organization}/projects`}
-              >
-                <h5> Projects</h5>
-              </NavLink>
-            </FlexboxGrid.Item>
-            <FlexboxGrid.Item colspan={2}>
-              <Nav>
-                <Button
-                  size="sm"
-                  appearance="primary"
-                  onClick={() => {
-                    navigate(`${organization}/project/new`);
-                  }}
-                >
-                  Create
-                </Button>
-              </Nav>
-            </FlexboxGrid.Item>
-            <FlexboxGrid.Item colspan={14}>
+            <FlexboxGrid.Item colspan={18}>
               <Nav>
                 <h5 style={{ textAlign: 'center' }}>{currPageTitle}</h5>
               </Nav>
             </FlexboxGrid.Item>
 
-            <FlexboxGrid.Item colspan={1}>
+            <FlexboxGrid.Item colspan={1} style={{ marginLeft: '-15px' }}>
               <Nav style={{ padding: '5px 20px 0 0' }}>
                 <Whisper
                   placement="bottomEnd"
