@@ -20,6 +20,7 @@ import { ImBrightnessContrast } from 'react-icons/im';
 import { darkColor, lightBgColor } from '../../../App';
 import AlertModal from '../AlertModal';
 import styles from './NavigationBar.module.scss';
+import { VscProject } from 'react-icons/vsc';
 
 const { popoverContainer, userContainer, popButton, navbarBrand } = styles;
 
@@ -75,6 +76,11 @@ const NavigationBar = () => {
       path: organization + '/profile',
       icon: <BiUserCircle size={18} style={{ marginRight: '-1px' }} />,
     },
+    {
+      label: 'Projects',
+      path: organization + '/admin/projects',
+      icon: <VscProject size={18} />,
+    },
     { label: darkModeText, path: '', icon: <ImBrightnessContrast size={17} /> },
     { label: 'Logout', path: '', icon: <BiLogOut size={17} /> },
   ];
@@ -100,7 +106,7 @@ const NavigationBar = () => {
     >
       {popItems.map((item, index) => {
         // hide admin dashboard module if the user not an admin
-        if (item?.path === organization + '/admin') {
+        if (item?.path === organization + '/admin/projects') {
           if (isAdmin || isSuperAdmin) {
             // display dashboard option
           } else {
