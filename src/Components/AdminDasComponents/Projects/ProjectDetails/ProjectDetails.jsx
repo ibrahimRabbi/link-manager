@@ -36,6 +36,7 @@ const model = Schema.Model({
   description: StringType(),
   organization_id: NumberType(),
   users: ArrayType(),
+  applications: ArrayType(),
 });
 
 const ProjectDetails = (props) => {
@@ -71,6 +72,7 @@ const ProjectDetails = (props) => {
     description: '',
     organization_id: '',
     users: [],
+    applications: [],
   };
   const [projectData, setProjectData] = useState({});
   const [editData, setEditData] = useState(false);
@@ -229,11 +231,21 @@ const ProjectDetails = (props) => {
   }, [editData, newProject]);
 
   useEffect(() => {
+    const applicationsObtained = projectData?.applications?.reduce((accumulator, app) => {
+      accumulator.push({
+        ...app,
+        label: app?.name,
+        value: app?.id,
+      });
+      return accumulator;
+    }, []);
+
     const newFormValue = {
       name: projectData.name,
       description: projectData.description,
       organization_id: projectData.organization_id,
       users: projectData.users,
+      applications: applicationsObtained,
     };
     setFormValue(newFormValue);
   }, [projectData]);
@@ -282,6 +294,18 @@ const ProjectDetails = (props) => {
                   label="Description"
                   accepter={TextArea}
                   rows={3}
+                />
+              </FlexboxGrid.Item>
+
+              <FlexboxGrid.Item colspan={23} style={{ margin: '25px 0' }}>
+                <SelectField
+                  name="applications"
+                  label="Application"
+                  placeholder="Select Application"
+                  accepter={CustomReactSelect}
+                  apiURL={`${lmApiUrl}/${authCtx.organization_id}/application`}
+                  error={formError.applications}
+                  isMulti={true}
                 />
               </FlexboxGrid.Item>
               {newProject && (
