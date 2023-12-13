@@ -73,15 +73,17 @@ const AdminDataTable = ({ props }) => {
     registeredUsers,
     showSearchBar,
     showAddNewButton,
+    showActions,
   } = props;
+
   const navigate = useNavigate();
   const { isDark } = useSelector((state) => state.nav);
   const [tableFilterValue, setTableFilterValue] = useState('');
   const [displayTableData, setDisplayTableData] = useState([]);
   const [displaySearchBar, setDisplaySearchBar] = useState(true);
   const [displayAddNew, setDisplayAddNew] = useState(true);
+  const [showActionColumn] = useState(showActions !== false);
   const [page, setPage] = useState(1);
-
   useEffect(() => {
     if (showSearchBar || showSearchBar === undefined) {
       setDisplaySearchBar(true);
@@ -521,20 +523,21 @@ const AdminDataTable = ({ props }) => {
         ))}
 
         {/* -- action --  */}
-
-        <Column width={140} align="left">
-          <HeaderCell>
-            <h5>Action</h5>
-          </HeaderCell>
-          <Cell
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            {(rowData) => <ActionMenu rowData={rowData} />}
-          </Cell>
-        </Column>
+        {showActionColumn && (
+          <Column width={140} align="left">
+            <HeaderCell>
+              <h5>Action</h5>
+            </HeaderCell>
+            <Cell
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              {(rowData) => <ActionMenu rowData={rowData} />}
+            </Cell>
+          </Column>
+        )}
       </Table>
 
       <Pagination

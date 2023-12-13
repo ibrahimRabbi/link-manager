@@ -27,6 +27,8 @@ import SelectField from '../../SelectField.jsx';
 import { FaCircleInfo } from 'react-icons/fa6';
 import { GoProjectTemplate } from 'react-icons/go';
 import { darkBgColor } from '../../../../App.jsx';
+import AdminDataTable from '../../AdminDataTable.jsx';
+import { getApplicationIcons } from '../../Icons/application/icons.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 const { StringType, NumberType, ArrayType } = Schema.Types;
@@ -78,8 +80,13 @@ const ProjectDetails = (props) => {
   const [editData, setEditData] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [newProject, setNewProject] = useState(newResource ? true : false);
+  const [projectApplications, setProjectApplications] = useState([]);
   const [formValue, setFormValue] = useState(PROJECT_FORM);
   const [formError, setFormError] = useState({});
+
+  const [projectApplicationsTableData, setProjectApplicationsTableData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const showNotification = (type, message) => {
     if (type && message) {
@@ -211,6 +218,48 @@ const ProjectDetails = (props) => {
     },
   );
 
+  const handlePagination = (value) => {
+    setCurrentPage(value);
+  };
+  // page limit control
+  const handleChangeLimit = (dataKey) => {
+    setCurrentPage(1);
+    setPageSize(dataKey);
+  };
+
+  const headerData = [
+    {
+      header: 'Application',
+      key: 'name',
+      iconKey: 'iconUrl',
+    },
+    {
+      header: 'Description',
+      key: 'description',
+    },
+    {
+      header: 'Status',
+      statusKey: 'status',
+      width: 80,
+    },
+  ];
+
+  const tableProps = {
+    title: 'Users',
+    rowData: projectApplicationsTableData ? projectApplicationsTableData : [],
+    headerData,
+    handlePagination,
+    handleChangeLimit,
+    totalItems: projectData ? projectData?.applications?.length : 0,
+    totalPages: Math.ceil(projectData?.applications?.length / pageSize),
+    pageSize: pageSize,
+    page: currentPage,
+    inpPlaceholder: 'Search User',
+    showAddNewButton: false,
+    showSearchBar: false,
+    showActions: false,
+  };
+
   useEffect(() => {
     dispatch(handleCurrPageTitle(''));
   }, []);
@@ -231,15 +280,20 @@ const ProjectDetails = (props) => {
   }, [editData, newProject]);
 
   useEffect(() => {
-    const applicationsObtained = projectData?.applications?.reduce((accumulator, app) => {
-      accumulator.push({
-        ...app,
-        label: app?.name,
-        value: app?.id,
-      });
-      return accumulator;
-    }, []);
+    let applicationsObtained = [];
+    if (projectData?.applications) {
+      applicationsObtained = projectData?.applications?.reduce((accumulator, app) => {
+        accumulator.push({
+          ...app,
+          label: app?.name,
+          value: app?.id,
+        });
+        return accumulator;
+      }, []);
 
+      const applicationsWithIcons = getApplicationIcons(projectData?.applications);
+      setProjectApplications(applicationsWithIcons);
+    }
     const newFormValue = {
       name: projectData.name,
       description: projectData.description,
@@ -249,6 +303,15 @@ const ProjectDetails = (props) => {
     };
     setFormValue(newFormValue);
   }, [projectData]);
+
+  useEffect(() => {
+    if (projectApplications) {
+      const start = (currentPage - 1) * pageSize;
+      const end = start + pageSize;
+      const tableData = projectApplications.slice(start, end);
+      setProjectApplicationsTableData(tableData);
+    }
+  }, [projectApplications, currentPage, pageSize]);
 
   return (
     <FlexboxGrid>
@@ -356,6 +419,11 @@ const ProjectDetails = (props) => {
                 <p>
                   {projectData?.description ? projectData.description : 'No description'}
                 </p>
+              </FlexboxGrid.Item>
+
+              <FlexboxGrid.Item colspan={23} className={descriptionSection}>
+                <h5>Applications used by the project:</h5>
+                <AdminDataTable props={tableProps} />
               </FlexboxGrid.Item>
             </>
           )}
