@@ -274,7 +274,7 @@ const AdminDataTable = ({ props }) => {
         if (dataKey === 'name') {
           return (
             <a
-              style={{ marginLeft: '5px' }}
+              style={{ marginLeft: '5px', cursor: 'pointer' }}
               onClick={() => {
                 navigate(`${link}/${rowData['id']}`);
               }}
@@ -474,6 +474,8 @@ const AdminDataTable = ({ props }) => {
             <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
               {handleAddNew && title === 'Synchronization'
                 ? 'Create New Sync'
+                : handleAddNew && title === 'Projects'
+                ? 'Create Project'
                 : 'Add New'}
             </Button>
           </FlexboxGrid.Item>

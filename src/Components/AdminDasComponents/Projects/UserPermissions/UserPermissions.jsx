@@ -28,7 +28,7 @@ const UserPermissions = (props) => {
 
         <FlexboxGrid.Item colspan={24} className={summarySectionEdit}></FlexboxGrid.Item>
         <FlexboxGrid.Item colspan={21}></FlexboxGrid.Item>
-        <FlexboxGrid.Item colspan={3}>
+        <FlexboxGrid.Item colspan={3} style={{ marginBottom: '20px' }}>
           <Button
             appearance="primary"
             onClick={() => {

@@ -105,6 +105,18 @@ const Home = () => {
               </div>
             ) : (
               <div>
+                <h5
+                  style={{
+                    textAlign: 'center',
+                    marginTop: '10px',
+                  }}
+                >
+                  No links created
+                </h5>
+              </div>
+            )}
+            {recentProject?.items?.length > 1 && (
+              <div>
                 <RecentProjects recentProject={recentProject} />
               </div>
             )}

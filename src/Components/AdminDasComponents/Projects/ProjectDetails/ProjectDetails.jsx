@@ -340,7 +340,7 @@ const ProjectDetails = (props) => {
         {(editData || newProject) && (
           <FlexboxGrid className={editButtonSection} colspan={20}>
             <FlexboxGrid.Item colspan={19}></FlexboxGrid.Item>
-            <FlexboxGrid.Item colspan={5}>
+            <FlexboxGrid.Item colspan={2}>
               <Button
                 appearance="primary"
                 onClick={() => updateProject()}
@@ -348,6 +348,8 @@ const ProjectDetails = (props) => {
               >
                 Save
               </Button>
+            </FlexboxGrid.Item>
+            <FlexboxGrid.Item colspan={3}>
               <Button
                 appearance="subtle"
                 onClick={() => resetProjectData()}

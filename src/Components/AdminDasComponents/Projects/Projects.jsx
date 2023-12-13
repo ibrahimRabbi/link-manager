@@ -73,6 +73,9 @@ const Projects = () => {
       toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
     }
   };
+  const organization = authCtx?.organization_name
+    ? `/${authCtx?.organization_name?.toLowerCase()}`
+    : '';
 
   // get projects using react-query
   const {
@@ -233,11 +236,7 @@ const Projects = () => {
 
   // handle open add user modal
   const handleAddNew = () => {
-    const pathSegments = location.pathname.split('/');
-    const newPathSegments = pathSegments.slice(0, -1).join('/');
-    navigate(newPathSegments + '/project/new');
-    // handleResetForm();
-    // dispatch(handleIsAddNewModal(true));
+    navigate(`${organization}/admin/project/new`);
   };
 
   // handle delete project
