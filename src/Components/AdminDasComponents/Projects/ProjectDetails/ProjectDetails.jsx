@@ -29,6 +29,7 @@ import { GoProjectTemplate } from 'react-icons/go';
 import { darkBgColor } from '../../../../App.jsx';
 import AdminDataTable from '../../AdminDataTable.jsx';
 import { getApplicationIcons } from '../../Icons/application/icons.jsx';
+import ProjectPipelines from '../ProjectPipelines/ProjectPipelines.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 const { StringType, NumberType, ArrayType } = Schema.Types;
@@ -198,26 +199,29 @@ const ProjectDetails = (props) => {
     refetch: refetchSingleProject,
   } = useQuery(
     ['project'],
-    () =>
-      newProject
-        ? {
+    () => {
+      if (newProject) {
+        return {
           ...PROJECT_FORM,
           organization_id: authCtx.organization_id,
-        }
-        : fetchAPIRequest({
+        };
+      }
+      if (identifier !== undefined) {
+        return fetchAPIRequest({
           // eslint-disable-next-line max-len
           urlPath: `${authCtx.organization_id}/project/${identifier}`,
           token: authCtx.token,
           method: 'GET',
           showNotification: showNotification,
-        }),
+        });
+      }
+    },
     {
       onSuccess: (singleProject) => {
         setProjectData(singleProject);
       },
     },
   );
-
   const handlePagination = (value) => {
     setCurrentPage(value);
   };
@@ -311,7 +315,7 @@ const ProjectDetails = (props) => {
       const tableData = projectApplications.slice(start, end);
       setProjectApplicationsTableData(tableData);
     }
-  }, [projectApplications, currentPage, pageSize]);
+  }, [projectApplications, currentPage, pageSize, projectData]);
 
   return (
     <FlexboxGrid>
@@ -499,6 +503,18 @@ const ProjectDetails = (props) => {
               </>
             )}
           </div>
+          <Divider style={{ marginTop: '13px' }} />
+          <FlexboxGrid.Item colspan={15} style={{ marginLeft: '15px' }}>
+            <h5>Latest pipeline runs:</h5>
+          </FlexboxGrid.Item>
+          <FlexboxGrid.Item colspan={24}>
+            <div
+              className={detailsContent}
+              style={{ backgroundColor: isDark === 'dark' && darkBgColor }}
+            >
+              <ProjectPipelines />
+            </div>
+          </FlexboxGrid.Item>
         </FlexboxGrid.Item>
       )}
 
