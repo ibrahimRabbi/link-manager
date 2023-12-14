@@ -474,14 +474,14 @@ const AdminDataTable = ({ props }) => {
             </InputGroup>
           </FlexboxGrid.Item>
         )}
-        {displayAddNew && (
+        {displayAddNew && handleAddNew && (
           <FlexboxGrid.Item>
             <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
               {handleAddNew && title === 'Synchronization'
                 ? 'Create New Sync'
                 : handleAddNew && title === 'Projects'
                 ? 'Create Project'
-                : 'Add New'}
+                : handleAddNew && 'Add New'}
             </Button>
           </FlexboxGrid.Item>
         )}
