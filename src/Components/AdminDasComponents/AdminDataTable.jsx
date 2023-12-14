@@ -74,6 +74,8 @@ const AdminDataTable = ({ props }) => {
     showSearchBar,
     showAddNewButton,
     showActions,
+    showPagination,
+    minHeight,
   } = props;
 
   const navigate = useNavigate();
@@ -83,6 +85,7 @@ const AdminDataTable = ({ props }) => {
   const [displaySearchBar, setDisplaySearchBar] = useState(true);
   const [displayAddNew, setDisplayAddNew] = useState(true);
   const [showActionColumn] = useState(showActions !== false);
+  const [showPaginationBar] = useState(showPagination !== false);
   const [page, setPage] = useState(1);
   useEffect(() => {
     if (showSearchBar || showSearchBar === undefined) {
@@ -485,6 +488,7 @@ const AdminDataTable = ({ props }) => {
       </FlexboxGrid>
 
       <Table
+        minHeight={minHeight}
         autoHeight
         bordered
         headerHeight={50}
@@ -539,25 +543,26 @@ const AdminDataTable = ({ props }) => {
           </Column>
         )}
       </Table>
-
-      <Pagination
-        style={{ backgroundColor: isDark == 'dark' ? darkBgColor : lightBgColor }}
-        prev
-        next
-        first
-        last
-        ellipsis
-        boundaryLinks
-        maxButtons={2}
-        size="lg"
-        layout={['-', 'total', '|', 'limit', 'pager']}
-        total={totalItems ? totalItems : 0}
-        limitOptions={[5, 10, 25, 50, 100]}
-        limit={pageSize}
-        activePage={page}
-        onChangePage={setPage}
-        onChangeLimit={(v) => handleChangeLimit(v)}
-      />
+      {showPaginationBar && (
+        <Pagination
+          style={{ backgroundColor: isDark == 'dark' ? darkBgColor : lightBgColor }}
+          prev
+          next
+          first
+          last
+          ellipsis
+          boundaryLinks
+          maxButtons={2}
+          size="lg"
+          layout={['-', 'total', '|', 'limit', 'pager']}
+          total={totalItems ? totalItems : 0}
+          limitOptions={[5, 10, 25, 50, 100]}
+          limit={pageSize}
+          activePage={page}
+          onChangePage={setPage}
+          onChangeLimit={(v) => handleChangeLimit(v)}
+        />
+      )}
     </div>
   );
 };
