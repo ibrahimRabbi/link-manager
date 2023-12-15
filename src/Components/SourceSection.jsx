@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useSelector } from 'react-redux';
-import { Divider, FlexboxGrid, Message, toaster, Tooltip, Whisper } from 'rsuite';
+import { Col, Divider, FlexboxGrid, Message, toaster, Tooltip, Whisper } from 'rsuite';
 import styles from './Shared/NavigationBar/NavigationBar.module.scss';
 import { MdExpandLess, MdExpandMore } from 'react-icons/md';
 import { useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../apiRequests/apiRequest.js';
 import AuthContext from '../Store/Auth-Context.jsx';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { FaTriangleExclamation } from 'react-icons/fa6';
 
 const sourceAppLogos = {
   gitlab: '/node_icons/gitlab_logo.png',
@@ -23,7 +22,9 @@ const sourceAppLogos = {
 
 const { seeMLBtn, arIcon } = styles;
 const dividerStyle = {
-  fontSize: '25px',
+  fontSize: '22px',
+  margin: '0',
+  padding: '0',
 };
 const NOT_FOUND_RESOURCE_TYPE =
   'Resource type not found. ' + 'Link creation will provide default link types';
@@ -91,39 +92,36 @@ const SourceSection = () => {
 
   return (
     <div className="mainContainer">
-      <FlexboxGrid align="middle">
-        <FlexboxGrid.Item colspan={3} style={{ padding: '0 20px' }}>
-          <h3>Source: </h3>
+      <FlexboxGrid justify="space-between">
+        <FlexboxGrid.Item as={Col} colspan={3}>
+          <h6>Source: </h6>
         </FlexboxGrid.Item>
 
-        <FlexboxGrid.Item colspan={21}>
+        <FlexboxGrid.Item as={Col} colspan={21}>
           {sourceDataList?.appName && (
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                fontSize: '22px',
-                marginBottom: '-3px',
+                fontSize: '18px',
+                marginBottom: '-10px',
                 flexWrap: 'wrap',
               }}
             >
               {sourceDataList?.appName && (
                 <img
                   src={sourceLogo || sourceAppLogos?.default}
-                  height={25}
+                  height={22}
                   alt="Source"
                   style={{ margin: '0 10px 0 0' }}
                 />
               )}
-              <span>{sourceDataList?.projectName}</span>
+              <span>{sourceDataList?.projectName}</span>s
               {sourceDataList?.sourceType && <Divider style={dividerStyle}>|</Divider>}
-
               <span>{sourceDataList?.resourceTypeLabel}</span>
               {sourceDataList?.titleLabel && <Divider style={dividerStyle}>|</Divider>}
-
               <span>{sourceDataList?.titleLabel}</span>
               {sourceDataList?.title && <Divider style={dividerStyle}>|</Divider>}
-
               {sourceDataList?.title && (
                 <span>
                   <span>
@@ -145,14 +143,12 @@ const SourceSection = () => {
               )}
               {unknownResourceType && (
                 <div style={{ right: '0', position: 'fixed', marginRight: '20px' }}>
-                  {/* eslint-disable-next-line max-len */}
                   <Whisper
                     followCursor
                     placement="leftEnd"
                     speaker={<Tooltip>{NOT_FOUND_RESOURCE_TYPE}</Tooltip>}
                   >
-                    <FontAwesomeIcon
-                      icon={faTriangleExclamation}
+                    <FaTriangleExclamation
                       style={{ color: '#ffb638', fontSize: '30px' }}
                     />
                   </Whisper>

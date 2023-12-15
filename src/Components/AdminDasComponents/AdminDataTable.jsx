@@ -5,6 +5,7 @@ import defaultLogo from './logo.png';
 import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
 import InfoStatus from '@rsuite/icons/InfoRound';
+import AddOutlineIcon from '@rsuite/icons/AddOutline';
 
 import {
   Table,
@@ -27,6 +28,7 @@ import { MdOutlineContentCopy } from 'react-icons/md';
 import { IoPlay } from 'react-icons/io5';
 import { Icon } from '@rsuite/icons';
 import { FaSpinner } from 'react-icons/fa';
+import useMediaQuery from '../Shared/useMediaQeury';
 const { Column, HeaderCell, Cell } = Table;
 
 const getSourceTargetIcon = (iconKey) => {
@@ -69,6 +71,7 @@ const AdminDataTable = ({ props }) => {
   const [tableFilterValue, setTableFilterValue] = useState('');
   const [displayTableData, setDisplayTableData] = useState([]);
   const [page, setPage] = useState(1);
+  const isSmallDevice = useMediaQuery('(max-width: 985px)');
 
   useEffect(() => {
     handlePagination(page);
@@ -369,7 +372,11 @@ const AdminDataTable = ({ props }) => {
         }}
       >
         <FlexboxGrid.Item>
-          <InputGroup size="lg" inside style={{ width: '400px' }}>
+          <InputGroup
+            size="lg"
+            inside
+            style={{ width: isSmallDevice ? '100%' : '400px' }}
+          >
             <Input
               placeholder={'Search...'}
               value={tableFilterValue}
@@ -388,8 +395,14 @@ const AdminDataTable = ({ props }) => {
         </FlexboxGrid.Item>
 
         <FlexboxGrid.Item>
-          <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
-            {handleAddNew && title === 'Synchronization' ? 'Create New Sync' : 'Add New'}
+          <Button appearance="primary" color="blue" onClick={() => handleAddNew()}>
+            {handleAddNew && isSmallDevice ? (
+              <AddOutlineIcon />
+            ) : title === 'Synchronization' ? (
+              'Create New Sync'
+            ) : (
+              'Add New'
+            )}
           </Button>
         </FlexboxGrid.Item>
       </FlexboxGrid>

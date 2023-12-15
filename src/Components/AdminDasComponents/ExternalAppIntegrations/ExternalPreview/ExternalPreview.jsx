@@ -3,9 +3,7 @@ import AuthContext from '../../../../Store/Auth-Context.jsx';
 import { Button, Col, Divider, FlexboxGrid, Tooltip, Whisper } from 'rsuite';
 import Editor from '@monaco-editor/react';
 import hljs from 'highlight.js';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCodeCommit, faFileCode } from '@fortawesome/free-solid-svg-icons';
+import { FaCodeCommit, FaFileCode } from 'react-icons/fa6';
 import CheckRoundIcon from '@rsuite/icons/CheckRound';
 import RemindFillIcon from '@rsuite/icons/RemindFill';
 import WarningRoundIcon from '@rsuite/icons/WarningRound';
@@ -326,7 +324,7 @@ const ExternalPreview = (props) => {
             <PreviewRow
               name="Commit ID"
               value={nodeData?.commit_id}
-              titleIcon={<FontAwesomeIcon icon={faCodeCommit} className={iconStatus} />}
+              titleIcon={<FaCodeCommit className={iconStatus} />}
             />
           )}
           {nodeData?.branch_name && (
@@ -349,7 +347,7 @@ const ExternalPreview = (props) => {
             <FlexboxGrid justify="space-around">
               <FlexboxGrid.Item as={Col} colspan={24}>
                 <p className={title} style={{ marginBottom: '10px' }}>
-                  <FontAwesomeIcon icon={faFileCode} className={iconStatus} />
+                  <FaFileCode className={iconStatus} />
                   Selected code
                 </p>
               </FlexboxGrid.Item>
