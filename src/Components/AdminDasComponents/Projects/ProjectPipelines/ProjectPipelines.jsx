@@ -40,7 +40,6 @@ const ProjectPipelines = () => {
             name: `Pipeline ${item?.id}`,
           };
         });
-        console.log(completeData);
         setPipelinesData(completeData);
       },
     },
@@ -67,7 +66,7 @@ const ProjectPipelines = () => {
     showSearchBar: false,
     showActions: false,
     showPagination: false,
-    minHeight: '100px',
+    minHeight: 50,
   };
 
   return <AdminDataTable props={tableProps} />;
