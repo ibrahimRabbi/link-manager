@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useSelector } from 'react-redux';
-import { Col, Divider, FlexboxGrid, Message, toaster, Tooltip, Whisper } from 'rsuite';
-import styles from './Shared/NavigationBar/NavigationBar.module.scss';
-import { MdExpandLess, MdExpandMore } from 'react-icons/md';
+import { Col, FlexboxGrid, Message, toaster, Tooltip, Whisper } from 'rsuite';
 import { useQuery } from '@tanstack/react-query';
 import fetchAPIRequest from '../apiRequests/apiRequest.js';
 import AuthContext from '../Store/Auth-Context.jsx';
@@ -20,10 +18,9 @@ const sourceAppLogos = {
   default: '/node_icons/default_logo.png',
 };
 
-const { seeMLBtn, arIcon } = styles;
 const dividerStyle = {
-  fontSize: '22px',
-  margin: '0',
+  fontSize: '25px',
+  margin: '0 6px',
   padding: '0',
 };
 const NOT_FOUND_RESOURCE_TYPE =
@@ -31,8 +28,6 @@ const NOT_FOUND_RESOURCE_TYPE =
 const SourceSection = () => {
   const authCtx = useContext(AuthContext);
   const { sourceDataList } = useSelector((state) => state.links);
-  const [showMore, setShowMore] = useState(false);
-  const [title, setTitle] = useState('');
   const [sourceLogo, setSourceLogo] = useState('');
   const [unknownResourceType, setUnknownResourceType] = useState(false);
 
@@ -57,18 +52,6 @@ const SourceSection = () => {
     }),
   );
 
-  const toggleTitle = () => {
-    setShowMore(!showMore);
-  };
-
-  // handle see more and see less control
-  useEffect(() => {
-    if (showMore) setTitle(sourceDataList?.title?.slice(25, 99999));
-    else {
-      setTitle('');
-    }
-  }, [showMore]);
-
   useEffect(() => {
     // display logo for the source application
     for (let logo in sourceAppLogos) {
@@ -90,57 +73,53 @@ const SourceSection = () => {
     }
   }, [allResourceTypes]);
 
+  const tooltip = (
+    <Tooltip>
+      <h5>
+        {sourceDataList?.projectName}
+        {sourceDataList?.sourceType && <span style={dividerStyle}>|</span>}
+        {sourceDataList?.resourceTypeLabel}
+        {sourceDataList?.titleLabel && <span style={dividerStyle}>|</span>}
+        {sourceDataList?.titleLabel}
+        {sourceDataList?.title && <span style={dividerStyle}>|</span>}
+        {sourceDataList?.title}
+      </h5>
+    </Tooltip>
+  );
+
   return (
     <div className="mainContainer">
-      <FlexboxGrid justify="space-between">
-        <FlexboxGrid.Item as={Col} colspan={3}>
-          <h6>Source: </h6>
+      <FlexboxGrid align="middle" justify="space-between">
+        <FlexboxGrid.Item as={Col} colspan={4} style={{ margin: '0', padding: '0' }}>
+          <h3>Source:</h3>
         </FlexboxGrid.Item>
 
-        <FlexboxGrid.Item as={Col} colspan={21}>
-          {sourceDataList?.appName && (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                fontSize: '18px',
-                marginBottom: '-10px',
-                flexWrap: 'wrap',
-              }}
-            >
+        <FlexboxGrid.Item as={Col} colspan={20} style={{ margin: '0', padding: '0' }}>
+          <FlexboxGrid align="middle">
+            <FlexboxGrid.Item colspan={1}>
               {sourceDataList?.appName && (
                 <img
                   src={sourceLogo || sourceAppLogos?.default}
-                  height={22}
+                  height={25}
                   alt="Source"
                   style={{ margin: '0 10px 0 0' }}
                 />
               )}
-              <span>{sourceDataList?.projectName}</span>s
-              {sourceDataList?.sourceType && <Divider style={dividerStyle}>|</Divider>}
-              <span>{sourceDataList?.resourceTypeLabel}</span>
-              {sourceDataList?.titleLabel && <Divider style={dividerStyle}>|</Divider>}
-              <span>{sourceDataList?.titleLabel}</span>
-              {sourceDataList?.title && <Divider style={dividerStyle}>|</Divider>}
-              {sourceDataList?.title && (
-                <span>
-                  <span>
-                    {sourceDataList?.title?.slice(0, 25)}
-                    {showMore ? <span>{title}</span> : ''}
-                    {sourceDataList?.title?.length > 25 && !showMore ? '...' : ''}
-                  </span>
-
-                  {sourceDataList?.title?.length > 25 && (
-                    <span className={seeMLBtn} onClick={toggleTitle}>
-                      {showMore ? (
-                        <MdExpandLess className={arIcon} />
-                      ) : (
-                        <MdExpandMore className={arIcon} />
-                      )}
-                    </span>
-                  )}
-                </span>
-              )}
+            </FlexboxGrid.Item>
+            <FlexboxGrid.Item colspan={21}>
+              <Whisper placement="bottom" followCursor speaker={tooltip}>
+                <h3 className="source_section_title">
+                  {sourceDataList?.projectName}
+                  {sourceDataList?.sourceType && <span style={dividerStyle}>|</span>}
+                  {sourceDataList?.resourceTypeLabel}
+                  {sourceDataList?.titleLabel && <span style={dividerStyle}>|</span>}
+                  {sourceDataList?.titleLabel}
+                  {sourceDataList?.title && <span style={dividerStyle}>|</span>}
+                  {sourceDataList?.title}
+                </h3>
+              </Whisper>
+            </FlexboxGrid.Item>
+            <FlexboxGrid.Item colspan={2}>
               {unknownResourceType && (
                 <div style={{ right: '0', position: 'fixed', marginRight: '20px' }}>
                   <Whisper
@@ -148,14 +127,16 @@ const SourceSection = () => {
                     placement="leftEnd"
                     speaker={<Tooltip>{NOT_FOUND_RESOURCE_TYPE}</Tooltip>}
                   >
-                    <FaTriangleExclamation
-                      style={{ color: '#ffb638', fontSize: '30px' }}
-                    />
+                    <h5>
+                      <FaTriangleExclamation
+                        style={{ color: '#ffb638', fontSize: '30px' }}
+                      />
+                    </h5>
                   </Whisper>
                 </div>
               )}
-            </div>
-          )}
+            </FlexboxGrid.Item>
+          </FlexboxGrid>
         </FlexboxGrid.Item>
       </FlexboxGrid>
     </div>

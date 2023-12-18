@@ -161,14 +161,21 @@ const LinkManager = () => {
 
   const exportToExcel = () => {
     if (sourceFileURL) {
-      const exportUrl = `${apiURL}/link/export?source_id=${sourceFileURL}`;
-      const filename = sourceDataList['titleLabel']?.replace(' ', '_');
-      exportLinksToExcel({
-        url: exportUrl,
-        token: authCtx.token,
-        showNotification: showNotification,
-        filename: filename,
-      });
+      if (linksData?.items?.length) {
+        const exportUrl = `${apiURL}/link/export?source_id=${sourceFileURL}`;
+        const filename = sourceDataList['titleLabel']?.replace(' ', '_');
+        exportLinksToExcel({
+          url: exportUrl,
+          token: authCtx.token,
+          showNotification: showNotification,
+          filename: filename,
+        });
+      } else {
+        showNotification(
+          'info',
+          'Sorry, you can not export to Excel because the data is empty in the table!!',
+        );
+      }
     }
   };
   const tableProps = {

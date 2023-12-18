@@ -15,7 +15,7 @@ const WbeDashboard = () => {
         </div>
         <div
           className={isSidebarOpen ? 'show_nav' : 'hide_nav'}
-          style={{ padding: '20px 1vw 0' }}
+          style={{ padding: '0 1vw' }}
         >
           <Outlet />
         </div>

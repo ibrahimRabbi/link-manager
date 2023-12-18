@@ -53,13 +53,6 @@
 
 .traceLynx_logo {
   font-weight: bold;
-  // background: linear-gradient(to left,
-  //     #144272 33.3%,
-  //     #205295 33.3% 66.9%,
-  //     #2c74b3 33.3% 90%);
-  // -webkit-text-fill-color: transparent;
-  // -webkit-background-clip: text;
-  // background-clip: text;
 }
 
 .show_nav {
@@ -80,6 +73,12 @@
 
 .text-center {
   text-align: center;
+}
+
+.source_section_title {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .linkFileContainer {
