@@ -27,10 +27,11 @@ import { MdDelete, MdEdit, MdEmail, MdLock } from 'react-icons/md';
 import { BiShowAlt } from 'react-icons/bi';
 import { PiEyeBold } from 'react-icons/pi';
 import { MdOutlineContentCopy } from 'react-icons/md';
-import { IoPlay } from 'react-icons/io5';
+import { IoPersonAddSharp, IoPersonRemoveSharp, IoPlay } from 'react-icons/io5';
 import { Icon } from '@rsuite/icons';
 import { FaSpinner } from 'react-icons/fa';
 import useMediaQuery from '../Shared/useMediaQeury';
+import { useNavigate } from 'react-router-dom';
 const { Column, HeaderCell, Cell } = Table;
 
 const getSourceTargetIcon = (iconKey) => {
@@ -68,12 +69,42 @@ const AdminDataTable = ({ props }) => {
     authorizeModal,
     totalItems,
     pageSize,
+    showResourceLink,
+    handleAddToResource,
+    addToResourceLabel,
+    handleRemoveFromResource,
+    removeFromResourceLabel,
+    registeredUsers,
+    showSearchBar,
+    showAddNewButton,
+    showActions,
+    showPagination,
+    minHeight,
   } = props;
+
+  const navigate = useNavigate();
   const { isDark } = useSelector((state) => state.nav);
   const [tableFilterValue, setTableFilterValue] = useState('');
   const [displayTableData, setDisplayTableData] = useState([]);
+  const [displaySearchBar, setDisplaySearchBar] = useState(true);
+  const [displayAddNew, setDisplayAddNew] = useState(true);
+  const [showActionColumn] = useState(showActions !== false);
+  const [showPaginationBar] = useState(showPagination !== false);
   const [page, setPage] = useState(1);
   const isSmallDevice = useMediaQuery('(max-width: 985px)');
+
+  useEffect(() => {
+    if (showSearchBar || showSearchBar === undefined) {
+      setDisplaySearchBar(true);
+    } else {
+      setDisplaySearchBar(false);
+    }
+    if (showAddNewButton || showAddNewButton === undefined) {
+      setDisplayAddNew(true);
+    } else {
+      setDisplayAddNew(false);
+    }
+  }, []);
 
   useEffect(() => {
     handlePagination(page);
@@ -137,6 +168,37 @@ const AdminDataTable = ({ props }) => {
       handleSync(rowData);
     };
 
+    const addToResource = () => {
+      handleAddToResource(rowData);
+    };
+    const removeFromResource = () => {
+      handleRemoveFromResource(rowData);
+    };
+
+    const addRemoveResourceButton = (rowData) => {
+      if (handleAddToResource && handleRemoveFromResource) {
+        if (rowData?.id && registeredUsers?.includes(rowData?.id)) {
+          return (
+            <IconButton
+              size="sm"
+              title={removeFromResourceLabel}
+              icon={<IoPersonRemoveSharp />}
+              onClick={removeFromResource}
+            />
+          );
+        } else {
+          return (
+            <IconButton
+              size="sm"
+              title={addToResourceLabel}
+              icon={<IoPersonAddSharp />}
+              onClick={addToResource}
+            />
+          );
+        }
+      }
+    };
+
     return (
       <ButtonToolbar>
         {handleScriptView && (
@@ -186,6 +248,7 @@ const AdminDataTable = ({ props }) => {
             onClick={syncSelected}
           />
         )}
+        {addRemoveResourceButton(rowData)}
         {authorizeModal && (
           <IconButton
             size="sm"
@@ -210,12 +273,39 @@ const AdminDataTable = ({ props }) => {
     sourceIcon,
     targetIcon,
     syncTime,
+    showResourceLink,
     directKey,
     ...props
   }) => {
     const logo = rowData[iconKey] ? rowData[iconKey] : defaultLogo;
     const sourceLogo = sourceIcon && getSourceTargetIcon(rowData[sourceIcon]);
     const targetLogo = targetIcon && getSourceTargetIcon(rowData[targetIcon]);
+
+    const getLabelRow = (rowData, dataKey, link) => {
+      if (dataKey && link) {
+        if (dataKey === 'name') {
+          return (
+            <p
+              className="textHover"
+              style={{
+                marginLeft: '5px',
+                cursor: 'pointer',
+              }}
+              onClick={() => {
+                navigate(`${link}/${rowData['id']}`);
+              }}
+            >
+              {rowData[dataKey]}
+            </p>
+          );
+        } else {
+          return <p style={{ marginLeft: '5px' }}>{rowData[dataKey]}</p>;
+        }
+      } else {
+        return <p style={{ marginLeft: '5px' }}>{rowData[dataKey]}</p>;
+      }
+    };
+
     return (
       <Cell {...props}>
         {/* display logo  */}
@@ -274,7 +364,8 @@ const AdminDataTable = ({ props }) => {
         )}
 
         {/* display row data  */}
-        {dataKey && <p style={{ marginLeft: '5px' }}>{rowData[dataKey]}</p>}
+        {/* eslint-disable-next-line max-len */}
+        {getLabelRow(rowData, dataKey, showResourceLink)}
 
         {/* display status data  */}
         {statusKey && (
@@ -391,43 +482,47 @@ const AdminDataTable = ({ props }) => {
           padding: '10px 0',
         }}
       >
-        <FlexboxGrid.Item>
-          <InputGroup
-            size="lg"
-            inside
-            style={{ width: isSmallDevice ? '100%' : '400px' }}
-          >
-            <Input
-              placeholder={'Search...'}
-              value={tableFilterValue}
-              onChange={(v) => setTableFilterValue(v)}
-            />
-            {tableFilterValue ? (
-              <InputGroup.Button onClick={() => setTableFilterValue('')}>
-                <CloseIcon />
-              </InputGroup.Button>
-            ) : (
-              <InputGroup.Button>
-                <SearchIcon />
-              </InputGroup.Button>
-            )}
-          </InputGroup>
-        </FlexboxGrid.Item>
-
-        <FlexboxGrid.Item>
-          <Button appearance="primary" color="blue" onClick={() => handleAddNew()}>
-            {handleAddNew && isSmallDevice ? (
-              <AddOutlineIcon />
-            ) : title === 'Synchronization' ? (
-              'Create New Sync'
-            ) : (
-              'Add New'
-            )}
-          </Button>
-        </FlexboxGrid.Item>
+        {displaySearchBar && (
+          <FlexboxGrid.Item>
+            <InputGroup
+              size="lg"
+              inside
+              style={{ width: isSmallDevice ? '100%' : '400px' }}
+            >
+              <Input
+                placeholder={'Search...'}
+                value={tableFilterValue}
+                onChange={(v) => setTableFilterValue(v)}
+              />
+              {tableFilterValue ? (
+                <InputGroup.Button onClick={() => setTableFilterValue('')}>
+                  <CloseIcon />
+                </InputGroup.Button>
+              ) : (
+                <InputGroup.Button>
+                  <SearchIcon />
+                </InputGroup.Button>
+              )}
+            </InputGroup>
+          </FlexboxGrid.Item>
+        )}
+        {displayAddNew && handleAddNew && (
+          <FlexboxGrid.Item>
+            <Button appearance="primary" color="blue" onClick={() => handleAddNew()}>
+              {handleAddNew && isSmallDevice ? (
+                <AddOutlineIcon />
+              ) : title === 'Synchronization' ? (
+                'Create New Sync'
+              ) : (
+                'Add New'
+              )}
+            </Button>
+          </FlexboxGrid.Item>
+        )}
       </FlexboxGrid>
 
       <Table
+        minHeight={minHeight}
         autoHeight
         bordered
         headerHeight={50}
@@ -460,46 +555,49 @@ const AdminDataTable = ({ props }) => {
               buttonKey={header?.buttonKey}
               syncStatus={header?.syncStatus}
               syncTime={header?.syncTime}
+              showResourceLink={showResourceLink}
               directKey={header?.directKey}
             />
           </Column>
         ))}
 
         {/* -- action --  */}
-
-        <Column width={140} align="left">
-          <HeaderCell>
-            <h5>Action</h5>
-          </HeaderCell>
-          <Cell
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            {(rowData) => <ActionMenu rowData={rowData} />}
-          </Cell>
-        </Column>
+        {showActionColumn && (
+          <Column width={140} align="left">
+            <HeaderCell>
+              <h5>Action</h5>
+            </HeaderCell>
+            <Cell
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              {(rowData) => <ActionMenu rowData={rowData} />}
+            </Cell>
+          </Column>
+        )}
       </Table>
-
-      <Pagination
-        style={{ backgroundColor: isDark == 'dark' ? darkBgColor : lightBgColor }}
-        prev
-        next
-        first
-        last
-        ellipsis
-        boundaryLinks
-        maxButtons={2}
-        size="lg"
-        layout={['-', 'total', '|', 'limit', 'pager']}
-        total={totalItems ? totalItems : 0}
-        limitOptions={[5, 10, 25, 50, 100]}
-        limit={pageSize}
-        activePage={page}
-        onChangePage={setPage}
-        onChangeLimit={(v) => handleChangeLimit(v)}
-      />
+      {showPaginationBar && (
+        <Pagination
+          style={{ backgroundColor: isDark == 'dark' ? darkBgColor : lightBgColor }}
+          prev
+          next
+          first
+          last
+          ellipsis
+          boundaryLinks
+          maxButtons={2}
+          size="lg"
+          layout={['-', 'total', '|', 'limit', 'pager']}
+          total={totalItems ? totalItems : 0}
+          limitOptions={[5, 10, 25, 50, 100]}
+          limit={pageSize}
+          activePage={page}
+          onChangePage={setPage}
+          onChangeLimit={(v) => handleChangeLimit(v)}
+        />
+      )}
     </div>
   );
 };

@@ -1,11 +1,12 @@
 import React, { useContext, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { handleIsDarkMode, handleIsProfileOpen } from '../../../Redux/slices/navSlice';
 import AuthContext from '../../../Store/Auth-Context.jsx';
 import {
   Avatar,
   Button,
+  FlexboxGrid,
   Message,
   Nav,
   Navbar,
@@ -19,6 +20,7 @@ import { ImBrightnessContrast } from 'react-icons/im';
 import { darkColor, lightBgColor } from '../../../App';
 import AlertModal from '../AlertModal';
 import styles from './NavigationBar.module.scss';
+import { VscProject } from 'react-icons/vsc';
 
 const { popoverContainer, userContainer, popButton, navbarBrand } = styles;
 
@@ -26,6 +28,7 @@ const NavigationBar = () => {
   const authCtx = useContext(AuthContext);
   const { currPageTitle, isDark, isProfileOpen } = useSelector((state) => state.nav);
   const [open, setOpen] = useState(false);
+  const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const toaster = useToaster();
@@ -73,6 +76,11 @@ const NavigationBar = () => {
       path: organization + '/profile',
       icon: <BiUserCircle size={18} style={{ marginRight: '-1px' }} />,
     },
+    {
+      label: 'Projects',
+      path: organization + '/admin/projects',
+      icon: <VscProject size={18} />,
+    },
     { label: darkModeText, path: '', icon: <ImBrightnessContrast size={17} /> },
     { label: 'Logout', path: '', icon: <BiLogOut size={17} /> },
   ];
@@ -98,7 +106,7 @@ const NavigationBar = () => {
     >
       {popItems.map((item, index) => {
         // hide admin dashboard module if the user not an admin
-        if (item?.path === organization + '/admin') {
+        if (item?.path === organization + '/admin/projects') {
           if (isAdmin || isSuperAdmin) {
             // display dashboard option
           } else {
@@ -148,56 +156,58 @@ const NavigationBar = () => {
           content={'You want to logout!'}
           handleConfirmed={handleConfirmed}
         />
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Navbar.Brand
-            onClick={() => navigate(organization ? organization : '/')}
-            className={navbarBrand}
-          >
-            <img
-              height={30}
-              alt="TraceLynx"
-              src={window.location.origin + '/traceLynx_logo.svg'}
-            />
-            <h2 style={{ fontWeight: '600' }}>
-              <span
-                style={{
-                  color: isDark === 'dark' ? '#3491e2' : '#2c74b3',
-                }}
+        <div>
+          <FlexboxGrid align="middle">
+            <FlexboxGrid.Item colspan={5}>
+              <Navbar.Brand
+                onClick={() => navigate(organization ? organization : '/')}
+                className={navbarBrand}
               >
-                Trace
-              </span>
-              <span
-                style={{
-                  color: isDark === 'dark' ? '#1d69ba' : '#144272',
-                }}
-              >
-                Lynx
-              </span>
-            </h2>
-          </Navbar.Brand>
-          <Nav>
-            <h5 style={{ textAlign: 'center' }}>{currPageTitle}</h5>
-          </Nav>
+                <img
+                  height={30}
+                  alt="TraceLynx"
+                  src={window.location.origin + '/traceLynx_logo.svg'}
+                />
+                <h2 style={{ fontWeight: '600' }}>
+                  <span
+                    style={{
+                      color: isDark === 'dark' ? '#3491e2' : '#2c74b3',
+                    }}
+                  >
+                    Trace
+                  </span>
+                  <span
+                    style={{
+                      color: isDark === 'dark' ? '#1d69ba' : '#144272',
+                    }}
+                  >
+                    Lynx
+                  </span>
+                </h2>
+              </Navbar.Brand>
+            </FlexboxGrid.Item>
+            <FlexboxGrid.Item colspan={18}>
+              <Nav>
+                <h5 style={{ textAlign: 'center' }}>{currPageTitle}</h5>
+              </Nav>
+            </FlexboxGrid.Item>
 
-          <Nav style={{ padding: '5px 20px 0 0' }}>
-            <Whisper
-              placement="bottomEnd"
-              trigger="click"
-              controlId="control-id-hover-enterable"
-              speaker={speaker}
-              enterable
-            >
-              <Button data-cy="profile-options-btn">
-                <BiUserCircle size={30} />
-              </Button>
-            </Whisper>
-          </Nav>
+            <FlexboxGrid.Item colspan={1} style={{ marginLeft: '-15px' }}>
+              <Nav style={{ padding: '5px 20px 0 0' }}>
+                <Whisper
+                  placement="bottomEnd"
+                  trigger="click"
+                  controlId="control-id-hover-enterable"
+                  speaker={speaker}
+                  enterable
+                >
+                  <Button data-cy="profile-options-btn">
+                    <BiUserCircle size={30} />
+                  </Button>
+                </Whisper>
+              </Nav>
+            </FlexboxGrid.Item>
+          </FlexboxGrid>
         </div>
       </div>
     </>

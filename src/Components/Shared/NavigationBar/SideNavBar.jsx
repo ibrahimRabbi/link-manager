@@ -31,7 +31,6 @@ const iconStyle = {
   marginLeft: '-38px',
   marginRight: '17px',
 };
-const wbeUrl = import.meta.env.VITE_GENERIC_WBE;
 
 const SideNavBar = () => {
   const { isDark, isSidebarOpen } = useSelector((state) => state.nav);
@@ -192,11 +191,6 @@ const SideNavBar = () => {
       isAdminModule: true,
     },
   ];
-
-  // redirect to chrome store
-  const redirectToChromeWebStore = () => {
-    window.open(`${wbeUrl}`, '_blank');
-  };
   return (
     <>
       {/* confirmation modal  */}
@@ -272,10 +266,6 @@ const SideNavBar = () => {
                     );
                   }
                 };
-
-                if (option.path === organization + '/extension' && isActive()) {
-                  redirectToChromeWebStore();
-                }
                 return (
                   <Nav.Item
                     key={index}
