@@ -393,7 +393,7 @@ const ProjectDetails = (props) => {
           ) : (
             <>
               <FlexboxGrid.Item colspan={15}>
-                <h2>{projectData?.name ? projectData.name : 'Project info'}</h2>
+                <h3>{projectData?.name ? projectData.name : 'Project info'}</h3>
               </FlexboxGrid.Item>
               <FlexboxGrid.Item colspan={5}></FlexboxGrid.Item>
               <FlexboxGrid>
@@ -507,11 +507,8 @@ const ProjectDetails = (props) => {
           <FlexboxGrid.Item colspan={15} style={{ marginLeft: '15px' }}>
             <h5>Latest pipeline runs:</h5>
           </FlexboxGrid.Item>
-          <FlexboxGrid.Item colspan={24}>
-            <div
-              className={detailsContent}
-              style={{ backgroundColor: isDark === 'dark' && darkBgColor }}
-            >
+          <FlexboxGrid.Item colspan={24} style={{ marginTop: '-15px' }}>
+            <div style={{ backgroundColor: isDark === 'dark' ? darkBgColor : '#ffffff' }}>
               <ProjectPipelines />
             </div>
           </FlexboxGrid.Item>

@@ -281,14 +281,18 @@ const AdminDataTable = ({ props }) => {
       if (dataKey && link) {
         if (dataKey === 'name') {
           return (
-            <a
-              style={{ marginLeft: '5px', cursor: 'pointer' }}
+            <p
+              className="textHover"
+              style={{
+                marginLeft: '5px',
+                cursor: 'pointer',
+              }}
               onClick={() => {
                 navigate(`${link}/${rowData['id']}`);
               }}
             >
               {rowData[dataKey]}
-            </a>
+            </p>
           );
         } else {
           return <p style={{ marginLeft: '5px' }}>{rowData[dataKey]}</p>;

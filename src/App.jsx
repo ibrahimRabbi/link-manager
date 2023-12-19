@@ -346,7 +346,6 @@ function App() {
                     </Suspense>
                   }
                 />
-
                 <Route
                   path={`${organization}/admin/link-rules`}
                   element={

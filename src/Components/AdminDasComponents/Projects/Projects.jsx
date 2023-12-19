@@ -286,7 +286,9 @@ const Projects = () => {
     totalItems: allProjects?.total_items,
     totalPages: allProjects?.total_pages,
     pageSize,
-    showResourceLink: location.pathname.replace('projects', 'project'),
+    showResourceLink: location?.pathname?.includes('projects')
+      ? location.pathname.replace('projects', 'project')
+      : 'project',
     page: allProjects?.page,
     inpPlaceholder: 'Search Project',
   };
