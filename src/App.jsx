@@ -65,6 +65,9 @@ const SynchronizationConfig = lazy(() =>
 const Synchronization = lazy(() =>
   import('./Components/AdminDasComponents/MigrationConfig/Synchronization'),
 );
+const ResourceDetails = lazy(() =>
+  import('./Components/AdminDasComponents/ResourceDetails/ResourceDetails.jsx'),
+);
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -315,6 +318,31 @@ function App() {
                   element={
                     <Suspense fallback={<UseLoader />}>
                       <Projects />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={`${organization}/admin/project/:id`}
+                  element={
+                    <Suspense fallback={<UseLoader />}>
+                      <ResourceDetails type="project" />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={`${organization}/admin/project/new`}
+                  element={
+                    <Suspense fallback={<UseLoader />}>
+                      <ResourceDetails type="project" newResource={true} />
+                    </Suspense>
+                  }
+                />
+
+                <Route
+                  path={`${organization}/admin/project/:id/user-permissions`}
+                  element={
+                    <Suspense fallback={<UseLoader />}>
+                      <ResourceDetails type="project-permissions" />
                     </Suspense>
                   }
                 />

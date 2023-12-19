@@ -19,6 +19,7 @@ import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 import AlertModal from '../../Shared/AlertModal';
 import { Mixpanel } from '../../../../Mixpanel';
 import jwt_decode from 'jwt-decode';
+import { useLocation, useNavigate } from 'react-router-dom';
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 // demo data
@@ -37,12 +38,15 @@ const { StringType, NumberType, ArrayType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
-  description: StringType().isRequired('This field is required.'),
+  description: StringType(),
   organization_id: NumberType(),
   users: ArrayType(),
 });
 
 const Projects = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -69,6 +73,9 @@ const Projects = () => {
       toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
     }
   };
+  const organization = authCtx?.organization_name
+    ? `/${authCtx?.organization_name?.toLowerCase()}`
+    : '';
 
   // get projects using react-query
   const {
@@ -222,15 +229,14 @@ const Projects = () => {
 
   // get all projects
   useEffect(() => {
-    dispatch(handleCurrPageTitle('Projects'));
+    dispatch(handleCurrPageTitle('Current Projects'));
 
     refetchProjects();
   }, [createSuccess, updateSuccess, deleteSuccess, pageSize, currPage, refreshData]);
 
   // handle open add user modal
   const handleAddNew = () => {
-    handleResetForm();
-    dispatch(handleIsAddNewModal(true));
+    navigate(`${organization}/admin/project/new`);
   };
 
   // handle delete project
@@ -280,6 +286,9 @@ const Projects = () => {
     totalItems: allProjects?.total_items,
     totalPages: allProjects?.total_pages,
     pageSize,
+    showResourceLink: location?.pathname?.includes('projects')
+      ? location.pathname.replace('projects', 'project')
+      : 'project',
     page: allProjects?.page,
     inpPlaceholder: 'Search Project',
   };
