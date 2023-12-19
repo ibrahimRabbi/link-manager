@@ -7,6 +7,7 @@ import {
   Button,
   Divider,
   FlexboxGrid,
+  Col,
   Form,
   Message,
   Nav,
@@ -21,8 +22,6 @@ import fetchAPIRequest from '../../apiRequests/apiRequest';
 import UseLoader from '../Shared/UseLoader';
 import PasswordField from '../AdminDasComponents/PasswordField';
 import jwt_decode from 'jwt-decode';
-import SelectField from '../AdminDasComponents/SelectField.jsx';
-import CustomReactSelect from '../Shared/Dropdowns/CustomReactSelect.jsx';
 
 const {
   profileMainContainer,
@@ -35,8 +34,7 @@ const {
 } = styles;
 
 /** Model Schema */
-const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
-const { StringType, NumberType } = Schema.Types;
+const { StringType } = Schema.Types;
 const passwordRule = (value) => {
   return value.length >= 5;
 };
@@ -52,7 +50,6 @@ const userModel = Schema.Model({
   first_name: StringType().isRequired(requiredMessage),
   last_name: StringType().isRequired(requiredMessage),
   username: StringType().isRequired(requiredMessage),
-  organization_id: NumberType(),
   email: StringType().isRequired(requiredMessage),
 });
 const passwordModel = Schema.Model({
@@ -93,7 +90,6 @@ const UserProfile = () => {
     last_name: userInfo?.family_name ? userInfo.family_name : '',
     username: userInfo?.preferred_username ? userInfo.preferred_username : '',
     email: userInfo?.email ? userInfo.email : '',
-    organization_id: Number(authCtx?.organization_id),
   });
   const [passwordFormValue, setPasswordFormValue] = useState({
     new_password: '',
@@ -260,32 +256,31 @@ const UserProfile = () => {
               data-cy="profile-form"
             >
               <FlexboxGrid justify="space-between">
-                <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
-                  <SelectField
-                    name="organization_id"
-                    label="Organization"
-                    placeholder="Select Organization"
-                    accepter={CustomReactSelect}
-                    apiURL={`${lmApiUrl}/organization`}
-                    error={formError.organization_id}
-                    disabled={true}
-                    defaultValue={Number(authCtx?.organization_id)}
-                  />
-                </FlexboxGrid.Item>
-
-                <FlexboxGrid.Item colspan={11} style={{ marginBottom: '25px' }}>
+                <FlexboxGrid.Item
+                  as={Col}
+                  colspan={24}
+                  md={12}
+                  style={{ marginBottom: '25px' }}
+                >
                   <TextField
                     name="first_name"
                     label="First Name"
                     reqText="First name is required"
+                    error={formError.first_name}
                   />
                 </FlexboxGrid.Item>
 
-                <FlexboxGrid.Item colspan={11} style={{ marginBottom: '25px' }}>
+                <FlexboxGrid.Item
+                  as={Col}
+                  colspan={24}
+                  md={12}
+                  style={{ marginBottom: '25px' }}
+                >
                   <TextField
                     name="last_name"
                     label="Last Name"
                     reqText="Last name is required"
+                    error={formError.last_name}
                   />
                 </FlexboxGrid.Item>
 
@@ -294,7 +289,12 @@ const UserProfile = () => {
                 </FlexboxGrid.Item>
 
                 <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
-                  <TextField name="email" label="Email" type="email" />
+                  <TextField
+                    name="email"
+                    label="Email"
+                    type="email"
+                    error={formError.email}
+                  />
                 </FlexboxGrid.Item>
               </FlexboxGrid>
 
@@ -322,7 +322,12 @@ const UserProfile = () => {
               model={passwordModel}
             >
               <FlexboxGrid justify="space-between">
-                <FlexboxGrid.Item colspan={11} style={{ marginBottom: '25px' }}>
+                <FlexboxGrid.Item
+                  as={Col}
+                  colspan={24}
+                  md={12}
+                  style={{ marginBottom: '25px' }}
+                >
                   <PasswordField
                     name="new_password"
                     label="New Password"
@@ -332,7 +337,12 @@ const UserProfile = () => {
                   />
                 </FlexboxGrid.Item>
 
-                <FlexboxGrid.Item colspan={11} style={{ marginBottom: '25px' }}>
+                <FlexboxGrid.Item
+                  as={Col}
+                  colspan={24}
+                  md={12}
+                  style={{ marginBottom: '25px' }}
+                >
                   <PasswordField
                     name="new_password_confirm"
                     label="Confirm Password"

@@ -14,7 +14,7 @@
   }
 
   h4 {
-    font-size: 22px !important;
+    font-size: 20px !important;
   }
 
   h5 {
@@ -53,13 +53,6 @@
 
 .traceLynx_logo {
   font-weight: bold;
-  // background: linear-gradient(to left,
-  //     #144272 33.3%,
-  //     #205295 33.3% 66.9%,
-  //     #2c74b3 33.3% 90%);
-  // -webkit-text-fill-color: transparent;
-  // -webkit-background-clip: text;
-  // background-clip: text;
 }
 
 .show_nav {
@@ -82,6 +75,12 @@
   text-align: center;
 }
 
+.source_section_title {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 .linkFileContainer {
   display: flex;
   align-items: center;
@@ -94,7 +93,7 @@
   }
 }
 
-.linkFileContainer > h5 {
+.linkFileContainer>h5 {
   span {
     margin-left: 10px;
     margin-bottom: -10px;
@@ -242,6 +241,7 @@
 
 // react select styles for dark theme --- start
 .reactSelectContainer {
+
   // react select value container style
   .reactSelect__control {
     background-color: #1a1d24;
@@ -326,6 +326,7 @@
   border: 1px solid lightgray;
   border-radius: 3px;
 }
+
 .textHover:hover {
   text-decoration: underline;
 }

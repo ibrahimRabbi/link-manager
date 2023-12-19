@@ -30,6 +30,8 @@ import LinkManagerTable from './LinkManagerTable';
 import { useMutation } from '@tanstack/react-query';
 import fetchAPIRequest from '../../apiRequests/apiRequest';
 import AlertModal from '../Shared/AlertModal';
+import useMediaQuery from '../Shared/useMediaQeury.js';
+import AddOutlineIcon from '@rsuite/icons/AddOutline';
 
 const {
   tableContainer,
@@ -48,7 +50,6 @@ const model = Schema.Model({
 
 const LinkManager = () => {
   const { sourceDataList, linksData, isLoading } = useSelector((state) => state.links);
-
   const { linksStream, refreshData, isDark } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -66,6 +67,7 @@ const LinkManager = () => {
   const uri = searchParams.get('uri');
   const sourceFileURL = uri || sourceDataList?.uri;
   const searchRef = useRef();
+  const isSmallDevice = useMediaQuery('(max-width: 985px)');
 
   useEffect(() => {
     dispatch(handleIsWbe(isWbe));
@@ -159,14 +161,21 @@ const LinkManager = () => {
 
   const exportToExcel = () => {
     if (sourceFileURL) {
-      const exportUrl = `${apiURL}/link/export?source_id=${sourceFileURL}`;
-      const filename = sourceDataList['titleLabel']?.replace(' ', '_');
-      exportLinksToExcel({
-        url: exportUrl,
-        token: authCtx.token,
-        showNotification: showNotification,
-        filename: filename,
-      });
+      if (linksData?.items?.length) {
+        const exportUrl = `${apiURL}/link/export?source_id=${sourceFileURL}`;
+        const filename = sourceDataList['titleLabel']?.replace(' ', '_');
+        exportLinksToExcel({
+          url: exportUrl,
+          token: authCtx.token,
+          showNotification: showNotification,
+          filename: filename,
+        });
+      } else {
+        showNotification(
+          'info',
+          'Sorry, you can not export to Excel because the data is empty in the table!!',
+        );
+      }
     }
   };
   const tableProps = {
@@ -227,7 +236,7 @@ const LinkManager = () => {
                     <Stack style={{ position: 'relative' }}>
                       <TextField
                         style={{
-                          width: '400px',
+                          width: isSmallDevice ? '100%' : '400px',
                           borderRadius: '6px 0 0 6px',
                           height: '36px',
                         }}
@@ -261,10 +270,17 @@ const LinkManager = () => {
                         size="md"
                         style={{ borderRadius: '0 6px 6px 0' }}
                         type="submit"
-                        startIcon={<SearchIcon style={{ marginLeft: '-5px' }} />}
+                        startIcon={
+                          <SearchIcon
+                            style={{
+                              marginLeft: isSmallDevice ? '' : '-5px',
+                              height: '20px',
+                            }}
+                          />
+                        }
                         onClick={handleSearchLinks}
                       >
-                        Search
+                        {isSmallDevice ? '' : 'Search'}
                       </Button>
                     </Stack>
                   </Form>
@@ -288,7 +304,7 @@ const LinkManager = () => {
                         }
                       }}
                     >
-                      Create Link
+                      {isSmallDevice ? <AddOutlineIcon /> : 'Create Link'}
                     </Button>
                     <Button
                       appearance="default"
