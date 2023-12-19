@@ -5,6 +5,8 @@ import defaultLogo from './logo.png';
 import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
 import InfoStatus from '@rsuite/icons/InfoRound';
+import { TbArrowsHorizontal } from 'react-icons/tb';
+import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
 
 import {
   Table,
@@ -268,6 +270,7 @@ const AdminDataTable = ({ props }) => {
     targetIcon,
     syncTime,
     showResourceLink,
+    directKey,
     ...props
   }) => {
     const logo = rowData[iconKey] ? rowData[iconKey] : defaultLogo;
@@ -333,6 +336,23 @@ const AdminDataTable = ({ props }) => {
               padding: '1px',
             }}
           />
+        )}
+        {directKey && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
+            <h5>
+              {rowData[directKey] === false ? (
+                <HiOutlineArrowNarrowRight style={{ fontSize: '30px' }} />
+              ) : (
+                <TbArrowsHorizontal style={{ fontSize: '30px' }} />
+              )}
+            </h5>
+          </div>
         )}
 
         {/* display row data  */}
@@ -522,6 +542,7 @@ const AdminDataTable = ({ props }) => {
               syncStatus={header?.syncStatus}
               syncTime={header?.syncTime}
               showResourceLink={showResourceLink}
+              directKey={header?.directKey}
             />
           </Column>
         ))}
