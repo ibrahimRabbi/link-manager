@@ -171,15 +171,6 @@ const SideNavBar = () => {
       hidden: false,
       isAdminModule: true,
     },
-
-    {
-      path: organization ? organization + '/admin/pipelinerun' : '/admin/pipelinerun',
-      navigateTo: `${organization}/admin/pipelinerun`,
-      icon: <PlayOutlineIcon />,
-      content: <span>Pipeline Runs</span>,
-      hidden: true,
-      isAdminModule: true,
-    },
     {
       path: organization
         ? organization + '/admin/synchronization'
