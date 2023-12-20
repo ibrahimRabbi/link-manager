@@ -102,7 +102,7 @@ pipelines:
       - stage:
           name: Deploy to Staging
           deployment: staging
-          trigger: 'manual'
+          # trigger: 'manual'
           steps:
             - step:
                 <<: *build
@@ -110,6 +110,25 @@ pipelines:
 
             - step:
                 name: 'Deploying to Staging Environment'
+                script:
+                  - pipe: atlassian/rsync-deploy:0.11.0
+                    variables:
+                      USER: $SERVER_USER
+                      SERVER: $SERVER_IP
+                      REMOTE_PATH: $SERVER_PATH
+                      LOCAL_PATH: $LOCAL_PATH
+
+      - stage:
+          name: Deploy to Beta
+          deployment: st-beta
+          trigger: 'manual'
+          steps:
+            - step:
+                <<: *build
+                name: 'Building for Beta Environment'
+
+            - step:
+                name: 'Deploying to Beta Environment'
                 script:
                   - pipe: atlassian/rsync-deploy:0.11.0
                     variables:
