@@ -50,6 +50,15 @@ export default function fetchAPIRequest({
       }
     })
     .catch((error) => {
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        showNotification(
+          'error',
+          'Network error. Please check your internet connection.',
+        );
+        return false;
+      }
+
+      // Handle other errors
       showNotification('error', error?.message);
       throw new Error(error?.message);
     });
