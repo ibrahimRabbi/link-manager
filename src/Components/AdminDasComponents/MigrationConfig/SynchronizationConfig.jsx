@@ -66,6 +66,7 @@ const SynchronizationConfig = () => {
   const [sourceProperty, setSourceProperty] = useState('');
   const [targetProperty, setTargetProperty] = useState('');
   const [showAddEnum, setShowAddEnum] = useState(false);
+  const [directions, setDirections] = useState(true);
   const [defaultProperty, setDefaultProperty] = useState('');
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const dispatch = useDispatch();
@@ -109,8 +110,18 @@ const SynchronizationConfig = () => {
   useEffect(() => {
     dispatch(handleCurrPageTitle('Synchronization Configuration'));
   }, []);
+
+  const handleDirectChange = (selectedItem) => {
+    if (selectedItem !== null) {
+      setPropertyShow(false);
+      setDirections(false);
+      setSelectDirection(selectedItem);
+    } else {
+      setDirections(true);
+      setSelectDirection(selectedItem);
+    }
+  };
   const handleSourceApplicationChange = (selectedItem) => {
-    // setSelectDirection('');
     setEnumRows([]);
     setSourceProperty('');
     setTargetProperty('');
@@ -202,11 +213,7 @@ const SynchronizationConfig = () => {
     setPropertyShow(false);
     setSourceResourceType(selectedItem);
   };
-  const handleDirectChange = (selectedItem) => {
-    setPropertyShow(false);
-    console.log(selectedItem);
-    setSelectDirection(selectedItem);
-  };
+
   useEffect(() => {
     // prettier-ignorec
     switch (sourceApplication?.type) {
@@ -610,10 +617,7 @@ const SynchronizationConfig = () => {
                           name="application_type"
                           placeholder="Choose Direction"
                           onChange={handleDirectChange}
-                          disabled={
-                            authenticatedThirdApp || sourceResourceType ? false : true
-                          }
-                          items={sourceApplication ? direction : []}
+                          items={direction ? direction : []}
                         />
                       </FlexboxGrid.Item>
                     </FlexboxGrid>
@@ -676,6 +680,7 @@ const SynchronizationConfig = () => {
                     value={sourceApplication?.label}
                     isUpdateState={sourceApplication}
                     restartRequest={restartExternalRequest}
+                    disabled={directions}
                     isApplication={true}
                     removeApplication={[
                       'gitlab',
@@ -704,7 +709,7 @@ const SynchronizationConfig = () => {
                         placeholder="Choose Project"
                         onChange={handleSourceProject}
                         isLoading={sourceProjectLoading}
-                        disabled={authenticatedThirdApp}
+                        disabled={authenticatedThirdApp || directions}
                         items={sourceProjectList?.length ? sourceProjectList : []}
                       />
                     </FlexboxGrid.Item>
@@ -728,7 +733,7 @@ const SynchronizationConfig = () => {
                           name="resource_type"
                           placeholder="Choose resource type"
                           onChange={handleSourceResourceTypeChange}
-                          disabled={authenticatedThirdApp}
+                          disabled={authenticatedThirdApp || directions}
                           isLoading={sourceResourceTypeLoading}
                           value={sourceResourceType?.name}
                           appData={sourceApplication}
@@ -791,7 +796,11 @@ const SynchronizationConfig = () => {
                     isLinkCreation={true}
                     value={targetApplication?.label}
                     isUpdateState={sourceApplication}
-                    disabled={authenticatedThirdApp || selectDirection ? false : true}
+                    disabled={
+                      (authenticatedThirdApp || sourceResourceType) && directions
+                        ? false
+                        : true
+                    }
                     isApplication={true}
                     removeApplication={[
                       sourceApplication?.type,
@@ -820,7 +829,9 @@ const SynchronizationConfig = () => {
                         placeholder="Choose Project"
                         onChange={handleTargetProject}
                         isLoading={targetProjectLoading}
-                        disabled={authenticatedThirdApp || !targetApplication}
+                        disabled={
+                          authenticatedThirdApp || !targetApplication || directions
+                        }
                         items={targetProjectList?.length ? targetProjectList : []}
                       />
                     </FlexboxGrid.Item>
@@ -844,7 +855,7 @@ const SynchronizationConfig = () => {
                           name="glide_native_resource_type"
                           placeholder="Choose resource type"
                           onChange={handleTargetResourceTypeChange}
-                          disabled={authenticatedThirdApp}
+                          disabled={authenticatedThirdApp || directions}
                           isLoading={targetResourceTypeLoading}
                           value={targetResourceType?.name}
                           appData={targetApplication}
@@ -932,14 +943,14 @@ const SynchronizationConfig = () => {
               </Button>
               <Button
                 appearance="ghost"
-                disabled={!targetResourceType}
+                disabled={!targetResourceType || directions}
                 onClick={() => handleMakeMigration(false)}
               >
                 Save
               </Button>
               <Button
                 appearance="primary"
-                disabled={!targetResourceType}
+                disabled={!targetResourceType || directions}
                 onClick={() => handleMakeMigration(true)}
               >
                 Save & Run
