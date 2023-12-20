@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { FaChevronRight } from 'react-icons/fa';
-import { CgMoreVertical } from 'react-icons/cg';
 import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
 import InfoStatus from '@rsuite/icons/InfoRound';
@@ -12,7 +11,7 @@ import {
   flexRender,
 } from '@tanstack/react-table';
 
-import { Dropdown, IconButton, Input, Popover, Whisper } from 'rsuite';
+import { ButtonToolbar, IconButton, Input, Popover, Whisper } from 'rsuite';
 import cssStyles from './LinkManager.module.scss';
 import { useSelector } from 'react-redux';
 import CustomFilterSelect from './CustomFilterSelect';
@@ -30,6 +29,7 @@ import {
 // eslint-disable-next-line max-len
 import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
 import { addNodeLabel } from '../CytoscapeGraphView/Graph.jsx';
+import { MdDelete, MdEdit } from 'react-icons/md';
 const {
   table_row_dark,
   table_row_light,
@@ -66,26 +66,6 @@ const LinkManagerTable = ({ props }) => {
   const { isDark } = useSelector((state) => state.nav);
   const [showExternalAuthWindow, setShowExternalAuthWindow] = useState(false);
   const [externalAuthData, setExternalAuthData] = useState({});
-
-  // Action table cell control
-  const renderMenu = ({ onClose, left, top, className }, ref) => {
-    const handleSelect = (key) => {
-      if (key === 1) {
-        //
-      } else if (key === 2) {
-        handleDeleteLink();
-      }
-      onClose();
-    };
-    return (
-      <Popover ref={ref} className={className} style={{ left, top }} full>
-        <Dropdown.Menu onSelect={handleSelect} style={{ fontSize: '17px' }}>
-          <Dropdown.Item eventKey={1}>Edit</Dropdown.Item>
-          <Dropdown.Item eventKey={2}>Delete</Dropdown.Item>
-        </Dropdown.Menu>
-      </Popover>
-    );
-  };
 
   const getExtLoginData = (data) => {
     console.log('External Login Data: ', data);
@@ -334,13 +314,25 @@ const LinkManagerTable = ({ props }) => {
           const rowData = row?.original;
           return (
             <div className={actionDataCell}>
-              <Whisper placement="auto" trigger="click" speaker={renderMenu}>
+              <ButtonToolbar>
                 <IconButton
-                  appearance="subtle"
-                  icon={<CgMoreVertical />}
-                  onClick={() => setSelectedRowData(rowData)}
+                  size="sm"
+                  title="Edit"
+                  icon={<MdEdit />}
+                  onClick={() => {
+                    setSelectedRowData(rowData);
+                  }}
                 />
-              </Whisper>
+                <IconButton
+                  size="sm"
+                  title="Delete"
+                  icon={<MdDelete />}
+                  onClick={() => {
+                    setSelectedRowData(rowData);
+                    handleDeleteLink();
+                  }}
+                />
+              </ButtonToolbar>
             </div>
           );
         },
