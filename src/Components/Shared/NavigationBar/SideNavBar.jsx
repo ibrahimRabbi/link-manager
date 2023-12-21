@@ -66,6 +66,7 @@ const SideNavBar = () => {
       toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
     }
   };
+
   const darkModeText =
     isDark === 'dark' ? 'Light Mode' : isDark === 'light' ? 'Dark Mode' : 'Dark Mode';
 
