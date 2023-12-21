@@ -113,10 +113,10 @@ const SynchronizationConfig = () => {
 
   const handleDirectChange = (selectedItem) => {
     if (selectedItem !== null) {
-      setPropertyShow(false);
       setDirections(false);
       setSelectDirection(selectedItem);
     } else {
+      setPropertyShow(false);
       setDirections(true);
       setSelectDirection(selectedItem);
     }
@@ -127,7 +127,6 @@ const SynchronizationConfig = () => {
     setTargetProperty('');
     setNormalRows([]);
     setSourceResourceType('');
-    setPropertyShow(false);
     setSourceProjectID('');
     setSourceResourceList([]);
     setTargetProjectID('');
@@ -148,7 +147,6 @@ const SynchronizationConfig = () => {
     setEnumRows([]);
     setNormalRows([]);
     setTargetResourceType('');
-    setPropertyShow(false);
     setTargetProjectID('');
     setTargetProject('');
     setTargetProjectList([]);
@@ -165,7 +163,6 @@ const SynchronizationConfig = () => {
     setEnumRows([]);
     setNormalRows([]);
     setTargetResourceType('');
-    setPropertyShow(false);
     setTargetProject('');
     setTargetProjectID('');
     setTargetResourceList([]);
@@ -183,7 +180,6 @@ const SynchronizationConfig = () => {
     setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
-    setPropertyShow(false);
     setSourceProjectID('');
     setSourceProject('');
     setSourceResourceList([]);
@@ -210,7 +206,6 @@ const SynchronizationConfig = () => {
     setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
-    setPropertyShow(false);
     setSourceResourceType(selectedItem);
   };
 
@@ -459,7 +454,7 @@ const SynchronizationConfig = () => {
           setDefaultProperty(data);
         });
     }
-  }, [targetResourceType, restartExternalRequest]);
+  }, [targetResourceType, sourceResourceType, restartExternalRequest]);
   const handleMakeMigration = async (value) => {
     setSubmitLoading(true);
     const body = {
@@ -796,11 +791,7 @@ const SynchronizationConfig = () => {
                     isLinkCreation={true}
                     value={targetApplication?.label}
                     isUpdateState={sourceApplication}
-                    disabled={
-                      (authenticatedThirdApp || sourceResourceType) && directions
-                        ? false
-                        : true
-                    }
+                    disabled={sourceResourceType ? false : true}
                     isApplication={true}
                     removeApplication={[
                       sourceApplication?.type,
