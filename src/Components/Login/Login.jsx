@@ -308,7 +308,7 @@ const Login = () => {
                 reqText="Password is required"
               />
 
-              <div style={{ display: 'flex', justifyContent: 'end' }}>
+              <div style={{ display: 'flex', justifyContent: 'start' }}>
                 <Whisper
                   placement="bottom"
                   controlId="control-id-hover"

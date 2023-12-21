@@ -8,6 +8,7 @@ import InfoStatus from '@rsuite/icons/InfoRound';
 import { TbArrowsHorizontal } from 'react-icons/tb';
 import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
 import AddOutlineIcon from '@rsuite/icons/AddOutline';
+import { formatDistanceToNow } from 'date-fns';
 
 import {
   Table,
@@ -132,6 +133,23 @@ const AdminDataTable = ({ props }) => {
       return 'Suspect';
     default:
       return 'Not Authenticated';
+    }
+  };
+
+  // display date time ago format
+  const TimeAgo = ({ date }) => {
+    const now = new Date();
+    const timeAgo = formatDistanceToNow(new Date(date), { addSuffix: true });
+
+    // Customize the output for recent times
+    if (now - new Date(date) < 60 * 1000) {
+      // If less than 1 minute ago
+      return <span>{Math.floor((now - new Date(date)) / 1000)} seconds ago</span>;
+    } else if (now - new Date(date) < 3600 * 1000) {
+      // If less than 1 hour ago
+      return <span>{Math.floor((now - new Date(date)) / (60 * 1000))} minutes ago</span>;
+    } else {
+      return <span>{timeAgo}</span>;
     }
   };
 
@@ -429,11 +447,15 @@ const AdminDataTable = ({ props }) => {
             }}
           >
             <p>
-              {rowData[syncTime] !== null
-                ? new Date(rowData[syncTime]).toLocaleString('en-US', {
+              {rowData[syncTime] !== null ? (
+                <TimeAgo
+                  date={new Date(rowData[syncTime]).toLocaleString('en-US', {
                     hour12: true,
-                  })
-                : 'Never'}
+                  })}
+                />
+              ) : (
+                'Never'
+              )}
             </p>
           </div>
         )}
