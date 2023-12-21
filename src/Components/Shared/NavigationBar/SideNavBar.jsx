@@ -5,7 +5,16 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import './NavigationBar.module.scss';
 import { ImBrightnessContrast } from 'react-icons/im';
 import { BiLogOut } from 'react-icons/bi';
-import { Sidebar, Sidenav, Navbar, Nav, Divider, Message, useToaster } from 'rsuite';
+import {
+  Sidebar,
+  Sidenav,
+  Navbar,
+  Nav,
+  Divider,
+  Message,
+  useToaster,
+  IconButton,
+} from 'rsuite';
 import CogIcon from '@rsuite/icons/legacy/Cog';
 import TableColumnIcon from '@rsuite/icons/TableColumn';
 import AuthContext from '../../../Store/Auth-Context';
@@ -57,6 +66,9 @@ const SideNavBar = () => {
       toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
     }
   };
+
+  const darkModeText =
+    isDark === 'dark' ? 'Light Mode' : isDark === 'light' ? 'Dark Mode' : 'Dark Mode';
 
   // check user role
   const isSuperAdmin = authCtx?.user?.role === 'super_admin';
@@ -169,15 +181,6 @@ const SideNavBar = () => {
       icon: <SiAzurepipelines size={15} style={{ ...iconStyle, marginLeft: '-36px' }} />,
       content: <span>Pipeline Config</span>,
       hidden: false,
-      isAdminModule: true,
-    },
-
-    {
-      path: organization ? organization + '/admin/pipelinerun' : '/admin/pipelinerun',
-      navigateTo: `${organization}/admin/pipelinerun`,
-      icon: <PlayOutlineIcon />,
-      content: <span>Pipeline Runs</span>,
-      hidden: true,
       isAdminModule: true,
     },
     {
@@ -295,18 +298,19 @@ const SideNavBar = () => {
                 trigger="click"
                 title={<CogIcon style={{ width: 25, height: 20 }} size="lg" />}
               >
-                <Nav.Item
-                  style={{ width: '45px' }}
-                  onClick={() => dispatch(handleIsDarkMode())}
-                >
+                <Nav.Item onClick={() => dispatch(handleIsDarkMode())}>
                   <h5>
-                    <ImBrightnessContrast />
+                    <IconButton
+                      size="sm"
+                      title={darkModeText}
+                      icon={<ImBrightnessContrast />}
+                    />
                   </h5>
                 </Nav.Item>
 
                 <Nav.Item onClick={() => handleLogout()}>
                   <h5>
-                    <BiLogOut />
+                    <IconButton size="sm" title="Logout" icon={<BiLogOut />} />
                   </h5>
                 </Nav.Item>
               </Nav.Menu>

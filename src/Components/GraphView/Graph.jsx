@@ -21,7 +21,7 @@ const Graph = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(handleCurrPageTitle('Graph view'));
+    dispatch(handleCurrPageTitle('Graph View'));
   }, []);
 
   const showNotification = (type, message) => {

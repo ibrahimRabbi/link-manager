@@ -117,6 +117,10 @@ const NavigationBar = () => {
         if (item.label === 'Admin Dashboard' && location.pathname.includes('/admin')) {
           return null;
         }
+        // hide admin dashboard module if the user already in the admin dashboard
+        if (item.label === 'Projects' && location.pathname.includes('/admin')) {
+          return null;
+        }
         // hide homepage module if the user is not in the admin dashboard
         else if (item.label === 'Homepage' && !location.pathname.includes('/admin')) {
           return null;

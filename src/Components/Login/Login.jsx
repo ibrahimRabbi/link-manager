@@ -264,7 +264,7 @@ const Login = () => {
           <Panel bordered>
             <div style={{ marginBottom: '20px' }}>
               <h2 className={title}>
-                <span className={titleSpan}>Sign in to </span>
+                <span className={titleSpan}>Sign in</span>
               </h2>
               <div className={logoContainer}>
                 <img
