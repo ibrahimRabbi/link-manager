@@ -43,7 +43,7 @@ const headerData = [
     header: 'Target Resource',
     key: 'target_resource',
   },
-  { header: 'Last Synced Time', syncTime: 'last_synced' },
+  { header: 'Last Synced', syncTime: 'last_synced' },
   { header: 'Status', syncStatus: 'migration_status', width: 80 },
 ];
 const Synchronization = () => {

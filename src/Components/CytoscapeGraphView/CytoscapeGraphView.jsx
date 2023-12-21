@@ -425,7 +425,7 @@ const CytoscapeGraphView = () => {
                     filterByApp(v);
                     setAppFilterValue(v);
                   }}
-                  placeholder="Filter data by target applications..."
+                  placeholder="Filter by target applications..."
                   isMulti={true}
                   value={appFilterValue}
                 />
@@ -437,7 +437,7 @@ const CytoscapeGraphView = () => {
                     setResourceFilterValue(v);
                   }}
                   value={resourceFilterValue}
-                  placeholder="Filter data by resource type..."
+                  placeholder="Filter by resource type..."
                   isMulti={true}
                 />
               </div>

@@ -94,7 +94,7 @@ const NavigationBar = () => {
           <Avatar
             size="md"
             circle
-            src={`${location.origin}/default_avatar.png`}
+            src={window.location.origin + '/default_avatar.png'}
             alt="User"
           />
           <div>
