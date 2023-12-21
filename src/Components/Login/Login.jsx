@@ -24,6 +24,7 @@ import fetchAPIRequest from '../../apiRequests/apiRequest.js';
 import AddNewModal from '../AdminDasComponents/AddNewModal.jsx';
 import { handleIsAddNewModal } from '../../Redux/slices/navSlice.jsx';
 import { useMutation } from '@tanstack/react-query';
+import editDomain from '../Shared/editDomain.js';
 
 const { titleSpan, main, title, forgotLabel, logoContainer } = style;
 const loginURL = `${import.meta.env.VITE_LM_REST_API_URL}/auth/login`;
@@ -182,6 +183,9 @@ const Login = () => {
               navigate(orgName ? orgName : '/');
             }
           }
+
+          // add organization name in the domain
+          editDomain(organization?.name?.toLowerCase());
         } else {
           let errorMessage = 'Authentication failed: ';
           if (data && data.message) {

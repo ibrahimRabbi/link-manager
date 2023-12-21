@@ -291,6 +291,7 @@ const AdminDataTable = ({ props }) => {
     sourceIcon,
     targetIcon,
     syncTime,
+    updatedTime,
     showResourceLink,
     directKey,
     ...props
@@ -438,6 +439,28 @@ const AdminDataTable = ({ props }) => {
             <p style={{ marginTop: '2px' }}>{rowData[statusKey]}</p>
           </div>
         )}
+        {updatedTime && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px',
+            }}
+          >
+            <p>
+              {rowData[syncTime] !== null ? (
+                <TimeAgo
+                  date={new Date(rowData[updatedTime]).toLocaleString('en-US', {
+                    hour12: true,
+                  })}
+                />
+              ) : (
+                'Never'
+              )}
+            </p>
+          </div>
+        )}
+
         {syncTime && (
           <div
             style={{
@@ -569,6 +592,7 @@ const AdminDataTable = ({ props }) => {
                 alignItems: 'center',
               }}
               dataKey={header?.key}
+              updatedTime={header?.updatedTime}
               iconKey={header?.iconKey}
               sourceIcon={header?.source_icon}
               targetIcon={header?.target_icon}

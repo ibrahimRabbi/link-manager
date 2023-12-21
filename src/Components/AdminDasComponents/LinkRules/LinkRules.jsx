@@ -37,7 +37,7 @@ const headerData = [
   },
   {
     header: 'Updated',
-    key: 'updated',
+    updatedTime: 'updated',
   },
 ];
 
