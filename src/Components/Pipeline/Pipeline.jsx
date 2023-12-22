@@ -53,6 +53,7 @@ const Pipeline = () => {
   const [deleteId, setDeleteId] = useState('');
   const [openWithHeader, setOpenWithHeader] = useState(false);
   const [pipelineOutput, setPipelineOutput] = useState('');
+  const organization_id = authCtx.organization_id;
   const showNotification = (type, message) => {
     if (type && message) {
       const messages = (
@@ -80,7 +81,7 @@ const Pipeline = () => {
 
   const handleConfirmed = (value) => {
     if (value) {
-      const deleteUrl = `${apiURL}/pipeline_run/${deleteId}`;
+      const deleteUrl = `${apiURL}/${organization_id}/pipeline_run/${deleteId}`;
       dispatch(
         fetchDeleteData({
           url: deleteUrl,
@@ -91,10 +92,10 @@ const Pipeline = () => {
     }
   };
 
+  /* eslint-disable max-len */
   useEffect(() => {
     dispatch(handleCurrPageTitle('Pipeline Runs'));
-
-    const getUrl = `${apiURL}/pipeline_run?page=${currPage}&per_page=${pageSize}`;
+    const getUrl = `${apiURL}/${organization_id}/pipeline_run?page=${currPage}&per_page=${pageSize}`;
     dispatch(
       fetchPipelineRun({
         url: getUrl,
