@@ -288,7 +288,7 @@ const Synchronization = () => {
     handleSync,
     handlePagination,
     handleChangeLimit,
-    totalItems: data?.length,
+    totalItems: syncConfigList?.total_items,
     totalPages: syncConfigList?.total_pages,
     pageSize,
     page: syncConfigList?.page,
