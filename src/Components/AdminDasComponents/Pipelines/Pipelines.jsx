@@ -95,7 +95,7 @@ const Pipelines = () => {
   const pipelineFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
-
+  const organization_id = authCtx.organization_id;
   // Pagination
   const handlePagination = (value) => {
     setCurrPage(value);
@@ -122,7 +122,7 @@ const Pipelines = () => {
     if (!pipelineFormRef.current.check()) {
       return;
     } else if (isAdminEditing) {
-      const putUrl = `${lmApiUrl}/pipelines/${editData?.id}`;
+      const putUrl = `${lmApiUrl}/${organization_id}/pipeline/${editData?.id}`;
       dispatch(
         fetchUpdatePipeline({
           url: putUrl,
@@ -132,7 +132,7 @@ const Pipelines = () => {
         }),
       );
     } else {
-      const postUrl = `${lmApiUrl}/pipelines`;
+      const postUrl = `${lmApiUrl}/${organization_id}/pipeline`;
       dispatch(
         fetchCreatePipeline({
           url: postUrl,
@@ -159,8 +159,8 @@ const Pipelines = () => {
 
   useEffect(() => {
     dispatch(handleCurrPageTitle('Pipeline Configuration'));
-
-    const getUrl = `${lmApiUrl}/pipelines?page=${currPage}&per_page=${pageSize}`;
+    /* eslint-disable max-len */
+    const getUrl = `${lmApiUrl}/${organization_id}/pipeline?page=${currPage}&per_page=${pageSize}`;
     dispatch(
       fetchPipelines({
         url: getUrl,
@@ -197,7 +197,7 @@ const Pipelines = () => {
   };
   const handleConfirmed = (value) => {
     if (value) {
-      const deleteUrl = `${lmApiUrl}/pipelines/${deleteData?.id}`;
+      const deleteUrl = `${lmApiUrl}/${organization_id}/pipeline/${deleteData?.id}`;
       dispatch(
         fetchDeletePipeline({
           url: deleteUrl,
@@ -221,7 +221,7 @@ const Pipelines = () => {
   };
 
   const handleScriptView = (data) => {
-    const getScriptUrl = `${lmApiUrl}/pipelines/${data?.id}/script`;
+    const getScriptUrl = `${lmApiUrl}/${organization_id}/pipeline/${data?.id}/script`;
     dispatch(
       fetchPipelineScript({
         url: getScriptUrl,
@@ -274,7 +274,7 @@ const Pipelines = () => {
                   name="event_id"
                   label="Event"
                   accepter={CustomReactSelect}
-                  apiURL={`${lmApiUrl}/${authCtx.organization_id}/events`}
+                  apiURL={`${lmApiUrl}/${organization_id}/events`}
                   error={formError.event_id}
                   reqText="Event is required"
                 />
