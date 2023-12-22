@@ -240,7 +240,7 @@ const LinkManager = () => {
                           borderRadius: '6px 0 0 6px',
                           height: '36px',
                         }}
-                        placeholder="Search..."
+                        placeholder=""
                         type="text"
                         name="search_term"
                       />
@@ -258,7 +258,7 @@ const LinkManager = () => {
                             position: 'absolute',
                             top: '1px',
                             bottom: '1px',
-                            right: '91px',
+                            right: '42px',
                             borderRadius: '0',
                           }}
                         />
@@ -280,7 +280,7 @@ const LinkManager = () => {
                         }
                         onClick={handleSearchLinks}
                       >
-                        {isSmallDevice ? '' : 'Search'}
+                        {' '}
                       </Button>
                     </Stack>
                   </Form>
