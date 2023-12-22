@@ -263,6 +263,7 @@ const Synchronization = () => {
         return {
           id: sync_resource.id,
           bidirectional: sync_resource.bidirectional,
+          migration_status: sync_resource.migration_status,
           last_synced: sync_resource.last_synced,
           source_resource: sync_resource.source_resource,
           target_resource: sync_resource.target_resource,
