@@ -94,7 +94,7 @@ const NavigationBar = () => {
           <Avatar
             size="md"
             circle
-            src={`${location.origin}/default_avatar.png`}
+            src={window.location.origin + '/default_avatar.png'}
             alt="User"
           />
           <div>
@@ -115,6 +115,10 @@ const NavigationBar = () => {
         }
         // hide admin dashboard module if the user already in the admin dashboard
         if (item.label === 'Admin Dashboard' && location.pathname.includes('/admin')) {
+          return null;
+        }
+        // hide admin dashboard module if the user already in the admin dashboard
+        if (item.label === 'Projects' && location.pathname.includes('/admin')) {
           return null;
         }
         // hide homepage module if the user is not in the admin dashboard

@@ -47,6 +47,7 @@ export default function fetchAPIRequest({
           showNotification('error', data?.message);
           throw new Error(data?.message);
         });
+        return false;
       }
     })
     .catch((error) => {

@@ -187,7 +187,7 @@ const UserProfile = () => {
         <div className={leftContainer}>
           <div className={imageContainer}>
             <img
-              src={`${location.origin}/default_avatar.png`}
+              src={window.location.origin + '/default_avatar.png'}
               alt={userInfo?.preferred_username}
             />
             <h5>
