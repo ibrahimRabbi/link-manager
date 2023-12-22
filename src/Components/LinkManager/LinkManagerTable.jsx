@@ -66,6 +66,7 @@ const LinkManagerTable = ({ props }) => {
   const { isDark } = useSelector((state) => state.nav);
   const [showExternalAuthWindow, setShowExternalAuthWindow] = useState(false);
   const [externalAuthData, setExternalAuthData] = useState({});
+  const [isChildren, setIsChildren] = useState(false);
 
   const getExtLoginData = (data) => {
     console.log('External Login Data: ', data);
@@ -261,7 +262,7 @@ const LinkManagerTable = ({ props }) => {
                   `}
                 onClick={table.getToggleAllRowsExpandedHandler()}
               >
-                <FaChevronRight size={17} />
+                {isChildren && <FaChevronRight size={17} />}
               </h5>
               <h6>Link Type</h6>
             </div>
@@ -351,7 +352,13 @@ const LinkManagerTable = ({ props }) => {
       expanded,
     },
     onExpandedChange: setExpanded,
-    getSubRows: (row) => (row.children ? row?.children[0] : []),
+    getSubRows: (row) => {
+      if (row?.children) {
+        row?.children[0];
+        setIsChildren(true);
+      }
+      return [];
+    },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),

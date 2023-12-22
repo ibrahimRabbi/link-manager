@@ -149,8 +149,10 @@ const PipelineSecrets = () => {
       }),
     {
       onSuccess(allPipelineSecrets) {
-        for (let i = 0; i < allPipelineSecrets.items.length; i++) {
-          allPipelineSecrets.items[i]['display_value'] = '***********';
+        if (allPipelineSecrets) {
+          for (let i = 0; i < allPipelineSecrets?.items?.length; i++) {
+            allPipelineSecrets.items[i]['display_value'] = '***********';
+          }
         }
       },
     },

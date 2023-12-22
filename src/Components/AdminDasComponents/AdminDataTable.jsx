@@ -290,8 +290,7 @@ const AdminDataTable = ({ props }) => {
     syncStatus,
     sourceIcon,
     targetIcon,
-    syncTime,
-    updatedTime,
+    timesAgo,
     showResourceLink,
     directKey,
     ...props
@@ -439,29 +438,8 @@ const AdminDataTable = ({ props }) => {
             <p style={{ marginTop: '2px' }}>{rowData[statusKey]}</p>
           </div>
         )}
-        {updatedTime && (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-            }}
-          >
-            <p>
-              {rowData[syncTime] !== null ? (
-                <TimeAgo
-                  date={new Date(rowData[updatedTime]).toLocaleString('en-US', {
-                    hour12: true,
-                  })}
-                />
-              ) : (
-                'Never'
-              )}
-            </p>
-          </div>
-        )}
 
-        {syncTime && (
+        {timesAgo && (
           <div
             style={{
               display: 'flex',
@@ -470,9 +448,9 @@ const AdminDataTable = ({ props }) => {
             }}
           >
             <p>
-              {rowData[syncTime] !== null ? (
+              {rowData[timesAgo] !== null || rowData[timesAgo] !== undefined ? (
                 <TimeAgo
-                  date={new Date(rowData[syncTime]).toLocaleString('en-US', {
+                  date={new Date(rowData[timesAgo]).toLocaleString('en-US', {
                     hour12: true,
                   })}
                 />
@@ -592,7 +570,7 @@ const AdminDataTable = ({ props }) => {
                 alignItems: 'center',
               }}
               dataKey={header?.key}
-              updatedTime={header?.updatedTime}
+              timesAgo={header?.timesAgo}
               iconKey={header?.iconKey}
               sourceIcon={header?.source_icon}
               targetIcon={header?.target_icon}
@@ -600,7 +578,6 @@ const AdminDataTable = ({ props }) => {
               pipelinerunkey={header?.pipelinerunkey}
               buttonKey={header?.buttonKey}
               syncStatus={header?.syncStatus}
-              syncTime={header?.syncTime}
               showResourceLink={showResourceLink}
               directKey={header?.directKey}
             />
