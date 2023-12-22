@@ -43,7 +43,7 @@ const headerData = [
     header: 'Target Resource',
     key: 'target_resource',
   },
-  { header: 'Last Synced Time', syncTime: 'last_synced' },
+  { header: 'Last Synced', syncTime: 'last_synced' },
   { header: 'Status', syncStatus: 'migration_status', width: 80 },
 ];
 const Synchronization = () => {
@@ -259,28 +259,26 @@ const Synchronization = () => {
 
   const data = !syncConfigList?.items
     ? []
-    : syncConfigList?.items
-        .flatMap((syncProjects) =>
-          syncProjects?.sync_projects.flatMap((syncproject) => {
-            const { sync_resources, ...rest } = syncproject;
-            const resources = sync_resources.map((syncResource) => {
-              const sourceAppDetails = syncProjects?.source_application?.[0] || null;
-              const targetAppDetails = syncProjects?.target_application?.[0] || null;
+    : syncConfigList.items.map((sync_resource) => {
+        return {
+          id: sync_resource.id,
+          bidirectional: sync_resource.bidirectional,
+          last_synced: sync_resource.last_synced,
+          source_resource: sync_resource.source_resource,
+          target_resource: sync_resource.target_resource,
+          source_project: sync_resource.sync_project.source_project,
+          target_project: sync_resource.sync_project.target_project,
+          sourceApplication:
+            sync_resource.sync_project.synchronization.source_application,
+          source_application_type:
+            sync_resource.sync_project.synchronization.source_application.type,
+          targetApplication:
+            sync_resource.sync_project.synchronization.target_application,
+          target_application_type:
+            sync_resource.sync_project.synchronization.target_application.type,
+        };
+      });
 
-              return {
-                ...rest,
-                ...(syncResource || {}),
-                source_application_type: sourceAppDetails?.type || null,
-                target_application_type: targetAppDetails?.type || null,
-                source_application: sourceAppDetails,
-                target_application: targetAppDetails,
-              };
-            });
-
-            return resources;
-          }),
-        )
-        .flat();
   const tableProps = {
     title: 'Synchronization',
     rowData: data ? data : [],
