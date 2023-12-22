@@ -119,7 +119,6 @@ const CustomReactSelect = forwardRef((props, ref) => {
                   }
                 }
                 showNotification('error', data?.message);
-                throw new Error(data?.message);
               } else {
                 showNotification('error', data?.message);
                 return false;
