@@ -57,7 +57,7 @@ const Home = () => {
     ['recentPipeline'],
     () =>
       fetchAPIRequest({
-        urlPath: `pipeline_run/recent?page=${currPage}&per_page=${pageSize}`,
+        urlPath: `${authCtx.organization_id}/pipeline_run/recent?page=${currPage}&per_page=${pageSize}`,
         token: authCtx.token,
         method: 'GET',
         showNotification: showNotification,
@@ -164,10 +164,7 @@ const Home = () => {
         </div>
       ) : (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
-            <img src="/no_data.jpg" style={{ width: '75vh' }} />
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
             <h5>
               To see dashboard, download the extension by
               <a

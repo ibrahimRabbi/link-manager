@@ -152,7 +152,7 @@ const Pipeline = () => {
                 />
               )}
 
-              {allPipelineRun?.items && (
+              {allPipelineRun?.items.length ? (
                 <div>
                   <FlexboxGrid justify="end">
                     <FlexboxGridItem>
@@ -302,6 +302,10 @@ const Pipeline = () => {
                     onChangePage={(v) => handlePagination(v)}
                     onChangeLimit={(v) => handleChangeLimit(v)}
                   />
+                </div>
+              ) : (
+                <div className="cy_graph_empty_title">
+                  <h5>No Pipelines Executed</h5>
                 </div>
               )}
               <AlertModal
