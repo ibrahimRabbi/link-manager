@@ -20,7 +20,6 @@ import ExternalPreview from '../AdminDasComponents/ExternalAppIntegrations/Exter
 // eslint-disable-next-line max-len
 import { showOslcData } from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreviewConfig.jsx';
 import { getIcon } from './ResourceTypeIcon.jsx';
-// eslint-disable-next-line max-len
 import {
   BASIC_AUTH_APPLICATION_TYPES,
   MICROSERVICES_APPLICATION_TYPES,
@@ -29,7 +28,7 @@ import {
 // eslint-disable-next-line max-len
 import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
 import { addNodeLabel } from '../CytoscapeGraphView/Graph.jsx';
-import { MdDelete, MdEdit } from 'react-icons/md';
+import { MdDelete } from 'react-icons/md';
 const {
   table_row_dark,
   table_row_light,
@@ -316,14 +315,6 @@ const LinkManagerTable = ({ props }) => {
           return (
             <div className={actionDataCell}>
               <ButtonToolbar>
-                <IconButton
-                  size="sm"
-                  title="Edit"
-                  icon={<MdEdit />}
-                  onClick={() => {
-                    setSelectedRowData(rowData);
-                  }}
-                />
                 <IconButton
                   size="sm"
                   title="Delete"
