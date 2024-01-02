@@ -143,9 +143,9 @@ const LinkManager = () => {
 
   // handle search links
   const handleSearchLinks = () => {
-    if (searchValue.search_term) {
-      setIsLinkSearching((prevValue) => !prevValue);
-    }
+    // if (searchValue.search_term) {
+    setIsLinkSearching((prevValue) => !prevValue);
+    // }
   };
 
   // handle delete link
@@ -237,7 +237,7 @@ const LinkManager = () => {
                       <TextField
                         style={{
                           width: isSmallDevice ? '100%' : '400px',
-                          borderRadius: '6px 0 0 6px',
+                          borderRadius: '0 6px 6px 0',
                           height: '36px',
                         }}
                         placeholder=""
@@ -258,7 +258,7 @@ const LinkManager = () => {
                             position: 'absolute',
                             top: '1px',
                             bottom: '1px',
-                            right: '42px',
+                            right: '40px',
                             borderRadius: '0',
                           }}
                         />
@@ -268,8 +268,14 @@ const LinkManager = () => {
                         color="blue"
                         appearance="primary"
                         size="md"
-                        style={{ borderRadius: '0 6px 6px 0' }}
+                        style={{
+                          borderRadius: '0 6px 6px 0',
+                          position: 'absolute',
+                          top: '0px',
+                          right: '0',
+                        }}
                         type="submit"
+                        onClick={handleSearchLinks}
                         startIcon={
                           <SearchIcon
                             style={{
@@ -278,10 +284,7 @@ const LinkManager = () => {
                             }}
                           />
                         }
-                        onClick={handleSearchLinks}
-                      >
-                        {' '}
-                      </Button>
+                      />
                     </Stack>
                   </Form>
                 </FlexboxGrid.Item>
