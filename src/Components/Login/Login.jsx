@@ -217,7 +217,7 @@ const Login = () => {
   // send request to forgot password using react query
   const { isLoading: forgotPassLoading, mutate: forgotPassMutate } = useMutation(() =>
     fetchAPIRequest({
-      urlPath: '/user/forgot_password',
+      urlPath: 'user/forgot_password',
       token: '',
       method: 'POST',
       body: { email: resetForm?.email },
@@ -345,6 +345,7 @@ const Login = () => {
         handleSubmit={handleResetPass}
         handleReset={handleResetResetPassForm}
         size={'sm'}
+        submitBtnText={'Send password reset email'}
       >
         <Form
           fluid

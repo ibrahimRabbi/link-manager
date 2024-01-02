@@ -10,6 +10,7 @@ const AddNewModal = ({
   handleReset,
   size = null,
   minHeight,
+  submitBtnText,
 }) => {
   const { isAddNewModalOpen, isAdminEditing } = useSelector((state) => state.nav);
   const dispatch = useDispatch();
@@ -45,7 +46,7 @@ const AddNewModal = ({
           Cancel
         </Button>
         <Button onClick={handleSave} appearance="primary" className="adminModalFooterBtn">
-          Save
+          {submitBtnText ? submitBtnText : 'Save'}
         </Button>
       </Modal.Footer>
     </Modal>
