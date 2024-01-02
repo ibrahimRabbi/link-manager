@@ -233,14 +233,14 @@ const UserProfile = () => {
                 color: navKey === 'user' ? activeColor : '',
               }}
             >
-              <h5>Update user info</h5>
+              <h5>Edit Profile Details</h5>
             </Nav.Item>
             <Nav.Item
               active={navKey === 'password'}
               eventKey="password"
               style={{ color: navKey === 'password' ? activeColor : '' }}
             >
-              <h5>Change password</h5>
+              <h5>Change Password</h5>
             </Nav.Item>
           </Nav>
 

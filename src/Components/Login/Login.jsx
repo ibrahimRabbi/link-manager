@@ -341,7 +341,7 @@ const Login = () => {
 
       {/* handle reset password modal */}
       <AddNewModal
-        title={'Recover password.'}
+        title={'Reset Password'}
         handleSubmit={handleResetPass}
         handleReset={handleResetResetPassForm}
         size={'sm'}
@@ -354,10 +354,10 @@ const Login = () => {
           onCheck={setResetFormError}
           model={resetModel}
         >
-          <h6 style={{ marginBottom: '25px' }}>
-            Please enter your email address below. we will send a mail to this email
-            address to set up your new password. .
-          </h6>
+          <p style={{ marginBottom: '25px' }}>
+            Enter your email address and we will email you the instructions to reset your
+            password.
+          </p>
 
           <TextField
             name="email"
