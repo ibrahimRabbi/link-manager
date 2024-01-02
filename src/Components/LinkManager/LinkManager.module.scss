@@ -82,6 +82,16 @@
 }
 
 // link manager table style
+.table_head_light {
+  height: 40px;
+  border-bottom: 0.5px solid rgba(246, 241, 241, 0.81);
+}
+
+.table_head_dark {
+  height: 40px;
+  border-bottom: 0.5px solid rgb(42, 41, 41);
+}
+
 .table_row_light {
   height: 40px;
   border-bottom: 0.5px solid rgba(246, 241, 241, 0.81);
@@ -201,21 +211,6 @@
   justify-content: center;
   height: 200px;
   border-top: 0;
-}
-
-.filterContainer {
-  display: flex;
-  flex-direction: column;
-  margin: 0 10px;
-}
-
-.statusFilterClass {
-  width: 100px;
-}
-
-.filterInput {
-  border: 1px solid lightgray;
-  border-radius: 3px;
 }
 
 // dropdown style
