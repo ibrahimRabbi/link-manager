@@ -408,9 +408,9 @@ const CytoscapeGraphView = () => {
       {isWbe && isLoading && <UseLoader />}
 
       {(!isWbe || (isWbe && !nodeData?.length)) && (
-        <h2 className="cy_graph_empty_title">
-          {isWbe ? 'No content available for this source' : 'No links created until now.'}
-        </h2>
+        <h5 className="cy_graph_empty_title">
+          {isWbe ? 'No content available for this source' : 'No links created.'}
+        </h5>
       )}
 
       {isWbe && data && (
