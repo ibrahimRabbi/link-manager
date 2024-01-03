@@ -1,8 +1,10 @@
 import React from 'react';
 import { Panel } from 'rsuite';
 import ProjectIcon from '@rsuite/icons/SingleSource';
+import { useNavigate } from 'react-router-dom';
 
 const RecentProjects = ({ recentProject }) => {
+  const navigate = useNavigate();
   const Card = (props) => (
     <Panel {...props} bordered shaded style={{ cursor: 'pointer' }}>
       <div style={{ margin: '10px 0 10px 0' }}>
@@ -20,7 +22,11 @@ const RecentProjects = ({ recentProject }) => {
         style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gridGap: '10px' }}
       >
         {recentProject?.items?.map((project) => (
-          <Card key={project?.id} project={project} />
+          <Card
+            key={project?.id}
+            project={project}
+            onClick={() => navigate(`project/${project?.id}`)}
+          />
         ))}
       </div>
     </div>

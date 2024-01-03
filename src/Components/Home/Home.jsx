@@ -76,6 +76,17 @@ const Home = () => {
   const tableProps = {
     data: recentCreatedLinks?.data?.length ? recentCreatedLinks?.data : [],
   };
+
+  useEffect(() => {
+    if (
+      recentProject &&
+      recentProject?.items?.length === 0 &&
+      (authCtx?.user?.role === 'super_admin' || authCtx?.user?.role === 'admin')
+    ) {
+      navigate(`${organization}/admin/project/new`);
+    }
+  }, [recentProject]);
+
   return (
     <div style={{ marginBottom: '30px' }}>
       {projectLoading || pipelineLoading || linkLoading ? (

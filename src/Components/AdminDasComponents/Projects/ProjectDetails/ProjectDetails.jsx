@@ -77,6 +77,7 @@ const ProjectDetails = (props) => {
     users: [],
     applications: [],
   };
+  const [currPage] = useState(1);
   const [projectData, setProjectData] = useState({});
   const [editData, setEditData] = useState(false);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
@@ -84,6 +85,7 @@ const ProjectDetails = (props) => {
   const [projectApplications, setProjectApplications] = useState([]);
   const [formValue, setFormValue] = useState(PROJECT_FORM);
   const [formError, setFormError] = useState({});
+  const [showCancelBtn, setShowCancelBtn] = useState(true);
 
   const [projectApplicationsTableData, setProjectApplicationsTableData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -125,13 +127,23 @@ const ProjectDetails = (props) => {
 
   const resetProjectData = () => {
     if (newProject) {
-      const pathSegments = location.pathname.split('/');
-      const newPathSegments = pathSegments.slice(0, -2).join('/');
-      navigate(newPathSegments + '/projects');
+      navigate(-1);
     } else {
       setEditData(false);
     }
   };
+
+  const { data: projectList, isLoading: projectListLoading } = useQuery(
+    ['projectList'],
+    () =>
+      fetchAPIRequest({
+        // eslint-disable-next-line max-len
+        urlPath: `${authCtx.organization_id}/project/recent?page=${currPage}&per_page=${pageSize}`,
+        token: authCtx.token,
+        method: 'GET',
+        showNotification: showNotification,
+      }),
+  );
 
   const { mutate: updateMutate } = useMutation(
     () =>
@@ -167,7 +179,8 @@ const ProjectDetails = (props) => {
           setNewProject(false);
           setEditData(false);
           const pathSegments = location.pathname.split('/');
-          const newPathSegments = pathSegments.slice(0, -2).join('/');
+          let newPathSegments = pathSegments.slice(0, -2).join('/');
+          newPathSegments = newPathSegments.replace('/admin', '');
           navigate(newPathSegments + '/project/' + value?.id);
         }
       },
@@ -317,6 +330,12 @@ const ProjectDetails = (props) => {
     }
   }, [projectApplications, currentPage, pageSize, projectData]);
 
+  useEffect(() => {
+    if (projectList && projectList?.items?.length === 0) {
+      setShowCancelBtn(false);
+    }
+  }, [projectList, projectListLoading]);
+
   return (
     <FlexboxGrid>
       {(editData || newProject) && <FlexboxGrid.Item colspan={2}></FlexboxGrid.Item>}
@@ -445,15 +464,17 @@ const ProjectDetails = (props) => {
                 Save
               </Button>
             </FlexboxGrid.Item>
-            <FlexboxGrid.Item colspan={3}>
-              <Button
-                appearance="subtle"
-                onClick={() => resetProjectData()}
-                className={editButton}
-              >
-                Cancel
-              </Button>
-            </FlexboxGrid.Item>
+            {showCancelBtn && (
+              <FlexboxGrid.Item colspan={3}>
+                <Button
+                  appearance="subtle"
+                  onClick={() => resetProjectData()}
+                  className={editButton}
+                >
+                  Cancel
+                </Button>
+              </FlexboxGrid.Item>
+            )}
           </FlexboxGrid>
         )}
       </FlexboxGrid.Item>

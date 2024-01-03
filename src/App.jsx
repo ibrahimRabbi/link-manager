@@ -322,7 +322,7 @@ function App() {
                   }
                 />
                 <Route
-                  path={`${organization}/admin/project/:id`}
+                  path={`${organization}/project/:id`}
                   element={
                     <Suspense fallback={<UseLoader />}>
                       <ResourceDetails type="project" />
@@ -339,7 +339,7 @@ function App() {
                 />
 
                 <Route
-                  path={`${organization}/admin/project/:id/user-permissions`}
+                  path={`${organization}/project/:id/user-permissions`}
                   element={
                     <Suspense fallback={<UseLoader />}>
                       <ResourceDetails type="project-permissions" />
