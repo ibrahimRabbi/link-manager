@@ -94,9 +94,11 @@ const Projects = () => {
       }),
     {
       onSuccess: (allProjects) => {
-        for (let i = 0; i < allProjects.items.length; i++) {
-          allProjects.items[i]['organization_name'] =
-            allProjects.items[i].organization.name;
+        if (allProjects) {
+          for (let i = 0; i < allProjects.items.length; i++) {
+            allProjects.items[i]['organization_name'] =
+              allProjects.items[i].organization.name;
+          }
         }
       },
     },
