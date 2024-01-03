@@ -19,10 +19,12 @@ export default function fetchAPIRequest({
     .then((res) => {
       if (res.ok) {
         if (method === 'GET' && res.status === 204) {
-          showNotification('success', 'No content available');
+          if (showNotification) showNotification('success', 'No content available');
           return '';
         } else if (method === 'DELETE' && res.status === 204) {
-          showNotification('success', 'The content was successfully deleted');
+          if (showNotification) {
+            showNotification('success', 'The content was successfully deleted');
+          }
           return { status: 'success', message: 'The content was successfully deleted' };
         }
         return res.json().then((data) => {
@@ -32,19 +34,21 @@ export default function fetchAPIRequest({
       } else {
         res.json().then((data) => {
           if (res?.status === 404 || res.status === 409) {
-            showNotification('info', data?.message);
+            if (showNotification) showNotification('info', data?.message);
             return false;
           } else if (res.status === 403) {
             if (token) {
-              showNotification('error', 'You do not have permission to access');
+              if (showNotification) {
+                showNotification('error', 'You do not have permission to access');
+              }
               return false;
             } else {
               const errorMessage = `${res?.status} not authorized ${data?.message}`;
-              showNotification('error', errorMessage);
+              if (showNotification) showNotification('error', errorMessage);
               throw new Error(errorMessage);
             }
           }
-          showNotification('error', data?.message);
+          if (showNotification) showNotification('error', data?.message);
           throw new Error(data?.message);
         });
         return false;
@@ -52,15 +56,17 @@ export default function fetchAPIRequest({
     })
     .catch((error) => {
       if (error instanceof TypeError && error.message === 'Failed to fetch') {
-        showNotification(
-          'error',
-          'Network error. Please check your internet connection.',
-        );
+        if (showNotification) {
+          showNotification(
+            'error',
+            'Network error. Please check your internet connection.',
+          );
+        }
         return false;
       }
 
       // Handle other errors
-      showNotification('error', error?.message);
+      if (showNotification) showNotification('error', error?.message);
       throw new Error(error?.message);
     });
 }
