@@ -36,25 +36,21 @@ const headerData = [
     key: 'description',
   },
   {
-    header: 'Organization',
-    key: 'organization_name',
-  },
-  {
-    header: 'Application',
-    key: 'application_name',
-  },
-  {
     header: 'Trigger Endpoint',
     key: 'trigger_endpoint',
   },
+  {
+    header: 'Application Type',
+    key: 'application_type',
+  },
 ];
 
-const { StringType, NumberType } = Schema.Types;
+const { StringType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
   description: StringType().isRequired('This field is required.'),
-  application_id: NumberType().isRequired('This field is required.'),
+  application_type: StringType().isRequired('This field is required.'),
 });
 
 const Events = () => {
@@ -70,7 +66,7 @@ const Events = () => {
   const [editData, setEditData] = useState({});
   const [formValue, setFormValue] = useState({
     name: '',
-    application_id: '',
+    application_type: '',
     description: '',
   });
   const [open, setOpen] = useState(false);
@@ -109,7 +105,7 @@ const Events = () => {
   const handleAddLinkEvent = () => {
     const bodyData = {
       name: formValue.name,
-      application_id: formValue.application_id,
+      application_type: formValue.application_type,
       description: formValue.description,
     };
 
@@ -149,29 +145,19 @@ const Events = () => {
     setFormValue({
       name: '',
       description: '',
-      application_id: '',
+      application_type: '',
     });
   };
 
   // get all events
-  const { data: allEvents, refetch: refetchEvents } = useQuery(
-    ['events'],
-    () =>
-      fetchAPIRequest({
-        // eslint-disable-next-line max-len
-        urlPath: `${authCtx.organization_id}/events?page=${currPage}&per_page=${pageSize}`,
-        token: authCtx.token,
-        method: 'GET',
-        showNotification: showNotification,
-      }),
-    {
-      onSuccess(allEvents) {
-        for (let i = 0; i < allEvents.items.length; i++) {
-          allEvents.items[i]['application_name'] = allEvents.items[i].application.name;
-          allEvents.items[i]['organization_name'] = allEvents.items[i].organization.name;
-        }
-      },
-    },
+  const { data: allEvents, refetch: refetchEvents } = useQuery(['events'], () =>
+    fetchAPIRequest({
+      // eslint-disable-next-line max-len
+      urlPath: `${authCtx.organization_id}/events?page=${currPage}&per_page=${pageSize}`,
+      token: authCtx.token,
+      method: 'GET',
+      showNotification: showNotification,
+    }),
   );
 
   // get all events
@@ -199,12 +185,13 @@ const Events = () => {
   };
   // handle Edit Event
   const handleEdit = (data) => {
+    console.log(data);
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
     setFormValue({
       name: data?.name,
       description: data?.description,
-      application_id: data?.application_id,
+      application_type: data?.application_type,
     });
     dispatch(handleIsAddNewModal(true));
   };
@@ -249,13 +236,13 @@ const Events = () => {
 
               <FlexboxGrid.Item colspan={11}>
                 <SelectField
-                  name="application_id"
-                  label="Application"
-                  placeholder="Select Application"
+                  name="application_type"
+                  label="Application Type"
+                  placeholder="Select Application Type"
                   accepter={CustomReactSelect}
-                  apiURL={`${lmApiUrl}/${authCtx.organization_id}/application`}
+                  apiURL={`${lmApiUrl}/external-integrations`}
                   apiQueryParams={'events=true'}
-                  error={formError.application_id}
+                  error={formError.application_type}
                   reqText="Application Id is required"
                 />
               </FlexboxGrid.Item>
