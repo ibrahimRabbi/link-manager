@@ -13,10 +13,7 @@ const WebBrowserExtension = () => {
   return (
     <div>
       <div>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
-          <img src="/assets/download.jpg" style={{ width: '75vh' }} />
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '50px' }}>
           <h5>
             To download generic web browser extension, please download by
             <a

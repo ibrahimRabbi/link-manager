@@ -57,7 +57,7 @@ const Home = () => {
     ['recentPipeline'],
     () =>
       fetchAPIRequest({
-        urlPath: `pipeline_run/recent?page=${currPage}&per_page=${pageSize}`,
+        urlPath: `${authCtx.organization_id}/pipeline_run/recent?page=${currPage}&per_page=${pageSize}`,
         token: authCtx.token,
         method: 'GET',
         showNotification: showNotification,
@@ -162,12 +162,29 @@ const Home = () => {
             )}
           </div>
         </div>
+      ) : authCtx?.user?.role === 'super_admin' || authCtx?.user?.role === 'admin' ? (
+        <div>
+          <h5
+            style={{
+              textAlign: 'center',
+              marginTop: '50px',
+            }}
+          >
+            <h5>No recent data. Please create project to see data.</h5>
+            <br />
+            <Button
+              appearance="primary"
+              onClick={() => navigate(`${organization}/admin/project/new`)}
+            >
+              Create Project
+            </Button>
+          </h5>
+        </div>
       ) : (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
-            <img src="/no_data.jpg" style={{ width: '75vh' }} />
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0px' }}>
+          <div style={{ textAlign: 'center', marginTop: '50px' }}>
+            <h5>No recent data. </h5>
+            <br />
             <h5>
               To see dashboard, download the extension by
               <a

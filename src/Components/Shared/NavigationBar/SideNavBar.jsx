@@ -162,7 +162,7 @@ const SideNavBar = () => {
       navigateTo: `${organization}/admin/events`,
       icon: <MdEvent size={19} style={{ ...iconStyle }} />,
       content: <span>Event Config</span>,
-      hidden: false,
+      hidden: true,
       isAdminModule: true,
     },
     {

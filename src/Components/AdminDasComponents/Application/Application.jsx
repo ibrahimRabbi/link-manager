@@ -42,13 +42,9 @@ const headerData = [
     iconKey: 'iconUrl',
   },
   {
-    header: 'Description',
-    key: 'description',
-  },
-  {
     header: 'Status',
     statusKey: 'status',
-    width: 80,
+    width: 100,
   },
 ];
 

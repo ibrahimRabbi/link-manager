@@ -44,6 +44,10 @@ const headerData = [
     header: 'Event',
     key: 'event_name',
   },
+  {
+    header: 'Trigger Endpoint',
+    key: 'trigger_endpoint',
+  },
 ];
 
 const { ObjectType, StringType, NumberType } = Schema.Types;
@@ -186,6 +190,7 @@ const Pipelines = () => {
         return {
           id: pipeline.id,
           event_name: pipeline.event.name,
+          trigger_endpoint: pipeline.event.trigger_endpoint,
           filename: pipeline.filename,
         };
       });
