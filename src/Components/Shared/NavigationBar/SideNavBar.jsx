@@ -114,7 +114,7 @@ const SideNavBar = () => {
       icon: (
         <MdAdminPanelSettings size={20} style={{ ...iconStyle, marginLeft: '-35px' }} />
       ),
-      content: <span>Administrator configuration</span>,
+      content: <span>Administrator Configuration</span>,
       isAdminModule: false,
     },
     // admin modules
