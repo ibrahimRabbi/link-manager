@@ -275,6 +275,17 @@ const Projects = () => {
     dispatch(handleIsAddNewModal(true));
   };
 
+  const getProjectPath = (url) => {
+    let newProjectPath = '';
+    if (url.includes('projects')) {
+      newProjectPath = url.replace('projects', 'project');
+    } else {
+      newProjectPath = 'project';
+    }
+    newProjectPath = newProjectPath.replace('/admin', '');
+    return newProjectPath;
+  };
+
   // send props in the batch action table
   const tableProps = {
     title: 'Projects',
@@ -288,9 +299,7 @@ const Projects = () => {
     totalItems: allProjects?.total_items,
     totalPages: allProjects?.total_pages,
     pageSize,
-    showResourceLink: location?.pathname?.includes('projects')
-      ? location.pathname.replace('projects', 'project')
-      : 'project',
+    showResourceLink: getProjectPath(location.pathname),
     page: allProjects?.page,
     inpPlaceholder: 'Search Project',
   };
