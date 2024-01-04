@@ -149,7 +149,7 @@ const PipelineSecrets = () => {
       }),
     {
       onSuccess(allPipelineSecrets) {
-        if (allPipelineSecrets) {
+        if (allPipelineSecrets && allPipelineSecrets?.items?.length) {
           for (let i = 0; i < allPipelineSecrets?.items?.length; i++) {
             allPipelineSecrets.items[i]['display_value'] = '***********';
           }

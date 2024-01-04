@@ -94,7 +94,7 @@ const Projects = () => {
       }),
     {
       onSuccess: (allProjects) => {
-        if (allProjects?.items?.length) {
+        if (allProjects && allProjects?.items?.length) {
           for (let i = 0; i < allProjects.items.length; i++) {
             allProjects.items[i]['organization_name'] =
               allProjects.items[i].organization.name;
