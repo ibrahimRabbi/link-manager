@@ -281,6 +281,15 @@ function App() {
               }
             />
 
+            <Route
+              path={`${organization}/project/:id`}
+              element={
+                <Suspense fallback={<UseLoader />}>
+                  <ResourceDetails type="project" />
+                </Suspense>
+              }
+            />
+
             {/* ---- admin modules ---- */}
             {(isAdmin || isSuperAdmin) && (
               <>
@@ -321,14 +330,6 @@ function App() {
                   }
                 />
                 <Route
-                  path={`${organization}/admin/project/:id`}
-                  element={
-                    <Suspense fallback={<UseLoader />}>
-                      <ResourceDetails type="project" />
-                    </Suspense>
-                  }
-                />
-                <Route
                   path={`${organization}/admin/project/new`}
                   element={
                     <Suspense fallback={<UseLoader />}>
@@ -338,7 +339,7 @@ function App() {
                 />
 
                 <Route
-                  path={`${organization}/admin/project/:id/user-permissions`}
+                  path={`${organization}/project/:id/user-permissions`}
                   element={
                     <Suspense fallback={<UseLoader />}>
                       <ResourceDetails type="project-permissions" />
