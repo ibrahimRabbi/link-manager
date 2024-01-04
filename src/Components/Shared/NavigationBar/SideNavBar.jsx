@@ -60,7 +60,7 @@ const SideNavBar = () => {
       authCtx.logout();
       const message = (
         <Message closable showIcon type="success">
-          Logut successfull
+          Logout successfully
         </Message>
       );
       toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
@@ -146,7 +146,7 @@ const SideNavBar = () => {
       navigateTo: `${organization}/admin/projects`,
       icon: <VscProject size={18} style={{ ...iconStyle, marginLeft: '-37px' }} />,
       content: <span>Projects</span>,
-      hidden: true,
+      hidden: false,
       isAdminModule: true,
     },
     {
@@ -223,6 +223,10 @@ const SideNavBar = () => {
           <Sidenav.Body className="link-nav-container">
             <Nav>
               {baseOptions?.map((option, index) => {
+                // hide hidden nav item
+                if (option.hidden) {
+                  return null;
+                }
                 // manage admin or normal user modules to display it
                 if (pathname.includes('/admin') && !option.isAdminModule) {
                   return null;
@@ -261,6 +265,7 @@ const SideNavBar = () => {
                     ) {
                       if (option.path === organization + '/admin/projects') return true;
                     }
+
                     return option.path === pathname || option.path + '/' === pathname;
                   } else {
                     return (

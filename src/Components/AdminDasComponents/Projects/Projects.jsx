@@ -94,9 +94,11 @@ const Projects = () => {
       }),
     {
       onSuccess: (allProjects) => {
-        for (let i = 0; i < allProjects.items.length; i++) {
-          allProjects.items[i]['organization_name'] =
-            allProjects.items[i].organization.name;
+        if (allProjects && allProjects?.items?.length) {
+          for (let i = 0; i < allProjects.items.length; i++) {
+            allProjects.items[i]['organization_name'] =
+              allProjects.items[i].organization.name;
+          }
         }
       },
     },
@@ -234,6 +236,12 @@ const Projects = () => {
     refetchProjects();
   }, [createSuccess, updateSuccess, deleteSuccess, pageSize, currPage, refreshData]);
 
+  useEffect(() => {
+    if (allProjects && allProjects?.items?.length === 0) {
+      handleAddNew();
+    }
+  }, [allProjects]);
+
   // handle open add user modal
   const handleAddNew = () => {
     navigate(`${organization}/admin/project/new`);
@@ -273,6 +281,17 @@ const Projects = () => {
     dispatch(handleIsAddNewModal(true));
   };
 
+  const getProjectPath = (url) => {
+    let newProjectPath = '';
+    if (url.includes('projects')) {
+      newProjectPath = url.replace('projects', 'project');
+    } else {
+      newProjectPath = url + '/project';
+    }
+    newProjectPath = newProjectPath.replace('/admin', '');
+    return newProjectPath;
+  };
+
   // send props in the batch action table
   const tableProps = {
     title: 'Projects',
@@ -286,9 +305,7 @@ const Projects = () => {
     totalItems: allProjects?.total_items,
     totalPages: allProjects?.total_pages,
     pageSize,
-    showResourceLink: location?.pathname?.includes('projects')
-      ? location.pathname.replace('projects', 'project')
-      : 'project',
+    showResourceLink: getProjectPath(location.pathname),
     page: allProjects?.page,
     inpPlaceholder: 'Search Project',
   };

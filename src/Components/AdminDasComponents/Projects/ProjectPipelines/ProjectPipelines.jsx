@@ -27,7 +27,7 @@ const ProjectPipelines = () => {
     () =>
       fetchAPIRequest({
         // eslint-disable-next-line max-len
-        urlPath: 'pipeline_run',
+        urlPath: `${authCtx.organization_id}/pipeline_run`,
         token: authCtx.token,
         method: 'GET',
         showNotification: showNotification,

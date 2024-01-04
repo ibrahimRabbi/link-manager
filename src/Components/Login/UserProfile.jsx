@@ -123,25 +123,32 @@ const UserProfile = () => {
   };
 
   // update user info using react query
-  const { isLoading: updateUserLoading, mutate: updateUserMutate } = useMutation(
-    () =>
-      fetchAPIRequest({
-        urlPath: `user/${authCtx?.user_id}`,
-        token: authCtx.token,
-        method: 'PUT',
-        body: {
-          ...userFormValue,
-          enabled: true,
-        },
-        showNotification: showNotification,
-      }),
+  //prettier-ignore
+  const { isLoading: updateUserLoading, mutate: updateUserMutate } = useMutation(() => {
+    let organization_id = '';
+    if (Array.isArray(authCtx?.organization_id)) {
+      organization_id = authCtx?.organization_id[0];
+    } else {
+      organization_id = authCtx?.organization_id;
+    }
+    fetchAPIRequest({
+      urlPath: `user/${authCtx?.user_id}`,
+      token: authCtx.token,
+      method: 'PUT',
+      body: {
+        ...userFormValue,
+        organization_id: organization_id,
+        enabled: true,
+      },
+      showNotification: showNotification,
+    }),
     {
       onSuccess: (value) => {
         refetchUserData();
         showNotification(value?.status, value?.message);
       },
-    },
-  );
+    };
+  });
 
   // update password using react query
   const { isLoading: updatePasswordLoading, mutate: updatePasswordMutate } = useMutation(
