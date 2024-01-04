@@ -236,6 +236,12 @@ const Projects = () => {
     refetchProjects();
   }, [createSuccess, updateSuccess, deleteSuccess, pageSize, currPage, refreshData]);
 
+  useEffect(() => {
+    if (allProjects && allProjects?.items?.length === 0) {
+      handleAddNew();
+    }
+  }, [allProjects]);
+
   // handle open add user modal
   const handleAddNew = () => {
     navigate(`${organization}/admin/project/new`);
@@ -280,7 +286,7 @@ const Projects = () => {
     if (url.includes('projects')) {
       newProjectPath = url.replace('projects', 'project');
     } else {
-      newProjectPath = 'project';
+      newProjectPath = url + '/project';
     }
     newProjectPath = newProjectPath.replace('/admin', '');
     return newProjectPath;
