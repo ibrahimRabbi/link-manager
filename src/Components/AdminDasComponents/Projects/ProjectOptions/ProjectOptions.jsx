@@ -1,10 +1,23 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ButtonGroup, Whisper, Popover, Dropdown, IconButton } from 'rsuite';
 import ArrowDownIcon from '@rsuite/icons/ArrowDown';
+import AuthContext from '../../../../Store/Auth-Context.jsx';
+// eslint-disable-next-line max-len
+import { verifyAdminPermissions } from '../../../../RoleVerification/RoleVerification.jsx';
 
 const ProjectOptions = (props) => {
   const { handleEdit, handleDelete } = props;
-  const availableOptions = ['Edit', 'Delete'];
+  const availableOptions = ['Edit'];
+  const adminAvailableOptions = ['Delete'];
+  const authCtx = useContext(AuthContext);
+
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  const verifyUserPermissions = () => {
+    if (verifyAdminPermissions(authCtx)) {
+      setIsAdmin(true);
+    }
+  };
 
   const setDropdownItems = (item, index) => {
     let dropdownItem;
@@ -30,6 +43,10 @@ const ProjectOptions = (props) => {
     return dropdownItem;
   };
 
+  useEffect(() => {
+    verifyUserPermissions();
+  }, []);
+
   return (
     <>
       <ButtonGroup>
@@ -41,6 +58,11 @@ const ProjectOptions = (props) => {
               <Popover ref={ref} className={className} style={{ left, top }} full>
                 <Dropdown.Menu>
                   {availableOptions.map((item, index) => setDropdownItems(item, index))}
+                  {/* eslint-disable-next-line max-len */}
+                  {isAdmin &&
+                    adminAvailableOptions.map((item, index) =>
+                      setDropdownItems(item, index),
+                    )}
                 </Dropdown.Menu>
               </Popover>
             );
