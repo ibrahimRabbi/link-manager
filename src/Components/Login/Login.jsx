@@ -215,13 +215,12 @@ const Login = () => {
   };
 
   // send request to forgot password using react query
-  const { isLoading: forgotPassLoading, mutate: forgotPassMutate } = useMutation(() =>
+  const { mutate: forgotPassMutate } = useMutation(() =>
     fetchAPIRequest({
       urlPath: 'user/forgot_password',
       token: '',
       method: 'POST',
       body: { email: resetForm?.email },
-      showNotification: showNotification,
     }),
   );
 
@@ -230,8 +229,8 @@ const Login = () => {
     if (!resetFormRef.current.check()) {
       return;
     }
-
     forgotPassMutate();
+    navigate('/recover-email-sent');
     dispatch(handleIsAddNewModal(false));
     handleResetResetPassForm();
   };
@@ -244,7 +243,7 @@ const Login = () => {
 
   return (
     <div className={main}>
-      {(isLoading || forgotPassLoading) && (
+      {isLoading && (
         <Loader
           backdrop
           center
@@ -345,7 +344,7 @@ const Login = () => {
         handleSubmit={handleResetPass}
         handleReset={handleResetResetPassForm}
         size={'sm'}
-        submitBtnText={'Send password reset email'}
+        submitBtnText={'Send recovery email'}
       >
         <Form
           fluid

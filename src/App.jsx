@@ -13,6 +13,7 @@ import ProtectedRoute from './Components/Shared/ProtectedRoute/ProtectedRoute';
 import Oauth2Success from './Components/Oauth2/oauth2Success';
 import Oauth2TokenStatus from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2TokenStatus';
 import UseLoader from './Components/Shared/UseLoader';
+import RecoverEmailSent from './Components/Login/RecoverEmailSent.jsx';
 
 // lazy load components
 const Dashboard = lazy(() => import('./Pages/Dashboard'));
@@ -155,6 +156,7 @@ function App() {
               </Suspense>
             }
           />
+          <Route path="/recover-email-sent" element={<RecoverEmailSent />} />
           <Route
             path="/set-password"
             element={
