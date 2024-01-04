@@ -31,6 +31,8 @@ import AdminDataTable from '../../AdminDataTable.jsx';
 import { getApplicationIcons } from '../../Icons/application/icons.jsx';
 import ProjectPipelines from '../ProjectPipelines/ProjectPipelines.jsx';
 import UseLoader from '../../../Shared/UseLoader.jsx';
+// eslint-disable-next-line max-len
+import { verifyAdminPermissions } from '../../../../RoleVerification/RoleVerification.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 const { StringType, NumberType, ArrayType } = Schema.Types;
@@ -91,6 +93,7 @@ const ProjectDetails = (props) => {
   const [projectApplicationsTableData, setProjectApplicationsTableData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const showNotification = (type, message) => {
     if (type && message) {
@@ -131,6 +134,12 @@ const ProjectDetails = (props) => {
       navigate(-1);
     } else {
       setEditData(false);
+    }
+  };
+
+  const verifyUserPermissions = () => {
+    if (verifyAdminPermissions(authCtx)) {
+      setIsAdmin(true);
     }
   };
 
@@ -281,6 +290,7 @@ const ProjectDetails = (props) => {
 
   useEffect(() => {
     dispatch(handleCurrPageTitle(''));
+    verifyUserPermissions();
   }, []);
 
   useEffect(() => {
@@ -418,23 +428,26 @@ const ProjectDetails = (props) => {
                 </Form>
               ) : (
                 <>
-                  <FlexboxGrid.Item colspan={15}>
+                  <FlexboxGrid.Item colspan={isAdmin ? 15 : 19}>
                     <h3>{projectData?.name ? projectData.name : 'Project info'}</h3>
                   </FlexboxGrid.Item>
-                  <FlexboxGrid.Item colspan={5}></FlexboxGrid.Item>
+                  <FlexboxGrid.Item colspan={isAdmin ? 5 : 3}></FlexboxGrid.Item>
                   <FlexboxGrid>
-                    <FlexboxGrid.Item>
-                      <IconButton
-                        size="md"
-                        title="Invite users"
-                        icon={<FiUsers />}
-                        onClick={() => {
-                          const link = location.pathname;
-                          navigate(`${link}/user-permissions`);
-                        }}
-                        className={resourceButton}
-                      />
-                    </FlexboxGrid.Item>
+                    {isAdmin && (
+                      <FlexboxGrid.Item>
+                        <IconButton
+                          size="md"
+                          title="Invite users"
+                          icon={<FiUsers />}
+                          onClick={() => {
+                            const link = location.pathname;
+                            navigate(`${link}/user-permissions`);
+                          }}
+                          className={resourceButton}
+                        />
+                      </FlexboxGrid.Item>
+                    )}
+
                     <FlexboxGrid.Item>
                       <ProjectOptions
                         handleEdit={() => setEditData(true)}
