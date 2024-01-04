@@ -39,7 +39,6 @@ const Organization = lazy(() =>
 );
 const Projects = lazy(() => import('./Components/AdminDasComponents/Projects/Projects'));
 const Users = lazy(() => import('./Components/AdminDasComponents/Users/Users'));
-// const Events = lazy(() => import('./Components/AdminDasComponents/Events/Events'));
 const PipelineSecrets = lazy(() =>
   import('./Components/AdminDasComponents/PipelineSecrets/PipelineSecrets'),
 );
@@ -354,14 +353,6 @@ function App() {
                     </Suspense>
                   }
                 />
-                {/* <Route
-                  path={`${organization}/admin/events`}
-                  element={
-                    <Suspense fallback={<UseLoader />}>
-                      <Events />
-                    </Suspense>
-                  }
-                /> */}
                 <Route
                   path={`${organization}/admin/integrations`}
                   element={
