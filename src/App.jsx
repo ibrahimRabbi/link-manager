@@ -39,7 +39,7 @@ const Organization = lazy(() =>
 );
 const Projects = lazy(() => import('./Components/AdminDasComponents/Projects/Projects'));
 const Users = lazy(() => import('./Components/AdminDasComponents/Users/Users'));
-const Events = lazy(() => import('./Components/AdminDasComponents/Events/Events'));
+// const Events = lazy(() => import('./Components/AdminDasComponents/Events/Events'));
 const PipelineSecrets = lazy(() =>
   import('./Components/AdminDasComponents/PipelineSecrets/PipelineSecrets'),
 );
@@ -281,14 +281,7 @@ function App() {
                 </Suspense>
               }
             />
-            <Route
-              path={`${organization}/project/:id`}
-              element={
-                <Suspense fallback={<UseLoader />}>
-                  <ResourceDetails type="project" />
-                </Suspense>
-              }
-            />
+
             {/* ---- admin modules ---- */}
             {(isAdmin || isSuperAdmin) && (
               <>
@@ -329,6 +322,14 @@ function App() {
                   }
                 />
                 <Route
+                  path={`${organization}/admin/project/:id`}
+                  element={
+                    <Suspense fallback={<UseLoader />}>
+                      <ResourceDetails type="project" />
+                    </Suspense>
+                  }
+                />
+                <Route
                   path={`${organization}/admin/project/new`}
                   element={
                     <Suspense fallback={<UseLoader />}>
@@ -338,7 +339,7 @@ function App() {
                 />
 
                 <Route
-                  path={`${organization}/project/:id/user-permissions`}
+                  path={`${organization}/admin/project/:id/user-permissions`}
                   element={
                     <Suspense fallback={<UseLoader />}>
                       <ResourceDetails type="project-permissions" />
@@ -353,14 +354,14 @@ function App() {
                     </Suspense>
                   }
                 />
-                <Route
+                {/* <Route
                   path={`${organization}/admin/events`}
                   element={
                     <Suspense fallback={<UseLoader />}>
                       <Events />
                     </Suspense>
                   }
-                />
+                /> */}
                 <Route
                   path={`${organization}/admin/integrations`}
                   element={
