@@ -60,7 +60,7 @@ const SideNavBar = () => {
       authCtx.logout();
       const message = (
         <Message closable showIcon type="success">
-          Logut successfull
+          Logout successfully
         </Message>
       );
       toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
