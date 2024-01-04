@@ -281,7 +281,14 @@ function App() {
                 </Suspense>
               }
             />
-
+            <Route
+              path={`${organization}/project/:id`}
+              element={
+                <Suspense fallback={<UseLoader />}>
+                  <ResourceDetails type="project" />
+                </Suspense>
+              }
+            />
             {/* ---- admin modules ---- */}
             {(isAdmin || isSuperAdmin) && (
               <>
@@ -318,14 +325,6 @@ function App() {
                   element={
                     <Suspense fallback={<UseLoader />}>
                       <Projects />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path={`${organization}/project/:id`}
-                  element={
-                    <Suspense fallback={<UseLoader />}>
-                      <ResourceDetails type="project" />
                     </Suspense>
                   }
                 />
