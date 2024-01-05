@@ -25,7 +25,6 @@ import TextArea from '../../TextArea.jsx';
 import CustomReactSelect from '../../../Shared/Dropdowns/CustomReactSelect.jsx';
 import SelectField from '../../SelectField.jsx';
 import { FaCircleInfo } from 'react-icons/fa6';
-import { GoProjectTemplate } from 'react-icons/go';
 import { darkBgColor } from '../../../../App.jsx';
 import AdminDataTable from '../../AdminDataTable.jsx';
 import { getApplicationIcons } from '../../Icons/application/icons.jsx';
@@ -365,14 +364,11 @@ const ProjectDetails = (props) => {
             )}
             {newProject && (
               <FlexboxGrid>
-                <FlexboxGrid.Item colspan={2}>
-                  <GoProjectTemplate size={100} />
-                </FlexboxGrid.Item>
-                <FlexboxGrid.Item colspan={18}>
-                  <p className={newProjectDescription}>
-                    Create a blank project to group link nodes, plan your work, among
-                    other things.
-                  </p>
+                <FlexboxGrid.Item colspan={22}>
+                  <h6 className={newProjectDescription}>
+                    Create a TraceLynx project to connect artifacts across your selection
+                    of apps and respective projects, by selected users
+                  </h6>
                 </FlexboxGrid.Item>
               </FlexboxGrid>
             )}
