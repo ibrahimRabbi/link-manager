@@ -15,22 +15,14 @@ import {
 } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import AdminDataTable from '../AdminDataTable';
-import {
-  FlexboxGrid,
-  Form,
-  Uploader,
-  Loader,
-  Schema,
-  Message,
-  toaster,
-  Drawer,
-} from 'rsuite';
+import { FlexboxGrid, Form, Uploader, Schema, Message, toaster, Drawer } from 'rsuite';
 import Editor from '@monaco-editor/react';
 import TextField from '../TextField';
 import { useRef } from 'react';
 import SelectField from '../SelectField.jsx';
 import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 import AlertModal from '../../Shared/AlertModal';
+import UseLoader from '../../Shared/UseLoader.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
@@ -305,16 +297,7 @@ const Pipelines = () => {
         </div>
       </AddNewModal>
 
-      {isPipelineLoading && (
-        <Loader
-          backdrop
-          center
-          size="md"
-          vertical
-          content="Loading"
-          style={{ zIndex: '10' }}
-        />
-      )}
+      {isPipelineLoading && <UseLoader />}
       {/* confirmation modal  */}
       <AlertModal
         open={open}
