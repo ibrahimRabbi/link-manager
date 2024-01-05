@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { FaChevronRight } from 'react-icons/fa';
-import { CgMoreVertical } from 'react-icons/cg';
 import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
 import InfoStatus from '@rsuite/icons/InfoRound';
@@ -12,16 +11,14 @@ import {
   flexRender,
 } from '@tanstack/react-table';
 
-import { Dropdown, IconButton, Input, Popover, Whisper } from 'rsuite';
+import { ButtonToolbar, IconButton, Popover, Whisper } from 'rsuite';
 import cssStyles from './LinkManager.module.scss';
 import { useSelector } from 'react-redux';
-import CustomFilterSelect from './CustomFilterSelect';
 // eslint-disable-next-line max-len
 import ExternalPreview from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreview.jsx';
 // eslint-disable-next-line max-len
 import { showOslcData } from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreviewConfig.jsx';
 import { getIcon } from './ResourceTypeIcon.jsx';
-// eslint-disable-next-line max-len
 import {
   BASIC_AUTH_APPLICATION_TYPES,
   MICROSERVICES_APPLICATION_TYPES,
@@ -29,7 +26,11 @@ import {
 } from '../../App.jsx';
 // eslint-disable-next-line max-len
 import ExternalAppModal from '../AdminDasComponents/ExternalAppIntegrations/ExternalAppModal/ExternalAppModal.jsx';
+import { addNodeLabel } from '../CytoscapeGraphView/Graph.jsx';
+import { MdDelete } from 'react-icons/md';
 const {
+  table_head_dark,
+  table_head_light,
   table_row_dark,
   table_row_light,
   statusCellStyle,
@@ -45,12 +46,9 @@ const {
   dataCell,
   actionDataCell,
   tableStyle,
-  filterContainer,
-  filterInput,
   emptyTableContent,
   iconRotate,
   allIconRotate,
-  statusFilterClass,
 } = cssStyles;
 
 // OSLC API URLs
@@ -65,26 +63,7 @@ const LinkManagerTable = ({ props }) => {
   const { isDark } = useSelector((state) => state.nav);
   const [showExternalAuthWindow, setShowExternalAuthWindow] = useState(false);
   const [externalAuthData, setExternalAuthData] = useState({});
-
-  // Action table cell control
-  const renderMenu = ({ onClose, left, top, className }, ref) => {
-    const handleSelect = (key) => {
-      if (key === 1) {
-        //
-      } else if (key === 2) {
-        handleDeleteLink();
-      }
-      onClose();
-    };
-    return (
-      <Popover ref={ref} className={className} style={{ left, top }} full>
-        <Dropdown.Menu onSelect={handleSelect} style={{ fontSize: '17px' }}>
-          <Dropdown.Item eventKey={1}>Edit</Dropdown.Item>
-          <Dropdown.Item eventKey={2}>Delete</Dropdown.Item>
-        </Dropdown.Menu>
-      </Popover>
-    );
-  };
+  const [isChildren, setIsChildren] = useState(false);
 
   const getExtLoginData = (data) => {
     console.log('External Login Data: ', data);
@@ -167,15 +146,7 @@ const LinkManagerTable = ({ props }) => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {rowData?.selected_lines
-              ? rowData?.name?.length > 15
-                ? rowData?.name?.slice(0, 15 - 1) +
-                  '...' +
-                  ' [' +
-                  rowData?.selected_lines +
-                  ']'
-                : rowData?.name + ' [' + rowData?.selected_lines + ']'
-              : rowData?.name?.slice(0, 30) + '....'}
+            {addNodeLabel(rowData?.name, rowData?.selected_lines)}
           </a>
         </Whisper>
       </div>
@@ -288,7 +259,7 @@ const LinkManagerTable = ({ props }) => {
                   `}
                 onClick={table.getToggleAllRowsExpandedHandler()}
               >
-                <FaChevronRight size={17} />
+                {isChildren && <FaChevronRight size={17} />}
               </h5>
               <h6>Link Type</h6>
             </div>
@@ -341,13 +312,17 @@ const LinkManagerTable = ({ props }) => {
           const rowData = row?.original;
           return (
             <div className={actionDataCell}>
-              <Whisper placement="auto" trigger="click" speaker={renderMenu}>
+              <ButtonToolbar>
                 <IconButton
-                  appearance="subtle"
-                  icon={<CgMoreVertical />}
-                  onClick={() => setSelectedRowData(rowData)}
+                  size="sm"
+                  title="Delete"
+                  icon={<MdDelete />}
+                  onClick={() => {
+                    setSelectedRowData(rowData);
+                    handleDeleteLink();
+                  }}
                 />
-              </Whisper>
+              </ButtonToolbar>
             </div>
           );
         },
@@ -366,7 +341,13 @@ const LinkManagerTable = ({ props }) => {
       expanded,
     },
     onExpandedChange: setExpanded,
-    getSubRows: (row) => (row.children ? row?.children[0] : []),
+    getSubRows: (row) => {
+      if (row?.children) {
+        row?.children[0];
+        setIsChildren(true);
+      }
+      return [];
+    },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
@@ -392,6 +373,7 @@ const LinkManagerTable = ({ props }) => {
                   <th
                     key={header.id}
                     colSpan={header.colSpan}
+                    className={isDark === 'dark' ? table_head_dark : table_head_light}
                     style={{
                       width: status ? '100px' : action ? '100px' : '',
                     }}
@@ -399,19 +381,6 @@ const LinkManagerTable = ({ props }) => {
                     {header.isPlaceholder ? null : (
                       <div style={{ fontWeight: 'normal' }}>
                         {flexRender(header.column.columnDef.header, header.getContext())}
-
-                        {header.column.getCanFilter() ? (
-                          <div className={filterContainer}>
-                            {data[0] && (
-                              <Filter
-                                column={header.column}
-                                table={table}
-                                isAction={header.index === 4 ? true : false}
-                                isStatusFilter={header.index === 3 ? true : false}
-                              />
-                            )}
-                          </div>
-                        ) : null}
                       </div>
                     )}
                   </th>
@@ -469,59 +438,6 @@ const LinkManagerTable = ({ props }) => {
     </div>
   );
 };
-
-function Filter({ column, table, isAction, isStatusFilter }) {
-  const firstValue = table.getPreFilteredRowModel().flatRows[0]?.getValue(column.id);
-  const columnFilterValue = column.getFilterValue();
-
-  const statusFilterItems = [
-    {
-      icon: <SuccessStatus color="#378f17" />,
-      label: 'Valid',
-      value: 'valid',
-    },
-    {
-      icon: <FailedStatus color="#de1655" />,
-      label: 'Invalid',
-      value: 'invalid',
-    },
-    {
-      icon: <InfoStatus color="#ffcc00" />,
-      label: 'Suspect',
-      value: 'suspect',
-    },
-  ];
-
-  return typeof firstValue === 'number' ? null : (
-    <>
-      {!isStatusFilter && (
-        <Input
-          type="text"
-          value={columnFilterValue ?? ''}
-          onChange={(value) => column.setFilterValue(value)}
-          placeholder={'Search...'}
-          size="sm"
-          style={{ visibility: isAction ? 'hidden' : 'visible' }}
-          className={filterInput}
-        />
-      )}
-
-      {isStatusFilter && (
-        <CustomFilterSelect
-          className={statusFilterClass}
-          items={statusFilterItems}
-          placeholder="Search by status"
-          onChange={(value) => {
-            if (value) column.setFilterValue(value);
-            else {
-              column.setFilterValue('');
-            }
-          }}
-        />
-      )}
-    </>
-  );
-}
 
 function IndeterminateCheckbox({ indeterminate, className = '', ...rest }) {
   const ref = React.useRef(null);

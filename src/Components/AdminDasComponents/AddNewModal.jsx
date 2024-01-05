@@ -10,6 +10,7 @@ const AddNewModal = ({
   handleReset,
   size = null,
   minHeight,
+  submitBtnText,
 }) => {
   const { isAddNewModalOpen, isAdminEditing } = useSelector((state) => state.nav);
   const dispatch = useDispatch();
@@ -22,7 +23,7 @@ const AddNewModal = ({
     dispatch(handleIsAddNewModal(false));
     setTimeout(() => {
       if (isAdminEditing) dispatch(handleIsAdminEditing(false));
-      handleReset();
+      if (handleReset) handleReset();
     }, 500);
   };
 
@@ -32,7 +33,7 @@ const AddNewModal = ({
         <Modal.Title className="adminModalTitle">{title}</Modal.Title>
       </Modal.Header>
       <Modal.Body
-        style={{ padding: '10px 10px 30px', minHeight: minHeight ? minHeight : '200px' }}
+        style={{ padding: '10px 10px 30px', minHeight: minHeight ? minHeight : '150px' }}
       >
         {children}
       </Modal.Body>
@@ -45,7 +46,7 @@ const AddNewModal = ({
           Cancel
         </Button>
         <Button onClick={handleSave} appearance="primary" className="adminModalFooterBtn">
-          Save
+          {submitBtnText ? submitBtnText : 'Save'}
         </Button>
       </Modal.Footer>
     </Modal>

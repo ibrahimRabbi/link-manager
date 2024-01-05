@@ -28,6 +28,7 @@ import Oauth2Waiting from '../ExternalAppIntegrations/Oauth2Waiting/Oauth2Waitin
 import ExternalLogin from '../ExternalAppIntegrations/ExternalLogin/ExternalLogin.jsx';
 import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 import AlertModal from '../../Shared/AlertModal';
+import { getApplicationIcons } from '../Icons/application/icons.jsx';
 
 const { modalBodyStyle, step1Container, step2Container, skipBtn } = styles;
 
@@ -36,26 +37,18 @@ const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 // demo data
 const headerData = [
   {
-    header: 'ID',
-    key: 'id',
-  },
-  {
     header: 'Application',
     key: 'name',
     iconKey: 'iconUrl',
   },
   {
-    header: 'Description',
-    key: 'description',
-  },
-  {
     header: 'Status',
     statusKey: 'status',
-    width: 80,
+    width: 100,
   },
 ];
 
-const { StringType, NumberType } = Schema.Types;
+const { StringType } = Schema.Types;
 const requiredLabel = 'This field is required';
 
 const Application = () => {
@@ -108,7 +101,6 @@ const Application = () => {
   /** Model Schema */
   const model = Schema.Model({
     type: StringType().isRequired(requiredLabel),
-    organization_id: NumberType().isRequired(requiredLabel),
     name: StringType().isRequired(requiredLabel),
     description: StringType(),
     client_id:
@@ -361,6 +353,12 @@ const Application = () => {
         } else {
           serverData['ui'] = item?.url;
         }
+      } else if (data?.type === 'jira') {
+        if (item?.type?.toLowerCase()?.includes('oauth2')) {
+          serverData['rest'] = item?.url;
+        } else if (item?.type?.toLowerCase()?.includes('ui')) {
+          serverData['ui'] = item?.url;
+        }
       } else {
         serverData['rest'] = item.url;
       }
@@ -390,7 +388,6 @@ const Application = () => {
       setAdvancedOptions(false);
     }
     formValue.type = value;
-    formValue.organization_id = parseInt(authCtx.organization_id);
     setFormValue({ ...formValue });
     const selectedAppType = Object.values(applicationDataTypes['items']).find(
       (item) => item.id === value,
@@ -511,9 +508,9 @@ const Application = () => {
     const foundApplicationType = Object.values(applicationDataTypes['items']).find(
       (item) => item.id === data?.type,
     );
+
     const editForm = {
       type: data?.type,
-      organization_id: data?.organization_id,
       name: data?.name,
       description: data?.description,
       tenant_id: serverData?.tenant ? serverData?.tenant : '',
@@ -544,79 +541,11 @@ const Application = () => {
     (async () => {
       if (allApplications?.items) {
         setLoading(true);
-        // merge icons data with application data
-        const customAppItems = allApplications?.items?.reduce(
-          (accumulator, currentValue) => {
-            // prettier-ignore
-            switch (currentValue?.type) {
-            case 'gitlab':
-              accumulator.push({
-                ...currentValue,
-                iconUrl: '/gitlab_logo.png',
-                status: currentValue?.status,
-              });
-              break;
-            case 'bitbucket':
-              accumulator.push({
-                ...currentValue,
-                iconUrl: '/bitbucket_logo.png',
-                status: currentValue?.status,
-              });
-              break;
-            case 'github':
-              accumulator.push({
-                ...currentValue,
-                iconUrl: '/github_logo.png',
-                status: currentValue?.status,
-              });
-              break;
-            case 'jira':
-              accumulator.push({
-                ...currentValue,
-                iconUrl: '/jira_logo.png',
-                status: currentValue?.status,
-              });
-              break;
-            case 'glideyoke':
-              accumulator.push({
-                ...currentValue,
-                iconUrl: '/glide_logo.png',
-                status: currentValue?.status,
-              });
-              break;
-            case 'valispace':
-              accumulator.push({
-                ...currentValue,
-                iconUrl: '/valispace_logo.png',
-                status: currentValue?.status,
-              });
-              break;
-            case 'codebeamer':
-              accumulator.push({
-                ...currentValue,
-                iconUrl: '/codebeamer_logo.png',
-                status: currentValue?.status,
-              });
-              break;
-            case 'dng':
-              accumulator.push({
-                ...currentValue,
-                iconUrl: '/dng_logo.png',
-                status: currentValue?.status,
-              });
-              break;
-            default:
-              accumulator.push({
-                ...currentValue,
-                iconUrl: '/default_logo.png',
-                status: currentValue?.status,
-              });
-              break;
-            }
-            return accumulator;
-          },
-          [],
-        );
+        // merge icon URLs with application data
+        let customAppItems = [];
+        if (allApplications?.items) {
+          customAppItems = getApplicationIcons(allApplications?.items);
+        }
         setAppsWithIcon(customAppItems);
       }
     })();
@@ -687,22 +616,7 @@ const Application = () => {
                 model={model}
               >
                 <FlexboxGrid justify="space-between">
-                  <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={24}>
-                    <SelectField
-                      name="organization_id"
-                      label="Organization"
-                      placeholder="Select Organization"
-                      accepter={CustomReactSelect}
-                      apiURL={`${lmApiUrl}/organization`}
-                      error={formError.organization_id}
-                      disabled={true}
-                      reqText="Organization Id is required"
-                      value={Number(authCtx?.organization_id)}
-                      defaultValue={Number(authCtx?.organization_id)}
-                    />
-                  </FlexboxGrid.Item>
-
-                  <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={24}>
+                  <FlexboxGrid.Item colspan={11}>
                     <SelectField
                       name="type"
                       label="Integration type"
@@ -716,7 +630,7 @@ const Application = () => {
                     />
                   </FlexboxGrid.Item>
 
-                  <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
+                  <FlexboxGrid.Item colspan={11}>
                     <TextField
                       name="name"
                       label="Name"
@@ -724,7 +638,7 @@ const Application = () => {
                     />
                   </FlexboxGrid.Item>
 
-                  <FlexboxGrid.Item colspan={24}>
+                  <FlexboxGrid.Item colspan={24} style={{ marginTop: '25px' }}>
                     <TextField
                       name="description"
                       label="Description"
@@ -855,11 +769,12 @@ const Application = () => {
           {steps === 1 && (
             <div className={step1Container}>
               <h4>{'Authorize the access to the integration'}</h4>
-              {(applicationType?.authentication_type === 'oauth2' &&
-                steps === 1 &&
-                createSuccess) ||
-                updateSuccess ||
-                (authorizeButton && <Oauth2Waiting data={formValue} />)}
+              {
+                (updateSuccess || authorizeButton || (steps === 1 && createSuccess)) &&
+                applicationType?.authentication_type === 'oauth2' && // prettier-ignore
+                <Oauth2Waiting data={formValue} />
+                // prettier-ignore
+              }
               {
                 // prettier-ignore
                 (['basic', 'oauth2_ropc'].includes(

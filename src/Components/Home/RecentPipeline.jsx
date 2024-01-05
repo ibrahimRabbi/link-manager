@@ -36,37 +36,37 @@ const RecentPipeline = ({ recentPipelines }) => {
       <Table virtualized bordered cellBordered data={data} rowKey="id" autoHeight>
         <Column flexGrow={1} align="center">
           <HeaderCell>
-            <h5>Started</h5>
+            <h6>Started</h6>
           </HeaderCell>
           <Cell style={{ fontSize: '17px' }} dataKey="start_time" />
         </Column>
         <Column flexGrow={1} align="center" fixed>
           <HeaderCell>
-            <h5>Duration (s) </h5>
+            <h6>Duration (s) </h6>
           </HeaderCell>
           <Cell style={{ fontSize: '17px' }} dataKey="duration" />
         </Column>
         <Column flexGrow={1} align="center" fixed>
           <HeaderCell>
-            <h5>Script</h5>
+            <h6>Script</h6>
           </HeaderCell>
           <Cell style={{ fontSize: '17px' }} dataKey="script" />
         </Column>
         <Column flexGrow={1} align="center" fixed>
           <HeaderCell>
-            <h5>Event</h5>
+            <h6>Event</h6>
           </HeaderCell>
           <Cell style={{ fontSize: '17px' }} dataKey="event" />
         </Column>
         <Column flexGrow={1} align="center" fixed>
           <HeaderCell>
-            <h5>Organization</h5>
+            <h6>Organization</h6>
           </HeaderCell>
           <Cell style={{ fontSize: '17px' }} dataKey="organization" />
         </Column>
         <Column flexGrow={1} width={180} align="center" fixed>
           <HeaderCell>
-            <h5>Status</h5>
+            <h6>Status</h6>
           </HeaderCell>
           <Cell style={{ fontSize: '17px' }}>
             {(rowData) => {
@@ -98,9 +98,10 @@ const RecentPipeline = ({ recentPipelines }) => {
             }}
           </Cell>
         </Column>
+
         <Column flexGrow={1} align="center" fixed>
           <HeaderCell>
-            <h5>View Output</h5>
+            <h6>View Output</h6>
           </HeaderCell>
           <Cell>
             {(rowData) => {
@@ -125,7 +126,7 @@ const RecentPipeline = ({ recentPipelines }) => {
             <p
               style={{
                 marginTop: '5px',
-                fontSize: '19px',
+                fontSize: '17px',
                 fontWeight: 'bold',
               }}
             >

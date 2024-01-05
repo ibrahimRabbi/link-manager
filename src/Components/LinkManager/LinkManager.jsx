@@ -18,11 +18,9 @@ import {
   Stack,
   toaster,
 } from 'rsuite';
-import { handleRefreshData } from '../../Redux/slices/navSlice';
 import AuthContext from '../../Store/Auth-Context.jsx';
 import styles from './LinkManager.module.scss';
 import SourceSection from '../SourceSection';
-import { HiRefresh } from 'react-icons/hi';
 import { FaRegFileExcel } from 'react-icons/fa';
 import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
@@ -32,6 +30,8 @@ import LinkManagerTable from './LinkManagerTable';
 import { useMutation } from '@tanstack/react-query';
 import fetchAPIRequest from '../../apiRequests/apiRequest';
 import AlertModal from '../Shared/AlertModal';
+import useMediaQuery from '../Shared/useMediaQeury.js';
+import AddOutlineIcon from '@rsuite/icons/AddOutline';
 
 const {
   tableContainer,
@@ -50,7 +50,6 @@ const model = Schema.Model({
 
 const LinkManager = () => {
   const { sourceDataList, linksData, isLoading } = useSelector((state) => state.links);
-
   const { linksStream, refreshData, isDark } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -68,6 +67,7 @@ const LinkManager = () => {
   const uri = searchParams.get('uri');
   const sourceFileURL = uri || sourceDataList?.uri;
   const searchRef = useRef();
+  const isSmallDevice = useMediaQuery('(max-width: 985px)');
 
   useEffect(() => {
     dispatch(handleIsWbe(isWbe));
@@ -79,7 +79,7 @@ const LinkManager = () => {
   // delete link using react-query
   const deleteURl = `link/resource?source_id=${encodeURIComponent(
     sourceFileURL,
-  )}&target_id=${encodeURIComponent(selectedRowData?.id)}&link_type=${
+  )}&target_id=${encodeURIComponent(selectedRowData?.uri)}&link_type=${
     selectedRowData?.link_type
   }`;
   const {
@@ -143,9 +143,9 @@ const LinkManager = () => {
 
   // handle search links
   const handleSearchLinks = () => {
-    if (searchValue.search_term) {
-      setIsLinkSearching((prevValue) => !prevValue);
-    }
+    // if (searchValue.search_term) {
+    setIsLinkSearching((prevValue) => !prevValue);
+    // }
   };
 
   // handle delete link
@@ -161,14 +161,21 @@ const LinkManager = () => {
 
   const exportToExcel = () => {
     if (sourceFileURL) {
-      const exportUrl = `${apiURL}/link/export?source_id=${sourceFileURL}`;
-      const filename = sourceDataList['titleLabel']?.replace(' ', '_');
-      exportLinksToExcel({
-        url: exportUrl,
-        token: authCtx.token,
-        showNotification: showNotification,
-        filename: filename,
-      });
+      if (linksData?.items?.length) {
+        const exportUrl = `${apiURL}/link/export?source_id=${sourceFileURL}`;
+        const filename = sourceDataList['titleLabel']?.replace(' ', '_');
+        exportLinksToExcel({
+          url: exportUrl,
+          token: authCtx.token,
+          showNotification: showNotification,
+          filename: filename,
+        });
+      } else {
+        showNotification(
+          'info',
+          'Sorry, you can not export to Excel because the data is empty in the table!!',
+        );
+      }
     }
   };
   const tableProps = {
@@ -229,11 +236,11 @@ const LinkManager = () => {
                     <Stack style={{ position: 'relative' }}>
                       <TextField
                         style={{
-                          width: '400px',
-                          borderRadius: '6px 0 0 6px',
+                          width: isSmallDevice ? '100%' : '400px',
+                          borderRadius: '0 6px 6px 0',
                           height: '36px',
                         }}
-                        placeholder="Search..."
+                        placeholder=""
                         type="text"
                         name="search_term"
                       />
@@ -251,7 +258,7 @@ const LinkManager = () => {
                             position: 'absolute',
                             top: '1px',
                             bottom: '1px',
-                            right: '91px',
+                            right: '40px',
                             borderRadius: '0',
                           }}
                         />
@@ -261,13 +268,23 @@ const LinkManager = () => {
                         color="blue"
                         appearance="primary"
                         size="md"
-                        style={{ borderRadius: '0 6px 6px 0' }}
+                        style={{
+                          borderRadius: '0 6px 6px 0',
+                          position: 'absolute',
+                          top: '0px',
+                          right: '0',
+                        }}
                         type="submit"
-                        startIcon={<SearchIcon style={{ marginLeft: '-5px' }} />}
                         onClick={handleSearchLinks}
-                      >
-                        Search
-                      </Button>
+                        startIcon={
+                          <SearchIcon
+                            style={{
+                              marginLeft: isSmallDevice ? '' : '-5px',
+                              height: '20px',
+                            }}
+                          />
+                        }
+                      />
                     </Stack>
                   </Form>
                 </FlexboxGrid.Item>
@@ -290,7 +307,7 @@ const LinkManager = () => {
                         }
                       }}
                     >
-                      Create Link
+                      {isSmallDevice ? <AddOutlineIcon /> : 'Create Link'}
                     </Button>
                     <Button
                       appearance="default"
@@ -298,13 +315,6 @@ const LinkManager = () => {
                       color="blue"
                     >
                       <FaRegFileExcel title="Export To Excel" size={25} />
-                    </Button>
-                    <Button
-                      appearance="default"
-                      onClick={() => dispatch(handleRefreshData(!refreshData))}
-                      color="blue"
-                    >
-                      <HiRefresh size={25} />
                     </Button>
                   </div>
                 </FlexboxGrid.Item>

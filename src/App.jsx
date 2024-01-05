@@ -1,47 +1,73 @@
 /* eslint-disable max-len */
-import React, { useContext } from 'react';
+import React, { useEffect, useContext, lazy, Suspense } from 'react';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import Application from './Components/AdminDasComponents/Application/Application';
-import LinkRules from './Components/AdminDasComponents/LinkRules/LinkRules';
-import Organization from './Components/AdminDasComponents/Organization/Organization';
-import Projects from './Components/AdminDasComponents/Projects/Projects';
-import Users from './Components/AdminDasComponents/Users/Users';
-import LinkManager from './Components/LinkManager/LinkManager';
-import NewLink from './Components/NewLink/NewLink';
-import ProtectedRoute from './Components/Shared/ProtectedRoute/ProtectedRoute';
-import './GlobalStyle.scss';
-import NotFound from './Pages/404';
-import AdminDashboard from './Pages/AdminDashboard';
-import Dashboard from './Pages/Dashboard';
-import LoginPage from './Pages/Login';
-import WbeDashboard from './Pages/WbeDashboard';
 import { useDispatch, useSelector } from 'react-redux';
-import { useEffect } from 'react';
+import * as Sentry from '@sentry/react';
 import { handleIsDarkMode } from './Redux/slices/navSlice';
+import AuthContext from './Store/Auth-Context';
 import { CustomProvider } from 'rsuite';
 import 'rsuite/dist/rsuite.min.css';
 import 'rsuite/styles/index.less';
-import SetPassword from './Components/Login/SetPassword';
-import Oauth2Success from './Components/Oauth2/oauth2Success.jsx';
-import Events from './Components/AdminDasComponents/Events/Events.jsx';
-// eslint-disable-next-line max-len
-import PipelineSecrets from './Components/AdminDasComponents/PipelineSecrets/PipelineSecrets';
-import Pipelines from './Components/AdminDasComponents/Pipelines/Pipelines.jsx';
-import PipelineRun from './Components/AdminDasComponents/PipelineRun/PipelineRun.jsx';
-import Pipeline from './Components/Pipeline/Pipeline.jsx';
-import WebBrowserExtension from './Components/WebBrowserExtension/WebBrowserExtension';
-// eslint-disable-next-line max-len
-import Oauth2Callback from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2Callback.jsx';
-import CytoscapeGraphView from './Components/CytoscapeGraphView/CytoscapeGraphView.jsx';
-import UserProfile from './Components/Login/UserProfile';
-// eslint-disable-next-line max-len
-import Oauth2TokenStatus from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2TokenStatus.jsx';
-import AuthContext from './Store/Auth-Context';
-import Home from './Components/Home/Home';
-// eslint-disable-next-line max-len
-import SynchronizationConfig from './Components/AdminDasComponents/MigrationConfig/SynchronizationConfig';
-import Synchronization from './Components/AdminDasComponents/MigrationConfig/Synchronization';
-import * as Sentry from '@sentry/react';
+import './GlobalStyle.scss';
+import ProtectedRoute from './Components/Shared/ProtectedRoute/ProtectedRoute';
+import Oauth2Success from './Components/Oauth2/oauth2Success';
+import Oauth2TokenStatus from './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2TokenStatus';
+import UseLoader from './Components/Shared/UseLoader';
+import RecoverEmailSent from './Components/Login/RecoverEmailSent.jsx';
+
+// lazy load components
+const Dashboard = lazy(() => import('./Pages/Dashboard'));
+const WbeDashboard = lazy(() => import('./Pages/WbeDashboard'));
+const Home = lazy(() => import('./Components/Home/Home'));
+const LinkManager = lazy(() => import('./Components/LinkManager/LinkManager'));
+const CytoscapeGraphView = lazy(() =>
+  import('./Components/CytoscapeGraphView/CytoscapeGraphView'),
+);
+const NewLink = lazy(() => import('./Components/NewLink/NewLink'));
+const LoginPage = lazy(() => import('./Pages/Login'));
+const SetPassword = lazy(() => import('./Components/Login/SetPassword'));
+const NotFound = lazy(() => import('./Pages/404'));
+
+// lazy load components admin components
+const Application = lazy(() =>
+  import('./Components/AdminDasComponents/Application/Application'),
+);
+const LinkRules = lazy(() =>
+  import('./Components/AdminDasComponents/LinkRules/LinkRules'),
+);
+const Organization = lazy(() =>
+  import('./Components/AdminDasComponents/Organization/Organization'),
+);
+const Projects = lazy(() => import('./Components/AdminDasComponents/Projects/Projects'));
+const Users = lazy(() => import('./Components/AdminDasComponents/Users/Users'));
+const PipelineSecrets = lazy(() =>
+  import('./Components/AdminDasComponents/PipelineSecrets/PipelineSecrets'),
+);
+const Pipelines = lazy(() =>
+  import('./Components/AdminDasComponents/Pipelines/Pipelines'),
+);
+const PipelineRun = lazy(() =>
+  import('./Components/AdminDasComponents/PipelineRun/PipelineRun'),
+);
+const Pipeline = lazy(() => import('./Components/Pipeline/Pipeline.jsx'));
+const WebBrowserExtension = lazy(() =>
+  import('./Components/WebBrowserExtension/WebBrowserExtension'),
+);
+const Oauth2Callback = lazy(() =>
+  import(
+    './Components/AdminDasComponents/ExternalAppIntegrations/Oauth2Callback/Oauth2Callback'
+  ),
+);
+const UserProfile = lazy(() => import('./Components/Login/UserProfile'));
+const SynchronizationConfig = lazy(() =>
+  import('./Components/AdminDasComponents/MigrationConfig/SynchronizationConfig'),
+);
+const Synchronization = lazy(() =>
+  import('./Components/AdminDasComponents/MigrationConfig/Synchronization'),
+);
+const ResourceDetails = lazy(() =>
+  import('./Components/AdminDasComponents/ResourceDetails/ResourceDetails.jsx'),
+);
 
 export const darkColor = '#1a1d24';
 export const darkBgColor = '#0f131a';
@@ -75,14 +101,13 @@ function App() {
   const authCtx = useContext(AuthContext);
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const isSuperAdmin = authCtx?.user?.role === 'super_admin' ? true : false;
-  const isAdmin = authCtx?.user?.role === 'admin' ? true : false;
+  const isSuperAdmin = authCtx?.user?.role === 'super_admin';
+  const isAdmin = authCtx?.user?.role === 'admin';
 
   useEffect(() => {
     const theme = localStorage.getItem('isDarkMode');
     dispatch(handleIsDarkMode(theme));
   }, []);
-  // eslint-disable-next-line max-len
   const organization = authCtx?.organization_name
     ? `/${authCtx?.organization_name?.toLowerCase()}`
     : '';
@@ -91,7 +116,6 @@ function App() {
     if (organization) {
       if (pathname === '/') navigate(organization);
       else if (pathname === '/wbe') navigate(`/wbe${organization}`);
-      else if (pathname === '/admin') navigate(`${organization}/admin`);
     }
   }, [pathname]);
 
@@ -101,7 +125,6 @@ function App() {
     // returning `null` will drop the event
     if (event?.exception?.values) {
       for (let error of event.exception.values) {
-        console.log(error);
         if (error?.value?.toLowerCase()?.includes('token does not match')) {
           authCtx?.logout();
           return null;
@@ -125,29 +148,79 @@ function App() {
         }}
       >
         <Routes>
+          <Route
+            path="/login"
+            element={
+              <Suspense fallback={<UseLoader />}>
+                <LoginPage />
+              </Suspense>
+            }
+          />
+          <Route path="/recover-email-sent" element={<RecoverEmailSent />} />
+          <Route
+            path="/set-password"
+            element={
+              <Suspense fallback={<UseLoader />}>
+                <SetPassword />
+              </Suspense>
+            }
+          />
+
           <Route path="/oauth2/callback" element={<Oauth2Callback />} />
           <Route path="/oauth2/status" element={<Oauth2TokenStatus />} />
+          <Route path="/oauth2-status" element={<Oauth2Success />} />
 
-          <Route path="/graph-cytoscape" element={<CytoscapeGraphView />} />
+          <Route
+            path="/graph-cytoscape"
+            element={
+              <Suspense fallback={<UseLoader />}>
+                <CytoscapeGraphView />
+              </Suspense>
+            }
+          />
           {/* This is WBE dashboard */}
           <Route
             path="/wbe"
             element={
               <ProtectedRoute>
-                <WbeDashboard />
+                <Suspense fallback={<UseLoader />}>
+                  <WbeDashboard />
+                </Suspense>
               </ProtectedRoute>
             }
           >
-            <Route path={`/wbe${organization}/new-link`} element={<NewLink />} />
-
+            <Route
+              path={`/wbe${organization}/new-link`}
+              element={
+                <Suspense fallback={<UseLoader />}>
+                  <NewLink />
+                </Suspense>
+              }
+            />
             <Route
               path={`/wbe${organization}/graph-view`}
-              element={<CytoscapeGraphView />}
+              element={
+                <Suspense fallback={<UseLoader />}>
+                  <CytoscapeGraphView />
+                </Suspense>
+              }
             />
-
-            <Route path={`/wbe${organization}/pipeline`} element={<Pipeline />} />
-
-            <Route path={`/wbe${organization}`} element={<LinkManager />} />
+            <Route
+              path={`/wbe${organization}/pipeline`}
+              element={
+                <Suspense fallback={<UseLoader />}>
+                  <Pipeline />
+                </Suspense>
+              }
+            />
+            <Route
+              path={`/wbe${organization}`}
+              element={
+                <Suspense fallback={<UseLoader />}>
+                  <LinkManager />
+                </Suspense>
+              }
+            />
           </Route>
 
           {/* This is Browser dashboard  */}
@@ -155,77 +228,186 @@ function App() {
             path={`${organization}/`}
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <Suspense fallback={<UseLoader />}>
+                  <Dashboard />
+                </Suspense>
               </ProtectedRoute>
             }
           >
-            <Route path={`${organization}/new-link`} element={<NewLink />} />
-            <Route path={`${organization}/graph-view`} element={<CytoscapeGraphView />} />
-            <Route path={`${organization}/pipeline`} element={<Pipeline />} />
-            <Route path={`${organization}/extension`} element={<WebBrowserExtension />} />
-            <Route path={`${organization}/profile`} element={<UserProfile />} />
-            <Route path={`${organization}/`} element={<Home />} />
+            <Route
+              path={`${organization}/new-link`}
+              element={
+                <Suspense fallback={<UseLoader />}>
+                  <NewLink />
+                </Suspense>
+              }
+            />
+            <Route
+              path={`${organization}/graph-view`}
+              element={
+                <Suspense fallback={<UseLoader />}>
+                  <CytoscapeGraphView />
+                </Suspense>
+              }
+            />
+            <Route
+              path={`${organization}/pipeline`}
+              element={
+                <Suspense fallback={<UseLoader />}>
+                  <Pipeline />
+                </Suspense>
+              }
+            />
+            <Route
+              path={`${organization}/extension`}
+              element={
+                <Suspense fallback={<UseLoader />}>
+                  <WebBrowserExtension />
+                </Suspense>
+              }
+            />
+            <Route
+              path={`${organization}/profile`}
+              element={
+                <Suspense fallback={<UseLoader />}>
+                  <UserProfile />
+                </Suspense>
+              }
+            />
+            <Route
+              path={`${organization}/`}
+              element={
+                <Suspense fallback={<UseLoader />}>
+                  <Home />
+                </Suspense>
+              }
+            />
+
+            <Route
+              path={`${organization}/project/:id`}
+              element={
+                <Suspense fallback={<UseLoader />}>
+                  <ResourceDetails type="project" />
+                </Suspense>
+              }
+            />
+
+            {/* ---- admin modules ---- */}
+            {(isAdmin || isSuperAdmin) && (
+              <>
+                {/* ---- display organization module if user is an super admin ---- */}
+                {isSuperAdmin && (
+                  <Route
+                    path={`${organization}/admin/organizations`}
+                    element={
+                      <Suspense fallback={<UseLoader />}>
+                        <Organization />
+                      </Suspense>
+                    }
+                  />
+                )}
+
+                <Route
+                  path={`${organization}/admin`}
+                  element={
+                    <Suspense fallback={<UseLoader />}>
+                      <Projects />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={`${organization}/admin/users`}
+                  element={
+                    <Suspense fallback={<UseLoader />}>
+                      <Users />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={`${organization}/admin/projects`}
+                  element={
+                    <Suspense fallback={<UseLoader />}>
+                      <Projects />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={`${organization}/admin/project/new`}
+                  element={
+                    <Suspense fallback={<UseLoader />}>
+                      <ResourceDetails type="project" newResource={true} />
+                    </Suspense>
+                  }
+                />
+
+                <Route
+                  path={`${organization}/project/:id/user-permissions`}
+                  element={
+                    <Suspense fallback={<UseLoader />}>
+                      <ResourceDetails type="project-permissions" />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={`${organization}/admin/link-rules`}
+                  element={
+                    <Suspense fallback={<UseLoader />}>
+                      <LinkRules />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={`${organization}/admin/integrations`}
+                  element={
+                    <Suspense fallback={<UseLoader />}>
+                      <Application />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={`${organization}/admin/pipelinessecrets`}
+                  element={
+                    <Suspense fallback={<UseLoader />}>
+                      <PipelineSecrets />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={`${organization}/admin/pipelines`}
+                  element={
+                    <Suspense fallback={<UseLoader />}>
+                      <Pipelines />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={`${organization}/admin/pipelinerun`}
+                  element={
+                    <Suspense fallback={<UseLoader />}>
+                      <PipelineRun />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={`${organization}/admin/synchronization`}
+                  element={
+                    <Suspense fallback={<UseLoader />}>
+                      <Synchronization />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path={`${organization}/admin/createsync`}
+                  element={
+                    <Suspense fallback={<UseLoader />}>
+                      <SynchronizationConfig />
+                    </Suspense>
+                  }
+                />
+              </>
+            )}
           </Route>
 
-          {/* This is admin dashboard  */}
-          {(isSuperAdmin || isAdmin) && (
-            <Route
-              path={`${organization}/admin`}
-              element={
-                <ProtectedRoute>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            >
-              {isSuperAdmin && (
-                <Route
-                  path={`${organization}/admin/organizations`}
-                  element={<Organization />}
-                />
-              )}
-
-              <Route path={`${organization}/admin/users`} element={<Users />} />
-
-              <Route
-                path={`${organization}/admin/integrations`}
-                element={<Application />}
-              />
-
-              <Route path={`${organization}/admin/projects`} element={<Projects />} />
-
-              <Route path={`${organization}/admin/link-rules`} element={<LinkRules />} />
-
-              <Route path={`${organization}/admin/events`} element={<Events />} />
-
-              <Route
-                path={`${organization}/admin/pipelinessecrets`}
-                element={<PipelineSecrets />}
-              />
-
-              <Route path={`${organization}/admin/pipelines`} element={<Pipelines />} />
-
-              <Route
-                path={`${organization}/admin/pipelinerun`}
-                element={<PipelineRun />}
-              />
-
-              <Route
-                path={`${organization}/admin/synchronization`}
-                element={<Synchronization />}
-              />
-
-              <Route
-                path={`${organization}/admin/createsync`}
-                element={<SynchronizationConfig />}
-              />
-
-              <Route path={`${organization}/admin`} element={<Users />} />
-            </Route>
-          )}
-
-          <Route path="/oauth2-status" element={<Oauth2Success />} />
-          <Route path="/set-password" element={<SetPassword />} />
-          <Route path="/login" element={<LoginPage />} />
           <Route path={`${organization}/*`} element={<NotFound />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

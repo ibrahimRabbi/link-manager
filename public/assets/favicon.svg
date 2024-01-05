@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" 
+     xmlns:xlink="http://www.w3.org/1999/xlink" 
+     width="213" height="120" 
+     viewBox="0 0 213 120" >
+  <defs>
+    <style>
+      .cls-1, .cls-2 {
+        fill: #fff;
+      }
+
+      .cls-1 {
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <rect width="72" height="120" x="0" y="0" style="fill:#205295;"/>
+  <rect width="72" height="120" x="71" y="0" style="fill:#144272;"/>
+  <rect width="71" height="120" x="142" y="0" style="fill:#0a2647;"/>
+  <path class="cls-1" d="M35 54 L 106.5 84 " stroke="white" stroke-width="7" fill="white"/>
+  <path class="cls-1" d="M106.5 84 L 177.5 42 " stroke="white" stroke-width="7" fill="white"/>
+  <circle id="Ellipse_1_copy_2" data-name="Ellipse 1 copy 2" class="cls-2" cx="35" cy="54" r="24"/>
+  <circle id="Ellipse_1_copy_4" data-name="Ellipse 1 copy 4" class="cls-2" cx="106.5" cy="74" r="24"/>
+  <circle id="Ellipse_1_copy_3" data-name="Ellipse 1 copy 3" class="cls-2" cx="177.5" cy="44" r="24"/>
+</svg>

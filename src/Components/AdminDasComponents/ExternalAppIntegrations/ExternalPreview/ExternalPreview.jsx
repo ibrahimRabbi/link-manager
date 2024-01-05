@@ -3,9 +3,7 @@ import AuthContext from '../../../../Store/Auth-Context.jsx';
 import { Button, Col, Divider, FlexboxGrid, Tooltip, Whisper } from 'rsuite';
 import Editor from '@monaco-editor/react';
 import hljs from 'highlight.js';
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCodeCommit, faFileCode } from '@fortawesome/free-solid-svg-icons';
+import { FaCodeCommit, FaFileCode } from 'react-icons/fa6';
 import CheckRoundIcon from '@rsuite/icons/CheckRound';
 import RemindFillIcon from '@rsuite/icons/RemindFill';
 import WarningRoundIcon from '@rsuite/icons/WarningRound';
@@ -41,7 +39,6 @@ const ExternalPreview = (props) => {
     props;
   let iconUrl = '';
   let iconToEvaluate = '';
-  console.log('nodeData', nodeData);
   if (nodeData?.application_type) {
     iconToEvaluate = nodeData?.application_type;
   } else {
@@ -71,13 +68,13 @@ const ExternalPreview = (props) => {
     iconUrl = '/dng_logo.png';
     break;
   case 'servicenow':
-    iconUrl = 'servicenow_logo.png';
+    iconUrl = '/servicenow_logo.png';
     break;
   case 'bitbucket':
-    iconUrl = 'bitbucket_logo.png';
+    iconUrl = '/bitbucket_logo.png';
     break;
   case 'github':
-    iconUrl = 'github_logo.png';
+    iconUrl = '/github_logo.png';
     break;
   default:
     iconUrl = '/default_preview_logo.svg';
@@ -112,13 +109,28 @@ const ExternalPreview = (props) => {
   };
 
   const sendToWebApplication = () => {
-    window.open(nodeData?.web_url ? nodeData?.web_url : nodeData?.id, '_blank');
+    window.open(nodeData?.uri ? nodeData?.uri : nodeData?.web_url_with_commit, '_blank');
   };
 
   const getExternalResourceData = (nodeData) => {
-    const requestMethod = nodeData?.application_type !== 'gitlab' ? 'GET' : 'POST';
+    const requestMethod = ['gitlab', 'bitbucket', 'github'].includes(
+      nodeData?.application_type,
+    )
+      ? 'POST'
+      : 'GET';
+    let externalResourceUrl = '';
+    if (nodeData?.api_url && nodeData?.api_url?.includes('?')) {
+      externalResourceUrl =
+        nodeData.api_url + `&application_id=${nodeData.application_id}`;
+    } else if (nodeData?.api_url) {
+      externalResourceUrl =
+        nodeData?.api_url + `?application_id=${nodeData.application_id}`;
+    } else {
+      externalResourceUrl = nodeData?.api_url;
+    }
+
     if (nodeData?.application_type && nodeData?.application_id) {
-      fetch(`${nodeData.api_url}?application_id=${nodeData.application_id}`, {
+      fetch(externalResourceUrl, {
         headers: {
           'Content-type': 'application/json',
           Authorization: `Bearer ${authCtx.token}`,
@@ -312,7 +324,7 @@ const ExternalPreview = (props) => {
             <PreviewRow
               name="Commit ID"
               value={nodeData?.commit_id}
-              titleIcon={<FontAwesomeIcon icon={faCodeCommit} className={iconStatus} />}
+              titleIcon={<FaCodeCommit className={iconStatus} />}
             />
           )}
           {nodeData?.branch_name && (
@@ -335,7 +347,7 @@ const ExternalPreview = (props) => {
             <FlexboxGrid justify="space-around">
               <FlexboxGrid.Item as={Col} colspan={24}>
                 <p className={title} style={{ marginBottom: '10px' }}>
-                  <FontAwesomeIcon icon={faFileCode} className={iconStatus} />
+                  <FaFileCode className={iconStatus} />
                   Selected code
                 </p>
               </FlexboxGrid.Item>

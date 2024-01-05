@@ -15,31 +15,19 @@ import {
 } from '../../../Redux/slices/navSlice';
 import AddNewModal from '../AddNewModal';
 import AdminDataTable from '../AdminDataTable';
-import {
-  FlexboxGrid,
-  Form,
-  Uploader,
-  Loader,
-  Schema,
-  Message,
-  toaster,
-  Drawer,
-} from 'rsuite';
+import { FlexboxGrid, Form, Uploader, Schema, Message, toaster, Drawer } from 'rsuite';
 import Editor from '@monaco-editor/react';
 import TextField from '../TextField';
 import { useRef } from 'react';
 import SelectField from '../SelectField.jsx';
 import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 import AlertModal from '../../Shared/AlertModal';
+import UseLoader from '../../Shared/UseLoader.jsx';
 
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 // demo data
 const headerData = [
-  {
-    header: 'ID',
-    key: 'id',
-  },
   {
     header: 'Script',
     key: 'filename',
@@ -47,6 +35,10 @@ const headerData = [
   {
     header: 'Event',
     key: 'event_name',
+  },
+  {
+    header: 'Trigger Endpoint',
+    key: 'trigger_endpoint',
   },
 ];
 
@@ -65,7 +57,6 @@ const Pipelines = () => {
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
 
   const model = Schema.Model({
-    organization_id: NumberType(),
     event_id: NumberType().isRequired('Event is required.'),
     script_path: isAdminEditing
       ? ObjectType()
@@ -78,7 +69,6 @@ const Pipelines = () => {
   const [formError, setFormError] = useState({});
   const [editData, setEditData] = useState({});
   const [formValue, setFormValue] = useState({
-    organization_id: '',
     event_id: 0,
     script_path: null,
     filename: '',
@@ -101,7 +91,7 @@ const Pipelines = () => {
   const pipelineFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const dispatch = useDispatch();
-
+  const organization_id = authCtx.organization_id;
   // Pagination
   const handlePagination = (value) => {
     setCurrPage(value);
@@ -128,7 +118,7 @@ const Pipelines = () => {
     if (!pipelineFormRef.current.check()) {
       return;
     } else if (isAdminEditing) {
-      const putUrl = `${lmApiUrl}/pipelines/${editData?.id}`;
+      const putUrl = `${lmApiUrl}/${organization_id}/pipeline/${editData?.id}`;
       dispatch(
         fetchUpdatePipeline({
           url: putUrl,
@@ -138,7 +128,7 @@ const Pipelines = () => {
         }),
       );
     } else {
-      const postUrl = `${lmApiUrl}/pipelines`;
+      const postUrl = `${lmApiUrl}/${organization_id}/pipeline`;
       dispatch(
         fetchCreatePipeline({
           url: postUrl,
@@ -157,7 +147,6 @@ const Pipelines = () => {
   const handleResetForm = () => {
     setEditData({});
     setFormValue({
-      organization_id: '',
       event_id: 0,
       script_path: null,
       filename: '',
@@ -166,8 +155,8 @@ const Pipelines = () => {
 
   useEffect(() => {
     dispatch(handleCurrPageTitle('Pipeline Configuration'));
-
-    const getUrl = `${lmApiUrl}/pipelines?page=${currPage}&per_page=${pageSize}`;
+    /* eslint-disable max-len */
+    const getUrl = `${lmApiUrl}/${organization_id}/pipeline?page=${currPage}&per_page=${pageSize}`;
     dispatch(
       fetchPipelines({
         url: getUrl,
@@ -193,6 +182,7 @@ const Pipelines = () => {
         return {
           id: pipeline.id,
           event_name: pipeline.event.name,
+          trigger_endpoint: pipeline.event.trigger_endpoint,
           filename: pipeline.filename,
         };
       });
@@ -204,7 +194,7 @@ const Pipelines = () => {
   };
   const handleConfirmed = (value) => {
     if (value) {
-      const deleteUrl = `${lmApiUrl}/pipelines/${deleteData?.id}`;
+      const deleteUrl = `${lmApiUrl}/${organization_id}/pipeline/${deleteData?.id}`;
       dispatch(
         fetchDeletePipeline({
           url: deleteUrl,
@@ -220,7 +210,6 @@ const Pipelines = () => {
     setEditData(data);
     dispatch(handleIsAdminEditing(true));
     setFormValue({
-      organization_id: data?.organization_id || Number(authCtx?.organization_id),
       event_id: data?.event_id,
       script_path: null,
       filename: data?.filename,
@@ -229,7 +218,7 @@ const Pipelines = () => {
   };
 
   const handleScriptView = (data) => {
-    const getScriptUrl = `${lmApiUrl}/pipelines/${data?.id}/script`;
+    const getScriptUrl = `${lmApiUrl}/${organization_id}/pipeline/${data?.id}/script`;
     dispatch(
       fetchPipelineScript({
         url: getScriptUrl,
@@ -276,26 +265,13 @@ const Pipelines = () => {
             model={model}
           >
             <FlexboxGrid justify="space-between">
-              <FlexboxGrid.Item colspan={24}>
-                <SelectField
-                  name="organization_id"
-                  label="Organization"
-                  value={Number(authCtx?.organization_id)}
-                  placeholder="Select Organization"
-                  accepter={CustomReactSelect}
-                  apiURL={`${lmApiUrl}/organization`}
-                  error={formError.organization_id}
-                  disabled
-                />
-              </FlexboxGrid.Item>
-
-              <FlexboxGrid.Item style={{ margin: '25px 0' }} colspan={24}>
+              <FlexboxGrid.Item style={{ marginBottom: '25px' }} colspan={24}>
                 <SelectField
                   placeholder="Select Event"
                   name="event_id"
                   label="Event"
                   accepter={CustomReactSelect}
-                  apiURL={`${lmApiUrl}/${authCtx.organization_id}/events`}
+                  apiURL={`${lmApiUrl}/${organization_id}/events`}
                   error={formError.event_id}
                   reqText="Event is required"
                 />
@@ -321,16 +297,7 @@ const Pipelines = () => {
         </div>
       </AddNewModal>
 
-      {isPipelineLoading && (
-        <Loader
-          backdrop
-          center
-          size="md"
-          vertical
-          content="Loading"
-          style={{ zIndex: '10' }}
-        />
-      )}
+      {isPipelineLoading && <UseLoader />}
       {/* confirmation modal  */}
       <AlertModal
         open={open}

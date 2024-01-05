@@ -28,10 +28,24 @@
 
 .title {
   text-align: center;
+  font-weight: 600;
 }
 
-.titleSpan {
-  font-weight: bold;
+.forgotLabel {
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.forgotLabel:hover {
+  color: #34c3ff;
+}
+
+.logoContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
 }
 
 .btnContainer button {
@@ -90,7 +104,7 @@
 }
 
 // responsive profile page
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 984px) {
   .profileMainContainer {
     margin-top: 50px;
     display: grid;
@@ -105,4 +119,13 @@
       margin-bottom: 20px;
     }
   }
+}
+
+.sendEmailMess {
+  margin-top: 20%;
+}
+
+.backLoginBtn {
+  display: flex;
+  justify-content: center;
 }

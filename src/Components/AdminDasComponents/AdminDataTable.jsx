@@ -1,11 +1,14 @@
 /* eslint-disable indent */
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { HiRefresh } from 'react-icons/hi';
+import { useSelector } from 'react-redux';
 import defaultLogo from './logo.png';
 import SuccessStatus from '@rsuite/icons/CheckRound';
 import FailedStatus from '@rsuite/icons/WarningRound';
 import InfoStatus from '@rsuite/icons/InfoRound';
+import { TbArrowsHorizontal } from 'react-icons/tb';
+import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
+import AddOutlineIcon from '@rsuite/icons/AddOutline';
+import { formatDistanceToNow } from 'date-fns';
 
 import {
   Table,
@@ -20,15 +23,16 @@ import {
 import { IconButton, ButtonToolbar } from 'rsuite';
 import SearchIcon from '@rsuite/icons/Search';
 import CloseIcon from '@rsuite/icons/Close';
-import { handleRefreshData } from '../../Redux/slices/navSlice';
 import { darkBgColor, lightBgColor } from '../../App';
-import { MdDelete, MdEdit, MdLock } from 'react-icons/md';
+import { MdDelete, MdEdit, MdEmail, MdLock } from 'react-icons/md';
 import { BiShowAlt } from 'react-icons/bi';
 import { PiEyeBold } from 'react-icons/pi';
 import { MdOutlineContentCopy } from 'react-icons/md';
-import { IoPlay } from 'react-icons/io5';
+import { IoPersonAddSharp, IoPersonRemoveSharp, IoPlay } from 'react-icons/io5';
 import { Icon } from '@rsuite/icons';
 import { FaSpinner } from 'react-icons/fa';
+import useMediaQuery from '../Shared/useMediaQeury';
+import { useNavigate } from 'react-router-dom';
 const { Column, HeaderCell, Cell } = Table;
 
 const getSourceTargetIcon = (iconKey) => {
@@ -60,17 +64,48 @@ const AdminDataTable = ({ props }) => {
     handleEdit,
     handleDelete,
     handleViewAccess,
+    handleResendEmailVerification,
     handleScriptView,
     handleSync,
     authorizeModal,
     totalItems,
     pageSize,
+    showResourceLink,
+    handleAddToResource,
+    addToResourceLabel,
+    handleRemoveFromResource,
+    removeFromResourceLabel,
+    registeredUsers,
+    showSearchBar,
+    showAddNewButton,
+    showActions,
+    showPagination,
+    minHeight,
   } = props;
-  const { isDark, refreshData } = useSelector((state) => state.nav);
+
+  const navigate = useNavigate();
+  const { isDark } = useSelector((state) => state.nav);
   const [tableFilterValue, setTableFilterValue] = useState('');
   const [displayTableData, setDisplayTableData] = useState([]);
+  const [displaySearchBar, setDisplaySearchBar] = useState(true);
+  const [displayAddNew, setDisplayAddNew] = useState(true);
+  const [showActionColumn] = useState(showActions !== false);
+  const [showPaginationBar] = useState(showPagination !== false);
   const [page, setPage] = useState(1);
-  const dispatch = useDispatch();
+  const isSmallDevice = useMediaQuery('(max-width: 985px)');
+
+  useEffect(() => {
+    if (showSearchBar || showSearchBar === undefined) {
+      setDisplaySearchBar(true);
+    } else {
+      setDisplaySearchBar(false);
+    }
+    if (showAddNewButton || showAddNewButton === undefined) {
+      setDisplayAddNew(true);
+    } else {
+      setDisplayAddNew(false);
+    }
+  }, []);
 
   useEffect(() => {
     handlePagination(page);
@@ -101,6 +136,23 @@ const AdminDataTable = ({ props }) => {
     }
   };
 
+  // display date time ago format
+  const TimeAgo = ({ date }) => {
+    const now = new Date();
+    const timeAgo = formatDistanceToNow(new Date(date), { addSuffix: true });
+
+    // Customize the output for recent times
+    if (now - new Date(date) < 60 * 1000) {
+      // If less than 1 minute ago
+      return <span>{Math.floor((now - new Date(date)) / 1000)} seconds ago</span>;
+    } else if (now - new Date(date) < 3600 * 1000) {
+      // If less than 1 hour ago
+      return <span>{Math.floor((now - new Date(date)) / (60 * 1000))} minutes ago</span>;
+    } else {
+      return <span>{timeAgo}</span>;
+    }
+  };
+
   // Action cell
   // Action table cell control
   const ActionMenu = ({ rowData }) => {
@@ -109,6 +161,10 @@ const AdminDataTable = ({ props }) => {
     };
     const viewAccess = () => {
       handleViewAccess(rowData);
+    };
+
+    const resendEmailVerification = () => {
+      handleResendEmailVerification(rowData);
     };
 
     const deleteSelected = () => {
@@ -128,6 +184,37 @@ const AdminDataTable = ({ props }) => {
     };
     const syncSelected = () => {
       handleSync(rowData);
+    };
+
+    const addToResource = () => {
+      handleAddToResource(rowData);
+    };
+    const removeFromResource = () => {
+      handleRemoveFromResource(rowData);
+    };
+
+    const addRemoveResourceButton = (rowData) => {
+      if (handleAddToResource && handleRemoveFromResource) {
+        if (rowData?.id && registeredUsers?.includes(rowData?.id)) {
+          return (
+            <IconButton
+              size="sm"
+              title={removeFromResourceLabel}
+              icon={<IoPersonRemoveSharp />}
+              onClick={removeFromResource}
+            />
+          );
+        } else {
+          return (
+            <IconButton
+              size="sm"
+              title={addToResourceLabel}
+              icon={<IoPersonAddSharp />}
+              onClick={addToResource}
+            />
+          );
+        }
+      }
     };
 
     return (
@@ -151,6 +238,15 @@ const AdminDataTable = ({ props }) => {
         {handleEdit && (
           <IconButton size="sm" title="Edit" icon={<MdEdit />} onClick={editSelected} />
         )}
+        {handleResendEmailVerification && (
+          <IconButton
+            size="sm"
+            title="Send verfication email"
+            disabled={rowData.verified}
+            icon={<MdEmail />}
+            onClick={resendEmailVerification}
+          />
+        )}
         {handleViewAccess && (
           <IconButton size="sm" title="View" icon={<BiShowAlt />} onClick={viewAccess} />
         )}
@@ -170,6 +266,7 @@ const AdminDataTable = ({ props }) => {
             onClick={syncSelected}
           />
         )}
+        {addRemoveResourceButton(rowData)}
         {authorizeModal && (
           <IconButton
             size="sm"
@@ -193,12 +290,40 @@ const AdminDataTable = ({ props }) => {
     syncStatus,
     sourceIcon,
     targetIcon,
-    syncTime,
+    timesAgo,
+    showResourceLink,
+    directKey,
     ...props
   }) => {
     const logo = rowData[iconKey] ? rowData[iconKey] : defaultLogo;
     const sourceLogo = sourceIcon && getSourceTargetIcon(rowData[sourceIcon]);
     const targetLogo = targetIcon && getSourceTargetIcon(rowData[targetIcon]);
+
+    const getLabelRow = (rowData, dataKey, link) => {
+      if (dataKey && link) {
+        if (dataKey === 'name') {
+          return (
+            <p
+              className="textHover"
+              style={{
+                marginLeft: '5px',
+                cursor: 'pointer',
+              }}
+              onClick={() => {
+                navigate(`${link}/${rowData['id']}`);
+              }}
+            >
+              {rowData[dataKey]}
+            </p>
+          );
+        } else {
+          return <p style={{ marginLeft: '5px' }}>{rowData[dataKey]}</p>;
+        }
+      } else {
+        return <p style={{ marginLeft: '5px' }}>{rowData[dataKey]}</p>;
+      }
+    };
+
     return (
       <Cell {...props}>
         {/* display logo  */}
@@ -238,9 +363,27 @@ const AdminDataTable = ({ props }) => {
             }}
           />
         )}
+        {directKey && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
+            <h5>
+              {rowData[directKey] === false ? (
+                <HiOutlineArrowNarrowRight style={{ fontSize: '30px' }} />
+              ) : (
+                <TbArrowsHorizontal style={{ fontSize: '30px' }} />
+              )}
+            </h5>
+          </div>
+        )}
 
         {/* display row data  */}
-        {dataKey && <p style={{ marginLeft: '5px' }}>{rowData[dataKey]}</p>}
+        {/* eslint-disable-next-line max-len */}
+        {getLabelRow(rowData, dataKey, showResourceLink)}
 
         {/* display status data  */}
         {statusKey && (
@@ -295,7 +438,8 @@ const AdminDataTable = ({ props }) => {
             <p style={{ marginTop: '2px' }}>{rowData[statusKey]}</p>
           </div>
         )}
-        {syncTime && (
+
+        {timesAgo && (
           <div
             style={{
               display: 'flex',
@@ -304,11 +448,15 @@ const AdminDataTable = ({ props }) => {
             }}
           >
             <p>
-              {rowData[syncTime] !== null
-                ? new Date(rowData[syncTime]).toLocaleString('en-US', {
+              {rowData[timesAgo] !== null || rowData[timesAgo] !== undefined ? (
+                <TimeAgo
+                  date={new Date(rowData[timesAgo]).toLocaleString('en-US', {
                     hour12: true,
-                  })
-                : 'Never'}
+                  })}
+                />
+              ) : (
+                'Never'
+              )}
             </p>
           </div>
         )}
@@ -354,24 +502,16 @@ const AdminDataTable = ({ props }) => {
         style={{
           backgroundColor: isDark == 'dark' ? darkBgColor : lightBgColor,
           marginTop: '20px',
-          padding: '10px',
+          padding: '10px 0',
         }}
       >
-        <FlexboxGrid.Item>
-          {handleAddNew && title === 'Synchronization' ? (
-            <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
-              Create New Sync
-            </Button>
-          ) : (
-            <Button appearance="primary" onClick={() => handleAddNew()} color="blue">
-              Add New
-            </Button>
-          )}
-        </FlexboxGrid.Item>
-
-        <FlexboxGrid.Item>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <InputGroup size="lg" inside style={{ width: '400px' }}>
+        {displaySearchBar && (
+          <FlexboxGrid.Item>
+            <InputGroup
+              size="lg"
+              inside
+              style={{ width: isSmallDevice ? '100%' : '400px' }}
+            >
               <Input
                 placeholder={'Search...'}
                 value={tableFilterValue}
@@ -387,19 +527,25 @@ const AdminDataTable = ({ props }) => {
                 </InputGroup.Button>
               )}
             </InputGroup>
-
-            <Button
-              appearance="default"
-              onClick={() => dispatch(handleRefreshData(!refreshData))}
-              color="blue"
-            >
-              <HiRefresh size={25} />
+          </FlexboxGrid.Item>
+        )}
+        {displayAddNew && handleAddNew && (
+          <FlexboxGrid.Item>
+            <Button appearance="primary" color="blue" onClick={() => handleAddNew()}>
+              {handleAddNew && isSmallDevice ? (
+                <AddOutlineIcon />
+              ) : title === 'Synchronization' ? (
+                'Create New Sync'
+              ) : (
+                'Add New'
+              )}
             </Button>
-          </div>
-        </FlexboxGrid.Item>
+          </FlexboxGrid.Item>
+        )}
       </FlexboxGrid>
 
       <Table
+        minHeight={minHeight}
         autoHeight
         bordered
         headerHeight={50}
@@ -424,6 +570,7 @@ const AdminDataTable = ({ props }) => {
                 alignItems: 'center',
               }}
               dataKey={header?.key}
+              timesAgo={header?.timesAgo}
               iconKey={header?.iconKey}
               sourceIcon={header?.source_icon}
               targetIcon={header?.target_icon}
@@ -431,46 +578,49 @@ const AdminDataTable = ({ props }) => {
               pipelinerunkey={header?.pipelinerunkey}
               buttonKey={header?.buttonKey}
               syncStatus={header?.syncStatus}
-              syncTime={header?.syncTime}
+              showResourceLink={showResourceLink}
+              directKey={header?.directKey}
             />
           </Column>
         ))}
 
         {/* -- action --  */}
-
-        <Column width={140} align="left">
-          <HeaderCell>
-            <h5>Action</h5>
-          </HeaderCell>
-          <Cell
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            {(rowData) => <ActionMenu rowData={rowData} />}
-          </Cell>
-        </Column>
+        {showActionColumn && (
+          <Column width={140} align="left">
+            <HeaderCell>
+              <h5>Action</h5>
+            </HeaderCell>
+            <Cell
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              {(rowData) => <ActionMenu rowData={rowData} />}
+            </Cell>
+          </Column>
+        )}
       </Table>
-
-      <Pagination
-        style={{ backgroundColor: isDark == 'dark' ? darkBgColor : lightBgColor }}
-        prev
-        next
-        first
-        last
-        ellipsis
-        boundaryLinks
-        maxButtons={2}
-        size="lg"
-        layout={['-', 'total', '|', 'limit', 'pager']}
-        total={totalItems ? totalItems : 0}
-        limitOptions={[5, 10, 25, 50, 100]}
-        limit={pageSize}
-        activePage={page}
-        onChangePage={setPage}
-        onChangeLimit={(v) => handleChangeLimit(v)}
-      />
+      {showPaginationBar && (
+        <Pagination
+          style={{ backgroundColor: isDark == 'dark' ? darkBgColor : lightBgColor }}
+          prev
+          next
+          first
+          last
+          ellipsis
+          boundaryLinks
+          maxButtons={2}
+          size="lg"
+          layout={['-', 'total', '|', 'limit', 'pager']}
+          total={totalItems ? totalItems : 0}
+          limitOptions={[5, 10, 25, 50, 100]}
+          limit={pageSize}
+          activePage={page}
+          onChangePage={setPage}
+          onChangeLimit={(v) => handleChangeLimit(v)}
+        />
+      )}
     </div>
   );
 };

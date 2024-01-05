@@ -14,13 +14,18 @@ import {
   Loader,
   useToaster,
   Message,
+  Tooltip,
+  Whisper,
 } from 'rsuite';
 import TextField from '../AdminDasComponents/TextField.jsx';
 import PasswordField from '../AdminDasComponents/PasswordField.jsx';
 import { handleGetSources } from '../../Redux/slices/linksSlice.jsx';
 import fetchAPIRequest from '../../apiRequests/apiRequest.js';
+import AddNewModal from '../AdminDasComponents/AddNewModal.jsx';
+import { handleIsAddNewModal } from '../../Redux/slices/navSlice.jsx';
+import { useMutation } from '@tanstack/react-query';
 
-const { titleSpan, main, title } = style;
+const { titleSpan, main, title, forgotLabel, logoContainer } = style;
 const loginURL = `${import.meta.env.VITE_LM_REST_API_URL}/auth/login`;
 const { StringType } = Schema.Types;
 
@@ -32,15 +37,26 @@ const model = Schema.Model({
     }, 'Password should include at least 5 characters')
     .isRequired('Password is required.'),
 });
+const resetModel = Schema.Model({
+  email: StringType()
+    .isEmail('Please enter a valid email address.')
+    .isRequired('This field is required.'),
+});
 
 const Login = () => {
   const { isWbe, sourceDataList } = useSelector((state) => state.links);
+  const { isDark } = useSelector((state) => state.nav);
   const [isLoading, setIsLoading] = useState(false);
-  const [setFormError] = useState({});
+  const [resetFormError, setResetFormError] = useState({});
   const [formValue, setFormValue] = useState({
     userName: '',
     password: '',
   });
+  const [resetForm, setResetForm] = useState({
+    email: '',
+  });
+
+  const resetFormRef = useRef();
   const loginFormRef = useRef();
   const authCtx = useContext(AuthContext);
   const location = useLocation();
@@ -147,17 +163,21 @@ const Login = () => {
           // Manage redirect
           if (location.state) {
             const redirectPath = location.state.from.pathname;
-            const isAdminDashboard = redirectPath?.includes('/admin');
 
-            // if redirect path is admin dashboard & user is not a admin.
-            if (isAdminDashboard && role === 'user') {
-              navigate(orgName ? orgName : '/');
+            if (role.includes('admin')) {
+              if (isSource || location.state.from.pathname.includes('wbe')) {
+                navigate('/wbe');
+              } else {
+                navigate(orgName + '/admin');
+              }
             } else {
-              navigate(redirectPath);
+              if (redirectPath.includes('admin')) navigate(orgName ? orgName : '/');
+              else {
+                navigate(redirectPath);
+              }
             }
           } else {
-            if (isSource) navigate('/wbe' + orgName);
-            else if (isWbe) navigate('/wbe' + orgName);
+            if (isSource || isWbe) navigate('/wbe' + orgName);
             else {
               navigate(orgName ? orgName : '/');
             }
@@ -194,6 +214,33 @@ const Login = () => {
     }
   };
 
+  // send request to forgot password using react query
+  const { mutate: forgotPassMutate } = useMutation(() =>
+    fetchAPIRequest({
+      urlPath: 'user/forgot_password',
+      token: '',
+      method: 'POST',
+      body: { email: resetForm?.email },
+    }),
+  );
+
+  // password reset submit
+  const handleResetPass = () => {
+    if (!resetFormRef.current.check()) {
+      return;
+    }
+    forgotPassMutate();
+    navigate('/recover-email-sent');
+    dispatch(handleIsAddNewModal(false));
+    handleResetResetPassForm();
+  };
+
+  const handleResetResetPassForm = () => {
+    setTimeout(() => {
+      setResetForm({ email: '' });
+    }, 1000);
+  };
+
   return (
     <div className={main}>
       {isLoading && (
@@ -202,35 +249,54 @@ const Login = () => {
           center
           size="md"
           vertical
-          content="Authenticating"
+          content={isLoading ? 'Authenticating' : ''}
           style={{ zIndex: '10' }}
         />
       )}
 
       <FlexboxGrid justify="center" align="middle">
         <FlexboxGrid.Item as={Col} colspan={16} md={14} lg={12} xl={10} xxl={8}>
-          <Panel
-            header={
-              <h3 className={title}>
-                TraceLynx
-                <br />
-                <span className={titleSpan}>Please Login</span>
-              </h3>
-            }
-            bordered
-          >
+          <Panel bordered>
+            <div style={{ marginBottom: '20px' }}>
+              <h2 className={title}>
+                <span className={titleSpan}>Sign in</span>
+              </h2>
+              <div className={logoContainer}>
+                <img
+                  src={window.location.origin + '/traceLynx_logo.svg'}
+                  height={30}
+                  alt="TL_logo"
+                />
+                <h2 className={title}>
+                  <span
+                    style={{
+                      color: isDark === 'dark' ? '#3491e2' : '#2c74b3',
+                    }}
+                  >
+                    Trace
+                  </span>
+                  <span
+                    style={{
+                      color: isDark === 'dark' ? '#1d69ba' : '#144272',
+                    }}
+                  >
+                    Lynx
+                  </span>
+                </h2>
+              </div>
+            </div>
+
             <Form
               fluid
               ref={loginFormRef}
               onChange={setFormValue}
-              check={setFormError}
               formValue={formValue}
               model={model}
             >
               <TextField
                 name="userName"
                 type="text"
-                label="User Name"
+                label="Username"
                 reqText="User name is required"
               />
 
@@ -240,6 +306,22 @@ const Login = () => {
                 label="Password"
                 reqText="Password is required"
               />
+
+              <div style={{ display: 'flex', justifyContent: 'start' }}>
+                <Whisper
+                  placement="bottom"
+                  controlId="control-id-hover"
+                  trigger="hover"
+                  speaker={<Tooltip>Reset your password</Tooltip>}
+                >
+                  <p
+                    className={forgotLabel}
+                    onClick={() => dispatch(handleIsAddNewModal(true))}
+                  >
+                    Forgot password?
+                  </p>
+                </Whisper>
+              </div>
 
               <Button
                 color="blue"
@@ -255,6 +337,37 @@ const Login = () => {
           </Panel>
         </FlexboxGrid.Item>
       </FlexboxGrid>
+
+      {/* handle reset password modal */}
+      <AddNewModal
+        title={'Reset Password'}
+        handleSubmit={handleResetPass}
+        handleReset={handleResetResetPassForm}
+        size={'sm'}
+        submitBtnText={'Send recovery email'}
+      >
+        <Form
+          fluid
+          ref={resetFormRef}
+          onChange={setResetForm}
+          formValue={resetForm}
+          onCheck={setResetFormError}
+          model={resetModel}
+        >
+          <p style={{ marginBottom: '25px' }}>
+            Enter your email address and we will email you the instructions to reset your
+            password.
+          </p>
+
+          <TextField
+            name="email"
+            type="email"
+            label="Email address: "
+            reqText="Email is required!"
+            error={resetFormError.email}
+          />
+        </Form>
+      </AddNewModal>
     </div>
   );
 };

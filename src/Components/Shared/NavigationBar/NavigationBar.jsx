@@ -1,13 +1,12 @@
 import React, { useContext, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { handleIsDarkMode, handleIsProfileOpen } from '../../../Redux/slices/navSlice';
 import AuthContext from '../../../Store/Auth-Context.jsx';
-import koneksysLogo from './koneksys_logo.png';
-import DashboardIcon from '@rsuite/icons/Dashboard';
 import {
   Avatar,
   Button,
+  FlexboxGrid,
   Message,
   Nav,
   Navbar,
@@ -21,6 +20,7 @@ import { ImBrightnessContrast } from 'react-icons/im';
 import { darkColor, lightBgColor } from '../../../App';
 import AlertModal from '../AlertModal';
 import styles from './NavigationBar.module.scss';
+import { VscProject } from 'react-icons/vsc';
 
 const { popoverContainer, userContainer, popButton, navbarBrand } = styles;
 
@@ -28,6 +28,7 @@ const NavigationBar = () => {
   const authCtx = useContext(AuthContext);
   const { currPageTitle, isDark, isProfileOpen } = useSelector((state) => state.nav);
   const [open, setOpen] = useState(false);
+  const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const toaster = useToaster();
@@ -39,12 +40,12 @@ const NavigationBar = () => {
     dispatch(handleIsProfileOpen(!isProfileOpen));
     setOpen(true);
   };
-  const handleConfirmed = (value) => {
+  const handleConfirmed = async (value) => {
     if (value) {
       authCtx.logout();
       const message = (
         <Message closable showIcon type="success">
-          Logut successfull
+          Logout successful
         </Message>
       );
       toaster.push(message, { placement: 'bottomCenter', duration: 5000 });
@@ -76,9 +77,9 @@ const NavigationBar = () => {
       icon: <BiUserCircle size={18} style={{ marginRight: '-1px' }} />,
     },
     {
-      label: 'Admin Dashboard',
-      path: organization + '/admin',
-      icon: <DashboardIcon size={17} />,
+      label: 'Projects',
+      path: organization + '/admin/projects',
+      icon: <VscProject size={18} />,
     },
     { label: darkModeText, path: '', icon: <ImBrightnessContrast size={17} /> },
     { label: 'Logout', path: '', icon: <BiLogOut size={17} /> },
@@ -90,7 +91,12 @@ const NavigationBar = () => {
       className={popoverContainer}
       title={
         <div className={userContainer}>
-          <Avatar size="md" circle src={'./default_avatar.jpg'} alt="User" />
+          <Avatar
+            size="md"
+            circle
+            src={window.location.origin + '/default_avatar.png'}
+            alt="User"
+          />
           <div>
             <h6>{userInfo?.name ? userInfo?.name : 'First Name Last Name'}</h6>
             <p>{userInfo?.email ? userInfo?.email : 'Email'}</p>
@@ -99,12 +105,25 @@ const NavigationBar = () => {
       }
     >
       {popItems.map((item, index) => {
-        if (item?.path === organization + '/admin') {
+        // hide admin dashboard module if the user not an admin
+        if (item?.path === organization + '/admin/projects') {
           if (isAdmin || isSuperAdmin) {
             // display dashboard option
           } else {
             return null;
           }
+        }
+        // hide admin dashboard module if the user already in the admin dashboard
+        if (item.label === 'Admin Dashboard' && location.pathname.includes('/admin')) {
+          return null;
+        }
+        // hide admin dashboard module if the user already in the admin dashboard
+        if (item.label === 'Projects' && location.pathname.includes('/admin')) {
+          return null;
+        }
+        // hide homepage module if the user is not in the admin dashboard
+        else if (item.label === 'Homepage' && !location.pathname.includes('/admin')) {
+          return null;
         }
         return (
           <Button
@@ -141,54 +160,58 @@ const NavigationBar = () => {
           content={'You want to logout!'}
           handleConfirmed={handleConfirmed}
         />
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <Navbar.Brand
-            onClick={() => navigate(organization ? organization : '/')}
-            className={navbarBrand}
-          >
-            <img height={30} src={koneksysLogo} alt="Logo" />
-            <h3>
-              <span
-                style={{
-                  color: isDark === 'dark' ? '#44a5fa' : '#2c74b3',
-                }}
+        <div>
+          <FlexboxGrid align="middle">
+            <FlexboxGrid.Item colspan={5}>
+              <Navbar.Brand
+                onClick={() => navigate(organization ? organization : '/')}
+                className={navbarBrand}
               >
-                Trace
-              </span>
-              <span
-                style={{
-                  color: isDark === 'dark' ? '#217ada' : '  #144272',
-                }}
-              >
-                Lynx{' '}
-              </span>
+                <img
+                  height={30}
+                  alt="TraceLynx"
+                  src={window.location.origin + '/traceLynx_logo.svg'}
+                />
+                <h2 style={{ fontWeight: '600' }}>
+                  <span
+                    style={{
+                      color: isDark === 'dark' ? '#3491e2' : '#2c74b3',
+                    }}
+                  >
+                    Trace
+                  </span>
+                  <span
+                    style={{
+                      color: isDark === 'dark' ? '#1d69ba' : '#144272',
+                    }}
+                  >
+                    Lynx
+                  </span>
+                </h2>
+              </Navbar.Brand>
+            </FlexboxGrid.Item>
+            <FlexboxGrid.Item colspan={18}>
+              <Nav>
+                <h5 style={{ textAlign: 'center' }}>{currPageTitle}</h5>
+              </Nav>
+            </FlexboxGrid.Item>
 
-              <span> - {authCtx?.organization_name}</span>
-            </h3>
-          </Navbar.Brand>
-          <Nav>
-            <h3 style={{ textAlign: 'center' }}>{currPageTitle}</h3>
-          </Nav>
-
-          <Nav style={{ padding: '5px 20px 0 0' }}>
-            <Whisper
-              placement="bottomEnd"
-              trigger="click"
-              controlId="control-id-hover-enterable"
-              speaker={speaker}
-              enterable
-            >
-              <Button data-cy="profile-options-btn">
-                <BiUserCircle size={30} />
-              </Button>
-            </Whisper>
-          </Nav>
+            <FlexboxGrid.Item colspan={1} style={{ marginLeft: '-15px' }}>
+              <Nav style={{ padding: '5px 20px 0 0' }}>
+                <Whisper
+                  placement="bottomEnd"
+                  trigger="click"
+                  controlId="control-id-hover-enterable"
+                  speaker={speaker}
+                  enterable
+                >
+                  <Button data-cy="profile-options-btn">
+                    <BiUserCircle size={30} />
+                  </Button>
+                </Whisper>
+              </Nav>
+            </FlexboxGrid.Item>
+          </FlexboxGrid>
         </div>
       </div>
     </>

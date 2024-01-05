@@ -13,7 +13,10 @@ const WbeDashboard = () => {
         <div style={{ position: 'fixed' }}>
           <SideNavBar isWbe={true} />
         </div>
-        <div className={isSidebarOpen ? 'show_nav' : 'hide_nav'}>
+        <div
+          className={isSidebarOpen ? 'show_nav' : 'hide_nav'}
+          style={{ padding: '0 1vw' }}
+        >
           <Outlet />
         </div>
       </Container>

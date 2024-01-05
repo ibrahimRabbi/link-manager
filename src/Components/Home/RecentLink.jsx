@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux';
 import ExternalPreview from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreview.jsx';
 // eslint-disable-next-line max-len
 import { showOslcData } from '../AdminDasComponents/ExternalAppIntegrations/ExternalPreview/ExternalPreviewConfig.jsx';
+import { addNodeLabel } from '../CytoscapeGraphView/Graph.jsx';
 const {
   table_row_dark,
   table_row_light,
@@ -21,43 +22,23 @@ const {
   styled_table,
 } = cssStyles;
 
-// OSLC API URLs
-const jiraURL = `${import.meta.env.VITE_JIRA_DIALOG_URL}`;
-const gitlabURL = `${import.meta.env.VITE_GITLAB_DIALOG_URL}`;
-const glideURL = `${import.meta.env.VITE_GLIDE_DIALOG_URL}`;
-const valispaceURL = `${import.meta.env.VITE_VALISPACE_DIALOG_URL}`;
-const codebeamerURL = `${import.meta.env.VITE_CODEBEAMER_DIALOG_URL}`;
-
 const RecentLink = ({ recentCreatedLinks }) => {
   const { data } = recentCreatedLinks;
   const { isDark } = useSelector((state) => state.nav);
 
   // target cell
-  const targetCell = (row) => {
-    const rowData = row?.original?.target;
-    const status = row?.original?.link?.status;
-    // OSLC API URL Receiving conditionally
-    const oslcObj = { URL: '' };
-    if (
-      rowData?.provider?.toLowerCase() === 'jira' ||
-      rowData?.provider?.toLowerCase() === 'jira-projects'
-    ) {
-      oslcObj['URL'] = jiraURL;
-    } else if (rowData?.provider?.toLowerCase() === 'gitlab') {
-      oslcObj['URL'] = gitlabURL;
-    } else if (rowData?.provider?.toLowerCase() === 'glide') {
-      oslcObj['URL'] = glideURL;
-    } else if (rowData?.provider?.toLowerCase() === 'valispace') {
-      oslcObj['URL'] = valispaceURL;
-    } else if (rowData?.provider?.toLowerCase() === 'codebeamer') {
-      oslcObj['URL'] = codebeamerURL;
+  const targetCell = (rowData, status = null) => {
+    if (rowData.properties?.selected_lines === 'None') {
+      rowData.properties.selected_lines = '';
     }
+    // const status = row?.original?.link?.properties?.status;
+    // OSLC API URL Receiving conditionally
 
     const speaker = (rowData, native = false) => {
       if (rowData && native) {
         return (
           <Popover>
-            <ExternalPreview nodeData={rowData} status={status} />
+            <ExternalPreview nodeData={rowData?.properties} status={status} />
           </Popover>
         );
       } else {
@@ -75,24 +56,24 @@ const RecentLink = ({ recentCreatedLinks }) => {
           trigger="hover"
           enterable
           placement="auto"
-          speaker={rowData?.api ? speaker(rowData, true) : speaker(rowData)}
+          speaker={
+            rowData?.properties?.application_type
+              ? speaker(rowData, true)
+              : speaker(rowData)
+          }
           delayOpen={550}
           delayClose={550}
         >
           <a
-            href={rowData?.api ? rowData?.web_url : rowData?.id}
+            href={
+              rowData?.properties?.application_type
+                ? rowData?.properties?.web_url
+                : rowData?.properties?.uri
+            }
             target="_blank"
             rel="noopener noreferrer"
           >
-            {rowData?.selected_lines
-              ? rowData?.name?.length > 15
-                ? rowData?.name?.slice(0, 15 - 1) +
-                  '...' +
-                  ' [' +
-                  rowData?.selected_lines +
-                  ']'
-                : rowData?.name + ' [' + rowData?.selected_lines + ']'
-              : rowData?.name}
+            {addNodeLabel(rowData?.properties?.name, rowData?.properties?.selected_lines)}
           </a>
         </Whisper>
       </div>
@@ -100,7 +81,7 @@ const RecentLink = ({ recentCreatedLinks }) => {
   };
 
   const statusCell = (info) => {
-    const status = info?.row?.original?.link?.status;
+    const status = info?.row?.original?.link?.properties?.status;
     return (
       <div className={dataCell}>
         <h5 className={statusIcon}>
@@ -128,13 +109,10 @@ const RecentLink = ({ recentCreatedLinks }) => {
             <h6>Source</h6>
           </div>
         ),
-        cell: ({ row }) => (
-          <p style={{ fontSize: '20px' }}>
-            {row?.original?.source?.name.length > 100
-              ? `${row?.original?.source?.name.slice(0, 100)}...`
-              : row?.original?.source?.name}
-          </p>
-        ),
+        cell: ({ row }) => {
+          const rowData = row?.original?.source;
+          return targetCell(rowData);
+        },
         footer: (props) => props.column.id,
       },
       {
@@ -147,6 +125,9 @@ const RecentLink = ({ recentCreatedLinks }) => {
             </div>
           );
         },
+        cell: ({ row }) => (
+          <p style={{ fontSize: '17px' }}>{row?.original?.link?.label}</p>
+        ),
         footer: (props) => props.column.id,
       },
       {
@@ -156,7 +137,11 @@ const RecentLink = ({ recentCreatedLinks }) => {
             <h6>Target</h6>
           </div>
         ),
-        cell: ({ row }) => targetCell(row),
+        cell: ({ row }) => {
+          const rowData = row?.original?.target;
+          const status = row?.original?.link?.properties?.status;
+          return targetCell(rowData, status);
+        },
         footer: (props) => props.column.id,
       },
       {

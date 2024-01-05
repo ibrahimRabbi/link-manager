@@ -4,15 +4,7 @@ import React from 'react';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { handleCurrPageTitle } from '../../../Redux/slices/navSlice';
-import {
-  Button,
-  ButtonToolbar,
-  Checkbox,
-  Col,
-  FlexboxGrid,
-  Message,
-  toaster,
-} from 'rsuite';
+import { Button, ButtonToolbar, Col, FlexboxGrid, Message, toaster } from 'rsuite';
 import { useState } from 'react';
 import ExternalAppModal from '../ExternalAppIntegrations/ExternalAppModal/ExternalAppModal';
 import {
@@ -30,7 +22,6 @@ import { HiOutlineArrowNarrowRight } from 'react-icons/hi';
 import PropertyTable from './PropertyTable';
 import EnumValueTable from './EnumValueTable';
 import UseCustomProjectSelect from './UseCustomProjectSelect';
-import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 import { useNavigate } from 'react-router-dom';
 import DirectionSelect from './DirectionSelect';
 
@@ -66,7 +57,6 @@ const SynchronizationConfig = () => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [sourceResourceType, setSourceResourceType] = useState('');
   const [targetResourceType, setTargetResourceType] = useState('');
-  const [disabledDropdown, setDisabledDropdown] = useState(false);
   const [propertyShow, setPropertyShow] = useState(false);
   const [selectDirection, setSelectDirection] = useState('');
   const [sourceProperties, setSourceProperties] = useState([]);
@@ -76,7 +66,8 @@ const SynchronizationConfig = () => {
   const [sourceProperty, setSourceProperty] = useState('');
   const [targetProperty, setTargetProperty] = useState('');
   const [showAddEnum, setShowAddEnum] = useState(false);
-  const [targetWorkspace, setTargetWorkspace] = useState('');
+  const [directions, setDirections] = useState(true);
+  const [defaultProperty, setDefaultProperty] = useState('');
   const broadcastChannel = new BroadcastChannel('oauth2-app-status');
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -119,14 +110,23 @@ const SynchronizationConfig = () => {
   useEffect(() => {
     dispatch(handleCurrPageTitle('Synchronization Configuration'));
   }, []);
+
+  const handleDirectChange = (selectedItem) => {
+    if (selectedItem !== null) {
+      setDirections(false);
+      setSelectDirection(selectedItem);
+    } else {
+      setPropertyShow(false);
+      setDirections(true);
+      setSelectDirection(selectedItem);
+    }
+  };
   const handleSourceApplicationChange = (selectedItem) => {
-    // setSelectDirection('');
     setEnumRows([]);
     setSourceProperty('');
     setTargetProperty('');
     setNormalRows([]);
     setSourceResourceType('');
-    setPropertyShow(false);
     setSourceProjectID('');
     setSourceResourceList([]);
     setTargetProjectID('');
@@ -147,8 +147,6 @@ const SynchronizationConfig = () => {
     setEnumRows([]);
     setNormalRows([]);
     setTargetResourceType('');
-    setPropertyShow(false);
-    setDisabledDropdown(false);
     setTargetProjectID('');
     setTargetProject('');
     setTargetProjectList([]);
@@ -159,16 +157,12 @@ const SynchronizationConfig = () => {
     closeExternalAppResetRequest();
     setTargetApplication(selectedItem);
   };
-  const handleTargetWorkspace = (selectedItem) => {
-    setTargetWorkspace(selectedItem);
-  };
   const handleTargetProject = (selectedItem) => {
     setSourceProperty('');
     setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
     setTargetResourceType('');
-    setPropertyShow(false);
     setTargetProject('');
     setTargetProjectID('');
     setTargetResourceList([]);
@@ -186,7 +180,6 @@ const SynchronizationConfig = () => {
     setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
-    setPropertyShow(false);
     setSourceProjectID('');
     setSourceProject('');
     setSourceResourceList([]);
@@ -204,7 +197,8 @@ const SynchronizationConfig = () => {
     setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
-    setPropertyShow(false);
+    setDefaultProperty('');
+    setPropertyShow(true);
     setTargetResourceType(selectedItem);
   };
   const handleSourceResourceTypeChange = (selectedItem) => {
@@ -212,33 +206,9 @@ const SynchronizationConfig = () => {
     setTargetProperty('');
     setEnumRows([]);
     setNormalRows([]);
-    setPropertyShow(false);
     setSourceResourceType(selectedItem);
   };
-  const handleDirectChange = (selectedItem) => {
-    setPropertyShow(false);
-    console.log(selectedItem);
-    setSelectDirection(selectedItem);
-  };
-  const handleCreateProject = () => {
-    setSourceProperty('');
-    setTargetProperty('');
-    setEnumRows([]);
-    setNormalRows([]);
-    setPropertyShow(false);
-    setDisabledDropdown(!disabledDropdown);
-    setTargetProjectList([]);
-    setTargetProjectID('');
-    setTargetProject('');
-    setTargetResourceType('');
-  };
-  const handleShowProperty = () => {
-    setSourceProperty('');
-    setTargetProperty('');
-    setEnumRows([]);
-    setNormalRows([]);
-    setPropertyShow(!propertyShow);
-  };
+
   useEffect(() => {
     // prettier-ignorec
     switch (sourceApplication?.type) {
@@ -349,7 +319,7 @@ const SynchronizationConfig = () => {
           setTargetProjectLoading(false);
         });
     }
-  }, [targetApplication, disabledDropdown, restartExternalRequest]);
+  }, [targetApplication, restartExternalRequest]);
 
   useEffect(() => {
     if (sourceProjectID) {
@@ -381,13 +351,11 @@ const SynchronizationConfig = () => {
     }
   }, [sourceProjectID, sourceProject]);
   useEffect(() => {
-    if (targetProjectID || disabledDropdown) {
+    if (targetProjectID) {
       setTargetResourceTypeLoading(true);
       let url;
-      if (targetApplication?.type === 'codebeamer' && !disabledDropdown) {
+      if (targetApplication?.type === 'codebeamer') {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_types/${targetProjectID}?application_id=${targetApplication?.id}`;
-      } else if (disabledDropdown) {
-        url = `${thirdApiURL}/${targetApplication?.type}/resource_types?application_id=${targetApplication?.id}`;
       } else {
         url = `${thirdApiURL}/${targetApplication?.type}/resource_types`;
       }
@@ -408,7 +376,7 @@ const SynchronizationConfig = () => {
           setTargetResourceTypeLoading(false);
         });
     }
-  }, [targetProjectID, disabledDropdown, targetProject]);
+  }, [targetProjectID, targetProject]);
   // for getting resource Properties
   useEffect(() => {
     if (sourceResourceType && sourceProject) {
@@ -465,6 +433,28 @@ const SynchronizationConfig = () => {
         });
     }
   }, [targetResourceType, restartExternalRequest]);
+  // for getting default property mapping
+  useEffect(() => {
+    if (targetResourceType) {
+      let url;
+      url = `${apiURL}/${authCtx?.organization_id}/synchronization/property_mappings/?source_application_type=${sourceApplication?.type}&target_application_type=${targetApplication?.type}`;
+      fetch(url, {
+        headers: {
+          Authorization: `Bearer ${authCtx.token}`,
+        },
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            handleResponse(response);
+          }
+        })
+        .then((data) => {
+          setDefaultProperty(data);
+        });
+    }
+  }, [targetResourceType, sourceResourceType, restartExternalRequest]);
   const handleMakeMigration = async (value) => {
     setSubmitLoading(true);
     const body = {
@@ -479,9 +469,7 @@ const SynchronizationConfig = () => {
           : sourceResourceType?.id,
       target_application_id: targetApplication ? targetApplication?.id : null,
       target_project: targetProject ? targetProject?.name : null,
-      target_workspace: targetWorkspace?.name
-        ? targetWorkspace?.name
-        : targetProject?.workspace_name
+      target_workspace: targetProject?.workspace_name
         ? targetProject?.workspace_name
         : null,
       target_resource:
@@ -493,7 +481,7 @@ const SynchronizationConfig = () => {
       link_type: 'syncedTo',
       property_mappings: normalRows ? normalRows : [],
     };
-    // console.log(JSON.stringify(body));
+
     try {
       const response = await fetch(
         `${apiURL}/${authCtx?.organization_id}/synchronization`,
@@ -517,7 +505,6 @@ const SynchronizationConfig = () => {
         setTargetProject('');
         setTargetProjectID('');
         setTargetResourceType('');
-        setDisabledDropdown(false);
         setSelectDirection('');
         setEnumRows([]);
         setNormalRows([]);
@@ -625,10 +612,7 @@ const SynchronizationConfig = () => {
                           name="application_type"
                           placeholder="Choose Direction"
                           onChange={handleDirectChange}
-                          disabled={
-                            authenticatedThirdApp || sourceResourceType ? false : true
-                          }
-                          items={sourceApplication ? direction : []}
+                          items={direction ? direction : []}
                         />
                       </FlexboxGrid.Item>
                     </FlexboxGrid>
@@ -691,13 +675,14 @@ const SynchronizationConfig = () => {
                     value={sourceApplication?.label}
                     isUpdateState={sourceApplication}
                     restartRequest={restartExternalRequest}
+                    disabled={directions}
                     isApplication={true}
                     removeApplication={[
                       'gitlab',
-                      'glideyoke',
+                      'codebeamer',
                       'dng',
                       'bitbucket',
-                      'codebeamer',
+                      'glideyoke',
                     ]}
                   />
                 </FlexboxGrid.Item>
@@ -719,7 +704,7 @@ const SynchronizationConfig = () => {
                         placeholder="Choose Project"
                         onChange={handleSourceProject}
                         isLoading={sourceProjectLoading}
-                        disabled={authenticatedThirdApp}
+                        disabled={authenticatedThirdApp || directions}
                         items={sourceProjectList?.length ? sourceProjectList : []}
                       />
                     </FlexboxGrid.Item>
@@ -743,7 +728,7 @@ const SynchronizationConfig = () => {
                           name="resource_type"
                           placeholder="Choose resource type"
                           onChange={handleSourceResourceTypeChange}
-                          disabled={authenticatedThirdApp}
+                          disabled={authenticatedThirdApp || directions}
                           isLoading={sourceResourceTypeLoading}
                           value={sourceResourceType?.name}
                           appData={sourceApplication}
@@ -806,7 +791,7 @@ const SynchronizationConfig = () => {
                     isLinkCreation={true}
                     value={targetApplication?.label}
                     isUpdateState={sourceApplication}
-                    disabled={authenticatedThirdApp || selectDirection ? false : true}
+                    disabled={sourceResourceType ? false : true}
                     isApplication={true}
                     removeApplication={[
                       sourceApplication?.type,
@@ -820,31 +805,6 @@ const SynchronizationConfig = () => {
               </FlexboxGrid>
             </FlexboxGrid.Item>
           </FlexboxGrid>
-          {disabledDropdown && targetApplication?.type === 'valispace' && (
-            <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-              <FlexboxGrid.Item colspan={4}>
-                <h5>Workspace: </h5>
-              </FlexboxGrid.Item>
-              <FlexboxGrid.Item colspan={20}>
-                <FlexboxGrid justify="end">
-                  {/* --- workspace dropdown ---   */}
-                  <FlexboxGrid.Item as={Col} colspan={20} style={{ paddingLeft: '0' }}>
-                    <CustomReactSelect
-                      name="application_type"
-                      placeholder="Choose Workspace"
-                      apiURL={`${thirdApiURL}/valispace/workspace`}
-                      apiQueryParams={`application_id=${targetApplication?.id}`}
-                      onChange={handleTargetWorkspace}
-                      value={targetWorkspace?.name}
-                      isLinkCreation={true}
-                      disabled={authenticatedThirdApp || selectDirection ? false : true}
-                      // isApplication={true}
-                    />
-                  </FlexboxGrid.Item>
-                </FlexboxGrid>
-              </FlexboxGrid.Item>
-            </FlexboxGrid>
-          )}
           {targetApplication && (
             <div>
               <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
@@ -861,7 +821,7 @@ const SynchronizationConfig = () => {
                         onChange={handleTargetProject}
                         isLoading={targetProjectLoading}
                         disabled={
-                          authenticatedThirdApp || !targetApplication || disabledDropdown
+                          authenticatedThirdApp || !targetApplication || directions
                         }
                         items={targetProjectList?.length ? targetProjectList : []}
                       />
@@ -869,21 +829,6 @@ const SynchronizationConfig = () => {
                   </FlexboxGrid>
                 </FlexboxGrid.Item>
               </FlexboxGrid>
-              {targetApplication?.type === 'jira' ||
-              targetApplication?.type === 'codebeamer' ||
-              targetApplication?.type === 'valispace' ? (
-                <div style={{ marginBottom: '15px' }}>
-                  <Checkbox
-                    value="Create New Project"
-                    checked={disabledDropdown}
-                    onChange={handleCreateProject}
-                  >
-                    Create New Project
-                  </Checkbox>
-                </div>
-              ) : (
-                ' '
-              )}
               {targetProjectID && targetApplication?.type !== 'gitlab' && (
                 <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
                   <FlexboxGrid.Item colspan={4}>
@@ -901,35 +846,7 @@ const SynchronizationConfig = () => {
                           name="glide_native_resource_type"
                           placeholder="Choose resource type"
                           onChange={handleTargetResourceTypeChange}
-                          disabled={authenticatedThirdApp}
-                          isLoading={targetResourceTypeLoading}
-                          value={targetResourceType?.name}
-                          appData={targetApplication}
-                          items={targetResourceList?.length ? targetResourceList : []}
-                        />
-                      </FlexboxGrid.Item>
-                    </FlexboxGrid>
-                  </FlexboxGrid.Item>
-                </FlexboxGrid>
-              )}
-              {disabledDropdown && (
-                <FlexboxGrid style={{ marginBottom: '15px' }} align="middle">
-                  <FlexboxGrid.Item colspan={4}>
-                    <h5>Resource: </h5>
-                  </FlexboxGrid.Item>
-                  <FlexboxGrid.Item colspan={20}>
-                    <FlexboxGrid justify="end">
-                      {/* --- Application dropdown ---   */}
-                      <FlexboxGrid.Item
-                        as={Col}
-                        colspan={20}
-                        style={{ paddingLeft: '0' }}
-                      >
-                        <UseIconSelect
-                          name="glide_native_resource_type"
-                          placeholder="Choose resource type"
-                          onChange={handleTargetResourceTypeChange}
-                          disabled={authenticatedThirdApp}
+                          disabled={authenticatedThirdApp || directions}
                           isLoading={targetResourceTypeLoading}
                           value={targetResourceType?.name}
                           appData={targetApplication}
@@ -944,54 +861,49 @@ const SynchronizationConfig = () => {
           )}
         </div>
       </div>
-      {targetResourceType && (
+      {targetResourceType && defaultProperty && (
         <div
           style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
             marginTop: '30px',
           }}
         >
-          <Checkbox
-            value="Create New Project"
-            checked={propertyShow}
-            onChange={handleShowProperty}
-          ></Checkbox>
-          <h5>Property Mapping</h5>
-        </div>
-      )}
-      {propertyShow ? (
-        <div style={{ marginTop: '30px' }}>
-          <PropertyTable
-            rows={normalRows}
-            setRows={setNormalRows}
-            source={sourceProperties}
-            target={targetProperties}
-            setSource={setSourceProperty}
-            setTarget={setTargetProperty}
-            setShowAddEnum={setShowAddEnum}
-          />
-          {sourceProperty?.datatype === 'enum' && targetProperty?.datatype === 'enum' && (
-            <div style={{ marginTop: '50px' }}>
-              <EnumValueTable
-                rows={enumRows}
-                setRows={setEnumRows}
-                source={sourceProperty}
-                target={targetProperty}
-                sourceProperty={sourceProperties}
-                TargetProperty={targetProperties}
-                setSource={setSourceProperties}
-                setTarget={setTargetProperties}
-                showAddEnum={showAddEnum}
-                addEnumId={setNormalRows}
-                normalProperty={normalRows}
+          <h5 style={{ textAlign: 'center' }}>Property Mapping</h5>
+          {propertyShow && defaultProperty ? (
+            <div style={{ marginTop: '30px' }}>
+              <PropertyTable
+                rows={normalRows}
+                setRows={setNormalRows}
+                source={sourceProperties}
+                target={targetProperties}
+                setSource={setSourceProperty}
+                setTarget={setTargetProperty}
+                setShowAddEnum={setShowAddEnum}
+                property={defaultProperty?.length ? defaultProperty : []}
+                showNotification={showNotification}
               />
+              {sourceProperty?.datatype === 'enum' &&
+                targetProperty?.datatype === 'enum' && (
+                  <div style={{ marginTop: '50px' }}>
+                    <EnumValueTable
+                      rows={enumRows}
+                      setRows={setEnumRows}
+                      source={sourceProperty}
+                      target={targetProperty}
+                      sourceProperty={sourceProperties}
+                      TargetProperty={targetProperties}
+                      setSource={setSourceProperties}
+                      setTarget={setTargetProperties}
+                      showAddEnum={showAddEnum}
+                      addEnumId={setNormalRows}
+                      normalProperty={normalRows}
+                    />
+                  </div>
+                )}
             </div>
+          ) : (
+            ''
           )}
         </div>
-      ) : (
-        ''
       )}
       <div style={{ marginTop: '40px' }}>
         {authenticatedThirdApp ? (
@@ -1020,12 +932,16 @@ const SynchronizationConfig = () => {
               <Button appearance="ghost" onClick={handleCancel}>
                 Cancel
               </Button>
-              <Button appearance="ghost" onClick={() => handleMakeMigration(false)}>
+              <Button
+                appearance="ghost"
+                disabled={!targetResourceType || directions}
+                onClick={() => handleMakeMigration(false)}
+              >
                 Save
               </Button>
               <Button
                 appearance="primary"
-                disabled={!targetResourceType}
+                disabled={!targetResourceType || directions}
                 onClick={() => handleMakeMigration(true)}
               >
                 Save & Run

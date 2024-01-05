@@ -7,6 +7,7 @@ import {
   Button,
   Divider,
   FlexboxGrid,
+  Col,
   Form,
   Message,
   Nav,
@@ -15,7 +16,7 @@ import {
   toaster,
 } from 'rsuite';
 import TextField from '../AdminDasComponents/TextField';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import AuthContext from '../../Store/Auth-Context';
 import fetchAPIRequest from '../../apiRequests/apiRequest';
 import UseLoader from '../Shared/UseLoader';
@@ -27,8 +28,6 @@ const {
   leftContainer,
   imageContainer,
   infoStyle,
-
-  //------------//
   rightContainer,
   navBarStyle,
   saveButton,
@@ -46,6 +45,7 @@ const confirmRule = (value, data) => {
 const ruleMessage = 'Password should include at least 5 characters';
 const requiredMessage = 'This field is required';
 const confirmMessage = 'The two passwords do not match';
+
 const userModel = Schema.Model({
   first_name: StringType().isRequired(requiredMessage),
   last_name: StringType().isRequired(requiredMessage),
@@ -71,16 +71,41 @@ const UserProfile = () => {
   const passwordRef = useRef();
   const authCtx = useContext(AuthContext);
   const userInfo = jwt_decode(authCtx?.token);
+
+  const { data: userData, refetch: refetchUserData } = useQuery(
+    ['userProfile'],
+    async () => {
+      const res = await fetchAPIRequest({
+        urlPath: `user/${authCtx.user_id}`,
+        token: authCtx.token,
+        method: 'GET',
+        showNotification: showNotification,
+      });
+      return res;
+    },
+  );
+
   const [userFormValue, setUserFormValue] = useState({
-    first_name: userInfo?.given_name ? userInfo?.given_name : '',
-    last_name: userInfo?.family_name ? userInfo?.family_name : '',
-    username: userInfo?.preferred_username ? userInfo?.preferred_username : '',
-    email: userInfo?.email ? userInfo?.email : '',
+    first_name: userInfo?.given_name ? userInfo.given_name : '',
+    last_name: userInfo?.family_name ? userInfo.family_name : '',
+    username: userInfo?.preferred_username ? userInfo.preferred_username : '',
+    email: userInfo?.email ? userInfo.email : '',
   });
   const [passwordFormValue, setPasswordFormValue] = useState({
     new_password: '',
     new_password_confirm: '',
   });
+
+  useEffect(() => {
+    setUserFormValue({
+      ...userFormValue,
+      first_name: userData?.data ? userData.data.first_name : userInfo?.given_name,
+      last_name: userData?.data ? userData.data.last_name : userInfo?.family_name,
+      username: userData?.data ? userData.data.username : userInfo?.preferred_username,
+      email: userData?.data ? userData.data.email : userInfo.email,
+      projects: userData?.data ? userData.data.projects : [],
+    });
+  }, [userData]);
 
   useEffect(() => {
     dispatch(handleCurrPageTitle('Profile'));
@@ -98,21 +123,32 @@ const UserProfile = () => {
   };
 
   // update user info using react query
-  const { isLoading: updateUserLoading, mutate: updateUserMutate } = useMutation(
-    () =>
-      fetchAPIRequest({
-        urlPath: `user/${authCtx?.user_id}`,
-        token: authCtx.token,
-        method: 'PUT',
-        body: { ...userFormValue, enabled: true },
-        showNotification: showNotification,
-      }),
+  //prettier-ignore
+  const { isLoading: updateUserLoading, mutate: updateUserMutate } = useMutation(() => {
+    let organization_id = '';
+    if (Array.isArray(authCtx?.organization_id)) {
+      organization_id = authCtx?.organization_id[0];
+    } else {
+      organization_id = authCtx?.organization_id;
+    }
+    fetchAPIRequest({
+      urlPath: `user/${authCtx?.user_id}`,
+      token: authCtx.token,
+      method: 'PUT',
+      body: {
+        ...userFormValue,
+        organization_id: organization_id,
+        enabled: true,
+      },
+      showNotification: showNotification,
+    }),
     {
       onSuccess: (value) => {
+        refetchUserData();
         showNotification(value?.status, value?.message);
       },
-    },
-  );
+    };
+  });
 
   // update password using react query
   const { isLoading: updatePasswordLoading, mutate: updatePasswordMutate } = useMutation(
@@ -136,14 +172,12 @@ const UserProfile = () => {
     // submit user info
     if (navKey === 'user') {
       if (!profileRef.current.check()) {
-        console.log(formError);
         return;
       }
       updateUserMutate();
       // submit update password
     } else if (navKey === 'password') {
       if (!passwordRef.current.check()) {
-        console.log(passwordError);
         return;
       }
       updatePasswordMutate();
@@ -159,8 +193,15 @@ const UserProfile = () => {
         {/* --- Left Section ---  */}
         <div className={leftContainer}>
           <div className={imageContainer}>
-            <img src="./default_avatar.jpg" alt={userInfo?.preferred_username} />
-            <h5>{userInfo?.name ? userInfo?.name : 'First Name Last Name'}</h5>
+            <img
+              src={window.location.origin + '/default_avatar.png'}
+              alt={userInfo?.preferred_username}
+            />
+            <h5>
+              {userData?.data
+                ? userData?.data?.first_name + ' ' + userData?.data?.last_name
+                : userInfo?.name}
+            </h5>
             <Tag color={'orange'}>
               <p>{authCtx?.user ? authCtx?.user?.role : 'User role'}</p>
             </Tag>
@@ -170,19 +211,19 @@ const UserProfile = () => {
           <Divider style={{ marginTop: '0' }} />
           <p className={infoStyle}>
             <span>First Name: </span>
-            {userInfo?.given_name}
+            {userData?.data ? userData?.data?.first_name : userInfo?.given_name}
           </p>
           <p className={infoStyle}>
             <span>Last Name: </span>
-            {userInfo?.family_name}
+            {userData?.data ? userData?.data?.last_name : userInfo?.family_name}
           </p>
           <p className={infoStyle}>
             <span>Username: </span>
-            {userInfo?.preferred_username}
+            {userData?.data ? userData?.data?.username : userInfo?.preferred_username}
           </p>
           <p className={infoStyle}>
             <span>Email: </span>
-            {userInfo?.email}
+            {userData?.data ? userData?.data?.email : userInfo?.email}
           </p>
           <p className={infoStyle}>
             <span>Status: </span>active
@@ -199,14 +240,14 @@ const UserProfile = () => {
                 color: navKey === 'user' ? activeColor : '',
               }}
             >
-              <h5>Update user info</h5>
+              <h5>Edit Profile Details</h5>
             </Nav.Item>
             <Nav.Item
               active={navKey === 'password'}
               eventKey="password"
               style={{ color: navKey === 'password' ? activeColor : '' }}
             >
-              <h5>Change password</h5>
+              <h5>Change Password</h5>
             </Nav.Item>
           </Nav>
 
@@ -222,28 +263,45 @@ const UserProfile = () => {
               data-cy="profile-form"
             >
               <FlexboxGrid justify="space-between">
-                <FlexboxGrid.Item colspan={11} style={{ marginBottom: '30px' }}>
+                <FlexboxGrid.Item
+                  as={Col}
+                  colspan={24}
+                  md={12}
+                  style={{ marginBottom: '25px' }}
+                >
                   <TextField
                     name="first_name"
                     label="First Name"
                     reqText="First name is required"
+                    error={formError.first_name}
                   />
                 </FlexboxGrid.Item>
 
-                <FlexboxGrid.Item colspan={11} style={{ marginBottom: '30px' }}>
+                <FlexboxGrid.Item
+                  as={Col}
+                  colspan={24}
+                  md={12}
+                  style={{ marginBottom: '25px' }}
+                >
                   <TextField
                     name="last_name"
                     label="Last Name"
                     reqText="Last name is required"
+                    error={formError.last_name}
                   />
                 </FlexboxGrid.Item>
 
-                <FlexboxGrid.Item colspan={24} style={{ marginBottom: '30px' }}>
-                  <TextField name="username" label="Username" />
+                <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
+                  <TextField name="username" label="Username" disabled />
                 </FlexboxGrid.Item>
 
-                <FlexboxGrid.Item colspan={24} style={{ marginBottom: '30px' }}>
-                  <TextField name="email" label="Email" type="email" />
+                <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
+                  <TextField
+                    name="email"
+                    label="Email"
+                    type="email"
+                    error={formError.email}
+                  />
                 </FlexboxGrid.Item>
               </FlexboxGrid>
 
@@ -271,19 +329,31 @@ const UserProfile = () => {
               model={passwordModel}
             >
               <FlexboxGrid justify="space-between">
-                <FlexboxGrid.Item colspan={11} style={{ marginBottom: '30px' }}>
+                <FlexboxGrid.Item
+                  as={Col}
+                  colspan={24}
+                  md={12}
+                  style={{ marginBottom: '25px' }}
+                >
                   <PasswordField
                     name="new_password"
                     label="New Password"
                     type="password"
+                    error={passwordError.new_password}
                     reqText="New password is required"
                   />
                 </FlexboxGrid.Item>
 
-                <FlexboxGrid.Item colspan={11} style={{ marginBottom: '30px' }}>
+                <FlexboxGrid.Item
+                  as={Col}
+                  colspan={24}
+                  md={12}
+                  style={{ marginBottom: '25px' }}
+                >
                   <PasswordField
                     name="new_password_confirm"
                     label="Confirm Password"
+                    error={passwordError.new_password_confirm}
                     type="password"
                     reqText="Confirm password is required"
                   />

@@ -104,6 +104,12 @@ const AddUser = ({
     else if (updateLoading) setCreateUpdateLoading(updateLoading);
   }, [createLoading, updateLoading]);
 
+  useEffect(() => {
+    if (!formValue?.organization_id) {
+      setFormValue({ ...formValue, organization_id: Number(authCtx?.organization_id) });
+    }
+  }, [formValue]);
+
   // handle create and update form submit
   const handleSubmit = () => {
     if (!userFormRef.current.check()) {
@@ -132,7 +138,7 @@ const AddUser = ({
         formValue={formValue}
         model={model}
       >
-        <FlexboxGrid justify="space-between" style={{ marginBottom: '25px' }}>
+        <FlexboxGrid justify="space-between">
           <FlexboxGrid.Item colspan={11}>
             <TextField
               name="first_name"
@@ -149,11 +155,16 @@ const AddUser = ({
             />
           </FlexboxGrid.Item>
 
-          <FlexboxGrid.Item colspan={24} style={{ margin: '25px 0' }}>
-            <TextField name="username" label="User name" reqText="Username is required" />
+          <FlexboxGrid.Item colspan={11} style={{ margin: '25px 0' }}>
+            <TextField
+              name="username"
+              label="Username"
+              reqText="Username is required"
+              {...(isAdminEditing && { disabled: true })}
+            />
           </FlexboxGrid.Item>
 
-          <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
+          <FlexboxGrid.Item colspan={11} style={{ margin: '25px 0' }}>
             <TextField name="email" label="Email" reqText="Email is required" />
           </FlexboxGrid.Item>
 

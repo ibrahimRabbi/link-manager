@@ -1,180 +1,78 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faArrowUp,
-  faBug,
-  faCode,
-  faCodeCompare,
-  faCube,
-  faFileCircleCheck,
-  faFileLines,
-  faFlask,
-  faListCheck,
-  faPlus,
-  faRocket,
-  faSquareCheck,
-  faVialCircleCheck,
-  faVials,
-  faVialVirus,
-} from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
+import { FaPlus } from 'react-icons/fa';
+import {
+  FaSquareCheck,
+  FaListCheck,
+  FaFileCircleCheck,
+  FaBug,
+  FaArrowUp,
+  FaCode,
+  FaRocket,
+  FaFileLines,
+  FaCodeCompare,
+  FaVials,
+  FaFlask,
+  FaVialVirus,
+  FaVialCircleCheck,
+  FaCube,
+} from 'react-icons/fa6';
 
 const gitlabIcon = {
-  Source_code: (
-    <FontAwesomeIcon icon={faFileLines} style={{ color: '#fc722e', fontSize: '20px' }} />
-  ),
-  Block_code: (
-    <FontAwesomeIcon icon={faCode} style={{ color: '#fc7238', fontSize: '20px' }} />
-  ),
+  Source_code: <FaFileLines style={{ color: '#fc722e', fontSize: '20px' }} />,
+  Block_code: <FaCode style={{ color: '#fc7238', fontSize: '20px' }} />,
 };
 
 const bitbucketIcon = {
-  Source_code: (
-    <FontAwesomeIcon icon={faFileLines} style={{ color: '#2684ff', fontSize: '20px' }} />
-  ),
-  Block_code: (
-    <FontAwesomeIcon icon={faCode} style={{ color: '#2684ff', fontSize: '20px' }} />
-  ),
+  Source_code: <FaFileLines style={{ color: '#2684ff', fontSize: '20px' }} />,
+  Block_code: <FaCode style={{ color: '#2684ff', fontSize: '20px' }} />,
 };
 
 const githubIcon = {
-  Source_code: (
-    <FontAwesomeIcon icon={faFileLines} style={{ color: '#24292f', fontSize: '20px' }} />
-  ),
-  Block_code: (
-    <FontAwesomeIcon icon={faCode} style={{ color: '#24292f', fontSize: '20px' }} />
-  ),
+  Source_code: <FaFileLines style={{ color: '#24292f', fontSize: '20px' }} />,
+  Block_code: <FaCode style={{ color: '#24292f', fontSize: '20px' }} />,
 };
 
 const jiraIcon = {
-  Task: (
-    <FontAwesomeIcon
-      icon={faSquareCheck}
-      style={{ color: '#2185ff', fontSize: '20px' }}
-    />
-  ),
-  subT: (
-    <FontAwesomeIcon
-      icon={faSquareCheck}
-      style={{ color: '#2185ff', fontSize: '20px' }}
-    />
-  ),
-  Epic: (
-    <FontAwesomeIcon icon={faListCheck} style={{ color: '#2185ff', fontSize: '20px' }} />
-  ),
-  UserStory: (
-    <FontAwesomeIcon
-      icon={faFileCircleCheck}
-      style={{ color: '#2185ff', fontSize: '20px' }}
-    />
-  ),
-  Issues: <FontAwesomeIcon icon={faBug} style={{ color: '#e5493a', fontSize: '20px' }} />,
-  Improvement: (
-    <FontAwesomeIcon icon={faArrowUp} style={{ color: '#2185ff', fontSize: '20px' }} />
-  ),
-  New_feature: (
-    <FontAwesomeIcon icon={faPlus} style={{ color: '#2185ff', fontSize: '20px' }} />
-  ),
+  Task: <aSquareCheck style={{ color: '#2185ff', fontSize: '20px' }} />,
+  subT: <FaSquareCheck style={{ color: '#2185ff', fontSize: '20px' }} />,
+  Epic: <FaListCheck style={{ color: '#2185ff', fontSize: '20px' }} />,
+  UserStory: <FaFileCircleCheck style={{ color: '#2185ff', fontSize: '20px' }} />,
+  Issues: <FaBug style={{ color: '#e5493a', fontSize: '20px' }} />,
+  Improvement: <FaArrowUp style={{ color: '#2185ff', fontSize: '20px' }} />,
+  New_feature: <FaPlus style={{ color: '#2185ff', fontSize: '20px' }} />,
 };
 const codebeamerIcon = {
-  Releases: (
-    <FontAwesomeIcon icon={faRocket} style={{ color: '#20a99d', fontSize: '20px' }} />
-  ),
-  Documents: (
-    <FontAwesomeIcon icon={faFileLines} style={{ color: '#20a99c', fontSize: '20px' }} />
-  ),
+  Releases: <FaRocket style={{ color: '#20a99d', fontSize: '20px' }} />,
+  Documents: <FaFileLines style={{ color: '#20a99c', fontSize: '20px' }} />,
   requirement_specification: (
-    <FontAwesomeIcon
-      icon={faFileCircleCheck}
-      style={{ color: '#20a99c', fontSize: '20px' }}
-    />
+    <FaFileCircleCheck style={{ color: '#20a99c', fontSize: '20px' }} />
   ),
-  Hardware_tasks: (
-    <FontAwesomeIcon
-      icon={faSquareCheck}
-      style={{ color: '#20a99d', fontSize: '20px' }}
-    />
-  ),
-  Software_tasks: (
-    <FontAwesomeIcon
-      icon={faSquareCheck}
-      style={{ color: '#20a99d', fontSize: '20px' }}
-    />
-  ),
-  Change_requests: (
-    <FontAwesomeIcon
-      icon={faCodeCompare}
-      style={{ color: '#20a99d', fontSize: '20px' }}
-    />
-  ),
-  Risks: <FontAwesomeIcon icon={faBug} style={{ color: '#e5493a', fontSize: '20px' }} />,
-  Test_cases: (
-    <FontAwesomeIcon icon={faVials} style={{ color: '#20a99e', fontSize: '20px' }} />
-  ),
-  Test_sets: (
-    <FontAwesomeIcon icon={faFlask} style={{ color: '#20a99d', fontSize: '20px' }} />
-  ),
-  Test_configuration: (
-    <FontAwesomeIcon icon={faVialVirus} style={{ color: '#20a99d', fontSize: '20px' }} />
-  ),
-  Bugs: <FontAwesomeIcon icon={faBug} style={{ color: '#e5493a', fontSize: '20px' }} />,
-  Epics: (
-    <FontAwesomeIcon icon={faListCheck} style={{ color: '#20a99c', fontSize: '20px' }} />
-  ),
-  Test_Configurations: (
-    <FontAwesomeIcon icon={faVialVirus} style={{ color: '#20a99d', fontSize: '20px' }} />
-  ),
-  Timekeeping: (
-    <FontAwesomeIcon
-      icon={faSquareCheck}
-      style={{ color: '#20a99c', fontSize: '20px' }}
-    />
-  ),
-  User_Stories: (
-    <FontAwesomeIcon
-      icon={faFileCircleCheck}
-      style={{ color: '#20a99c', fontSize: '20px' }}
-    />
-  ),
-  Test_Runs: (
-    <FontAwesomeIcon
-      icon={faVialCircleCheck}
-      style={{ color: '#20a99d', fontSize: '20px' }}
-    />
-  ),
+  Hardware_tasks: <FaSquareCheck style={{ color: '#20a99d', fontSize: '20px' }} />,
+  Software_tasks: <FaSquareCheck style={{ color: '#20a99d', fontSize: '20px' }} />,
+  Change_requests: <FaCodeCompare style={{ color: '#20a99d', fontSize: '20px' }} />,
+  Risks: <FaBug style={{ color: '#e5493a', fontSize: '20px' }} />,
+  Test_cases: <FaVials style={{ color: '#20a99e', fontSize: '20px' }} />,
+  Test_sets: <FaFlask style={{ color: '#20a99d', fontSize: '20px' }} />,
+  Test_configuration: <FaVialVirus style={{ color: '#20a99d', fontSize: '20px' }} />,
+  Bugs: <FaBug style={{ color: '#e5493a', fontSize: '20px' }} />,
+  Epics: <FaListCheck style={{ color: '#20a99c', fontSize: '20px' }} />,
+  Test_Configurations: <FaVialVirus style={{ color: '#20a99d', fontSize: '20px' }} />,
+  Timekeeping: <FaSquareCheck style={{ color: '#20a99c', fontSize: '20px' }} />,
+  User_Stories: <FaFileCircleCheck style={{ color: '#20a99c', fontSize: '20px' }} />,
+  Test_Runs: <FaVialCircleCheck style={{ color: '#20a99d', fontSize: '20px' }} />,
 };
 const glideYokeIcon = {
-  Physical_parts: (
-    <FontAwesomeIcon icon={faCube} style={{ color: '#8b8d92', fontSize: '20px' }} />
-  ),
-  Issues: <FontAwesomeIcon icon={faBug} style={{ color: '#e5493a', fontSize: '20px' }} />,
-  Document: (
-    <FontAwesomeIcon icon={faFileLines} style={{ color: '#8b8d92', fontSize: '20px' }} />
-  ),
-  Change_requests: (
-    <FontAwesomeIcon
-      icon={faCodeCompare}
-      style={{ color: '#8b8d92', fontSize: '20px' }}
-    />
-  ),
+  Physical_parts: <FaCube style={{ color: '#8b8d92', fontSize: '20px' }} />,
+  Issues: <FaBug style={{ color: '#e5493a', fontSize: '20px' }} />,
+  Document: <FaFileLines style={{ color: '#8b8d92', fontSize: '20px' }} />,
+  Change_requests: <FaCodeCompare style={{ color: '#8b8d92', fontSize: '20px' }} />,
 };
 const dngIcon = {
-  Requirement: (
-    <FontAwesomeIcon
-      icon={faFileCircleCheck}
-      style={{ color: '#367aa0', fontSize: '20px' }}
-    />
-  ),
-  Requirement_collection: (
-    <FontAwesomeIcon icon={faListCheck} style={{ color: '#367ba1', fontSize: '20px' }} />
-  ),
+  Requirement: <FaFileCircleCheck style={{ color: '#367aa0', fontSize: '20px' }} />,
+  Requirement_collection: <FaListCheck style={{ color: '#367ba1', fontSize: '20px' }} />,
 };
 const valispaceIcon = {
-  Requirement: (
-    <FontAwesomeIcon
-      icon={faFileCircleCheck}
-      style={{ color: '#f1b96d', fontSize: '20px' }}
-    />
-  ),
+  Requirement: <FaFileCircleCheck style={{ color: '#f1b96d', fontSize: '20px' }} />,
 };
 
 export const getIcon = (applicationType, resourceType) => {

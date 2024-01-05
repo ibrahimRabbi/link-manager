@@ -19,14 +19,11 @@ import CustomReactSelect from '../../Shared/Dropdowns/CustomReactSelect';
 import AlertModal from '../../Shared/AlertModal';
 import { Mixpanel } from '../../../../Mixpanel';
 import jwt_decode from 'jwt-decode';
+import { useLocation, useNavigate } from 'react-router-dom';
 const lmApiUrl = import.meta.env.VITE_LM_REST_API_URL;
 
 // demo data
 const headerData = [
-  {
-    header: 'ID',
-    key: 'id',
-  },
   {
     header: 'Projects',
     key: 'name',
@@ -41,12 +38,15 @@ const { StringType, NumberType, ArrayType } = Schema.Types;
 
 const model = Schema.Model({
   name: StringType().isRequired('This field is required.'),
-  description: StringType().isRequired('This field is required.'),
+  description: StringType(),
   organization_id: NumberType(),
   users: ArrayType(),
 });
 
 const Projects = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const { refreshData, isAdminEditing } = useSelector((state) => state.nav);
   const [currPage, setCurrPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -60,7 +60,6 @@ const Projects = () => {
   const [formValue, setFormValue] = useState({
     name: '',
     description: '',
-    organization_id: '',
     users: [],
   });
   const [open, setOpen] = useState(false);
@@ -74,6 +73,9 @@ const Projects = () => {
       toaster.push(messages, { placement: 'bottomCenter', duration: 5000 });
     }
   };
+  const organization = authCtx?.organization_name
+    ? `/${authCtx?.organization_name?.toLowerCase()}`
+    : '';
 
   // get projects using react-query
   const {
@@ -92,9 +94,11 @@ const Projects = () => {
       }),
     {
       onSuccess: (allProjects) => {
-        for (let i = 0; i < allProjects.items.length; i++) {
-          allProjects.items[i]['organization_name'] =
-            allProjects.items[i].organization.name;
+        if (allProjects && allProjects?.items?.length) {
+          for (let i = 0; i < allProjects.items.length; i++) {
+            allProjects.items[i]['organization_name'] =
+              allProjects.items[i].organization.name;
+          }
         }
       },
     },
@@ -220,7 +224,6 @@ const Projects = () => {
       setFormValue({
         name: '',
         description: '',
-        organization_id: '',
         users: [],
       });
     }, 500);
@@ -233,10 +236,15 @@ const Projects = () => {
     refetchProjects();
   }, [createSuccess, updateSuccess, deleteSuccess, pageSize, currPage, refreshData]);
 
+  useEffect(() => {
+    if (allProjects && allProjects?.items?.length === 0) {
+      handleAddNew();
+    }
+  }, [allProjects]);
+
   // handle open add user modal
   const handleAddNew = () => {
-    handleResetForm();
-    dispatch(handleIsAddNewModal(true));
+    navigate(`${organization}/admin/project/new`);
   };
 
   // handle delete project
@@ -267,11 +275,21 @@ const Projects = () => {
     setFormValue({
       name: data?.name,
       description: data?.description,
-      organization_id: data?.organization_id,
       users: mappedUserList,
     });
 
     dispatch(handleIsAddNewModal(true));
+  };
+
+  const getProjectPath = (url) => {
+    let newProjectPath = '';
+    if (url.includes('projects')) {
+      newProjectPath = url.replace('projects', 'project');
+    } else {
+      newProjectPath = url + '/project';
+    }
+    newProjectPath = newProjectPath.replace('/admin', '');
+    return newProjectPath;
   };
 
   // send props in the batch action table
@@ -287,6 +305,7 @@ const Projects = () => {
     totalItems: allProjects?.total_items,
     totalPages: allProjects?.total_pages,
     pageSize,
+    showResourceLink: getProjectPath(location.pathname),
     page: allProjects?.page,
     inpPlaceholder: 'Search Project',
   };
@@ -306,22 +325,7 @@ const Projects = () => {
           formValue={formValue}
           model={model}
         >
-          <FlexboxGrid.Item colspan={24}>
-            <SelectField
-              name="organization_id"
-              label="Organization"
-              placeholder="Select Organization"
-              accepter={CustomReactSelect}
-              apiURL={`${lmApiUrl}/organization`}
-              error={formError.organization_id}
-              disabled={true}
-              reqText="Organization Id is required"
-              value={Number(authCtx?.organization_id)}
-              defaultValue={Number(authCtx?.organization_id)}
-            />
-          </FlexboxGrid.Item>
-
-          <FlexboxGrid.Item colspan={24} style={{ margin: '25px 0' }}>
+          <FlexboxGrid.Item colspan={24} style={{ marginBottom: '25px' }}>
             <TextField name="name" label="Name" reqText="Name is required" />
           </FlexboxGrid.Item>
 
@@ -334,6 +338,7 @@ const Projects = () => {
               apiURL={`${lmApiUrl}/user`}
               error={formError.users}
               isMulti={true}
+              closeMenuOnSelect={false}
             />
           </FlexboxGrid.Item>
 
